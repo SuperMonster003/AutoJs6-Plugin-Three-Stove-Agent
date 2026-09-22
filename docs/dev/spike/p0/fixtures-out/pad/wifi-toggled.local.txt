@@ -1,0 +1,22 @@
+screen: wifi
+package: com.android.settings
+activity: android.widget.FrameLayout
+nodes: 31
+  #n1 FrameLayout id=action_bar_container (1305,95) clickable
+        #n4 LinearLayout (1304,125) clickable
+          #n5 TextView text="WLAN" id=action_bar_title (1304,125)
+      #n6 ImageView (1706,125) clickable,disabled
+                #n14 ViewGroup (1305,267) clickable,focused
+                  #n15 TextView text="WLAN" id=title (950,267)
+                    #n17 CheckBox id=checkbox (1658,266) checked
+                #n18 TextView text="可用 WLAN" id=title (1305,340)
+                #n19 ViewGroup (1305,420) clickable
+                  #n20 TextView text="Xiaomi_5G" id=title (960,405)
+                  #n21 TextView text="已连接" id=summary (940,450)
+                #n22 ViewGroup (1305,530) clickable
+                  #n23 TextView text="Neighbor-B" id=title (1010,530)
+                #n24 ViewGroup (1305,398) clickable
+                  #n25 TextView text="网络加速" id=title (974,398)
+                #n27 TextView text="更多设置" id=title (1305,535)
+                #n28 ViewGroup (1305,644) clickable
+                  #n29 TextView text="高级设置" id=title (974,644)

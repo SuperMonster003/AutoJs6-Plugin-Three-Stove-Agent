@@ -1,0 +1,22 @@
+screen: wifi
+package: com.android.settings
+activity: com.android.settings/.Settings$WifiSettingsActivity
+nodes: 18
+#n0 FrameLayout id=content (360,616) [0,48,720,1184]
+  #n1 LinearLayout id=content_parent (360,616) [0,48,720,1184]
+    #n2 ViewGroup id=action_bar (360,104) [0,48,720,160]
+      #n3 ImageButton desc="Navigate up" (56,104) [0,48,112,160] clickable
+      #n4 TextView text="Wi‑Fi" (189,104) [144,77,234,131]
+      #n5 TextView desc="Search settings" (672,104) [624,56,720,152] clickable
+    #n6 FrameLayout id=content_frame (360,672) [0,160,720,1184]
+      #n7 LinearLayout id=switch_bar (360,216) [0,160,720,272]
+        #n8 TextView text="Use Wi‑Fi" id=switch_text (369,215) [144,191,594,240]
+        #n9 Switch text="OFF" id=switch_widget (641,216) [594,168,688,264] clickable,unchecked
+      #n10 FrameLayout id=main_content (360,728) [0,272,720,1184]
+        #n11 LinearLayout id=container_material (360,728) [0,272,720,1184]
+          #n12 FrameLayout id=pinned_header (360,275) [0,272,720,278]
+            #n13 ProgressBar id=progress_bar_animation (360,275) [0,272,720,278]
+            #n14 View id=progress_bar_background (360,275) [0,272,720,278]
+          #n15 FrameLayout id=list_container (360,731) [0,278,720,1184]
+            #n16 RecyclerView id=list (360,731) [0,278,720,1184] focused
+              #n17 TextView text="To see available networks, turn Wi-Fi on." id=empty (360,500) [64,470,656,530]

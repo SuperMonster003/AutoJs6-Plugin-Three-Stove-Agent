@@ -1,0 +1,11 @@
+screen: wifi
+package: com.android.settings
+activity: com.android.settings/.Settings$WifiSettingsActivity
+nodes: 18
+      #n3 ImageButton desc="Navigate up" (56,104) clickable
+      #n4 TextView text="Wi‑Fi" (189,104)
+      #n5 TextView desc="Search settings" (672,104) clickable
+        #n8 TextView text="Use Wi‑Fi" id=switch_text (369,215)
+        #n9 Switch text="OFF" id=switch_widget (641,216) clickable,unchecked
+            #n16 RecyclerView id=list (360,731) focused
+              #n17 TextView text="To see available networks, turn Wi-Fi on." id=empty (360,500)

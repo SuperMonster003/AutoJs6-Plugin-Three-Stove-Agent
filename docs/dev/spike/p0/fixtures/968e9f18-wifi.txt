@@ -1,0 +1,29 @@
+screen: wifi
+package: com.android.settings
+activity: android.widget.FrameLayout
+nodes: 25 (walked 38)
+#n0 FrameLayout id=action_bar_overlay_layout (1305,1440) [810,0,1800,2880]
+  #n1 FrameLayout id=action_bar_container (1305,95) [810,0,1800,191] clickable
+    #n2 ViewGroup id=action_bar (1305,125) [810,60,1800,191]
+      #n3 FrameLayout id=action_bar_collapse_container (1304,125) [1211,94,1398,157]
+        #n4 LinearLayout (1304,125) [1211,94,1398,157] clickable
+          #n5 TextView text="WLAN" id=action_bar_title (1304,125) [1239,94,1370,157]
+      #n6 ImageView (1706,125) [1659,78,1753,172] clickable,disabled
+  #n7 FrameLayout id=content (1305,1535) [810,191,1800,2880]
+    #n8 LinearLayout id=content_parent (1305,1535) [810,191,1800,2880]
+      #n9 FrameLayout id=content_frame (1305,1535) [810,191,1800,2880]
+        #n10 FrameLayout id=main_content (1305,1535) [810,191,1800,2880]
+          #n11 FrameLayout id=prefs_container (1305,1535) [810,191,1800,2880]
+            #n12 ViewGroup id=list_container (1305,1535) [810,191,1800,2880]
+              #n13 RecyclerView id=recycler_view (1305,1535) [810,191,1800,2880]
+                #n14 ViewGroup (1305,267) [857,202,1753,333] clickable,focused
+                  #n15 TextView text="WLAN" id=title (950,267) [894,240,1007,294]
+                  #n16 LinearLayout id=widget_frame (1658,266) [1601,229,1716,304]
+                    #n17 CheckBox id=checkbox (1658,266) [1601,229,1716,304] unchecked
+                #n18 ViewGroup (1305,398) [857,333,1753,464] clickable
+                  #n19 TextView text="网络加速" id=title (974,398) [894,369,1054,428]
+                  #n20 ImageView id=arrow_right (1704,398) [1693,380,1716,417]
+                #n21 TextView text="更多设置" id=title (1305,535) [894,492,1716,579]
+                #n22 ViewGroup (1305,644) [857,579,1753,710] clickable
+                  #n23 TextView text="高级设置" id=title (974,644) [894,615,1054,674]
+                  #n24 ImageView id=arrow_right (1704,644) [1693,626,1716,663]

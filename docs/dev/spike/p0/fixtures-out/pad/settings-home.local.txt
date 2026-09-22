@@ -1,0 +1,48 @@
+screen: settings-home
+package: com.android.settings
+activity: com.android.settings.MiuiSettings
+nodes: 105
+            #n7 FrameLayout id=header_view (405,397) clickable,focused
+                  #n10 TextView text="搜索系统设置项" desc="搜索" id=input (458,392)
+              #n12 RecyclerView id=scroll_headers (405,1671) scrollable
+                #n13 LinearLayout (406,571) clickable
+                    #n16 TextView text="1000000000" id=title (282,547)
+                    #n17 TextView text="账号、云服务、会员权益等" id=summary (365,598) disabled
+                #n19 LinearLayout (406,721) clickable
+                    #n22 TextView text="我的设备" id=title (247,721)
+                    #n24 TextView text="新版本" id=text_right (665,721) clickable
+                #n25 LinearLayout (406,852) clickable
+                    #n28 TextView text="平板专区" id=title (247,852)
+                #n30 LinearLayout (406,1030) clickable
+                    #n33 TextView text="WLAN" id=title (223,1006)
+                    #n34 TextView text="已关闭" id=summary (216,1057)
+                #n35 LinearLayout (406,1202) clickable
+                    #n38 TextView text="蓝牙" id=title (207,1177)
+                    #n39 TextView text="已开启" id=summary (216,1231)
+                #n40 LinearLayout (406,1354) clickable
+                    #n43 TextView text="互联互通" id=title (247,1354)
+                #n45 LinearLayout (406,1485) clickable
+                    #n48 TextView text="VPN" id=title (207,1485)
+                #n50 LinearLayout (406,1616) clickable
+                    #n53 TextView text="更多连接" id=title (247,1616)
+                #n55 LinearLayout (406,1775) clickable
+                    #n58 TextView text="系统个性化" id=title (267,1775)
+                #n60 LinearLayout (406,1906) clickable
+                    #n63 TextView text="锁屏" id=title (207,1906)
+                #n65 LinearLayout (406,2037) clickable
+                    #n68 TextView text="通知与状态栏" id=title (287,2037)
+                #n70 LinearLayout (406,2168) clickable
+                    #n73 TextView text="桌面" id=title (207,2168)
+                #n75 LinearLayout (406,2299) clickable
+                    #n78 TextView text="显示与亮度" id=title (267,2299)
+                #n80 LinearLayout (406,2430) clickable
+                    #n83 TextView text="声音" id=title (207,2430)
+                #n85 LinearLayout (406,2561) clickable
+                    #n88 TextView text="手写笔与键盘" id=title (287,2561)
+                #n90 LinearLayout (406,2720) clickable
+                    #n93 TextView text="指纹、面部与密码" id=title (327,2720)
+                #n95 LinearLayout (406,2833) clickable
+                    #n98 TextView text="隐私与安全" id=title (267,2851)
+        #n100 FrameLayout id=action_bar_container (405,166) clickable
+              #n103 LinearLayout (135,254) clickable
+                #n104 TextView text="设置" id=action_bar_title_expand (135,254)

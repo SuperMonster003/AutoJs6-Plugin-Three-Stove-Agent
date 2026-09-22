@@ -1,0 +1,1 @@
+{"device":"sony","lang":"en","targets":[{"label":"sony-local-gemma4-e2b-gpu","id":"local:litertlm.ab7838cdfc8f77e54d8ca45eadceb204","timeout":300000,"compact":true,"maxTokens":400,"backend":"gpu"}]}

@@ -1,0 +1,1 @@
+{"device":"pad","lang":"zh","targets":[{"label":"pad-local-gemma4-e4b-gpu","id":"local:litertlm.0b2a8980ce155fd97673d8e820b4d29d","timeout":300000,"compact":true,"maxTokens":400,"backend":"gpu"}]}

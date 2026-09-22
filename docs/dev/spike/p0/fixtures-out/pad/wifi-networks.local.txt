@@ -1,0 +1,28 @@
+screen: wifi
+package: com.android.settings
+activity: com.android.settings/.Settings$WifiSettingsActivity
+nodes: 66
+      #n3 ImageButton desc="Navigate up" (56,104) clickable
+      #n4 TextView text="Wi‑Fi" (189,104)
+      #n5 TextView desc="Search settings" (672,104) clickable
+        #n8 TextView text="Use Wi‑Fi" id=switch_text (369,215)
+        #n9 Switch text="ON" id=switch_widget (641,216) clickable,checked
+            #n16 RecyclerView id=list (360,731) long-clickable,scrollable,focused
+              #n17 LinearLayout desc="HomeRouter_5G,Connected,Wi-Fi signal full.,Secu" (360,369) clickable
+                #n20 TextView text="HomeRouter_5G" id=title (351,350)
+                #n21 TextView text="Connected" id=summary (211,410)
+                  #n23 ImageView desc="Settings" id=settings_button_no_background (656,369)
+              #n24 LinearLayout desc="802,Wi-Fi signal full.,Secure network" (360,514) clickable,long-clickable
+                #n27 TextView text="802" id=title (171,514)
+              #n30 LinearLayout desc="HomeRouter_2.4G,Wi-Fi signal full.,Secure netwo" (360,640) clickable,long-clickable
+                #n33 TextView text="HomeRouter_2.4G" id=title (351,640)
+              #n36 LinearLayout desc="Neighbor-A,Wi-Fi signal full.,Secure network" (360,766) clickable,long-clickable
+                #n39 TextView text="Neighbor-A" id=title (251,766)
+              #n42 LinearLayout desc="Neighbor-B,Wi-Fi signal full.,Secure network" (360,873) clickable,long-clickable
+                #n45 TextView text="Neighbor-B" id=title (274,873)
+              #n48 LinearLayout desc="Neighbor-B_Wi-Fi5,Wi-Fi signal full.,Secure network" (360,980) clickable,long-clickable
+                #n51 TextView text="Neighbor-B_Wi-Fi5" id=title (326,980)
+              #n54 LinearLayout desc="Neighbor-C,Wi-Fi signal full.,Secure network" (360,1087) clickable,long-clickable
+                #n57 TextView text="Neighbor-C" id=title (194,1087)
+              #n60 LinearLayout desc="Neighbor-D,Wi-Fi signal full.,Secure network" (360,1162) clickable,long-clickable
+                #n63 TextView text="Neighbor-D" id=title (215,1178)

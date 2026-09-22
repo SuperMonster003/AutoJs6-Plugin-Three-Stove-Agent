@@ -1,0 +1,70 @@
+screen: wifi
+package: com.android.settings
+activity: com.android.settings/.Settings$WifiSettingsActivity
+nodes: 66
+#n0 FrameLayout id=content (360,616) [0,48,720,1184]
+  #n1 LinearLayout id=content_parent (360,616) [0,48,720,1184]
+    #n2 ViewGroup id=action_bar (360,104) [0,48,720,160]
+      #n3 ImageButton desc="Navigate up" (56,104) [0,48,112,160] clickable
+      #n4 TextView text="Wi‑Fi" (189,104) [144,77,234,131]
+      #n5 TextView desc="Search settings" (672,104) [624,56,720,152] clickable
+    #n6 FrameLayout id=content_frame (360,672) [0,160,720,1184]
+      #n7 LinearLayout id=switch_bar (360,216) [0,160,720,272]
+        #n8 TextView text="Use Wi‑Fi" id=switch_text (369,215) [144,191,594,240]
+        #n9 Switch text="ON" id=switch_widget (641,216) [594,168,688,264] clickable,checked
+      #n10 FrameLayout id=main_content (360,728) [0,272,720,1184]
+        #n11 LinearLayout id=container_material (360,728) [0,272,720,1184]
+          #n12 FrameLayout id=pinned_header (360,275) [0,272,720,278]
+            #n13 ProgressBar id=progress_bar_animation (360,275) [0,272,720,278]
+            #n14 View id=progress_bar_background (360,275) [0,272,720,278]
+          #n15 FrameLayout id=list_container (360,731) [0,278,720,1184]
+            #n16 RecyclerView id=list (360,731) [0,278,720,1184] long-clickable,scrollable,focused
+              #n17 LinearLayout desc="HomeRouter_5G,Connected,Wi-Fi signal full.,Secu" (360,369) [0,278,720,461] clickable
+                #n18 LinearLayout id=icon_frame (88,369) [32,337,144,401]
+                  #n19 ImageView id=icon (58,369) [32,345,84,393]
+                #n20 TextView text="HomeRouter_5G" id=title (351,350) [144,310,558,391]
+                #n21 TextView text="Connected" id=summary (211,410) [144,391,278,429]
+                #n22 LinearLayout id=widget_frame (656,369) [592,278,720,461]
+                  #n23 ImageView desc="Settings" id=settings_button_no_background (656,369) [592,278,720,461]
+              #n24 LinearLayout desc="802,Wi-Fi signal full.,Secure network" (360,514) [0,461,720,568] clickable,long-clickable
+                #n25 LinearLayout id=icon_frame (88,514) [32,482,144,546]
+                  #n26 ImageView id=icon (58,514) [32,490,84,538]
+                #n27 TextView text="802" id=title (171,514) [144,493,198,536]
+                #n28 LinearLayout id=widget_frame (656,514) [592,461,720,568]
+                  #n29 ImageView id=friction_icon (656,514) [638,496,674,532]
+              #n30 LinearLayout desc="HomeRouter_2.4G,Wi-Fi signal full.,Secure netwo" (360,640) [0,568,720,713] clickable,long-clickable
+                #n31 LinearLayout id=icon_frame (88,640) [32,608,144,672]
+                  #n32 ImageView id=icon (58,640) [32,616,84,664]
+                #n33 TextView text="HomeRouter_2.4G" id=title (351,640) [144,600,558,681]
+                #n34 LinearLayout id=widget_frame (656,640) [592,568,720,713]
+                  #n35 ImageView id=friction_icon (656,640) [638,622,674,658]
+              #n36 LinearLayout desc="Neighbor-A,Wi-Fi signal full.,Secure network" (360,766) [0,713,720,820] clickable,long-clickable
+                #n37 LinearLayout id=icon_frame (88,766) [32,734,144,798]
+                  #n38 ImageView id=icon (58,766) [32,742,84,790]
+                #n39 TextView text="Neighbor-A" id=title (251,766) [144,745,359,788]
+                #n40 LinearLayout id=widget_frame (656,766) [592,713,720,820]
+                  #n41 ImageView id=friction_icon (656,766) [638,748,674,784]
+              #n42 LinearLayout desc="Neighbor-B,Wi-Fi signal full.,Secure network" (360,873) [0,820,720,927] clickable,long-clickable
+                #n43 LinearLayout id=icon_frame (88,873) [32,841,144,905]
+                  #n44 ImageView id=icon (58,873) [32,849,84,897]
+                #n45 TextView text="Neighbor-B" id=title (274,873) [144,852,405,895]
+                #n46 LinearLayout id=widget_frame (656,873) [592,820,720,927]
+                  #n47 ImageView id=friction_icon (656,873) [638,855,674,891]
+              #n48 LinearLayout desc="Neighbor-B_Wi-Fi5,Wi-Fi signal full.,Secure network" (360,980) [0,927,720,1034] clickable,long-clickable
+                #n49 LinearLayout id=icon_frame (88,980) [32,948,144,1012]
+                  #n50 ImageView id=icon (58,980) [32,956,84,1004]
+                #n51 TextView text="Neighbor-B_Wi-Fi5" id=title (326,980) [144,959,508,1002]
+                #n52 LinearLayout id=widget_frame (656,980) [592,927,720,1034]
+                  #n53 ImageView id=friction_icon (656,980) [638,962,674,998]
+              #n54 LinearLayout desc="Neighbor-C,Wi-Fi signal full.,Secure network" (360,1087) [0,1034,720,1141] clickable,long-clickable
+                #n55 LinearLayout id=icon_frame (88,1087) [32,1055,144,1119]
+                  #n56 ImageView id=icon (58,1087) [32,1063,84,1111]
+                #n57 TextView text="Neighbor-C" id=title (194,1087) [144,1066,245,1109]
+                #n58 LinearLayout id=widget_frame (656,1087) [592,1034,720,1141]
+                  #n59 ImageView id=friction_icon (656,1087) [638,1069,674,1105]
+              #n60 LinearLayout desc="Neighbor-D,Wi-Fi signal full.,Secure network" (360,1162) [0,1141,720,1184] clickable,long-clickable
+                #n61 LinearLayout id=icon_frame (88,1173) [32,1162,144,1184]
+                  #n62 ImageView id=icon (58,1177) [32,1170,84,1184]
+                #n63 TextView text="Neighbor-D" id=title (215,1178) [144,1173,287,1184]
+                #n64 LinearLayout id=widget_frame (656,1162) [592,1141,720,1184]
+                  #n65 ImageView id=friction_icon (656,1180) [638,1176,674,1184]

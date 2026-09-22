@@ -1,0 +1,43 @@
+screen: settings-home
+package: com.android.settings
+activity: com.android.settings/.Settings
+nodes: 39
+#n0 FrameLayout id=content (360,616) [0,48,720,1184]
+  #n1 LinearLayout id=content_parent (360,616) [0,48,720,1184]
+    #n2 FrameLayout id=content_frame (360,616) [0,48,720,1184]
+      #n3 FrameLayout id=search_bar_container (360,128) [0,48,720,208]
+        #n4 FrameLayout id=search_bar (360,128) [32,80,688,176]
+          #n5 ViewGroup id=search_action_bar (360,128) [32,80,688,176] clickable
+            #n6 ImageButton desc="Navigate up" (88,128) [32,80,144,176]
+            #n7 TextView text="Search settings" id=search_action_bar_title (271,127) [160,106,382,149]
+      #n8 FrameLayout id=main_content (360,696) [0,208,720,1184]
+        #n9 RecyclerView id=dashboard_container (360,696) [0,208,720,1184] scrollable
+          #n10 LinearLayout (360,264) [0,208,720,320] clickable
+            #n11 FrameLayout id=icon_frame (96,264) [48,240,144,288]
+              #n12 ImageView id=icon (72,264) [48,240,96,288]
+            #n13 TextView text="Airplane mode is on" id=title (368,263) [144,242,592,285]
+            #n14 ImageView id=expand_indicator (664,264) [608,228,720,300]
+          #n15 LinearLayout id=dashboard_tile (360,392) [0,320,720,464] clickable
+            #n16 ImageView id=icon (72,392) [36,356,108,428]
+            #n17 TextView text="Network & internet" id=title (276,372) [144,351,408,394]
+            #n18 TextView text="Wi‑Fi, Mobile, Data usage, Hotspot" id=summary (374,413) [144,394,605,432]
+          #n19 LinearLayout id=dashboard_tile (360,536) [0,464,720,608] clickable
+            #n20 ImageView id=icon (72,536) [36,500,108,572]
+            #n21 TextView text="Device connection" id=title (275,516) [144,495,407,538]
+            #n22 TextView text="Bluetooth, TV/Speaker, NFC" id=summary (334,557) [144,538,524,576]
+          #n23 LinearLayout id=dashboard_tile (360,680) [0,608,720,752] clickable
+            #n24 ImageView id=icon (72,680) [36,644,108,716]
+            #n25 TextView text="Appearance" id=title (229,660) [144,639,314,682]
+            #n26 TextView text="Wallpaper, Widgets, Shortcuts" id=summary (347,701) [144,682,551,720]
+          #n27 LinearLayout id=dashboard_tile (360,824) [0,752,720,896] clickable
+            #n28 ImageView id=icon (72,824) [36,788,108,860]
+            #n29 TextView text="Apps & notifications" id=title (287,804) [144,783,431,826]
+            #n30 TextView text="App permissions, Default apps" id=summary (351,845) [144,826,559,864]
+          #n31 LinearLayout id=dashboard_tile (360,968) [0,896,720,1040] clickable
+            #n32 ImageView id=icon (72,968) [36,932,108,1004]
+            #n33 TextView text="Battery" id=title (194,948) [144,927,244,970]
+            #n34 TextView text="100% - Charging" id=summary (263,989) [144,970,382,1008]
+          #n35 LinearLayout id=dashboard_tile (360,1112) [0,1040,720,1184] clickable
+            #n36 ImageView id=icon (72,1112) [36,1076,108,1148]
+            #n37 TextView text="Display" id=title (196,1092) [144,1071,248,1114]
+            #n38 TextView text="Brightness level, Sleep, Font size" id=summary (364,1133) [144,1114,584,1152]

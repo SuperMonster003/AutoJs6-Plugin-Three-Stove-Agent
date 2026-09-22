@@ -30,7 +30,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D4 | 执行经宿主能力代理, MCP 为可选扩展 | 1.0.0 的一切设备操作与脚本执行经宿主下发的 "能力代理" Binder (`Bundle` + Node Bridge JSON 信封 + grant), 与 MCP 插件 D2 / D10 同形, 不要求安装 MCP 插件, 无 HTTP 跳转. 1.2.0 起允许 Agent 额外接入本机或外部 MCP 服务器的工具 (附录 I.1 预留). |
 | D5 | 1.0.0 = 脚本选择 + 界面逐步操作 | 同时交付 (a) 自然语言选择已登记脚本, 填参, 执行, 读取结构化结果; (b) 基于无障碍节点树的 "观察 -> 决策 -> 操作 -> 校验" 循环. (c) 模型临时生成 JS 由宿主执行, 作为默认关闭的敏感工具组放 1.1.0 (P9). |
 | D6 | 脚本登记双轨 | 项目在 `project.json` 新增 `agent` 字段 (描述 / 参数 JSON Schema 子集 / 结果约定 / 风险等级 / 示例); 单文件脚本用首部 JSDoc 风格 `@agent` 注释块. 宿主提供扫描与目录 bridge 方法, 插件不读宿主文件系统. 格式见附录 E. |
-| D7 | 结构化 JSON 先行, 原生 Tool Calling 后置 | 1.0.0 用已有 `structuredJson` + `responseSchema` 让模型返回 `AgentDecision` (工具 + 参数 / 询问用户 / 完成), 插件自行运行循环 (附录 D). 宿主 `maximumToolRounds = 0` 与 3-Stone AI `supportsTools = false` 在 1.0.0 保持不动; 原生 tool calls 路径在 P9 (1.1.0) 打通. |
+| D7 | 结构化 JSON 先行, 原生 Tool Calling 后置 | 1.0.0 用已有 `structuredJson` + `responseSchema` 让模型返回 `AgentDecision` (工具 + 参数 / 询问用户 / 完成), 插件自行运行循环 (附录 D). 宿主 `maximumToolRounds = 0` 与 3-Stone AI `supportsTools = false` 在 1.0.0 保持不动; 原生 tool calls 路径在 P9 (1.1.0) 打通. P0.2 spike (2026-09-22) 部分验证: 在线 OpenAI 兼容目标 20/20 Schema 合规与决策合理, 本地 E4B 20/20 合规 / 70-80% 合理, Anthropic / Gemini 未测; 保留本决策, 不触发 H.2 退路. |
 | D8 | 分级确认 + 预算上限 | 工具分三级: 只读 (自动), 普通 (自动, 可在设置改为确认), 敏感 (支付 / 发送 / 删除 / 写文件 / shell / 坐标手势 / 登记为敏感的脚本, 默认每次确认). 每次任务有步数 / 模型调用次数 / 时长 / token 预算, 超限即停止并报告. 另有 "审慎模式" 让所有非只读操作都确认. |
 | D9 | 脚本 API `ai.agent`, 随脚本停止, `detached` 显式托管 | 在现有 `ai` 全局对象下增加 `ai.agent` (`run` / `create` / `get` / `list` / `catalog` / `presets` / `status` / `result` / `context`), `run()` 返回 `AgentRun` 句柄 (`id` / `state` / `on` / `respond` / `confirm` / `cancel` / `result` / `join`). 默认任务随所属脚本停止而取消; `run(goal, { detached: true })` 才交给插件后台托管, 可在插件界面继续观察, `ai.agent.get(id)` 可重新附着. 草案见附录 A. |
 | D10 | 1.0.0 观察层 = 节点树 + OCR, 视觉输入 1.1.0 | 观察工具返回无障碍节点树紧凑文本 (与 MCP 附录 B 格式一致), 安装了 OCR 插件时可读取屏幕文字 (宿主内截图 + OCR, 位图不出宿主). 把截图交给视觉模型需要 AI Provider 协议新增图像 part 与 3-Stone AI 视觉支持, 列入 P9 并在契约中预留能力位. |
@@ -44,7 +44,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D18 | 模型代理形态 | `IAiAgentModelBroker { getBrokerInfo; listTargets(request, cb); generate(request, cb); cancel(ref); destroy(reason) }` 映射到宿主 `AndroidAiPluginAskRunner` 的 ask / stream 路径 (非持久会话; 每轮由插件自行编译上下文, 见 D21). 请求 JSON 含 `messages` / `targetId` / `structuredJson` / `responseSchema` / `maximumOutputTokens` / `temperature` / `timeoutMs`; 事件 `started` / `chunk` / `usage` / `completed` / `failed` / `cancelled` 经 oneway 回调. 宿主对每条链路施加模型调用速率与累计 token 上限 (grant 的一部分). |
 | D19 | 工具目录为数据表 | 工具名 snake_case (`<组>_<动作>`), 名称 / 描述 / JSON Schema / 风险等级 / 所属组 / 默认开关 / 映射的 bridge `module.method` 全部以 `ToolCatalog` 数据表定义, 既驱动模型提示词中的工具清单, 也生成 README 工具表与 JVM 快照测试. 初表见附录 C. |
 | D20 | 决策协议 `AgentDecision` | 模型每轮返回一个扁平 JSON 对象 `{ kind: "tool" | "ask" | "done", reasoning?, tool?, arguments?, ask?, done? }` (附录 D), 插件按 `ToolCatalog` 校验工具名与参数 Schema, 非法时把校验错误作为观察结果回送并计入 "修复重试" (每步最多 1 次). 目标不支持 `structured-json` 能力时进入 D35 的退化模式. |
-| D21 | 上下文编译有界 | 每轮请求 = 系统提示 (角色 / 规则 / 工具清单 / 预设固定上下文 / 记忆) + 目标 + 最近 K 步完整 "决策 + 观察" 对 (默认 K=8) + 更早步骤的一行摘要; 整体按字节预算装箱 (默认 64 KiB, 不超过目标 `maximumContextBytes`), 观察结果单条截断 (节点树默认 200 节点 / 24 KiB). 不依赖 Provider 持久会话. |
+| D21 | 上下文编译有界 | 每轮请求 = 系统提示 (角色 / 规则 / 工具清单 / 预设固定上下文 / 记忆) + 目标 + 最近 K 步完整 "决策 + 观察" 对 (默认 K=8) + 更早步骤的一行摘要; 整体按字节预算装箱 (默认 64 KiB, 不超过目标 `maximumContextBytes`), 观察结果单条截断 (节点树默认 200 节点 / 24 KiB). 不依赖 Provider 持久会话. P0.2 实测本地 LiteRT-LM 上限 4096 token, 本地目标另设输入预算 (P2 `ContextCompiler`). |
 | D22 | 脚本调用与结果通道 | 已登记脚本经宿主 bridge `agent.execRegistered(path, arguments, options)` 启动 (内部为 `engines.execScriptFile` + `captureConsole` + 等待完成), 参数经 `engines.myEngine().execArgv` 传入; 脚本用宿主 augment `ai.agent.result(value)` 上报结构化结果 (仅在被 Agent 启动时生效, 否则记录警告), 未上报时以退出状态 + 控制台尾部作为结果. 登记为 `sensitive` 的脚本按 D8 在启动前确认. |
 | D23 | 插件默认关闭且需官方 / 受信签名 | 宿主侧 `AidlPluginHost(defaultEnabled = false)` (`PluginDefaultEnabledPolicy` 加入 `ai-agent`); 抽屉开关或附着请求首次生效时要求插件处于 `OFFICIAL` 或 `TRUSTED` 授权态, `USER_GRANTED` 需额外确认对话框 (MCP D18 同形). Agent 可自主操作设备, 风险等级与 MCP 相当. |
 | D24 | JS 任务归属 | 从脚本启动的任务在宿主侧以 `AgentRunHandle` 归属到 `ScriptRuntime`, 脚本停止时对非 `detached` 任务发送 `cancel(reason = script-stopped)`; `detached` 任务归属插件, JS 句柄只是观察者. 同一时刻每条链路最多 1 个运行中任务 (队列上限 8, 其余排队或拒绝, 见附录 B.5). |
@@ -58,7 +58,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D32 | 验收用例 | E4 级真实任务: (1) 打开系统设置切换 Wi-Fi 并回读状态; (2) 在计算器计算 `12*34` 并读取结果; (3) 已登记脚本 "清理下载目录旧安装包" 的自然语言调用 (含参数补全与确认); (4) 美团外卖星巴克拿铁下单 (允许停在 "待付款", 付款必须确认, 不得重复提交, 结果必须区分 `cart` / `pending_payment` / `submitted` / `paid`). |
 | D33 (Q1=B) | 共享契约模块 `plugin-api/host-capability-api` + MCP 契约 v2 | 宿主新建模块 `host-capability-api` (包 `org.autojs.plugin.host.capability.api`): `IHostCapabilityBroker.aidl` (`Bundle getBrokerInfo(); void dispatch(in Bundle request, IHostCapabilityCallback callback); void destroy(in Bundle reason);`), `IHostCapabilityCallback.aidl` (`oneway void onResponse(in Bundle response);`), `HostCapabilityContract.kt` (`KEY_BRIDGE_REQUEST_JSON` / `KEY_BRIDGE_RESPONSE_JSON` / `KEY_BRIDGE_PAYLOAD_FD` / `KEY_GRANT_JSON` / `KEY_REASON_JSON`, broker info key, 体积上限与错误分类词汇). `mcp-server-api` 与 `ai-agent-api` 都 `api(project(":plugin-api:host-capability-api"))`. MCP 契约 v2: `IMcpServerPlugin` 末尾追加 `IMcpServerSession openServerV2(in Bundle config, IHostCapabilityBroker broker, IMcpServerCallback callback)`, `McpServerContract.CONTRACT_VERSION = 2` 且 `MIN_SUPPORTED = 1`, `McpServerContract.KEY_BRIDGE_*` 改为等值别名; 宿主按插件 `mcpServerContractVersion >= 2` 选择 `openServerV2` (下发 `HostCapabilityBrokerStub`), 否则走 v1 `openServer` (下发 `McpHostCapabilityBroker` 薄适配), v1 路径与既有 MCP 测试零行为变化. MCP 插件迁移到 v2 是 MCP 仓库的独立会话 (记入 MCP 路线图), 不是本插件 1.0.0 的前置. |
 | D34 (Q2) | 插件默认不启用 | 维持 D23: `PluginDefaultEnabledPolicy` 不把 `ai-agent` 列为默认启用, 与 MCP 一致; 首次启用经插件中心或抽屉引导, 需 `OFFICIAL` / `TRUSTED` 授权态. |
-| D35 (Q3) | 退化模式 | 目标不声明 `structured-json` 时不拒绝: 提示词追加 "只输出一个 JSON 对象" 指令, `DecisionParser` 宽松解析 (剥离围栏 / 前后缀文本, 取首个平衡的 `{...}`), 修复重试 2 次 (结构化模式为 1 次, P0.2 决策点可统一提高到 2), 预设与任务详情标注 `退化模式`; `TARGET_UNSUPPORTED` 只用于 P9 预留键 (`tools` / `imageRefs`). |
+| D35 (Q3) | 退化模式 | 目标不声明 `structured-json` 时不拒绝: 提示词追加 "只输出一个 JSON 对象" 指令, `DecisionParser` 宽松解析 (剥离围栏 / 前后缀文本, 取首个平衡的 `{...}`), 修复重试 2 次 (结构化模式同为 2 次: P0.2 决策点因在线目标只有一种而按 "否则" 分支执行, 2026-09-22, 见 `docs/dev/p0-spike-evidence.md` 第 9 节), 预设与任务详情标注 `退化模式`; `TARGET_UNSUPPORTED` 只用于 P9 预留键 (`tools` / `imageRefs`). |
 | D36 (Q4) | 脚本目录扫描根 | 宿主工作目录 (深度 4) + 工作目录下 `agent/` 子目录 (深度不限于 4 内, 总深度上限 8) + 插件设置中用户添加的附加根 (宿主校验必须位于外部存储用户可见目录内, 且不是工作目录祖先); 上限 500 条 / 256 KiB; `scriptRoots` 随 `startRun` 与 `updateConfig` 传给宿主. |
 | D37 (Q5) | 坐标点击只在 `gesture` 组 | 与 MCP D22 一致: `act` 组只接受 `nodeRef` / `selector`, 坐标形式 (`act_click` 等带 `x` / `y`) 归 `gesture` 组 (默认关); `gesture` 关闭时模型收到 `TOOL_DISABLED` 观察并被提示改用节点引用, 滚动后重试, 或 `ask`. 不实现 "节点中心点受限坐标" 的备选. |
 | D38 (Q6) | 悬浮球默认关闭 | 设置中开启并在开启时申请 `SYSTEM_ALERT_WINDOW`; 开启后只在链路已附着时显示, 链路断开或宿主不可用时隐藏; 不做首次运行引导开启. |
@@ -143,8 +143,8 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | --- | --- |
 | #577 原帖只有一句话, 明确诉求是 "AI 思考 + 自动调用此应用脚本 + 自动执行任务"; 未要求离线, 未要求脱离电脑, 未要求临时生成脚本, 未要求操作任意 App | 讨论页 (2026-09-22 读取, 0 回复, 1 赞) |
 | AI Provider V2 为纯文本协议 (图像 / 音频 / 视频属独立协议家族); `structured-json` 能力 + `response-json-schema` 控件是目标级可选能力, 请求前必须协商 | `docs/dev/ai-provider-protocol-v2.md` "Modules And Responsibility", "Unified Target Catalog" |
-| 在线协议对 JSON Schema 约束的支持不一: OpenAI 兼容 (`response_format: json_schema`, 各家兼容程度不同), Anthropic (无原生 Schema 约束, 常以工具定义或提示实现), Gemini (`responseSchema`); 3-Stone AI 当前如何映射 `responseSchema` 到三种协议需在 P0 实测 | 各协议官方文档 (2026-09); 3-Stone AI `backend/*Protocol.kt` |
-| 本地小模型 (LiteRT-LM 社区模型) 的规划与多步推理能力有限, 约束解码保证 JSON 合法但不保证决策质量; 1.0.0 的验收用例 (D32) 以在线模型为主, 本地模型只要求协议正确与简单用例 (1) (2) | P0.2 spike 待测 |
+| 在线协议对 JSON Schema 约束的支持不一, 3-Stone AI 的映射已核对 (P0.2, 只读): OpenAI 兼容 -> `response_format: { type: json_schema, json_schema: { strict: true, schema } }` (官方严格模式要求所有属性 required, 每个对象 `additionalProperties: false`, 不支持 `maxLength` / `maxItems` 等约束与自由对象); Anthropic -> `output_config.format: { type: json_schema, schema }` (每个对象须 `additionalProperties: false`, 不支持 `maxLength` / `maxItems`, 允许可选属性); Gemini -> `generationConfig.responseSchema` (OpenAPI 子集 `Schema` 对象, 没有 `additionalProperties` 字段, 含该键返回 400). 附录 D 原样发送会被三者拒绝; HTTP 400 在 3-Stone AI 内为 `REQUEST_REJECTED`, 脚本侧只见 `PROVIDER_FAILED` | `docs/dev/p0-spike-evidence.md` 第 7 节; 3-Stone AI `backend/OpenAiCompatibleRequest.kt` / `AnthropicMessagesProtocol.kt` / `GeminiGenerateContentProtocol.kt` / `OnlineAiFailure.kt`; 各协议官方文档 (2026-09) |
+| 本地小模型 (LiteRT-LM 社区模型) 的规划与多步推理能力有限, 约束解码保证 JSON 合法但不保证决策质量; 1.0.0 的验收用例 (D32) 以在线模型为主, 本地模型只要求协议正确与简单用例 (1) (2). P0.2 实测: gemma-4-E4B (Pad) JSON / Schema 合规 20/20, 决策合理 16/20 (cpu) / 14/20 (gpu), 每步 cpu 2.5-4 分钟 / gpu 约 20 秒; gemma-4-E2B (Sony, gpu) 有应答轮次合规 13/14, 决策合理 9/20, 30% 超时; LiteRT-LM 提示词上限 4096 token (超限 `PROVIDER_FAILED` 无细节), 目录申报的 `maximumContextBytes` 不适用; 本地目标应默认选 gpu 后端 | `docs/dev/p0-spike-evidence.md` 第 5 / 6 节 |
 | 同类设备端 Agent (设计参照, 非依赖): 各 "手机智能体" 产品普遍采用 "节点树 / 截图 -> 模型 -> 单步动作 -> 校验" 循环, 单步动作原子化, 敏感动作人工确认, 任务级预算 | 公开产品资料 (2026-09) |
 
 ---
@@ -277,15 +277,17 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.2 结构化 JSON 决策循环 spike
 
-- [ ] (插件) 在 spike 分支用宿主现有脚本 API (`ai.ask` + `structuredJson` + `responseSchema`) 而非新契约, 对 3-Stone AI 的 (a) 本地 LiteRT-LM 社区模型, (b) OpenAI 兼容 profile, (c) Anthropic profile, (d) Gemini profile 各跑 20 轮 "给定紧凑节点树 + 工具清单, 返回 `AgentDecision`" 请求, 记录: JSON 合法率, Schema 合规率 (含 `kind` 枚举与 `arguments` 对象), 平均延迟, 输入 / 输出 token, 决策合理率 (人工判定, 用例为 D32 的 (1) (2)).
-- [ ] (插件) 验证附录 D 的扁平 Schema 在本地约束解码下可用 (不依赖 `oneOf` / `if-then`); 不可用时把 `arguments` 改为 JSON 字符串字段并记录.
-- [ ] (模型) 核对 3-Stone AI 对 `responseSchema` 在三种在线协议上的映射方式与失败模式 (只读代码核对, 不改代码); 记入 3.3 与 Q3.
-- [ ] (插件) 决策点: 若 (b) 或 (c) 或 (d) 中至少两种的 Schema 合规率 >= 95% 且本地模型 JSON 合法率 >= 90%, D7 成立; 否则把结构化模式的 "修复重试" 也从 1 次提高到 2 次 (退化模式本身已按 D35 固定为 2 次), 结论写入会话记录.
-- [ ] (文档) `docs/dev/p0-spike-evidence.md` (本仓库): 数据表, 设备, 模型, 日期, 结论.
+- [x] (插件) 在 spike 分支用宿主现有脚本 API (`ai.ask` + `structuredJson` + `responseSchema`) 而非新契约, 对 3-Stone AI 的 (a) 本地 LiteRT-LM 社区模型, (b) OpenAI 兼容 profile, (c) Anthropic profile, (d) Gemini profile 各跑 20 轮 "给定紧凑节点树 + 工具清单, 返回 `AgentDecision`" 请求, 记录: JSON 合法率, Schema 合规率 (含 `kind` 枚举与 `arguments` 对象), 平均延迟, 输入 / 输出 token, 决策合理率 (人工判定, 用例为 D32 的 (1) (2)). 证据 (E2 / E3, 2026-09-22): 用 `ai.chat` (`ai.ask` 的 Promise 只解析出文本) 对 (a) Pad gemma-4-E4B (cpu 与 gpu 各 20 轮) 与 Sony gemma-4-E2B (gpu 20 轮), (b) OpenAI 兼容 profile `PoloAPI` / `claude-opus-4-8` (20 轮) 跑完; (c) Anthropic 与 (d) Gemini 未配置 profile, 未测. 结果: (b) JSON / Schema 合规 20/20, 决策合理 20/20 (人工复核后), 中位 6.9 s; E4B 合规 20/20, 合理 16/20 (cpu, 每步 2.8 分钟) / 14/20 (gpu, 每步 20 秒); E2B 6/20 超时, 有应答轮次合规 13/14, 合理 9/20. 夹具为真机捕获 + 合成 (设备无计算器 App), 脚本与数据在 `docs/dev/spike/p0/` (主分支证据目录, 未另开 spike 分支). 详见 `docs/dev/p0-spike-evidence.md` 第 3-6 节.
+- [x] (插件) 验证附录 D 的扁平 Schema 在本地约束解码下可用 (不依赖 `oneOf` / `if-then`); 不可用时把 `arguments` 改为 JSON 字符串字段并记录. 证据 (E2, 2026-09-22): Pad E4B 上 8 个 Schema 变体 (原样 / 去长度限制 / `arguments` 各种形态 / 去 `additionalProperties` / 去 `arguments`) 全部被 LiteRT-LM 约束解码接受, `arguments: { type: object }` 保持; 字符串变体不采用 (Sony E2B 在字符串内产生非法 JSON 1 次). 发现 Schema 无法表达 `kind` 与分支互斥, 由验证器承担 (附录 D 已补). 详见 `docs/dev/p0-spike-evidence.md` 第 5.4 节.
+- [x] (模型) 核对 3-Stone AI 对 `responseSchema` 在三种在线协议上的映射方式与失败模式 (只读代码核对, 不改代码); 记入 3.3 与 Q3. 证据 (E0, 2026-09-22): OpenAI 兼容 `response_format: json_schema (strict)`, Anthropic `output_config.format`, Gemini `generationConfig.responseSchema` (OpenAPI `Schema`, 无 `additionalProperties`); HTTP 400 -> `REQUEST_REJECTED`, 脚本侧只见 `PROVIDER_FAILED`; 附录 D 原样不满足三者的官方约束. 已记入 3.3 与附录 D. 详见 `docs/dev/p0-spike-evidence.md` 第 7 节.
+- [x] (插件) 决策点: 若 (b) 或 (c) 或 (d) 中至少两种的 Schema 合规率 >= 95% 且本地模型 JSON 合法率 >= 90%, D7 成立; 否则把结构化模式的 "修复重试" 也从 1 次提高到 2 次 (退化模式本身已按 D35 固定为 2 次), 结论写入会话记录. 结论 (2026-09-22): 在线目标只有 (b) 一种 (合规 100%), "至少两种" 无法满足, 按 "否则" 分支执行: 结构化模式修复重试提高到 2 次 (D35 回填); D7 保留, 不触发 H.2. 详见 `docs/dev/p0-spike-evidence.md` 第 9 节与会话记录.
+- [x] (文档) `docs/dev/p0-spike-evidence.md` (本仓库): 数据表, 设备, 模型, 日期, 结论. 证据 (E0, 2026-09-22): 文档由 `build/tmp/spike/build_evidence.py` 从 JSONL 生成 (10 节: 结论, 环境, 方法, 各目标结果, Schema 探针, 延迟探针, 协议核对, 代理探针, 决策点, 文件清单); 数据副本已脱敏 (SSID / 账号 / App 名).
 
 验收: 骨架在 AVD API 37 与一台真机上可安装, 插件中心显示 `激活` 并可启用; spike 数据落盘且决策点有结论.
 
 P0.1 验收状态 (2026-09-22): 可安装并通过契约测试的设备为 AVD API 37 + Sony API 28 + Xiaomi Pad API 35 (超出要求). "插件中心显示激活并可启用" 在 P0 无法达成, 原因是宿主插件中心按固定的 action 注册表发现插件 (`InstalledPluginRepository.queryDeclaredPluginServices` 的 `specs` 与 `PluginCenterViewModel.SERVICE_ACTION_BY_ENGINE`), `org.autojs.plugin.AI_AGENT` 要到 P1.5 才注册; 该条验收顺延到 P1.5 完成后用同一 APK 复验 (届时 `REQUIRED_HOST_VERSION` 也已回填为真实宿主构建号). 未执行 ColorOS 类设备的真实激活验证 (手头无此类设备).
+
+P0.2 验收状态 (2026-09-22): spike 数据落盘 (`docs/dev/p0-spike-evidence.md` + `docs/dev/spike/p0/`), 决策点有结论 (D35 回填为结构化模式 2 次重试, D7 保留). (c) Anthropic / (d) Gemini 因无 profile 未测, 在 P2 验收前用同一脚本补跑; spike 未另开分支, 脚本与脱敏数据作为证据目录提交到主分支.
 
 ---
 
@@ -355,7 +357,7 @@ P0.1 验收状态 (2026-09-22): 可安装并通过契约测试的设备为 AVD A
 
 ### P2.2 决策协议与解析
 
-- [ ] (插件) `DecisionSchema` (附录 D, 生成 `responseSchema` JSON), `DecisionParser` (严格: `structuredJson` 输出直接解析; 退化: 提取首个 JSON 对象, 容忍代码块围栏与尾随文本, 记录 `parseMode`), `DecisionValidator` (工具存在, 组启用, 参数 Schema 校验, `ask` / `done` 结构, `reasoning` 截断 600 字符); 校验失败生成 "修复观察" 回送模型, 每步最多 1 次修复重试 (P0.2 决策点可改 2 次).
+- [ ] (插件) `DecisionSchema` (附录 D, 按目标 `provider` 生成 `responseSchema` 变体, 见附录 D 的 P0.2 结论), `DecisionParser` (严格: `structuredJson` 输出直接解析; 退化: 提取首个 JSON 对象, 容忍代码块围栏与尾随文本, 记录 `parseMode`), `DecisionValidator` (工具存在, 组启用, 参数 Schema 校验, `ask` / `done` 结构且只接受与 `kind` 对应的分支, `reasoning` 截断 600 字符, 长度限制在验证器而非 Schema 中执行); 校验失败生成 "修复观察" 回送模型, 每步最多 2 次修复重试 (P0.2 决策点结论, 与 D35 一致).
 - [ ] (插件) `PromptCatalog`: 系统提示 (角色 / 规则 (取自 MCP `automate_task` 的观察 -> 操作 -> 校验规则并针对单步决策改写) / 工具清单 / 输出格式), 目标消息, 观察消息模板, 修复消息模板, 预设固定上下文与记忆的注入位置; en 为主, zh 版本按目标语言选择; 提示词以 assets 文本 + 占位符管理, 快照测试守卫.
 - [ ] (测试) JVM: 解析矩阵 (合法 / 围栏 / 多对象 / 非法 kind / 缺参数 / 超长 reasoning / Unicode), 校验矩阵, 提示词快照.
 
@@ -369,7 +371,7 @@ P0.1 验收状态 (2026-09-22): 可安装并通过契约测试的设备为 AVD A
 
 ### P2.4 上下文编译
 
-- [ ] (插件) `ContextCompiler` (D21): 消息装箱顺序 = 系统提示 -> 目标 -> 摘要 (更早步骤各一行, 由确定性模板生成而非模型摘要) -> 最近 K 步完整对 -> 当前观察 -> 预算附注; 字节预算 (默认 64 KiB, 以目标 `maximumContextBytes` 与 grant 的单请求上限取小); 观察单条截断策略 (节点树保留可点击 / 可编辑 / 有文本节点优先); 目标语言检测决定 zh / en 提示词.
+- [ ] (插件) `ContextCompiler` (D21): 消息装箱顺序 = 系统提示 -> 目标 -> 摘要 (更早步骤各一行, 由确定性模板生成而非模型摘要) -> 最近 K 步完整对 -> 当前观察 -> 预算附注; 字节预算 (默认 64 KiB, 以目标 `maximumContextBytes` 与 grant 的单请求上限取小); 观察单条截断策略 (节点树保留可点击 / 可编辑 / 有文本节点优先); 目标语言检测决定 zh / en 提示词. P0.2 补充: 本地 LiteRT-LM 目标的有效上限为 4096 token (与目录申报的字节上限无关), 装箱器需要按目标 locality 选择预算 (本地默认 3000 token 输入), 快照采用二级压缩 (去 bounds, 去纯容器行, 上限 70 行) 并优先截断历史; 超限在脚本侧只表现为 `PROVIDER_FAILED`, 装箱前必须自行估算 (0.4 token/byte).
 - [ ] (插件) `ModelClient`: 经 `IAiAgentModelBroker.generate` 的同步等待封装 (超时, 取消, 事件序列校验, 终态唯一), usage 记账, `TARGET_UNSUPPORTED` 时按 Q3 退化.
 - [ ] (测试) JVM: 装箱在各预算下不超限且保底 (系统提示 + 目标 + 当前观察必在), K 步裁剪, 语言选择; 假代理的事件序列异常 (缺 started, 重复终态, 乱序 chunk) 被拒绝.
 
@@ -831,7 +833,7 @@ if (ctx) {
 }
 ```
 
-P0.2 若发现本地约束解码不接受无类型约束的 `arguments: { type: object }`, 改为 `arguments` 为 JSON 字符串并由 `DecisionParser` 二次解析.
+P0.2 结论 (2026-09-22): 本地约束解码接受 `arguments: { type: object }` (8 个 Schema 变体全部接受), 保持对象形态; JSON 字符串变体只作为在线严格模式的降级手段 (小模型在字符串内产生非法 JSON 的风险更高). Schema 无法表达 `kind` 与分支对象的互斥 (本地模型在缺少 `arguments` 时同时填了 `ask` 与 `done`), `DecisionValidator` 必须只接受与 `kind` 对应的分支. 在线协议差异要求 `DecisionSchema` 按目标 `provider` 生成变体 (全部在线变体去掉 `maxLength` / `maxItems`, 长度限制改由验证器执行; Gemini 去掉 `additionalProperties`; Anthropic 为 `arguments` 补 `additionalProperties: false`; OpenAI 严格模式全属性 required + 可空类型, `arguments` 用 `anyOf` 枚举附录 C 各工具的参数 Schema 或降级为字符串), 首选对象变体, 收到 `PROVIDER_FAILED` 且目标为在线 profile 时降级重试一次并按目标记忆 (脚本 API 看不到 HTTP 400, 这是宿主 / 3-Stone AI 错误码粒度的限制, P1 契约的 `IAiAgentModelBroker` 应透传 `REQUEST_REJECTED` 类原因). 以上为建议, 待维护者在 P2.2 前确认. 细节见 `docs/dev/p0-spike-evidence.md` 第 5.4 / 7 节.
 
 ### D.2 观察消息
 
@@ -1020,7 +1022,7 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 
 ### H.2 D7 退路: 决策质量不足
 
-- 若 P0.2 决策点不成立 (在线模型也无法稳定产出合规决策), 保留结构化循环但把 "工具清单 + 单步决策" 改为 "计划 + 执行" 两段式 (先让模型输出 3-8 步计划, 逐步执行并在偏离时重新规划), 作为 P2.2 的替代实现; 若仍不足, 1.0.0 收缩为 "脚本选择 + 单步界面动作 (无多步循环)" 并在 README 明示.
+- 若 P0.2 决策点不成立 (在线模型也无法稳定产出合规决策), 保留结构化循环但把 "工具清单 + 单步决策" 改为 "计划 + 执行" 两段式 (先让模型输出 3-8 步计划, 逐步执行并在偏离时重新规划), 作为 P2.2 的替代实现; 若仍不足, 1.0.0 收缩为 "脚本选择 + 单步界面动作 (无多步循环)" 并在 README 明示. P0.2 结果 (2026-09-22): 唯一在线目标 20/20 合规, 本地 E4B 20/20 合规, 未触发本退路; 决策点仅因在线目标种类不足而按 "否则" 分支提高重试次数.
 
 ### H.3 D15 退路: 插件进程运行循环不可行
 
@@ -1071,4 +1073,6 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 维护者拍板附录 G: Q1 = B (共享 `plugin-api/host-capability-api` + MCP 契约 v2), Q2-Q9 = 默认; 回填为 D33-D41, 并同步改写 D14 / D17, 4.1 数据流, 4.2 包结构与契约清单, P1.1 / P1.3 / P1.6, 附录 B / F / G. Agent 家族 AIDL 由八件减为六件, 能力代理改用共享 `IHostCapabilityBroker`.
 - P0.1 全部落地 (5 笔提交, 见各条证据): 仓库骨架 (平台插件 1.8.3, `common-plugin-api.aar` 5282 锁定), INFO / Wake / `AI_AGENT` 占位服务 (`:agent` 进程), 启动页宿主状态, 10 语言资源, 图标脚本, 文档生成 (36 产物), AGENTS.md, CI 工作流, JVM 11 用例, instrumentation 4 用例 x 3 设备 (AVD API 37 / Pad API 35 / Sony API 28).
 - 事实核对: 宿主插件中心在 P1.5 注册前不会列出本插件 (固定 action 注册表), 故 P0 验收中的 "插件中心显示激活" 顺延到 P1.5; `REQUIRED_HOST_VERSION` 暂为 5283 (宿主当前 5282), 启动页因此如实显示 "需要构建 5283".
-- 未做: P0.2 spike (需要 3-Stone AI 的本地与在线目标以及维护者的 profile 凭据; 建议下一会话先跑 (b) / (c) / (d) 在线目标各 20 轮, 本地 LiteRT-LM 模型视设备可用性), 宿主代码零改动, 仓库未推送. 下一会话从 P0.2 开始; P1.1 可与 P0.2 并行 (宿主仓库).
+- P0.2 spike 落地 (提交 6): 真机夹具 + 合成变体, `ai.chat` + `structuredJson` + `responseSchema`; 在线 OpenAI 兼容 profile (PoloAPI / claude-opus-4-8) 20 轮 100% 合规 100% 合理 (中位 6.9 s); Pad gemma-4-E4B cpu / gpu 各 20 轮 100% 合规, 80% / 70% 合理 (每步 2.8 分钟 / 20 秒); Sony gemma-4-E2B gpu 20 轮 30% 超时, 有应答 93% 合规 45% 合理. Schema 8 变体在本地全部接受; 三种在线协议映射核对完成 (附录 D 原样不可移植). 决策点按 "否则" 分支执行: D35 回填 (结构化模式 2 次重试), D7 保留. Anthropic / Gemini 未测 (无 profile). 证据 `docs/dev/p0-spike-evidence.md`, 数据 `docs/dev/spike/p0/`.
+- 待维护者确认: 附录 D 的 P0.2 结论 (`DecisionSchema` 按协议生成变体, `PROVIDER_FAILED` 降级策略, 模型代理透传拒绝原因) 在 P2.2 前拍板; PoloAPI profile 在 spike 结束约 20 分钟后对所有请求 (含纯文本) 约 1 s 内返回 `PROVIDER_FAILED` (网络可达, 提供方进程重启后依旧), 请核对代理额度.
+- 未做: 宿主代码零改动, 仓库未推送. 下一会话: 宿主 P1.1 (共享 `host-capability-api` + MCP v2 + `ai-agent-api`).

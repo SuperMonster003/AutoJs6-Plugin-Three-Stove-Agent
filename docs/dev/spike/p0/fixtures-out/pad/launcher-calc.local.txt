@@ -1,0 +1,24 @@
+screen: launcher
+package: com.miui.home
+activity: com.miui.home.launcher.Launcher
+nodes: 31
+              #n10 TextView text="日历" desc="日历" (319,393) clickable,long-clickable
+              #n11 TextView text="时钟" desc="时钟" (707,393) clickable,long-clickable
+              #n12 TextView text="相机" desc="相机" (1095,393) clickable,long-clickable
+              #n13 TextView text="设置" desc="设置 1 个未读" (1483,393) clickable,long-clickable
+              #n14 TextView text="米家" desc="米家" (319,736) clickable,long-clickable
+              #n15 TextView text="Chrome" desc="Chrome" (707,736) clickable,long-clickable
+              #n16 TextView text="ES文件浏览器" desc="ES文件浏览器" (1095,736) clickable,long-clickable
+              #n17 TextView text="Shizuku" desc="Shizuku" (1483,736) clickable,long-clickable
+              #n18 TextView text="App Ops" desc="App Ops" (319,1079) clickable,long-clickable
+              #n19 TextView text="小黑屋" desc="小黑屋" (707,1079) clickable,long-clickable
+              #n20 TextView text="Play 商店" desc="Play 商店" (1095,1079) clickable,long-clickable
+              #n21 TextView text="酷安" desc="酷安" (1483,1079) clickable,long-clickable
+              #n22 TextView text="央视频" desc="央视频" (319,1422) clickable,long-clickable
+              #n23 TextView text="Fruit Ninja" desc="Fruit Ninja" (707,1422) clickable,long-clickable
+              #n24 TextView text="Files" desc="Files" (1095,1422) clickable,long-clickable
+              #n25 TextView text="美团外卖" desc="美团外卖" (1483,1422) clickable,long-clickable
+              #n26 TextView text="Adobe Acrobat" desc="Adobe Acrobat" (319,1765) clickable,long-clickable
+              #n27 TextView text="计算器" desc="计算器" (707,1765) clickable,long-clickable
+              #n28 ImageView desc="进入抽屉模式" (899,2414) clickable
+        #n29 FrameLayout id=default_position (0,1470) focused

@@ -1,0 +1,6 @@
+target sony-local-gemma4-e2b local:litertlm.ab7838cdfc8f77e54d8ca45eadceb204
+gpu warm-up tiny -> OK wall=52272ms usage={"inputTokens":32,"outputTokens":10,"totalTokens":42,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":6545,"raw":null} text={"kind": "done" }
+tiny ~75 tokens -> OK wall=19801ms usage={"inputTokens":56,"outputTokens":39,"totalTokens":95,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":11327,"raw":null} text={"kind": "tool", "tool": "ui_click", "arguments": { "nodeRef": "n30" } }
+medium ~700 tokens -> OK wall=26868ms usage={"inputTokens":587,"outputTokens":41,"totalTokens":628,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":18320,"raw":null} text={ "kind": "tool", "tool": "ui_click", "arguments": { "nodeRef": "n30" } }
+settings-home local fixture -> OK wall=26904ms usage={"inputTokens":709,"outputTokens":39,"totalTokens":748,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":18530,"raw":null} text={"kind": "tool", "tool": "ui_click", "arguments": { "nodeRef": "dashboard_tile" } }
+done

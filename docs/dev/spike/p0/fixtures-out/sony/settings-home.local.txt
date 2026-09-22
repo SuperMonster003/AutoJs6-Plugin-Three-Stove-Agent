@@ -1,0 +1,28 @@
+screen: settings-home
+package: com.android.settings
+activity: com.android.settings/.Settings
+nodes: 39
+          #n5 ViewGroup id=search_action_bar (360,128) clickable
+            #n6 ImageButton desc="Navigate up" (88,128)
+            #n7 TextView text="Search settings" id=search_action_bar_title (271,127)
+        #n9 RecyclerView id=dashboard_container (360,696) scrollable
+          #n10 LinearLayout (360,264) clickable
+            #n13 TextView text="Airplane mode is on" id=title (368,263)
+          #n15 LinearLayout id=dashboard_tile (360,392) clickable
+            #n17 TextView text="Network & internet" id=title (276,372)
+            #n18 TextView text="Wi‑Fi, Mobile, Data usage, Hotspot" id=summary (374,413)
+          #n19 LinearLayout id=dashboard_tile (360,536) clickable
+            #n21 TextView text="Device connection" id=title (275,516)
+            #n22 TextView text="Bluetooth, TV/Speaker, NFC" id=summary (334,557)
+          #n23 LinearLayout id=dashboard_tile (360,680) clickable
+            #n25 TextView text="Appearance" id=title (229,660)
+            #n26 TextView text="Wallpaper, Widgets, Shortcuts" id=summary (347,701)
+          #n27 LinearLayout id=dashboard_tile (360,824) clickable
+            #n29 TextView text="Apps & notifications" id=title (287,804)
+            #n30 TextView text="App permissions, Default apps" id=summary (351,845)
+          #n31 LinearLayout id=dashboard_tile (360,968) clickable
+            #n33 TextView text="Battery" id=title (194,948)
+            #n34 TextView text="100% - Charging" id=summary (263,989)
+          #n35 LinearLayout id=dashboard_tile (360,1112) clickable
+            #n37 TextView text="Display" id=title (196,1092)
+            #n38 TextView text="Brightness level, Sleep, Font size" id=summary (364,1133)

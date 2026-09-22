@@ -1,0 +1,64 @@
+V1 full appendix D (arguments object) -> OK 39491ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":33,"totalTokens":108,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":29596,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+{"nodeRef":
+"n30"}}
+V2 no maxLength/maxItems -> OK 37673ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":33,"totalTokens":108,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":29750,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+{"nodeRef":
+"n30"}}
+V3 arguments additionalProperties true -> OK 37102ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":33,"totalTokens":108,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":29193,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+{"nodeRef":
+"n30"}}
+V4 arguments with typed optional properties -> OK 37171ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":33,"totalTokens":108,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":29385,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+{"nodeRef":
+"n30"}}
+V5 arguments as string (B) -> OK 38772ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":36,"totalTokens":111,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":30993,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+"{\"nodeRef\": \"n30\"}"
+}
+V6 B without nested ask/done -> OK 38779ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":36,"totalTokens":111,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":30832,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+"{\"nodeRef\": \"n30\"}"
+}
+V7 B without additionalProperties:false -> OK 39109ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":36,"totalTokens":111,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":30997,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"arguments":
+"{\"nodeRef\": \"n30\"}"
+}
+V8 full minus arguments -> OK 53067ms keys=[text,reasoning,toolCalls,usage,finishReason,message,error,raw,profile,target,plugin,route,provider,model] usage={"inputTokens":75,"outputTokens":62,"totalTokens":137,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":45384,"raw":null} finish=stop text={"kind":
+"tool",
+"tool":
+"ui_click",
+"ask":
+{"question":
+"Click on WLAN settings?"
+},
+"done":
+{"status":
+"completed",
+"summary":
+"Clicked on WLAN settings."
+}}
+done

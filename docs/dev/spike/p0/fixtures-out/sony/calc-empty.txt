@@ -1,0 +1,29 @@
+screen: calculator
+package: com.google.android.calculator
+activity: com.android.calculator2.Calculator
+nodes: 25
+#n0 FrameLayout id=content (360,640) [0,0,720,1280]
+  #n1 LinearLayout id=main_calculator (360,664) [0,48,720,1280]
+    #n2 LinearLayout id=display (360,268) [0,48,720,488]
+      #n3 EditText text="" desc="No formula" id=formula (360,214) [0,120,720,308] clickable,long-clickable,editable,focused
+      #n4 TextView text="" desc="No result" id=result (360,398) [0,308,720,488]
+    #n5 LinearLayout id=pad_numeric (240,884) [0,488,480,1280]
+      #n6 Button text="7" desc="7" id=digit_7 (80,587) [0,488,160,686] clickable
+      #n7 Button text="8" desc="8" id=digit_8 (240,587) [160,488,320,686] clickable
+      #n8 Button text="9" desc="9" id=digit_9 (400,587) [320,488,480,686] clickable
+      #n9 Button text="4" desc="4" id=digit_4 (80,785) [0,686,160,884] clickable
+      #n10 Button text="5" desc="5" id=digit_5 (240,785) [160,686,320,884] clickable
+      #n11 Button text="6" desc="6" id=digit_6 (400,785) [320,686,480,884] clickable
+      #n12 Button text="1" desc="1" id=digit_1 (80,983) [0,884,160,1082] clickable
+      #n13 Button text="2" desc="2" id=digit_2 (240,983) [160,884,320,1082] clickable
+      #n14 Button text="3" desc="3" id=digit_3 (400,983) [320,884,480,1082] clickable
+      #n15 Button text="0" desc="0" id=digit_0 (80,1181) [0,1082,160,1280] clickable
+      #n16 Button text="." desc="point" id=dec_point (240,1181) [160,1082,320,1280] clickable
+      #n17 Button text="=" desc="equals" id=eq (400,1181) [320,1082,480,1280] clickable
+    #n18 LinearLayout id=pad_operator (600,884) [480,488,720,1280]
+      #n19 Button text="DEL" desc="delete" id=del (600,568) [480,488,720,648] clickable,long-clickable
+      #n20 Button text="CLR" desc="clear" id=clr (600,568) [480,488,720,648] clickable
+      #n21 Button text="/" desc="divide" id=op_div (600,726) [480,648,720,806] clickable
+      #n22 Button text="x" desc="multiply" id=op_mul (600,884) [480,806,720,964] clickable
+      #n23 Button text="-" desc="minus" id=op_sub (600,1042) [480,964,720,1122] clickable
+      #n24 Button text="+" desc="plus" id=op_add (600,1200) [480,1122,720,1280] clickable

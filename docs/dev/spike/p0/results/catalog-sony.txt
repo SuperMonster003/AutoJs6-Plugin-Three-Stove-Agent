@@ -1,0 +1,94 @@
+{
+  "generation": "catalog.6207059a47bd5c63ffe83c9dcef04efa21a4b7041441ccdff15ee896a7a09e79",
+  "plugin": {
+    "provider": "autojs6.three-stone-ai",
+    "component": {
+      "packageName": "io.github.supermonster003.autojs6.plugin.threestoneai",
+      "className": "io.github.supermonster003.autojs6.plugin.threestoneai.provider.ThreeStoneAiProviderService"
+    }
+  },
+  "defaultTarget": "profile:5d99a40b-0ea5-4479-85d4-d34e3c38c1b7",
+  "targets": [
+    {
+      "id": "local:litertlm.ab7838cdfc8f77e54d8ca45eadceb204",
+      "displayName": "gemma-4-E2B-it-litert-lm.litertlm",
+      "provider": "autojs6.three-stone-ai",
+      "profile": null,
+      "model": "litertlm.ab7838cdfc8f77e54d8ca45eadceb204",
+      "locality": "local",
+      "credentialMode": "none",
+      "configured": true,
+      "available": true,
+      "availability": "available",
+      "isDefault": false,
+      "capabilities": [
+        "streaming",
+        "structured-json",
+        "usage",
+        "persistent-session"
+      ],
+      "supportedControls": [
+        "maximum-output-tokens",
+        "temperature",
+        "top-k",
+        "top-p",
+        "response-json-schema",
+        "backend-profile"
+      ],
+      "limits": {
+        "maximumContextBytes": 262144,
+        "maximumOutputBytes": 65536
+      },
+      "origins": [],
+      "backendProfiles": [
+        {
+          "id": "cpu",
+          "availability": "available"
+        },
+        {
+          "id": "gpu",
+          "availability": "available"
+        },
+        {
+          "id": "npu",
+          "availability": "unavailable",
+          "unavailableReason": "npu-runtime-not-packaged"
+        }
+      ]
+    },
+    {
+      "id": "profile:5d99a40b-0ea5-4479-85d4-d34e3c38c1b7",
+      "displayName": "PoloAPI",
+      "provider": "openai-compatible",
+      "profile": "5d99a40b-0ea5-4479-85d4-d34e3c38c1b7",
+      "model": "claude-opus-4-8",
+      "locality": "remote",
+      "credentialMode": "plugin-managed",
+      "configured": true,
+      "available": true,
+      "availability": "available",
+      "isDefault": true,
+      "capabilities": [
+        "streaming",
+        "structured-json",
+        "usage",
+        "persistent-session"
+      ],
+      "supportedControls": [
+        "maximum-output-tokens",
+        "temperature",
+        "top-k",
+        "top-p",
+        "response-json-schema"
+      ],
+      "limits": {
+        "maximumContextBytes": 262144,
+        "maximumOutputBytes": 65536
+      },
+      "origins": [
+        "https://poloapi.top"
+      ],
+      "backendProfiles": []
+    }
+  ]
+}

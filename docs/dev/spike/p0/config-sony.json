@@ -1,0 +1,1 @@
+{"device":"sony","lang":"en","targets":[{"label":"sony-remote-poloapi-claude-opus-4-8","id":"profile:5d99a40b-0ea5-4479-85d4-d34e3c38c1b7","timeout":120000},{"label":"sony-local-gemma4-e2b","id":"local:litertlm.ab7838cdfc8f77e54d8ca45eadceb204","timeout":300000}]}

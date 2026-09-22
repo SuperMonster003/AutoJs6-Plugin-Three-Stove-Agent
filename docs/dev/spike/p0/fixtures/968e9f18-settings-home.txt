@@ -1,0 +1,109 @@
+screen: settings-home
+package: com.android.settings
+activity: com.android.settings.MiuiSettings
+nodes: 105 (walked 161)
+#n0 FrameLayout id=action_bar_overlay_layout (405,1440) [0,0,810,2880]
+  #n1 FrameLayout id=content (405,1440) [0,0,810,2880]
+    #n2 FrameLayout id=main_content (405,1440) [0,0,810,2880]
+      #n3 FrameLayout id=action_bar_overlay_layout (405,1440) [0,0,810,2880]
+        #n4 FrameLayout id=content (405,1440) [0,0,810,2880]
+          #n5 LinearLayout id=search_result_ll (405,1440) [0,0,810,2880]
+          #n6 FrameLayout id=nestedheaderlayout (405,1510) [0,141,810,2880]
+            #n7 FrameLayout id=header_view (405,397) [0,332,810,463] clickable,focused
+              #n8 FrameLayout id=search_mode_stub (405,397) [0,332,810,463]
+                #n9 LinearLayout id=inputArea (406,392) [28,341,785,444]
+                  #n10 TextView text="搜索系统设置项" desc="搜索" id=input (458,392) [131,341,785,444]
+            #n11 ViewGroup id=springbacklayout (405,1671) [0,463,810,2880]
+              #n12 RecyclerView id=scroll_headers (405,1671) [0,463,810,2880] scrollable
+                #n13 LinearLayout (406,571) [28,487,785,656] clickable
+                  #n14 ImageView id=icon (97,571) [58,532,137,611]
+                  #n15 RelativeLayout id=miuix_preference_navigation (449,571) [167,487,732,656]
+                    #n16 TextView text="1000000000" id=title (282,547) [167,520,397,574]
+                    #n17 TextView text="账号、云服务、会员权益等" id=summary (365,598) [167,574,563,623] disabled
+                  #n18 LinearLayout id=widget_frame (743,571) [732,549,755,593]
+                #n19 LinearLayout (406,721) [28,656,785,787] clickable
+                  #n20 ImageView id=icon (97,721) [65,689,130,754]
+                  #n21 RelativeLayout id=miuix_preference_navigation (375,721) [167,659,583,784]
+                    #n22 TextView text="我的设备" id=title (247,721) [167,692,327,751]
+                  #n23 LinearLayout id=widget_frame (665,721) [583,681,748,762]
+                    #n24 TextView text="新版本" id=text_right (665,721) [583,681,748,762] clickable
+                #n25 LinearLayout (406,852) [28,787,785,918] clickable
+                  #n26 ImageView id=icon (97,852) [65,820,130,885]
+                  #n27 RelativeLayout id=miuix_preference_navigation (446,852) [167,790,725,915]
+                    #n28 TextView text="平板专区" id=title (247,852) [167,823,327,882]
+                  #n29 LinearLayout id=widget_frame (736,852) [725,830,748,874]
+                #n30 LinearLayout (406,1030) [28,946,785,1115] clickable
+                  #n31 ImageView id=icon (97,1030) [65,998,130,1063]
+                  #n32 RelativeLayout id=miuix_preference_navigation (446,1030) [167,946,725,1115]
+                    #n33 TextView text="WLAN" id=title (223,1006) [167,979,280,1033]
+                    #n34 TextView text="已关闭" id=summary (216,1057) [167,1033,266,1082]
+                #n35 LinearLayout (406,1202) [28,1115,785,1289] clickable
+                  #n36 ImageView id=icon (97,1201) [65,1169,130,1234]
+                  #n37 RelativeLayout id=miuix_preference_navigation (446,1202) [167,1115,725,1289]
+                    #n38 TextView text="蓝牙" id=title (207,1177) [167,1148,247,1207]
+                    #n39 TextView text="已开启" id=summary (216,1231) [167,1207,266,1256]
+                #n40 LinearLayout (406,1354) [28,1289,785,1420] clickable
+                  #n41 ImageView id=icon (97,1354) [65,1322,130,1387]
+                  #n42 RelativeLayout id=miuix_preference_navigation (446,1354) [167,1292,725,1417]
+                    #n43 TextView text="互联互通" id=title (247,1354) [167,1325,327,1384]
+                  #n44 LinearLayout id=widget_frame (736,1354) [725,1332,748,1376]
+                #n45 LinearLayout (406,1485) [28,1420,785,1551] clickable
+                  #n46 ImageView id=icon (97,1485) [65,1453,130,1518]
+                  #n47 RelativeLayout id=miuix_preference_navigation (446,1485) [167,1425,725,1545]
+                    #n48 TextView text="VPN" id=title (207,1485) [167,1458,247,1512]
+                  #n49 LinearLayout id=widget_frame (736,1485) [725,1463,748,1507]
+                #n50 LinearLayout (406,1616) [28,1551,785,1682] clickable
+                  #n51 ImageView id=icon (97,1616) [65,1584,130,1649]
+                  #n52 RelativeLayout id=miuix_preference_navigation (446,1616) [167,1554,725,1679]
+                    #n53 TextView text="更多连接" id=title (247,1616) [167,1587,327,1646]
+                  #n54 LinearLayout id=widget_frame (736,1616) [725,1594,748,1638]
+                #n55 LinearLayout (406,1775) [28,1710,785,1841] clickable
+                  #n56 ImageView id=icon (97,1775) [65,1743,130,1808]
+                  #n57 RelativeLayout id=miuix_preference_navigation (446,1775) [167,1713,725,1838]
+                    #n58 TextView text="系统个性化" id=title (267,1775) [167,1746,367,1805]
+                  #n59 LinearLayout id=widget_frame (736,1775) [725,1753,748,1797]
+                #n60 LinearLayout (406,1906) [28,1841,785,1972] clickable
+                  #n61 ImageView id=icon (97,1906) [65,1874,130,1939]
+                  #n62 RelativeLayout id=miuix_preference_navigation (446,1906) [167,1844,725,1969]
+                    #n63 TextView text="锁屏" id=title (207,1906) [167,1877,247,1936]
+                  #n64 LinearLayout id=widget_frame (736,1906) [725,1884,748,1928]
+                #n65 LinearLayout (406,2037) [28,1972,785,2103] clickable
+                  #n66 ImageView id=icon (97,2037) [65,2005,130,2070]
+                  #n67 RelativeLayout id=miuix_preference_navigation (446,2037) [167,1975,725,2100]
+                    #n68 TextView text="通知与状态栏" id=title (287,2037) [167,2008,407,2067]
+                  #n69 LinearLayout id=widget_frame (736,2037) [725,2015,748,2059]
+                #n70 LinearLayout (406,2168) [28,2103,785,2234] clickable
+                  #n71 ImageView id=icon (97,2168) [65,2136,130,2201]
+                  #n72 RelativeLayout id=miuix_preference_navigation (446,2168) [167,2106,725,2231]
+                    #n73 TextView text="桌面" id=title (207,2168) [167,2139,247,2198]
+                  #n74 LinearLayout id=widget_frame (736,2168) [725,2146,748,2190]
+                #n75 LinearLayout (406,2299) [28,2234,785,2365] clickable
+                  #n76 ImageView id=icon (97,2299) [65,2267,130,2332]
+                  #n77 RelativeLayout id=miuix_preference_navigation (446,2299) [167,2237,725,2362]
+                    #n78 TextView text="显示与亮度" id=title (267,2299) [167,2270,367,2329]
+                  #n79 LinearLayout id=widget_frame (736,2299) [725,2277,748,2321]
+                #n80 LinearLayout (406,2430) [28,2365,785,2496] clickable
+                  #n81 ImageView id=icon (97,2430) [65,2398,130,2463]
+                  #n82 RelativeLayout id=miuix_preference_navigation (446,2430) [167,2368,725,2493]
+                    #n83 TextView text="声音" id=title (207,2430) [167,2401,247,2460]
+                  #n84 LinearLayout id=widget_frame (736,2430) [725,2408,748,2452]
+                #n85 LinearLayout (406,2561) [28,2496,785,2627] clickable
+                  #n86 ImageView id=icon (97,2561) [65,2529,130,2594]
+                  #n87 RelativeLayout id=miuix_preference_navigation (446,2561) [167,2499,725,2624]
+                    #n88 TextView text="手写笔与键盘" id=title (287,2561) [167,2532,407,2591]
+                  #n89 LinearLayout id=widget_frame (736,2561) [725,2539,748,2583]
+                #n90 LinearLayout (406,2720) [28,2655,785,2786] clickable
+                  #n91 ImageView id=icon (97,2720) [65,2688,130,2753]
+                  #n92 RelativeLayout id=miuix_preference_navigation (446,2720) [167,2658,725,2783]
+                    #n93 TextView text="指纹、面部与密码" id=title (327,2720) [167,2691,487,2750]
+                  #n94 LinearLayout id=widget_frame (736,2720) [725,2698,748,2742]
+                #n95 LinearLayout (406,2833) [28,2786,785,2880] clickable
+                  #n96 ImageView id=icon (97,2849) [65,2819,130,2880]
+                  #n97 RelativeLayout id=miuix_preference_navigation (446,2834) [167,2789,725,2880]
+                    #n98 TextView text="隐私与安全" id=title (267,2851) [167,2822,367,2880]
+                  #n99 LinearLayout id=widget_frame (736,2851) [725,2829,748,2873]
+        #n100 FrameLayout id=action_bar_container (405,166) [0,0,810,332] clickable
+          #n101 ViewGroup id=action_bar (405,196) [0,60,810,332]
+            #n102 FrameLayout id=action_bar_movable_container (405,261) [0,191,810,332]
+              #n103 LinearLayout (135,254) [60,200,210,309] clickable
+                #n104 TextView text="设置" id=action_bar_title_expand (135,254) [60,200,210,309]

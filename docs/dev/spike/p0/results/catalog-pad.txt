@@ -1,0 +1,60 @@
+{
+  "generation": "catalog.850ef9ea67a3364431e1384e2481fc87a24c533aa2b1d7ce4dc1229265617400",
+  "plugin": {
+    "provider": "autojs6.three-stone-ai",
+    "component": {
+      "packageName": "io.github.supermonster003.autojs6.plugin.threestoneai",
+      "className": "io.github.supermonster003.autojs6.plugin.threestoneai.provider.ThreeStoneAiProviderService"
+    }
+  },
+  "defaultTarget": "local:litertlm.0b2a8980ce155fd97673d8e820b4d29d",
+  "targets": [
+    {
+      "id": "local:litertlm.0b2a8980ce155fd97673d8e820b4d29d",
+      "displayName": "gemma-4-E4B-it.litertlm",
+      "provider": "autojs6.three-stone-ai",
+      "profile": null,
+      "model": "litertlm.0b2a8980ce155fd97673d8e820b4d29d",
+      "locality": "local",
+      "credentialMode": "none",
+      "configured": true,
+      "available": true,
+      "availability": "available",
+      "isDefault": true,
+      "capabilities": [
+        "streaming",
+        "structured-json",
+        "usage",
+        "persistent-session"
+      ],
+      "supportedControls": [
+        "maximum-output-tokens",
+        "temperature",
+        "top-k",
+        "top-p",
+        "response-json-schema",
+        "backend-profile"
+      ],
+      "limits": {
+        "maximumContextBytes": 262144,
+        "maximumOutputBytes": 65536
+      },
+      "origins": [],
+      "backendProfiles": [
+        {
+          "id": "cpu",
+          "availability": "available"
+        },
+        {
+          "id": "gpu",
+          "availability": "available"
+        },
+        {
+          "id": "npu",
+          "availability": "unavailable",
+          "unavailableReason": "npu-runtime-not-packaged"
+        }
+      ]
+    }
+  ]
+}

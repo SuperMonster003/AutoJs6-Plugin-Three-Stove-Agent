@@ -1,0 +1,5 @@
+1 baseline prose, structuredJson=false, no schema -> REJECTED wall=1089ms [object Object] code=PROVIDER_FAILED message=AI plugin chat failed (PROVIDER_FAILED)
+2 prose under structuredJson=true + schema (repeat) -> REJECTED wall=975ms [object Object] code=PROVIDER_FAILED message=AI plugin chat failed (PROVIDER_FAILED)
+3 prose under structuredJson=true, no schema -> REJECTED wall=1203ms [object Object] code=PROVIDER_FAILED message=AI plugin chat failed (PROVIDER_FAILED)
+4 schema-violating request: ask for kind=finished (not in enum) under schema -> REJECTED wall=1020ms [object Object] code=PROVIDER_FAILED message=AI plugin chat failed (PROVIDER_FAILED)
+done

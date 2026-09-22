@@ -1,0 +1,14 @@
+screen: launcher
+package: com.sonymobile.home
+activity: com.sonymobile.home/.HomeActivity
+nodes: 13
+  #n1 FrameLayout desc="Xperia Home" (360,640)
+    #n2 View (360,640) clickable,focused
+    #n3 TextView text="Play Store" id=play_store_proxy (360,140)
+    #n4 AppWidgetHostView desc="Sony clock 2" (360,248)
+      #n5 RelativeLayout id=clock_date (359,247) clickable
+          #n7 TextView text="21" desc="21" id=hour (314,225)
+          #n8 TextView text="15" desc="15" id=minute (465,225)
+          #n10 TextView text="TUE, SEP 22" desc="Tue, Sep 22" id=date (359,352)
+    #n11 TextView text="Calculator" desc="Calculator" (200,900) clickable,long-clickable
+    #n12 TextView text="Chrome" desc="Chrome" (520,900) clickable,long-clickable

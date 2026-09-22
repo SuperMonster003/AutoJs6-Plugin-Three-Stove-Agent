@@ -1,0 +1,6 @@
+target pad-local-gemma4-e4b local:litertlm.0b2a8980ce155fd97673d8e820b4d29d
+gpu warm-up tiny -> OK wall=67972ms usage={"inputTokens":32,"outputTokens":8,"totalTokens":40,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":4001,"raw":null} text={"kind": "done"}
+tiny ~75 tokens -> OK wall=12573ms usage={"inputTokens":56,"outputTokens":33,"totalTokens":89,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":5047,"raw":null} text={"kind": "tool", "tool": "ui_click", "arguments": {"nodeRef": "n30"}}
+medium ~700 tokens -> OK wall=14871ms usage={"inputTokens":587,"outputTokens":33,"totalTokens":620,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":6964,"raw":null} text={"kind": "tool", "tool": "ui_click", "arguments": {"nodeRef": "n30"}}
+settings-home local fixture -> OK wall=15326ms usage={"inputTokens":1149,"outputTokens":33,"totalTokens":1182,"reasoningTokens":null,"cachedInputTokens":null,"durationMillis":7775,"raw":null} text={"kind": "tool", "tool": "ui_click", "arguments": {"nodeRef": "n33"}}
+done

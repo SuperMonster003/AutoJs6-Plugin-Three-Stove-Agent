@@ -1,0 +1,16 @@
+screen: wifi
+package: com.android.settings
+activity: android.widget.FrameLayout
+nodes: 25
+  #n1 FrameLayout id=action_bar_container (1305,95) clickable
+        #n4 LinearLayout (1304,125) clickable
+          #n5 TextView text="WLAN" id=action_bar_title (1304,125)
+      #n6 ImageView (1706,125) clickable,disabled
+                #n14 ViewGroup (1305,267) clickable,focused
+                  #n15 TextView text="WLAN" id=title (950,267)
+                    #n17 CheckBox id=checkbox (1658,266) unchecked
+                #n18 ViewGroup (1305,398) clickable
+                  #n19 TextView text="网络加速" id=title (974,398)
+                #n21 TextView text="更多设置" id=title (1305,535)
+                #n22 ViewGroup (1305,644) clickable
+                  #n23 TextView text="高级设置" id=title (974,644)
