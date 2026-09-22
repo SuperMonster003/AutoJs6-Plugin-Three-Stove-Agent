@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-La version 1.0.0 est l'aperçu de développement P0 de la feuille de route : l'identité du plugin, le contrat de découverte AutoJs6 (service INFO, Wake Activity et service `org.autojs.plugin.AI_AGENT` provisoire) et un écran de lancement qui indique l'état de l'hôte. La boucle de l'agent, le catalogue de scripts, l'API `ai.agent` et l'espace de tâches ne sont pas encore implémentés ; l'avancement et les preuves sont suivis dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). Le plugin nécessitera AutoJs6 build 5283 ou ultérieure.
+Le moteur du plugin dans la version 1.0.0 reste un aperçu P0: INFO, Wake Activity, le service provisoire `org.autojs.plugin.AI_AGENT` et un écran indiquant l'état de l'hôte. L'hôte implémente les contrats P1, les intermédiaires, l'observation de l'écran, l'exécution des scripts enregistrés et les accès du volet et du centre de plugins. La boucle de l'agent, la sélection de scripts, l'API `ai.agent` et l'espace de tâches restent prévus ultérieurement. AutoJs6 build 5285 est requis; voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour le suivi et les preuves.
 
 ******
 
@@ -73,11 +73,11 @@ La version 1.0.0 doit fournir les capacités suivantes:
 
 ******
 
-1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5283 ou ultérieure.
+1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5285 ou ultérieure.
 2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
-3. Ouvrez AI Agent depuis le lanceur : dans cet aperçu, l'écran indique seulement si un hôte AutoJs6 compatible est installé. L'espace de tâches, l'entrée du tiroir et l'API `ai.agent` arrivent avec les phases suivantes de la feuille de route.
+3. Ouvrez AI Agent depuis le lanceur ou l'action de gestion du volet AutoJs6. Cet aperçu affiche uniquement l'état de l'hôte; l'espace de tâches et l'API `ai.agent` arriveront dans les phases suivantes.
 
-> Dans cet aperçu, l'écran de lancement indique seulement l'état de l'hôte ; l'entrée du tiroir d'AutoJs6, l'API `ai.agent` et l'espace de tâches arrivent avec les phases P1, P5 et P6 de la feuille de route.
+> Le volet de l'hôte propose désormais la connexion et la gestion. Le plugin ne peut pas encore exécuter de tâches; l'API `ai.agent` et l'espace de tâches restent prévus en P5 et P6, respectivement.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService` répond à `org.autojs.plugin.AI_AGENT` (catégorie `ai-agent`) dans le processus `:agent` ; dans cet aperçu, il expose un Binder provisoire portant le descripteur `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` jusqu'à ce que le module de contrat de l'hôte soit mis en place. `AiAgentPluginInfoService` répond à `org.autojs.plugin.INFO` avec PluginInfo. `WakeActivity` permet à l'hôte d'activer le plugin.
@@ -138,9 +138,10 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 _2026/09/23_
 
 - `Note` Aperçu de développement P0 : identité du plugin, contrat de découverte AutoJs6 et écran de lancement indiquant l'état de l'hôte. La boucle de l'agent, le catalogue de scripts, l'API ai.agent et l'espace de tâches ne sont pas encore implémentés. Voir ROADMAP.md.
-- `Note` Le contrat AI Agent, les relais de fonctions et de modèles, les observations de l'écran et l'exécution des scripts enregistrés sont implémentés dans l'hôte. L'exécution des tâches du plugin reste en développement
+- `Note` L'hôte implémente les contrats AI Agent, les intermédiaires de capacités et de modèles, l'observation de l'écran, l'exécution des scripts enregistrés et les accès du volet et du centre de plugins; l'exécution des tâches du plugin reste en développement
 - `Fonctionnalité` Identité de plugin `ai-agent` avec le service INFO, la Wake Activity, le service provisoire `org.autojs.plugin.AI_AGENT` dans le processus `:agent` et un écran de lancement indiquant si un hôte AutoJs6 compatible est installé
 - `Fonctionnalité` README, instructions du centre de plugins et journal des modifications en 10 langues
+- `Amélioration` Version minimale de l'hôte fixée à AutoJs6 6.8.0 / build 5285, correspondant à la livraison des interfaces et accès P1
 - `Dépendance` Ajout de `common-plugin-api.aar` (module AutoJs6 `plugin-api/common-plugin-api`, build hôte 6.8.0 / 5282, MPL 2.0) comme contrat de plugin partagé, verrouillé par hachage dans `locks/host-api-aars.lock`
 
 ##### Pour plus d'historique des versions

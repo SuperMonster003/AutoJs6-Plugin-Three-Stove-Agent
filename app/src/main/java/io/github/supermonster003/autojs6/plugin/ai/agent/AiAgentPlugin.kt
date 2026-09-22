@@ -38,9 +38,8 @@ object AiAgentPlugin {
     const val SERVICE_DESCRIPTOR = "org.autojs.plugin.ai.agent.api.IAiAgentPlugin"
 
     /**
-     * Minimum AutoJs6 `versionCode` able to list this plugin. Provisional: the first host build
-     * after 5282 (the build this skeleton was developed against); roadmap P1.6 replaces it with
-     * the build that actually ships the AI Agent contract module and the brokers.
+     * Minimum AutoJs6 `versionCode` shipping the P1 contracts, brokers, observations,
+     * registered scripts and user entry points, finalized by roadmap P1.6.
      */
-    const val REQUIRED_HOST_VERSION = 5283L
+    const val REQUIRED_HOST_VERSION = 5285L
 }

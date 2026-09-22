@@ -52,7 +52,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-版本 1.0.0 是路線圖的 P0 開發預覽: 外掛身分, AutoJs6 探索契約 (INFO 服務, Wake Activity 與 `org.autojs.plugin.AI_AGENT` 服務佔位) 以及一個顯示主程式狀態的啟動頁. 智慧代理循環, 指令碼目錄, `ai.agent` API 與任務台尚未實作; 進度與證據記錄在 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). 外掛將要求 AutoJs6 組建 5283 或更新版本.
+版本 1.0.0 的外掛執行階段仍為 P0 開發預覽: INFO 服務, Wake Activity, `org.autojs.plugin.AI_AGENT` 佔位服務與宿主狀態啟動頁. 宿主已實作 P1 的契約, 代理, 畫面觀察, 指令碼登記執行及側邊欄和外掛中心入口. 外掛的智慧體循環與指令碼選擇, `ai.agent` API 和任務台仍待後續階段. 最低要求為 AutoJs6 組建 5285; 進度與證據見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,11 +73,11 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1. 在安裝了 AutoJs6 組建 5283 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+1. 在安裝了 AutoJs6 組建 5285 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
-3. 從啟動器開啟 AI Agent: 本預覽版的頁面只顯示是否安裝了相容的 AutoJs6 主程式. 任務台, 抽屜項目與 `ai.agent` API 隨後續路線圖階段提供.
+3. 從啟動器或 AutoJs6 側邊欄的管理入口開啟 AI Agent: 本預覽版只顯示宿主狀態. 任務台和 `ai.agent` API 隨後續階段提供.
 
-> 本預覽版的啟動頁只顯示主程式狀態; AutoJs6 抽屜項目, `ai.agent` API 與任務台分別隨路線圖 P1, P5 與 P6 提供.
+> 宿主側邊欄已提供連線與管理入口; 目前外掛尚不能執行任務. `ai.agent` API 與任務台仍分別屬於 P5 和 P6.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService` 在 `:agent` 程序中回應 `org.autojs.plugin.AI_AGENT` (category `ai-agent`); 本預覽版在主程式契約模組落地前只公開一個攜帶 descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` 的佔位 Binder. `AiAgentPluginInfoService` 以 PluginInfo 回應 `org.autojs.plugin.INFO`. `WakeActivity` 供主程式啟動外掛.
@@ -138,9 +138,10 @@ minimum host build: 5283 (6.8.0)
 _2026/09/23_
 
 - `提示` P0 開發預覽: 外掛身分, AutoJs6 探索契約與顯示主程式狀態的啟動頁. 智慧代理循環, 指令碼目錄, ai.agent API 與任務台尚未實作. 詳見 ROADMAP.md.
-- `提示` 宿主端的 AI Agent 契約, 能力與模型代理, 畫面觀察及指令碼登記執行已實作, 外掛任務執行功能仍處於開發階段
+- `提示` 宿主的 AI Agent 契約, 能力與模型代理, 畫面觀察, 指令碼登記執行, 側邊欄與外掛中心入口已實作; 外掛任務執行仍在開發中
 - `新增` 外掛身分 `ai-agent`, 含 INFO 服務, Wake Activity, 執行於 `:agent` 程序的 `org.autojs.plugin.AI_AGENT` 服務佔位, 以及顯示是否安裝了相容 AutoJs6 主程式的啟動頁
 - `新增` 10 種語言的 README, 外掛中心說明與更新日誌
+- `優化` 最低宿主要求確定為 AutoJs6 6.8.0 / 組建 5285, 與宿主 P1 介面及入口交付版本一致
 - `相依性` 附加 `common-plugin-api.aar` (AutoJs6 模組 `plugin-api/common-plugin-api`, 主程式組建 6.8.0 / 5282, MPL 2.0) 作為共用外掛契約, 以 SHA-256 鎖定於 `locks/host-api-aars.lock`
 
 ##### 更多發行歷史

@@ -266,6 +266,8 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.1 仓库骨架
 
+P1.6 回填 (2026-09-23): 最低宿主版本最终确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值的历史记录; 当前身份以 5285 为准. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
+
 - [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 第 2 节确定标识并全仓库一致 (D1); `{REQUIRES_HOST_VERSION}` = P1 交付契约的宿主 `versionCode` (P0 以 5283 = 当前宿主 5282 + 1 作为临时值, P1.6 回填); `{PLATFORM_VERSIONS_PLUGIN_VERSION}=1.8.3` (已确认 `AutoJs6-Gradle-Platform-Versions/version.properties`, 落地前再确认公共仓库可解析). 证据 (E0 / E1, 2026-09-22): `AiAgentPlugin` 常量 + `AiAgentPluginRuntimeInfoTest` 2 用例; 平台插件 1.8.3 与 native-alignment 1.8.3 经公共仓库解析成功 (Temurin 验收命令通过, 日志只有一段 `Version information`).
 - [x] (插件) 以 `AutoJs6-Plugin-OpenCC` 为构建 / 资源 / 激活基础参照, `AutoJs6-Plugin-MCP-Server` 为契约与宿主链路参照, `AutoJs6-Plugin-Readium-EPUB-Reader` 为独立界面 / 设置 / 更新检查参照生成骨架: `settings.gradle.kts` (平台插件位于 `includeBuild` 之前), 根与 `app` 的 `build.gradle.kts` (无 ABI splits, D27), `build-logic` 四个约定插件, `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD` 按提交计数), 从宿主复制 `.gitignore` / `sign.properties` / `app/sm003.jks` (后两者忽略), `appendDigestToReleasedFiles` 单 APK 形态. 证据 (E0, 2026-09-22): 提交 1 `build: bootstrap ...`; `libs/common-plugin-api.aar` 取自宿主 `973447133` (5282) 的 `assembleRelease`, SHA-256 `ee7eb787...` 锁定; `git check-ignore` 确认 `sign.properties` / `app/sm003.jks` / `local.properties` 被忽略; `assembleDebug` 产出 `autojs6-plugin-ai-agent-v1.0.0.apk`, `verifyDebugNativePageAlignment` 通过 (无原生库).
 - [x] (插件) Manifest 最小骨架: `org.autojs.permission.PLUGIN`, `WAKE_ACTIVITY` meta-data 与 `WakeActivity`, `AiAgentPluginService` (`org.autojs.plugin.AI_AGENT` + category `ai-agent`), `AiAgentPluginInfoService` (`org.autojs.plugin.INFO`), 均受 `org.autojs.permission.PLUGIN` 保护; `LauncherActivity` (`MAIN` / `LAUNCHER`, 本阶段只显示状态占位); 权限集合 D28 (悬浮球与前台服务权限在 P2 / P6 启用时再加入, 本阶段只声明 PLUGIN 权限). 证据 (E1 / E2 / E3, 2026-09-22): `ManifestContractTest` 4 用例 (精确权限集合 = 仅 PLUGIN, 两个 Activity, 两个 Service, 无 receiver / provider); `AiAgentPluginContractTest` 4 用例在 AVD API 37 (`AVD_API_37.1_16K`), Xiaomi Pad 23046RP50C (API 35) 与 Sony G8441 (API 28) 各 4/4 通过 (Wake 契约, launcher 唯一入口, INFO `getInfo()` 往返, `:agent` 进程占位 descriptor). `LauncherActivity` 在两台真机上显示 `已安装 AutoJs6 构建 5282, 但此插件需要构建 5283` (`docs/dev/images/p0-launcher-api28.png`, `p0-launcher-api35.png`).
@@ -341,11 +343,13 @@ P1.5 复验: P0.1 暂留的 "插件中心显示激活并可启用" 已在 API 37
 
 ### P1.6 协议文档与 changelog
 
-- [ ] (宿主) `docs/dev/host-capability-contract-v1.md` (共享能力代理契约: AIDL, Bundle key, JSON 信封, grant 摘要, 错误分类, 消费方列表), `docs/dev/mcp-server-protocol-v1.md` 追加 v2 章节 (`openServerV2`, 版本协商, v1 兼容), `docs/dev/ai-agent-protocol-v1.md` (决策, Binder 面, Bundle key, 状态与错误词汇, 上限, 附着协议, 对共享契约的引用) 与 `docs/dev/agent-script-manifest-v1.md`.
-- [ ] (宿主) `.changelog` 10 语言: `feature` (AI Agent 插件契约, `ai.agent` 预告不写, 只写契约与脚本登记), `improvement` (`accessibility.dump` compact, `readScreenText`); `AiAgentIds.REQUIRED_HOST_VERSION_CODE` 定为本阶段交付的宿主构建号并回填 P0.1.
-- [ ] (宿主) 全部 P1 改动按逻辑提交 (契约 / 代理与共享核心 / bridge 与登记 / 入口与注册 / 文档), 每个提交可构建; `git diff --check` 通过.
+- [x] (宿主) `docs/dev/host-capability-contract-v1.md` (共享能力代理契约: AIDL, Bundle key, JSON 信封, grant 摘要, 错误分类, 消费方列表), `docs/dev/mcp-server-protocol-v1.md` 追加 v2 章节 (`openServerV2`, 版本协商, v1 兼容), `docs/dev/ai-agent-protocol-v1.md` (决策, Binder 面, Bundle key, 状态与错误词汇, 上限, 附着协议, 对共享契约的引用) 与 `docs/dev/agent-script-manifest-v1.md`. 证据 (E0, 2026-09-23): 宿主 `e7045e7b0d`, 四份协议同步当前实现, 说明 P0 占位 Binder, INFO 管理与运行时附着的区别, 连接归属与 D15/D16 恢复策略; 保留 P2-P7 后续实现/验收边界.
+- [x] (宿主) `.changelog` 10 语言: `feature` (AI Agent 插件契约, `ai.agent` 预告不写, 只写契约与脚本登记), `improvement` (`accessibility.dump` compact, `readScreenText`); `AiAgentIds.REQUIRED_HOST_VERSION_CODE` 定为本阶段交付的宿主构建号并回填 P0.1. 证据 (E0 / E1 / E2, 2026-09-23): 宿主日志已随 P1.1-P1.5 实现同步; 最低构建最终为 5285, 宿主/插件常量, Manifest, INFO, 测试, AGENTS 与 10 语言文档一致. 插件文档生成 36 产物无漂移, JVM 11/11, 最终 APK 契约 4/4.
+- [x] (宿主) 全部 P1 改动按逻辑提交 (契约 / 代理与共享核心 / bridge 与登记 / 入口与注册 / 文档), 每个提交可构建; `git diff --check` 通过. 证据 (E0 / E1 / E2, 2026-09-23): 宿主依次 `2201068c9e`, `7a8193aaa0`, `1c0126448e`, `0293665c2e`, `0af646e96c`, `e7045e7b0d`; 最终 debug/androidTest 构建与 16 KiB 对齐通过, 宿主 JVM 3,172 项 (0 失败/错误, 6 条件跳过), 三契约模块 20/20, 最终宿主设备 39/39. 详见宿主 `docs/dev/evidence/ai-agent-p16-20260923.md`.
 
 验收: 宿主 `:app:testDebugUnitTest` 与既有 MCP 测试全部通过; 假插件在 AVD 上完成 attach -> `listTargets` -> `generate` (结构化 JSON) -> `dispatch(accessibility.dump compact)` -> `execRegistered` -> detach 往返; 抽屉项六态引导可见.
+
+P1 验收状态 (2026-09-23): P1.5/P1.6 已完成, 宿主实际任务名为 `:app:testAppDebugUnitTest`, MCP 既有回归与引导渲染通过. 组合往返仍等待原 P7 的独立 `ai-agent-conformance` APK; P1.4 的公开 JS result/context 验收仍等待原 P5. 保留 P1.3/P1.4 未勾选测试条目及原阶段, 不以本地 Binder 或 P0 INFO 测试替代整体闭环, P1 尚未标为整体通过. 下一实施起点为 P2.1.
 
 ---
 
@@ -1109,3 +1113,11 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - JVM 3,172 项通过 (6 条件跳过); 首次运行的既有邮件关闭事件顺序用例失败, 未修改邮件代码的全量复跑通过. API 37 私有只读 AVD: 宿主 39/39, 插件契约 4/4; 手动核对抽屉, 长按启动器与插件中心启用, 补齐 P0 的注册验收. 未修改真机.
 - 实际 P0 APK 通过 INFO 管理探测, Agent 运行时仍是占位, P2.5 才接入真实 Binder. 连接生命周期夹具仍是宿主内本地 Binder, 不替代 P7 独立假 Agent APK; 500 ms 前台回退策略仍待 P7 兼容性验证.
 - 随后继续原 P1.6 文档与最低宿主版本同步, 再进入 P2.1. P1 整体跨进程闭环验收仍按已记录的 P5/P7 依赖保留.
+
+### 2026-09-23 (P1.6)
+
+- 宿主提交 `e7045e7b0d`: 四份协议文档与 P1.6 证据, 最低宿主构建 5285 定稿, 早期临时版本元数据在检查阶段判为不兼容. 此要求只属于 AI Agent, 不提高既有 MCP v1 APK 的最低宿主版本.
+- 插件同步最低版本到常量, 两处 Manifest, INFO/宿主状态测试, AGENTS 与 README 公共变量; 10 语言进度, 使用说明与 changelog 已重新生成并通过 `--check` (36 产物). 运行时仍为 P0 预览, 新 AAR 按 P2.5 入库, 未改动依赖或 MCP 插件源码.
+- 最终验证: 宿主 JVM 3,172 项, 0 失败/错误, 6 条件跳过; 契约模块 20/20; 宿主 debug/androidTest 构建与原生 16 KiB 对齐通过. 插件 JVM 11/11, debug/androidTest 与 lint 通过 (0 错误, 4 条原有依赖/图标文件警告). API 37 私有 AVD 最终宿主 39/39 (12.438 s), 插件真实契约 4/4 (0.192 s), 实际 INFO 最低版本为 5285.
+- 未改动真机. 未重复 release/R8 (无运行时依赖变更), 未进行真实模型任务, ColorOS 兼容矩阵或独立假 Agent APK 闭环; 后三者按原 P2-P7 继续. 四份宿主协议与验收证据已明确这些范围.
+- 下一会话从原 P2.1 的 ToolCatalog / ToolHandlers / 风险策略开始, 之后 P2.2 决策协议与解析, 不增加/拆分/丢弃路线图阶段. 本轮只本地提交, 未推送或发布.

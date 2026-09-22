@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-La versión 1.0.0 es la vista previa de desarrollo P0 de la hoja de ruta: la identidad del plugin, el contrato de descubrimiento de AutoJs6 (servicio INFO, Wake Activity y el servicio provisional `org.autojs.plugin.AI_AGENT`) y una pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API `ai.agent` y el espacio de tareas aún no están implementados; el progreso y las evidencias se registran en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). El plugin requerirá AutoJs6 build 5283 o posterior.
+El entorno del plugin en la versión 1.0.0 sigue siendo una vista previa P0: INFO, Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` y una pantalla con el estado del anfitrión. El anfitrión implementa los contratos P1, intermediarios, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins. El bucle del agente, la selección de scripts, la API `ai.agent` y el espacio de tareas siguen pendientes. Se requiere AutoJs6 build 5285; consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para ver el progreso y las evidencias.
 
 ******
 
@@ -73,11 +73,11 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ******
 
-1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5283 o posterior.
+1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5285 o posterior.
 2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
-3. Abra AI Agent desde el lanzador: en esta vista previa la pantalla solo indica si hay instalado un anfitrión AutoJs6 compatible. El espacio de tareas, la entrada del cajón y la API `ai.agent` llegan con las fases posteriores de la hoja de ruta.
+3. Abra AI Agent desde el lanzador o la opción de gestión del panel lateral de AutoJs6. Esta vista previa solo muestra el estado del anfitrión; el espacio de tareas y la API `ai.agent` llegarán en fases posteriores.
 
-> En esta vista previa la pantalla de inicio solo informa del estado del anfitrión; la entrada del cajón de AutoJs6, la API `ai.agent` y el espacio de tareas llegan con las fases P1, P5 y P6 de la hoja de ruta.
+> El panel lateral del anfitrión ya ofrece controles de conexión y gestión. El plugin aún no ejecuta tareas; la API `ai.agent` y el espacio de tareas siguen en P5 y P6, respectivamente.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService` responde a `org.autojs.plugin.AI_AGENT` (categoría `ai-agent`) en el proceso `:agent`; en esta vista previa expone un Binder provisional con el descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` hasta que se incorpore el módulo de contrato del anfitrión. `AiAgentPluginInfoService` responde a `org.autojs.plugin.INFO` con PluginInfo. `WakeActivity` permite al anfitrión activar el plugin.
@@ -138,9 +138,10 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 _2026/09/23_
 
 - `Aviso` Vista previa de desarrollo P0: identidad del plugin, contrato de descubrimiento de AutoJs6 y pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API ai.agent y el espacio de tareas aún no están implementados. Véase ROADMAP.md.
-- `Aviso` El contrato AI Agent, los intermediarios de capacidades y modelos, la observación de pantalla y la ejecución de scripts registrados están implementados en el anfitrión. La ejecución de tareas del complemento sigue en desarrollo
+- `Aviso` El anfitrión implementa los contratos de AI Agent, intermediarios de capacidades y modelos, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins; la ejecución de tareas del plugin sigue en desarrollo
 - `Función` Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible
 - `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
+- `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
 - `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
 
 ##### Para más historial de versiones

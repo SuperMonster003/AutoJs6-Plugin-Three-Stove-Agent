@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent turns a natural-language goal into actions on an Android device running AutoJs6. It either picks a script that the user has registered for agent use, fills in its parameters and runs it, or observes the screen through the accessibility node tree and acts on it step by step (observe, decide, act, verify) until the goal is reached, a confirmation is needed, or a budget runs out. It answers [AutoJs6 discussion #577]({{ discussion_url }}).",
   "p_introduction_how": "The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it through the `ai.agent` API of AutoJs6; users reach it through its own task workbench, the AutoJs6 drawer, a floating ball, the system share sheet, app shortcuts, and voice input. Model calls and device actions always go through AutoJs6 over Binder: the host lends the plugin a model broker (the AI Provider plugins the host already knows, such as 3-Stone AI) and a capability broker with a bounded grant. The plugin never holds credentials, never binds a model provider itself, and never requests the accessibility permission.",
   "h3_status": "Status",
-  "p_status": "Version {{ version_name }} is the P0 development preview of the roadmap: the plugin identity, the AutoJs6 discovery contract (INFO service, Wake Activity, and the `{{ plugin_service_action }}` service placeholder) and a launcher screen that reports the host status. The agent loop, the script catalog, the `ai.agent` API and the task workbench are not implemented yet; progress and evidence are tracked in [ROADMAP.md]({{ roadmap_url }}). The plugin will require AutoJs6 build {{ required_host_version_code }} or later.",
+  "p_status": "The plugin runtime in version {{ version_name }} remains a P0 development preview: INFO, Wake Activity, the `{{ plugin_service_action }}` placeholder service and a host-status launcher. The host implements the P1 contracts, brokers, screen observations, registered-script execution, drawer and plugin-center entries. The plugin agent loop and script selection, the `ai.agent` API and the task workbench remain in later phases. AutoJs6 build {{ required_host_version_code }} is required; see [ROADMAP.md]({{ roadmap_url }}) for progress and evidence.",
   "h3_features": "Features",
   "p_features_intro": "Release 1.0.0 is planned to provide the following capabilities",
   "features": [
@@ -21,9 +21,9 @@
   "usage_steps": [
     "Install the plugin APK from [Releases]({{ repo_url }}/releases) on a device with AutoJs6 build {{ required_host_version_code }} or later.",
     "Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.",
-    "Open AI Agent from the launcher: in this preview the screen only reports whether a compatible AutoJs6 host is installed. The task workbench, the drawer entry and the `ai.agent` API arrive with the later roadmap phases."
+    "Open AI Agent from the launcher or the management action in the AutoJs6 drawer. This preview only displays the host status; the task workbench and `ai.agent` API arrive in later phases."
   ],
-  "p_usage_note": "In this preview the launcher screen only reports the host status; the AutoJs6 drawer entry, the `ai.agent` API and the task workbench arrive with roadmap phases P1, P5 and P6.",
+  "p_usage_note": "The host drawer now offers connection and management controls. The current plugin cannot run tasks yet; the `ai.agent` API and task workbench remain P5 and P6 respectively.",
   "h3_security": "Permissions and Security",
   "p_security_intro": "The plugin follows explicit boundaries:",
   "security_points": [

@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Version 1.0.0 is the P0 development preview of the roadmap: the plugin identity, the AutoJs6 discovery contract (INFO service, Wake Activity, and the `org.autojs.plugin.AI_AGENT` service placeholder) and a launcher screen that reports the host status. The agent loop, the script catalog, the `ai.agent` API and the task workbench are not implemented yet; progress and evidence are tracked in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). The plugin will require AutoJs6 build 5283 or later.
+The plugin runtime in version 1.0.0 remains a P0 development preview: INFO, Wake Activity, the `org.autojs.plugin.AI_AGENT` placeholder service and a host-status launcher. The host implements the P1 contracts, brokers, screen observations, registered-script execution, drawer and plugin-center entries. The plugin agent loop and script selection, the `ai.agent` API and the task workbench remain in later phases. AutoJs6 build 5285 is required; see [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for progress and evidence.
 
 ******
 
@@ -73,11 +73,11 @@ Release 1.0.0 is planned to provide the following capabilities:
 
 ******
 
-1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5283 or later.
+1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5285 or later.
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
-3. Open AI Agent from the launcher: in this preview the screen only reports whether a compatible AutoJs6 host is installed. The task workbench, the drawer entry and the `ai.agent` API arrive with the later roadmap phases.
+3. Open AI Agent from the launcher or the management action in the AutoJs6 drawer. This preview only displays the host status; the task workbench and `ai.agent` API arrive in later phases.
 
-> In this preview the launcher screen only reports the host status; the AutoJs6 drawer entry, the `ai.agent` API and the task workbench arrive with roadmap phases P1, P5 and P6.
+> The host drawer now offers connection and management controls. The current plugin cannot run tasks yet; the `ai.agent` API and task workbench remain P5 and P6 respectively.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService` answers `org.autojs.plugin.AI_AGENT` (category `ai-agent`) in the `:agent` process; in this preview it exposes a placeholder Binder carrying the descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` until the host contract module is staged. `AiAgentPluginInfoService` answers `org.autojs.plugin.INFO` with PluginInfo. `WakeActivity` lets the host activate the plugin.
@@ -138,9 +138,10 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/23_
 
 - `Hint` P0 development preview: the plugin identity, the AutoJs6 discovery contract and a launcher screen that reports the host status. The agent loop, the script catalog, the ai.agent API and the task workbench are not implemented yet. See ROADMAP.md.
-- `Hint` The host AI Agent contract, capability and model brokers, screen observations and registered-script execution are implemented. Plugin task execution remains under development
+- `Hint` The host AI Agent contracts, capability and model brokers, screen observations, registered-script execution, drawer and plugin-center entries are implemented; plugin task execution remains under development
 - `Feature` Plugin identity `ai-agent` with the INFO service, the Wake Activity, the `org.autojs.plugin.AI_AGENT` service placeholder in the `:agent` process, and a launcher screen that reports whether a compatible AutoJs6 host is installed
 - `Feature` README, plugin-center instructions, and changelog in 10 languages
+- `Improvement` Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points
 - `Dependency` Added `common-plugin-api.aar` (AutoJs6 module `plugin-api/common-plugin-api`, host build 6.8.0 / 5282, MPL 2.0) as the shared plugin contract, hash-locked in `locks/host-api-aars.lock`
 
 ##### For more release history

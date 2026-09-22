@@ -52,7 +52,7 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ******
 
-バージョン 1.0.0 はロードマップの P0 開発プレビューです. プラグインの識別情報, AutoJs6 の検出契約 (INFO サービス, Wake Activity, `org.autojs.plugin.AI_AGENT` サービスの仮実装), ホストの状態を表示する起動画面を含みます. エージェントループ, スクリプトカタログ, `ai.agent` API, タスク画面はまだ実装されていません. 進捗と証拠は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) に記録しています. プラグインは AutoJs6 ビルド 5283 以降を必要とする予定です.
+バージョン 1.0.0 のプラグイン実行部分は P0 開発プレビューです: INFO, Wake Activity, `org.autojs.plugin.AI_AGENT` の仮サービスとホスト状態の起動画面を提供します. ホストには P1 の契約, ブローカー, 画面観察, 登録スクリプト実行, ドロワーとプラグインセンターの入口を実装済みです. プラグインのエージェントループとスクリプト選択, `ai.agent` API, タスク画面は後続段階で実装します. AutoJs6 ビルド 5285 以降が必要です. 進捗と検証記録は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
 
 ******
 
@@ -73,11 +73,11 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ******
 
-1. AutoJs6 ビルド 5283 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
+1. AutoJs6 ビルド 5285 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
 2. AutoJs6 のプラグインセンターを開き, `AI Agent` が認識されていることを確認して有効にします. 公式リリースのパッケージは署名検証を自動的に通過します.
-3. ランチャーから AI Agent を開きます. このプレビューでは互換性のある AutoJs6 ホストがインストールされているかどうかだけを表示します. タスク画面, ドロワーの項目, `ai.agent` API はロードマップの後続段階で提供されます.
+3. ランチャーまたは AutoJs6 ドロワーの管理操作から AI Agent を開きます. このプレビューはホスト状態のみ表示します. タスク画面と `ai.agent` API は後続段階で提供します.
 
-> このプレビューの起動画面はホストの状態のみを表示します. AutoJs6 のドロワー項目, `ai.agent` API, タスク画面はそれぞれロードマップの P1, P5, P6 で提供されます.
+> ホストのドロワーに接続と管理の操作を実装済みです. 現在のプラグインではまだタスクを実行できません. `ai.agent` API とタスク画面はそれぞれ P5 と P6 の予定です.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService` は `:agent` プロセスで `org.autojs.plugin.AI_AGENT` (category `ai-agent`) に応答します. このプレビューでは, ホストの契約モジュールが用意されるまで, ディスクリプター `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` のみを持つ仮の Binder を公開します. `AiAgentPluginInfoService` は `org.autojs.plugin.INFO` に PluginInfo で応答します. `WakeActivity` によりホストはプラグインを有効化できます.
@@ -138,9 +138,10 @@ minimum host build: 5283 (6.8.0)
 _2026/09/23_
 
 - `ヒント` P0 開発プレビュー: プラグインの識別情報, AutoJs6 の検出契約, ホストの状態を表示する起動画面. エージェントループ, スクリプトカタログ, ai.agent API, タスク画面はまだ実装されていません. ROADMAP.md を参照してください.
-- `ヒント` ホスト側の AI Agent 契約, 機能とモデルのプロキシ, 画面の観察, 登録スクリプトの実行を実装. プラグインのタスク実行機能は引き続き開発中
+- `ヒント` ホストの AI Agent 契約, 能力とモデルのブローカー, 画面観察, 登録スクリプト実行, ドロワーとプラグインセンターの入口を実装済み; プラグインのタスク実行は開発中です
 - `機能` INFO サービス, Wake Activity, `:agent` プロセスで動く `org.autojs.plugin.AI_AGENT` サービスの仮実装, 互換性のある AutoJs6 ホストの有無を表示する起動画面を備えたプラグイン識別情報 `ai-agent`
 - `機能` 10 言語の README, プラグインセンターの説明, 変更履歴
+- `改善` 最低ホスト要件を AutoJs6 6.8.0 / ビルド 5285 に確定し, P1 のホストインターフェースと入口の提供版に統一
 - `依存関係` 共有プラグイン契約として `common-plugin-api.aar` (AutoJs6 モジュール `plugin-api/common-plugin-api`, ホストビルド 6.8.0 / 5282, MPL 2.0) を追加し, `locks/host-api-aars.lock` でハッシュ固定
 
 ##### さらに詳しいリリース履歴

@@ -52,7 +52,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ******
 
-버전 1.0.0은(는) 로드맵의 P0 개발 미리보기입니다. 플러그인 식별 정보, AutoJs6 검색 계약 (INFO 서비스, Wake Activity, `org.autojs.plugin.AI_AGENT` 서비스 자리 표시자), 호스트 상태를 표시하는 시작 화면을 포함합니다. 에이전트 루프, 스크립트 카탈로그, `ai.agent` API, 작업 화면은 아직 구현되지 않았습니다. 진행 상황과 증거는 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에 기록됩니다. 플러그인은 AutoJs6 빌드 5283 이상을 요구할 예정입니다.
+버전 1.0.0 의 플러그인 실행 부분은 P0 개발 미리보기입니다: INFO, Wake Activity, `org.autojs.plugin.AI_AGENT` 임시 서비스와 호스트 상태 시작 화면을 제공합니다. 호스트에는 P1 계약, 브로커, 화면 관찰, 등록 스크립트 실행, 서랍 및 플러그인 센터 진입점을 구현했습니다. 플러그인의 에이전트 루프와 스크립트 선택, `ai.agent` API 및 작업 화면은 후속 단계에 남아 있습니다. AutoJs6 빌드 5285 이상이 필요합니다. 진행 상황과 검증 기록은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) 를 참조하세요.
 
 ******
 
@@ -73,11 +73,11 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ******
 
-1. AutoJs6 빌드 5283 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
+1. AutoJs6 빌드 5285 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
 2. AutoJs6 플러그인 센터를 열어 `AI Agent`가 인식되는지 확인하고 활성화합니다. 공식 릴리스 패키지는 서명 검증을 자동으로 통과합니다.
-3. 런처에서 AI Agent를 엽니다. 이 미리보기에서는 호환되는 AutoJs6 호스트가 설치되어 있는지만 표시합니다. 작업 화면, 드로어 항목, `ai.agent` API는 로드맵의 이후 단계에서 제공됩니다.
+3. 런처 또는 AutoJs6 서랍의 관리 기능에서 AI Agent 를 여세요. 이 미리보기는 호스트 상태만 표시합니다. 작업 화면과 `ai.agent` API 는 후속 단계에서 제공합니다.
 
-> 이 미리보기의 시작 화면은 호스트 상태만 표시합니다. AutoJs6 드로어 항목, `ai.agent` API, 작업 화면은 각각 로드맵 P1, P5, P6에서 제공됩니다.
+> 호스트 서랍에 연결 및 관리 기능을 구현했습니다. 현재 플러그인은 아직 작업을 실행할 수 없습니다. `ai.agent` API 와 작업 화면은 각각 P5 와 P6 에서 제공합니다.
 
 ******
 
@@ -112,7 +112,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5283 (6.8.0)
+minimum host build: 5285 (6.8.0)
 ```
 
 `AiAgentPluginService`는 `:agent` 프로세스에서 `org.autojs.plugin.AI_AGENT` (category `ai-agent`)에 응답합니다. 이 미리보기에서는 호스트 계약 모듈이 준비될 때까지 디스크립터 `org.autojs.plugin.ai.agent.api.IAiAgentPlugin`만 가진 자리 표시자 Binder를 노출합니다. `AiAgentPluginInfoService`는 `org.autojs.plugin.INFO`에 PluginInfo로 응답합니다. `WakeActivity`로 호스트가 플러그인을 활성화할 수 있습니다.
@@ -138,9 +138,10 @@ minimum host build: 5283 (6.8.0)
 _2026/09/23_
 
 - `힌트` P0 개발 미리보기: 플러그인 식별 정보, AutoJs6 검색 계약, 호스트 상태를 표시하는 시작 화면. 에이전트 루프, 스크립트 카탈로그, ai.agent API, 작업 화면은 아직 구현되지 않았습니다. ROADMAP.md를 참고하세요.
-- `힌트` 호스트의 AI Agent 계약, 기능 및 모델 프록시, 화면 관찰과 등록된 스크립트 실행이 구현됨. 플러그인의 작업 실행 기능은 계속 개발 중
+- `힌트` 호스트의 AI Agent 계약, 기능 및 모델 브로커, 화면 관찰, 등록 스크립트 실행, 서랍 및 플러그인 센터 진입점을 구현했습니다; 플러그인의 작업 실행은 개발 중입니다
 - `기능` INFO 서비스, Wake Activity, `:agent` 프로세스의 `org.autojs.plugin.AI_AGENT` 서비스 자리 표시자, 호환되는 AutoJs6 호스트 설치 여부를 표시하는 시작 화면을 갖춘 플러그인 식별 정보 `ai-agent`
 - `기능` 10개 언어의 README, 플러그인 센터 안내, 변경 기록
+- `개선` 최소 호스트 요구 사항을 AutoJs6 6.8.0 / 빌드 5285 로 확정하여 P1 호스트 인터페이스 및 진입점 제공 버전과 일치시켰습니다
 - `의존성` 공유 플러그인 계약으로 `common-plugin-api.aar` (AutoJs6 모듈 `plugin-api/common-plugin-api`, 호스트 빌드 6.8.0 / 5282, MPL 2.0)를 추가하고 `locks/host-api-aars.lock`에 해시로 고정
 
 ##### 더 많은 릴리스 기록
