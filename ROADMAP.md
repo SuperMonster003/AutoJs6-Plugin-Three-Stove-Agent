@@ -332,10 +332,12 @@ P1.4 实施说明: 保留原阶段和条目. "位图不出宿主进程" 按截�
 
 ### P1.5 抽屉项, 附着广播与插件中心注册
 
-- [ ] (宿主) `app/tool/AiAgentTool` (MCP `McpServerTool` 同形: 连接 / 断开 / `isNormallyClosed` / 引导对话框 / 打开插件任务页 `AiAgentLauncher`), `DrawerFragment` 新增 "AI Agent" 项 (图标 `ic_ai_agent_black_48dp`, `text_ai_agent`, `description_ai_agent`, 副标题显示链路状态与运行中任务数), 长按或管理按钮打开插件任务页; 11 语言字符串 (`prompt_ai_agent_install / application_disabled / activate / enable / authorize / trust / incompatible / failed`).
-- [ ] (宿主) 插件中心三处注册 (`InstalledPluginRepository.queryDeclaredPluginServices` 的 `specs`, `PluginCenterViewModel.SERVICE_ACTION_BY_ENGINE`, `PluginCenterFragment` 探测分支), `PluginDefaultEnabledPolicy` 加入 `ai-agent` (默认关闭, D23), Manifest `<queries>` 增加 `org.autojs.plugin.AI_AGENT`, 安装 URL 与图标.
-- [ ] (宿主) 附着广播接收器注册 (exported, `permission="org.autojs.permission.PLUGIN"`), 开机 / 宿主启动时按 `isNormallyClosed` 自动附着.
-- [ ] (测试) `PluginDefaultEnabledPolicyTest` 新用例, 抽屉项状态映射 JVM 测试, 插件中心探测分支的既有测试扩展.
+- [x] (宿主) `app/tool/AiAgentTool` (MCP `McpServerTool` 同形: 连接 / 断开 / `isNormallyClosed` / 引导对话框 / 打开插件任务页 `AiAgentLauncher`), `DrawerFragment` 新增 "AI Agent" 项 (图标 `ic_ai_agent_black_48dp`, `text_ai_agent`, `description_ai_agent`, 副标题显示链路状态与运行中任务数), 长按或管理按钮打开插件任务页; 11 语言字符串 (`prompt_ai_agent_install / application_disabled / activate / enable / authorize / trust / incompatible / failed`). 证据 (E0 / E1 / E2, 2026-09-23): 宿主 `0af646e96c`, 状态映射 3/3 与资源/清单 2/2; API 37 实际抽屉和长按启动页通过, 8 类引导对话框实际渲染通过. 插件现有入口仍为 P0 宿主状态页, 任务台按原 P6 实施.
+- [x] (宿主) 插件中心三处注册 (`InstalledPluginRepository.queryDeclaredPluginServices` 的 `specs`, `PluginCenterViewModel.SERVICE_ACTION_BY_ENGINE`, `PluginCenterFragment` 探测分支), `PluginDefaultEnabledPolicy` 加入 `ai-agent` (默认关闭, D23), Manifest `<queries>` 增加 `org.autojs.plugin.AI_AGENT`, 安装 URL 与图标. 证据 (E1 / E2, 2026-09-23): 引擎映射 1/1, 默认策略新增 1/1; 已安装真实 P0 APK 的 INFO 探测和唯一 launcher 通过, AVD 插件中心显示并可启用. 未加载 INFO 的首帧也按 ai-agent 默认关闭; 官方新装授权的既有显式启用策略与 MCP 一致.
+- [x] (宿主) 附着广播接收器注册 (exported, `permission="org.autojs.permission.PLUGIN"`), 开机 / 宿主启动时按 `isNormallyClosed` 自动附着. 实施说明 (E0 / E2, 2026-09-23): 本条 "开机" 与固定 D15 冲突, 按 D15/D16 仅宿主主进程启动恢复连接, 不注册开机接收器且不自动续跑任务. 进程级连接所有者测试 4/4; 接收器清单, 缺失/非插件身份拒绝与前台 extra 消费通过. 独立假 APK 的合法发送者跨进程矩阵仍按 P7 补验.
+- [x] (测试) `PluginDefaultEnabledPolicyTest` 新用例, 抽屉项状态映射 JVM 测试, 插件中心探测分支的既有测试扩展. 证据 (E1 / E2, 2026-09-23): 宿主全量 JVM 3,172 项, 0 失败/错误, 6 条件跳过; 设备合并 39/39 (原 P1.4 31 项 + 连接所有者 4 项 + 入口 4 项), 插件真实契约 4/4. 详见宿主 `docs/dev/evidence/ai-agent-p15-20260923.md`.
+
+P1.5 复验: P0.1 暂留的 "插件中心显示激活并可启用" 已在 API 37 AVD 用宿主 6.8.0 / 5285 和插件 1.0.0 / 10 通过. 管理入口复用 INFO 元数据, 运行时 attach 仍严格校验专用接口; P0 占位 Binder 不被视为可运行 Agent. 最低宿主构建号在紧接的 P1.6 同步回填.
 
 ### P1.6 协议文档与 changelog
 
@@ -1099,3 +1101,11 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 截图与 OCR 返回文字有界, 图像不返回 Agent; 外部 OCR 仍接收既有传输输入. OCR 成功分支使用注入识别器/位图验证, 未宣称真实 OCR/MediaProjection 跨设备矩阵已验收. 公开 JS API, 其他引擎设备矩阵, 模型任务, release/R8 与 P7 独立假插件矩阵未在本轮执行. 详见宿主 `docs/dev/evidence/ai-agent-p14-20260923.md`.
 - MCP 提交 `88c2573` 记录 compact/nodeRef 后续迁移入口, 保持现有 formatter/引用策略与 v1 AAR. Agent 插件本轮仅更新路线图, 10 语言进度提示及生成文档, 新 AAR 仍按原 P2.5 入库, 插件运行时仍为 P0 预览.
 - 下一会话从原 P1.5 (抽屉项, 插件中心注册与附着广播) 开始, 随后 P1.6 汇总协议/日志并确定最低宿主版本. P1.3/P1.4 保留项按已记录的 P5/P7 依赖补验, P1 整体尚未验收, 仓库未推送.
+
+### 2026-09-23 (P1.5)
+
+- 宿主提交 `0af646e96c`: AI Agent 抽屉项, 11 语言引导, 插件中心三处注册与默认关闭, 受保护附着广播, 主界面前台退路接收, 进程级连接所有者. 宿主构建 6.8.0 / 5285.
+- 按固定 D15/D16 解释 P1.5 的 "开机 / 宿主启动": 只在宿主主进程启动时恢复用户保留的连接, 不开机自启, 不自动续跑任务. 没有增删或拆分路线图阶段.
+- JVM 3,172 项通过 (6 条件跳过); 首次运行的既有邮件关闭事件顺序用例失败, 未修改邮件代码的全量复跑通过. API 37 私有只读 AVD: 宿主 39/39, 插件契约 4/4; 手动核对抽屉, 长按启动器与插件中心启用, 补齐 P0 的注册验收. 未修改真机.
+- 实际 P0 APK 通过 INFO 管理探测, Agent 运行时仍是占位, P2.5 才接入真实 Binder. 连接生命周期夹具仍是宿主内本地 Binder, 不替代 P7 独立假 Agent APK; 500 ms 前台回退策略仍待 P7 兼容性验证.
+- 随后继续原 P1.6 文档与最低宿主版本同步, 再进入 P2.1. P1 整体跨进程闭环验收仍按已记录的 P5/P7 依赖保留.
