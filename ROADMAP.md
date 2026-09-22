@@ -307,10 +307,10 @@ P0.2 验收状态 (2026-09-22): spike 数据落盘 (`docs/dev/p0-spike-evidence.
 
 ### P1.2 模型代理
 
-- [ ] (宿主) `AiAgentModelBroker : IAiAgentModelBroker.Stub`: `listTargets` 映射 `AndroidAiPluginAskRunner.createCatalog` (返回 `targetId / displayName / locality / capabilityIds / configured / available / maximumContextBytes / supportedControls`, 不含凭据或 profile 内部字段); `generate` 映射 ask (非流式) 与 stream (流式, 事件 `chunk` 带序号), 请求校验 (消息数 / 字节 / Schema 大小 / 目标 ID 形状 / 超时范围), `structuredJson` 时要求目标声明 `structured-json` 能力否则 `TARGET_UNSUPPORTED`; `cancel` 经 `AiPluginAskHandle` 取消; 每条链路一个有界执行器, 调用方 UID 校验, 回调 death 处理.
-- [ ] (宿主) 模型配额并入 grant: 每分钟模型调用次数 (默认 30), 单链路累计 token (默认 1,000,000, usage 不可得时按字节估算 0.4 token/byte), 单请求最大输入字节 (默认 128 KiB, 不超过目标 `maximumContextBytes`), 超限 `QUOTA_EXCEEDED`.
-- [ ] (宿主) 安全诊断只记录稳定枚举 (目标 ID, locality, 状态), 不记录提示词 / 输出 / 错误正文.
-- [ ] (测试) JVM: 请求解码与校验, 配额计数, 事件序列 (started -> chunk* -> usage? -> 终态唯一); Android: 用 `test-apps:ai-provider-conformance` 的假 Provider 做端到端 `generate` (结构化 JSON 往返, 取消, 超时, Provider 失败传播).
+- [x] (宿主) `AiAgentModelBroker : IAiAgentModelBroker.Stub`: `listTargets` 映射 `AndroidAiPluginAskRunner.createCatalog` (返回 `targetId / displayName / locality / capabilityIds / configured / available / maximumContextBytes / supportedControls`, 不含凭据或 profile 内部字段); `generate` 映射 ask (非流式) 与 stream (流式, 事件 `chunk` 带序号), 请求校验 (消息数 / 字节 / Schema 大小 / 目标 ID 形状 / 超时范围), `structuredJson` 时要求目标声明 `structured-json` 能力否则 `TARGET_UNSUPPORTED`; `cancel` 经 `AiPluginAskHandle` 取消; 每条链路一个有界执行器, 调用方 UID 校验, 回调 death 处理. 证据 (E1 / E2, 2026-09-22): AiAgentModelBroker / AiAgentModelProtocol; API 37 的 AiAgentModelBrokerAndroidTest 8/8 通过, 包含结构化 JSON, 目录过滤, 取消, 超时, Provider 失败, UID 与 FD 释放. 生产链路当前默认官方 3-Stone Provider, broker 可由宿主注入其它 Provider; 插件只选择公开 targetId.
+- [x] (宿主) 模型配额并入 grant: 每分钟模型调用次数 (默认 30), 单链路累计 token (默认 1,000,000, usage 不可得时按字节估算 0.4 token/byte), 单请求最大输入字节 (默认 128 KiB, 不超过目标 `maximumContextBytes`), 超限 `QUOTA_EXCEEDED`. 证据 (E1, 2026-09-22): HostCapabilityGrant 模型配额 + AiAgentModelQuota 的并发预留/结算, 滚动 60 秒窗口, usage 缺失估算与 Long 饱和计数; AiAgentModelProtocolTest 14/14 通过.
+- [x] (宿主) 安全诊断只记录稳定枚举 (目标 ID, locality, 状态), 不记录提示词 / 输出 / 错误正文. 证据 (E0 / E2, 2026-09-22): 不输出模型正文日志, 错误只传稳定 code/reason; 假 Provider 返回私有诊断文本时, 设备测试确认插件仅得到 MODEL_FAILED / PROVIDER_FAILED. 现有 Provider runner 不保留 HTTP Schema 拒绝细节, 未虚构透传.
+- [x] (测试) JVM: 请求解码与校验, 配额计数, 事件序列 (started -> chunk* -> usage? -> 终态唯一); Android: 用 `test-apps:ai-provider-conformance` 的假 Provider 做端到端 `generate` (结构化 JSON 往返, 取消, 超时, Provider 失败传播). 证据 (E1 / E2, 2026-09-22): JVM 14 项与 Android 8 项全部通过. Android 使用默认测试密钥一致的宿主/测试 APK 副本及独立 ai-provider-conformance APK; 未调用真实模型, 未使用生产密钥签名假插件. 详情见宿主 docs/dev/evidence/ai-agent-p1-foundation-20260922.md.
 
 ### P1.3 能力代理与 grant 共享核心
 
