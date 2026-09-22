@@ -1,0 +1,22 @@
+{
+  "changelog_label_hint": "Note",
+  "changelog_label_feature": "Fonctionnalité",
+  "changelog_label_fix": "Correctif",
+  "changelog_label_improvement": "Amélioration",
+  "changelog_label_dependency": "Dépendance",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/09/22",
+      "hint": [
+        "Aperçu de développement P0 : identité du plugin, contrat de découverte AutoJs6 et écran de lancement indiquant l'état de l'hôte. La boucle de l'agent, le catalogue de scripts, l'API ai.agent et l'espace de tâches ne sont pas encore implémentés. Voir ROADMAP.md."
+      ],
+      "feature": [
+        "Identité de plugin `ai-agent` avec le service INFO, la Wake Activity, le service provisoire `org.autojs.plugin.AI_AGENT` dans le processus `:agent` et un écran de lancement indiquant si un hôte AutoJs6 compatible est installé",
+        "README, instructions du centre de plugins et journal des modifications en 10 langues"
+      ],
+      "dependency": [
+        "Ajout de `common-plugin-api.aar` (module AutoJs6 `plugin-api/common-plugin-api`, build hôte 6.8.0 / 5282, MPL 2.0) comme contrat de plugin partagé, verrouillé par hachage dans `locks/host-api-aars.lock`"
+      ]
+    }
+  }
+}

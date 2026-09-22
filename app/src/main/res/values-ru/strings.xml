@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_host_disabled">AutoJs6 установлен, но отключен. Включите его в системных настройках приложений и вернитесь сюда.</string>
+    <string name="launcher_host_incompatible">Установлена сборка AutoJs6 %1$d, но этому плагину нужна сборка %2$d или новее. Сначала обновите AutoJs6.</string>
+    <string name="launcher_host_missing">AutoJs6 не установлен. Установите AutoJs6 сборки %1$d или новее, затем включите AI Agent в его центре плагинов.</string>
+    <string name="launcher_host_ready">Установлен AutoJs6 %1$s (сборка %2$d). Включите AI Agent в центре плагинов AutoJs6.</string>
+    <string name="launcher_preview">Предварительная версия для разработки: рабочее пространство задач появится в одной из следующих версий. Пока этот экран показывает только состояние хоста AutoJs6.</string>
+    <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
+</resources>

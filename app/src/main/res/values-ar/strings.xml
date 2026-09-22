@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_host_disabled">AutoJs6 مثبت لكنه معطل. فعله من إعدادات التطبيقات في النظام ثم عد إلى هنا.</string>
+    <string name="launcher_host_incompatible">البناء %1$d من AutoJs6 مثبت, لكن هذا المكون الإضافي يحتاج إلى البناء %2$d أو أحدث. حدث AutoJs6 أولا.</string>
+    <string name="launcher_host_missing">AutoJs6 غير مثبت. ثبت AutoJs6 بالبناء %1$d أو أحدث, ثم فعل AI Agent من مركز المكونات الإضافية فيه.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (البناء %2$d) مثبت. فعل AI Agent من مركز المكونات الإضافية في AutoJs6.</string>
+    <string name="launcher_preview">معاينة تطويرية: ستصل مساحة المهام في إصدار لاحق. حاليا تعرض هذه الشاشة حالة مضيف AutoJs6 فقط.</string>
+    <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
+</resources>

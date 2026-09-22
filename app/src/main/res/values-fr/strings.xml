@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_host_disabled">AutoJs6 est installé mais désactivé. Activez-le dans les paramètres d\'applications du système, puis revenez ici.</string>
+    <string name="launcher_host_incompatible">La build %1$d d\'AutoJs6 est installée, mais ce plugin nécessite la build %2$d ou ultérieure. Mettez d\'abord AutoJs6 à jour.</string>
+    <string name="launcher_host_missing">AutoJs6 n\'est pas installé. Installez AutoJs6 build %1$d ou ultérieure, puis activez AI Agent dans son centre de plugins.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) est installé. Activez AI Agent dans le centre de plugins d\'AutoJs6.</string>
+    <string name="launcher_preview">Aperçu de développement : l\'espace de tâches arrivera dans une version ultérieure. Pour l\'instant, cet écran indique seulement l\'état de l\'hôte AutoJs6.</string>
+    <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
+</resources>

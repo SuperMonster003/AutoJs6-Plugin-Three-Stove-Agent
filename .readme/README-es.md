@@ -1,0 +1,226 @@
+<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
+
+<div align="center">
+  <p>
+    <picture>
+      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
+      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-ai-agent-ic-launcher" border="0" width="128" />
+    </picture>
+  </p>
+
+  <p>Ejecuta tareas en lenguaje natural en AutoJs6 eligiendo scripts registrados y manejando la pantalla paso a paso</p>
+
+  <p>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-AI-Agent?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=534BAE&label=License"/></a>
+  </p>
+</div>
+
+******
+
+### Idiomas
+
+******
+
+El README.md actual admite los siguientes idiomas:
+
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hans.md)
+- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-HK.md)
+- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-fr.md)
+- Español [es] # actual
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ar.md)
+
+******
+
+### Introducción
+
+******
+
+AI Agent convierte un objetivo en lenguaje natural en acciones sobre un dispositivo Android que ejecuta AutoJs6. O bien elige un script que el usuario ha registrado para el agente, completa sus parámetros y lo ejecuta; o bien observa la pantalla a través del árbol de nodos de accesibilidad y actúa paso a paso (observar, decidir, actuar, verificar) hasta alcanzar el objetivo, necesitar una confirmación o agotar un presupuesto. Responde a la [discusión #577 de AutoJs6](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+
+El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los scripts lo usan mediante la API `ai.agent` de AutoJs6; los usuarios lo usan desde su propio espacio de tareas, el cajón de AutoJs6, una burbuja flotante, el menú de compartir del sistema, los accesos directos de la aplicación y la entrada por voz. Las llamadas al modelo y las acciones en el dispositivo siempre pasan por AutoJs6 mediante Binder: el anfitrión presta al plugin un intermediario de modelo (los plugins AI Provider que el anfitrión ya conoce, como 3-Stone AI) y un intermediario de capacidades con una concesión acotada. El plugin nunca guarda credenciales, nunca se vincula por sí mismo a un proveedor de modelo y nunca solicita el permiso de accesibilidad.
+
+******
+
+### Estado
+
+******
+
+La versión 1.0.0 es la vista previa de desarrollo P0 de la hoja de ruta: la identidad del plugin, el contrato de descubrimiento de AutoJs6 (servicio INFO, Wake Activity y el servicio provisional `org.autojs.plugin.AI_AGENT`) y una pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API `ai.agent` y el espacio de tareas aún no están implementados; el progreso y las evidencias se registran en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). El plugin requerirá AutoJs6 build 5283 o posterior.
+
+******
+
+### Funciones
+
+******
+
+La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
+
+- Selección de scripts: los scripts registrados mediante `project.json` o un comentario de cabecera `@agent` se presentan al modelo con sus descripciones y esquemas de parámetros; el agente elige uno, completa los parámetros, pide confirmación cuando hace falta, lo ejecuta dentro de AutoJs6 y lee su resultado estructurado.
+- Manejo de la pantalla paso a paso: el agente observa el árbol de nodos de accesibilidad en forma de texto compacto (y el texto de la pantalla mediante un plugin OCR cuando está instalado), y luego pulsa, escribe, desplaza y presiona teclas a través del intermediario de capacidades de AutoJs6 hasta poder verificar el objetivo.
+- Seguridad por diseño: las herramientas de solo lectura se ejecutan automáticamente, las acciones sensibles (pago, envío, borrado, escritura de archivos, shell, gestos por coordenadas, scripts registrados como sensibles) requieren confirmación, y cada ejecución tiene presupuestos de pasos, llamadas al modelo, duración y tokens.
+- API de script e interfaz de usuario: `ai.agent.run(goal, options)` devuelve un manejador `AgentRun` con eventos, respuestas y cancelación; la aplicación independiente ofrece un espacio de tareas con historial, preajustes, memoria de preferencias, ajustes e historial de versiones.
+
+******
+
+### Uso
+
+******
+
+1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5283 o posterior.
+2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
+3. Abra AI Agent desde el lanzador: en esta vista previa la pantalla solo indica si hay instalado un anfitrión AutoJs6 compatible. El espacio de tareas, la entrada del cajón y la API `ai.agent` llegan con las fases posteriores de la hoja de ruta.
+
+> En esta vista previa la pantalla de inicio solo informa del estado del anfitrión; la entrada del cajón de AutoJs6, la API `ai.agent` y el espacio de tareas llegan con las fases P1, P5 y P6 de la hoja de ruta.
+
+******
+
+### Permisos y seguridad
+
+******
+
+El plugin sigue límites explícitos:
+
+- Los puntos de entrada Binder están protegidos por el permiso de firma `org.autojs.permission.PLUGIN`, por lo que solo AutoJs6 puede alcanzarlos; la pantalla de inicio es el único otro componente exportado.
+- El plugin no guarda claves de API, nunca se vincula a un proveedor de modelo ni solicita el permiso de accesibilidad: las llamadas al modelo y las acciones en el dispositivo pasan por intermediarios que AutoJs6 presta para un enlace adjunto y revoca al desvincularse, cada uno acotado por una concesión (métodos permitidos, tasas, tamaños, cuota de modelo).
+- El plugin no usa la red. Esta vista previa no declara ningún permiso aparte del permiso de plugin; los permisos de servicio en primer plano, notificaciones y superposición se añadirán con las funciones que los necesiten y se documentarán aquí.
+- El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas.
+
+Obtenga el plugin únicamente desde la página oficial de [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) o el centro de plugins de AutoJs6. Los paquetes de origen desconocido pueden fallar la verificación del anfitrión o conllevar riesgos aunque el número de versión parezca idéntico.
+
+******
+
+### Interfaz del plugin
+
+******
+
+La siguiente información está dirigida a desarrolladores del anfitrión AutoJs6 y de plugins; el anfitrión usa estos identificadores para descubrir el plugin y negociar la compatibilidad:
+
+```text
+application id: io.github.supermonster003.autojs6.plugin.ai.agent
+plugin id: ai-agent
+engine: ai-agent
+variant: default
+service action: org.autojs.plugin.AI_AGENT
+service category: ai-agent
+service process: :agent
+info action: org.autojs.plugin.INFO
+aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
+minimum host build: 5283 (6.8.0)
+```
+
+`AiAgentPluginService` responde a `org.autojs.plugin.AI_AGENT` (categoría `ai-agent`) en el proceso `:agent`; en esta vista previa expone un Binder provisional con el descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` hasta que se incorpore el módulo de contrato del anfitrión. `AiAgentPluginInfoService` responde a `org.autojs.plugin.INFO` con PluginInfo. `WakeActivity` permite al anfitrión activar el plugin.
+
+******
+
+### Hoja de ruta
+
+******
+
+Los planes y el progreso del plugin se mantienen como una lista verificable en ROADMAP.md, organizada por fases con criterios de aceptación y niveles de evidencia. Los elementos sin marcar expresan intención y no capacidades actuales; la discusión mediante Issues es bienvenida.
+
+- [Ver ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)
+
+******
+
+### Historial de versiones
+
+******
+
+#### v1.0.0
+
+_2026/09/22_
+
+- `Aviso` Vista previa de desarrollo P0: identidad del plugin, contrato de descubrimiento de AutoJs6 y pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API ai.agent y el espacio de tareas aún no están implementados. Véase ROADMAP.md.
+- `Función` Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible
+- `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
+- `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
+
+##### Para más historial de versiones
+
+* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-es.md)
+
+******
+
+### Compilación y verificación
+
+******
+
+Esta sección está dirigida a desarrolladores que quieran compilar el plugin desde el código fuente; los usuarios normales pueden instalar simplemente el APK precompilado de la página Releases.
+
+Compilar un APK de depuración:
+
+```powershell
+.\gradlew.bat :app:assembleDebug
+```
+
+Ejecutar las pruebas unitarias JVM y compilar el APK de pruebas de instrumentación:
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest :app:assembleDebugAndroidTest
+```
+
+Compilar el APK de release:
+
+```powershell
+.\gradlew.bat :app:assembleRelease
+```
+
+Recopilar el artefacto de release y añadir la versión y el resumen CRC32 a su nombre de archivo:
+
+```powershell
+.\gradlew.bat :app:appendDigestToReleasedFiles
+```
+
+Verificar que las fuentes de documentación multilingüe y los artefactos generados están sincronizados (también lo exige la CI):
+
+```powershell
+py .python\generate_markdown.py --check
+```
+
+La compilación requiere JDK 21 o posterior y Android SDK 37; las versiones de Gradle y de los plugins se gestionan de forma centralizada mediante `version.properties` e `io.github.supermonster003.autojs6-platform-versions`.
+
+******
+
+### Localización y generación de documentación
+
+******
+
+```text
+.readme/common.json
+.readme/lang_*.json
+.readme/template_readme.md
+.readme/template_plugin_instruction.md
+.changelog/lang_*.json
+.changelog/template_changelog.md
+.python/generate_markdown.py
+app/src/main/assets/doc/CHANGELOG-*.md
+app/src/main/res/raw-*/plugin_instruction.md
+```
+
+Los archivos JSON de idioma en `.readme/` y `.changelog/` son la única fuente del README, las instrucciones del centro de plugins y el registro de cambios. Edite siempre esas fuentes JSON y vuelva a ejecutar `py .python/generate_markdown.py`; los artefactos generados de README, `plugin_instruction.md` y registro de cambios nunca se editan a mano. Ejecute `py .python/generate_markdown.py --check` para verificar todos los artefactos generados.
+
+******
+
+### Licencia
+
+******
+
+El código del proyecto se distribuye bajo la [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE). Los componentes de terceros y sus licencias se listan en los [Avisos de terceros](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md).
+
+******
+
+### Enlaces
+
+******
+
+- Proyecto AutoJs6: https://github.com/SuperMonster003/AutoJs6
+- Documentación de AutoJs6: https://docs.autojs6.com
+- Discusión #577 de AutoJs6: https://github.com/SuperMonster003/AutoJs6/discussions/577
+- Avisos de terceros: https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md

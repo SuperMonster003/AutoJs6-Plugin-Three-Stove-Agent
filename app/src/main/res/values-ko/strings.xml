@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_host_disabled">AutoJs6가 설치되어 있지만 비활성화되어 있습니다. 시스템 앱 설정에서 활성화한 뒤 여기로 돌아오세요.</string>
+    <string name="launcher_host_incompatible">AutoJs6 빌드 %1$d이(가) 설치되어 있지만 이 플러그인에는 빌드 %2$d 이상이 필요합니다. 먼저 AutoJs6를 업데이트하세요.</string>
+    <string name="launcher_host_missing">AutoJs6가 설치되어 있지 않습니다. AutoJs6 빌드 %1$d 이상을 설치한 뒤 플러그인 센터에서 AI Agent를 활성화하세요.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (빌드 %2$d)이(가) 설치되어 있습니다. AutoJs6 플러그인 센터에서 AI Agent를 활성화하세요.</string>
+    <string name="launcher_preview">개발 미리보기: 작업 화면은 이후 버전에서 제공됩니다. 지금은 이 화면에서 AutoJs6 호스트 상태만 표시합니다.</string>
+    <string name="plugin_description">등록된 스크립트를 선택하고 화면을 단계별로 조작하여 자연어 작업을 실행</string>
+</resources>

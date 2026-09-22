@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_host_disabled">AutoJs6 已安裝但已被停用. 請在系統的應用程式設定中啟用它, 然後返回此頁面.</string>
+    <string name="launcher_host_incompatible">已安裝 AutoJs6 組建 %1$d, 但此外掛需要組建 %2$d 或更新版本. 請先更新 AutoJs6.</string>
+    <string name="launcher_host_missing">尚未安裝 AutoJs6. 請安裝 AutoJs6 組建 %1$d 或更新版本, 然後在其外掛中心啟用 AI Agent.</string>
+    <string name="launcher_host_ready">已安裝 AutoJs6 %1$s (組建 %2$d). 請在 AutoJs6 外掛中心啟用 AI Agent.</string>
+    <string name="launcher_preview">開發預覽: 任務台將隨後續版本提供. 目前此頁面只顯示 AutoJs6 主程式狀態.</string>
+    <string name="plugin_description">依自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
+</resources>
