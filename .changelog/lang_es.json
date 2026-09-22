@@ -8,7 +8,8 @@
     "v1.0.0": {
       "released_date": "2026/09/22",
       "hint": [
-        "Vista previa de desarrollo P0: identidad del plugin, contrato de descubrimiento de AutoJs6 y pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API ai.agent y el espacio de tareas aún no están implementados. Véase ROADMAP.md."
+        "Vista previa de desarrollo P0: identidad del plugin, contrato de descubrimiento de AutoJs6 y pantalla de inicio que informa del estado del anfitrión. El bucle del agente, el catálogo de scripts, la API ai.agent y el espacio de tareas aún no están implementados. Véase ROADMAP.md.",
+        "El contrato AI Agent y el intermediario de capacidades limitadas estan implementados en el anfitrion. La ejecucion de tareas del complemento sigue en desarrollo"
       ],
       "feature": [
         "Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible",

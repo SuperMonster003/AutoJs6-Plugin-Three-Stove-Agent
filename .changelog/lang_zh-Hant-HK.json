@@ -8,7 +8,8 @@
     "v1.0.0": {
       "released_date": "2026/09/22",
       "hint": [
-        "P0 開發預覽: 外掛身份, AutoJs6 發現契約與顯示主程式狀態的啟動頁. 智能代理循環, 指令碼目錄, ai.agent API 與任務台尚未實作. 詳見 ROADMAP.md."
+        "P0 開發預覽: 外掛身份, AutoJs6 發現契約與顯示主程式狀態的啟動頁. 智能代理循環, 指令碼目錄, ai.agent API 與任務台尚未實作. 詳見 ROADMAP.md.",
+        "宿主端的 AI Agent 契約與受限能力代理已實作, 插件任務執行功能仍處於開發階段"
       ],
       "feature": [
         "外掛身份 `ai-agent`, 含 INFO 服務, Wake Activity, 執行於 `:agent` 程序的 `org.autojs.plugin.AI_AGENT` 服務佔位, 以及顯示是否安裝了相容 AutoJs6 主程式的啟動頁",

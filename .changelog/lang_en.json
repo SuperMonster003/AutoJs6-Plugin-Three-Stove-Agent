@@ -8,7 +8,8 @@
     "v1.0.0": {
       "released_date": "2026/09/22",
       "hint": [
-        "P0 development preview: the plugin identity, the AutoJs6 discovery contract and a launcher screen that reports the host status. The agent loop, the script catalog, the ai.agent API and the task workbench are not implemented yet. See ROADMAP.md."
+        "P0 development preview: the plugin identity, the AutoJs6 discovery contract and a launcher screen that reports the host status. The agent loop, the script catalog, the ai.agent API and the task workbench are not implemented yet. See ROADMAP.md.",
+        "The host AI Agent contract and restricted capability broker are implemented. Plugin task execution remains under development"
       ],
       "feature": [
         "Plugin identity `ai-agent` with the INFO service, the Wake Activity, the `org.autojs.plugin.AI_AGENT` service placeholder in the `:agent` process, and a launcher screen that reports whether a compatible AutoJs6 host is installed",
