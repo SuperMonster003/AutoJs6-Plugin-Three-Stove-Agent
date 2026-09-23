@@ -125,7 +125,9 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                             if (closed.get()) return@execute
                             val envelope = AgentJson.objectOf(text, H.MAX_BRIDGE_INLINE_JSON_BYTES, maximumNodes)
                             require(envelope.string("id") == id && envelope.flag("ok") == ok)
-                            if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error"))))
+                            if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error")).let {
+                                if (call.module == "agent" && call.method == "execRegistered" && it == RunError.NODE_NOT_FOUND) RunError.SCRIPT_TIMEOUT else it
+                            }))
                             else if (data == null) result(PortResult.Success(envelope["result"] ?: JsonNull.INSTANCE))
                             else {
                                 val marker = envelope.getAsJsonObject("result")?.getAsJsonObject("payload")
@@ -156,7 +158,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         fun bridgeError(error: JsonObject?): RunError {
             val stable = error?.string("message")?.substringBefore(':')?.trim()
             val recognized = setOf("A11Y_SERVICE_NOT_RUNNING", "NODE_REF_STALE", "NODE_NOT_FOUND", "SCREEN_LOCKED", "OCR_PLUGIN_REQUIRED",
-                "SCRIPT_NOT_REGISTERED", "SCRIPT_TIMEOUT", "SCRIPT_FAILED", "CAPABILITY_DENIED", "QUOTA_EXCEEDED", "LIMIT_EXCEEDED", "RATE_LIMITED")
+                "SCRIPT_NOT_REGISTERED", "SCRIPT_TIMEOUT", "SCRIPT_FAILED", "CANCELLED", "CAPABILITY_DENIED", "QUOTA_EXCEEDED", "LIMIT_EXCEEDED", "RATE_LIMITED")
             if (stable in recognized) return RunError.valueOf(stable!!)
             return when (error?.string("category")) {
                 H.ERROR_PROCESS_DEAD -> RunError.HOST_UNAVAILABLE

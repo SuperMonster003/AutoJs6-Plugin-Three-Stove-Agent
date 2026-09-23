@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577]({{ discussion_url }}).",
   "p_introduction_how": "Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scripts l'utilisent via l'API `ai.agent` d'AutoJs6 ; les utilisateurs y accèdent par son propre espace de tâches, le tiroir d'AutoJs6, une bulle flottante, le partage système, les raccourcis d'application et la saisie vocale. Les appels de modèle et les actions sur l'appareil passent toujours par AutoJs6 via Binder : l'hôte prête au plugin un courtier de modèle (les plugins AI Provider que l'hôte connaît déjà, comme 3-Stone AI) et un courtier de capacités avec une autorisation bornée. Le plugin ne détient jamais d'identifiants, ne se lie jamais lui-même à un fournisseur de modèle et ne demande jamais la permission d'accessibilité.",
   "h3_status": "État",
-  "p_status": "Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Fonctionnalités",
   "p_features_intro": "La version 1.0.0 doit fournir les capacités suivantes",
   "features": [
@@ -24,7 +24,7 @@
     "Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6.",
     "Configurez les dossiers supplémentaires dans \"Dossiers de scripts\" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers."
   ],
-  "p_usage_note": "Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.",
+  "p_usage_note": "Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.",
   "h3_security": "Permissions et sécurité",
   "p_security_intro": "Le plugin respecte des limites explicites :",
   "security_points": [
@@ -61,7 +61,7 @@
   "text_link_third_party_notices": "Avis de tiers",
   "p_instruction_more": "Consultez le [README du projet]({{ repo_url }}) et [ROADMAP.md]({{ roadmap_url }}) pour le guide de connexion et l'avancement actuel.",
   "h3_tools": "Catalogue des outils",
-  "p_tools_status": "Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus. Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6. Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog.",
+  "p_tools_status": "Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.",
   "tool_header_name": "Outil",
   "tool_header_group": "Groupe",
   "tool_header_risk": "Risque",

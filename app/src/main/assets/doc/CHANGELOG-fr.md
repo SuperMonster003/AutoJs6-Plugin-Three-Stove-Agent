@@ -8,8 +8,8 @@
 
 ###### 2026/09/23
 
-* `Note` Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6.
-* `Note` Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.
+* `Note` Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+* `Fonctionnalité` Exécution des scripts enregistrés avec vérification du manifeste confirmé, observations structurées, fin de console expurgée et arrêt du script en cas de délai dépassé ou de tâche annulée
 * `Fonctionnalité` Injection des préférences mémorisées selon leur portée pour les paramètres des scripts, avec limite de 4 KiB, troncature explicite et désactivation par tâche
 * `Fonctionnalité` Validation des paramètres des scripts enregistrés avec valeurs par défaut, questions sur les valeurs manquantes, contrôle du risque actuel et tableaux complets pour confirmation
 * `Fonctionnalité` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -26,6 +26,6 @@
 * `Fonctionnalité` Notifications au premier plan pendant les tâches seulement, avec progression, Arrêter et Voir; saisie et confirmation de chaque action depuis le lanceur
 * `Fonctionnalité` Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog
 * `Amélioration` La taille des descriptions de confirmation tient compte des échappements JSON pour respecter la limite des événements Binder avec de grands tableaux
-* `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5286 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin
-* `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5286 (MPL 2.0), verrouillés par SHA-256
+* `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5287 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin
+* `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5287 (MPL 2.0), verrouillés par SHA-256
 * `Dépendance` Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas

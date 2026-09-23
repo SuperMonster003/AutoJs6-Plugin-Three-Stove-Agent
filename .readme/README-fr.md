@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ La version 1.0.0 doit fournir les capacités suivantes:
 
 ### Catalogue des outils
 
-Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus. Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6. Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog.
+Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
 
 | Outil | Groupe | Risque | Défaut | Description |
 | --- | --- | --- | --- | --- |
@@ -110,12 +110,12 @@ Connexion avec identité du programme hôte vérifiée, file de tâches, répons
 
 ******
 
-1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5286 ou ultérieure.
+1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5287 ou ultérieure.
 2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
 3. Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6.
 4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
 
-> Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.
+> Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
 
 ******
 
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5286 (6.8.0)
+minimum host build: 5287 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus.
@@ -175,8 +175,8 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/23_
 
-- `Note` Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6.
-- `Note` Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.
+- `Note` Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+- `Fonctionnalité` Exécution des scripts enregistrés avec vérification du manifeste confirmé, observations structurées, fin de console expurgée et arrêt du script en cas de délai dépassé ou de tâche annulée
 - `Fonctionnalité` Injection des préférences mémorisées selon leur portée pour les paramètres des scripts, avec limite de 4 KiB, troncature explicite et désactivation par tâche
 - `Fonctionnalité` Validation des paramètres des scripts enregistrés avec valeurs par défaut, questions sur les valeurs manquantes, contrôle du risque actuel et tableaux complets pour confirmation
 - `Fonctionnalité` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -193,8 +193,8 @@ _2026/09/23_
 - `Fonctionnalité` Notifications au premier plan pendant les tâches seulement, avec progression, Arrêter et Voir; saisie et confirmation de chaque action depuis le lanceur
 - `Fonctionnalité` Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog
 - `Amélioration` La taille des descriptions de confirmation tient compte des échappements JSON pour respecter la limite des événements Binder avec de grands tableaux
-- `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5286 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin
-- `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5286 (MPL 2.0), verrouillés par SHA-256
+- `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5287 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin
+- `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5287 (MPL 2.0), verrouillés par SHA-256
 - `Dépendance` Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas
 
 ##### Pour plus d'historique des versions

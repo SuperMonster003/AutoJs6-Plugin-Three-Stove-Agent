@@ -243,9 +243,9 @@ class AgentRunner internal constructor(
             when (outcome) {
                 is PortResult.Failure -> toolFailed(outcome.error)
                 is PortResult.Success -> {
-                    successfulTools++
-                    observation = compiler.observe(prepared.invocation.name, outcome.value.result)
-                    record(observation)
+                    if (outcome.value.script?.error == null) successfulTools++
+                    observation = compiler.observe(prepared.invocation.name, journal.redact(outcome.value.result))
+                    record(observation, outcome.value.script?.error)
                     nextStep()
                 }
             }

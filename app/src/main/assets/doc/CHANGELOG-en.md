@@ -8,8 +8,8 @@
 
 ###### 2026/09/23
 
-* `Hint` Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6.
-* `Hint` Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
+* `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+* `Feature` Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation
 * `Feature` Scoped preference memory injection for script parameters, with a 4 KiB limit, explicit truncation and task-level opt-out
 * `Feature` Registered script parameter validation with defaults, missing-value questions, current-manifest risk checks and complete parameter tables for confirmation
 * `Feature` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -26,6 +26,6 @@
 * `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 * `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
 * `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
-* `Improvement` Minimum host is AutoJs6 6.8.0 / build 5286 to receive and validate extra script folders configured in the plugin
-* `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5286 release build (MPL 2.0), with SHA-256 locks
+* `Improvement` Minimum host is AutoJs6 6.8.0 / build 5287 to receive and validate extra script folders configured in the plugin
+* `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks
 * `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees

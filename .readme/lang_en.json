@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent turns a natural-language goal into actions on an Android device running AutoJs6. It either picks a script that the user has registered for agent use, fills in its parameters and runs it, or observes the screen through the accessibility node tree and acts on it step by step (observe, decide, act, verify) until the goal is reached, a confirmation is needed, or a budget runs out. It answers [AutoJs6 discussion #577]({{ discussion_url }}).",
   "p_introduction_how": "The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it through the `ai.agent` API of AutoJs6; users reach it through its own task workbench, the AutoJs6 drawer, a floating ball, the system share sheet, app shortcuts, and voice input. Model calls and device actions always go through AutoJs6 over Binder: the host lends the plugin a model broker (the AI Provider plugins the host already knows, such as 3-Stone AI) and a capability broker with a bounded grant. The plugin never holds credentials, never binds a model provider itself, and never requests the accessibility permission.",
   "h3_status": "Status",
-  "p_status": "Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Features",
   "p_features_intro": "Release 1.0.0 is planned to provide the following capabilities",
   "features": [
@@ -24,7 +24,7 @@
     "Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.",
     "Configure extra folders in the launcher's \"Script directories\", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders."
   ],
-  "p_usage_note": "Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.",
+  "p_usage_note": "Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.",
   "h3_security": "Permissions and Security",
   "p_security_intro": "The plugin follows explicit boundaries:",
   "security_points": [
@@ -61,7 +61,7 @@
   "text_link_third_party_notices": "Third-party notices",
   "p_instruction_more": "See the [project README]({{ repo_url }}) and [ROADMAP.md]({{ roadmap_url }}) for the connection guide and the current progress.",
   "h3_tools": "Tool catalog",
-  "p_tools_status": "Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically. Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6. Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries.",
+  "p_tools_status": "Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.",
   "tool_header_name": "Tool",
   "tool_header_group": "Group",
   "tool_header_risk": "Risk",

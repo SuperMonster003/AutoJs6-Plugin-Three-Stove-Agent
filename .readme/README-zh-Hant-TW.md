@@ -52,7 +52,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-開發預覽: 宿主連接與任務控制已接入. 專用腳本執行與畫面恢復繼續按 P3/P4 實作, 腳本 API 與任務台按 P5/P6 提供. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ### 工具目錄
 
-經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續. 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作. 已登記指令碼目錄支援任務開始時重新整理, 連結內 60 秒快取, 按關鍵詞確定性排序最多 24 個候選, 有界參數摘要及 script_catalog 查詢.
+開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6.
 
 | 工具 | 分組 | 風險 | 預設 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -110,12 +110,12 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1. 在安裝了 AutoJs6 組建 5286 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+1. 在安裝了 AutoJs6 組建 5287 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
 3. 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權.
 4. 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
 
-> 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
+> 開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6.
 
 ******
 
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5286 (6.8.0)
+minimum host build: 5287 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續.
@@ -175,8 +175,8 @@ minimum host build: 5286 (6.8.0)
 
 _2026/09/23_
 
-- `提示` 開發預覽: 宿主連接與任務控制已接入. 專用腳本執行與畫面恢復繼續按 P3/P4 實作, 腳本 API 與任務台按 P5/P6 提供.
-- `提示` 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
+- `提示` 開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6.
+- `新增` 登記腳本執行接入確認清單驗證, 結構化觀察, 主控台尾部遮蔽及逾時或任務取消時的所屬腳本停止
 - `新增` 按作用域注入偏好記憶供指令碼填參, 支援 4 KiB 上限, 截斷標記與任務級關閉
 - `新增` 登記指令碼參數驗證與預設值補全, 缺參詢問, 目前清單風險檢查及確認參數表
 - `新增` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -193,8 +193,8 @@ _2026/09/23_
 - `新增` 僅在任務存續期間顯示前景通知, 提供進度, 停止和查看操作; 可從啟動器完成輸入與逐次操作確認
 - `新增` 已登記指令碼目錄支援任務開始時重新整理, 連結內 60 秒快取, 按關鍵詞確定性排序最多 24 個候選, 有界參數摘要及 script_catalog 查詢
 - `優化` 指令碼確認描述按 JSON 跳脫後的大小限制, 避免大參數表超過 Binder 事件上限
-- `優化` 最低宿主版本為 AutoJs6 6.8.0 / 組建 5286, 用於接收和校驗外掛的附加指令碼目錄設定
-- `相依性` 附加同一 AutoJs6 6.8.0 / 5286 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
+- `優化` 最低宿主版本為 AutoJs6 6.8.0 / 組建 5287, 用於接收和校驗外掛的附加指令碼目錄設定
+- `相依性` 附加同一 AutoJs6 6.8.0 / 5287 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
 - `相依性` 附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹
 
 ##### 更多發行歷史

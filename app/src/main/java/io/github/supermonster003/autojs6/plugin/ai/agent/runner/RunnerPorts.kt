@@ -103,7 +103,7 @@ class ToolInvocation(val name: String, arguments: JsonObject, plan: ToolPlan) {
 class PreparedTool(val invocation: ToolInvocation, val metadata: ToolMetadata, val opaqueContext: Any? = null) {
     override fun toString() = "PreparedTool(name=${invocation.name})"
 }
-class ToolReply(result: JsonElement) {
+class ToolReply(result: JsonElement, val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutcome? = null) {
     private val data = AgentJson.parse(result.toString(), 512 * 1024)
     val result: JsonElement get() = data.deepCopy()
     override fun toString() = "ToolReply(bytes=${StepJournal.bytes(data)})"

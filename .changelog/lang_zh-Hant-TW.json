@@ -8,10 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "開發預覽: 宿主連接與任務控制已接入. 專用腳本執行與畫面恢復繼續按 P3/P4 實作, 腳本 API 與任務台按 P5/P6 提供.",
-        "任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作."
+        "開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6."
       ],
       "feature": [
+        "登記腳本執行接入確認清單驗證, 結構化觀察, 主控台尾部遮蔽及逾時或任務取消時的所屬腳本停止",
         "按作用域注入偏好記憶供指令碼填參, 支援 4 KiB 上限, 截斷標記與任務級關閉",
         "登記指令碼參數驗證與預設值補全, 缺參詢問, 目前清單風險檢查及確認參數表",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
@@ -30,10 +30,10 @@
       ],
       "improvement": [
         "指令碼確認描述按 JSON 跳脫後的大小限制, 避免大參數表超過 Binder 事件上限",
-        "最低宿主版本為 AutoJs6 6.8.0 / 組建 5286, 用於接收和校驗外掛的附加指令碼目錄設定"
+        "最低宿主版本為 AutoJs6 6.8.0 / 組建 5287, 用於接收和校驗外掛的附加指令碼目錄設定"
       ],
       "dependency": [
-        "附加同一 AutoJs6 6.8.0 / 5286 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定",
+        "附加同一 AutoJs6 6.8.0 / 5287 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定",
         "附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹"
       ]
     }

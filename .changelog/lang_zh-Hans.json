@@ -8,10 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供.",
-        "任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施."
+        "开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6."
       ],
       "feature": [
+        "登记脚本执行接入确认清单校验, 结构化观察, 控制台尾部脱敏及超时或任务取消时的所属脚本停止",
         "按作用域注入偏好记忆供脚本填参, 支持 4 KiB 上限, 截断标记与任务级关闭",
         "登记脚本参数校验与默认值补全, 缺参询问, 当前清单风险检查及确认参数表",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
@@ -30,10 +30,10 @@
       ],
       "improvement": [
         "脚本确认描述按 JSON 转义后的大小限流, 避免大参数表超过 Binder 事件上限",
-        "最低宿主版本为 AutoJs6 6.8.0 / 构建 5286, 用于接收和校验插件的附加脚本目录设置"
+        "最低宿主版本为 AutoJs6 6.8.0 / 构建 5287, 用于接收和校验插件的附加脚本目录设置"
       ],
       "dependency": [
-        "附加同一 AutoJs6 6.8.0 / 5286 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定",
+        "附加同一 AutoJs6 6.8.0 / 5287 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定",
         "附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树"
       ]
     }

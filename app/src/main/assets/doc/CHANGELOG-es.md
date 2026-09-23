@@ -8,8 +8,8 @@
 
 ###### 2026/09/23
 
-* `Aviso` Vista previa: conexión al anfitrión y control de tareas integrados. La ejecución de scripts y recuperación de pantalla continúan en P3/P4; la API de scripts y el panel llegarán en P5/P6.
-* `Aviso` El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
+* `Aviso` Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+* `Función` Ejecución de scripts registrados con comprobación del manifiesto confirmado, observaciones estructuradas, cola de consola censurada y detención del script por tiempo agotado o cancelación
 * `Función` Preferencias en memoria por ámbito para los parámetros de scripts, con límite de 4 KiB, truncamiento explícito y desactivación por tarea
 * `Función` Validación de parámetros de scripts registrados con valores predeterminados, preguntas por datos faltantes, revisión del riesgo actual y tablas completas para confirmar
 * `Función` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -26,6 +26,6 @@
 * `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 * `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
 * `Mejora` Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder
-* `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5286 para recibir y validar las carpetas adicionales configuradas en el plugin
-* `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5286 (MPL 2.0), fijados con SHA-256
+* `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5287 para recibir y validar las carpetas adicionales configuradas en el plugin
+* `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5287 (MPL 2.0), fijados con SHA-256
 * `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas

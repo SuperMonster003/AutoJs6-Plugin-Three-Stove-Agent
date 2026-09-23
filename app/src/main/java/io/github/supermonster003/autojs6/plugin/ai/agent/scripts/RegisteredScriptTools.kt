@@ -62,7 +62,7 @@ class RegisteredScriptTools(private val client: ScriptCatalogClient, roots: Set<
         return operation
     }
 
-    // P3.3 supplies ScriptInvoker. Until then the production bridge returns TOOL_DISABLED for this plan.
+    // ScriptExecutionTools consumes the inspected script before this generic delegate is reached.
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit) = delegate.execute(prepared, timeoutMs, callback)
 
     private class Admission(private val callback: (PortResult<PreparedTool>) -> Unit) : Cancellation {

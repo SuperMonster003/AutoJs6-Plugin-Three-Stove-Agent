@@ -8,10 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6.",
-        "Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6."
+        "Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6."
       ],
       "feature": [
+        "Exécution des scripts enregistrés avec vérification du manifeste confirmé, observations structurées, fin de console expurgée et arrêt du script en cas de délai dépassé ou de tâche annulée",
         "Injection des préférences mémorisées selon leur portée pour les paramètres des scripts, avec limite de 4 KiB, troncature explicite et désactivation par tâche",
         "Validation des paramètres des scripts enregistrés avec valeurs par défaut, questions sur les valeurs manquantes, contrôle du risque actuel et tableaux complets pour confirmation",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
@@ -30,10 +30,10 @@
       ],
       "improvement": [
         "La taille des descriptions de confirmation tient compte des échappements JSON pour respecter la limite des événements Binder avec de grands tableaux",
-        "L'hôte minimum est AutoJs6 6.8.0 / build 5286 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin"
+        "L'hôte minimum est AutoJs6 6.8.0 / build 5287 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin"
       ],
       "dependency": [
-        "Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5286 (MPL 2.0), verrouillés par SHA-256",
+        "Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5287 (MPL 2.0), verrouillés par SHA-256",
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
       ]
     }

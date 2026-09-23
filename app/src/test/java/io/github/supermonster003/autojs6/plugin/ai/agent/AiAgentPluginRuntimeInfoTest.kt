@@ -29,7 +29,7 @@ class AiAgentPluginRuntimeInfoTest {
         assertEquals(1L, info.versionCode)
         assertEquals("Sep 22, 2026", info.versionDate)
         assertArrayEquals(emptyArray<String>(), info.supportedAbis)
-        assertEquals(5286L, info.requiresHostVersion)
+        assertEquals(5287L, info.requiresHostVersion)
         assertEquals(AiAgentPlugin.REQUIRED_HOST_VERSION, info.requiresHostVersion)
     }
 

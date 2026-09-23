@@ -80,7 +80,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     private fun notifyStatus() { runCatching { workers.callbacks.execute { runCatching { callback.onStatus(status()) } } } }
 
-    private fun prepare(request: StartRequest, policy: ToolPolicy, configuration: LinkConfiguration) = RunPreparation { complete ->
+    private fun prepare(request: StartRequest, policy: ToolPolicy, configuration: LinkConfiguration, runId: () -> String) = RunPreparation { complete ->
         val stopped = AtomicBoolean()
         val selecting = AtomicReference<Cancellation>(Cancellation.NONE)
         val catalogLoading = AtomicReference<Cancellation>(Cancellation.NONE)
@@ -104,12 +104,14 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
                     policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
                 val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
-                val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered").all {
+                val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered", "engines.stop").all {
                     it in methods && configuration.methods?.contains(it) != false
-                } && policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
+                } && listOf("agent.exec", "engines", "engines.exec").all { it in permissions && configuration.permissions?.contains(it) != false } &&
+                    policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
                 val memory = runtime.memories.snapshot(request.preset, request.memory)
+                val executionTools = ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset))
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
                     when (outcome) {
@@ -136,7 +138,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                     ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
                                         ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
                                         memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
-                                        memoryUnavailable = memory.unavailable), client, registeredTools, selected.maximumTokens))) }
+                                        memoryUnavailable = memory.unavailable), client, executionTools, selected.maximumTokens))) }
                                 catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
                             }
                             if (!policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))) compiled(null)
@@ -165,7 +167,9 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val request = StartRequest.parse(json, configuration)
         val policy = runtime.policy(request.groups)
         val sink = RunSink(callback)
-        val run = try { queue.submitPrepared(request.options, policy, prepare(request, policy, configuration), { admitted ->
+        val admittedId = AtomicReference<String>()
+        val run = try { queue.submitPrepared(request.options, policy, prepare(request, policy, configuration) { checkNotNull(admittedId.get()) }, { admitted ->
+            admittedId.set(admitted.id)
             archive.admit(admitted, request); active[admitted.id] = admitted; sinks[admitted.id] = sink
         }, ::onEvent) } catch (e: Exception) { sink.close(); throw e }
         runtime.taskChanged()

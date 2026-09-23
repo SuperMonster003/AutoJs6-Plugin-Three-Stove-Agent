@@ -52,7 +52,7 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ******
 
-開発プレビュー: ホスト接続とタスク制御を実装しました. スクリプト実行と画面復旧は P3/P4, スクリプト API とタスク画面は P5/P6 で続けます. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+開発プレビュー: 登録スクリプトのパラメーター質問, 確認, 結果報告と取消に対応. 画面操作は P4, タスクのスクリプト API とワークベンチは P5/P6 で実装予定. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ### ツール一覧
 
-ホスト認証付き接続でタスクの待機列, 応答, 取消, 照会と非公開の手順履歴を提供; ホスト切断時は停止状態になり, プロセス再起動で自動再開しない. タスクはホストから送信します. タスク画面と ai.agent スクリプト API は P5/P6 の予定です. 登録済みスクリプトをタスク開始時に更新し, 接続単位の 60 秒キャッシュ, キーワードによる最大 24 候補の決定的な順位付け, サイズ制限付きパラメーター概要と script_catalog 検索に対応.
+開発プレビュー: 登録スクリプトのパラメーター質問, 確認, 結果報告と取消に対応. 画面操作は P4, タスクのスクリプト API とワークベンチは P5/P6 で実装予定.
 
 | ツール | グループ | リスク | 既定 | 説明 |
 | --- | --- | --- | --- | --- |
@@ -110,12 +110,12 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ******
 
-1. AutoJs6 ビルド 5286 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
+1. AutoJs6 ビルド 5287 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
 2. AutoJs6 のプラグインセンターを開き, `AI Agent` が認識されていることを確認して有効にします. 公式リリースのパッケージは署名検証を自動的に通過します.
 3. ランチャーからホスト接続を要求し, 15 秒のタイムアウト後に AutoJs6 での有効化と接続許可を案内.
 4. ランチャーの "スクリプトディレクトリ" で追加フォルダーを設定します. 1 行に 1 つの絶対パスを入力し, 保存後にホストが検証して適用します. タスクは承認済みの範囲だけを絞り込めます.
 
-> タスクはホストから送信します. タスク画面と ai.agent スクリプト API は P5/P6 の予定です.
+> 開発プレビュー: 登録スクリプトのパラメーター質問, 確認, 結果報告と取消に対応. 画面操作は P4, タスクのスクリプト API とワークベンチは P5/P6 で実装予定.
 
 ******
 
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5286 (6.8.0)
+minimum host build: 5287 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: ホスト認証付き接続でタスクの待機列, 応答, 取消, 照会と非公開の手順履歴を提供; ホスト切断時は停止状態になり, プロセス再起動で自動再開しない.
@@ -175,8 +175,8 @@ minimum host build: 5286 (6.8.0)
 
 _2026/09/23_
 
-- `ヒント` 開発プレビュー: ホスト接続とタスク制御を実装しました. スクリプト実行と画面復旧は P3/P4, スクリプト API とタスク画面は P5/P6 で続けます.
-- `ヒント` タスクはホストから送信します. タスク画面と ai.agent スクリプト API は P5/P6 の予定です.
+- `ヒント` 開発プレビュー: 登録スクリプトのパラメーター質問, 確認, 結果報告と取消に対応. 画面操作は P4, タスクのスクリプト API とワークベンチは P5/P6 で実装予定.
+- `機能` 登録スクリプトの実行で確認済みマニフェストを検証し, 構造化された観測と秘匿化したコンソール末尾を返し, タイムアウトやタスク取消時に対象スクリプトを停止
 - `機能` スクリプト引数用のスコープ別の設定記憶を注入し, 4 KiB 上限, 切り詰め表示とタスク単位の無効化に対応
 - `機能` 登録スクリプトの引数検証と既定値の補完, 不足値の質問, 最新マニフェストのリスク確認と全引数の確認表
 - `機能` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -193,8 +193,8 @@ _2026/09/23_
 - `機能` タスク実行中のみ前景通知を表示し, 進捗, 停止と表示操作を提供; ランチャーから入力と操作ごとの確認に応答可能
 - `機能` 登録済みスクリプトをタスク開始時に更新し, 接続単位の 60 秒キャッシュ, キーワードによる最大 24 候補の決定的な順位付け, サイズ制限付きパラメーター概要と script_catalog 検索に対応
 - `改善` 確認説明の上限に JSON エスケープ後のサイズを反映し, 大きな引数表でも Binder イベント上限を維持
-- `改善` プラグインの追加スクリプトフォルダー設定を受信して検証するため, 最低ホストを AutoJs6 6.8.0 / ビルド 5286 に設定
-- `依存関係` 同じ AutoJs6 6.8.0 / 5286 release ビルドの common-plugin-api, host-capability-api と ai-agent-api (MPL 2.0) を追加し, SHA-256 で固定
+- `改善` プラグインの追加スクリプトフォルダー設定を受信して検証するため, 最低ホストを AutoJs6 6.8.0 / ビルド 5287 に設定
+- `依存関係` 同じ AutoJs6 6.8.0 / 5287 release ビルドの common-plugin-api, host-capability-api と ai-agent-api (MPL 2.0) を追加し, SHA-256 で固定
 - `依存関係` 有界の厳密 JSON 解析と Schema ツリー用に Gson 2.13.2 を追加
 
 ##### さらに詳しいリリース履歴

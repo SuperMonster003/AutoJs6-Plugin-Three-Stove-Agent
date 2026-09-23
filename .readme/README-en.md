@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ Release 1.0.0 is planned to provide the following capabilities:
 
 ### Tool catalog
 
-Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically. Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6. Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries.
+Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
 
 | Tool | Group | Risk | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -110,12 +110,12 @@ Verified host attachment with queued tasks, responses, cancellation, queries and
 
 ******
 
-1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5286 or later.
+1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5287 or later.
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
 3. Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.
 4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
 
-> Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
+> Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
 
 ******
 
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5286 (6.8.0)
+minimum host build: 5287 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.
@@ -175,8 +175,8 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/23_
 
-- `Hint` Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6.
-- `Hint` Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
+- `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+- `Feature` Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation
 - `Feature` Scoped preference memory injection for script parameters, with a 4 KiB limit, explicit truncation and task-level opt-out
 - `Feature` Registered script parameter validation with defaults, missing-value questions, current-manifest risk checks and complete parameter tables for confirmation
 - `Feature` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
@@ -193,8 +193,8 @@ _2026/09/23_
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
 - `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
-- `Improvement` Minimum host is AutoJs6 6.8.0 / build 5286 to receive and validate extra script folders configured in the plugin
-- `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5286 release build (MPL 2.0), with SHA-256 locks
+- `Improvement` Minimum host is AutoJs6 6.8.0 / build 5287 to receive and validate extra script folders configured in the plugin
+- `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks
 - `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees
 
 ##### For more release history
