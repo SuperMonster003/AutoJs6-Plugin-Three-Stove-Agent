@@ -21,9 +21,8 @@ class ScriptCatalogClient(private val nowMs: () -> Long) : AutoCloseable {
 
     fun load(roots: Set<String>, refresh: Boolean, timeoutMs: Long, source: ScriptCatalogSource,
              callback: (PortResult<ScriptCatalogSnapshot>) -> Unit): Cancellation {
-        require(roots.size <= 32 && roots.all { it.startsWith('/') && it.toByteArray(Charsets.UTF_8).size <= 1024 && '\u0000' !in it })
         require(timeoutMs in 1..300_000)
-        val key = roots.sorted()
+        val key = ScriptRoots.validate(roots).sorted()
         val request: Request
         synchronized(this) {
             if (closed) { callback(PortResult.Failure(RunError.HOST_UNAVAILABLE)); return Cancellation.NONE }
@@ -58,8 +57,14 @@ class ScriptCatalogClient(private val nowMs: () -> Long) : AutoCloseable {
     }
 
     fun invalidate() {
-        val old = synchronized(this) { slots.clear(); pending.toList() }
-        old.forEach { it.stop(RunError.CANCELLED) }
+        val old = synchronized(this) {
+            slots.clear()
+            pending.toList().also { requests -> requests.forEach { it.stopped.set(true) }; pending.clear() }
+        }
+        old.forEach {
+            runCatching { it.transport.get().cancel() }
+            runCatching { it.callback(PortResult.Failure(RunError.CANCELLED)) }
+        }
     }
     override fun close() { synchronized(this) { closed = true }; invalidate() }
 

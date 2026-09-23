@@ -61,6 +61,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.ScriptRootsActivity" android:exported="false" />
+
         <service
             android:name=".AiAgentTaskForegroundService"
             android:exported="false"
@@ -86,7 +88,7 @@
             </intent-filter>
             <meta-data
                 android:name="requiresHostVersion"
-                android:value="5285" />
+                android:value="5286" />
         </service>
 
         <!--
@@ -105,7 +107,7 @@
             </intent-filter>
             <meta-data
                 android:name="requiresHostVersion"
-                android:value="5285" />
+                android:value="5286" />
         </service>
 
     </application>

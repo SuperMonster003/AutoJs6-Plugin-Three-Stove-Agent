@@ -24,13 +24,13 @@
         "宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度",
         "启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权",
         "仅在任务存续期间显示前台通知, 提供进度, 停止和查看操作; 可从启动器完成输入与逐次操作确认",
-        "已登记脚本目录核心, 支持按宿主链路缓存 60 秒, 确定性筛选最多 24 个候选及有界参数摘要"
+        "已登记脚本目录支持任务开始时刷新, 链路内 60 秒缓存, 按关键词确定性排序最多 24 个候选, 有界参数摘要及 script_catalog 查询"
       ],
       "improvement": [
-        "最低宿主要求确定为 AutoJs6 6.8.0 / 构建 5285, 与宿主 P1 接口及入口交付版本一致"
+        "最低宿主版本为 AutoJs6 6.8.0 / 构建 5286, 用于接收和校验插件的附加脚本目录设置"
       ],
       "dependency": [
-        "附加同一 AutoJs6 6.8.0 / 5285 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定",
+        "附加同一 AutoJs6 6.8.0 / 5286 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定",
         "附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树"
       ]
     }

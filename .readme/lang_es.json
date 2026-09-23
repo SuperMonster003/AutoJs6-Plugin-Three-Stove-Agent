@@ -21,7 +21,8 @@
   "usage_steps": [
     "Instale el APK del plugin desde [Releases]({{ repo_url }}/releases) en un dispositivo con AutoJs6 build {{ required_host_version_code }} o posterior.",
     "Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.",
-    "Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6."
+    "Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6.",
+    "Configure carpetas adicionales en \"Directorios de scripts\" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas."
   ],
   "p_usage_note": "El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.",
   "h3_security": "Permisos y seguridad",
@@ -60,7 +61,7 @@
   "text_link_third_party_notices": "Avisos de terceros",
   "p_instruction_more": "Consulte el [README del proyecto]({{ repo_url }}) y [ROADMAP.md]({{ roadmap_url }}) para la guía de conexión y el progreso actual.",
   "h3_tools": "Catálogo de herramientas",
-  "p_tools_status": "Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso. El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.",
+  "p_tools_status": "Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso. El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6. Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog.",
   "tool_header_name": "Herramienta",
   "tool_header_group": "Grupo",
   "tool_header_risk": "Riesgo",

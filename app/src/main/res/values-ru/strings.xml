@@ -11,6 +11,11 @@
     <string name="launcher_open_host">Открыть AutoJs6</string>
     <string name="launcher_preview">Предварительная версия: доступны подключение к хосту и уведомления задач. Панель задач и API скриптов появятся позже.</string>
     <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
+    <string name="script_roots_instruction">Введите по одному абсолютному пути в строке. Хост проверит наличие каталогов в общем хранилище и отсутствие в них рабочего каталога. Применение изменений отменяет текущие задачи.</string>
+    <string name="script_roots_invalid">Введите до 32 различных абсолютных путей без переходов к родительскому каталогу, общим размером до 8 KiB.</string>
+    <string name="script_roots_rejected">Хост не принял эти каталоги. Проверьте, что они существуют в общем хранилище и не содержат рабочий каталог.</string>
+    <string name="script_roots_save">Сохранить каталоги</string>
+    <string name="script_roots_title">Каталоги скриптов</string>
     <string name="task_allow">Разрешить один раз</string>
     <string name="task_channel">Задачи Agent</string>
     <string name="task_deny">Отклонить</string>

@@ -21,7 +21,8 @@
   "usage_steps": [
     "Install the plugin APK from [Releases]({{ repo_url }}/releases) on a device with AutoJs6 build {{ required_host_version_code }} or later.",
     "Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.",
-    "Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6."
+    "Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.",
+    "Configure extra folders in the launcher's \"Script directories\", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders."
   ],
   "p_usage_note": "Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.",
   "h3_security": "Permissions and Security",
@@ -60,7 +61,7 @@
   "text_link_third_party_notices": "Third-party notices",
   "p_instruction_more": "See the [project README]({{ repo_url }}) and [ROADMAP.md]({{ roadmap_url }}) for the connection guide and the current progress.",
   "h3_tools": "Tool catalog",
-  "p_tools_status": "Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically. Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.",
+  "p_tools_status": "Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically. Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6. Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries.",
   "tool_header_name": "Tool",
   "tool_header_group": "Group",
   "tool_header_risk": "Risk",

@@ -16,6 +16,7 @@ import org.autojs.plugin.ai.agent.api.*
 import com.google.gson.JsonParser
 import java.util.UUID
 import java.util.concurrent.Executors
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 
 /**
  * Standalone entry of the plugin (roadmap D2 / D11). The task workbench of roadmap P6 grows out
@@ -34,6 +35,7 @@ class LauncherActivity : Activity() {
     private var requested = false
     private var dialog: AlertDialog? = null
     private var shownRequest: String? = null
+    private val scriptRoots by lazy { ScriptRootSettings(this) }
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) { link = IAiAgentLink.Stub.asInterface(binder); poll() }
         override fun onServiceDisconnected(name: ComponentName?) { link = null; show(R.string.launcher_link_timeout) }
@@ -43,6 +45,7 @@ class LauncherActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launcher)
         findViewById<TextView>(R.id.launcher_host_status).text = hostStatusText()
+        findViewById<Button>(R.id.launcher_script_roots).setOnClickListener { startActivity(Intent(this, ScriptRootsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_connect).setOnClickListener {
             if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
@@ -74,6 +77,7 @@ class LauncherActivity : Activity() {
         val identity = PendingIntent.getActivity(this, 0, Intent(this, LauncherActivity::class.java), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         intent.putExtra(AiAgentActions.EXTRA_ATTACH_IDENTITY, identity)
         intent.putExtra("requestId", requestId ?: UUID.randomUUID().toString())
+        if (scriptRoots.configured) intent.putExtra(AiAgentContract.KEY_LINK_CONFIG_JSON, ScriptRoots.configuration(scriptRoots.read()))
     }
     private fun requestAttachment() {
         if (classifyHostPresence(readHostPackage(), AiAgentPlugin.REQUIRED_HOST_VERSION) != HostPresence.READY) return
@@ -102,9 +106,13 @@ class LauncherActivity : Activity() {
             main.post {
                 if (!visible || current !== link || expectedGeneration != generation) return@post
                 polling = false
-                if (state == AiAgentContract.LINK_STATE_ATTACHED) { deadline = 0; requested = false; show(R.string.launcher_link_attached) }
+                val acceptedRoots = runCatching { status?.getAsJsonArray("scriptRoots")?.map { it.asString }?.toSet() }.getOrNull()
+                val settingsAccepted = !scriptRoots.configured || acceptedRoots == scriptRoots.read()
+                if (state == AiAgentContract.LINK_STATE_ATTACHED && settingsAccepted) { deadline = 0; requested = false; show(R.string.launcher_link_attached) }
                 else if (!requested) requestAttachment()
-                else if (deadline > 0 && SystemClock.elapsedRealtime() >= deadline) { deadline = 0; show(R.string.launcher_link_timeout) }
+                else if (deadline > 0 && SystemClock.elapsedRealtime() >= deadline) {
+                    deadline = 0; show(if (state == AiAgentContract.LINK_STATE_ATTACHED && !settingsAccepted) R.string.script_roots_rejected else R.string.launcher_link_timeout)
+                }
                 showPending(current, runId, pending)
                 if (visible) main.postDelayed({ poll() }, 500)
             }

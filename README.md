@@ -69,7 +69,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ### 工具目录
 
-经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
+经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施. 已登记脚本目录支持任务开始时刷新, 链路内 60 秒缓存, 按关键词确定性排序最多 24 个候选, 有界参数摘要及 script_catalog 查询.
 
 | 工具 | 分组 | 风险 | 默认 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -110,9 +110,10 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-1. 在安装了 AutoJs6 构建 5285 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
+1. 在安装了 AutoJs6 构建 5286 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
 2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
 3. 启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.
+4. 在启动器的 "脚本目录" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围.
 
 > 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
 
@@ -149,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5285 (6.8.0)
+minimum host build: 5286 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.
@@ -188,9 +189,9 @@ _2026/09/23_
 - `新增` 宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度
 - `新增` 启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权
 - `新增` 仅在任务存续期间显示前台通知, 提供进度, 停止和查看操作; 可从启动器完成输入与逐次操作确认
-- `新增` 已登记脚本目录核心, 支持按宿主链路缓存 60 秒, 确定性筛选最多 24 个候选及有界参数摘要
-- `优化` 最低宿主要求确定为 AutoJs6 6.8.0 / 构建 5285, 与宿主 P1 接口及入口交付版本一致
-- `依赖` 附加同一 AutoJs6 6.8.0 / 5285 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
+- `新增` 已登记脚本目录支持任务开始时刷新, 链路内 60 秒缓存, 按关键词确定性排序最多 24 个候选, 有界参数摘要及 script_catalog 查询
+- `优化` 最低宿主版本为 AutoJs6 6.8.0 / 构建 5286, 用于接收和校验插件的附加脚本目录设置
+- `依赖` 附加同一 AutoJs6 6.8.0 / 5286 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
 - `依赖` 附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树
 
 ##### 更多发行历史

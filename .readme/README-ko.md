@@ -69,7 +69,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ### 도구 목록
 
-호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음. 작업은 호스트가 제출합니다. 작업 화면과 ai.agent 스크립트 API는 P5/P6에 예정되어 있습니다.
+호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음. 작업은 호스트가 제출합니다. 작업 화면과 ai.agent 스크립트 API는 P5/P6에 예정되어 있습니다. 작업 시작 시 등록 스크립트를 새로 고치고, 연결별 60초 캐시, 키워드 기반 최대 24개 후보의 결정적 정렬, 크기가 제한된 매개변수 요약 및 script_catalog 검색 지원.
 
 | 도구 | 그룹 | 위험 | 기본값 | 설명 |
 | --- | --- | --- | --- | --- |
@@ -110,9 +110,10 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ******
 
-1. AutoJs6 빌드 5285 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
+1. AutoJs6 빌드 5286 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
 2. AutoJs6 플러그인 센터를 열어 `AI Agent`가 인식되는지 확인하고 활성화합니다. 공식 릴리스 패키지는 서명 검증을 자동으로 통과합니다.
 3. 런처에서 호스트 연결을 요청하고 15초가 지나면 AutoJs6의 AI Agent 활성화와 연결 허용 방법 안내.
+4. 런처의 "스크립트 디렉터리"에서 추가 폴더를 설정하고 줄마다 절대 경로를 하나씩 입력하세요. 저장한 경로는 호스트가 검증하여 적용하며 작업은 승인된 폴더 범위만 좁힐 수 있습니다.
 
 > 작업은 호스트가 제출합니다. 작업 화면과 ai.agent 스크립트 API는 P5/P6에 예정되어 있습니다.
 
@@ -149,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5285 (6.8.0)
+minimum host build: 5286 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음.
@@ -188,9 +189,9 @@ _2026/09/23_
 - `기능` 호스트 모델 클라이언트에 이벤트 순서 검증, usage 집계, 취소, 제한 시간 및 제한된 형식 전환 구현; 각 재시도는 모델 호출로 계산하고 결정 수정 한도를 유지
 - `기능` 런처에서 호스트 연결을 요청하고 15초가 지나면 AutoJs6의 AI Agent 활성화와 연결 허용 방법 안내
 - `기능` 작업 중에만 진행 상황, 중지 및 보기 동작이 포함된 포그라운드 알림 표시; 런처에서 입력과 개별 동작 확인에 응답 가능
-- `기능` 등록된 스크립트 카탈로그 코어에 호스트 연결별 60초 캐시, 최대 24개 후보의 결정적 순위 지정 및 크기가 제한된 매개변수 요약 제공
-- `개선` 최소 호스트 요구 사항을 AutoJs6 6.8.0 / 빌드 5285 로 확정하여 P1 호스트 인터페이스 및 진입점 제공 버전과 일치시켰습니다
-- `의존성` 동일한 AutoJs6 6.8.0 / 5285 release 빌드의 common-plugin-api, host-capability-api 및 ai-agent-api (MPL 2.0) 추가, SHA-256으로 고정
+- `기능` 작업 시작 시 등록 스크립트를 새로 고치고, 연결별 60초 캐시, 키워드 기반 최대 24개 후보의 결정적 정렬, 크기가 제한된 매개변수 요약 및 script_catalog 검색 지원
+- `개선` 플러그인의 추가 스크립트 폴더 설정을 수신하고 검증하기 위한 최소 호스트는 AutoJs6 6.8.0 / 빌드 5286
+- `의존성` 동일한 AutoJs6 6.8.0 / 5286 release 빌드의 common-plugin-api, host-capability-api 및 ai-agent-api (MPL 2.0) 추가, SHA-256으로 고정
 - `의존성` 제한된 엄격 JSON 파싱과 Schema 트리를 위해 Gson 2.13.2 추가
 
 ##### 더 많은 릴리스 기록

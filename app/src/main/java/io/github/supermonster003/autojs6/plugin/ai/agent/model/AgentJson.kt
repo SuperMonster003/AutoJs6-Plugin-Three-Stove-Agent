@@ -9,13 +9,14 @@ import java.math.BigDecimal
 /** Bounded tree decoding, without reflection, coercion, duplicate keys or lenient JSON. */
 object AgentJson {
     const val MAX_MODEL_BYTES = 64 * 1024
-    fun parse(text: String, maxBytes: Int = MAX_MODEL_BYTES): JsonElement {
+    fun parse(text: String, maxBytes: Int = MAX_MODEL_BYTES, maxNodes: Int = 16_384): JsonElement {
+        require(maxNodes in 1..131_072)
         require(text.length <= maxBytes && text.toByteArray(Charsets.UTF_8).size <= maxBytes) { "JSON exceeds byte limit" }
         var nodes = 0
         JsonReader(StringReader(text)).use { reader ->
             reader.strictness = Strictness.STRICT
             fun read(depth: Int): JsonElement {
-                require(depth <= 32 && ++nodes <= 16_384) { "JSON exceeds structural limit" }
+                require(depth <= 32 && ++nodes <= maxNodes) { "JSON exceeds structural limit" }
                 return when (reader.peek()) {
                     JsonToken.BEGIN_OBJECT -> JsonObject().apply {
                         reader.beginObject()
@@ -50,8 +51,8 @@ object AgentJson {
         }
     }
 
-    fun objectOf(text: String, maxBytes: Int = MAX_MODEL_BYTES): JsonObject =
-        parse(text, maxBytes).also { require(it.isJsonObject) { "Expected JSON object" } }.asJsonObject
+    fun objectOf(text: String, maxBytes: Int = MAX_MODEL_BYTES, maxNodes: Int = 16_384): JsonObject =
+        parse(text, maxBytes, maxNodes).also { require(it.isJsonObject) { "Expected JSON object" } }.asJsonObject
 
     fun checkUnicode(text: String) {
         var index = 0

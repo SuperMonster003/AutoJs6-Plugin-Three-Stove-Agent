@@ -21,7 +21,8 @@
   "usage_steps": [
     "在安装了 AutoJs6 构建 {{ required_host_version_code }} 或更高版本的设备上, 从 [Releases]({{ repo_url }}/releases) 安装插件 APK.",
     "打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.",
-    "启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权."
+    "启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.",
+    "在启动器的 \"脚本目录\" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围."
   ],
   "p_usage_note": "任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.",
   "h3_security": "权限与安全",
@@ -60,7 +61,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.",
+  "p_tools_status": "经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施. 已登记脚本目录支持任务开始时刷新, 链路内 60 秒缓存, 按关键词确定性排序最多 24 个候选, 有界参数摘要及 script_catalog 查询.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

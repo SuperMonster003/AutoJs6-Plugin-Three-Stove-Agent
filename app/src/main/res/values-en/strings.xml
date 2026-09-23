@@ -11,6 +11,11 @@
     <string name="launcher_open_host">Open AutoJs6</string>
     <string name="launcher_preview">Development preview: host connection and task notifications are available. The task workbench and script API follow in later phases.</string>
     <string name="plugin_description">Runs natural-language tasks by choosing registered scripts and operating the screen step by step</string>
+    <string name="script_roots_instruction">Enter one absolute directory path per line. The host checks that each directory exists in shared storage and is not an ancestor of its working directory. Applying changes cancels current tasks.</string>
+    <string name="script_roots_invalid">Use at most 32 distinct absolute paths, without parent traversal, within 8 KiB.</string>
+    <string name="script_roots_rejected">The host has not accepted these directories. Check that the paths exist in shared storage and do not contain the working directory.</string>
+    <string name="script_roots_save">Save directories</string>
+    <string name="script_roots_title">Script directories</string>
     <string name="task_allow">Allow once</string>
     <string name="task_channel">Agent tasks</string>
     <string name="task_deny">Deny</string>

@@ -69,7 +69,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ### 工具目錄
 
-經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續. 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
+經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續. 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作. 已登記指令碼目錄支援任務開始時重新整理, 連結內 60 秒快取, 按關鍵詞確定性排序最多 24 個候選, 有界參數摘要及 script_catalog 查詢.
 
 | 工具 | 分組 | 風險 | 預設 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -110,9 +110,10 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1. 在安裝了 AutoJs6 組建 5285 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+1. 在安裝了 AutoJs6 組建 5286 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
 3. 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權.
+4. 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
 
 > 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
 
@@ -149,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5285 (6.8.0)
+minimum host build: 5286 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續.
@@ -188,9 +189,9 @@ _2026/09/23_
 - `新增` 宿主模型用戶端核心, 驗證事件順序並支援 usage 記帳, 取消, 逾時和有限格式降級; 每次降級計入模型呼叫且保留決策修復額度
 - `新增` 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權
 - `新增` 僅在任務存續期間顯示前景通知, 提供進度, 停止和查看操作; 可從啟動器完成輸入與逐次操作確認
-- `新增` 已登記指令碼目錄核心, 支援依宿主連線快取 60 秒, 確定性篩選最多 24 個候選及有界參數摘要
-- `優化` 最低宿主要求確定為 AutoJs6 6.8.0 / 組建 5285, 與宿主 P1 介面及入口交付版本一致
-- `相依性` 附加同一 AutoJs6 6.8.0 / 5285 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
+- `新增` 已登記指令碼目錄支援任務開始時重新整理, 連結內 60 秒快取, 按關鍵詞確定性排序最多 24 個候選, 有界參數摘要及 script_catalog 查詢
+- `優化` 最低宿主版本為 AutoJs6 6.8.0 / 組建 5286, 用於接收和校驗外掛的附加指令碼目錄設定
+- `相依性` 附加同一 AutoJs6 6.8.0 / 5286 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
 - `相依性` 附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹
 
 ##### 更多發行歷史

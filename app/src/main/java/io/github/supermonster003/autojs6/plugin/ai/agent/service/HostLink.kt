@@ -6,6 +6,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.*
 import org.autojs.plugin.ai.agent.api.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
@@ -20,6 +21,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                         private val callback: IAiAgentLinkCallback, private val ownerUid: Int) {
     private val scheduler = SerialRunScheduler()
     private val workers = LinkWorkers()
+    private val scripts = ScriptCatalogClient(scheduler::nowMs)
     private val model = BinderModelBroker(runtime.context, remoteModel, ownerUid, workers)
     private val archive get() = runtime.archive
     private val attachedAt = System.currentTimeMillis()
@@ -42,7 +44,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     private val queue = RunQueue(scheduler, runtime.catalog, emptyPolicy, RunContextCompiler { error("Preparation required") },
         unusedModel, unusedTools, { RunnerText(runtime.runnerText, it) })
-    val binder: IAiAgentLink = endpoint { runtime.verifier.enforceOwner(ownerUid) }
+    val binder: IAiAgentLink = endpoint(hostValidatedRoots = true) { runtime.verifier.enforceOwner(ownerUid) }
     val local: IAiAgentLink = endpoint { if (Binder.getCallingUid() != Process.myUid()) throw SecurityException("Private link") }
 
     fun activate() {
@@ -54,7 +56,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         return AgentWire.envelope(C.KEY_STATUS_JSON, jsonObject("state" to state.json(), "attachedAt" to attachedAt.json(),
             "runningRunId" to (runs.firstOrNull { it.state != RunState.QUEUED }?.id?.json() ?: JsonNull.INSTANCE),
             "queuedCount" to runs.count { it.state == RunState.QUEUED }.coerceAtMost(RunLimits.QUEUED_RUNS).json(),
-            "pluginVersion" to runtime.info.versionName.json()).toString())
+            "pluginVersion" to runtime.info.versionName.json(), "scriptRoots" to JsonArray().apply { config.roots.sorted().forEach(::add) }).toString())
     }
     fun liveRuns(): List<JsonObject> = active.values.filter { !it.state.terminal }.mapNotNull { archive.summary(it.id) }
     fun cancelLocal(id: String) { active[id]?.cancel() }
@@ -63,6 +65,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         state = next
         if (next == C.LINK_STATE_DETACHED) queue.detach() else queue.hostUnavailable()
         model.close()
+        scripts.close()
         watched.forEach { runCatching { it.unlinkToDeath(death, 0) } }
         notifyStatus()
         scheduler.execute(::retireIfIdle)
@@ -80,6 +83,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     private fun prepare(request: StartRequest, policy: ToolPolicy, configuration: LinkConfiguration) = RunPreparation { complete ->
         val stopped = AtomicBoolean()
         val selecting = AtomicReference<Cancellation>(Cancellation.NONE)
+        val catalogLoading = AtomicReference<Cancellation>(Cancellation.NONE)
         fun finish(value: PortResult<RunComponents>) { if (!stopped.get()) complete(value) }
         val foreground = AiAgentTaskForegroundService.ensure(runtime.context) { promoted ->
         if (!promoted) { finish(PortResult.Failure(RunError.CAPABILITY_DENIED)); return@ensure }
@@ -96,6 +100,10 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, runtime.catalog,
                     { state == C.LINK_STATE_ATTACHED }, methods.intersect(configuration.methods ?: methods),
                     permissions.intersect(configuration.permissions ?: permissions), maxRequest, maxTimeout)
+                val catalogAllowed = "agent.listScripts" in methods && "agent" in permissions &&
+                    configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
+                    policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
+                val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
                     when (outcome) {
@@ -116,9 +124,25 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                 }
                             }
                             val format = client.initialFormat(request.options.format)
-                            finish(PortResult.Success(RunComponents(ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
-                                ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context),
-                                client, toolAdapter, selected.maximumTokens)))
+                            fun compiled(presentation: ScriptPresentation?) {
+                                if (stopped.get()) return
+                                try { finish(PortResult.Success(RunComponents(
+                                    ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
+                                        ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
+                                        scripts = presentation), client, scriptTools, selected.maximumTokens))) }
+                                catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
+                            }
+                            if (!policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))) compiled(null)
+                            else {
+                                val catalogCall = scriptTools.present(request.options.goal, false, true, minOf(5000, maxTimeout)) { result ->
+                                    when (result) {
+                                        is PortResult.Success -> compiled(result.value)
+                                        is PortResult.Failure -> if (result.error.hostLost) finish(result)
+                                            else compiled(ScriptPresentation.unavailable(result.error.name))
+                                    }
+                                }
+                                catalogLoading.set(catalogCall); if (stopped.get()) catalogCall.cancel()
+                            }
                         } catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
                     }
                 }
@@ -126,7 +150,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         } } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         }
-        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel() }
+        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel() }
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
         if (state != C.LINK_STATE_ATTACHED) throw WireFailure(if (state == C.LINK_STATE_DETACHED) C.ERROR_LINK_DETACHED else C.ERROR_HOST_UNAVAILABLE)
@@ -186,7 +210,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to id.json(), "accepted" to true.json()).toString())
     }
-    private fun endpoint(enforce: () -> Unit) = object : IAiAgentLink.Stub() {
+    private fun endpoint(hostValidatedRoots: Boolean = false, enforce: () -> Unit) = object : IAiAgentLink.Stub() {
         private fun check(bundle: Bundle? = null) { try { enforce() } catch (e: SecurityException) { AgentWire.closeDescriptors(bundle); throw e } }
         private fun read(bundle: Bundle?, key: String) = AgentWire.control(bundle, key)
         private fun result(body: () -> Bundle): Bundle = try { body() } catch (e: Exception) {
@@ -224,8 +248,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             check(configuration)
             val next = LinkConfiguration.parse(read(configuration, C.KEY_LINK_CONFIG_JSON))
             synchronized(this@HostLink) {
-                require(state == C.LINK_STATE_ATTACHED && next.narrows(config))
-                active.values.forEach { it.cancel() }; config = next
+                require(state == C.LINK_STATE_ATTACHED && next.narrows(config, hostValidatedRoots))
+                active.values.forEach { it.cancel() }; scripts.invalidate(); config = next
             }
         }
         override fun detach(reason: Bundle?) {

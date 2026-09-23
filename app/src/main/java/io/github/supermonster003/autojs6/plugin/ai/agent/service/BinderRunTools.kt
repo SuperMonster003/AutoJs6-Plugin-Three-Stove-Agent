@@ -5,6 +5,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptCatalogSnapshot
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 import org.autojs.plugin.host.capability.api.IHostCapabilityCallback
@@ -84,8 +85,11 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         return Cancellation { cancelled.set(true); current.get().cancel() }
     }
 
-    private fun dispatch(call: BridgeCall, callback: (PortResult<JsonElement>) -> Unit): Cancellation {
+    internal fun dispatch(call: BridgeCall, callback: (PortResult<JsonElement>) -> Unit): Cancellation {
         val id = "tool-${UUID.randomUUID()}"
+        val isScriptCatalog = call.module == "agent" && call.method == "listScripts"
+        val maximumPayloadBytes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_BYTES else 512 * 1024
+        val maximumNodes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_NODES else 16_384
         val closed = AtomicBoolean()
         val claimed = AtomicBoolean()
         val payload = AtomicReference<OwnedJson?>()
@@ -111,15 +115,15 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                     val count = if (fd != null) response.get(H.KEY_BRIDGE_PAYLOAD_BYTES) as? Long else null
                     val mime = response.getString(H.KEY_BRIDGE_PAYLOAD_MIME)
                     if (fd != null) {
-                        require(count != null && count in 0..512 * 1024 && mime == "application/json")
-                        owned = OwnedJson(null, fd, 512 * 1024); payload.set(owned)
+                        require(count != null && count in 0..maximumPayloadBytes.toLong() && mime == "application/json")
+                        owned = OwnedJson(null, fd, maximumPayloadBytes); payload.set(owned)
                     }
                     AgentWire.closeDescriptors(response, fd)
                     val data = owned
                     workers.reads.execute {
                         try {
                             if (closed.get()) return@execute
-                            val envelope = AgentJson.objectOf(text, H.MAX_BRIDGE_INLINE_JSON_BYTES)
+                            val envelope = AgentJson.objectOf(text, H.MAX_BRIDGE_INLINE_JSON_BYTES, maximumNodes)
                             require(envelope.string("id") == id && envelope.flag("ok") == ok)
                             if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error"))))
                             else if (data == null) result(PortResult.Success(envelope["result"] ?: JsonNull.INSTANCE))
@@ -128,7 +132,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                                 require(marker?.string("kind") == "descriptor" && marker.string("mime") == mime && marker.number("bytes") == count)
                                 val decoded = data.use { it.read(call.timeoutMs) }
                                 require(decoded.toByteArray(Charsets.UTF_8).size.toLong() == count)
-                                result(PortResult.Success(AgentJson.parse(decoded, 512 * 1024)))
+                                result(PortResult.Success(AgentJson.parse(decoded, maximumPayloadBytes, maximumNodes)))
                             }
                         } catch (_: Exception) { result(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)) }
                         finally { data?.close(); payload.compareAndSet(data, null) }

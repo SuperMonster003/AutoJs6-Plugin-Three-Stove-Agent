@@ -4,8 +4,9 @@
 
 ### الاستخدام
 
-1. ثبت ملف APK للمكون الإضافي من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) على جهاز به AutoJs6 بالبناء 5285 أو أحدث.
+1. ثبت ملف APK للمكون الإضافي من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) على جهاز به AutoJs6 بالبناء 5286 أو أحدث.
 2. افتح مركز المكونات الإضافية في AutoJs6, وتأكد من التعرف على `AI Agent`, ثم فعله. تجتاز حزم الإصدار الرسمية التحقق من التوقيع تلقائيا.
 3. طلب اتصال من واجهة التشغيل مع مهلة 15 ثانية وإرشاد لتفعيل AI Agent والتصريح بالاتصال في AutoJs6.
+4. اضبط المجلدات الإضافية من "مجلدات السكربتات" في شاشة البدء, بمسار مطلق واحد لكل سطر. يتحقق المضيف من المسارات المحفوظة ويطبقها; يمكن للمهمة تضييق نطاق المجلدات المعتمدة فقط.
 
 راجع [README المشروع](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) و [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) للاطلاع على دليل الاتصال والتقدم الحالي.

@@ -11,6 +11,11 @@
     <string name="launcher_open_host">開啟 AutoJs6</string>
     <string name="launcher_preview">開發預覽: 已提供宿主連接與任務通知. 任務台和腳本 API 將在後續階段提供.</string>
     <string name="plugin_description">依自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
+    <string name="script_roots_instruction">每行輸入一個絕對目錄路徑. 宿主會檢查目錄是否存在, 是否位於共用儲存空間中, 以及是否為工作目錄的上層. 設定生效時會取消目前的工作.</string>
+    <string name="script_roots_invalid">請輸入最多 32 個不重複的絕對路徑, 不含上層目錄跳轉, 總大小不超過 8 KiB.</string>
+    <string name="script_roots_rejected">宿主尚未接受這些目錄. 請檢查路徑是否存在於共用儲存空間中, 且不是工作目錄的上層.</string>
+    <string name="script_roots_save">儲存目錄</string>
+    <string name="script_roots_title">指令碼目錄</string>
     <string name="task_allow">允許一次</string>
     <string name="task_channel">Agent 任務</string>
     <string name="task_deny">拒絕</string>

@@ -24,13 +24,13 @@
         "Host model client core with validated event order, usage accounting, cancellation, deadlines and bounded format fallback; each fallback counts as a model call and preserves the decision repair allowance",
         "Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6",
         "Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher",
-        "Registered-script catalog core with a link-scoped 60-second cache, deterministic ranking of up to 24 candidates and bounded parameter summaries"
+        "Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries"
       ],
       "improvement": [
-        "Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points"
+        "Minimum host is AutoJs6 6.8.0 / build 5286 to receive and validate extra script folders configured in the plugin"
       ],
       "dependency": [
-        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5285 release build (MPL 2.0), with SHA-256 locks",
+        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5286 release build (MPL 2.0), with SHA-256 locks",
         "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
       ]
     }

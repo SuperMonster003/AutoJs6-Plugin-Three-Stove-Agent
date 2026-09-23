@@ -46,8 +46,10 @@ class ScriptCatalogSnapshot private constructor(private val rows: List<Registere
     companion object {
         const val MAX_ENTRIES = AiAgentContract.MAX_SCRIPT_CATALOG_ENTRIES
         const val MAX_BYTES = AiAgentContract.MAX_SCRIPT_CATALOG_BYTES
+        // A legal 256 KiB catalog can exceed the smaller model/observation parser budget.
+        const val MAX_NODES = 131_072
         fun parse(value: JsonElement): ScriptCatalogSnapshot {
-            val copy = AgentJson.parse(value.toString(), MAX_BYTES)
+            val copy = AgentJson.parse(value.toString(), MAX_BYTES, MAX_NODES)
             require(copy.isJsonArray && copy.asJsonArray.size() <= MAX_ENTRIES)
             val entries = copy.asJsonArray.map(RegisteredScript::parse)
             require(entries.map { it.path }.distinct().size == entries.size)

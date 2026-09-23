@@ -4,6 +4,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 
 /** Pure validation of the public control JSON. No model-supplied field grants authority. */
 internal object ControlRequests {
@@ -30,7 +31,7 @@ internal object ControlRequests {
 internal class LinkConfiguration private constructor(val locale: String, val roots: Set<String>, val methods: Set<String>?,
                                                     val permissions: Set<String>?, val groups: Set<String>, val maxInput: Int, val maxTokens: Long,
                                                     val source: JsonObject) {
-    fun narrows(previous: LinkConfiguration): Boolean = previous.roots.containsAll(roots) && previous.groups.containsAll(groups) &&
+    fun narrows(previous: LinkConfiguration, hostValidatedRoots: Boolean = false): Boolean = (hostValidatedRoots || previous.roots.containsAll(roots)) && previous.groups.containsAll(groups) &&
         (previous.methods == null || methods != null && previous.methods.containsAll(methods)) &&
         (previous.permissions == null || permissions != null && previous.permissions.containsAll(permissions)) && maxInput <= previous.maxInput && maxTokens <= previous.maxTokens
     companion object {
@@ -38,7 +39,7 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
             val value = AgentJson.objectOf(json, 8192)
             closed(value, setOf("hostLabel", "locale", "scriptRoots", "grantSummary"))
             text(value, "hostLabel")
-            val roots = strings(value, "scriptRoots").also { paths -> require(paths.all { it.startsWith('/') && '\u0000' !in it && "/../" !in it }) }
+            val roots = ScriptRoots.validate(strings(value, "scriptRoots"))
             val grant = obj(value, "grantSummary")
             closed(grant, setOf("methods", "permissions", "toolGroups", "maxInputBytesPerRequest", "maxTotalTokens"))
             val groups = strings(grant, "toolGroups", ToolGroup.entries.filter { it.defaultEnabled }.map { it.id }.toSet())
@@ -52,7 +53,7 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
     }
 }
 
-internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String) {
+internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>) {
     companion object {
         fun parse(json: String, config: LinkConfiguration): StartRequest = with(ControlRequests) {
             val value = AgentJson.objectOf(json, 32 * 1024)
@@ -63,9 +64,8 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             require(text(opts, "preset", "default") == "default") // Named presets arrive in P6.
             val detached = flag(opts, "detached", false)
             flag(opts, "memory", true)
-            val root = strings(opts, "scriptRoots", config.roots)
-            // P3 will apply per-run script roots through its script adapter. Do not silently ignore narrowing.
-            require(root == config.roots)
+            val root = ScriptRoots.validate(strings(opts, "scriptRoots", config.roots))
+            require(config.roots.containsAll(root))
             val groups = when {
                 !opts.has("tools") -> config.groups
                 opts["tools"].isJsonArray -> strings(opts, "tools")
@@ -93,7 +93,7 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
             require(context.toByteArray(Charsets.UTF_8).size <= 8192)
             StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
-                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction)
+                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root)
         }
     }
 }

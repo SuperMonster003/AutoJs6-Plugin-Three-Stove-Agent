@@ -11,6 +11,11 @@
     <string name="launcher_open_host">Ouvrir AutoJs6</string>
     <string name="launcher_preview">Aperçu: connexion au programme hôte et notifications de tâches disponibles. Le tableau de tâches et les API de scripts suivront.</string>
     <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
+    <string name="script_roots_instruction">Saisissez un chemin absolu par ligne. L\'hôte vérifie que chaque dossier existe dans le stockage partagé et ne contient pas son dossier de travail. Appliquer les changements annule les tâches en cours.</string>
+    <string name="script_roots_invalid">Saisissez au plus 32 chemins absolus distincts, sans remontée de dossier, dans une limite de 8 KiB.</string>
+    <string name="script_roots_rejected">L\'hôte n\'a pas accepté ces dossiers. Vérifiez leur présence dans le stockage partagé et qu\'ils ne contiennent pas le dossier de travail.</string>
+    <string name="script_roots_save">Enregistrer les dossiers</string>
+    <string name="script_roots_title">Dossiers de scripts</string>
     <string name="task_allow">Autoriser une fois</string>
     <string name="task_channel">Tâches Agent</string>
     <string name="task_deny">Refuser</string>

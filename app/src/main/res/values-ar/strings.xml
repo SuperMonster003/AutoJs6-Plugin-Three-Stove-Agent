@@ -11,6 +11,11 @@
     <string name="launcher_open_host">فتح AutoJs6</string>
     <string name="launcher_preview">معاينة تطوير: يتوفر اتصال المضيف وإشعارات المهام. ستتوفر لوحة المهام وواجهة السكربتات في مراحل لاحقة.</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
+    <string name="script_roots_instruction">أدخل مسار مجلد مطلقا واحدا في كل سطر. يتحقق المضيف من وجود المجلد في التخزين المشترك وألا يحتوي على مجلد العمل. يؤدي تطبيق التغييرات إلى إلغاء المهام الحالية.</string>
+    <string name="script_roots_invalid">أدخل حتى 32 مسارا مطلقا مختلفا دون انتقال إلى المجلد الأب, بحجم إجمالي لا يتجاوز 8 KiB.</string>
+    <string name="script_roots_rejected">لم يقبل المضيف هذه المجلدات. تحقق من وجودها في التخزين المشترك وألا تحتوي على مجلد العمل.</string>
+    <string name="script_roots_save">حفظ المجلدات</string>
+    <string name="script_roots_title">مجلدات السكربتات</string>
     <string name="task_allow">السماح مرة واحدة</string>
     <string name="task_channel">مهام Agent</string>
     <string name="task_deny">رفض</string>

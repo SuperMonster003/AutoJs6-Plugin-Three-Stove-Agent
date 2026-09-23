@@ -11,6 +11,11 @@
     <string name="launcher_open_host">打开 AutoJs6</string>
     <string name="launcher_preview">开发预览: 已提供宿主连接与任务通知. 任务台和脚本 API 将在后续阶段提供.</string>
     <string name="plugin_description">按自然语言目标选择已登记脚本并逐步操作界面完成任务</string>
+    <string name="script_roots_instruction">每行输入一个绝对目录路径. 宿主会检查目录是否存在, 是否位于共享存储中, 以及是否为工作目录的上级. 配置生效时会取消当前任务.</string>
+    <string name="script_roots_invalid">请输入最多 32 个不重复的绝对路径, 不含上级目录跳转, 总大小不超过 8 KiB.</string>
+    <string name="script_roots_rejected">宿主尚未接受这些目录. 请检查路径是否存在于共享存储中, 且不是工作目录的上级.</string>
+    <string name="script_roots_save">保存目录</string>
+    <string name="script_roots_title">脚本目录</string>
     <string name="task_allow">允许一次</string>
     <string name="task_channel">Agent 任务</string>
     <string name="task_deny">拒绝</string>

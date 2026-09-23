@@ -21,7 +21,8 @@
   "usage_steps": [
     "在安裝了 AutoJs6 組建 {{ required_host_version_code }} 或更新版本的裝置上, 從 [Releases]({{ repo_url }}/releases) 安裝外掛 APK.",
     "開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.",
-    "啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權."
+    "啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權.",
+    "在啟動器的 \"指令碼目錄\" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍."
   ],
   "p_usage_note": "任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.",
   "h3_security": "權限與安全",
@@ -60,7 +61,7 @@
   "text_link_third_party_notices": "第三方聲明",
   "p_instruction_more": "連線指南與目前進度請參閱 [專案 README]({{ repo_url }}) 與 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目錄",
-  "p_tools_status": "經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續. 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.",
+  "p_tools_status": "經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續. 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作. 已登記指令碼目錄支援任務開始時重新整理, 連結內 60 秒快取, 按關鍵詞確定性排序最多 24 個候選, 有界參數摘要及 script_catalog 查詢.",
   "tool_header_name": "工具",
   "tool_header_group": "分組",
   "tool_header_risk": "風險",

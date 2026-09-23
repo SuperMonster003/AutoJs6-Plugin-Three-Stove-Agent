@@ -11,6 +11,11 @@
     <string name="launcher_open_host">Abrir AutoJs6</string>
     <string name="launcher_preview">Vista previa: conexión al anfitrión y notificaciones de tareas disponibles. El panel de tareas y la API de scripts llegarán en fases posteriores.</string>
     <string name="plugin_description">Ejecuta tareas en lenguaje natural eligiendo scripts registrados y manejando la pantalla paso a paso</string>
+    <string name="script_roots_instruction">Introduzca una ruta absoluta por línea. El host comprueba que cada directorio exista en el almacenamiento compartido y no contenga su directorio de trabajo. Aplicar cambios cancela las tareas actuales.</string>
+    <string name="script_roots_invalid">Introduzca hasta 32 rutas absolutas distintas, sin referencias al directorio superior, dentro de 8 KiB.</string>
+    <string name="script_roots_rejected">El host no ha aceptado estos directorios. Compruebe que existan en el almacenamiento compartido y no contengan el directorio de trabajo.</string>
+    <string name="script_roots_save">Guardar directorios</string>
+    <string name="script_roots_title">Directorios de scripts</string>
     <string name="task_allow">Permitir una vez</string>
     <string name="task_channel">Tareas del Agent</string>
     <string name="task_deny">Denegar</string>

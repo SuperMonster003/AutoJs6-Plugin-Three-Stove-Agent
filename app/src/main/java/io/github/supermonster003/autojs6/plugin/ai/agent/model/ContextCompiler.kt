@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.model
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptPresentation
 
 data class ContextLimits(
     val maximumBytes: Int = 64 * 1024,
@@ -23,7 +24,7 @@ class ContextCompiler(
     private val prompts: PromptCatalog, private val catalog: ToolCatalog, private val policy: ToolPolicy,
     private val target: ModelTarget, private val initialFormat: DecisionFormat,
     private val limits: ContextLimits = ContextLimits(),
-    private val fixedContext: String = "", memories: JsonArray = JsonArray(),
+    private val fixedContext: String = "", memories: JsonArray = JsonArray(), private val scripts: ScriptPresentation? = null,
 ) : RunContextCompiler {
     private val memories = AgentJson.parse(memories.toString(), 4096).asJsonArray
     private val local = target.locality == ModelLocality.ON_DEVICE
@@ -53,6 +54,7 @@ class ContextCompiler(
         var contextBytes = fixedContext.toByteArray(Charsets.UTF_8).size
         var memoryCount = memories.size()
         var compact = local
+        var scriptCount = scripts?.size ?: 0
 
         fun message(role: String, content: String) = jsonObject("role" to role.json(), "content" to content.json())
         fun summary(record: JsonObject): String = jsonObject("index" to (record["index"] ?: JsonNull.INSTANCE),
@@ -64,7 +66,7 @@ class ContextCompiler(
             val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
             val messages = jsonArray(message("system", prompts.system(language, policy, format,
                 AgentJson.truncate(fixedContext, contextBytes), memory, memoryCount != memories.size(), compact,
-                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size)), message("user", goal))
+                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount))), message("user", goal))
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach { add(summary(it)) } })))
             for (record in history.takeLast(retained)) {
                 val decision = record.getAsJsonObject("decision")?.deepCopy()
@@ -96,6 +98,7 @@ class ContextCompiler(
                 retained > 0 -> { retained--; summaryCount = minOf(summaryCount + 1, 32) }
                 summaryCount > 0 -> summaryCount--
                 !compact -> compact = true
+                scriptCount > 0 -> scriptCount--
                 observationBytes > 128 -> observationBytes = maxOf(128, observationBytes / 2)
                 memoryCount > 0 -> memoryCount--
                 contextBytes > 0 -> contextBytes /= 2

@@ -7,7 +7,7 @@ import java.util.Locale
 /** Assets supply rules; user/screen/script/memory content is inserted exactly once as JSON data. */
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
-        listOf("system", "compact_system", "goal", "observation", "repair", "context").associateWith { name ->
+        listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
         }
@@ -15,16 +15,20 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
 
     fun system(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
                memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
-               compact: Boolean = false, contextTruncated: Boolean = false): String {
+               compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null): String {
         bounded(fixedContext, 8 * 1024)
         // P2.4/P6 provide only global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
-        return render(language, if (compact) "compact_system" else "system", mapOf(
+        val system = render(language, if (compact) "compact_system" else "system", mapOf(
             "tools_json" to if (compact) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
             "format_json" to if (compact) compactContract(format) else DecisionSchema.promptContract(format),
             "context_json" to jsonObject("fixedContext" to fixedContext.json(), "memories" to AgentJson.parse(memory),
                 "memoryTruncated" to memoryTruncated.json()).apply { if (contextTruncated) addProperty("contextTruncated", true) }.toString(),
         ))
+        return if (registeredScripts == null) system else {
+            val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
+            system + "\n" + render(language, "scripts", mapOf("scripts_json" to data))
+        }
     }
 
     fun goal(language: String, goal: String): String {

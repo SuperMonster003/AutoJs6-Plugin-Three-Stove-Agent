@@ -38,8 +38,8 @@ object AiAgentPlugin {
     const val SERVICE_DESCRIPTOR = "org.autojs.plugin.ai.agent.api.IAiAgentPlugin"
 
     /**
-     * Minimum AutoJs6 `versionCode` shipping the P1 contracts, brokers, observations,
-     * registered scripts and user entry points, finalized by roadmap P1.6.
+     * Minimum AutoJs6 `versionCode` shipping the P1 foundation and the host validation
+     * and restoration of script-directory settings added in roadmap P3.1.
      */
-    const val REQUIRED_HOST_VERSION = 5285L
+    const val REQUIRED_HOST_VERSION = 5286L
 }

@@ -69,7 +69,7 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ### Catálogo de herramientas
 
-Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso. El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
+Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso. El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6. Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog.
 
 | Herramienta | Grupo | Riesgo | Predeterminado | Descripción |
 | --- | --- | --- | --- | --- |
@@ -110,9 +110,10 @@ Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, c
 
 ******
 
-1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5285 o posterior.
+1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5286 o posterior.
 2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
 3. Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6.
+4. Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
 
 > El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
 
@@ -149,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5285 (6.8.0)
+minimum host build: 5286 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso.
@@ -188,9 +189,9 @@ _2026/09/23_
 - `Función` Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
-- `Función` Catálogo de scripts registrados con caché de 60 segundos por conexión al host, clasificación determinista de hasta 24 candidatos y resúmenes de parámetros limitados
-- `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
-- `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5285 (MPL 2.0), fijados con SHA-256
+- `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5286 para recibir y validar las carpetas adicionales configuradas en el plugin
+- `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5286 (MPL 2.0), fijados con SHA-256
 - `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas
 
 ##### Para más historial de versiones

@@ -11,6 +11,11 @@
     <string name="launcher_open_host">AutoJs6 を開く</string>
     <string name="launcher_preview">開発プレビュー: ホスト接続とタスク通知を利用できます. タスク画面とスクリプト API は今後の段階で提供します.</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
+    <string name="script_roots_instruction">1 行に 1 つの絶対ディレクトリパスを入力してください. ホストは共有ストレージ内に存在し, 作業ディレクトリの親ではないことを確認します. 変更を適用すると実行中のタスクがキャンセルされます.</string>
+    <string name="script_roots_invalid">重複のない絶対パスを最大 32 個, 合計 8 KiB 以内で入力してください. 親ディレクトリへの移動は使用できません.</string>
+    <string name="script_roots_rejected">ホストがディレクトリを受け入れていません. 共有ストレージ内に存在し, 作業ディレクトリの親でないことを確認してください.</string>
+    <string name="script_roots_save">ディレクトリを保存</string>
+    <string name="script_roots_title">スクリプトディレクトリ</string>
     <string name="task_allow">今回のみ許可</string>
     <string name="task_channel">Agent タスク</string>
     <string name="task_deny">拒否</string>
