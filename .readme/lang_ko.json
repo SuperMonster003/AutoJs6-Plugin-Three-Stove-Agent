@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "서드파티 고지",
   "p_instruction_more": "연결 안내와 현재 진행 상황은 [프로젝트 README]({{ repo_url }})와 [ROADMAP.md]({{ roadmap_url }})를 참고하세요.",
   "h3_tools": "도구 목록",
-  "p_tools_status": "Agent 직렬 실행기와 작업 큐 (활성 1개 + 대기 8개), 모델/도구 취소, 사용자 대화 제한 시간, 단일 종료 이벤트 및 호스트 연결 손실 시 차단 구현; 실제 호스트 연동은 후속 단계.",
+  "p_tools_status": "Agent 직렬 실행기와 작업 큐 (활성 1개 + 대기 8개), 모델/도구 취소, 사용자 대화 제한 시간, 단일 종료 이벤트 및 호스트 연결 손실 시 차단 구현; 실제 호스트 연동은 후속 단계. Agent 컨텍스트 구성에 바이트 제한, 최근 전체 단계 쌍, 영어/중국어 프롬프트와 노드 우선 선택 구현; 로컬 모델은 입력 3000 token 예산과 간결한 도구 정의 사용.",
   "tool_header_name": "도구",
   "tool_header_group": "그룹",
   "tool_header_risk": "위험",

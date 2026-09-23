@@ -19,7 +19,8 @@
         "Budgets Agent pour les étapes, les appels au modèle, la durée et les tokens, avec délais des outils/interactions, estimation d'usage et limitation des tokens de sortie",
         "Confirmation Agent avec politiques par défaut/prudente, autorisations limitées à la tâche, au même outil et au même risque, confirmation de chaque paiement et mots-clés dans 10 langues",
         "Journal privé Agent limité à 200 étapes et 1 MiB, avec masquage des mots de passe et résultats terminaux bornés conservant le statut et les compteurs",
-        "Exécuteur Agent séquentiel et file de tâches (1 active + 8 en attente), appels modèle/outil annulables, délais d'interaction, événement terminal unique et blocage après perte de l'hôte; intégration réelle prévue aux étapes suivantes"
+        "Exécuteur Agent séquentiel et file de tâches (1 active + 8 en attente), appels modèle/outil annulables, délais d'interaction, événement terminal unique et blocage après perte de l'hôte; intégration réelle prévue aux étapes suivantes",
+        "Assemblage déterministe du contexte Agent avec limites en octets, paires récentes complètes, prompts anglais/chinois et sélection prioritaire des noeuds; budget local de 3000 tokens et signatures compactes des outils"
       ],
       "improvement": [
         "Version minimale de l'hôte fixée à AutoJs6 6.8.0 / build 5285, correspondant à la livraison des interfaces et accès P1"

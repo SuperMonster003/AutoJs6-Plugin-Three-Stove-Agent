@@ -18,6 +18,7 @@
 * `Feature` Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages
 * `Feature` Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters
 * `Feature` Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases
+* `Feature` Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures
 * `Improvement` Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points
 * `Dependency` Added `common-plugin-api.aar` (AutoJs6 module `plugin-api/common-plugin-api`, host build 6.8.0 / 5282, MPL 2.0) as the shared plugin contract, hash-locked in `locks/host-api-aars.lock`
 * `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees

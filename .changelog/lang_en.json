@@ -19,7 +19,8 @@
         "Agent task budgets for steps, model calls, elapsed time and tokens, with bounded tool/wait deadlines, usage estimation and output-token admission",
         "Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages",
         "Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters",
-        "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases"
+        "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases",
+        "Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures"
       ],
       "improvement": [
         "Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points"

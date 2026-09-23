@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Third-party notices",
   "p_instruction_more": "See the [project README]({{ repo_url }}) and [ROADMAP.md]({{ roadmap_url }}) for the connection guide and the current progress.",
   "h3_tools": "Tool catalog",
-  "p_tools_status": "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases.",
+  "p_tools_status": "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases. Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures.",
   "tool_header_name": "Tool",
   "tool_header_group": "Group",
   "tool_header_risk": "Risk",

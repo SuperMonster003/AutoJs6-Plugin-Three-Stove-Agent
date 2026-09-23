@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段.",
+  "p_tools_status": "Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段. Agent 确定性上下文装箱, 支持字节上限, 最近完整步骤对, 中英文提示与节点优先保留; 本地模型使用 3000 token 输入预算和紧凑工具签名.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

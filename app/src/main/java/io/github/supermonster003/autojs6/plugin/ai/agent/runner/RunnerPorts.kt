@@ -44,19 +44,27 @@ class RunOptions(
     override fun toString() = "RunOptions(goalBytes=${goal.toByteArray(Charsets.UTF_8).size}, detached=$detached)"
 }
 
-class RunContext(val goal: String, val history: List<JsonObject>, val observation: String?, val repair: JsonObject?, val remainingBudget: JsonObject) {
+class RunContext(val goal: String, val history: List<JsonObject>, val observation: String?, val repair: JsonObject?, val remainingBudget: JsonObject,
+                 val format: DecisionFormat? = null, val locale: String = "en") {
     override fun toString() = "RunContext(records=${history.size}, repair=${repair != null})"
 }
 
 /** P2.4's compiler supplies the bounded message array and accounts for the response schema bytes. */
-class ModelInput(messages: JsonArray, val schemaBytes: Int = 0) {
+class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: DecisionFormat? = null, val maximumOutputTokens: Int? = null) {
     private val data = AgentJson.parse(messages.toString(), 128 * 1024).asJsonArray
-    init { require(schemaBytes in 0..DecisionSchema.MAX_SCHEMA_BYTES) }
+    init {
+        require(schemaBytes in 0..DecisionSchema.MAX_SCHEMA_BYTES)
+        require(maximumOutputTokens == null || maximumOutputTokens in 1..65_536)
+        require(format == null || schemaBytes == (format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0))
+    }
     val messages: JsonArray get() = data.deepCopy()
     val inputBytes: Int get() = data.toString().toByteArray(Charsets.UTF_8).size + schemaBytes
     override fun toString() = "ModelInput(bytes=$inputBytes)"
 }
-fun interface RunContextCompiler { fun compile(context: RunContext): ModelInput }
+fun interface RunContextCompiler {
+    fun compile(context: RunContext): ModelInput
+    fun observe(tool: String, result: JsonElement): String = ToolObservation.success(result)
+}
 class ModelReply(val text: String, val usage: ModelUsage? = null) {
     override fun toString() = "ModelReply(bytes=${text.toByteArray(Charsets.UTF_8).size})"
 }

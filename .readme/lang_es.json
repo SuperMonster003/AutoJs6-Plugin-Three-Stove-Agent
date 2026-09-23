@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Avisos de terceros",
   "p_instruction_more": "Consulte el [README del proyecto]({{ repo_url }}) y [ROADMAP.md]({{ roadmap_url }}) para la guía de conexión y el progreso actual.",
   "h3_tools": "Catálogo de herramientas",
-  "p_tools_status": "Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores.",
+  "p_tools_status": "Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores. Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas.",
   "tool_header_name": "Herramienta",
   "tool_header_group": "Grupo",
   "tool_header_risk": "Riesgo",

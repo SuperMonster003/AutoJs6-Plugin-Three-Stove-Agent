@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "第三方聲明",
   "p_instruction_more": "連線指南與目前進度請參閱 [專案 README]({{ repo_url }}) 與 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目錄",
-  "p_tools_status": "Agent 串行執行器與任務佇列 (1 個活動任務 + 8 個排隊任務), 支援模型/工具取消, 使用者互動逾時, 唯一終態事件與宿主失聯阻塞; 真實宿主接入仍在後續階段.",
+  "p_tools_status": "Agent 串行執行器與任務佇列 (1 個活動任務 + 8 個排隊任務), 支援模型/工具取消, 使用者互動逾時, 唯一終態事件與宿主失聯阻塞; 真實宿主接入仍在後續階段. Agent 確定性上下文裝箱, 支援位元組上限, 最近完整步驟對, 中英文提示與節點優先保留; 本機模型使用 3000 token 輸入預算和精簡工具簽名.",
   "tool_header_name": "工具",
   "tool_header_group": "分組",
   "tool_header_risk": "風險",

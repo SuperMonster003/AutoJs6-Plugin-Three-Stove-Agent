@@ -69,7 +69,7 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ### Catálogo de herramientas
 
-Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores.
+Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores. Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas.
 
 | Herramienta | Grupo | Riesgo | Predeterminado | Descripción |
 | --- | --- | --- | --- | --- |
@@ -184,6 +184,7 @@ _2026/09/23_
 - `Función` Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas
 - `Función` Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores
 - `Función` Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores
+- `Función` Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas
 - `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
 - `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
 - `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas

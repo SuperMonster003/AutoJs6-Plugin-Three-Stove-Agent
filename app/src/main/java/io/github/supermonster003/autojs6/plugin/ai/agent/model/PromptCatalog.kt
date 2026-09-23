@@ -7,21 +7,23 @@ import java.util.Locale
 /** Assets supply rules; user/screen/script/memory content is inserted exactly once as JSON data. */
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
-        listOf("system", "goal", "observation", "repair").associateWith { name ->
+        listOf("system", "compact_system", "goal", "observation", "repair", "context").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
         }
     }
 
     fun system(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
-               memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false): String {
+               memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
+               compact: Boolean = false, contextTruncated: Boolean = false): String {
         bounded(fixedContext, 8 * 1024)
         // P2.4/P6 provide only global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
-        return render(language, "system", mapOf(
-            "tools_json" to catalog.render(policy, language(language)), "format_json" to DecisionSchema.promptContract(format),
+        return render(language, if (compact) "compact_system" else "system", mapOf(
+            "tools_json" to if (compact) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
+            "format_json" to if (compact) compactContract(format) else DecisionSchema.promptContract(format),
             "context_json" to jsonObject("fixedContext" to fixedContext.json(), "memories" to AgentJson.parse(memory),
-                "memoryTruncated" to memoryTruncated.json()).toString(),
+                "memoryTruncated" to memoryTruncated.json()).apply { if (contextTruncated) addProperty("contextTruncated", true) }.toString(),
         ))
     }
 
@@ -40,8 +42,17 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         return render(language, "observation", mapOf("observation_json" to data.toString()))
     }
 
-    fun repair(language: String, repair: DecisionAttempt.Repair): String = render(language, "repair",
-        mapOf("repair_json" to AgentJson.objectOf(repair.observation.toString(), 1024).toString()))
+    fun repair(language: String, repair: DecisionAttempt.Repair): String = repair(language, repair.observation)
+    fun repair(language: String, repair: JsonObject): String = render(language, "repair",
+        mapOf("repair_json" to AgentJson.objectOf(repair.toString(), 1024).toString()))
+
+    fun context(language: String, section: String, value: JsonElement): String = render(language, "context",
+        mapOf("context_json" to jsonObject("section" to section.json(), "data" to value).toString()))
+
+    private fun compactContract(format: DecisionFormat) = """
+        {kind:tool|ask|done,tool?:enabled name,arguments?:${if (format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) "JSON-encoded object string" else "object"},ask?:{question:string<=500,kind?:text|choice|confirm,choices?:string[1..8]<=200 each,memoryKey?:string<=64},done?:{status:completed|partial|failed|blocked,summary:string<=1000,evidence?:string[0..8]<=200 each,unfinished?:string[0..8]<=200 each,orderStatus?:none|cart|pending_payment|submitted|paid}}
+        Only the selected branch. ${if (format.nullableOptionals) "Unused optional fields must be null." else "Omit unused fields."} Choice needs distinct choices; text/confirm have none. Degraded=${format.degraded}: output one JSON object even without a schema.
+    """.trimIndent()
 
     private fun render(language: String, name: String, values: Map<String, String>): String {
         val template = templates.getValue(language(language)).getValue(name)

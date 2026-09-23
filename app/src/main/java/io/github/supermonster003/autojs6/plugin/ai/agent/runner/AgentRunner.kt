@@ -141,9 +141,9 @@ class AgentRunner internal constructor(
     private fun requestModel(repair: JsonObject?) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
-        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson()))
+        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), options.format, options.locale))
         if (!canContinue()) return
-        val reservation = b.reserveModel(input.inputBytes, options.maximumOutputTokens)
+        val reservation = b.reserveModel(input.inputBytes, minOf(options.maximumOutputTokens, input.maximumOutputTokens ?: options.maximumOutputTokens))
         beginOperation(minOf(options.modelTimeoutMs, b.remainingMs), RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
             { callback -> model.generate(input, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) }) { outcome ->
             when (outcome) {
@@ -213,7 +213,7 @@ class AgentRunner internal constructor(
                 is PortResult.Failure -> toolFailed(outcome.error)
                 is PortResult.Success -> {
                     successfulTools++
-                    observation = ToolObservation.success(outcome.value.result)
+                    observation = compiler.observe(prepared.invocation.name, outcome.value.result)
                     record(observation)
                     nextStep()
                 }
@@ -337,6 +337,7 @@ class AgentRunner internal constructor(
         if (state.terminal) return
         try { if (canContinue()) action() }
         catch (error: BudgetExceeded) { finishError(RunError.BUDGET_EXCEEDED, error.dimension) }
+        catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED) }
         catch (_: Exception) { finishError(RunError.INVALID_REQUEST) }
     }
     private fun record(value: String?, error: RunError? = null) {
