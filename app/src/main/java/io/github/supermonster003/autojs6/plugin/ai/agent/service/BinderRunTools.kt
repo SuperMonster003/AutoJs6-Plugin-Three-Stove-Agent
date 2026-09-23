@@ -5,6 +5,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ObservationTools
+import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ActionTools
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptCatalogSnapshot
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
@@ -14,21 +15,25 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
-/** Small bridge execution adapter for P2.5. P3/P4 add registered scripts, append/readback and UI recovery.
- * Until P4 supplies identity-bound risk inspection, every device mutation requires per-action confirmation. */
+/** Broker transport with task-owned observation and identity-bound action adapters. */
 internal class BinderRunTools(private val broker: IHostCapabilityBroker, private val ownerUid: Int,
                               private val workers: LinkWorkers, private val scheduler: RunScheduler, private val catalog: ToolCatalog,
                               private val alive: () -> Boolean, private val methods: Set<String>, private val permissions: Set<String>,
                               private val maximumRequestBytes: Int, private val maximumTimeoutMs: Long) : RunTools {
     private val observations = ObservationTools()
+    private val actions = ActionTools(scheduler, observations, { request, callback ->
+        dispatch(request.copy(timeoutMs = minOf(request.timeoutMs, maximumTimeoutMs)), callback)
+    }, "accessibility.dump" in methods && "accessibility" in permissions)
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
         if (!alive()) callback(PortResult.Failure(RunError.HOST_UNAVAILABLE))
-        else if (invocation.name !in IMPLEMENTED || invocation.plan is ToolPlan.AppendText) callback(PortResult.Failure(RunError.TOOL_DISABLED))
+        else if (invocation.name in ActionTools.NAMES) return actions.prepare(invocation, timeoutMs, callback)
+        else if (invocation.name !in IMPLEMENTED) callback(PortResult.Failure(RunError.TOOL_DISABLED))
         else callback(PortResult.Success(PreparedTool(invocation, ToolMetadata(
             passwordField = invocation.name == "ui_set_text", forceConfirmation = catalog[invocation.name]?.readOnlyHint == false))))
         return Cancellation.NONE
     }
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
+        if (prepared.invocation.name in ActionTools.NAMES) return actions.execute(prepared, timeoutMs, callback)
         val cancelled = AtomicBoolean()
         val current = AtomicReference<Cancellation>(Cancellation.NONE)
         val end = scheduler.nowMs() + timeoutMs

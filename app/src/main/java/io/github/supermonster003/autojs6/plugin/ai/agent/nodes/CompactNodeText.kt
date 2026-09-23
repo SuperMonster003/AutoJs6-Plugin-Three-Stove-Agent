@@ -65,7 +65,8 @@ object CompactNodeText {
         require(data.number("nodeCount") == nodes.size.toLong())
         val pkg = data.string("packageName").orEmpty().also { require(it.length <= 256) }
         val activity = data.string("activityName").orEmpty().also { require(it.length <= 256) }
-        return Snapshot(id, jsonArray(pkg.json(), activity.json()).toString(), nodes.toList(), requireNotNull(data.flag("truncated")))
+        val identity = data.string("windowIdentity").orEmpty().also { require(it.length <= 128) }
+        return Snapshot(id, jsonArray(pkg.json(), activity.json(), identity.json()).toString(), nodes.toList(), requireNotNull(data.flag("truncated")))
     }
 
     private fun tokens(value: String): List<String> {

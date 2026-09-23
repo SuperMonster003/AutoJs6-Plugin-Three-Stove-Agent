@@ -110,7 +110,7 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 ******
 
-1. AutoJs6 ビルド 5288 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
+1. AutoJs6 ビルド 5289 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.
 2. AutoJs6 のプラグインセンターを開き, `AI Agent` が認識されていることを確認して有効にします. 公式リリースのパッケージは署名検証を自動的に通過します.
 3. ランチャーからホスト接続を要求し, 15 秒のタイムアウト後に AutoJs6 での有効化と接続許可を案内.
 4. ランチャーの "スクリプトディレクトリ" で追加フォルダーを設定します. 1 行に 1 つの絶対パスを入力し, 保存後にホストが検証して適用します. タスクは承認済みの範囲だけを絞り込めます.
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5288 (6.8.0)
+minimum host build: 5289 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: ホスト認証付き接続でタスクの待機列, 応答, 取消, 照会と非公開の手順履歴を提供; ホスト切断時は停止状態になり, プロセス再起動で自動再開しない.
@@ -176,6 +176,7 @@ minimum host build: 5288 (6.8.0)
 _2026/09/23_
 
 - `ヒント` 開発プレビュー: 登録スクリプトのパラメーター質問, 確認, 結果報告と取消に対応. 画面操作は P4, タスクのスクリプト API とワークベンチは P5/P6 で実装予定.
+- `機能` 画面操作の確認をホストが検査したノードに結び付け, テキスト追記と回数制限付きスクロールに対応し, 実行結果とウィンドウ変化を報告
 - `機能` ホストが認可済み OCR プラグインの利用可否を通知し, 利用可能な場合のみ画面 OCR を公開して座標付きの制限された行に統合
 - `機能` 画面観察でホストのスナップショット参照を保持し, ノードとコンソールの出力を制限して表示テキストと状態の変化を要約
 - `機能` 単一スクリプトのタスクでモデル完了後にスクリプト ID, パス, 実行 ID と報告結果を保持し, 明示的な null と大きな結果の切り詰めを区別
@@ -198,8 +199,8 @@ _2026/09/23_
 - `修正` コンソールの行分割や切り詰め前に複数行のパラメーターを秘匿化し, 認証情報のラベルと同じパラメーター文字列による秘匿漏れを防止
 - `修正` 終了中のフォアグラウンドサービスが次のタスクの起動要求を誤って拒否する問題
 - `改善` 確認説明の上限に JSON エスケープ後のサイズを反映し, 大きな引数表でも Binder イベント上限を維持
-- `改善` OCR の利用可否の検出と権限確認のため, 最低ホストを AutoJs6 6.8.0 / ビルド 5288 に設定
-- `依存関係` 同じ AutoJs6 6.8.0 / 5288 release ビルドの common-plugin-api, host-capability-api と ai-agent-api (MPL 2.0) を追加し, SHA-256 で固定
+- `改善` 操作ノードの検査と確認を実行に結び付けるため, 最低ホストを AutoJs6 6.8.0 / ビルド 5289 に設定
+- `依存関係` 同じ AutoJs6 6.8.0 / 5289 release ビルドの common-plugin-api, host-capability-api と ai-agent-api (MPL 2.0) を追加し, SHA-256 で固定
 - `依存関係` 有界の厳密 JSON 解析と Schema ツリー用に Gson 2.13.2 を追加
 
 ##### さらに詳しいリリース履歴

@@ -51,7 +51,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
                 args.getAsJsonArray("region")?.let { if (it[2].asLong <= 0 || it[3].asLong <= 0) invalid("Region width and height must be positive.") }
                 ToolPlan.Call(call("accessibility.readScreenText", args))
             }
-            "ui_click", "ui_long_click" -> ToolPlan.Call(call(spec.bridgeMapping.single(), target()))
+            "ui_click", "ui_long_click" -> ToolPlan.Call(call(if (name == "ui_click") "accessibility.click" else "accessibility.longClick", target()))
             "ui_set_text" -> {
                 val target = target()
                 if (args.flag("append") == true) ToolPlan.AppendText(target, str("text"))

@@ -8,11 +8,16 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutputRed
 /** Normalizes only successful observation replies, before they enter journals or model context. */
 class ObservationTools {
     val nodes = NodeRefRegistry()
+    private var lastAction: CompactNodeText.Snapshot? = null
+    fun actionBaseline(snapshot: CompactNodeText.Snapshot?) { lastAction = snapshot }
     fun transform(invocation: ToolInvocation, value: JsonElement): JsonElement = when (invocation.name) {
         "ui_dump" -> {
             val snapshot = CompactNodeText.parse(value)
             val result = value.asJsonObject.deepCopy()
             result.add("changes", nodes.record(snapshot))
+            lastAction?.let { baseline ->
+                result.add("sinceLastAction", NodeRefRegistry().use { registry -> registry.record(baseline); registry.record(snapshot) })
+            }
             ObservationCompactor.compact(result, MAX_BYTES, false)
         }
         "ui_find" -> {

@@ -110,7 +110,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ******
 
-1. AutoJs6 빌드 5288 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
+1. AutoJs6 빌드 5289 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
 2. AutoJs6 플러그인 센터를 열어 `AI Agent`가 인식되는지 확인하고 활성화합니다. 공식 릴리스 패키지는 서명 검증을 자동으로 통과합니다.
 3. 런처에서 호스트 연결을 요청하고 15초가 지나면 AutoJs6의 AI Agent 활성화와 연결 허용 방법 안내.
 4. 런처의 "스크립트 디렉터리"에서 추가 폴더를 설정하고 줄마다 절대 경로를 하나씩 입력하세요. 저장한 경로는 호스트가 검증하여 적용하며 작업은 승인된 폴더 범위만 좁힐 수 있습니다.
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5288 (6.8.0)
+minimum host build: 5289 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음.
@@ -176,6 +176,7 @@ minimum host build: 5288 (6.8.0)
 _2026/09/23_
 
 - `힌트` 개발 미리보기: 등록 스크립트의 매개변수 질문, 확인, 결과 보고 및 취소 지원. 화면 작업은 P4, 작업 스크립트 API와 작업대는 P5/P6에서 구현 예정.
+- `기능` 화면 작업 확인을 호스트가 검사한 노드에 연결하고 텍스트 추가와 횟수가 제한된 스크롤을 지원하며 실행 결과와 창 변경을 보고
 - `기능` 호스트가 승인된 OCR 플러그인의 가용성을 알릴 때만 화면 OCR을 제공하고 결과를 좌표가 포함된 제한된 텍스트 줄로 병합
 - `기능` 화면 관찰에서 호스트 스냅샷 참조를 유지하고 노드 및 콘솔 출력을 제한하며 표시 텍스트와 상태 변화를 요약
 - `기능` 단일 스크립트 작업은 모델 완료 후 스크립트 ID, 경로, 실행 ID 및 보고 결과를 유지하며 명시적 null과 큰 결과의 잘림을 구분
@@ -198,8 +199,8 @@ _2026/09/23_
 - `수정` 콘솔 줄 분리와 자르기 전에 여러 줄 매개변수를 숨기고 매개변수 텍스트가 자격 증명 레이블과 같을 때의 누락 방지
 - `수정` 종료 중인 포그라운드 서비스가 다음 작업의 시작 요청을 잘못 거부하는 문제
 - `개선` 확인 설명에 JSON 이스케이프 후 크기를 반영하여 큰 매개변수 표도 Binder 이벤트 제한 내에 유지
-- `개선` OCR 가용성 검색과 권한 확인을 위한 최소 호스트는 AutoJs6 6.8.0 / 빌드 5288
-- `의존성` 동일한 AutoJs6 6.8.0 / 5288 release 빌드의 common-plugin-api, host-capability-api 및 ai-agent-api (MPL 2.0) 추가, SHA-256으로 고정
+- `개선` 작업 노드 검사와 확인을 실행에 연결하기 위한 최소 호스트는 AutoJs6 6.8.0 / 빌드 5289
+- `의존성` 동일한 AutoJs6 6.8.0 / 5289 release 빌드의 common-plugin-api, host-capability-api 및 ai-agent-api (MPL 2.0) 추가, SHA-256으로 고정
 - `의존성` 제한된 엄격 JSON 파싱과 Schema 트리를 위해 Gson 2.13.2 추가
 
 ##### 더 많은 릴리스 기록

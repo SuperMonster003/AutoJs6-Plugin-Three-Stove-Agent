@@ -266,7 +266,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.1 仓库骨架
 
-P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将最低构建更新为 5286. P3.3 因登记脚本结果与按调用停止, 将最低构建更新为 5287. P4.1 因观察工具的 OCR 可用性发现与授权校验, 将当前最低构建更新为 5288. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
+P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将最低构建更新为 5286. P3.3 因登记脚本结果与按调用停止, 将最低构建更新为 5287. P4.1 因观察工具的 OCR 可用性发现与授权校验, 将最低构建更新为 5288. P4.2 因动作节点检查与执行绑定, 将当前最低构建更新为 5289. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
 
 - [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 第 2 节确定标识并全仓库一致 (D1); `{REQUIRES_HOST_VERSION}` = P1 交付契约的宿主 `versionCode` (P0 以 5283 = 当前宿主 5282 + 1 作为临时值, P1.6 回填); `{PLATFORM_VERSIONS_PLUGIN_VERSION}=1.8.3` (已确认 `AutoJs6-Gradle-Platform-Versions/version.properties`, 落地前再确认公共仓库可解析). 证据 (E0 / E1, 2026-09-22): `AiAgentPlugin` 常量 + `AiAgentPluginRuntimeInfoTest` 2 用例; 平台插件 1.8.3 与 native-alignment 1.8.3 经公共仓库解析成功 (Temurin 验收命令通过, 日志只有一段 `Version information`).
 - [x] (插件) 以 `AutoJs6-Plugin-OpenCC` 为构建 / 资源 / 激活基础参照, `AutoJs6-Plugin-MCP-Server` 为契约与宿主链路参照, `AutoJs6-Plugin-Readium-EPUB-Reader` 为独立界面 / 设置 / 更新检查参照生成骨架: `settings.gradle.kts` (平台插件位于 `includeBuild` 之前), 根与 `app` 的 `build.gradle.kts` (无 ABI splits, D27), `build-logic` 四个约定插件, `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD` 按提交计数), 从宿主复制 `.gitignore` / `sign.properties` / `app/sm003.jks` (后两者忽略), `appendDigestToReleasedFiles` 单 APK 形态. 证据 (E0, 2026-09-22): 提交 1 `build: bootstrap ...`; `libs/common-plugin-api.aar` 取自宿主 `973447133` (5282) 的 `assembleRelease`, SHA-256 `ee7eb787...` 锁定; `git check-ignore` 确认 `sign.properties` / `app/sm003.jks` / `local.properties` 被忽略; `assembleDebug` 产出 `autojs6-plugin-ai-agent-v1.0.0.apk`, `verifyDebugNativePageAlignment` 通过 (无原生库).
@@ -445,7 +445,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P4.2 动作工具
 
-- [ ] (插件) `ui_click` / `ui_long_click` (`nodeRef` / `selector`; 坐标形式仅 `gesture` 组), `ui_set_text` (`append`, 密码字段脱敏记录), `ui_scroll` (`direction`, `times`), `ui_press_key` (`back / home / recents / notifications / quick_settings`), `app_launch` (`packageName` / `appName`), `clipboard_get / set`; `gesture` 组 (默认关): `ui_swipe`, `ui_gesture`, `ui_click_xy`; 每个动作返回 `{ ok, actionResult, windowChanged }`.
+- [x] (插件) `ui_click` / `ui_long_click` (`nodeRef` / `selector`; 坐标形式仅 `gesture` 组), `ui_set_text` (`append`, 密码字段脱敏记录), `ui_scroll` (`direction`, `times`), `ui_press_key` (`back / home / recents / notifications / quick_settings`), `app_launch` (`packageName` / `appName`), `clipboard_get / set`; `gesture` 组 (默认关): `ui_swipe`, `ui_gesture`, `ui_click_xy`; 每个动作返回 `{ ok, actionResult, windowChanged }`. 证据 (E0 / E1, 2026-09-23): 宿主 `0d1c7cc788` 提供只读节点检查与私有执行绑定; 密码替换脱敏, 普通字段在宿主追加, 滚动遇 false 停止, gesture 默认关且逐次确认. API 24/37 真实宿主往返覆盖全部动作; 无效目标不回退为坐标点击.
 - [ ] (插件) 动作后自动等待窗口稳定 (默认 500 ms, `ui_wait_for` 可覆盖) 并在下一步观察中附 "自上一动作以来的变化摘要".
 - [ ] (测试) instrumentation (AVD): 每个动作工具对宿主 bridge 的往返, `NODE_REF_STALE` 路径, 关闭 `gesture` 组时坐标点击返回 `TOOL_DISABLED`.
 

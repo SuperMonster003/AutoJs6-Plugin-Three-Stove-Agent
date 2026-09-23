@@ -639,9 +639,11 @@
         "required": [],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "accessibility.click"
+        "accessibility.click",
+        "accessibility.inspectNode",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -797,9 +799,11 @@
         "required": [],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "accessibility.longClick"
+        "accessibility.longClick",
+        "accessibility.inspectNode",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -965,10 +969,12 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
         "accessibility.findOne",
-        "accessibility.setText"
+        "accessibility.setText",
+        "accessibility.inspectNode",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -1140,10 +1146,12 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
         "accessibility.scrollForward",
-        "accessibility.scrollBackward"
+        "accessibility.scrollBackward",
+        "accessibility.inspectNode",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -1177,13 +1185,14 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
         "accessibility.back",
         "accessibility.home",
         "accessibility.recentApps",
         "keys.notifications",
-        "keys.quickSettings"
+        "keys.quickSettings",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -1214,10 +1223,11 @@
         "required": [],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
         "app.launchPackage",
-        "app.launchApp"
+        "app.launchApp",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -1237,7 +1247,7 @@
         "required": [],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
         "clipboard.getText"
       ],
@@ -1266,9 +1276,10 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "clipboard.setText"
+        "clipboard.setText",
+        "accessibility.dump"
       ],
       "defaultEnabled": true,
       "readOnlyHint": false,
@@ -1302,9 +1313,10 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "accessibility.swipe"
+        "accessibility.swipe",
+        "accessibility.dump"
       ],
       "defaultEnabled": false,
       "readOnlyHint": false,
@@ -1356,9 +1368,10 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "accessibility.swipe"
+        "accessibility.swipe",
+        "accessibility.dump"
       ],
       "defaultEnabled": false,
       "readOnlyHint": false,
@@ -1402,9 +1415,10 @@
         ],
         "additionalProperties": false
       },
-      "outputHint": "JSON observation",
+      "outputHint": "ok, actionResult, windowChanged (null if unobserved), attempts and bounded observed changes; acknowledgement does not establish the user goal",
       "bridgeMapping": [
-        "accessibility.gesture"
+        "accessibility.gesture",
+        "accessibility.dump"
       ],
       "defaultEnabled": false,
       "readOnlyHint": false,

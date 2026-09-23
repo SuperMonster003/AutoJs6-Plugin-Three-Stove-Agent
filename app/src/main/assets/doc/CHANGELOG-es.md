@@ -9,6 +9,7 @@
 ###### 2026/09/23
 
 * `Aviso` Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+* `Función` Acciones vinculadas a nodos inspeccionados por el anfitrión, con adición de texto, desplazamiento limitado y resultados con cambios de ventana
 * `Función` OCR de pantalla disponible solo cuando el anfitrión confirma un plugin OCR autorizado, con texto agrupado en líneas limitadas y coordenadas
 * `Función` Observaciones con referencias a capturas del anfitrión, salida limitada de nodos y consola, y resúmenes de cambios de texto y estado
 * `Función` Las tareas de un solo script conservan ID, ruta, ID de ejecución y resultado al concluir el modelo, con null explícito y truncamiento indicado de resultados grandes
@@ -31,6 +32,6 @@
 * `Corrección` Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta
 * `Corrección` Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea
 * `Mejora` Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder
-* `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5288 para detectar la disponibilidad de OCR y verificar sus permisos
-* `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5288 (MPL 2.0), fijados con SHA-256
+* `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5289 para inspeccionar nodos de acción y vincular la confirmación a la ejecución
+* `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5289 (MPL 2.0), fijados con SHA-256
 * `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas

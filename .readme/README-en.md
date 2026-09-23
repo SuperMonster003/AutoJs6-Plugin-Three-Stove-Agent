@@ -110,7 +110,7 @@ Development preview: registered scripts can execute with parameter questions, co
 
 ******
 
-1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5288 or later.
+1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5289 or later.
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
 3. Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.
 4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5288 (6.8.0)
+minimum host build: 5289 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.
@@ -176,6 +176,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/23_
 
 - `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+- `Feature` Screen actions bind confirmation to inspected host nodes, support text append and bounded scrolling, and report action results and window changes
 - `Feature` Screen OCR is offered only when the host reports an available authorized OCR plugin; text is merged into bounded lines with coordinates
 - `Feature` Screen observations retain host snapshot references, bounded node and console output, and summaries of visible text and state changes
 - `Feature` Single-script tasks retain the script ID, path, execution ID and reported result after model completion, including explicit null and marked truncation for large results
@@ -198,8 +199,8 @@ _2026/09/23_
 - `Fix` Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines
 - `Fix` A retiring foreground service no longer rejects the next task while its replacement is starting
 - `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
-- `Improvement` Minimum host is AutoJs6 6.8.0 / build 5288 for OCR availability discovery and grant checks
-- `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5288 release build (MPL 2.0), with SHA-256 locks
+- `Improvement` Minimum host is AutoJs6 6.8.0 / build 5289 for action node inspection and confirmation bound to execution
+- `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5289 release build (MPL 2.0), with SHA-256 locks
 - `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees
 
 ##### For more release history

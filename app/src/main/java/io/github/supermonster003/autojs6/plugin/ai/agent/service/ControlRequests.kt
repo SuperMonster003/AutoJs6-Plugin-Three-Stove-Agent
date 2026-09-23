@@ -43,7 +43,8 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
             val grant = obj(value, "grantSummary")
             closed(grant, setOf("methods", "permissions", "toolGroups", "maxInputBytesPerRequest", "maxTotalTokens"))
             val groups = strings(grant, "toolGroups", ToolGroup.entries.filter { it.defaultEnabled }.map { it.id }.toSet())
-            require(groups.all { id -> ToolGroup.entries.any { it.id == id && it.defaultEnabled } })
+            // Only the authenticated host can widen its initial grant. Run options still only narrow it.
+            require(groups.all { id -> ToolGroup.entries.any { it.id == id && (it.defaultEnabled || it == ToolGroup.GESTURE) } })
             LinkConfiguration(text(value, "locale", "en", 64)!!, roots,
                 if (grant.has("methods")) strings(grant, "methods", max = 256) else null,
                 if (grant.has("permissions")) strings(grant, "permissions", max = 128) else null, groups,

@@ -5,6 +5,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ControlRequestsTest {
+    @Test fun gesturesRequireExplicitHostGrantAndRunOptionsCannotEnableThem() {
+        val defaults = LinkConfiguration.parse("{}")
+        assertFalse("gesture" in defaults.groups)
+        assertThrows(IllegalArgumentException::class.java) { StartRequest.parse("""{"goal":"test","options":{"tools":["gesture"]}}""", defaults) }
+        val allowed = LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["observe","act","gesture"]}}""")
+        assertFalse(allowed.narrows(defaults))
+        assertTrue("gesture" in StartRequest.parse("""{"goal":"test","options":{"tools":["gesture"]}}""", allowed).groups)
+        assertTrue(StartRequest.parse("""{"goal":"test","options":{"tools":{"disable":["gesture"]}}}""", allowed).groups.none { it == "gesture" })
+    }
     @Test fun memoryInjectionHonorsTaskFlagAndEnabledGroups() {
         val config = LinkConfiguration.parse("{}")
         fun request(options: String) = StartRequest.parse("""{"goal":"test","options":$options}""", config)
