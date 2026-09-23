@@ -1,0 +1,1 @@
+{"scripts":[{"id":"clean-downloads","description":"Remove old installers from Downloads","parameters":{"days":{"type":"integer","required":false,"default":30,"minimum":1}},"risk":"normal","confirm":"before-run","examples":["Clean old installers","Free download space"],"truncated":true}],"total":1,"matched":1,"omitted":0,"ambiguousIds":0,"truncated":true}
