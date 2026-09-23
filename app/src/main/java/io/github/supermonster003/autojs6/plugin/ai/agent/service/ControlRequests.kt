@@ -53,7 +53,8 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
     }
 }
 
-internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>) {
+internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>,
+                            val preset: String, val memory: Boolean) {
     companion object {
         fun parse(json: String, config: LinkConfiguration): StartRequest = with(ControlRequests) {
             val value = AgentJson.objectOf(json, 32 * 1024)
@@ -61,9 +62,10 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             require(text(value, "origin", "script", 16) in setOf("script", "ui"))
             val opts = obj(value, "options")
             closed(opts, setOf("preset", "target", "tools", "budget", "confirm", "interaction", "detached", "context", "parameters", "memory", "scriptRoots", "locale"))
-            require(text(opts, "preset", "default") == "default") // Named presets arrive in P6.
+            val preset = text(opts, "preset", "default")!!
+            require(preset == "default") // Named presets arrive in P6.
             val detached = flag(opts, "detached", false)
-            flag(opts, "memory", true)
+            val memory = flag(opts, "memory", true)
             val root = ScriptRoots.validate(strings(opts, "scriptRoots", config.roots))
             require(config.roots.containsAll(root))
             val groups = when {
@@ -93,7 +95,7 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
             require(context.toByteArray(Charsets.UTF_8).size <= 8192)
             StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
-                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root)
+                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root, preset, memory && "memory" in groups)
         }
     }
 }

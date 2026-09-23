@@ -12,6 +12,7 @@
         "任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施."
       ],
       "feature": [
+        "按作用域注入偏好记忆供脚本填参, 支持 4 KiB 上限, 截断标记与任务级关闭",
         "登记脚本参数校验与默认值补全, 缺参询问, 当前清单风险检查及确认参数表",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
         "10 语言的 README, 插件中心说明与更新日志",

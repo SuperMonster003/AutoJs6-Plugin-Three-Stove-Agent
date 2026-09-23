@@ -8,3 +8,4 @@ Tool signatures (selector or nodeRef, never both):
 {{tools_json}}
 Context data (truncation is explicit):
 {{context_json}}
+Use exact-key memories for matching script parameters when type and goal fit; explicit task values take precedence. Ask for missing values. ask.memoryKey proposes only; confirmed memory_propose is needed to save.

@@ -177,6 +177,7 @@ _2026/09/23_
 
 - `Aviso` Vista previa: conexión al anfitrión y control de tareas integrados. La ejecución de scripts y recuperación de pantalla continúan en P3/P4; la API de scripts y el panel llegarán en P5/P6.
 - `Aviso` El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
+- `Función` Preferencias en memoria por ámbito para los parámetros de scripts, con límite de 4 KiB, truncamiento explícito y desactivación por tarea
 - `Función` Validación de parámetros de scripts registrados con valores predeterminados, preguntas por datos faltantes, revisión del riesgo actual y tablas completas para confirmar
 - `Función` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas

@@ -15,15 +15,18 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
 
     fun system(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
                memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
-               compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null): String {
+               compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null, memoryUnavailable: Boolean = false): String {
         bounded(fixedContext, 8 * 1024)
-        // P2.4/P6 provide only global + current preset entries, already sorted/trimmed to 4 KiB.
+        // P3.2 supplies global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
         val system = render(language, if (compact) "compact_system" else "system", mapOf(
             "tools_json" to if (compact) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
             "format_json" to if (compact) compactContract(format) else DecisionSchema.promptContract(format),
             "context_json" to jsonObject("fixedContext" to fixedContext.json(), "memories" to AgentJson.parse(memory),
-                "memoryTruncated" to memoryTruncated.json()).apply { if (contextTruncated) addProperty("contextTruncated", true) }.toString(),
+                "memoryTruncated" to memoryTruncated.json()).apply {
+                    if (contextTruncated) addProperty("contextTruncated", true)
+                    if (memoryUnavailable) addProperty("memoryUnavailable", true)
+                }.toString(),
         ))
         return if (registeredScripts == null) system else {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }

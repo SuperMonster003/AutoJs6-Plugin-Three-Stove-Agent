@@ -5,6 +5,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ControlRequestsTest {
+    @Test fun memoryInjectionHonorsTaskFlagAndEnabledGroups() {
+        val config = LinkConfiguration.parse("{}")
+        fun request(options: String) = StartRequest.parse("""{"goal":"test","options":$options}""", config)
+        assertEquals("default", request("{}").preset)
+        assertTrue(request("{}").memory)
+        assertFalse(request("""{"memory":false}""").memory)
+        assertFalse(request("""{"tools":{"disable":["memory"]}}""").memory)
+        assertThrows(IllegalArgumentException::class.java) { request("""{"memory":{"address":"injected"}}""") }
+    }
     @Test fun invalidOptionsCannotWidenGrantsOrBudgets() {
         val config = LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["observe"],"maxTotalTokens":1000}}""")
         for (options in listOf("""{"tools":["act"]}""", """{"budget":{"maxTotalTokens":1001}}""",

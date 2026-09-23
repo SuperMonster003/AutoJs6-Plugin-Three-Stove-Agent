@@ -22,6 +22,7 @@ internal class AgentRuntime private constructor(val context: Context) {
     fun policy(groups: Set<String>) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
         ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run")
     val archive = RunArchive(File(context.filesDir, "agent-runs"))
+    val memories = PrivateMemorySource(File(context.filesDir, "agent-memory.json"))
     @Volatile var current: HostLink? = null; private set
     fun taskChanged() = AiAgentTaskForegroundService.changed()
     @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,

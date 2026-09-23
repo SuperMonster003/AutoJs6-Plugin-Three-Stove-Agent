@@ -177,6 +177,7 @@ _2026/09/23_
 
 - `提示` 开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供.
 - `提示` 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
+- `新增` 按作用域注入偏好记忆供脚本填参, 支持 4 KiB 上限, 截断标记与任务级关闭
 - `新增` 登记脚本参数校验与默认值补全, 缺参询问, 当前清单风险检查及确认参数表
 - `新增` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `新增` 10 语言的 README, 插件中心说明与更新日志
