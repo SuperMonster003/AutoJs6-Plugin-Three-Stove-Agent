@@ -69,7 +69,7 @@ La version 1.0.0 doit fournir les capacités suivantes:
 
 ### Catalogue des outils
 
-Le noyau P2.1 définit ces 30 outils. Exécution et confirmation restent en développement; ce tableau ne rend pas cet aperçu opérationnel. Les descriptions proviennent du catalogue du modèle (anglais ou chinois).
+Le noyau P2.1 définit ces 30 outils. Exécution et confirmation restent en développement; ce tableau ne rend pas cet aperçu opérationnel. Les descriptions proviennent du catalogue du modèle (anglais ou chinois). Le noyau P2.2 valide aussi les décisions à une étape et fournit des modèles de prompts en anglais/chinois; l'exécution des tâches n'est pas encore raccordée.
 
 | Outil | Groupe | Risque | Défaut | Description |
 | --- | --- | --- | --- | --- |
@@ -179,6 +179,7 @@ _2026/09/23_
 - `Fonctionnalité` Identité de plugin `ai-agent` avec le service INFO, la Wake Activity, le service provisoire `org.autojs.plugin.AI_AGENT` dans le processus `:agent` et un écran de lancement indiquant si un hôte AutoJs6 compatible est installé
 - `Fonctionnalité` README, instructions du centre de plugins et journal des modifications en 10 langues
 - `Fonctionnalité` Catalogue du noyau Agent avec 30 outils, contrôle des groupes, schémas de paramètres, préparation des appels bridge, observations bornées et élévation des risques sensibles; intégration ultérieure du moteur
+- `Fonctionnalité` Noyau de décision Agent avec schémas adaptés aux protocoles, analyse JSON stricte ou par extraction, validation des outils/branches, deux corrections au maximum et modèles de prompts en anglais/chinois; exécution des tâches non raccordée
 - `Amélioration` Version minimale de l'hôte fixée à AutoJs6 6.8.0 / build 5285, correspondant à la livraison des interfaces et accès P1
 - `Dépendance` Ajout de `common-plugin-api.aar` (module AutoJs6 `plugin-api/common-plugin-api`, build hôte 6.8.0 / 5282, MPL 2.0) comme contrat de plugin partagé, verrouillé par hachage dans `locks/host-api-aars.lock`
 - `Dépendance` Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas

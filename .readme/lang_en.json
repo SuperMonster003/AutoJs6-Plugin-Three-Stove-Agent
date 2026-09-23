@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Third-party notices",
   "p_instruction_more": "See the [project README]({{ repo_url }}) and [ROADMAP.md]({{ roadmap_url }}) for the connection guide and the current progress.",
   "h3_tools": "Tool catalog",
-  "p_tools_status": "The P2.1 core defines these 30 tools. Task execution and confirmation are still under development; this table does not make the preview runnable. Descriptions are generated from the model tool catalog (English or Chinese).",
+  "p_tools_status": "The P2.1 core defines these 30 tools. Task execution and confirmation are still under development; this table does not make the preview runnable. Descriptions are generated from the model tool catalog (English or Chinese). The P2.2 core also validates single-step decisions and provides English/Chinese prompt templates; task execution is not connected yet.",
   "tool_header_name": "Tool",
   "tool_header_group": "Group",
   "tool_header_risk": "Risk",

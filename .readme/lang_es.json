@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Avisos de terceros",
   "p_instruction_more": "Consulte el [README del proyecto]({{ repo_url }}) y [ROADMAP.md]({{ roadmap_url }}) para la guía de conexión y el progreso actual.",
   "h3_tools": "Catálogo de herramientas",
-  "p_tools_status": "El núcleo P2.1 define estas 30 herramientas. La ejecución y confirmación siguen en desarrollo; esta tabla no permite ejecutar tareas en la vista previa. Las descripciones proceden del catálogo del modelo (inglés o chino).",
+  "p_tools_status": "El núcleo P2.1 define estas 30 herramientas. La ejecución y confirmación siguen en desarrollo; esta tabla no permite ejecutar tareas en la vista previa. Las descripciones proceden del catálogo del modelo (inglés o chino). El núcleo P2.2 también valida decisiones de un solo paso y ofrece plantillas de instrucciones en inglés/chino; la ejecución de tareas aún no está conectada.",
   "tool_header_name": "Herramienta",
   "tool_header_group": "Grupo",
   "tool_header_risk": "Riesgo",

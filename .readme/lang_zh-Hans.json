@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "P2.1 核心已定义以下 30 个工具. 任务执行与确认流程仍在开发中, 此表不表示预览版已经可运行任务. 描述由模型工具目录生成 (英文或中文).",
+  "p_tools_status": "P2.1 核心已定义以下 30 个工具. 任务执行与确认流程仍在开发中, 此表不表示预览版已经可运行任务. 描述由模型工具目录生成 (英文或中文). P2.2 核心同时提供单步决策校验与中英文提示模板; 尚未接入任务执行.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

@@ -25,4 +25,35 @@ class AgentCoreDeviceTest {
         assertTrue(text.toByteArray(Charsets.UTF_8).size <= 1024)
         assertTrue(AgentJson.objectOf(text).flag("truncated")!!)
     }
+
+    @Test fun packagedPromptTemplatesAndDecisionRepairWorkOnAndroid() {
+        val assets = InstrumentationRegistry.getInstrumentation().targetContext.assets
+        fun read(path: String) = assets.open(path).bufferedReader().use { it.readText() }
+        val catalog = ToolCatalog(read("catalog/tools.json"))
+        val format = DecisionSchema(catalog).generate(ModelProtocol.LOCAL, ToolPolicy())
+        val prompts = PromptCatalog(::read, catalog)
+        for (language in listOf("en", "zh")) {
+            val system = prompts.system(language, ToolPolicy(), format)
+            assertTrue(system.contains("ui_dump"))
+            assertFalse(system.contains("{{tools_json}}"))
+        }
+        val session = DecisionRepairSession(DecisionValidator(catalog), ToolPolicy(), DecisionSchema.degraded())
+        assertTrue(session.evaluate("invalid") is DecisionAttempt.Repair)
+        val accepted = session.evaluate("```json\n{\"kind\":\"tool\",\"tool\":\"ui_dump\",\"arguments\":{}}\n```") as DecisionAttempt.Accepted
+        assertEquals(ParseMode.EXTRACTED, accepted.parseMode)
+        assertEquals("ui_dump", (accepted.decision as AgentDecision.Tool).name)
+    }
+
+    @Test fun decisionUnicodeLimitsAndOnlineArgumentEncodingMatchJvm() {
+        val assets = InstrumentationRegistry.getInstrumentation().targetContext.assets
+        val catalog = ToolCatalog(assets.open("catalog/tools.json").bufferedReader().use { it.readText() })
+        val format = DecisionSchema(catalog).generate(ModelProtocol.OPENAI, ToolPolicy())
+        assertEquals(ArgumentsEncoding.JSON_STRING, format.argumentsEncoding)
+        val raw = jsonObject("kind" to "tool".json(), "tool" to "ui_dump".json(),
+            "arguments" to "{}".json(), "reasoning" to "😀中".repeat(400).json())
+        val decision = DecisionValidator(catalog).validate(DecisionParser.parse(raw.toString()), ToolPolicy(), format)
+        assertEquals("😀中".repeat(300), decision.reasoning)
+        raw.add("done", jsonObject("status" to "completed".json(), "summary" to "ok".json()))
+        assertThrows(DecisionFailure::class.java) { DecisionValidator(catalog).validate(DecisionParser.parse(raw.toString()), ToolPolicy(), format) }
+    }
 }

@@ -1,0 +1,1136 @@
+{
+  "LOCAL-default": {
+    "encoding": "OBJECT",
+    "reason": "LOCAL_OBJECT",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "app_current",
+            "app_launch",
+            "clipboard_get",
+            "clipboard_set",
+            "console_tail",
+            "device_info",
+            "memory_get",
+            "memory_propose",
+            "report_progress",
+            "screen_state",
+            "script_catalog",
+            "script_run",
+            "script_stop",
+            "ui_click",
+            "ui_dump",
+            "ui_find",
+            "ui_long_click",
+            "ui_press_key",
+            "ui_scroll",
+            "ui_set_text",
+            "ui_wait_for"
+          ]
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "ask": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "LOCAL-minimal": {
+    "encoding": "OBJECT",
+    "reason": "LOCAL_OBJECT",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "report_progress"
+          ]
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "ask": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "OPENAI-default": {
+    "encoding": "JSON_STRING",
+    "reason": "DYNAMIC_PARAMETERS",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "app_current",
+                "app_launch",
+                "clipboard_get",
+                "clipboard_set",
+                "console_tail",
+                "device_info",
+                "memory_get",
+                "memory_propose",
+                "report_progress",
+                "screen_state",
+                "script_catalog",
+                "script_run",
+                "script_stop",
+                "ui_click",
+                "ui_dump",
+                "ui_find",
+                "ui_long_click",
+                "ui_press_key",
+                "ui_scroll",
+                "ui_set_text",
+                "ui_wait_for"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ask": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "question": {
+                  "type": "string"
+                },
+                "kind": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "text",
+                        "choice",
+                        "confirm"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "choices": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "memoryKey": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "question",
+                "kind",
+                "choices",
+                "memoryKey"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "done": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "completed",
+                    "partial",
+                    "failed",
+                    "blocked"
+                  ]
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unfinished": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "orderStatus": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "cart",
+                        "pending_payment",
+                        "submitted",
+                        "paid"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "evidence",
+                "unfinished",
+                "orderStatus"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "reasoning",
+        "tool",
+        "arguments",
+        "ask",
+        "done"
+      ]
+    }
+  },
+  "OPENAI-minimal": {
+    "encoding": "OBJECT",
+    "reason": "ONLINE_OBJECT",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "report_progress"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "arguments": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ask": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "question": {
+                  "type": "string"
+                },
+                "kind": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "text",
+                        "choice",
+                        "confirm"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "choices": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "memoryKey": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "question",
+                "kind",
+                "choices",
+                "memoryKey"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "done": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "completed",
+                    "partial",
+                    "failed",
+                    "blocked"
+                  ]
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unfinished": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "orderStatus": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "cart",
+                        "pending_payment",
+                        "submitted",
+                        "paid"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "evidence",
+                "unfinished",
+                "orderStatus"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "reasoning",
+        "tool",
+        "arguments",
+        "ask",
+        "done"
+      ]
+    }
+  },
+  "ANTHROPIC-default": {
+    "encoding": "JSON_STRING",
+    "reason": "DYNAMIC_PARAMETERS",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "app_current",
+            "app_launch",
+            "clipboard_get",
+            "clipboard_set",
+            "console_tail",
+            "device_info",
+            "memory_get",
+            "memory_propose",
+            "report_progress",
+            "screen_state",
+            "script_catalog",
+            "script_run",
+            "script_stop",
+            "ui_click",
+            "ui_dump",
+            "ui_find",
+            "ui_long_click",
+            "ui_press_key",
+            "ui_scroll",
+            "ui_set_text",
+            "ui_wait_for"
+          ]
+        },
+        "arguments": {
+          "type": "string"
+        },
+        "ask": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "ANTHROPIC-minimal": {
+    "encoding": "OBJECT",
+    "reason": "ONLINE_OBJECT",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "report_progress"
+          ]
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        "ask": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "GEMINI-default": {
+    "encoding": "JSON_STRING",
+    "reason": "DYNAMIC_PARAMETERS",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "app_current",
+            "app_launch",
+            "clipboard_get",
+            "clipboard_set",
+            "console_tail",
+            "device_info",
+            "memory_get",
+            "memory_propose",
+            "report_progress",
+            "screen_state",
+            "script_catalog",
+            "script_run",
+            "script_stop",
+            "ui_click",
+            "ui_dump",
+            "ui_find",
+            "ui_long_click",
+            "ui_press_key",
+            "ui_scroll",
+            "ui_set_text",
+            "ui_wait_for"
+          ]
+        },
+        "arguments": {
+          "type": "string"
+        },
+        "ask": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "GEMINI-minimal": {
+    "encoding": "OBJECT",
+    "reason": "ONLINE_OBJECT",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool",
+            "ask",
+            "done"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "report_progress"
+          ]
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ]
+        },
+        "ask": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text",
+                "choice",
+                "confirm"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "memoryKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "done": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "completed",
+                "partial",
+                "failed",
+                "blocked"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "orderStatus": {
+              "type": "string",
+              "enum": [
+                "none",
+                "cart",
+                "pending_payment",
+                "submitted",
+                "paid"
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "summary"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  },
+  "UNKNOWN-default": {
+    "encoding": "OBJECT",
+    "reason": "PROTOCOL_UNKNOWN",
+    "schema": null
+  },
+  "UNKNOWN-minimal": {
+    "encoding": "OBJECT",
+    "reason": "PROTOCOL_UNKNOWN",
+    "schema": null
+  }
+}

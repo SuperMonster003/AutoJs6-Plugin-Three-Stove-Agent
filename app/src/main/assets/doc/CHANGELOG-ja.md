@@ -13,6 +13,7 @@
 * `機能` INFO サービス, Wake Activity, `:agent` プロセスで動く `org.autojs.plugin.AI_AGENT` サービスの仮実装, 互換性のある AutoJs6 ホストの有無を表示する起動画面を備えたプラグイン識別情報 `ai-agent`
 * `機能` 10 言語の README, プラグインセンターの説明, 変更履歴
 * `機能` 30 ツールの Agent コア一覧, グループ制御, パラメータ Schema, bridge 呼び出し準備, 有界観察と機密操作のリスク引き上げ; 実行機能の接続は後続段階で提供
+* `機能` Agent 決定コアにプロトコル別 Schema, 厳密/抽出式 JSON 解析, ツール/分岐検証, 最大 2 回の修正再試行と英語/中国語プロンプトを実装; タスク実行は未接続
 * `改善` 最低ホスト要件を AutoJs6 6.8.0 / ビルド 5285 に確定し, P1 のホストインターフェースと入口の提供版に統一
 * `依存関係` 共有プラグイン契約として `common-plugin-api.aar` (AutoJs6 モジュール `plugin-api/common-plugin-api`, ホストビルド 6.8.0 / 5282, MPL 2.0) を追加し, `locks/host-api-aars.lock` でハッシュ固定
 * `依存関係` 有界の厳密 JSON 解析と Schema ツリー用に Gson 2.13.2 を追加

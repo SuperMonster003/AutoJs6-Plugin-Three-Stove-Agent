@@ -43,7 +43,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D17 | 宿主侧代理核心, Stub 与 grant 共享 | 把 `McpHostCapabilityBroker` 的分派核心与 `McpCapabilityGrant` 抽为 `core/plugin/hostbroker/HostCapabilityBrokerCore` + `HostCapabilityGrant` (纯 Kotlin 可测) + `HostCapabilityBrokerStub : IHostCapabilityBroker.Stub` (共享 AIDL 的唯一实现, Agent 链路与 MCP v2 会话都下发它); `McpHostCapabilityBroker : IMcpHostCapabilityBroker.Stub` 保留为 MCP v1 的薄适配, 只转发到同一核心. 宿主为每条 Agent 链路构造带上限的 grant (允许的 `module.method` 集合, 权限令牌子集, 速率, 体积, 模型调用次数与 token 上限); 请求越界一律 `capability-denied`, 即使插件被替换也无法越过. |
 | D18 | 模型代理形态 | `IAiAgentModelBroker { getBrokerInfo; listTargets(request, cb); generate(request, cb); cancel(ref); destroy(reason) }` 映射到宿主 `AndroidAiPluginAskRunner` 的 ask / stream 路径 (非持久会话; 每轮由插件自行编译上下文, 见 D21). 请求 JSON 含 `messages` / `targetId` / `structuredJson` / `responseSchema` / `maximumOutputTokens` / `temperature` / `timeoutMs`; 事件 `started` / `chunk` / `usage` / `completed` / `failed` / `cancelled` 经 oneway 回调. 宿主对每条链路施加模型调用速率与累计 token 上限 (grant 的一部分). |
 | D19 | 工具目录为数据表 | 工具名 snake_case (`<组>_<动作>`), 名称 / 描述 / JSON Schema / 风险等级 / 所属组 / 默认开关 / 映射的 bridge `module.method` 全部以 `ToolCatalog` 数据表定义, 既驱动模型提示词中的工具清单, 也生成 README 工具表与 JVM 快照测试. 初表见附录 C. |
-| D20 | 决策协议 `AgentDecision` | 模型每轮返回一个扁平 JSON 对象 `{ kind: "tool" | "ask" | "done", reasoning?, tool?, arguments?, ask?, done? }` (附录 D), 插件按 `ToolCatalog` 校验工具名与参数 Schema, 非法时把校验错误作为观察结果回送并计入 "修复重试" (每步最多 1 次). 目标不支持 `structured-json` 能力时进入 D35 的退化模式. |
+| D20 | 决策协议 `AgentDecision` | 模型每轮返回一个扁平 JSON 对象 `{ kind: "tool" | "ask" | "done", reasoning?, tool?, arguments?, ask?, done? }` (附录 D), 插件按 `ToolCatalog` 校验工具名与参数 Schema, 非法时把校验错误作为观察结果回送并计入 "修复重试" (按 P0.2 结论, 每步最多 2 次). 目标不支持 `structured-json` 能力时进入 D35 的退化模式. |
 | D21 | 上下文编译有界 | 每轮请求 = 系统提示 (角色 / 规则 / 工具清单 / 预设固定上下文 / 记忆) + 目标 + 最近 K 步完整 "决策 + 观察" 对 (默认 K=8) + 更早步骤的一行摘要; 整体按字节预算装箱 (默认 64 KiB, 不超过目标 `maximumContextBytes`), 观察结果单条截断 (节点树默认 200 节点 / 24 KiB). 不依赖 Provider 持久会话. P0.2 实测本地 LiteRT-LM 上限 4096 token, 本地目标另设输入预算 (P2 `ContextCompiler`). |
 | D22 | 脚本调用与结果通道 | 已登记脚本经宿主 bridge `agent.execRegistered(path, arguments, options)` 启动 (内部为 `engines.execScriptFile` + `captureConsole` + 等待完成), 参数经 `engines.myEngine().execArgv` 传入; 脚本用宿主 augment `ai.agent.result(value)` 上报结构化结果 (仅在被 Agent 启动时生效, 否则记录警告), 未上报时以退出状态 + 控制台尾部作为结果. 登记为 `sensitive` 的脚本按 D8 在启动前确认. |
 | D23 | 插件默认关闭且需官方 / 受信签名 | 宿主侧 `AidlPluginHost(defaultEnabled = false)` (`PluginDefaultEnabledPolicy` 加入 `ai-agent`); 抽屉开关或附着请求首次生效时要求插件处于 `OFFICIAL` 或 `TRUSTED` 授权态, `USER_GRANTED` 需额外确认对话框 (MCP D18 同形). Agent 可自主操作设备, 风险等级与 MCP 相当. |
@@ -367,9 +367,11 @@ P2.1 证据 (E1/E2, 2026-09-23): JVM 55/55, API 37.1 私有只读 AVD 6/6, debug
 
 ### P2.2 决策协议与解析
 
-- [ ] (插件) `DecisionSchema` (附录 D, 按目标 `provider` 生成 `responseSchema` 变体, 见附录 D 的 P0.2 结论), `DecisionParser` (严格: `structuredJson` 输出直接解析; 退化: 提取首个 JSON 对象, 容忍代码块围栏与尾随文本, 记录 `parseMode`), `DecisionValidator` (工具存在, 组启用, 参数 Schema 校验, `ask` / `done` 结构且只接受与 `kind` 对应的分支, `reasoning` 截断 600 字符, 长度限制在验证器而非 Schema 中执行); 校验失败生成 "修复观察" 回送模型, 每步最多 2 次修复重试 (P0.2 决策点结论, 与 D35 一致).
-- [ ] (插件) `PromptCatalog`: 系统提示 (角色 / 规则 (取自 MCP `automate_task` 的观察 -> 操作 -> 校验规则并针对单步决策改写) / 工具清单 / 输出格式), 目标消息, 观察消息模板, 修复消息模板, 预设固定上下文与记忆的注入位置; en 为主, zh 版本按目标语言选择; 提示词以 assets 文本 + 占位符管理, 快照测试守卫.
-- [ ] (测试) JVM: 解析矩阵 (合法 / 围栏 / 多对象 / 非法 kind / 缺参数 / 超长 reasoning / Unicode), 校验矩阵, 提示词快照.
+- [x] (插件) `DecisionSchema` (附录 D, 按目标 `provider` 生成 `responseSchema` 变体, 见附录 D 的 P0.2 结论), `DecisionParser` (严格: `structuredJson` 输出直接解析; 退化: 提取首个 JSON 对象, 容忍代码块围栏与尾随文本, 记录 `parseMode`), `DecisionValidator` (工具存在, 组启用, 参数 Schema 校验, `ask` / `done` 结构且只接受与 `kind` 对应的分支, `reasoning` 截断 600 字符, 长度限制在验证器而非 Schema 中执行); 校验失败生成 "修复观察" 回送模型, 每步最多 2 次修复重试 (P0.2 决策点结论, 与 D35 一致).
+- [x] (插件) `PromptCatalog`: 系统提示 (角色 / 规则 (取自 MCP `automate_task` 的观察 -> 操作 -> 校验规则并针对单步决策改写) / 工具清单 / 输出格式), 目标消息, 观察消息模板, 修复消息模板, 预设固定上下文与记忆的注入位置; en 为主, zh 版本按目标语言选择; 提示词以 assets 文本 + 占位符管理, 快照测试守卫.
+- [x] (测试) JVM: 解析矩阵 (合法 / 围栏 / 多对象 / 非法 kind / 缺参数 / 超长 reasoning / Unicode), 校验矩阵, 提示词快照.
+
+P2.2 证据 (E1/E2, 2026-09-23): JVM 108/108, SDK 37 私有只读 AVD 8/8, debug/androidTest/Release-R8/lint 与 10 语言生成校验通过. 已实现严格/提取解析, 分支/工具/参数校验, 协议 Schema 变体, 每步 2 次修复上限及 en/zh 提示快照. 实际模型调用/协议元数据协商按原 P2.4 接入, 完成证据与订单语义仍由原 P4 校验. 详见 `docs/dev/p22-decision-core-evidence.md`.
 
 ### P2.3 运行状态机, 预算与确认
 
@@ -843,7 +845,7 @@ if (ctx) {
 }
 ```
 
-P0.2 结论 (2026-09-22): 本地约束解码接受 `arguments: { type: object }` (8 个 Schema 变体全部接受), 保持对象形态; JSON 字符串变体只作为在线严格模式的降级手段 (小模型在字符串内产生非法 JSON 的风险更高). Schema 无法表达 `kind` 与分支对象的互斥 (本地模型在缺少 `arguments` 时同时填了 `ask` 与 `done`), `DecisionValidator` 必须只接受与 `kind` 对应的分支. 在线协议差异要求 `DecisionSchema` 按目标 `provider` 生成变体 (全部在线变体去掉 `maxLength` / `maxItems`, 长度限制改由验证器执行; Gemini 去掉 `additionalProperties`; Anthropic 为 `arguments` 补 `additionalProperties: false`; OpenAI 严格模式全属性 required + 可空类型, `arguments` 用 `anyOf` 枚举附录 C 各工具的参数 Schema 或降级为字符串), 首选对象变体, 收到 `PROVIDER_FAILED` 且目标为在线 profile 时降级重试一次并按目标记忆 (脚本 API 看不到 HTTP 400, 这是宿主 / 3-Stone AI 错误码粒度的限制, P1 契约的 `IAiAgentModelBroker` 应透传 `REQUEST_REJECTED` 类原因). 以上为建议, 待维护者在 P2.2 前确认. 细节见 `docs/dev/p0-spike-evidence.md` 第 5.4 / 7 节.
+P0.2 结论 (2026-09-22): 本地约束解码接受 `arguments: { type: object }` (8 个 Schema 变体全部接受), 保持对象形态; JSON 字符串变体只作为在线严格模式的降级手段 (小模型在字符串内产生非法 JSON 的风险更高). Schema 无法表达 `kind` 与分支对象的互斥 (本地模型在缺少 `arguments` 时同时填了 `ask` 与 `done`), `DecisionValidator` 必须只接受与 `kind` 对应的分支. 在线协议差异要求 `DecisionSchema` 按目标 `provider` 生成变体 (全部在线变体去掉 `maxLength` / `maxItems`, 长度限制改由验证器执行; Gemini 去掉 `additionalProperties`; Anthropic 为 `arguments` 补 `additionalProperties: false`; OpenAI 严格模式全属性 required + 可空类型, `arguments` 用 `anyOf` 枚举附录 C 各工具的参数 Schema 或降级为字符串), 首选对象变体. P2.2 实施 (2026-09-23): P1 模型代理已透传 `REQUEST_REJECTED`, 因此只有该明确拒绝原因可触发在线对象变体到字符串变体的一次重试, 不再使用早期建议的任意 `PROVIDER_FAILED` 重试. 动态脚本参数名无法封闭或 Schema 超过 16 KiB/协议复杂度时直接选字符串变体, 长度与参数约束仍由本地校验. 未知在线协议保守选择退化模式, 不从模型名/targetId 猜测协议; 公开协议元数据协商随原 P2.4 ModelClient 接入. 详见 `docs/dev/p22-decision-core-evidence.md`; 历史 spike 见 `docs/dev/p0-spike-evidence.md` 第 5.4 / 7 节.
 
 ### D.2 观察消息
 
@@ -1130,3 +1132,11 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 映射核对发现附录 C.2 的通知栏/快捷设置缺少宿主 grant, 补齐两个 keys 方法与权限令牌并同步 C.4; 其他 keys 方法仍拒绝. 宿主回归 3/3 与 debug 构建通过.
 - 插件 JVM 55/55, API 37.1 私有只读 AVD 6/6, debug/androidTest/Release-R8/lint 通过 (0 错误, 5 警告), 10 语言/36 产物一致. 依赖 Gson 2.13.2 与宿主一致, 来源/哈希/许可证已记入 notices. 详见 `docs/dev/p21-tool-core-evidence.md`.
 - 下一项为原 P2.2 决策 Schema/解析/校验/提示模板; 未提前实现 P2.3 执行循环或 P3/P4 复合流程, 未暂存新 AAR, 未改真机, 未推送或发布.
+
+### 2026-09-23 (P2.2)
+
+- 按原 P2.2 完成 DecisionSchema/Parser/Validator, 每步最多 2 次修复, en/zh 的 system/goal/observation/repair 模板与快照. D20 的旧 1 次文字和 AGENTS 的待定值同步到既有 P0.2/D35 结论, 未改变路线图阶段.
+- 核对本地 3-Stone wire 映射和 OpenAI/Anthropic/Gemini 官方 Schema 文档. 本地保持对象参数, 在线封闭参数优先对象变体, 动态脚本参数/复杂度限制时采用 JSON 字符串; 所有参数仍本地严格校验. 通过明确 REQUEST_REJECTED 做一次有界协议降级, 不因一般模型失败盲目重试.
+- 当前宿主公开目标目录缺少在线协议类型, 核心不根据 Provider 包/模型名/targetId 猜测, 未知协议使用退化模式. 原 P2.4 ModelClient 接入时补齐可信协议协商和实际调用预算. 原 P4 负责 done 的事实证据/订单语义, 本轮只验证决策结构.
+- 插件 JVM 108/108, SDK 37 / Android 17 / 16 KiB 私有只读 AVD 8/8, debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告). 10 语言文档与 36 产物一致; 详见 `docs/dev/p22-decision-core-evidence.md`. 未调用真实模型, 未改真机, 未追加依赖或暂存新 AAR.
+- P2.1 插件提交 `bd3e13d`, 配套宿主 grant 修复 `5ae754e641`. 本轮两个小节均按原建议会话边界完成, 下一会话从原 P2.3 状态机/预算/确认/日志开始. P2 整体与 P1 保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.

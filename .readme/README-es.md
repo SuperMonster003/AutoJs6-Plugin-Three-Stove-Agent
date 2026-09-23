@@ -69,7 +69,7 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ### Catálogo de herramientas
 
-El núcleo P2.1 define estas 30 herramientas. La ejecución y confirmación siguen en desarrollo; esta tabla no permite ejecutar tareas en la vista previa. Las descripciones proceden del catálogo del modelo (inglés o chino).
+El núcleo P2.1 define estas 30 herramientas. La ejecución y confirmación siguen en desarrollo; esta tabla no permite ejecutar tareas en la vista previa. Las descripciones proceden del catálogo del modelo (inglés o chino). El núcleo P2.2 también valida decisiones de un solo paso y ofrece plantillas de instrucciones en inglés/chino; la ejecución de tareas aún no está conectada.
 
 | Herramienta | Grupo | Riesgo | Predeterminado | Descripción |
 | --- | --- | --- | --- | --- |
@@ -179,6 +179,7 @@ _2026/09/23_
 - `Función` Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible
 - `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
 - `Función` Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles; integración del motor en fases posteriores
+- `Función` Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino; ejecución de tareas aún sin conectar
 - `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
 - `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
 - `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas
