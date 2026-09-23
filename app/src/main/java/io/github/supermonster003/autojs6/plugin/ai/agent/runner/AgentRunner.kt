@@ -41,6 +41,9 @@ class AgentRunner internal constructor(
     private var stepEstimated = false
     private var recorded = true
     private var successfulTools = 0
+    private var scriptCalls = 0
+    private var otherActions = 0
+    private var scriptResult: JsonObject? = null
     private var format = options.format
     private var formatFallbacks = 0
 
@@ -238,12 +241,18 @@ class AgentRunner internal constructor(
         }
         if (!canContinue()) return
         b.beginTool()
+        when (prepared.invocation.name) {
+            "script_run" -> { scriptCalls++; scriptResult = null }
+            "script_catalog", "report_progress" -> Unit
+            else -> otherActions++
+        }
         beginOperation(timeout, if (prepared.invocation.name == "script_run") RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
             RunError.HOST_UNAVAILABLE, { callback -> tools.execute(prepared, timeout, callback) }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> toolFailed(outcome.error)
                 is PortResult.Success -> {
                     if (outcome.value.script?.error == null) successfulTools++
+                    if (prepared.invocation.name == "script_run") scriptResult = outcome.value.script?.scriptResult
                     observation = compiler.observe(prepared.invocation.name, journal.redact(outcome.value.result))
                     record(observation, outcome.value.script?.error)
                     nextStep()
@@ -440,6 +449,9 @@ class AgentRunner internal constructor(
             "unfinished" to JsonArray().apply { unfinished.forEach(::add) })
         orderStatus?.let { value.addProperty("orderStatus", it) }
         error?.let { value.add("error", jsonObject("code" to it.name.json(), "message" to summary.json())) }
+        if (error == null && decision is AgentDecision.Done && scriptCalls == 1 && otherActions == 0) {
+            scriptResult?.let { value.add("script", it.deepCopy()) }
+        }
         resultData = journal.finish(value)
         transition(terminal)
         error?.let { emit("error", checkNotNull(resultData).getAsJsonObject("error") ?: jsonObject("code" to it.name.json())) }

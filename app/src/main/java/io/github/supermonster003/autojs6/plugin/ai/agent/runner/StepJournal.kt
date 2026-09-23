@@ -63,7 +63,12 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         while (bytes(value) > limit && textLimit >= 1) {
             for (key in listOf("summary", "evidence", "unfinished")) value[key]?.let { value.add(key, shorten(it, textLimit)) }
             value.getAsJsonObject("error")?.let { e -> e.string("message")?.let { e.addProperty("message", AgentJson.truncate(it, textLimit)) } }
-            value["script"]?.let { value.add("script", clipped(it, 256)) }
+            value.getAsJsonObject("script")?.let { script ->
+                script["result"]?.takeIf { bytes(it) > 256 }?.let {
+                    script.add("result", clipped(it, 256))
+                    script.addProperty("resultTruncated", true)
+                }
+            }
             value.addProperty("truncated", true)
             truncated = true
             textLimit /= 2
@@ -87,7 +92,8 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         }
     }
     fun redactResult(value: JsonObject) = value.deepCopy().apply {
-        for (key in listOf("summary", "evidence", "unfinished", "script", "preview")) get(key)?.let { add(key, redact(it)) }
+        for (key in listOf("summary", "evidence", "unfinished", "preview")) get(key)?.let { add(key, redact(it)) }
+        getAsJsonObject("script")?.let { script -> script["result"]?.let { script.add("result", redact(it)) } }
         getAsJsonObject("error")?.get("message")?.let { getAsJsonObject("error").add("message", redact(it)) }
     }
     fun redact(value: JsonElement): JsonElement = when {
