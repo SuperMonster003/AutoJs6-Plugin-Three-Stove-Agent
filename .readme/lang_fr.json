@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577]({{ discussion_url }}).",
   "p_introduction_how": "Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scripts l'utilisent via l'API `ai.agent` d'AutoJs6 ; les utilisateurs y accèdent par son propre espace de tâches, le tiroir d'AutoJs6, une bulle flottante, le partage système, les raccourcis d'application et la saisie vocale. Les appels de modèle et les actions sur l'appareil passent toujours par AutoJs6 via Binder : l'hôte prête au plugin un courtier de modèle (les plugins AI Provider que l'hôte connaît déjà, comme 3-Stone AI) et un courtier de capacités avec une autorisation bornée. Le plugin ne détient jamais d'identifiants, ne se lie jamais lui-même à un fournisseur de modèle et ne demande jamais la permission d'accessibilité.",
   "h3_status": "État",
-  "p_status": "Le moteur du plugin dans la version {{ version_name }} reste un aperçu P0: INFO, Wake Activity, le service provisoire `{{ plugin_service_action }}` et un écran indiquant l'état de l'hôte. L'hôte implémente les contrats P1, les intermédiaires, l'observation de l'écran, l'exécution des scripts enregistrés et les accès du volet et du centre de plugins. La boucle de l'agent, la sélection de scripts, l'API `ai.agent` et l'espace de tâches restent prévus ultérieurement. AutoJs6 build {{ required_host_version_code }} est requis; voir [ROADMAP.md]({{ roadmap_url }}) pour le suivi et les preuves.",
+  "p_status": "La version installée affiche l'état de l'hôte. Les interfaces hôte P1 et les noyaux outils, décisions et exécution P2.1-P2.3 sont implémentés et testés. L'exécution réelle nécessite encore l'intégration modèle/hôte P2.4/P2.5 et les adaptateurs P3/P4. L'API de scripts et l'interface des tâches suivront en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Fonctionnalités",
   "p_features_intro": "La version 1.0.0 doit fournir les capacités suivantes",
   "features": [
@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Avis de tiers",
   "p_instruction_more": "Consultez le [README du projet]({{ repo_url }}) et [ROADMAP.md]({{ roadmap_url }}) pour le guide de connexion et l'avancement actuel.",
   "h3_tools": "Catalogue des outils",
-  "p_tools_status": "Le noyau P2.1 définit ces 30 outils. Exécution et confirmation restent en développement; ce tableau ne rend pas cet aperçu opérationnel. Les descriptions proviennent du catalogue du modèle (anglais ou chinois). Le noyau P2.2 valide aussi les décisions à une étape et fournit des modèles de prompts en anglais/chinois; l'exécution des tâches n'est pas encore raccordée.",
+  "p_tools_status": "Exécuteur Agent séquentiel et file de tâches (1 active + 8 en attente), appels modèle/outil annulables, délais d'interaction, événement terminal unique et blocage après perte de l'hôte; intégration réelle prévue aux étapes suivantes.",
   "tool_header_name": "Outil",
   "tool_header_group": "Groupe",
   "tool_header_risk": "Risque",

@@ -1,0 +1,122 @@
+{
+  "en": {
+    "cancelled": "The task was cancelled.",
+    "blocked": "The host connection is unavailable. The task will not resume automatically.",
+    "budget": "The task reached its budget limit.",
+    "decision": "The model did not return a valid decision after two repair attempts.",
+    "failed": "The task could not continue. Check the error code for details.",
+    "budget_steps": "Step limit",
+    "budget_modelCalls": "Model call limit",
+    "budget_duration": "Task time limit",
+    "budget_tokens": "Token limit",
+    "budget_toolTimeout": "Tool time limit"
+  },
+  "zh-Hans": {
+    "cancelled": "任务已取消.",
+    "blocked": "宿主连接不可用. 任务不会自动恢复.",
+    "budget": "任务已达到预算上限.",
+    "decision": "经过两次修复尝试, 模型仍未返回有效决策.",
+    "failed": "任务无法继续. 请查看错误码了解详情.",
+    "budget_steps": "步数上限",
+    "budget_modelCalls": "模型调用次数上限",
+    "budget_duration": "任务时长上限",
+    "budget_tokens": "token 上限",
+    "budget_toolTimeout": "工具时长上限"
+  },
+  "zh-Hant-TW": {
+    "cancelled": "任務已取消.",
+    "blocked": "宿主連線無法使用. 任務不會自動恢復.",
+    "budget": "任務已達到預算上限.",
+    "decision": "經過兩次修復嘗試, 模型仍未傳回有效決策.",
+    "failed": "任務無法繼續. 請查看錯誤碼了解詳情.",
+    "budget_steps": "步數上限",
+    "budget_modelCalls": "模型呼叫次數上限",
+    "budget_duration": "任務時長上限",
+    "budget_tokens": "token 上限",
+    "budget_toolTimeout": "工具時長上限"
+  },
+  "zh-Hant-HK": {
+    "cancelled": "任務已取消.",
+    "blocked": "宿主連線無法使用. 任務不會自動恢復.",
+    "budget": "任務已達到預算上限.",
+    "decision": "經過兩次修復嘗試, 模型仍未傳回有效決策.",
+    "failed": "任務無法繼續. 請查看錯誤碼了解詳情.",
+    "budget_steps": "步數上限",
+    "budget_modelCalls": "模型呼叫次數上限",
+    "budget_duration": "任務時長上限",
+    "budget_tokens": "token 上限",
+    "budget_toolTimeout": "工具時長上限"
+  },
+  "fr": {
+    "cancelled": "La tâche a été annulée.",
+    "blocked": "La connexion à l'hôte est indisponible. La tâche ne reprendra pas automatiquement.",
+    "budget": "La tâche a atteint sa limite de budget.",
+    "decision": "Le modèle n'a pas renvoyé de décision valide après deux tentatives de correction.",
+    "failed": "La tâche ne peut pas continuer. Consultez le code d'erreur pour plus de détails.",
+    "budget_steps": "Limite des étapes",
+    "budget_modelCalls": "Limite des appels au modèle",
+    "budget_duration": "Durée limite de la tâche",
+    "budget_tokens": "Limite des tokens",
+    "budget_toolTimeout": "Durée limite de l'outil"
+  },
+  "es": {
+    "cancelled": "La tarea se ha cancelado.",
+    "blocked": "La conexión con el anfitrión no está disponible. La tarea no se reanudará automáticamente.",
+    "budget": "La tarea ha alcanzado su límite de presupuesto.",
+    "decision": "El modelo no devolvió una decisión válida tras dos intentos de corrección.",
+    "failed": "La tarea no puede continuar. Consulta el código de error para obtener más detalles.",
+    "budget_steps": "Límite de pasos",
+    "budget_modelCalls": "Límite de llamadas al modelo",
+    "budget_duration": "Límite de tiempo de la tarea",
+    "budget_tokens": "Límite de tokens",
+    "budget_toolTimeout": "Límite de tiempo de la herramienta"
+  },
+  "ja": {
+    "cancelled": "タスクはキャンセルされました.",
+    "blocked": "ホスト接続を利用できません. タスクは自動的に再開されません.",
+    "budget": "タスクが予算の上限に達しました.",
+    "decision": "2 回の修正を試みてもモデルは有効な判断を返しませんでした.",
+    "failed": "タスクを続行できません. 詳細はエラーコードを確認してください.",
+    "budget_steps": "ステップ数の上限",
+    "budget_modelCalls": "モデル呼び出し数の上限",
+    "budget_duration": "タスク時間の上限",
+    "budget_tokens": "token の上限",
+    "budget_toolTimeout": "ツール時間の上限"
+  },
+  "ko": {
+    "cancelled": "작업이 취소되었습니다.",
+    "blocked": "호스트에 연결할 수 없습니다. 작업은 자동으로 재개되지 않습니다.",
+    "budget": "작업이 예산 한도에 도달했습니다.",
+    "decision": "두 번의 수정 시도 후에도 모델이 유효한 결정을 반환하지 않았습니다.",
+    "failed": "작업을 계속할 수 없습니다. 자세한 내용은 오류 코드를 확인하세요.",
+    "budget_steps": "단계 수 한도",
+    "budget_modelCalls": "모델 호출 수 한도",
+    "budget_duration": "작업 시간 한도",
+    "budget_tokens": "token 한도",
+    "budget_toolTimeout": "도구 시간 한도"
+  },
+  "ru": {
+    "cancelled": "Задача отменена.",
+    "blocked": "Соединение с хостом недоступно. Задача не возобновится автоматически.",
+    "budget": "Задача достигла лимита бюджета.",
+    "decision": "Модель не вернула допустимое решение после двух попыток исправления.",
+    "failed": "Продолжить задачу невозможно. Подробности указаны в коде ошибки.",
+    "budget_steps": "Лимит шагов",
+    "budget_modelCalls": "Лимит вызовов модели",
+    "budget_duration": "Лимит времени задачи",
+    "budget_tokens": "Лимит токенов",
+    "budget_toolTimeout": "Лимит времени инструмента"
+  },
+  "ar": {
+    "cancelled": "تم إلغاء المهمة.",
+    "blocked": "الاتصال بالمضيف غير متاح. لن تستأنف المهمة تلقائيا.",
+    "budget": "وصلت المهمة إلى حد الميزانية.",
+    "decision": "لم يرجع النموذج قرارا صالحا بعد محاولتي تصحيح.",
+    "failed": "تعذر متابعة المهمة. راجع رمز الخطأ لمعرفة التفاصيل.",
+    "budget_steps": "حد الخطوات",
+    "budget_modelCalls": "حد استدعاءات النموذج",
+    "budget_duration": "حد وقت المهمة",
+    "budget_tokens": "حد الرموز",
+    "budget_toolTimeout": "حد وقت الأداة"
+  }
+}

@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "Aperçu de développement P0 : identité du plugin, contrat de découverte AutoJs6 et écran de lancement indiquant l'état de l'hôte. La boucle de l'agent, le catalogue de scripts, l'API ai.agent et l'espace de tâches ne sont pas encore implémentés. Voir ROADMAP.md.",
+        "La version installée affiche l'état de l'hôte. Les interfaces hôte P1 et les noyaux outils, décisions et exécution P2.1-P2.3 sont implémentés et testés. L'exécution réelle nécessite encore l'intégration modèle/hôte P2.4/P2.5 et les adaptateurs P3/P4. L'API de scripts et l'interface des tâches suivront en P5/P6.",
         "L'hôte implémente les contrats AI Agent, les intermédiaires de capacités et de modèles, l'observation de l'écran, l'exécution des scripts enregistrés et les accès du volet et du centre de plugins; l'exécution des tâches du plugin reste en développement"
       ],
       "feature": [
@@ -18,7 +18,8 @@
         "Noyau de décision Agent avec schémas adaptés aux protocoles, analyse JSON stricte ou par extraction, validation des outils/branches, deux corrections au maximum et modèles de prompts en anglais/chinois; exécution des tâches non raccordée",
         "Budgets Agent pour les étapes, les appels au modèle, la durée et les tokens, avec délais des outils/interactions, estimation d'usage et limitation des tokens de sortie",
         "Confirmation Agent avec politiques par défaut/prudente, autorisations limitées à la tâche, au même outil et au même risque, confirmation de chaque paiement et mots-clés dans 10 langues",
-        "Journal privé Agent limité à 200 étapes et 1 MiB, avec masquage des mots de passe et résultats terminaux bornés conservant le statut et les compteurs"
+        "Journal privé Agent limité à 200 étapes et 1 MiB, avec masquage des mots de passe et résultats terminaux bornés conservant le statut et les compteurs",
+        "Exécuteur Agent séquentiel et file de tâches (1 active + 8 en attente), appels modèle/outil annulables, délais d'interaction, événement terminal unique et blocage après perte de l'hôte; intégration réelle prévue aux étapes suivantes"
       ],
       "improvement": [
         "Version minimale de l'hôte fixée à AutoJs6 6.8.0 / build 5285, correspondant à la livraison des interfaces et accès P1"

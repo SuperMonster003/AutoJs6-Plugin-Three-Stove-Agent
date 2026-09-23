@@ -1,6 +1,6 @@
 AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智慧代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 依觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-版本 1.0.0 的外掛執行階段仍為 P0 開發預覽: INFO 服務, Wake Activity, `org.autojs.plugin.AI_AGENT` 佔位服務與宿主狀態啟動頁. 宿主已實作 P1 的契約, 代理, 畫面觀察, 指令碼登記執行及側邊欄和外掛中心入口. 外掛的智慧體循環與指令碼選擇, `ai.agent` API 和任務台仍待後續階段. 最低要求為 AutoJs6 組建 5285; 進度與證據見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+目前安裝版仍只顯示宿主狀態. P1 宿主介面及 P2.1-P2.3 工具, 決策和執行器核心已實作並通過測試. 實際任務執行還需 P2.4/P2.5 模型與宿主接入以及 P3/P4 執行介接器. 腳本 API 與任務台分別在 P5/P6 落地. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方式
 

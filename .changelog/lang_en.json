@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "P0 development preview: the plugin identity, the AutoJs6 discovery contract and a launcher screen that reports the host status. The agent loop, the script catalog, the ai.agent API and the task workbench are not implemented yet. See ROADMAP.md.",
+        "The installed preview displays the host status. The P1 host interfaces and the P2.1-P2.3 tool, decision and runner cores are implemented and tested. Real task execution still needs the P2.4/P2.5 model and host integration and the P3/P4 execution adapters. The script API and workbench follow in P5/P6.",
         "The host AI Agent contracts, capability and model brokers, screen observations, registered-script execution, drawer and plugin-center entries are implemented; plugin task execution remains under development"
       ],
       "feature": [
@@ -18,7 +18,8 @@
         "Agent decision core with protocol-specific schemas, strict and extracted JSON parsing, tool/branch validation, at most two repair retries and English/Chinese prompt templates; task execution is not connected yet",
         "Agent task budgets for steps, model calls, elapsed time and tokens, with bounded tool/wait deadlines, usage estimation and output-token admission",
         "Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages",
-        "Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters"
+        "Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters",
+        "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases"
       ],
       "improvement": [
         "Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points"

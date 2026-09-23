@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent convierte un objetivo en lenguaje natural en acciones sobre un dispositivo Android que ejecuta AutoJs6. O bien elige un script que el usuario ha registrado para el agente, completa sus parámetros y lo ejecuta; o bien observa la pantalla a través del árbol de nodos de accesibilidad y actúa paso a paso (observar, decidir, actuar, verificar) hasta alcanzar el objetivo, necesitar una confirmación o agotar un presupuesto. Responde a la [discusión #577 de AutoJs6]({{ discussion_url }}).",
   "p_introduction_how": "El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los scripts lo usan mediante la API `ai.agent` de AutoJs6; los usuarios lo usan desde su propio espacio de tareas, el cajón de AutoJs6, una burbuja flotante, el menú de compartir del sistema, los accesos directos de la aplicación y la entrada por voz. Las llamadas al modelo y las acciones en el dispositivo siempre pasan por AutoJs6 mediante Binder: el anfitrión presta al plugin un intermediario de modelo (los plugins AI Provider que el anfitrión ya conoce, como 3-Stone AI) y un intermediario de capacidades con una concesión acotada. El plugin nunca guarda credenciales, nunca se vincula por sí mismo a un proveedor de modelo y nunca solicita el permiso de accesibilidad.",
   "h3_status": "Estado",
-  "p_status": "El entorno del plugin en la versión {{ version_name }} sigue siendo una vista previa P0: INFO, Wake Activity, el servicio provisional `{{ plugin_service_action }}` y una pantalla con el estado del anfitrión. El anfitrión implementa los contratos P1, intermediarios, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins. El bucle del agente, la selección de scripts, la API `ai.agent` y el espacio de tareas siguen pendientes. Se requiere AutoJs6 build {{ required_host_version_code }}; consulte [ROADMAP.md]({{ roadmap_url }}) para ver el progreso y las evidencias.",
+  "p_status": "La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones y ejecución P2.1-P2.3 están implementados y probados. La ejecución real aún requiere la integración de modelo/anfitrión P2.4/P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Funciones",
   "p_features_intro": "La versión 1.0.0 está prevista para ofrecer las siguientes capacidades",
   "features": [
@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Avisos de terceros",
   "p_instruction_more": "Consulte el [README del proyecto]({{ repo_url }}) y [ROADMAP.md]({{ roadmap_url }}) para la guía de conexión y el progreso actual.",
   "h3_tools": "Catálogo de herramientas",
-  "p_tools_status": "El núcleo P2.1 define estas 30 herramientas. La ejecución y confirmación siguen en desarrollo; esta tabla no permite ejecutar tareas en la vista previa. Las descripciones proceden del catálogo del modelo (inglés o chino). El núcleo P2.2 también valida decisiones de un solo paso y ofrece plantillas de instrucciones en inglés/chino; la ejecución de tareas aún no está conectada.",
+  "p_tools_status": "Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores.",
   "tool_header_name": "Herramienta",
   "tool_header_group": "Grupo",
   "tool_header_risk": "Riesgo",

@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577]({{ discussion_url }}).",
   "p_introduction_how": "插件既是 AutoJs6 插件, 也是独立应用. 脚本通过 AutoJs6 的 `ai.agent` API 使用它; 用户通过它自己的任务台, AutoJs6 抽屉项, 悬浮球, 系统分享面板, 应用快捷方式和语音输入使用它. 模型调用与设备操作始终经 Binder 交给 AutoJs6: 宿主借给插件一个模型代理 (宿主已知的 AI Provider 插件, 例如 3-Stone AI) 和一个带有限 grant 的能力代理. 插件从不持有凭据, 从不自行绑定模型提供方, 也不申请无障碍权限.",
   "h3_status": "当前状态",
-  "p_status": "版本 {{ version_name }} 的插件运行时仍为 P0 开发预览: INFO 服务, Wake Activity, `{{ plugin_service_action }}` 占位服务与宿主状态启动页. 宿主已实现 P1 的契约, 代理, 屏幕观察, 脚本登记执行及抽屉和插件中心入口. 插件的智能体循环与脚本选择, `ai.agent` API 和任务台仍待后续阶段. 最低要求为 AutoJs6 构建 {{ required_host_version_code }}; 进度与证据见 [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "当前安装版仍只展示宿主状态. P1 宿主接口及 P2.1-P2.3 工具, 决策和运行器核心已实现并通过测试. 实际任务执行还需 P2.4/P2.5 模型与宿主接入以及 P3/P4 执行适配器. 脚本 API 与任务台分别在 P5/P6 落地. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "功能",
   "p_features_intro": "1.0.0 计划提供以下能力",
   "features": [
@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "P2.1 核心已定义以下 30 个工具. 任务执行与确认流程仍在开发中, 此表不表示预览版已经可运行任务. 描述由模型工具目录生成 (英文或中文). P2.2 核心同时提供单步决策校验与中英文提示模板; 尚未接入任务执行.",
+  "p_tools_status": "Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

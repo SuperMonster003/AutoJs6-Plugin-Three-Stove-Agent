@@ -375,11 +375,13 @@ P2.2 证据 (E1/E2, 2026-09-23): JVM 108/108, SDK 37 私有只读 AVD 8/8, debug
 
 ### P2.3 运行状态机, 预算与确认
 
-- [ ] (插件) `AgentRunner`: 状态 `queued -> running -> (waiting_input | waiting_confirmation | running)* -> completed | partial | failed | blocked | cancelled`; 单链路同时 1 个运行 (D24), `RunQueue` 上限 8; 每步: 编译上下文 -> 模型 -> 解析校验 -> 风险与确认门 -> 执行 -> 观察 -> 记账; `cancel` 在任意等待点生效并尝试取消进行中的模型 / 工具调用; 宿主不可用转 `blocked` (D15).
+- [x] (插件) `AgentRunner`: 状态 `queued -> running -> (waiting_input | waiting_confirmation | running)* -> completed | partial | failed | blocked | cancelled`; 单链路同时 1 个运行 (D24), `RunQueue` 上限 8; 每步: 编译上下文 -> 模型 -> 解析校验 -> 风险与确认门 -> 执行 -> 观察 -> 记账; `cancel` 在任意等待点生效并尝试取消进行中的模型 / 工具调用; 宿主不可用转 `blocked` (D15).
 - [x] (插件) `Budget`: `maxSteps` (默认 40), `maxModelCalls` (60), `maxDurationMs` (10 min, detached 30 min), `maxTotalTokens` (300,000, usage 不可得时估算), `stepToolTimeoutMs` (30 s, 脚本工具按登记 `timeoutMs` 上限 5 min), `confirmationTimeoutMs` (120 s), `askTimeoutMs` (10 min); 任一超限 -> `partial` 或 `failed` 并写明原因; 剩余预算作为观察附注回送模型 (让模型知道何时该收尾).
 - [x] (插件) `ConfirmationGate`: 按 `RiskLevel` + 预设策略 (`default / cautious`) 决定是否请求确认; 确认请求事件含工具名, 人类可读描述 (由 `ToolSpec` 模板渲染, 例 "点击 '提交订单' 按钮"), 参数摘要; 用户可 "允许 / 拒绝 / 本次任务内允许同类" (同类 = 同工具 + 同风险, `SENSITIVE` 的支付类不提供 "同类允许"); 拒绝作为观察回送模型.
 - [x] (插件) `StepJournal`: 每步记录 `index / decision (裁剪) / tool / arguments / confirmation / observation (裁剪) / usage / elapsedMs / error`; 终态记录 `AgentResult` (附录 A.5); 日志上限 (每任务 200 步 / 1 MiB) 与脱敏 (`ui_set_text` 的 `text` 在登记为密码字段的节点上以 `***` 记录).
-- [ ] (测试) JVM: 状态机全路径 (含取消竞争, 宿主死亡, 预算各维度), 确认门矩阵, 日志上限与脱敏; 用假模型 (脚本化决策序列) + 假代理跑通 D32 用例 (1) 的离线剧本.
+- [x] (测试) JVM: 状态机全路径 (含取消竞争, 宿主死亡, 预算各维度), 确认门矩阵, 日志上限与脱敏; 用假模型 (脚本化决策序列) + 假代理跑通 D32 用例 (1) 的离线剧本.
+
+P2.3 证据 (E1/E2, 2026-09-23): JVM 164/164 (新增 56), SDK 37 / 16 KiB 私有只读 AVD 10/10, debug/androidTest/Release-R8/lint 通过. 假模型 + 假代理跑通设置/Wi-Fi 操作与读回, 真实模型/宿主接入仍按原 P2.4/P2.5 实施, 不构成 E4 验收. 详见 [p23-runner-evidence.md](docs/dev/p23-runner-evidence.md).
 
 ### P2.4 上下文编译
 
@@ -1140,3 +1142,10 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 当前宿主公开目标目录缺少在线协议类型, 核心不根据 Provider 包/模型名/targetId 猜测, 未知协议使用退化模式. 原 P2.4 ModelClient 接入时补齐可信协议协商和实际调用预算. 原 P4 负责 done 的事实证据/订单语义, 本轮只验证决策结构.
 - 插件 JVM 108/108, SDK 37 / Android 17 / 16 KiB 私有只读 AVD 8/8, debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告). 10 语言文档与 36 产物一致; 详见 `docs/dev/p22-decision-core-evidence.md`. 未调用真实模型, 未改真机, 未追加依赖或暂存新 AAR.
 - P2.1 插件提交 `bd3e13d`, 配套宿主 grant 修复 `5ae754e641`. 本轮两个小节均按原建议会话边界完成, 下一会话从原 P2.3 状态机/预算/确认/日志开始. P2 整体与 P1 保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.
+
+### 2026-09-23 (P2.3)
+
+- 完成原 P2.3 的 AgentRunner/RunQueue, Budget, ConfirmationGate 和 StepJournal. 预算/确认/日志分别提交 `303d0fb`, `8e8b30b`, `f63bb9e`, 运行器与集成验证另作一笔逻辑提交. 没有增加, 分拆或丢弃路线图阶段.
+- 支持 1 个活动任务 + 8 个排队任务, 按 requestId 回答/确认, 模型/工具取消, 用户等待超时, 宿主断开 blocked 且不自动续跑, 唯一终态. 支付类逐次确认; 日志最多 200 步/1 MiB, 密码跨参数/决策/观察脱敏. 预算耗尽报告维度, 普通工具超时不误报宿主失联.
+- JVM 164/164, 新增 56 个核心用例 (含 40 次真实线程取消/完成竞争); 私有只读 SDK 37 / Android 17 / 16 KiB AVD 10/10. debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告), 10 语言文档与 36 产物同步. 假代理 D32(1) 已跑通, 未请求真实模型, 未改真机. 详见 `docs/dev/p23-runner-evidence.md`.
+- 本轮只修改插件仓库, 不更新依赖/权限/API AAR. 安装版仍只显示宿主状态, 循环通过可注入端口接受测试, 实际任务尚未接入. 下一会话从原 P2.4 ContextCompiler/ModelClient 开始, 随后按原 P2.5 接 Binder/前台服务; P2 整体及保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.
