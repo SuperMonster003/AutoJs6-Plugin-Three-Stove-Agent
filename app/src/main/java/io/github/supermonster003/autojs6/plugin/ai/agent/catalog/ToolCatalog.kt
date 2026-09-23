@@ -59,11 +59,19 @@ class ToolPolicy(
     enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),
     val ocrAvailable: Boolean = false,
     riskOverrides: Map<String, RiskLevel> = emptyMap(),
-    private val keywords: Set<String> = emptySet(),
-    private val paymentPackages: Set<String> = emptySet(),
+    keywords: Set<String> = emptySet(),
+    paymentPackages: Set<String> = emptySet(),
+    paymentKeywords: Set<String> = emptySet(),
 ) {
     private val enabled = enabledGroups.toMap()
     private val overrides = riskOverrides.toMap()
+    private val keywords = keywords.toSet()
+    private val paymentPackages = paymentPackages.toSet()
+    private val paymentKeywords = paymentKeywords.toSet()
+    fun isPayment(context: RiskContext): Boolean {
+        val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
+        return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
+    }
     fun isEnabled(spec: ToolSpec): Boolean = (enabled[spec.group] ?: spec.defaultEnabled) && (spec.group != ToolGroup.OCR || ocrAvailable)
     fun requireEnabled(catalog: ToolCatalog, name: String): ToolSpec {
         val spec = catalog[name] ?: throw ToolFailure("TOOL_UNKNOWN", "Choose a listed tool.")
@@ -78,6 +86,10 @@ class ToolPolicy(
         return maxOf(base, overrides[spec.name] ?: base, if (elevated) RiskLevel.SENSITIVE else base)
     }
     companion object {
+        fun fromAssets(readAsset: (String) -> String, enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),
+                       ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet()) =
+            ToolPolicy(enabledGroups, ocrAvailable, riskOverrides, readKeywords(readAsset("catalog/sensitive-keywords.json")),
+                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")))
         fun readKeywords(json: String): Set<String> = AgentJson.objectOf(json).entrySet()
             .flatMap { it.value.asJsonArray.map(JsonElement::getAsString) }.onEach { require(it.isNotBlank()) }.toSet()
     }

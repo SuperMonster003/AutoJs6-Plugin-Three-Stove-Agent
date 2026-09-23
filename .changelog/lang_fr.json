@@ -16,7 +16,8 @@
         "README, instructions du centre de plugins et journal des modifications en 10 langues",
         "Catalogue du noyau Agent avec 30 outils, contrôle des groupes, schémas de paramètres, préparation des appels bridge, observations bornées et élévation des risques sensibles; intégration ultérieure du moteur",
         "Noyau de décision Agent avec schémas adaptés aux protocoles, analyse JSON stricte ou par extraction, validation des outils/branches, deux corrections au maximum et modèles de prompts en anglais/chinois; exécution des tâches non raccordée",
-        "Budgets Agent pour les étapes, les appels au modèle, la durée et les tokens, avec délais des outils/interactions, estimation d'usage et limitation des tokens de sortie"
+        "Budgets Agent pour les étapes, les appels au modèle, la durée et les tokens, avec délais des outils/interactions, estimation d'usage et limitation des tokens de sortie",
+        "Confirmation Agent avec politiques par défaut/prudente, autorisations limitées à la tâche, au même outil et au même risque, confirmation de chaque paiement et mots-clés dans 10 langues"
       ],
       "improvement": [
         "Version minimale de l'hôte fixée à AutoJs6 6.8.0 / build 5285, correspondant à la livraison des interfaces et accès P1"

@@ -16,7 +16,8 @@
         "README, instrucciones del centro de plugins y registro de cambios en 10 idiomas",
         "Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles; integración del motor en fases posteriores",
         "Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino; ejecución de tareas aún sin conectar",
-        "Presupuestos Agent de pasos, llamadas al modelo, duración y tokens, con plazos de herramientas/interacciones, estimación de uso y límites de tokens de salida"
+        "Presupuestos Agent de pasos, llamadas al modelo, duración y tokens, con plazos de herramientas/interacciones, estimación de uso y límites de tokens de salida",
+        "Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas"
       ],
       "improvement": [
         "Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1"
