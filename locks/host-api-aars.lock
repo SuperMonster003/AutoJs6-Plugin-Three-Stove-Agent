@@ -1,5 +1,8 @@
-# AutoJs6 6.8.0 / 5282 release API, built from host commit 973447133649d01f8d718061443da60a0c519f72 (master, 2026-09-22).
-# Roadmap P1 stages ai-agent-api.aar and host-capability-api.aar from the same host build and extends this lock.
+# AutoJs6 6.8.0 / 5285 release APIs, host commit 5ae754e641, 2026-09-23.
 format=1
 common-plugin-api.file=common-plugin-api.aar
 common-plugin-api.sha256=ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15
+host-capability-api.file=host-capability-api.aar
+host-capability-api.sha256=736b1f68cbad028549d8d028ed4c9247356804980fb705d99352a64601aa9560
+ai-agent-api.file=ai-agent-api.aar
+ai-agent-api.sha256=09d1d4bb3aa6bac6c224ca38959a62a7f9539bcccfd582f2f46dee46d25717f0

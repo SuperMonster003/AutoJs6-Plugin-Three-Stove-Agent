@@ -8,18 +8,18 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones, ejecución, contexto y cliente de modelo P2.1-P2.4 están implementados y probados. La ejecución real requiere la integración Binder/servicio en primer plano P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.",
-        "El anfitrión implementa los contratos de AI Agent, intermediarios de capacidades y modelos, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins; la ejecución de tareas del plugin sigue en desarrollo"
+        "Vista previa: conexión al anfitrión y control de tareas integrados. La ejecución de scripts y recuperación de pantalla continúan en P3/P4; la API de scripts y el panel llegarán en P5/P6.",
+        "El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6."
       ],
       "feature": [
-        "Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible",
+        "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
         "README, instrucciones del centro de plugins y registro de cambios en 10 idiomas",
-        "Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles; integración del motor en fases posteriores",
-        "Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino; ejecución de tareas aún sin conectar",
+        "Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles",
+        "Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino",
         "Presupuestos Agent de pasos, llamadas al modelo, duración y tokens, con plazos de herramientas/interacciones, estimación de uso y límites de tokens de salida",
         "Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas",
         "Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores",
-        "Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores",
+        "Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso",
         "Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas",
         "Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación"
       ],
@@ -27,7 +27,7 @@
         "Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1"
       ],
       "dependency": [
-        "Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`",
+        "Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5285 (MPL 2.0), fijados con SHA-256",
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ]
     }

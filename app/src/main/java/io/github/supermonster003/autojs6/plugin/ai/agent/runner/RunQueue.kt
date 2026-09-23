@@ -13,11 +13,14 @@ class RunQueue(private val scheduler: RunScheduler, private val catalog: ToolCat
     private val pending = ArrayDeque<AgentRunner>()
     private var unavailable: RunError? = null
 
-    @Synchronized fun submit(options: RunOptions, listener: (RunEvent) -> Unit = {}): AgentRunner {
+    fun submit(options: RunOptions, listener: (RunEvent) -> Unit = {}): AgentRunner = submitPrepared(options, policy, null, listener = listener)
+    @Synchronized fun submitPrepared(options: RunOptions, runPolicy: ToolPolicy, preparation: RunPreparation?,
+                                     onAdmitted: (AgentRunner) -> Unit = {}, listener: (RunEvent) -> Unit = {}): AgentRunner {
         unavailable?.let { throw RunAdmissionFailure(it) }
         if (active != null && pending.size >= RunLimits.QUEUED_RUNS) throw RunAdmissionFailure(RunError.QUEUE_FULL)
-        val run = AgentRunner(UUID.randomUUID().toString(), options, scheduler, catalog, policy, compiler, model, tools,
-            textForLocale(options.locale), listener, ::settled)
+        val run = AgentRunner(UUID.randomUUID().toString(), options, scheduler, catalog, runPolicy, compiler, model, tools,
+            textForLocale(options.locale), listener, ::settled, preparation)
+        onAdmitted(run)
         if (active == null) { active = run; run.start() } else pending.addLast(run)
         return run
     }

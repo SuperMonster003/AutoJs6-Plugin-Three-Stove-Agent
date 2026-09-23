@@ -65,8 +65,7 @@ require(hostApiLockFile.isFile) {
     "Missing host API lock: ${hostApiLockFile.relativeTo(rootProject.projectDir)}"
 }
 val hostApiLock = hostApiLockFile.loadUniqueLock()
-// Roadmap P1 stages the ai-agent-api and host-capability-api AARs next to this one.
-val hostApiIds = listOf("common-plugin-api")
+val hostApiIds = listOf("common-plugin-api", "host-capability-api", "ai-agent-api")
 val expectedHostApiLockKeys = setOf("format") + hostApiIds.flatMap { id -> listOf("$id.file", "$id.sha256") }
 require(hostApiLock.stringPropertyNames() == expectedHostApiLockKeys) {
     "Host API AAR lock must contain exactly these keys: ${expectedHostApiLockKeys.sorted()}"
@@ -98,7 +97,7 @@ fun lockedHostApiAar(id: String): File {
     return artifact
 }
 
-val commonPluginApiAar = lockedHostApiAar("common-plugin-api")
+val hostApiAars = hostApiIds.map(::lockedHostApiAar)
 
 android {
     namespace = globalApplicationId
@@ -203,7 +202,7 @@ androidComponents {
 
 dependencies {
     // PluginInfo, IPluginInfoProvider and the shared plugin constants (host module plugin-api/common-plugin-api).
-    implementation(files(commonPluginApiAar))
+    implementation(files(hostApiAars))
     implementation(libs.gson)
 
     testImplementation(libs.junit)

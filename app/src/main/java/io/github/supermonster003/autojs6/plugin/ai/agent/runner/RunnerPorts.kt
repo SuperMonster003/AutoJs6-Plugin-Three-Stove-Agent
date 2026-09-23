@@ -72,6 +72,9 @@ class ModelReply(val text: String, val usage: ModelUsage? = null) {
 }
 /** Captures already observed usage when the runner's own deadline or stop wins the callback race. */
 interface ModelCallCancellation : Cancellation { fun progress(): PortResult.Failure }
+class RunComponents(val compiler: RunContextCompiler, val model: RunModel, val tools: RunTools, val maximumTokens: Long? = null)
+/** The Binder layer resolves public model metadata on a worker before the first decision. */
+fun interface RunPreparation { fun prepare(callback: (PortResult<RunComponents>) -> Unit): Cancellation }
 interface RunModel {
     fun initialFormat(proposed: DecisionFormat): DecisionFormat = proposed
     fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? = null

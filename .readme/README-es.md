@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones, ejecución, contexto y cliente de modelo P2.1-P2.4 están implementados y probados. La ejecución real requiere la integración Binder/servicio en primer plano P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa: conexión al anfitrión y control de tareas integrados. La ejecución de scripts y recuperación de pantalla continúan en P3/P4; la API de scripts y el panel llegarán en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ### Catálogo de herramientas
 
-Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores. Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas. Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación.
+Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso. El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
 
 | Herramienta | Grupo | Riesgo | Predeterminado | Descripción |
 | --- | --- | --- | --- | --- |
@@ -114,7 +114,7 @@ Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas ca
 2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
 3. Abra AI Agent desde el lanzador o la opción de gestión del panel lateral de AutoJs6. Esta vista previa solo muestra el estado del anfitrión; el espacio de tareas y la API `ai.agent` llegarán en fases posteriores.
 
-> El panel lateral del anfitrión ya ofrece controles de conexión y gestión. El plugin aún no ejecuta tareas; la API `ai.agent` y el espacio de tareas siguen en P5 y P6, respectivamente.
+> El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
 
 ******
 
@@ -152,7 +152,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5285 (6.8.0)
 ```
 
-`AiAgentPluginService` responde a `org.autojs.plugin.AI_AGENT` (categoría `ai-agent`) en el proceso `:agent`; en esta vista previa expone un Binder provisional con el descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` hasta que se incorpore el módulo de contrato del anfitrión. `AiAgentPluginInfoService` responde a `org.autojs.plugin.INFO` con PluginInfo. `WakeActivity` permite al anfitrión activar el plugin.
+`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso.
 
 ******
 
@@ -174,20 +174,20 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/23_
 
-- `Aviso` La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones, ejecución, contexto y cliente de modelo P2.1-P2.4 están implementados y probados. La ejecución real requiere la integración Binder/servicio en primer plano P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.
-- `Aviso` El anfitrión implementa los contratos de AI Agent, intermediarios de capacidades y modelos, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins; la ejecución de tareas del plugin sigue en desarrollo
-- `Función` Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible
+- `Aviso` Vista previa: conexión al anfitrión y control de tareas integrados. La ejecución de scripts y recuperación de pantalla continúan en P3/P4; la API de scripts y el panel llegarán en P5/P6.
+- `Aviso` El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6.
+- `Función` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
-- `Función` Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles; integración del motor en fases posteriores
-- `Función` Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino; ejecución de tareas aún sin conectar
+- `Función` Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles
+- `Función` Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino
 - `Función` Presupuestos Agent de pasos, llamadas al modelo, duración y tokens, con plazos de herramientas/interacciones, estimación de uso y límites de tokens de salida
 - `Función` Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas
 - `Función` Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores
-- `Función` Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores
+- `Función` Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso
 - `Función` Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas
 - `Función` Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación
 - `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
-- `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
+- `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5285 (MPL 2.0), fijados con SHA-256
 - `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas
 
 ##### Para más historial de versiones

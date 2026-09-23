@@ -11,9 +11,10 @@ import java.util.Locale
  * Observers must return promptly; the P2.5 adapter forwards events through the oneway callback. */
 class AgentRunner internal constructor(
     val id: String, private val options: RunOptions, private val scheduler: RunScheduler,
-    private val catalog: ToolCatalog, private val policy: ToolPolicy, private val compiler: RunContextCompiler,
-    private val model: RunModel, private val tools: RunTools, private val text: RunnerText,
+    private val catalog: ToolCatalog, private val policy: ToolPolicy, private var compiler: RunContextCompiler,
+    private var model: RunModel, private var tools: RunTools, private val text: RunnerText,
     private val listener: (RunEvent) -> Unit, private val onTerminal: (AgentRunner) -> Unit,
+    private val preparation: RunPreparation? = null,
 ) {
     @Volatile var state = RunState.QUEUED; private set
     @Volatile private var resultData: JsonObject? = null
@@ -57,10 +58,20 @@ class AgentRunner internal constructor(
         guarded {
             if (state != RunState.QUEUED) return@guarded
             budget = Budget(options.limits, scheduler.nowMs(), scheduler::nowMs)
-            format = model.initialFormat(options.format)
             durationTimer = scheduler.schedule(options.limits.maxDurationMs) { guarded { throw BudgetExceeded("duration") } }
             transition(RunState.RUNNING)
-            nextStep()
+            if (preparation == null) { format = model.initialFormat(options.format); nextStep() }
+            else beginOperation(minOf(15_000, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
+                { callback -> preparation.prepare(callback) }) { outcome ->
+                when (outcome) {
+                    is PortResult.Failure -> finishError(outcome.error)
+                    is PortResult.Success -> {
+                        compiler = outcome.value.compiler; model = outcome.value.model; tools = outcome.value.tools
+                        outcome.value.maximumTokens?.let { checkNotNull(budget).narrowTokens(it) }
+                        format = model.initialFormat(options.format); nextStep()
+                    }
+                }
+            }
         }
     }
 

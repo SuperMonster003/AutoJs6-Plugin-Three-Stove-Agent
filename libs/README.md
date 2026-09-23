@@ -6,8 +6,12 @@ plugin. Gradle never resolves host artifacts from sibling repositories or from `
 Before any Gradle configuration, stage the audited **release** artifacts named exactly:
 
 - `common-plugin-api.aar` (host module `plugin-api/common-plugin-api`: `PluginInfo`, `IPluginInfoProvider`, shared plugin constants)
-- `host-capability-api.aar` (host module `plugin-api/host-capability-api`, the shared capability broker contract of roadmap P1.1; staged in P2.5)
-- `ai-agent-api.aar` (host module `plugin-api/ai-agent-api`, the AI Agent control plane and model broker contract of roadmap P1.1; staged in P2.5)
+- `host-capability-api.aar` (host module `plugin-api/host-capability-api`, shared capability broker contract V1)
+- `ai-agent-api.aar` (host module `plugin-api/ai-agent-api`, AI Agent control plane and model broker contract V1)
+
+Current provenance: all three release AARs were assembled together from AutoJs6 6.8.0 / 5285,
+host commit `5ae754e641`, on 2026-09-23. License and individual hashes are in
+`../THIRD_PARTY_NOTICES.md` and `../locks/host-api-aars.lock`.
 
 Record the lowercase SHA-256 of every staged artifact in `../locks/host-api-aars.lock`.
 `app/build.gradle.kts` rejects missing files, debug artifacts, placeholder hashes, extra lock

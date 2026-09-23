@@ -2,23 +2,24 @@ package io.github.supermonster003.autojs6.plugin.ai.agent
 
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
-import android.os.IBinder
+import android.os.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.*
+import org.autojs.plugin.ai.agent.api.*
+import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 
-/**
- * Host-facing control plane of the plugin (`org.autojs.plugin.AI_AGENT`, category `ai-agent`),
- * living in the `:agent` process (roadmap D15).
- *
- * The real `IAiAgentPlugin` implementation (getInfo / getCapabilities / attach) arrives with
- * roadmap P2.5 once the host contract module `ai-agent-api` is staged in `libs/`. Until then
- * the service hands out a placeholder Binder that carries only the contract descriptor, so the
- * host can already discover the service, bind it and verify the descriptor without any
- * transaction being available.
- */
+/** The exported service and loop live in :agent. Authentication precedes all attachment input. */
 class AiAgentPluginService : Service() {
-
-    private val binder: IBinder = Binder().apply {
-        attachInterface(null, AiAgentPlugin.SERVICE_DESCRIPTOR)
+    private lateinit var runtime: AgentRuntime
+    override fun onCreate() { super.onCreate(); runtime = AgentRuntime.get(this) }
+    private val binder = object : IAiAgentPlugin.Stub() {
+        override fun getInfo() = runtime.info.toPluginInfo()
+        override fun getCapabilities() = runtime.info.capabilitiesBundle()
+        override fun attach(configuration: Bundle?, model: IAiAgentModelBroker?, capabilities: IHostCapabilityBroker?, callback: IAiAgentLinkCallback?): IAiAgentLink {
+            val uid = try { runtime.verifier.enforce() } catch (e: SecurityException) { AgentWire.closeDescriptors(configuration); throw e }
+            val config = LinkConfiguration.parse(AgentWire.control(configuration, AiAgentContract.KEY_LINK_CONFIG_JSON, 8192))
+            requireNotNull(model); requireNotNull(capabilities); requireNotNull(callback)
+            return runtime.attach(config, model, capabilities, callback, uid).binder
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder = binder

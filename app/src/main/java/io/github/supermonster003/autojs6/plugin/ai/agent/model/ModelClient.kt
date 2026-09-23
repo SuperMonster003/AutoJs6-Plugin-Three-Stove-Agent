@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference
  * Implementations translate Binder death to HOST_UNAVAILABLE, with no raw exception logging. */
 interface ModelBrokerTransport {
     fun generate(requestJson: String, onEvent: (String) -> Unit)
+    fun generate(requestJson: String, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) = generate(requestJson, onEvent)
     fun cancel(requestId: String)
 }
 
@@ -107,7 +108,7 @@ class ModelClient(
         fun dispatch(request: String, timeoutMs: Long) {
             val deadline = scheduler.schedule(timeoutMs) { abort(RunError.MODEL_TIMEOUT) }
             synchronized(lock) { if (completed) deadline.cancel() else timer = deadline }
-            try { broker.generate(request, ::onEvent) }
+            try { broker.generate(request, ::onEvent, ::abort) }
             catch (_: Exception) { abort(RunError.HOST_UNAVAILABLE) }
             finally { synchronized(lock) { dispatching = false }; sendCancel() }
         }

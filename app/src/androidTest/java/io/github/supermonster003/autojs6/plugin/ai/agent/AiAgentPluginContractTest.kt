@@ -15,6 +15,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.ai.agent.ui.LauncherActivity
 import org.autojs.plugin.common.api.IPluginInfoProvider
 import org.autojs.plugin.common.api.PluginCapabilityKeys
+import org.autojs.plugin.ai.agent.api.*
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -120,7 +122,7 @@ class AiAgentPluginContractTest {
     }
 
     @Test
-    fun agentServiceIsDiscoverableInItsOwnProcessWithThePlaceholderDescriptor() {
+    fun agentServiceExposesRealInfoAndRejectsPluginUidAsHost() {
         val serviceInfo = discoverSingleService(
             AiAgentPlugin.SERVICE_ACTION,
             AiAgentPluginService::class.java.name,
@@ -131,14 +133,21 @@ class AiAgentPluginContractTest {
             assertEquals(AiAgentPlugin.SERVICE_DESCRIPTOR, binder.interfaceDescriptor)
             assertTrue(binder.isBinderAlive)
             assertTrue(binder.pingBinder())
-            // The placeholder has no local interface: the real IAiAgentPlugin arrives with P2.5.
+            val api = IAiAgentPlugin.Stub.asInterface(binder)
+            assertCapabilities(api.capabilities)
+            assertEquals(AiAgentPlugin.ID, api.info.id)
+            assertThrows(SecurityException::class.java) { api.attach(Bundle(), null, null, null) }
+            // The service lives in :agent, not the instrumentation process.
             assertNull(binder.queryLocalInterface(AiAgentPlugin.SERVICE_DESCRIPTOR))
         }
     }
 
     private fun assertCapabilities(capabilities: Bundle) {
         assertEquals(AiAgentPlugin.REQUIRED_HOST_VERSION, capabilities.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
-        assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION), capabilities.keySet())
+        assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION, AiAgentCapabilityKeys.CONTRACT_VERSION,
+            AiAgentCapabilityKeys.TOOL_GROUPS, AiAgentCapabilityKeys.FEATURES), capabilities.keySet())
+        assertEquals(AiAgentContract.CONTRACT_VERSION, capabilities.getInt(AiAgentCapabilityKeys.CONTRACT_VERSION))
+        assertArrayEquals(arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP), capabilities.getStringArray(AiAgentCapabilityKeys.FEATURES))
     }
 
     private fun discoverSingleService(action: String, expectedClassName: String): ServiceInfo {

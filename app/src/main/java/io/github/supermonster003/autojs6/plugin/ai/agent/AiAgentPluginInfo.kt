@@ -5,6 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import org.autojs.plugin.common.api.PluginCapabilityKeys
 import org.autojs.plugin.common.api.PluginInfo
+import org.autojs.plugin.ai.agent.api.AiAgentCapabilityKeys
+import org.autojs.plugin.ai.agent.api.AiAgentContract
 
 /** Collects the installed package version and the localized metadata of this plugin. */
 internal fun Context.aiAgentPluginRuntimeInfo(): AiAgentPluginRuntimeInfo {
@@ -47,11 +49,10 @@ internal fun AiAgentPluginRuntimeInfo.toPluginInfo(): PluginInfo {
     }
 }
 
-/**
- * The capabilities the host reads before it attaches a link. The skeleton reports only the
- * required host version; roadmap P2.5 adds the contract version, the tool groups and the
- * feature flags once the `ai-agent-api` contract is staged.
- */
+/** Advertise only the installed V1 loop; future native tools, vision and MCP are not capabilities. */
 internal fun AiAgentPluginRuntimeInfo.capabilitiesBundle(): Bundle = Bundle().apply {
     putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, requiresHostVersion)
+    putInt(AiAgentCapabilityKeys.CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
+    putStringArray(AiAgentCapabilityKeys.TOOL_GROUPS, arrayOf("observe", "act", "script", "user", "gesture", "files", "shell"))
+    putStringArray(AiAgentCapabilityKeys.FEATURES, arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP))
 }

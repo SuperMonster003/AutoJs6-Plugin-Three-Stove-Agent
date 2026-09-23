@@ -62,17 +62,19 @@ class ToolPolicy(
     keywords: Set<String> = emptySet(),
     paymentPackages: Set<String> = emptySet(),
     paymentKeywords: Set<String> = emptySet(),
+    availableTools: Set<String>? = null,
 ) {
     private val enabled = enabledGroups.toMap()
     private val overrides = riskOverrides.toMap()
     private val keywords = keywords.toSet()
     private val paymentPackages = paymentPackages.toSet()
     private val paymentKeywords = paymentKeywords.toSet()
+    private val available = availableTools?.toSet()
     fun isPayment(context: RiskContext): Boolean {
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
     }
-    fun isEnabled(spec: ToolSpec): Boolean = (enabled[spec.group] ?: spec.defaultEnabled) && (spec.group != ToolGroup.OCR || ocrAvailable)
+    fun isEnabled(spec: ToolSpec): Boolean = (available == null || spec.name in available) && (enabled[spec.group] ?: spec.defaultEnabled) && (spec.group != ToolGroup.OCR || ocrAvailable)
     fun requireEnabled(catalog: ToolCatalog, name: String): ToolSpec {
         val spec = catalog[name] ?: throw ToolFailure("TOOL_UNKNOWN", "Choose a listed tool.")
         if (!isEnabled(spec)) throw ToolFailure("TOOL_DISABLED", "This tool group is disabled or unavailable.")
@@ -87,9 +89,9 @@ class ToolPolicy(
     }
     companion object {
         fun fromAssets(readAsset: (String) -> String, enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),
-                       ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet()) =
+                       ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet(), availableTools: Set<String>? = null) =
             ToolPolicy(enabledGroups, ocrAvailable, riskOverrides, readKeywords(readAsset("catalog/sensitive-keywords.json")),
-                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")))
+                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")), availableTools)
         fun readKeywords(json: String): Set<String> = AgentJson.objectOf(json).entrySet()
             .flatMap { it.value.asJsonArray.map(JsonElement::getAsString) }.onEach { require(it.isNotBlank()) }.toSet()
     }

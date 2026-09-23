@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577]({{ discussion_url }}).",
   "p_introduction_how": "插件既是 AutoJs6 插件, 也是独立应用. 脚本通过 AutoJs6 的 `ai.agent` API 使用它; 用户通过它自己的任务台, AutoJs6 抽屉项, 悬浮球, 系统分享面板, 应用快捷方式和语音输入使用它. 模型调用与设备操作始终经 Binder 交给 AutoJs6: 宿主借给插件一个模型代理 (宿主已知的 AI Provider 插件, 例如 3-Stone AI) 和一个带有限 grant 的能力代理. 插件从不持有凭据, 从不自行绑定模型提供方, 也不申请无障碍权限.",
   "h3_status": "当前状态",
-  "p_status": "当前安装版仍只展示宿主状态. P1 宿主接口及 P2.1-P2.4 工具, 决策, 运行器, 上下文和模型客户端核心已实现并通过测试. 实际任务执行还需 P2.5 Binder/前台服务接入和 P3/P4 执行适配器. 脚本 API 与任务台分别在 P5/P6 落地. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "功能",
   "p_features_intro": "1.0.0 计划提供以下能力",
   "features": [
@@ -23,7 +23,7 @@
     "打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.",
     "从启动器或 AutoJs6 抽屉项的管理入口打开 AI Agent: 本预览版只显示宿主状态. 任务台和 `ai.agent` API 随后续阶段提供."
   ],
-  "p_usage_note": "宿主抽屉已提供连接与管理入口; 当前插件尚不能运行任务. `ai.agent` API 与任务台仍分别属于 P5 和 P6.",
+  "p_usage_note": "任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.",
   "h3_security": "权限与安全",
   "p_security_intro": "插件遵循明确的边界:",
   "security_points": [
@@ -35,7 +35,7 @@
   "p_security_permission": "请只从官方 [Releases]({{ repo_url }}/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.",
   "h3_plugin_interface": "插件接口",
   "p_plugin_interface": "以下信息面向 AutoJs6 宿主与插件开发者; 宿主使用这些标识发现插件并协商兼容性",
-  "p_contract_service": "`AiAgentPluginService` 在 `{{ plugin_service_process }}` 进程中响应 `{{ plugin_service_action }}` (category `{{ plugin_service_category }}`); 本预览版在宿主契约模块落地前只暴露一个携带 descriptor `{{ plugin_aidl_interface }}` 的占位 Binder. `AiAgentPluginInfoService` 以 PluginInfo 响应 `{{ plugin_info_action }}`. `WakeActivity` 供宿主激活插件.",
+  "p_contract_service": "`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.",
   "h3_roadmap": "路线图",
   "p_roadmap": "插件的规划与进度以可勾选清单的形式维护在 ROADMAP.md 中, 按阶段组织并附有验收条件与证据等级. 未勾选条目表达的是意图而非当前能力; 欢迎通过 Issues 讨论.",
   "text_link_roadmap": "查看 ROADMAP.md",
@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段. Agent 确定性上下文装箱, 支持字节上限, 最近完整步骤对, 中英文提示与节点优先保留; 本地模型使用 3000 token 输入预算和紧凑工具签名. 宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度.",
+  "p_tools_status": "经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

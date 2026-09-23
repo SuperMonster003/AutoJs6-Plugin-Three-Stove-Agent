@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577]({{ discussion_url }}).",
   "p_introduction_how": "Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scripts l'utilisent via l'API `ai.agent` d'AutoJs6 ; les utilisateurs y accèdent par son propre espace de tâches, le tiroir d'AutoJs6, une bulle flottante, le partage système, les raccourcis d'application et la saisie vocale. Les appels de modèle et les actions sur l'appareil passent toujours par AutoJs6 via Binder : l'hôte prête au plugin un courtier de modèle (les plugins AI Provider que l'hôte connaît déjà, comme 3-Stone AI) et un courtier de capacités avec une autorisation bornée. Le plugin ne détient jamais d'identifiants, ne se lie jamais lui-même à un fournisseur de modèle et ne demande jamais la permission d'accessibilité.",
   "h3_status": "État",
-  "p_status": "La version installée affiche l'état de l'hôte. Les interfaces P1 et les noyaux outils, décisions, exécution, contexte et client modèle P2.1-P2.4 sont implémentés et testés. L'exécution réelle nécessite encore l'intégration Binder/service au premier plan P2.5 et les adaptateurs P3/P4. L'API de scripts et l'interface des tâches suivront en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "Aperçu: connexion au programme hôte et contrôle des tâches intégrés. Les adaptateurs de scripts et la récupération des écrans suivent en P3/P4; les API et le tableau de tâches en P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Fonctionnalités",
   "p_features_intro": "La version 1.0.0 doit fournir les capacités suivantes",
   "features": [
@@ -23,7 +23,7 @@
     "Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.",
     "Ouvrez AI Agent depuis le lanceur ou l'action de gestion du volet AutoJs6. Cet aperçu affiche uniquement l'état de l'hôte; l'espace de tâches et l'API `ai.agent` arriveront dans les phases suivantes."
   ],
-  "p_usage_note": "Le volet de l'hôte propose désormais la connexion et la gestion. Le plugin ne peut pas encore exécuter de tâches; l'API `ai.agent` et l'espace de tâches restent prévus en P5 et P6, respectivement.",
+  "p_usage_note": "Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.",
   "h3_security": "Permissions et sécurité",
   "p_security_intro": "Le plugin respecte des limites explicites :",
   "security_points": [
@@ -35,7 +35,7 @@
   "p_security_permission": "N'obtenez le plugin que depuis la page officielle [Releases]({{ repo_url }}/releases) ou le centre de plugins d'AutoJs6. Les paquets de sources inconnues peuvent échouer à la vérification de l'hôte ou présenter des risques même lorsque le numéro de version semble identique.",
   "h3_plugin_interface": "Interface du plugin",
   "p_plugin_interface": "Les informations suivantes s'adressent aux développeurs de l'hôte AutoJs6 et de plugins ; l'hôte utilise ces identifiants pour découvrir le plugin et négocier la compatibilité",
-  "p_contract_service": "`AiAgentPluginService` répond à `{{ plugin_service_action }}` (catégorie `{{ plugin_service_category }}`) dans le processus `{{ plugin_service_process }}` ; dans cet aperçu, il expose un Binder provisoire portant le descripteur `{{ plugin_aidl_interface }}` jusqu'à ce que le module de contrat de l'hôte soit mis en place. `AiAgentPluginInfoService` répond à `{{ plugin_info_action }}` avec PluginInfo. `WakeActivity` permet à l'hôte d'activer le plugin.",
+  "p_contract_service": "`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus.",
   "h3_roadmap": "Feuille de route",
   "p_roadmap": "Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans ROADMAP.md, organisée par phase avec des critères d'acceptation et des niveaux de preuve. Les éléments non cochés expriment une intention et non une capacité actuelle ; les discussions via Issues sont les bienvenues.",
   "text_link_roadmap": "Voir ROADMAP.md",
@@ -60,7 +60,7 @@
   "text_link_third_party_notices": "Avis de tiers",
   "p_instruction_more": "Consultez le [README du projet]({{ repo_url }}) et [ROADMAP.md]({{ roadmap_url }}) pour le guide de connexion et l'avancement actuel.",
   "h3_tools": "Catalogue des outils",
-  "p_tools_status": "Exécuteur Agent séquentiel et file de tâches (1 active + 8 en attente), appels modèle/outil annulables, délais d'interaction, événement terminal unique et blocage après perte de l'hôte; intégration réelle prévue aux étapes suivantes. Assemblage déterministe du contexte Agent avec limites en octets, paires récentes complètes, prompts anglais/chinois et sélection prioritaire des noeuds; budget local de 3000 tokens et signatures compactes des outils. Client de modèle hôte avec validation de l'ordre des événements, comptage usage, annulation, délais et repli de format borné; chaque repli compte comme appel et conserve le quota de correction.",
+  "p_tools_status": "Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus. Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.",
   "tool_header_name": "Outil",
   "tool_header_group": "Groupe",
   "tool_header_risk": "Risque",

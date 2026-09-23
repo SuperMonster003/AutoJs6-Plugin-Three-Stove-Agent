@@ -52,7 +52,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-当前安装版仍只展示宿主状态. P1 宿主接口及 P2.1-P2.4 工具, 决策, 运行器, 上下文和模型客户端核心已实现并通过测试. 实际任务执行还需 P2.5 Binder/前台服务接入和 P3/P4 执行适配器. 脚本 API 与任务台分别在 P5/P6 落地. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ### 工具目录
 
-Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段. Agent 确定性上下文装箱, 支持字节上限, 最近完整步骤对, 中英文提示与节点优先保留; 本地模型使用 3000 token 输入预算和紧凑工具签名. 宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度.
+经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑. 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
 
 | 工具 | 分组 | 风险 | 默认 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -114,7 +114,7 @@ Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), �
 2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
 3. 从启动器或 AutoJs6 抽屉项的管理入口打开 AI Agent: 本预览版只显示宿主状态. 任务台和 `ai.agent` API 随后续阶段提供.
 
-> 宿主抽屉已提供连接与管理入口; 当前插件尚不能运行任务. `ai.agent` API 与任务台仍分别属于 P5 和 P6.
+> 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
 
 ******
 
@@ -152,7 +152,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5285 (6.8.0)
 ```
 
-`AiAgentPluginService` 在 `:agent` 进程中响应 `org.autojs.plugin.AI_AGENT` (category `ai-agent`); 本预览版在宿主契约模块落地前只暴露一个携带 descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` 的占位 Binder. `AiAgentPluginInfoService` 以 PluginInfo 响应 `org.autojs.plugin.INFO`. `WakeActivity` 供宿主激活插件.
+`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.
 
 ******
 
@@ -174,20 +174,20 @@ minimum host build: 5285 (6.8.0)
 
 _2026/09/23_
 
-- `提示` 当前安装版仍只展示宿主状态. P1 宿主接口及 P2.1-P2.4 工具, 决策, 运行器, 上下文和模型客户端核心已实现并通过测试. 实际任务执行还需 P2.5 Binder/前台服务接入和 P3/P4 执行适配器. 脚本 API 与任务台分别在 P5/P6 落地.
-- `提示` 宿主的 AI Agent 契约, 能力与模型代理, 屏幕观察, 脚本登记执行, 抽屉与插件中心入口已实现; 插件任务执行仍在开发中
-- `新增` 插件身份 `ai-agent`, 含 INFO 服务, Wake Activity, 运行在 `:agent` 进程的 `org.autojs.plugin.AI_AGENT` 服务占位, 以及显示是否安装了兼容 AutoJs6 宿主的启动页
+- `提示` 开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供.
+- `提示` 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
+- `新增` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `新增` 10 语言的 README, 插件中心说明与更新日志
-- `新增` Agent 核心工具目录, 含 30 个工具, 分组准入, 参数 Schema, bridge 调用准备, 有界观察与敏感风险提升; 运行时接入随后续阶段提供
-- `新增` Agent 决策核心, 含协议 Schema 变体, 严格及提取式 JSON 解析, 工具/分支校验, 最多两次修复重试与中英文提示模板; 尚未接入任务执行
+- `新增` Agent 核心工具目录, 含 30 个工具, 分组准入, 参数 Schema, bridge 调用准备, 有界观察与敏感风险提升
+- `新增` Agent 决策核心, 含协议 Schema 变体, 严格及提取式 JSON 解析, 工具/分支校验, 最多两次修复重试与中英文提示模板
 - `新增` Agent 任务预算, 统一限制步数, 模型调用, 时长和 token, 并提供工具/交互时限, usage 估算及输出 token 准入
 - `新增` Agent 确认门, 支持默认/审慎策略, 同任务同工具同风险授权, 支付逐次确认与 10 语言支付关键词
 - `新增` Agent 私有步骤日志, 限制为 200 步和 1 MiB, 支持密码文本脱敏, 终态裁剪保留状态和计数
-- `新增` Agent 串行运行器与任务队列 (1 个活动任务 + 8 个排队任务), 支持模型/工具取消, 用户交互超时, 唯一终态事件与宿主失联阻塞; 真实宿主接入仍在后续阶段
+- `新增` 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑
 - `新增` Agent 确定性上下文装箱, 支持字节上限, 最近完整步骤对, 中英文提示与节点优先保留; 本地模型使用 3000 token 输入预算和紧凑工具签名
 - `新增` 宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度
 - `优化` 最低宿主要求确定为 AutoJs6 6.8.0 / 构建 5285, 与宿主 P1 接口及入口交付版本一致
-- `依赖` 附加 `common-plugin-api.aar` (AutoJs6 模块 `plugin-api/common-plugin-api`, 宿主构建 6.8.0 / 5282, MPL 2.0) 作为共享插件契约, 以 SHA-256 锁定于 `locks/host-api-aars.lock`
+- `依赖` 附加同一 AutoJs6 6.8.0 / 5285 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
 - `依赖` 附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树
 
 ##### 更多发行历史

@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-The installed preview displays the host status. The P1 host interfaces and P2.1-P2.4 tool, decision, runner, context and model client cores are implemented and tested. Real task execution still needs P2.5 Binder/foreground-service integration and the P3/P4 execution adapters. The script API and workbench follow in P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ Release 1.0.0 is planned to provide the following capabilities:
 
 ### Tool catalog
 
-Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases. Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures. Host model client core with validated event order, usage accounting, cancellation, deadlines and bounded format fallback; each fallback counts as a model call and preserves the decision repair allowance.
+Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically. Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
 
 | Tool | Group | Risk | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -114,7 +114,7 @@ Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/too
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
 3. Open AI Agent from the launcher or the management action in the AutoJs6 drawer. This preview only displays the host status; the task workbench and `ai.agent` API arrive in later phases.
 
-> The host drawer now offers connection and management controls. The current plugin cannot run tasks yet; the `ai.agent` API and task workbench remain P5 and P6 respectively.
+> Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
 
 ******
 
@@ -152,7 +152,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5285 (6.8.0)
 ```
 
-`AiAgentPluginService` answers `org.autojs.plugin.AI_AGENT` (category `ai-agent`) in the `:agent` process; in this preview it exposes a placeholder Binder carrying the descriptor `org.autojs.plugin.ai.agent.api.IAiAgentPlugin` until the host contract module is staged. `AiAgentPluginInfoService` answers `org.autojs.plugin.INFO` with PluginInfo. `WakeActivity` lets the host activate the plugin.
+`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.
 
 ******
 
@@ -174,20 +174,20 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/23_
 
-- `Hint` The installed preview displays the host status. The P1 host interfaces and P2.1-P2.4 tool, decision, runner, context and model client cores are implemented and tested. Real task execution still needs P2.5 Binder/foreground-service integration and the P3/P4 execution adapters. The script API and workbench follow in P5/P6.
-- `Hint` The host AI Agent contracts, capability and model brokers, screen observations, registered-script execution, drawer and plugin-center entries are implemented; plugin task execution remains under development
-- `Feature` Plugin identity `ai-agent` with the INFO service, the Wake Activity, the `org.autojs.plugin.AI_AGENT` service placeholder in the `:agent` process, and a launcher screen that reports whether a compatible AutoJs6 host is installed
+- `Hint` Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6.
+- `Hint` Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
+- `Feature` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `Feature` README, plugin-center instructions, and changelog in 10 languages
-- `Feature` Agent core catalog with 30 tools, group admission, parameter schemas, bridge-call preparation, bounded observations and sensitive-risk escalation; runtime integration follows in later phases
-- `Feature` Agent decision core with protocol-specific schemas, strict and extracted JSON parsing, tool/branch validation, at most two repair retries and English/Chinese prompt templates; task execution is not connected yet
+- `Feature` Agent core catalog with 30 tools, group admission, parameter schemas, bridge-call preparation, bounded observations and sensitive-risk escalation
+- `Feature` Agent decision core with protocol-specific schemas, strict and extracted JSON parsing, tool/branch validation, at most two repair retries and English/Chinese prompt templates
 - `Feature` Agent task budgets for steps, model calls, elapsed time and tokens, with bounded tool/wait deadlines, usage estimation and output-token admission
 - `Feature` Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages
 - `Feature` Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters
-- `Feature` Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases
+- `Feature` Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically
 - `Feature` Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures
 - `Feature` Host model client core with validated event order, usage accounting, cancellation, deadlines and bounded format fallback; each fallback counts as a model call and preserves the decision repair allowance
 - `Improvement` Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points
-- `Dependency` Added `common-plugin-api.aar` (AutoJs6 module `plugin-api/common-plugin-api`, host build 6.8.0 / 5282, MPL 2.0) as the shared plugin contract, hash-locked in `locks/host-api-aars.lock`
+- `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5285 release build (MPL 2.0), with SHA-256 locks
 - `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees
 
 ##### For more release history

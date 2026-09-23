@@ -51,6 +51,8 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
     var totalTokens = 0L; private set
     var estimated = false; private set
     private var reservation: ModelReservation? = null
+    private var tokenLimit = limits.maxTotalTokens
+    fun narrowTokens(maximum: Long) { require(maximum >= 0); tokenLimit = minOf(tokenLimit, maximum); check() }
 
     class ModelReservation internal constructor(val inputEstimate: Long, val maximumOutputTokens: Int)
     val durationMs: Long get() = (nowMs() - startedMs).coerceAtLeast(0)
@@ -58,7 +60,7 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
 
     fun check() {
         if (durationMs >= limits.maxDurationMs) throw BudgetExceeded("duration")
-        if (totalTokens > limits.maxTotalTokens) throw BudgetExceeded("tokens")
+        if (totalTokens > tokenLimit) throw BudgetExceeded("tokens")
     }
     fun beginStep() {
         check()
@@ -71,7 +73,7 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
         check(reservation == null) { "Only one model call may be in flight" }
         if (modelCalls >= limits.maxModelCalls) throw BudgetExceeded("modelCalls")
         val input = estimate(inputBytes)
-        val remaining = limits.maxTotalTokens - totalTokens - input
+        val remaining = tokenLimit - totalTokens - input
         if (remaining <= 0) throw BudgetExceeded("tokens")
         modelCalls++
         return ModelReservation(input, minOf(remaining, desiredOutputTokens.toLong()).toInt()).also { reservation = it }
@@ -98,7 +100,7 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
         "totalTokens" to saturatedAdd(totalTokens, reservation?.inputEstimate ?: 0).json(), "estimated" to (estimated || reservation != null).json())
     fun remainingJson() = jsonObject("steps" to (limits.maxSteps - steps).json(),
         "modelCalls" to (limits.maxModelCalls - modelCalls).json(), "durationMs" to remainingMs.json(),
-        "tokens" to (limits.maxTotalTokens - totalTokens - (reservation?.inputEstimate ?: 0)).coerceAtLeast(0).json())
+        "tokens" to (tokenLimit - totalTokens - (reservation?.inputEstimate ?: 0)).coerceAtLeast(0).json())
 
     companion object {
         fun estimate(bytes: Int): Long { require(bytes >= 0); return (bytes.toLong() * 2 + 4) / 5 }
