@@ -55,6 +55,12 @@
 
 {{ placeholder_features }}
 
+### {{ h3_tools }}
+
+{{ p_tools_status }}
+
+{{ placeholder_tool_table }}
+
 ******
 
 ### {{ h3_usage }}

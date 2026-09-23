@@ -67,6 +67,43 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 - 安全設計: 唯讀工具自動執行; 敏感操作 (付款, 傳送, 刪除, 寫入檔案, shell, 座標手勢, 登記為敏感的指令碼) 需要確認; 每次任務都有步數, 模型呼叫次數, 時長與 token 預算.
 - 指令碼 API 與使用者介面: `ai.agent.run(goal, options)` 回傳帶事件, 回應與取消的 `AgentRun` 控制代碼; 獨立應用程式提供任務台, 歷史, 預設, 偏好記憶, 設定與發行歷史.
 
+### 工具目錄
+
+P2.1 核心已定義以下 30 個工具. 任務執行與確認流程仍在開發中, 此表不表示預覽版已可執行任務. 描述由模型工具目錄產生 (英文或中文).
+
+| 工具 | 分組 | 風險 | 預設 | 描述 |
+| --- | --- | --- | --- | --- |
+| `app_launch` | `act` | `NORMAL` | `on` | 按包名或显示名称打开应用. |
+| `clipboard_get` | `act` | `READ_ONLY` | `on` | 读取剪贴板文字. |
+| `clipboard_set` | `act` | `NORMAL` | `on` | 替换剪贴板文字. |
+| `ui_click` | `act` | `NORMAL` | `on` | 点击一个已观察目标. |
+| `ui_long_click` | `act` | `NORMAL` | `on` | 长按一个已观察目标. |
+| `ui_press_key` | `act` | `NORMAL` | `on` | 执行 Android 导航或通知面板动作. |
+| `ui_scroll` | `act` | `NORMAL` | `on` | 对一个已观察目标执行有界次数的滚动. |
+| `ui_set_text` | `act` | `NORMAL` | `on` | 在一个已观察的可编辑目标上设置或追加文字. |
+| `files_list` | `files` | `NORMAL` | `off` | 列出工作目录文件. |
+| `files_read` | `files` | `NORMAL` | `off` | 读取有界工作目录文件文字. |
+| `files_stat` | `files` | `NORMAL` | `off` | 读取工作目录文件信息. |
+| `files_write` | `files` | `SENSITIVE` | `off` | 确认后写入工作目录文件. |
+| `ui_click_xy` | `gesture` | `SENSITIVE` | `off` | 仅在手势组开启并确认后点击坐标. |
+| `ui_gesture` | `gesture` | `SENSITIVE` | `off` | 确认后沿有界坐标路径执行手势. |
+| `ui_swipe` | `gesture` | `SENSITIVE` | `off` | 确认后在两组坐标间滑动. |
+| `memory_get` | `memory` | `READ_ONLY` | `on` | 读取当前作用域可用的偏好记忆. |
+| `memory_propose` | `memory` | `SENSITIVE` | `on` | 提议由用户确认保存偏好, 不保存凭据. |
+| `app_current` | `observe` | `READ_ONLY` | `on` | 读取当前窗口与应用. |
+| `console_tail` | `observe` | `READ_ONLY` | `on` | 读取有界控制台尾部, 其中可能包含无关脚本. |
+| `device_info` | `observe` | `READ_ONLY` | `on` | 读取设备信息. |
+| `screen_state` | `observe` | `READ_ONLY` | `on` | 读取屏幕是否亮起. |
+| `ui_dump` | `observe` | `READ_ONLY` | `on` | 在选择动作前观察当前无障碍节点树. |
+| `ui_find` | `observe` | `READ_ONLY` | `on` | 查找满足全部选择器条件的节点. |
+| `ui_wait_for` | `observe` | `READ_ONLY` | `on` | 在时限内等待选择器目标出现或消失. |
+| `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | 通过宿主 OCR 插件读取屏幕文字. |
+| `script_catalog` | `script` | `READ_ONLY` | `on` | 查找明确登记供智能体使用的脚本. |
+| `script_run` | `script` | `NORMAL` | `on` | 按 ID 执行登记脚本, 校验参数并采用登记风险. |
+| `script_stop` | `script` | `NORMAL` | `on` | 停止所属脚本执行. |
+| `shell_exec` | `shell` | `SENSITIVE` | `off` | 确认后执行有时限的非 Root shell 命令. |
+| `report_progress` | `user` | `READ_ONLY` | `on` | 报告有界进度, 不声明任务已完成. |
+
 ******
 
 ### 使用方式
@@ -141,8 +178,10 @@ _2026/09/23_
 - `提示` 宿主的 AI Agent 契約, 能力與模型代理, 畫面觀察, 指令碼登記執行, 側邊欄與外掛中心入口已實作; 外掛任務執行仍在開發中
 - `新增` 外掛身分 `ai-agent`, 含 INFO 服務, Wake Activity, 執行於 `:agent` 程序的 `org.autojs.plugin.AI_AGENT` 服務佔位, 以及顯示是否安裝了相容 AutoJs6 主程式的啟動頁
 - `新增` 10 種語言的 README, 外掛中心說明與更新日誌
+- `新增` Agent 核心工具目錄, 含 30 個工具, 分組准入, 參數 Schema, bridge 呼叫準備, 有界觀察與敏感風險提升; 執行階段接入隨後續階段提供
 - `優化` 最低宿主要求確定為 AutoJs6 6.8.0 / 組建 5285, 與宿主 P1 介面及入口交付版本一致
 - `相依性` 附加 `common-plugin-api.aar` (AutoJs6 模組 `plugin-api/common-plugin-api`, 主程式組建 6.8.0 / 5282, MPL 2.0) 作為共用外掛契約, 以 SHA-256 鎖定於 `locks/host-api-aars.lock`
+- `相依性` 附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹
 
 ##### 更多發行歷史
 

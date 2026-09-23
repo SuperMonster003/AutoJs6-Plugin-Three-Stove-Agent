@@ -58,5 +58,12 @@
   "text_link_autojs6_docs": "AutoJs6 ドキュメント",
   "text_link_discussion": "AutoJs6 ディスカッション #577",
   "text_link_third_party_notices": "サードパーティ通知",
-  "p_instruction_more": "接続ガイドと現在の進捗は [プロジェクトの README]({{ repo_url }}) と [ROADMAP.md]({{ roadmap_url }}) を参照してください."
+  "p_instruction_more": "接続ガイドと現在の進捗は [プロジェクトの README]({{ repo_url }}) と [ROADMAP.md]({{ roadmap_url }}) を参照してください.",
+  "h3_tools": "ツール一覧",
+  "p_tools_status": "P2.1 コアに以下の 30 ツールを定義しました. タスク実行と確認処理は開発中であり, この表はプレビューでの実行を保証しません. 説明はモデル用のツール一覧から生成します (英語または中国語).",
+  "tool_header_name": "ツール",
+  "tool_header_group": "グループ",
+  "tool_header_risk": "リスク",
+  "tool_header_default": "既定",
+  "tool_header_description": "説明"
 }

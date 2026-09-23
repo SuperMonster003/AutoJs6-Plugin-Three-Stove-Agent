@@ -412,6 +412,22 @@ def build_readme_values(
     return content
 
 
+def tool_table(root: Path, code: str, values: dict[str, Any]) -> str:
+    """The packaged catalog is the only tool table source; README cannot drift from it."""
+    data = json.loads((root / "app/src/main/assets/catalog/tools.json").read_text(encoding="utf-8"), object_pairs_hook=reject_duplicate_pairs)
+    require(data.get("format") == 1, "Unsupported tool catalog format")
+    rows = data["tools"]
+    require(len({row["name"] for row in rows}) == len(rows), "Duplicate tool name")
+    columns = [values[key] for key in ("tool_header_name", "tool_header_group", "tool_header_risk", "tool_header_default", "tool_header_description")]
+    lines = ["| " + " | ".join(columns) + " |", "| --- | --- | --- | --- | --- |"]
+    language = "zh" if code.startswith("zh") else "en"
+    for row in sorted(rows, key=lambda row: (row["group"], row["name"])):
+        default = "auto (OCR)" if row["group"] == "ocr" else "on" if row["defaultEnabled"] else "off"
+        description = row["description"][language].replace("|", "\\|").replace("\n", " ")
+        lines.append(f'| `{row["name"]}` | `{row["group"]}` | `{row["risk"]}` | `{default}` | {description} |')
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------------------
 # Artifact construction, drift detection, and writing
 # ---------------------------------------------------------------------------
@@ -439,7 +455,9 @@ def build_artifacts(root: Path) -> dict[Path, str]:
             artifacts[android_changelog_dir / "CHANGELOG.md"] = output
 
     for code in LANGUAGE_CODES:
-        output = render_template(readme_template, build_readme_values(code, languages, changelogs))
+        readme_values = build_readme_values(code, languages, changelogs)
+        readme_values["placeholder_tool_table"] = tool_table(root, code, readme_values)
+        output = render_template(readme_template, readme_values)
         artifacts[readme_dir / f"README-{code}.md"] = output
         if code == LANGUAGE_CODE_DEFAULT:
             artifacts[root / "README.md"] = output

@@ -359,9 +359,11 @@ P1 验收状态 (2026-09-23): P1.5/P1.6 已完成, 宿主实际任务名为 `:ap
 
 ### P2.1 工具目录与风险分级
 
-- [ ] (插件) `ToolCatalog` 数据表 (附录 C): `ToolSpec(name, group, risk, description(en/zh), inputSchema, outputHint, bridgeMapping, defaultEnabled, readOnlyHint, destructiveHint)`; `ToolGroup` 开关与 `RiskLevel` (`READ_ONLY / NORMAL / SENSITIVE`) 覆盖规则 (预设可收紧不可放宽 `SENSITIVE`); 渲染为模型提示词工具清单 (紧凑 JSON Schema, 按组排序, 关闭的组不出现).
-- [ ] (插件) `ToolHandlers`: 每个工具把 `arguments` 转为 bridge 请求 (`module.method` + args), 处理 `nodeRef` / `selector` / 坐标三选一, 结果转为观察文本 (截断规则), 错误码映射 (附录 B.4).
-- [ ] (测试) JVM: 目录快照测试 (名称 / 组 / 风险 / 默认开关 / 映射), Schema 自检 (每个 `inputSchema` 可被 `DecisionValidator` 加载), 关闭组的工具不可调用, `SENSITIVE` 不可被预设降级.
+- [x] (插件) `ToolCatalog` 数据表 (附录 C): `ToolSpec(name, group, risk, description(en/zh), inputSchema, outputHint, bridgeMapping, defaultEnabled, readOnlyHint, destructiveHint)`; `ToolGroup` 开关与 `RiskLevel` (`READ_ONLY / NORMAL / SENSITIVE`) 覆盖规则 (预设可收紧不可放宽 `SENSITIVE`); 渲染为模型提示词工具清单 (紧凑 JSON Schema, 按组排序, 关闭的组不出现).
+- [x] (插件) `ToolHandlers`: 每个工具把 `arguments` 转为 bridge 请求 (`module.method` + args), 处理 `nodeRef` / `selector` / 坐标三选一, 结果转为观察文本 (截断规则), 错误码映射 (附录 B.4).
+- [x] (测试) JVM: 目录快照测试 (名称 / 组 / 风险 / 默认开关 / 映射), Schema 自检 (每个 `inputSchema` 可被 `DecisionValidator` 加载), 关闭组的工具不可调用, `SENSITIVE` 不可被预设降级.
+
+P2.1 证据 (E1/E2, 2026-09-23): JVM 55/55, API 37.1 私有只读 AVD 6/6, debug/androidTest/Release-R8/lint 与 10 语言生成校验通过. ToolHandlers 当前生成请求/复合计划, 执行与确认按原 P2.3/P3/P4 接入. 详见 `docs/dev/p21-tool-core-evidence.md`.
 
 ### P2.2 决策协议与解析
 
@@ -800,7 +802,7 @@ if (ctx) {
 
 ### C.4 grant 允许的 bridge 方法全集 (宿主 `AiAgentGrant.default()`)
 
-`accessibility.{isEnabled, ensureEnabled, dump, explain, screenshot, readScreenText, findOne, findAll, findByText, click, longClick, setText, scrollForward, scrollBackward, swipe, gesture, back, home, recentApps}`, `agent.{listScripts, readManifest, execRegistered}`, `engines.{execScript, execScriptFile, list, stop, stopAll}`, `console.tail`, `files.{list, stat, read, write}`, `app.{launchPackage, launchApp, isInstalled, currentWindow, listSamples, readSample}`, `package_manager.{list, verify, listApps}`, `clipboard.{getText, setText, hasText}`, `device.{info, isScreenOn, wakeUp}`, `media_projection.{requestScreenCapture, stop}`, `image.{captureScreen, recycle}`, `shell.exec`, `toast`. `files.delete`, `rhino.run`, `java.*`, `websocket`, `fetch`, `ui.*`, `input_observer`, `events` 一律 `capability-denied`.
+`accessibility.{isEnabled, ensureEnabled, dump, explain, screenshot, readScreenText, findOne, findAll, findByText, click, longClick, setText, scrollForward, scrollBackward, swipe, gesture, back, home, recentApps}`, `keys.{notifications, quickSettings}`, `agent.{listScripts, readManifest, execRegistered}`, `engines.{execScript, execScriptFile, list, stop, stopAll}`, `console.tail`, `files.{list, stat, read, write}`, `app.{launchPackage, launchApp, isInstalled, currentWindow, listSamples, readSample}`, `package_manager.{list, verify, listApps}`, `clipboard.{getText, setText, hasText}`, `device.{info, isScreenOn, wakeUp}`, `media_projection.{requestScreenCapture, stop}`, `image.{captureScreen, recycle}`, `shell.exec`, `toast`. `files.delete`, `rhino.run`, `java.*`, `websocket`, `fetch`, `ui.*`, `input_observer`, `events` 一律 `capability-denied`.
 
 ---
 
@@ -1121,3 +1123,10 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 最终验证: 宿主 JVM 3,172 项, 0 失败/错误, 6 条件跳过; 契约模块 20/20; 宿主 debug/androidTest 构建与原生 16 KiB 对齐通过. 插件 JVM 11/11, debug/androidTest 与 lint 通过 (0 错误, 4 条原有依赖/图标文件警告). API 37 私有 AVD 最终宿主 39/39 (12.438 s), 插件真实契约 4/4 (0.192 s), 实际 INFO 最低版本为 5285.
 - 未改动真机. 未重复 release/R8 (无运行时依赖变更), 未进行真实模型任务, ColorOS 兼容矩阵或独立假 Agent APK 闭环; 后三者按原 P2-P7 继续. 四份宿主协议与验收证据已明确这些范围.
 - 下一会话从原 P2.1 的 ToolCatalog / ToolHandlers / 风险策略开始, 之后 P2.2 决策协议与解析, 不增加/拆分/丢弃路线图阶段. 本轮只本地提交, 未推送或发布.
+
+### 2026-09-23 (P2.1)
+
+- 按原 P2.1 完成 30 工具目录, 封闭参数 Schema, 风险策略, 10 语言敏感词, 请求/复合计划映射和有界观察/错误映射. README 工具表由打包目录生成, 无独立手写清单.
+- 映射核对发现附录 C.2 的通知栏/快捷设置缺少宿主 grant, 补齐两个 keys 方法与权限令牌并同步 C.4; 其他 keys 方法仍拒绝. 宿主回归 3/3 与 debug 构建通过.
+- 插件 JVM 55/55, API 37.1 私有只读 AVD 6/6, debug/androidTest/Release-R8/lint 通过 (0 错误, 5 警告), 10 语言/36 产物一致. 依赖 Gson 2.13.2 与宿主一致, 来源/哈希/许可证已记入 notices. 详见 `docs/dev/p21-tool-core-evidence.md`.
+- 下一项为原 P2.2 决策 Schema/解析/校验/提示模板; 未提前实现 P2.3 执行循环或 P3/P4 复合流程, 未暂存新 AAR, 未改真机, 未推送或发布.

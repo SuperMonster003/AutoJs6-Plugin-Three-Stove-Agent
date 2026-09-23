@@ -1,0 +1,1789 @@
+{
+  "format": 1,
+  "tools": [
+    {
+      "name": "ui_dump",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Observe the current accessibility tree before choosing an action.",
+        "zh": "在选择动作前观察当前无障碍节点树."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "maxNodes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 400,
+            "default": 200
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 32,
+            "default": 32
+          },
+          "visibleOnly": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "compact text with snapshotId; references belong to this snapshot",
+      "bridgeMapping": [
+        "accessibility.dump"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_find",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Find nodes matching all selector conditions.",
+        "zh": "查找满足全部选择器条件的节点."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        },
+        "required": [
+          "selector"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.findAll"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_wait_for",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Wait for a selector to appear or disappear within a deadline.",
+        "zh": "在时限内等待选择器目标出现或消失."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 16,
+            "enum": [
+              "appear",
+              "disappear"
+            ]
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300000,
+            "default": 10000
+          }
+        },
+        "required": [
+          "selector",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.findOne"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "app_current",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read the current window and application.",
+        "zh": "读取当前窗口与应用."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "app.currentWindow"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "screen_state",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read whether the screen is on.",
+        "zh": "读取屏幕是否亮起."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "device.isScreenOn"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "device_info",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read device information.",
+        "zh": "读取设备信息."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "device.info"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "console_tail",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read bounded recent console lines; they may include unrelated scripts.",
+        "zh": "读取有界控制台尾部, 其中可能包含无关脚本."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "default": 40
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "console.tail"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "ocr_screen",
+      "group": "ocr",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read screen text through the host OCR plugin.",
+        "zh": "通过宿主 OCR 插件读取屏幕文字."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535
+            },
+            "minItems": 4,
+            "maxItems": 4
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.readScreenText"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_click",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Click one observed target.",
+        "zh": "点击一个已观察目标."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nodeRef": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "snapshotId": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.click"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_long_click",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Long-click one observed target.",
+        "zh": "长按一个已观察目标."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nodeRef": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "snapshotId": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.longClick"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_set_text",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Set or append text on one observed editable target.",
+        "zh": "在一个已观察的可编辑目标上设置或追加文字."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nodeRef": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "snapshotId": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 16384
+          },
+          "append": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.findOne",
+        "accessibility.setText"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_scroll",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Scroll one observed target a bounded number of times.",
+        "zh": "对一个已观察目标执行有界次数的滚动."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nodeRef": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1
+          },
+          "snapshotId": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "selector": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "textMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "desc": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descContains": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "descMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "id": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "idMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "className": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "classNameMatches": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "clickable": {
+                "type": "boolean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "scrollable": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32
+              },
+              "boundsInside": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              },
+              "boundsContains": {
+                "type": "object",
+                "properties": {
+                  "left": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "top": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "right": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  },
+                  "bottom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32767
+                  }
+                },
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "direction": {
+            "type": "string",
+            "maxLength": 16,
+            "enum": [
+              "forward",
+              "backward"
+            ]
+          },
+          "times": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 1
+          }
+        },
+        "required": [
+          "direction"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.scrollForward",
+        "accessibility.scrollBackward"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_press_key",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Use an Android navigation or notification-panel action.",
+        "zh": "执行 Android 导航或通知面板动作."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 32,
+            "enum": [
+              "back",
+              "home",
+              "recents",
+              "notifications",
+              "quick_settings"
+            ]
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.back",
+        "accessibility.home",
+        "accessibility.recentApps",
+        "keys.notifications",
+        "keys.quickSettings"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "app_launch",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Open an application by package name or display name.",
+        "zh": "按包名或显示名称打开应用."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "appName": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "app.launchPackage",
+        "app.launchApp"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "clipboard_get",
+      "group": "act",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read clipboard text.",
+        "zh": "读取剪贴板文字."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "clipboard.getText"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "clipboard_set",
+      "group": "act",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Replace clipboard text.",
+        "zh": "替换剪贴板文字."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 16384
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "clipboard.setText"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "ui_click_xy",
+      "group": "gesture",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Tap coordinates only with the gesture group enabled and confirmation.",
+        "zh": "仅在手势组开启并确认后点击坐标."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.swipe"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "ui_swipe",
+      "group": "gesture",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Swipe between coordinates after confirmation.",
+        "zh": "确认后在两组坐标间滑动."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x1": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          },
+          "y1": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          },
+          "x2": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          },
+          "y2": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32767
+          },
+          "durationMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 300
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.swipe"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "ui_gesture",
+      "group": "gesture",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Follow a bounded coordinate path after confirmation.",
+        "zh": "确认后沿有界坐标路径执行手势."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "durationMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32767
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "minItems": 2,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "durationMs",
+          "points"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "accessibility.gesture"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "script_catalog",
+      "group": "script",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Find scripts explicitly registered for Agent use.",
+        "zh": "查找明确登记供智能体使用的脚本."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "agent.listScripts"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "script_run",
+      "group": "script",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Run a registered script by id with validated parameters and its registered risk.",
+        "zh": "按 ID 执行登记脚本, 校验参数并采用登记风险."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "parameters"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "agent.readManifest",
+        "agent.execRegistered"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "script_stop",
+      "group": "script",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Stop an owned script execution.",
+        "zh": "停止所属脚本执行."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "executionId": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "executionId"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "engines.stop"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "files_list",
+      "group": "files",
+      "risk": "NORMAL",
+      "description": {
+        "en": "List workspace files.",
+        "zh": "列出工作目录文件."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "files.list"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "files_stat",
+      "group": "files",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Read workspace file metadata.",
+        "zh": "读取工作目录文件信息."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "files.stat"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "files_read",
+      "group": "files",
+      "risk": "NORMAL",
+      "description": {
+        "en": "Read bounded workspace file text.",
+        "zh": "读取有界工作目录文件文字."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1
+          },
+          "maxBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1048576,
+            "default": 24576
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "files.read"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": false
+    },
+    {
+      "name": "files_write",
+      "group": "files",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Write a workspace file after confirmation.",
+        "zh": "确认后写入工作目录文件."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 16384
+          },
+          "overwrite": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "files.write"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "shell_exec",
+      "group": "shell",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Execute a bounded non-root shell command after confirmation.",
+        "zh": "确认后执行有时限的非 Root shell 命令."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cmd": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000,
+            "default": 15000
+          }
+        },
+        "required": [
+          "cmd"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "shell.exec"
+      ],
+      "defaultEnabled": false,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "memory_get",
+      "group": "memory",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Read available preference memory in the current scope.",
+        "zh": "读取当前作用域可用的偏好记忆."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
+            },
+            "minItems": 0,
+            "maxItems": 64
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "local.memory_get"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
+      "name": "memory_propose",
+      "group": "memory",
+      "risk": "SENSITIVE",
+      "description": {
+        "en": "Propose a preference for user-approved storage; never store credentials.",
+        "zh": "提议由用户确认保存偏好, 不保存凭据."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 128,
+            "default": "global"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "local.memory_propose"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": false,
+      "destructiveHint": true
+    },
+    {
+      "name": "report_progress",
+      "group": "user",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Report bounded progress without declaring task completion.",
+        "zh": "报告有界进度, 不声明任务已完成."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "outputHint": "JSON observation",
+      "bridgeMapping": [
+        "local.report_progress"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    }
+  ]
+}

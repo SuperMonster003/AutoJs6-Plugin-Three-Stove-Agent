@@ -11,6 +11,15 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 - SHA-256: `ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15` (pinned in `locks/host-api-aars.lock`)
 - License: Mozilla Public License 2.0
 
+## Gson
+
+- Component: `com.google.code.gson:gson:2.13.2`, used through tree/stream APIs without reflection
+- Source: <https://github.com/google/gson/releases/tag/gson-parent-2.13.2>
+- License: Apache License 2.0
+- Maven JAR SHA-256: `dd0ce1b55a3ed2080cb70f9c655850cda86c206862310009dcb5e5c95265a5e0`
+- Transitive runtime component: `com.google.errorprone:error_prone_annotations:2.41.0`, Apache License 2.0, source <https://github.com/google/error-prone>
+- Annotations JAR SHA-256: `a56e782b5b50811ac204073a355a21d915a2107fce13ec711331ad036f660fcc`
+
 ## Kotlin standard library
 
 - Component: `org.jetbrains.kotlin:kotlin-stdlib` (provided through the Android Gradle Plugin built-in Kotlin support)

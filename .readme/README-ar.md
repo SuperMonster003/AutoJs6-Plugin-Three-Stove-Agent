@@ -67,6 +67,43 @@
 - الأمان بالتصميم: تعمل أدوات القراءة فقط تلقائيا, وتتطلب الإجراءات الحساسة (الدفع, الإرسال, الحذف, كتابة الملفات, shell, إيماءات الإحداثيات, السكربتات المسجلة كحساسة) تأكيدا, ولكل تشغيل ميزانيات للخطوات واستدعاءات النموذج والمدة والرموز.
 - واجهة السكربت وواجهة المستخدم: تعيد `ai.agent.run(goal, options)` مقبض `AgentRun` مع الأحداث والردود والإلغاء; ويوفر التطبيق المستقل مساحة مهام مع السجل والإعدادات المسبقة وذاكرة التفضيلات والإعدادات وسجل الإصدارات.
 
+### دليل الأدوات
+
+تحدد نواة P2.1 هذه الأدوات الثلاثين. لا يزال التنفيذ والتأكيد قيد التطوير; لا يعني هذا الجدول أن المعاينة تنفذ المهام. تولد الأوصاف من دليل أدوات النموذج بالإنجليزية أو الصينية.
+
+| الأداة | المجموعة | المخاطر | الافتراضي | الوصف |
+| --- | --- | --- | --- | --- |
+| `app_launch` | `act` | `NORMAL` | `on` | Open an application by package name or display name. |
+| `clipboard_get` | `act` | `READ_ONLY` | `on` | Read clipboard text. |
+| `clipboard_set` | `act` | `NORMAL` | `on` | Replace clipboard text. |
+| `ui_click` | `act` | `NORMAL` | `on` | Click one observed target. |
+| `ui_long_click` | `act` | `NORMAL` | `on` | Long-click one observed target. |
+| `ui_press_key` | `act` | `NORMAL` | `on` | Use an Android navigation or notification-panel action. |
+| `ui_scroll` | `act` | `NORMAL` | `on` | Scroll one observed target a bounded number of times. |
+| `ui_set_text` | `act` | `NORMAL` | `on` | Set or append text on one observed editable target. |
+| `files_list` | `files` | `NORMAL` | `off` | List workspace files. |
+| `files_read` | `files` | `NORMAL` | `off` | Read bounded workspace file text. |
+| `files_stat` | `files` | `NORMAL` | `off` | Read workspace file metadata. |
+| `files_write` | `files` | `SENSITIVE` | `off` | Write a workspace file after confirmation. |
+| `ui_click_xy` | `gesture` | `SENSITIVE` | `off` | Tap coordinates only with the gesture group enabled and confirmation. |
+| `ui_gesture` | `gesture` | `SENSITIVE` | `off` | Follow a bounded coordinate path after confirmation. |
+| `ui_swipe` | `gesture` | `SENSITIVE` | `off` | Swipe between coordinates after confirmation. |
+| `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
+| `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
+| `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
+| `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
+| `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
+| `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
+| `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
+| `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
+| `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
+| `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
+| `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
+
 ******
 
 ### الاستخدام
@@ -141,8 +178,10 @@ _2026/09/23_
 - `تلميح` نفذت عقود AI Agent ووسطاء القدرات والنماذج ومراقبة الشاشة وتنفيذ السكربتات المسجلة ومداخل القائمة الجانبية ومركز الإضافات في المضيف; لا يزال تنفيذ مهام المكون قيد التطوير
 - `ميزة` هوية المكون الإضافي `ai-agent` مع خدمة INFO و Wake Activity والخدمة المؤقتة `org.autojs.plugin.AI_AGENT` في العملية `:agent` وشاشة إطلاق تعرض ما إذا كان مضيف AutoJs6 متوافق مثبتا
 - `ميزة` README وتعليمات مركز المكونات الإضافية وسجل التغييرات بعشر لغات
+- `ميزة` دليل نواة Agent يضم 30 أداة وضبط المجموعات ومخططات المعاملات وإعداد استدعاءات bridge والملاحظات المحدودة وتصعيد المخاطر الحساسة; يأتي ربط التنفيذ في مراحل لاحقة
 - `تحسين` حدد الحد الأدنى للمضيف عند AutoJs6 6.8.0 / البناء 5285 ليتوافق مع تسليم واجهات المضيف ومداخله في P1
 - `تبعية` إضافة `common-plugin-api.aar` (وحدة AutoJs6 `plugin-api/common-plugin-api`, بناء المضيف 6.8.0 / 5282, MPL 2.0) كعقد مشترك للمكونات الإضافية, مثبتة بالتجزئة في `locks/host-api-aars.lock`
+- `تبعية` إضافة Gson 2.13.2 للتحليل الصارم والمحدود لـ JSON وأشجار المخططات
 
 ##### لمزيد من سجل الإصدارات
 

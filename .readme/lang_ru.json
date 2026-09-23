@@ -58,5 +58,12 @@
   "text_link_autojs6_docs": "Документация AutoJs6",
   "text_link_discussion": "Обсуждение AutoJs6 #577",
   "text_link_third_party_notices": "Уведомления о сторонних компонентах",
-  "p_instruction_more": "Руководство по подключению и текущий прогресс смотрите в [README проекта]({{ repo_url }}) и [ROADMAP.md]({{ roadmap_url }})."
+  "p_instruction_more": "Руководство по подключению и текущий прогресс смотрите в [README проекта]({{ repo_url }}) и [ROADMAP.md]({{ roadmap_url }}).",
+  "h3_tools": "Каталог инструментов",
+  "p_tools_status": "Ядро P2.1 определяет эти 30 инструментов. Выполнение и подтверждение еще разрабатываются; таблица не означает готовность предварительной версии к задачам. Описания созданы из каталога модели (английский или китайский).",
+  "tool_header_name": "Инструмент",
+  "tool_header_group": "Группа",
+  "tool_header_risk": "Риск",
+  "tool_header_default": "По умолчанию",
+  "tool_header_description": "Описание"
 }

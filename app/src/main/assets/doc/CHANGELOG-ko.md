@@ -12,5 +12,7 @@
 * `힌트` 호스트의 AI Agent 계약, 기능 및 모델 브로커, 화면 관찰, 등록 스크립트 실행, 서랍 및 플러그인 센터 진입점을 구현했습니다; 플러그인의 작업 실행은 개발 중입니다
 * `기능` INFO 서비스, Wake Activity, `:agent` 프로세스의 `org.autojs.plugin.AI_AGENT` 서비스 자리 표시자, 호환되는 AutoJs6 호스트 설치 여부를 표시하는 시작 화면을 갖춘 플러그인 식별 정보 `ai-agent`
 * `기능` 10개 언어의 README, 플러그인 센터 안내, 변경 기록
+* `기능` 30 개 도구, 그룹 제어, 매개변수 Schema, bridge 호출 준비, 제한된 관찰 및 민감 위험 상향을 갖춘 Agent 코어 목록; 실행 기능은 후속 단계에서 연결
 * `개선` 최소 호스트 요구 사항을 AutoJs6 6.8.0 / 빌드 5285 로 확정하여 P1 호스트 인터페이스 및 진입점 제공 버전과 일치시켰습니다
 * `의존성` 공유 플러그인 계약으로 `common-plugin-api.aar` (AutoJs6 모듈 `plugin-api/common-plugin-api`, 호스트 빌드 6.8.0 / 5282, MPL 2.0)를 추가하고 `locks/host-api-aars.lock`에 해시로 고정
+* `의존성` 제한된 엄격 JSON 파싱과 Schema 트리를 위해 Gson 2.13.2 추가

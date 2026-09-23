@@ -67,6 +67,43 @@ AI Agent превращает цель на естественном языке 
 - Безопасность по замыслу: инструменты только для чтения выполняются автоматически, чувствительные действия (оплата, отправка, удаление, запись файлов, shell, жесты по координатам, скрипты, зарегистрированные как чувствительные) требуют подтверждения, а у каждого запуска есть бюджеты по шагам, вызовам модели, длительности и токенам.
 - API скриптов и пользовательский интерфейс: `ai.agent.run(goal, options)` возвращает дескриптор `AgentRun` с событиями, ответами и отменой; самостоятельное приложение предлагает рабочее пространство задач с историей, пресетами, памятью предпочтений, настройками и историей выпусков.
 
+### Каталог инструментов
+
+Ядро P2.1 определяет эти 30 инструментов. Выполнение и подтверждение еще разрабатываются; таблица не означает готовность предварительной версии к задачам. Описания созданы из каталога модели (английский или китайский).
+
+| Инструмент | Группа | Риск | По умолчанию | Описание |
+| --- | --- | --- | --- | --- |
+| `app_launch` | `act` | `NORMAL` | `on` | Open an application by package name or display name. |
+| `clipboard_get` | `act` | `READ_ONLY` | `on` | Read clipboard text. |
+| `clipboard_set` | `act` | `NORMAL` | `on` | Replace clipboard text. |
+| `ui_click` | `act` | `NORMAL` | `on` | Click one observed target. |
+| `ui_long_click` | `act` | `NORMAL` | `on` | Long-click one observed target. |
+| `ui_press_key` | `act` | `NORMAL` | `on` | Use an Android navigation or notification-panel action. |
+| `ui_scroll` | `act` | `NORMAL` | `on` | Scroll one observed target a bounded number of times. |
+| `ui_set_text` | `act` | `NORMAL` | `on` | Set or append text on one observed editable target. |
+| `files_list` | `files` | `NORMAL` | `off` | List workspace files. |
+| `files_read` | `files` | `NORMAL` | `off` | Read bounded workspace file text. |
+| `files_stat` | `files` | `NORMAL` | `off` | Read workspace file metadata. |
+| `files_write` | `files` | `SENSITIVE` | `off` | Write a workspace file after confirmation. |
+| `ui_click_xy` | `gesture` | `SENSITIVE` | `off` | Tap coordinates only with the gesture group enabled and confirmation. |
+| `ui_gesture` | `gesture` | `SENSITIVE` | `off` | Follow a bounded coordinate path after confirmation. |
+| `ui_swipe` | `gesture` | `SENSITIVE` | `off` | Swipe between coordinates after confirmation. |
+| `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
+| `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
+| `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
+| `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
+| `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
+| `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
+| `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
+| `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
+| `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
+| `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
+| `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
+
 ******
 
 ### Использование
@@ -141,8 +178,10 @@ _2026/09/23_
 - `Подсказка` Хост реализует контракты AI Agent, посредники возможностей и моделей, наблюдение экрана, выполнение зарегистрированных скриптов и пункты боковой панели и центра плагинов; выполнение задач плагином остается в разработке
 - `Функция` Идентичность плагина `ai-agent` со службой INFO, Wake Activity, заглушкой службы `org.autojs.plugin.AI_AGENT` в процессе `:agent` и экраном запуска, который сообщает, установлен ли совместимый хост AutoJs6
 - `Функция` README, инструкции центра плагинов и журнал изменений на 10 языках
+- `Функция` Каталог ядра Agent из 30 инструментов, допуск групп, схемы параметров, подготовка вызовов bridge, ограниченные наблюдения и повышение чувствительных рисков; подключение выполнения на следующих этапах
 - `Улучшение` Минимальное требование к хосту установлено на AutoJs6 6.8.0 / build 5285 в соответствии с выпуском интерфейсов и точек входа P1
 - `Зависимость` Добавлен `common-plugin-api.aar` (модуль AutoJs6 `plugin-api/common-plugin-api`, сборка хоста 6.8.0 / 5282, MPL 2.0) как общий контракт плагинов, зафиксированный хешем в `locks/host-api-aars.lock`
+- `Зависимость` Добавлен Gson 2.13.2 для строгого ограниченного разбора JSON и деревьев схем
 
 ##### Полная история выпусков
 

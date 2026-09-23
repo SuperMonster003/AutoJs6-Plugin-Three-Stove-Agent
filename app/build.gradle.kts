@@ -204,6 +204,7 @@ androidComponents {
 dependencies {
     // PluginInfo, IPluginInfoProvider and the shared plugin constants (host module plugin-api/common-plugin-api).
     implementation(files(commonPluginApiAar))
+    implementation(libs.gson)
 
     testImplementation(libs.junit)
 

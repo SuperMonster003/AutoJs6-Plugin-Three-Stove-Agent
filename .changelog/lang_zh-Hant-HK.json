@@ -13,13 +13,15 @@
       ],
       "feature": [
         "外掛身份 `ai-agent`, 含 INFO 服務, Wake Activity, 執行於 `:agent` 程序的 `org.autojs.plugin.AI_AGENT` 服務佔位, 以及顯示是否安裝了相容 AutoJs6 主程式的啟動頁",
-        "10 種語言的 README, 外掛中心說明與更新日誌"
+        "10 種語言的 README, 外掛中心說明與更新日誌",
+        "Agent 核心工具目錄, 含 30 個工具, 分組准入, 參數 Schema, bridge 呼叫準備, 有界觀察與敏感風險提升; 執行階段接入隨後續階段提供"
       ],
       "improvement": [
         "最低宿主要求確定為 AutoJs6 6.8.0 / 組建 5285, 與宿主 P1 介面及入口交付版本一致"
       ],
       "dependency": [
-        "附加 `common-plugin-api.aar` (AutoJs6 模組 `plugin-api/common-plugin-api`, 主程式組建 6.8.0 / 5282, MPL 2.0) 作為共用外掛契約, 以 SHA-256 鎖定於 `locks/host-api-aars.lock`"
+        "附加 `common-plugin-api.aar` (AutoJs6 模組 `plugin-api/common-plugin-api`, 主程式組建 6.8.0 / 5282, MPL 2.0) 作為共用外掛契約, 以 SHA-256 鎖定於 `locks/host-api-aars.lock`",
+        "附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹"
       ]
     }
   }

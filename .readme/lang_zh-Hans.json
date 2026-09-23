@@ -58,5 +58,12 @@
   "text_link_autojs6_docs": "AutoJs6 文档",
   "text_link_discussion": "AutoJs6 讨论 #577",
   "text_link_third_party_notices": "第三方声明",
-  "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }})."
+  "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
+  "h3_tools": "工具目录",
+  "p_tools_status": "P2.1 核心已定义以下 30 个工具. 任务执行与确认流程仍在开发中, 此表不表示预览版已经可运行任务. 描述由模型工具目录生成 (英文或中文).",
+  "tool_header_name": "工具",
+  "tool_header_group": "分组",
+  "tool_header_risk": "风险",
+  "tool_header_default": "默认",
+  "tool_header_description": "描述"
 }

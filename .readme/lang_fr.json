@@ -58,5 +58,12 @@
   "text_link_autojs6_docs": "Documentation AutoJs6",
   "text_link_discussion": "Discussion AutoJs6 #577",
   "text_link_third_party_notices": "Avis de tiers",
-  "p_instruction_more": "Consultez le [README du projet]({{ repo_url }}) et [ROADMAP.md]({{ roadmap_url }}) pour le guide de connexion et l'avancement actuel."
+  "p_instruction_more": "Consultez le [README du projet]({{ repo_url }}) et [ROADMAP.md]({{ roadmap_url }}) pour le guide de connexion et l'avancement actuel.",
+  "h3_tools": "Catalogue des outils",
+  "p_tools_status": "Le noyau P2.1 définit ces 30 outils. Exécution et confirmation restent en développement; ce tableau ne rend pas cet aperçu opérationnel. Les descriptions proviennent du catalogue du modèle (anglais ou chinois).",
+  "tool_header_name": "Outil",
+  "tool_header_group": "Groupe",
+  "tool_header_risk": "Risque",
+  "tool_header_default": "Défaut",
+  "tool_header_description": "Description"
 }

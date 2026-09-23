@@ -67,6 +67,43 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 - 設計段階からの安全性: 読み取り専用ツールは自動で実行され, 敏感な操作 (支払い, 送信, 削除, ファイル書き込み, shell, 座標ジェスチャー, 敏感として登録されたスクリプト) は確認を必要とし, 各実行にはステップ数, モデル呼び出し回数, 実行時間, トークンの予算があります.
 - スクリプト API とユーザーインターフェース: `ai.agent.run(goal, options)` はイベント, 応答, キャンセルを備えた `AgentRun` ハンドルを返します. 単独アプリは履歴, プリセット, 設定メモリ, 設定, リリース履歴を備えたタスク画面を提供します.
 
+### ツール一覧
+
+P2.1 コアに以下の 30 ツールを定義しました. タスク実行と確認処理は開発中であり, この表はプレビューでの実行を保証しません. 説明はモデル用のツール一覧から生成します (英語または中国語).
+
+| ツール | グループ | リスク | 既定 | 説明 |
+| --- | --- | --- | --- | --- |
+| `app_launch` | `act` | `NORMAL` | `on` | Open an application by package name or display name. |
+| `clipboard_get` | `act` | `READ_ONLY` | `on` | Read clipboard text. |
+| `clipboard_set` | `act` | `NORMAL` | `on` | Replace clipboard text. |
+| `ui_click` | `act` | `NORMAL` | `on` | Click one observed target. |
+| `ui_long_click` | `act` | `NORMAL` | `on` | Long-click one observed target. |
+| `ui_press_key` | `act` | `NORMAL` | `on` | Use an Android navigation or notification-panel action. |
+| `ui_scroll` | `act` | `NORMAL` | `on` | Scroll one observed target a bounded number of times. |
+| `ui_set_text` | `act` | `NORMAL` | `on` | Set or append text on one observed editable target. |
+| `files_list` | `files` | `NORMAL` | `off` | List workspace files. |
+| `files_read` | `files` | `NORMAL` | `off` | Read bounded workspace file text. |
+| `files_stat` | `files` | `NORMAL` | `off` | Read workspace file metadata. |
+| `files_write` | `files` | `SENSITIVE` | `off` | Write a workspace file after confirmation. |
+| `ui_click_xy` | `gesture` | `SENSITIVE` | `off` | Tap coordinates only with the gesture group enabled and confirmation. |
+| `ui_gesture` | `gesture` | `SENSITIVE` | `off` | Follow a bounded coordinate path after confirmation. |
+| `ui_swipe` | `gesture` | `SENSITIVE` | `off` | Swipe between coordinates after confirmation. |
+| `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
+| `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
+| `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
+| `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
+| `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
+| `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
+| `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
+| `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
+| `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
+| `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
+| `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
+
 ******
 
 ### 使い方
@@ -141,8 +178,10 @@ _2026/09/23_
 - `ヒント` ホストの AI Agent 契約, 能力とモデルのブローカー, 画面観察, 登録スクリプト実行, ドロワーとプラグインセンターの入口を実装済み; プラグインのタスク実行は開発中です
 - `機能` INFO サービス, Wake Activity, `:agent` プロセスで動く `org.autojs.plugin.AI_AGENT` サービスの仮実装, 互換性のある AutoJs6 ホストの有無を表示する起動画面を備えたプラグイン識別情報 `ai-agent`
 - `機能` 10 言語の README, プラグインセンターの説明, 変更履歴
+- `機能` 30 ツールの Agent コア一覧, グループ制御, パラメータ Schema, bridge 呼び出し準備, 有界観察と機密操作のリスク引き上げ; 実行機能の接続は後続段階で提供
 - `改善` 最低ホスト要件を AutoJs6 6.8.0 / ビルド 5285 に確定し, P1 のホストインターフェースと入口の提供版に統一
 - `依存関係` 共有プラグイン契約として `common-plugin-api.aar` (AutoJs6 モジュール `plugin-api/common-plugin-api`, ホストビルド 6.8.0 / 5282, MPL 2.0) を追加し, `locks/host-api-aars.lock` でハッシュ固定
+- `依存関係` 有界の厳密 JSON 解析と Schema ツリー用に Gson 2.13.2 を追加
 
 ##### さらに詳しいリリース履歴
 
