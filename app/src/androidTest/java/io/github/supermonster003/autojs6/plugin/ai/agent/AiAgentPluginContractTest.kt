@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * Verifies the host-facing activation and discovery contract against the installed APK:
  * the Wake Activity, the INFO service (with a real `getInfo()` round trip), the
- * `org.autojs.plugin.AI_AGENT` service living in its own process with the placeholder Binder
- * descriptor (roadmap P0.1), and the launcher entry.
+ * `org.autojs.plugin.AI_AGENT` service living in its own process with its real Binder
+ * contract and host identity enforcement (roadmap P2.5), and the launcher entry.
  */
 @RunWith(AndroidJUnit4::class)
 class AiAgentPluginContractTest {

@@ -393,12 +393,14 @@ P2.4 证据 (E1/E2, 2026-09-23): JVM 209/209 (新增 45), SDK 37 / 16 KiB 私有
 
 ### P2.5 宿主链路与前台服务
 
-- [ ] (插件) `AiAgentPluginService : IAiAgentPlugin.Stub` (`getInfo` / `getCapabilities` / `attach`), `HostLink` (持有两个代理, `linkToDeath`, 状态 `attached / host_unavailable / detached`, 调用方 UID 与宿主包名 / 签名校验), `IAiAgentLink` 实现 (`startRun` 入队, `respond`, `cancelRun`, `listRuns`, `getRun`, `listPresets`, `updateConfig`, `detach`), 运行事件经 `IAiAgentRunCallback.onRunEvent` (oneway, 事件 JSON 上限 32 KiB, 回调 death 时任务继续但事件只写日志).
-- [ ] (插件) 附着请求: 插件界面在链路缺席时发送 `AI_AGENT_ATTACH` 广播 (显式指向宿主包, 附 `requestId`), 等待 `attach` 到来或 15 s 超时后显示宿主侧引导 (未安装 / 未启用 / 需在宿主授权).
-- [ ] (插件) `AiAgentTaskForegroundService` (`foregroundServiceType="specialUse"`, 任务从 `queued` 进入 `running` 时启动, 终态后停止; 通知显示目标摘要 / 当前步骤 / 进度, 动作 "停止", 等待确认时动作 "查看"); API 24-25 无 `startForegroundService`, 走 `startService` + 立即 `startForeground` 的既有兼容写法 (MCP 记录的 API 24 坑).
-- [ ] (测试) instrumentation: 假宿主 (测试 APK 扮演宿主, 持有 PLUGIN 权限) 的 attach -> startRun (假模型序列由测试注入) -> 事件 -> cancel -> detach; 回调 death; 前台服务启动与停止; API 24 AVD 与 API 37 AVD.
+- [x] (插件) `AiAgentPluginService : IAiAgentPlugin.Stub` (`getInfo` / `getCapabilities` / `attach`), `HostLink` (持有两个代理, `linkToDeath`, 状态 `attached / host_unavailable / detached`, 调用方 UID 与宿主包名 / 签名校验), `IAiAgentLink` 实现 (`startRun` 入队, `respond`, `cancelRun`, `listRuns`, `getRun`, `listPresets`, `updateConfig`, `detach`), 运行事件经 `IAiAgentRunCallback.onRunEvent` (oneway, 事件 JSON 上限 32 KiB, 回调 death 时任务继续但事件只写日志).
+- [x] (插件) 附着请求: 插件界面在链路缺席时发送 `AI_AGENT_ATTACH` 广播 (显式指向宿主包, 附 `requestId`), 等待 `attach` 到来或 15 s 超时后显示宿主侧引导 (未安装 / 未启用 / 需在宿主授权).
+- [x] (插件) `AiAgentTaskForegroundService` (`foregroundServiceType="specialUse"`, 任务从 `queued` 进入 `running` 时启动, 终态后停止; 通知显示目标摘要 / 当前步骤 / 进度, 动作 "停止", 等待确认时动作 "查看"); API 24-25 无 `startForegroundService`, 走 `startService` + 立即 `startForeground` 的既有兼容写法 (MCP 记录的 API 24 坑).
+- [x] (测试) instrumentation: 假宿主 (测试 APK 扮演宿主, 持有 PLUGIN 权限) 的 attach -> startRun (假模型序列由测试注入) -> 事件 -> cancel -> detach; 回调 death; 前台服务启动与停止; API 24 AVD 与 API 37 AVD.
 
 验收: 用假模型剧本 + 真实宿主代理 (P1 已交付) 在 AVD 上完成 D32 用例 (1) 的闭环 (`ui_dump` -> `ui_click` -> `ui_wait_for` -> `done`), 任务详情可回放每一步.
+
+P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB instrumentation 各 18/18; 宿主测试在 API 24 / 37 各 7 项通过 + 1 项平台条件跳过, 补充 API 33 的 8/8. 假模型 + 真实宿主代理在 API 33 完成 Wi-Fi 切换与界面/系统双重读回: 5 步, 4 次工具调用, 5 次模型调用, 5379 ms, 估算 58161 tokens. API 24 AVD 无 Wi-Fi 硬件, API 37 设置开关为 accessibilityDataSensitive, 未绕过平台限制. debug/androidTest/Release-R8/lint 与 10 语言文档检查通过; 链路死亡, 回调死亡, 插件重建, 队列, 确认和前台服务均有实际 Binder 证据. 完整证据与性能/OEM/E4 边界见 [p25-host-link-evidence.md](docs/dev/p25-host-link-evidence.md).
 
 ---
 
@@ -1160,3 +1162,13 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 核对宿主公开目录, 按 locality 和实际能力/控件协商本地格式, stream 与输出上限. 在线协议类型尚未公开, 保持 UNKNOWN/退化 JSON; 没有通过 Provider 名称推测协议或增加临时宿主契约. 缺少输出 token 控件时拒绝调用, 避免绕过预算.
 - JVM 209/209, 新增 45 个用例 (含 40 次真实线程取消/完成竞争); SDK 37 / Android 17 / 16 KiB 私有只读 AVD 12/12. debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告), 10 语言/36 文档产物同步. 证据见 `docs/dev/p24-context-model-evidence.md`.
 - 本轮只修改插件仓库, 不更新依赖/权限/API AAR. 安装版仍只显示宿主状态, 未连接真实模型或执行真实设备任务, 不构成 E4 验收. 下一会话从原 P2.5 Binder/HostLink/前台服务开始; P2 整体及保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.
+
+### 2026-09-23 (P2.5: 宿主链路, 附着入口与任务前台服务)
+
+- 按原 P2.5 的 4 个子项完成, 未增加/分拆/丢弃阶段. 三份 release API AAR 从宿主 `5ae754e641` 同次构建并一并换锁, 最低宿主仍为 6.8.0 / 5285; 未改宿主生产代码或公开 JS API.
+- 插件交付真实 IAiAgentPlugin/IAiAgentLink, 宿主 UID/包名/版本/签名校验, 有界队列与 Bundle/FD 适配, 模型协商, 能力代理, 取消/脱离/death, 私有步骤记录与重建后阻断恢复. 共享能力回调按已发布 KEY_BRIDGE_* 契约解码, 不错误要求每次响应重复 contractVersion; 补充 inline/FD 回归测试.
+- 入口通过显式宿主广播与不可变 PendingIntent 身份凭据申请 attach, 15 s 超时显示引导. 任务前台服务兼容 API 24-25 与 API 34+ specialUse, 执行前提升, 终态停止, 通知包含步骤/进度与停止/查看动作. 输入与逐次确认由最小入口承接, 完整任务台仍属 P6.
+- 验证: JVM 216/216; 插件 API 24 与 API 37 / 16 KiB 各 18/18; 宿主 API 24 / 37 各 7 项通过 + 1 项 Wi-Fi 平台条件跳过; API 33 的 8/8 包含真实 Wi-Fi 闭环 (5 步, 4 次工具调用, 5 次模型调用, 5379 ms, 58161 estimated tokens). API 37 开关受 accessibilityDataSensitive 限制, 不修改宿主身份来绕过. 只操作本次私有只读 AVD, 未触碰连接的真机或调用真实 Provider.
+- debug/androidTest/Release-R8/lint 通过 (0 errors, 6 warnings, 其中单例仅保留 applicationContext 的静态引用警告已审阅); 10 语言 / 36 生成产物一致. 早期 API 33 冷启动诊断出现一次 startRun 超过 200 ms, 最终断言通过; 不声称已通过 P7 冷启动/负载性能门禁. 详见 `docs/dev/p25-host-link-evidence.md`.
+- 按逻辑本地提交: 插件宿主链路 `7a1a955`, 附着入口 `42082ea`, 前台服务 `5ebaead`; 宿主测试 `8c8e89202e`, 最后将兼容回归与本阶段证据作为原测试子项提交. 插件最终 1.0.0 / build 24 与 Git 提交数一致; 未推送或发布.
+- 下一会话从原 P3.1 ScriptCatalogClient/ScriptRanker 开始. P3/P4 的脚本执行与可信 UI 风险检查, P5 的 ai.agent/AgentRun, P6 的完整任务台和原 P7/P8 gate 均保持原安排. 本轮为假模型 + 真实宿主的 E1/E2, 不构成真实模型 E4 验收.

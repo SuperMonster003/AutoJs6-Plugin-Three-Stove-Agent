@@ -101,7 +101,9 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                 if (Binder.getCallingUid() != ownerUid || closed.get() || !claimed.compareAndSet(false, true)) { AgentWire.closeDescriptors(response); return }
                 var owned: OwnedJson? = null
                 try {
-                    require(response != null && response.get(H.KEY_CONTRACT_VERSION) == H.CONTRACT_VERSION)
+                    // Shared V1 responses retain the released MCP/Node KEY_BRIDGE_* envelope.
+                    // The brokerInfo handshake negotiates the version; legacy replies omit it.
+                    require(response != null && (!response.containsKey(H.KEY_CONTRACT_VERSION) || response.get(H.KEY_CONTRACT_VERSION) == H.CONTRACT_VERSION))
                     val text = response.get(H.KEY_BRIDGE_RESPONSE_JSON) as? String ?: error("Missing response")
                     require(text.toByteArray(Charsets.UTF_8).size <= H.MAX_BRIDGE_INLINE_JSON_BYTES)
                     val ok = response.get(H.KEY_BRIDGE_RESPONSE_OK) as? Boolean ?: error("Missing result flag")
@@ -124,7 +126,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                             else {
                                 val marker = envelope.getAsJsonObject("result")?.getAsJsonObject("payload")
                                 require(marker?.string("kind") == "descriptor" && marker.string("mime") == mime && marker.number("bytes") == count)
-                                val decoded = data.read(call.timeoutMs)
+                                val decoded = data.use { it.read(call.timeoutMs) }
                                 require(decoded.toByteArray(Charsets.UTF_8).size.toLong() == count)
                                 result(PortResult.Success(AgentJson.parse(decoded, 512 * 1024)))
                             }
