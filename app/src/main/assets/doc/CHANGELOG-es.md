@@ -8,7 +8,7 @@
 
 ###### 2026/09/23
 
-* `Aviso` La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones y ejecución P2.1-P2.3 están implementados y probados. La ejecución real aún requiere la integración de modelo/anfitrión P2.4/P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.
+* `Aviso` La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones, ejecución, contexto y cliente de modelo P2.1-P2.4 están implementados y probados. La ejecución real requiere la integración Binder/servicio en primer plano P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.
 * `Aviso` El anfitrión implementa los contratos de AI Agent, intermediarios de capacidades y modelos, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins; la ejecución de tareas del plugin sigue en desarrollo
 * `Función` Identidad de plugin `ai-agent` con el servicio INFO, la Wake Activity, el servicio provisional `org.autojs.plugin.AI_AGENT` en el proceso `:agent` y una pantalla de inicio que indica si hay instalado un anfitrión AutoJs6 compatible
 * `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
@@ -19,6 +19,7 @@
 * `Función` Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores
 * `Función` Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores
 * `Función` Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas
+* `Función` Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación
 * `Mejora` Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1
 * `Dependencia` Añadido `common-plugin-api.aar` (módulo de AutoJs6 `plugin-api/common-plugin-api`, build del anfitrión 6.8.0 / 5282, MPL 2.0) como contrato de plugin compartido, bloqueado por hash en `locks/host-api-aars.lock`
 * `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas

@@ -69,7 +69,7 @@ class ContextCompiler(
             for (record in history.takeLast(retained)) {
                 val decision = record.getAsJsonObject("decision")?.deepCopy()
                 if (decision?.string("kind") in listOf("tool", "ask", "done") && record.flag("truncated") != true) {
-                    decision!!.remove("parseMode"); decision.remove("repairs")
+                    decision!!.remove("parseMode"); decision.remove("repairs"); decision.remove("degraded")
                     if (decision.string("kind") == "tool" && format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) {
                         decision["arguments"]?.let { decision.addProperty("arguments", it.toString()) }
                     }

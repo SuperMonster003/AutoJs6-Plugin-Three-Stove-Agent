@@ -40,8 +40,10 @@ class AgentRunner internal constructor(
     private var stepEstimated = false
     private var recorded = true
     private var successfulTools = 0
+    private var format = options.format
+    private var formatFallbacks = 0
 
-    private class Operation {
+    private class Operation(val onCancelled: (Cancellation) -> Unit) {
         var active = true
         var timer = Cancellation.NONE
         var cancellation = Cancellation.NONE
@@ -55,6 +57,7 @@ class AgentRunner internal constructor(
         guarded {
             if (state != RunState.QUEUED) return@guarded
             budget = Budget(options.limits, scheduler.nowMs(), scheduler::nowMs)
+            format = model.initialFormat(options.format)
             durationTimer = scheduler.schedule(options.limits.maxDurationMs) { guarded { throw BudgetExceeded("duration") } }
             transition(RunState.RUNNING)
             nextStep()
@@ -134,25 +137,41 @@ class AgentRunner internal constructor(
         b.beginStep()
         decision = null; parseMode = null; confirmation = null; recorded = false
         stepStartedMs = scheduler.nowMs(); stepUsageStart = b.usageJson(); stepEstimated = false
-        repairSession = DecisionRepairSession(validator, policy, options.format)
+        repairSession = DecisionRepairSession(validator, policy, format)
         requestModel(null)
     }
 
     private fun requestModel(repair: JsonObject?) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
-        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), options.format, options.locale))
+        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale))
         if (!canContinue()) return
         val reservation = b.reserveModel(input.inputBytes, minOf(options.maximumOutputTokens, input.maximumOutputTokens ?: options.maximumOutputTokens))
+        var settled = false
+        fun settle(usage: ModelUsage?, outputBytes: Int) {
+            if (settled) return
+            b.settleModel(reservation, usage, outputBytes); settled = true
+            stepEstimated = stepEstimated || usage?.inputTokens == null || usage.outputTokens == null
+        }
         beginOperation(minOf(options.modelTimeoutMs, b.remainingMs), RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
-            { callback -> model.generate(input, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) }) { outcome ->
+            { callback -> model.generate(input, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) },
+            onCancelled = { handle -> (handle as? ModelCallCancellation)?.progress()?.let { settle(it.usage, it.outputBytes) } }) { outcome ->
             when (outcome) {
-                is PortResult.Failure -> { b.abandonModel(); finishError(outcome.error) }
+                is PortResult.Failure -> {
+                    settle(outcome.usage, outcome.outputBytes)
+                    if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
+                    b.check()
+                    val next = if (formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
+                    if (next == null) finishError(outcome.error) else {
+                        formatFallbacks++; format = next
+                        checkNotNull(repairSession).switchFormat(next)
+                        requestModel(repair) // New admission and usage ticket, same step and repair allowance.
+                    }
+                }
                 is PortResult.Success -> {
                     val reply = outcome.value
                     val outputBytes = if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.toByteArray(Charsets.UTF_8).size else AgentJson.MAX_MODEL_BYTES + 1
-                    b.settleModel(reservation, reply.usage, outputBytes)
-                    stepEstimated = stepEstimated || reply.usage?.inputTokens == null || reply.usage.outputTokens == null
+                    settle(reply.usage, outputBytes)
                     b.check()
                     if (outputBytes > AgentJson.MAX_MODEL_BYTES) { finishError(RunError.LIMIT_EXCEEDED); return@beginOperation }
                     when (val attempt = checkNotNull(repairSession).evaluate(reply.text)) {
@@ -283,10 +302,11 @@ class AgentRunner internal constructor(
     }
 
     private fun <T> beginOperation(timeout: Long, timeoutError: RunError, exceptionError: RunError,
-                                   invoke: ((PortResult<T>) -> Unit) -> Cancellation, accept: (PortResult<T>) -> Unit) {
+                                   invoke: ((PortResult<T>) -> Unit) -> Cancellation, onCancelled: (Cancellation) -> Unit = {},
+                                   accept: (PortResult<T>) -> Unit) {
         if (!canContinue()) return
         check(operation == null && interaction == null)
-        val pending = Operation(); operation = pending
+        val pending = Operation(onCancelled); operation = pending
         pending.timer = scheduler.schedule(timeout) {
             guarded {
                 if (operation === pending && pending.active) {
@@ -307,7 +327,12 @@ class AgentRunner internal constructor(
                     }
                 }
             }
-            if (!pending.active || stopping.get() != null) safely(cancellation::cancel) else pending.cancellation = cancellation
+            pending.cancellation = cancellation
+            if (!pending.active || stopping.get() != null) {
+                safely(cancellation::cancel)
+                if (!state.terminal) onCancelled(cancellation)
+                pending.cancellation = Cancellation.NONE
+            }
         } catch (_: Exception) {
             scheduler.execute { guarded {
                 if (operation === pending && pending.active) { clearOperation(cancel = true); accept(PortResult.Failure(exceptionError)) }
@@ -323,7 +348,7 @@ class AgentRunner internal constructor(
         val pending = operation ?: return
         operation = null; pending.active = false
         safely(pending.timer::cancel)
-        if (cancel) safely(pending.cancellation::cancel)
+        if (cancel) { safely(pending.cancellation::cancel); pending.onCancelled(pending.cancellation) }
         pending.cancellation = Cancellation.NONE
     }
 
@@ -352,6 +377,7 @@ class AgentRunner internal constructor(
         val data = StepJournal.decision(current).apply {
             parseMode?.let { addProperty("parseMode", it.name) }
             addProperty("repairs", repairSession?.repairsUsed ?: 0)
+            addProperty("degraded", format.degraded)
         }
         val entry = journal.append(StepRecord(b.steps, data.string("kind")!!, data,
             (current as? AgentDecision.Tool)?.name, (current as? AgentDecision.Tool)?.arguments,

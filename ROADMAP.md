@@ -386,8 +386,10 @@ P2.3 证据 (E1/E2, 2026-09-23): JVM 164/164 (新增 56), SDK 37 / 16 KiB 私有
 ### P2.4 上下文编译
 
 - [x] (插件) `ContextCompiler` (D21): 消息装箱顺序 = 系统提示 -> 目标 -> 摘要 (更早步骤各一行, 由确定性模板生成而非模型摘要) -> 最近 K 步完整对 -> 当前观察 -> 预算附注; 字节预算 (默认 64 KiB, 以目标 `maximumContextBytes` 与 grant 的单请求上限取小); 观察单条截断策略 (节点树保留可点击 / 可编辑 / 有文本节点优先); 目标语言检测决定 zh / en 提示词. P0.2 补充: 本地 LiteRT-LM 目标的有效上限为 4096 token (与目录申报的字节上限无关), 装箱器需要按目标 locality 选择预算 (本地默认 3000 token 输入), 快照采用二级压缩 (去 bounds, 去纯容器行, 上限 70 行) 并优先截断历史; 超限在脚本侧只表现为 `PROVIDER_FAILED`, 装箱前必须自行估算 (0.4 token/byte).
-- [ ] (插件) `ModelClient`: 经 `IAiAgentModelBroker.generate` 的同步等待封装 (超时, 取消, 事件序列校验, 终态唯一), usage 记账, `TARGET_UNSUPPORTED` 时按 Q3 退化.
-- [ ] (测试) JVM: 装箱在各预算下不超限且保底 (系统提示 + 目标 + 当前观察必在), K 步裁剪, 语言选择; 假代理的事件序列异常 (缺 started, 重复终态, 乱序 chunk) 被拒绝.
+- [x] (插件) `ModelClient`: 经 `IAiAgentModelBroker.generate` 的同步等待封装 (超时, 取消, 事件序列校验, 终态唯一), usage 记账, `TARGET_UNSUPPORTED` 时按 Q3 退化.
+- [x] (测试) JVM: 装箱在各预算下不超限且保底 (系统提示 + 目标 + 当前观察必在), K 步裁剪, 语言选择; 假代理的事件序列异常 (缺 started, 重复终态, 乱序 chunk) 被拒绝.
+
+P2.4 证据 (E1/E2, 2026-09-23): JVM 209/209 (新增 45), SDK 37 / 16 KiB 私有只读 AVD 12/12, debug/androidTest/Release-R8/lint 通过. 通过宿主 JSON transport 端口验证装箱, 模型事件, usage 与降级重试; 真实 IAiAgentModelBroker 的 Bundle/FD 适配及附着按原 P2.5 接入. 可信协商限于当前公开目录中的 locality/capabilityIds/supportedControls, 在线协议类型尚未公开时使用 UNKNOWN/普通 JSON, 不按名称猜测. 详见 [p24-context-model-evidence.md](docs/dev/p24-context-model-evidence.md).
 
 ### P2.5 宿主链路与前台服务
 
@@ -1149,3 +1151,12 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 支持 1 个活动任务 + 8 个排队任务, 按 requestId 回答/确认, 模型/工具取消, 用户等待超时, 宿主断开 blocked 且不自动续跑, 唯一终态. 支付类逐次确认; 日志最多 200 步/1 MiB, 密码跨参数/决策/观察脱敏. 预算耗尽报告维度, 普通工具超时不误报宿主失联.
 - JVM 164/164, 新增 56 个核心用例 (含 40 次真实线程取消/完成竞争); 私有只读 SDK 37 / Android 17 / 16 KiB AVD 10/10. debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告), 10 语言文档与 36 产物同步. 假代理 D32(1) 已跑通, 未请求真实模型, 未改真机. 详见 `docs/dev/p23-runner-evidence.md`.
 - 本轮只修改插件仓库, 不更新依赖/权限/API AAR. 安装版仍只显示宿主状态, 循环通过可注入端口接受测试, 实际任务尚未接入. 下一会话从原 P2.4 ContextCompiler/ModelClient 开始, 随后按原 P2.5 接 Binder/前台服务; P2 整体及保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.
+
+### 2026-09-23 (P2.4)
+
+- 按原 P2.4 完成 ContextCompiler/ModelClient 与配套测试, 没有增加, 分拆或丢弃路线图阶段. 上下文装箱已提交 `6defbb2`, 模型客户端与集成另作一笔逻辑提交.
+- 系统规则/完整目标/当前观察保底, 更早步骤确定性摘要, 最近 K 步成对保留; 本地输入默认 3000 token, 工具签名去重, 节点快照去 bounds/纯容器并限制 70 行, 优先裁剪历史. 最小上下文无法容纳时在发模型请求前失败. 英文/中文基础夹具分别 5025/4839 bytes (含 Schema), 估算输入 2010/1936 token.
+- 模型端口严格校验 started/sequence/chunk/usage/唯一终态, 支持独立工作线程同步等待及取消/超时. 失败及运行器先取消时保留已观察 usage; 每次格式降级重新装箱并计入调用预算, 同一步最多 2 次决策修复额度不重置. 不因普通模型失败重试.
+- 核对宿主公开目录, 按 locality 和实际能力/控件协商本地格式, stream 与输出上限. 在线协议类型尚未公开, 保持 UNKNOWN/退化 JSON; 没有通过 Provider 名称推测协议或增加临时宿主契约. 缺少输出 token 控件时拒绝调用, 避免绕过预算.
+- JVM 209/209, 新增 45 个用例 (含 40 次真实线程取消/完成竞争); SDK 37 / Android 17 / 16 KiB 私有只读 AVD 12/12. debug/androidTest/Release-R8/lint 通过 (0 错误, 5 既有警告), 10 语言/36 文档产物同步. 证据见 `docs/dev/p24-context-model-evidence.md`.
+- 本轮只修改插件仓库, 不更新依赖/权限/API AAR. 安装版仍只显示宿主状态, 未连接真实模型或执行真实设备任务, 不构成 E4 验收. 下一会话从原 P2.5 Binder/HostLink/前台服务开始; P2 整体及保留的 P5/P7 验收仍未完成. 只本地提交, 未推送或发布.

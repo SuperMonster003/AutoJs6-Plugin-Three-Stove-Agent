@@ -9,10 +9,11 @@ class ModelTarget(
     val providerId: String, val targetId: String, val locality: ModelLocality,
     val protocol: ModelProtocol, val structuredJson: Boolean,
     val maximumContextBytes: Int, val maximumOutputBytes: Int = AgentJson.MAX_MODEL_BYTES,
+    val supportsStreaming: Boolean = false, val supportsOutputLimit: Boolean = true,
 ) {
     init {
-        require(providerId.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._-]{0,255}")))
-        require(targetId.matches(Regex("(?:local|profile):[a-zA-Z0-9][a-zA-Z0-9._:-]{0,247}")))
+        require(providerId.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}")))
+        require(targetId.length <= 256 && targetId.matches(Regex("[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}")))
         require(maximumContextBytes > 0 && maximumOutputBytes in 1..AgentJson.MAX_MODEL_BYTES)
         require((locality == ModelLocality.ON_DEVICE) == (protocol == ModelProtocol.LOCAL) || protocol == ModelProtocol.UNKNOWN)
     }
@@ -30,10 +31,15 @@ class ModelTarget(
             val bytes = requireNotNull(value.number("maximumContextBytes"))
             require(bytes in 1..Int.MAX_VALUE)
             val capabilities = requireNotNull(value.getAsJsonArray("capabilityIds"))
-            require(capabilities.size() <= 64 && capabilities.all { it.isJsonPrimitive && it.asJsonPrimitive.isString })
+            val controls = requireNotNull(value.getAsJsonArray("supportedControls"))
+            for (entries in listOf(capabilities, controls)) require(entries.size() <= 64 && entries.all {
+                it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString.length in 1..128
+            })
             return ModelTarget(providerId, requireNotNull(value.string("targetId")), locality,
                 if (locality == ModelLocality.ON_DEVICE) ModelProtocol.LOCAL else ModelProtocol.UNKNOWN,
-                capabilities.any { it.asString == "structured-json" }, bytes.toInt(), maximumOutputBytes)
+                capabilities.any { it.asString == "structured-json" } && controls.any { it.asString == "response-json-schema" },
+                bytes.toInt(), maximumOutputBytes, capabilities.any { it.asString == "streaming" },
+                controls.any { it.asString == "maximum-output-tokens" })
         }
     }
 }

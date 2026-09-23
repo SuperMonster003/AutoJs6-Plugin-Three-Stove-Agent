@@ -1,6 +1,6 @@
 AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-La version installée affiche l'état de l'hôte. Les interfaces hôte P1 et les noyaux outils, décisions et exécution P2.1-P2.3 sont implémentés et testés. L'exécution réelle nécessite encore l'intégration modèle/hôte P2.4/P2.5 et les adaptateurs P3/P4. L'API de scripts et l'interface des tâches suivront en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+La version installée affiche l'état de l'hôte. Les interfaces P1 et les noyaux outils, décisions, exécution, contexte et client modèle P2.1-P2.4 sont implémentés et testés. L'exécution réelle nécessite encore l'intégration Binder/service au premier plan P2.5 et les adaptateurs P3/P4. L'API de scripts et l'interface des tâches suivront en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### Utilisation
 

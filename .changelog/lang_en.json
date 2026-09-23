@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "The installed preview displays the host status. The P1 host interfaces and the P2.1-P2.3 tool, decision and runner cores are implemented and tested. Real task execution still needs the P2.4/P2.5 model and host integration and the P3/P4 execution adapters. The script API and workbench follow in P5/P6.",
+        "The installed preview displays the host status. The P1 host interfaces and P2.1-P2.4 tool, decision, runner, context and model client cores are implemented and tested. Real task execution still needs P2.5 Binder/foreground-service integration and the P3/P4 execution adapters. The script API and workbench follow in P5/P6.",
         "The host AI Agent contracts, capability and model brokers, screen observations, registered-script execution, drawer and plugin-center entries are implemented; plugin task execution remains under development"
       ],
       "feature": [
@@ -20,7 +20,8 @@
         "Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages",
         "Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters",
         "Serial Agent runner and task queue (1 active + 8 waiting), cancellable model/tool ports, user interaction deadlines, unique terminal events and blocked state after host loss; real host integration remains in later phases",
-        "Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures"
+        "Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures",
+        "Host model client core with validated event order, usage accounting, cancellation, deadlines and bounded format fallback; each fallback counts as a model call and preserves the decision repair allowance"
       ],
       "improvement": [
         "Minimum host requirement finalized at AutoJs6 6.8.0 / build 5285, matching delivery of the P1 host interfaces and entry points"

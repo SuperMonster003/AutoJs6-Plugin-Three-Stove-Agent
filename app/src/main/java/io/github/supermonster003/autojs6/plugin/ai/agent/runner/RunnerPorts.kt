@@ -22,7 +22,9 @@ enum class RunError {
 
 sealed interface PortResult<out T> {
     data class Success<T>(val value: T) : PortResult<T>
-    data class Failure(val error: RunError) : PortResult<Nothing>
+    data class Failure(val error: RunError, val reason: String? = null, val usage: ModelUsage? = null, val outputBytes: Int = 0) : PortResult<Nothing> {
+        init { require(reason == null || reason == "REQUEST_REJECTED"); require(outputBytes >= 0) }
+    }
 }
 
 class RunOptions(
@@ -68,7 +70,11 @@ fun interface RunContextCompiler {
 class ModelReply(val text: String, val usage: ModelUsage? = null) {
     override fun toString() = "ModelReply(bytes=${text.toByteArray(Charsets.UTF_8).size})"
 }
+/** Captures already observed usage when the runner's own deadline or stop wins the callback race. */
+interface ModelCallCancellation : Cancellation { fun progress(): PortResult.Failure }
 interface RunModel {
+    fun initialFormat(proposed: DecisionFormat): DecisionFormat = proposed
+    fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? = null
     /** Must return promptly; callbacks may be synchronous, duplicated or late. */
     fun generate(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long, callback: (PortResult<ModelReply>) -> Unit): Cancellation
 }

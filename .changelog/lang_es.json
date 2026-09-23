@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/23",
       "hint": [
-        "La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones y ejecución P2.1-P2.3 están implementados y probados. La ejecución real aún requiere la integración de modelo/anfitrión P2.4/P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.",
+        "La vista previa instalada muestra el estado del anfitrión. Las interfaces P1 y los núcleos de herramientas, decisiones, ejecución, contexto y cliente de modelo P2.1-P2.4 están implementados y probados. La ejecución real requiere la integración Binder/servicio en primer plano P2.5 y los adaptadores P3/P4. La API de scripts y el panel de tareas llegarán en P5/P6.",
         "El anfitrión implementa los contratos de AI Agent, intermediarios de capacidades y modelos, observación de pantalla, ejecución de scripts registrados y accesos del panel lateral y centro de plugins; la ejecución de tareas del plugin sigue en desarrollo"
       ],
       "feature": [
@@ -20,7 +20,8 @@
         "Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas",
         "Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores",
         "Ejecutor Agent secuencial y cola de tareas (1 activa + 8 en espera), llamadas cancelables al modelo/herramientas, plazos de interacción, evento final único y bloqueo al perder el anfitrión; integración real en fases posteriores",
-        "Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas"
+        "Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas",
+        "Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación"
       ],
       "improvement": [
         "Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1"

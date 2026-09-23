@@ -132,10 +132,11 @@ sealed interface DecisionAttempt {
 }
 
 /** One instance per step. A valid decision or exhausted allowance seals the step. */
-class DecisionRepairSession(private val validator: DecisionValidator, private val policy: ToolPolicy, private val format: DecisionFormat) {
+class DecisionRepairSession(private val validator: DecisionValidator, private val policy: ToolPolicy, private var format: DecisionFormat) {
     var repairsUsed = 0
         private set
     private var sealed = false
+    fun switchFormat(next: DecisionFormat) { check(!sealed); format = next }
     fun evaluate(text: String): DecisionAttempt {
         check(!sealed) { "Decision step is already settled" }
         return try {
