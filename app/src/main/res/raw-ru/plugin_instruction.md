@@ -6,6 +6,6 @@ AI Agent превращает цель на естественном языке 
 
 1. Установите APK плагина со страницы [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) на устройство с AutoJs6 сборки 5285 или новее.
 2. Откройте центр плагинов AutoJs6, убедитесь, что `AI Agent` распознан, и включите его. Официальные пакеты автоматически проходят проверку подписи.
-3. Откройте AI Agent через значок приложения или действие управления в боковой панели AutoJs6. Эта версия показывает только состояние хоста; рабочая область задач и API `ai.agent` появятся позже.
+3. Запрос подключения из стартового экрана, ожидание до 15 секунд и подсказка по включению и авторизации AI Agent в AutoJs6.
 
 Руководство по подключению и текущий прогресс смотрите в [README проекта](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) и [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).

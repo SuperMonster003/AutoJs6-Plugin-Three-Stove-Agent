@@ -6,6 +6,6 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 1. 在安装了 AutoJs6 构建 5285 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
 2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
-3. 从启动器或 AutoJs6 抽屉项的管理入口打开 AI Agent: 本预览版只显示宿主状态. 任务台和 `ai.agent` API 随后续阶段提供.
+3. 启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.
 
 连接指南与当前进度请参阅 [项目 README](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) 与 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).

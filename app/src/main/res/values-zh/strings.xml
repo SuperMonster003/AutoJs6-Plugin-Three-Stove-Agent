@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="launcher_connect">连接 AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 已安装但已被停用. 请在系统应用设置中启用它, 然后返回此页面.</string>
     <string name="launcher_host_incompatible">已安装 AutoJs6 构建 %1$d, 但此插件需要构建 %2$d 或更高版本. 请先更新 AutoJs6.</string>
     <string name="launcher_host_missing">尚未安装 AutoJs6. 请安装 AutoJs6 构建 %1$d 或更高版本, 然后在其插件中心启用 AI Agent.</string>
     <string name="launcher_host_ready">已安装 AutoJs6 %1$s (构建 %2$d). 请在 AutoJs6 插件中心启用 AI Agent.</string>
-    <string name="launcher_preview">开发预览: 任务台将随后续版本提供. 目前此页面只显示 AutoJs6 宿主状态.</string>
+    <string name="launcher_link_attached">已连接 AutoJs6. 宿主现在可以提交 Agent 任务.</string>
+    <string name="launcher_link_connecting">正在等待 AutoJs6 连接 (最多 15 秒).</string>
+    <string name="launcher_link_timeout">15 秒内未建立连接. 请打开 AutoJs6, 在插件中心启用 AI Agent 并授权连接.</string>
+    <string name="launcher_open_host">打开 AutoJs6</string>
+    <string name="launcher_preview">启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.</string>
     <string name="plugin_description">按自然语言目标选择已登记脚本并逐步操作界面完成任务</string>
 </resources>

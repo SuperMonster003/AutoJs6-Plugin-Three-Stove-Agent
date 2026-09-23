@@ -78,8 +78,10 @@ class ManifestContractTest {
     @Test
     fun `info service and agent service match the identity constants`() {
         val services = manifest.child("application").children("service").associateBy { it.androidAttribute("name") }
-        assertEquals(setOf(".AiAgentPluginInfoService", ".AiAgentPluginService"), services.keys)
+        assertEquals(setOf(".AiAgentPluginInfoService", ".AiAgentPluginService", ".service.AgentLocalService"), services.keys)
 
+        assertEquals("false", services.getValue(".service.AgentLocalService").androidAttribute("exported"))
+        assertEquals(":agent", services.getValue(".service.AgentLocalService").androidAttribute("process"))
         val info = services.getValue(".AiAgentPluginInfoService")
         assertDiscoveryContract(info, AiAgentPlugin.INFO_ACTION)
         assertNull(info.androidAttributeOrNull("process"))

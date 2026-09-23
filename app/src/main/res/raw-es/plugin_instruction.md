@@ -6,6 +6,6 @@ Vista previa: conexión al anfitrión y control de tareas integrados. La ejecuci
 
 1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5285 o posterior.
 2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
-3. Abra AI Agent desde el lanzador o la opción de gestión del panel lateral de AutoJs6. Esta vista previa solo muestra el estado del anfitrión; el espacio de tareas y la API `ai.agent` llegarán en fases posteriores.
+3. Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6.
 
 Consulte el [README del proyecto](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) y [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para la guía de conexión y el progreso actual.

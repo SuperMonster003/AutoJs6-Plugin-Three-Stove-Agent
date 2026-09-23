@@ -21,7 +21,7 @@
   "usage_steps": [
     "Installez l'APK du plugin depuis [Releases]({{ repo_url }}/releases) sur un appareil disposant d'AutoJs6 build {{ required_host_version_code }} ou ultérieure.",
     "Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.",
-    "Ouvrez AI Agent depuis le lanceur ou l'action de gestion du volet AutoJs6. Cet aperçu affiche uniquement l'état de l'hôte; l'espace de tâches et l'API `ai.agent` arriveront dans les phases suivantes."
+    "Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6."
   ],
   "p_usage_note": "Les tâches sont envoyées par le programme hôte. Le tableau indépendant et les API ai.agent restent prévus pour P5/P6.",
   "h3_security": "Permissions et sécurité",

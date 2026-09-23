@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="launcher_connect">Connect to AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 is installed but disabled. Enable it in the system app settings, then return here.</string>
     <string name="launcher_host_incompatible">AutoJs6 build %1$d is installed, but this plugin needs build %2$d or later. Update AutoJs6 first.</string>
     <string name="launcher_host_missing">AutoJs6 is not installed. Install AutoJs6 build %1$d or later, then enable AI Agent in its plugin center.</string>
     <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) is installed. Enable AI Agent in the AutoJs6 plugin center.</string>
-    <string name="launcher_preview">Development preview: the task workbench arrives with a later release. For now this screen only reports the AutoJs6 host status.</string>
+    <string name="launcher_link_attached">Connected to AutoJs6. The host can now submit Agent tasks.</string>
+    <string name="launcher_link_connecting">Waiting for AutoJs6 to connect (up to 15 seconds).</string>
+    <string name="launcher_link_timeout">No connection within 15 seconds. Open AutoJs6, enable AI Agent in its plugin center and authorize the connection.</string>
+    <string name="launcher_open_host">Open AutoJs6</string>
+    <string name="launcher_preview">Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.</string>
     <string name="plugin_description">Runs natural-language tasks by choosing registered scripts and operating the screen step by step</string>
 </resources>

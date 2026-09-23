@@ -10,8 +10,8 @@
 
     <!--
         The plugin never talks to the network on its own (roadmap D28): model traffic and device
-        actions go through the AutoJs6 host over Binder. Foreground-service, notification and
-        overlay permissions arrive with the task runner (P2.5) and the floating ball (P6.7).
+        actions go through the AutoJs6 host over Binder. Foreground-service and notification
+        permissions keep active tasks visible. Overlay permission remains in P6.7.
     -->
     <application
         android:allowBackup="false"
@@ -48,10 +48,7 @@
             </intent-filter>
         </activity>
 
-        <!--
-            Standalone entry (roadmap D2 / D11): the task workbench of P6 grows out of this
-            activity. Until then it only reports whether a compatible AutoJs6 host is installed.
-        -->
+        <!-- Standalone host-connection entry; P6 adds the task workbench. -->
         <activity
             android:name=".ui.LauncherActivity"
             android:exported="true">
@@ -60,6 +57,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.AgentLocalService"
+            android:exported="false"
+            android:process=":agent" />
 
         <service
             android:name=".AiAgentPluginInfoService"

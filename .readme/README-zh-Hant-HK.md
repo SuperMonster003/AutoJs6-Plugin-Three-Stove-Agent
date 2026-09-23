@@ -112,7 +112,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 1. 在安裝了 AutoJs6 組建 5285 或更高版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發佈套件會自動通過簽名驗證.
-3. 從啟動器或 AutoJs6 側邊欄的管理入口開啟 AI Agent: 本預覽版只顯示宿主狀態. 任務台和 `ai.agent` API 隨後續階段提供.
+3. 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權.
 
 > 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
 
@@ -186,6 +186,7 @@ _2026/09/23_
 - `新增` 經身份驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續
 - `新增` Agent 確定性上下文裝箱, 支援位元組上限, 最近完整步驟對, 中英文提示與節點優先保留; 本機模型使用 3000 token 輸入預算和精簡工具簽名
 - `新增` 宿主模型用戶端核心, 驗證事件順序並支援 usage 記帳, 取消, 逾時和有限格式降級; 每次降級計入模型呼叫且保留決策修復額度
+- `新增` 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權
 - `優化` 最低宿主要求確定為 AutoJs6 6.8.0 / 組建 5285, 與宿主 P1 介面及入口交付版本一致
 - `依賴` 附加同一 AutoJs6 6.8.0 / 5285 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
 - `依賴` 附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹

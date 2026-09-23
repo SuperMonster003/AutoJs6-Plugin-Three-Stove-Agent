@@ -21,7 +21,7 @@
   "usage_steps": [
     "AutoJs6 빌드 {{ required_host_version_code }} 이상이 설치된 기기에 [Releases]({{ repo_url }}/releases)에서 플러그인 APK를 설치합니다.",
     "AutoJs6 플러그인 센터를 열어 `AI Agent`가 인식되는지 확인하고 활성화합니다. 공식 릴리스 패키지는 서명 검증을 자동으로 통과합니다.",
-    "런처 또는 AutoJs6 서랍의 관리 기능에서 AI Agent 를 여세요. 이 미리보기는 호스트 상태만 표시합니다. 작업 화면과 `ai.agent` API 는 후속 단계에서 제공합니다."
+    "런처에서 호스트 연결을 요청하고 15초가 지나면 AutoJs6의 AI Agent 활성화와 연결 허용 방법 안내."
   ],
   "p_usage_note": "작업은 호스트가 제출합니다. 작업 화면과 ai.agent 스크립트 API는 P5/P6에 예정되어 있습니다.",
   "h3_security": "권한과 보안",

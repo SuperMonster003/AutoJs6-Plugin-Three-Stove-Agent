@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="launcher_connect">AutoJs6 に接続</string>
     <string name="launcher_host_disabled">AutoJs6 はインストールされていますが無効になっています. システムのアプリ設定で有効にしてから, ここに戻ってください.</string>
     <string name="launcher_host_incompatible">AutoJs6 ビルド %1$d がインストールされていますが, このプラグインにはビルド %2$d 以降が必要です. 先に AutoJs6 を更新してください.</string>
     <string name="launcher_host_missing">AutoJs6 がインストールされていません. AutoJs6 ビルド %1$d 以降をインストールし, そのプラグインセンターで AI Agent を有効にしてください.</string>
     <string name="launcher_host_ready">AutoJs6 %1$s (ビルド %2$d) がインストールされています. AutoJs6 のプラグインセンターで AI Agent を有効にしてください.</string>
-    <string name="launcher_preview">開発プレビュー: タスク画面は今後のバージョンで提供されます. 現在この画面は AutoJs6 ホストの状態のみを表示します.</string>
+    <string name="launcher_link_attached">AutoJs6 に接続しました. ホストから Agent タスクを送信できます.</string>
+    <string name="launcher_link_connecting">AutoJs6 の接続を待っています (最大 15 秒).</string>
+    <string name="launcher_link_timeout">15 秒以内に接続できませんでした. AutoJs6 のプラグインセンターで AI Agent を有効にして接続を許可してください.</string>
+    <string name="launcher_open_host">AutoJs6 を開く</string>
+    <string name="launcher_preview">ランチャーからホスト接続を要求し, 15 秒のタイムアウト後に AutoJs6 での有効化と接続許可を案内.</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
 </resources>

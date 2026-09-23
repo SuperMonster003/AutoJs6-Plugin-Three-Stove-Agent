@@ -21,7 +21,7 @@
   "usage_steps": [
     "在安裝了 AutoJs6 組建 {{ required_host_version_code }} 或更新版本的裝置上, 從 [Releases]({{ repo_url }}/releases) 安裝外掛 APK.",
     "開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.",
-    "從啟動器或 AutoJs6 側邊欄的管理入口開啟 AI Agent: 本預覽版只顯示宿主狀態. 任務台和 `ai.agent` API 隨後續階段提供."
+    "啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權."
   ],
   "p_usage_note": "任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.",
   "h3_security": "權限與安全",

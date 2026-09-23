@@ -6,6 +6,6 @@
 
 1. ثبت ملف APK للمكون الإضافي من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) على جهاز به AutoJs6 بالبناء 5285 أو أحدث.
 2. افتح مركز المكونات الإضافية في AutoJs6, وتأكد من التعرف على `AI Agent`, ثم فعله. تجتاز حزم الإصدار الرسمية التحقق من التوقيع تلقائيا.
-3. افتح AI Agent من المشغل أو خيار الإدارة في القائمة الجانبية لـ AutoJs6. تعرض هذه المعاينة حالة المضيف فقط; تصل مساحة المهام وواجهة `ai.agent` في مراحل لاحقة.
+3. طلب اتصال من واجهة التشغيل مع مهلة 15 ثانية وإرشاد لتفعيل AI Agent والتصريح بالاتصال في AutoJs6.
 
 راجع [README المشروع](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) و [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) للاطلاع على دليل الاتصال والتقدم الحالي.
