@@ -78,4 +78,10 @@ class LoopRulesTest {
         rules.succeeded(catalog["report_progress"]!!, true.json()); assertEquals(true, rules.guidance().flag("observeRequired"))
         rules.succeeded(catalog["ui_dump"]!!, JsonObject()); assertEquals(false, rules.guidance().flag("observeRequired"))
     }
+    @Test fun clipboardReadDoesNotSatisfyMissingScreenObservation() {
+        val rules = LoopRules()
+        rules.started(catalog["ui_click"]!!)
+        rules.succeeded(catalog["clipboard_get"]!!, "some text".json())
+        assertEquals(true, rules.guidance().flag("observeRequired"))
+    }
 }

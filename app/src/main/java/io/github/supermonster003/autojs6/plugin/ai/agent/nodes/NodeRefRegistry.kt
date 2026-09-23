@@ -7,7 +7,7 @@ import org.autojs.plugin.ai.agent.api.AiAgentContract
 /** Run-owned display snapshots. Host snapshot IDs remain authoritative for every real action. */
 class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_PER_LINK) : AutoCloseable {
     init { require(capacity in 1..AiAgentContract.MAX_SNAPSHOTS_PER_LINK) }
-    data class Reference(val snapshotId: String, val node: CompactNodeText.Node)
+    data class Reference(val snapshotId: String, val node: CompactNodeText.Node, val window: String)
     class Stale : IllegalArgumentException("NODE_REF_STALE")
     private val snapshots = linkedMapOf<String, CompactNodeText.Snapshot>()
     private var latest: CompactNodeText.Snapshot? = null
@@ -42,7 +42,7 @@ class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_
     @Synchronized fun resolve(ref: String, snapshotId: String? = null): Reference {
         if (closed) throw Stale()
         val snapshot = snapshots[snapshotId ?: latest?.id] ?: throw Stale()
-        return Reference(snapshot.id, snapshot.nodes.singleOrNull { it.ref == ref } ?: throw Stale())
+        return Reference(snapshot.id, snapshot.nodes.singleOrNull { it.ref == ref } ?: throw Stale(), snapshot.window)
     }
     /** A conservative display match only. P4 actions must still ask the host to validate the returned ID. */
     @Synchronized fun relocate(ref: String, snapshotId: String): Reference {
@@ -52,7 +52,7 @@ class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_
         if (before.window != current.window || !old.node.relocatable) throw Stale()
         val fingerprint = old.node.fingerprint(before.window)
         val candidate = current.nodes.filter { it.relocatable && it.fingerprint(current.window) == fingerprint && old.node.bounds.permits(it.bounds) }.singleOrNull() ?: throw Stale()
-        return Reference(current.id, candidate)
+        return Reference(current.id, candidate, current.window)
     }
     @Synchronized fun clear() { snapshots.clear(); latest = null }
     @Synchronized override fun close() { clear(); closed = true }

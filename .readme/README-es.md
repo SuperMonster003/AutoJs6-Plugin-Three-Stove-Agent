@@ -199,6 +199,8 @@ _2026/09/23_
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 - `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Corrección` La admisión precarga las reglas de pedido y evita una compilación costosa de reglas
+- `Corrección` La verificación distingue nodos de ventanas distintas, mantiene la observación de pantalla tras leer el portapapeles y no confunde transferencias de archivos con pagos
 - `Corrección` La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización
 - `Corrección` Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta
 - `Corrección` Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea

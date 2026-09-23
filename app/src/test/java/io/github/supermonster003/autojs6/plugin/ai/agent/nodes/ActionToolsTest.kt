@@ -128,6 +128,19 @@ class ActionToolsTest {
         val second = CompactNodeText.parse(dump("two").apply { addProperty("windowIdentity", "dialog2") })
         assertNotEquals(first.window, second.window)
     }
+    @Test fun loopIdentityKeepsRenumberedNodesButDistinguishesWindows() {
+        val f = Fixture()
+        fun identity(snapshot: JsonObject, ref: String): String {
+            f.observations.transform(f.invocation("ui_dump", "{}"), snapshot)
+            return (f.prepare(args = """{"nodeRef":"$ref"}""") as PortResult.Success).value.metadata.actionIdentity!!
+        }
+        val first = identity(dump("one").apply { addProperty("windowIdentity", "dialog1") }, "#n1")
+        val renumbered = identity(dump("two", rows = listOf("#n1 TextView \"Header\" c=(0,0)",
+            "#n2 Button clickable \"Go\" id=go c=(10,20)")).apply { addProperty("windowIdentity", "dialog1") }, "#n2")
+        assertEquals(first, renumbered)
+        val nextWindow = identity(dump("three").apply { addProperty("windowIdentity", "dialog2") }, "#n1")
+        assertNotEquals(first, nextWindow)
+    }
     companion object {
         fun inspection() = jsonObject("target" to jsonObject("nodeRef" to "#n1".json(), "snapshotId" to "bound".json(), "actionToken" to "private-token".json()),
             "text" to "Pay now".json(), "desc" to "".json(), "packageName" to "example".json(), "password" to false.json(), "enabled" to true.json(), "uncertain" to false.json())

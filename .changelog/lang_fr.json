@@ -44,6 +44,8 @@
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
       ],
       "fix": [
+        "L'admission précharge les règles de commande et évite leur compilation coûteuse",
+        "La vérification distingue les noeuds de fenêtres différentes, conserve l'obligation d'observer après lecture du presse-papiers et ne confond plus transfert de fichiers et paiement",
         "Une lecture de l'écran sans réponse après une action ne dépasse plus le délai de stabilisation",
         "Expurgation des paramètres multilignes avant le découpage de la console, sans laisser passer de secret quand un paramètre correspond à son libellé",
         "Un service de premier plan en cours de fermeture ne rejette plus le démarrage de la tâche suivante"

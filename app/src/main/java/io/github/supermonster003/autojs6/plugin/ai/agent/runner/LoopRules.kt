@@ -15,7 +15,7 @@ class LoopRules {
 
     /** The third equivalent proposal is blocked before confirmation or side effects. */
     fun admit(spec: ToolSpec, prepared: PreparedTool): Boolean {
-        if (spec.readOnlyHint || prepared.metadata.context.registeredScriptRisk == RiskLevel.READ_ONLY) return true
+        if (spec.readOnlyHint || (spec.name == "script_run" && prepared.metadata.context.registeredScriptRisk == RiskLevel.READ_ONLY)) return true
         val args = (prepared.metadata.script?.arguments() ?: prepared.invocation.arguments).deepCopy()
         args.remove("snapshotId") // Transport identity changes on every dump, even on an unchanged screen.
         prepared.metadata.actionIdentity?.let { args.remove("nodeRef"); args.addProperty("observedNode", it) }
@@ -56,8 +56,8 @@ class LoopRules {
     companion object {
         const val REPEAT_LIMIT = 3
         const val UNCHANGED_LIMIT = 3
-        private val SCREEN_ACTIONS = ActionTools.NAMES - "clipboard_get"
-        private val SCREEN_OBSERVATIONS = setOf("ui_dump", "ui_find", "ui_wait_for", "ocr_screen", "app_current", "screen_state", "clipboard_get")
+        private val SCREEN_ACTIONS = ActionTools.NAMES - setOf("clipboard_get", "clipboard_set")
+        private val SCREEN_OBSERVATIONS = setOf("ui_dump", "ui_find", "ui_wait_for", "ocr_screen", "app_current", "screen_state")
         private fun canonical(value: JsonElement): JsonElement = when {
             value.isJsonObject -> JsonObject().apply { value.asJsonObject.keySet().sorted().forEach { add(it, canonical(value.asJsonObject[it])) } }
             value.isJsonArray -> JsonArray().apply { value.asJsonArray.forEach { add(canonical(it)) } }

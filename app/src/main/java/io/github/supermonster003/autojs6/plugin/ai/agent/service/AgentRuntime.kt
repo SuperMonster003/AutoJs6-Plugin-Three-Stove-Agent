@@ -18,7 +18,7 @@ internal class AgentRuntime private constructor(val context: Context) {
     val catalog = ToolCatalog(asset("catalog/tools.json"))
     val prompts = PromptCatalog(::asset, catalog)
     val runnerText = asset("runner/texts.json")
-    private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json").associateWith(::asset)
+    private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json", "catalog/order-intent-keywords.json").associateWith(::asset)
     fun policy(groups: Set<String>) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
         ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run")
     val archive = RunArchive(File(context.filesDir, "agent-runs"))

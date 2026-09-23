@@ -52,4 +52,24 @@ class AgentRunnerDoneRulesTest {
         assertEquals(true, f.contexts.last().guidance.flag("orderStatusRequired"))
         assertEquals(3, f.model.calls.size)
     }
+    @Test fun syntaxAndOrderRepairsShareOneAllowanceAndCannotBypassModelBudget() {
+        for (maxCalls in listOf(2, 3)) {
+            val f = RunnerFixture(); f.enqueue("bad", done(), done(orderStatus = "none"))
+            val run = f.start(RunOptions("Buy coffee", f.format, limits = BudgetLimits(maxModelCalls = maxCalls)))
+            assertEquals(maxCalls, f.model.calls.size)
+            assertEquals(if (maxCalls == 2) RunState.FAILED else RunState.COMPLETED, run.state)
+            if (maxCalls == 3) assertEquals(2L, f.contexts.last().repair!!.number("repairAttempt"))
+            else assertEquals("BUDGET_EXCEEDED", run.result!!.getAsJsonObject("error").string("code"))
+            assertEquals(1L, run.result!!.number("steps")); assertTrue(f.tools.executions.isEmpty())
+        }
+    }
+    @Test fun cancellationDuringOrderRepairDiscardsLateCompletion() {
+        val f = RunnerFixture(); f.enqueue(done())
+        val run = f.start(RunOptions("Buy coffee", f.format))
+        assertNotNull(f.contexts.last().repair)
+        val pending = f.model.calls.last(); assertTrue(run.cancel()); f.scheduler.drain()
+        pending.succeed(ModelReply(done(orderStatus = "paid"))); f.scheduler.drain()
+        assertEquals(RunState.CANCELLED, run.state); assertFalse(run.result!!.has("orderStatus"))
+        assertEquals(1, f.events.count { it.type == "done" })
+    }
 }

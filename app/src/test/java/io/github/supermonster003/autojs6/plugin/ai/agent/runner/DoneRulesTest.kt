@@ -54,11 +54,16 @@ class DoneRulesTest {
     }
     @Test fun orderIntentUsesTenLanguageTermsWithoutMatchingPayloadOrSortOrder() {
         val policy = ToolPolicy.fromAssets(F::asset)
-        for (goal in listOf("Buy a latte", "Order a latte", "Pay for coffee", "请帮我下单星巴克拿铁", "請購買拿鐵", "請幫我下單咖啡",
+        for (goal in listOf("Buy a latte", "Order a latte", "Pay for coffee", "Repayment details then pay", "(PAY)", "请帮我下单星巴克拿铁", "請購買拿鐵", "請幫我下單咖啡",
             "Acheter un café", "Comprar café", "コーヒーを注文して", "커피를 주문해 주세요", "Купить кофе", "شراء قهوة")) {
             assertTrue(goal, policy.isOrderGoal(goal)); assertTrue(goal, policy.withOcrAvailability(true).isOrderGoal(goal))
         }
-        for (goal in listOf("Inspect the payload", "Replay the test", "Sort names in ascending order", "Open the keyboard", "打开计算器")) assertFalse(goal, policy.isOrderGoal(goal))
+        for (goal in listOf("Inspect the payload", "Replay the test", "payment_test", "Sort names in ascending order", "Open the keyboard", "打开计算器")) assertFalse(goal, policy.isOrderGoal(goal))
         assertEquals(10, AgentJson.objectOf(F.asset("catalog/order-intent-keywords.json")).size())
+    }
+    @Test fun genericFileTransferAndTranslationDoNotBecomePaymentTasks() {
+        val policy = ToolPolicy.fromAssets(F::asset)
+        for (goal in listOf("Transfer files to Downloads", "Transferir archivos", "Перевод текста", "تحويل الصور")) assertFalse(goal, policy.isOrderGoal(goal))
+        for (goal in listOf("Transfer money", "Transferir dinero", "Денежный перевод", "تحويل المال")) assertTrue(goal, policy.isOrderGoal(goal))
     }
 }

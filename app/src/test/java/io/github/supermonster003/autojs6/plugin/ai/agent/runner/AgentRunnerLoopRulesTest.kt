@@ -38,4 +38,21 @@ class AgentRunnerLoopRulesTest {
         assertEquals(3L, f.contexts.last().guidance.number("unchangedActions"))
         f.reply(done("partial")); assertEquals(RunState.PARTIAL, run.state)
     }
+    @Test fun queuedRunsDoNotShareRepetitionCounts() {
+        val f = RunnerFixture(); val click = tool("ui_click", """{"nodeRef":"#n1"}""")
+        repeat(2) { f.enqueue(click, click, done()) }
+        val first = f.submit(); val second = f.submit(); f.scheduler.drain()
+        assertEquals(RunState.COMPLETED, first.state); assertEquals(RunState.COMPLETED, second.state)
+        assertEquals(4, f.tools.executions.size)
+        assertEquals(0L, f.contexts[3].guidance.number("repeatedActionCount"))
+    }
+    @Test fun cancellationAtTheBlockedStepStillHasOnlyOneTerminalEvent() {
+        val f = RunnerFixture(); val click = tool("ui_click", """{"nodeRef":"#n1"}""")
+        f.enqueue(click, click, click)
+        val run = f.submit()
+        f.onEvent = { if (it.type == "step" && it.payload.toString().contains("REPEATED_ACTION")) run.cancel() }
+        f.scheduler.drain()
+        assertEquals(RunState.CANCELLED, run.state); assertEquals(2, f.tools.executions.size)
+        assertEquals(1, f.events.count { it.type == "done" })
+    }
 }

@@ -72,14 +72,9 @@ class ToolPolicy(
     private val paymentKeywords = paymentKeywords.toSet()
     private val available = availableTools?.toSet()
     private val orderKeywords = orderKeywords.toSet()
-    private val orderTerms = (orderKeywords + paymentKeywords).map { term ->
-        val escaped = Regex.escape(term.lowercase(Locale.ROOT))
-        // CJK terms are often adjacent to other characters; Latin/Cyrillic/Arabic terms need word boundaries.
-        Regex(if (term.any { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' || it in '\uac00'..'\ud7af' }) escaped
-            else "(?<![\\p{L}\\p{N}_])$escaped(?![\\p{L}\\p{N}_])")
-    }
+    private val orderTerms = orderKeywords.map { GoalTerm(it.lowercase(Locale.ROOT)) }
     fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords)
-    fun isOrderGoal(goal: String): Boolean = goal.lowercase(Locale.ROOT).let { value -> orderTerms.any { it.containsMatchIn(value) } }
+    fun isOrderGoal(goal: String): Boolean = goal.lowercase(Locale.ROOT).let { value -> orderTerms.any { it.matches(value) } }
     fun isPayment(context: RiskContext): Boolean {
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
@@ -96,6 +91,21 @@ class ToolPolicy(
         val elevated = spec.group == ToolGroup.ACT && spec.risk != RiskLevel.READ_ONLY &&
             (context.packageName in paymentPackages || keywords.any { text.contains(it.lowercase(Locale.ROOT)) })
         return maxOf(base, overrides[spec.name] ?: base, if (elevated) RiskLevel.SENSITIVE else base)
+    }
+    /** Literal word boundaries avoid compiling Unicode regexes on the synchronous Binder admission path. */
+    private class GoalTerm(private val term: String) {
+        init { require(term.isNotBlank()) }
+        private val bounded = term.none { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' || it in '\uac00'..'\ud7af' }
+        fun matches(text: String): Boolean {
+            var index = text.indexOf(term)
+            while (index >= 0) {
+                val end = index + term.length
+                if (!bounded || ((index == 0 || !word(text.codePointBefore(index))) && (end == text.length || !word(text.codePointAt(end))))) return true
+                index = text.indexOf(term, index + 1)
+            }
+            return false
+        }
+        private fun word(point: Int) = Character.isLetterOrDigit(point) || point == '_'.code
     }
     companion object {
         fun fromAssets(readAsset: (String) -> String, enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),

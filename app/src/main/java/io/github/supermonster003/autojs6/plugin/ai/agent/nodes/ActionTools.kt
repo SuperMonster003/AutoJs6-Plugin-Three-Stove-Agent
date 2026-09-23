@@ -33,7 +33,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
                     // Never interpret an implicit model ref against a hidden inspection/dump on the host.
                     val resolved = observations.nodes.resolve(ref, target.string("snapshotId"))
                     target.addProperty("snapshotId", resolved.snapshotId)
-                    actionIdentity = resolved.node.fingerprint("") + ":" + resolved.node.bounds
+                    actionIdentity = resolved.node.fingerprint(resolved.window) + ":" + resolved.node.bounds
                 }
             } catch (_: NodeRefRegistry.Stale) { operation.finish(PortResult.Failure(RunError.NODE_REF_STALE)); return operation }
             operation.call(ToolHandlers.bridge("accessibility.inspectNode", jsonArray(target, call.method.json()))) { answer ->

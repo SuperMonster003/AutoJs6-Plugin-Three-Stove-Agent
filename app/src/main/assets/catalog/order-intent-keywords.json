@@ -1,12 +1,108 @@
 {
-  "en": ["buy", "purchase", "checkout", "place an order", "place the order", "submit an order", "submit the order", "order a", "order an", "order coffee", "order food"],
-  "zh-Hans": ["下单", "订购", "购买", "购物车", "结算", "买一", "买杯", "点一单"],
-  "zh-Hant-TW": ["下單", "訂購", "購買", "購物車", "結算", "買一", "買杯", "點一單"],
-  "zh-Hant-HK": ["下單", "訂購", "購買", "購物車", "結算", "買一", "買杯", "點一單"],
-  "fr": ["acheter", "commander", "passer une commande"],
-  "es": ["comprar", "pedir un", "pedir una", "hacer un pedido"],
-  "ja": ["注文", "購入", "買って"],
-  "ko": ["주문", "구매"],
-  "ru": ["купить", "заказать", "оформить заказ", "оплатить", "оплата"],
-  "ar": ["شراء", "اشتر", "اطلب", "طلب قهوة"]
+  "en": [
+    "buy",
+    "purchase",
+    "checkout",
+    "place an order",
+    "place the order",
+    "submit an order",
+    "submit the order",
+    "order a",
+    "order an",
+    "order coffee",
+    "order food",
+    "pay",
+    "payment",
+    "transfer money"
+  ],
+  "zh-Hans": [
+    "下单",
+    "订购",
+    "购买",
+    "购物车",
+    "结算",
+    "买一",
+    "买杯",
+    "点一单",
+    "支付",
+    "付款",
+    "转账"
+  ],
+  "zh-Hant-TW": [
+    "下單",
+    "訂購",
+    "購買",
+    "購物車",
+    "結算",
+    "買一",
+    "買杯",
+    "點一單",
+    "支付",
+    "付款",
+    "轉帳"
+  ],
+  "zh-Hant-HK": [
+    "下單",
+    "訂購",
+    "購買",
+    "購物車",
+    "結算",
+    "買一",
+    "買杯",
+    "點一單",
+    "支付",
+    "付款",
+    "轉賬"
+  ],
+  "fr": [
+    "acheter",
+    "commander",
+    "passer une commande",
+    "payer",
+    "paiement",
+    "virement"
+  ],
+  "es": [
+    "comprar",
+    "pedir un",
+    "pedir una",
+    "hacer un pedido",
+    "pagar",
+    "pago",
+    "transferir dinero"
+  ],
+  "ja": [
+    "注文",
+    "購入",
+    "買って",
+    "支払",
+    "決済",
+    "送金"
+  ],
+  "ko": [
+    "주문",
+    "구매",
+    "결제",
+    "지불",
+    "송금"
+  ],
+  "ru": [
+    "купить",
+    "заказать",
+    "оформить заказ",
+    "оплатить",
+    "оплата",
+    "оплат",
+    "платеж",
+    "денежный перевод"
+  ],
+  "ar": [
+    "شراء",
+    "اشتر",
+    "اطلب",
+    "طلب قهوة",
+    "دفع",
+    "سداد",
+    "تحويل المال"
+  ]
 }
