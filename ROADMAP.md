@@ -266,7 +266,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.1 仓库骨架
 
-P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将最低构建更新为 5286. P3.3 因登记脚本结果与按调用停止, 将当前最低构建更新为 5287. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
+P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将最低构建更新为 5286. P3.3 因登记脚本结果与按调用停止, 将最低构建更新为 5287. P4.1 因观察工具的 OCR 可用性发现与授权校验, 将当前最低构建更新为 5288. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
 
 - [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 第 2 节确定标识并全仓库一致 (D1); `{REQUIRES_HOST_VERSION}` = P1 交付契约的宿主 `versionCode` (P0 以 5283 = 当前宿主 5282 + 1 作为临时值, P1.6 回填); `{PLATFORM_VERSIONS_PLUGIN_VERSION}=1.8.3` (已确认 `AutoJs6-Gradle-Platform-Versions/version.properties`, 落地前再确认公共仓库可解析). 证据 (E0 / E1, 2026-09-22): `AiAgentPlugin` 常量 + `AiAgentPluginRuntimeInfoTest` 2 用例; 平台插件 1.8.3 与 native-alignment 1.8.3 经公共仓库解析成功 (Temurin 验收命令通过, 日志只有一段 `Version information`).
 - [x] (插件) 以 `AutoJs6-Plugin-OpenCC` 为构建 / 资源 / 激活基础参照, `AutoJs6-Plugin-MCP-Server` 为契约与宿主链路参照, `AutoJs6-Plugin-Readium-EPUB-Reader` 为独立界面 / 设置 / 更新检查参照生成骨架: `settings.gradle.kts` (平台插件位于 `includeBuild` 之前), 根与 `app` 的 `build.gradle.kts` (无 ABI splits, D27), `build-logic` 四个约定插件, `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD` 按提交计数), 从宿主复制 `.gitignore` / `sign.properties` / `app/sm003.jks` (后两者忽略), `appendDigestToReleasedFiles` 单 APK 形态. 证据 (E0, 2026-09-22): 提交 1 `build: bootstrap ...`; `libs/common-plugin-api.aar` 取自宿主 `973447133` (5282) 的 `assembleRelease`, SHA-256 `ee7eb787...` 锁定; `git check-ignore` 确认 `sign.properties` / `app/sm003.jks` / `local.properties` 被忽略; `assembleDebug` 产出 `autojs6-plugin-ai-agent-v1.0.0.apk`, `verifyDebugNativePageAlignment` 通过 (无原生库).
@@ -439,9 +439,9 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P4.1 观察工具
 
-- [ ] (插件) `ui_dump` (compact, `maxNodes` 默认 200 / `maxDepth` 32 / `visibleOnly` true; 返回 `snapshotId`, 记录 `NodeRefRegistry`), `ui_find` (`BridgeSelector` JSON, `limit` 10), `ui_wait_for` (`appear / disappear`, 默认 10 s), `app_current` (`app.currentWindow`), `screen_state`, `device_info`, `console_tail`; 观察文本裁剪与 "变化摘要" (与上一快照比对, 列出新增 / 消失的文本节点, 帮助模型校验).
-- [ ] (插件) `ocr_screen` (映射 `accessibility.readScreenText`, 仅 OCR 插件可用时出现在工具清单; 结果按行合并, 带边界; WebView / Canvas 类界面的主要观察手段).
-- [ ] (测试) JVM: compact 解析与 `NodeRefRegistry` 指纹 / 重定位 / 失效; 变化摘要.
+- [x] (插件) `ui_dump` (compact, `maxNodes` 默认 200 / `maxDepth` 32 / `visibleOnly` true; 返回 `snapshotId`, 记录 `NodeRefRegistry`), `ui_find` (`BridgeSelector` JSON, `limit` 10), `ui_wait_for` (`appear / disappear`, 默认 10 s), `app_current` (`app.currentWindow`), `screen_state`, `device_info`, `console_tail`; 观察文本裁剪与 "变化摘要" (与上一快照比对, 列出新增 / 消失的文本节点, 帮助模型校验). 证据 (E0 / E1, 2026-09-23): 插件 `6efc062`, 每任务有界快照与保守显示指纹重定位, 保留宿主 snapshotId; 20 KiB 观察预算, 文本多重集差异与状态变化, 不完整摘要标记 partial. API 24/37 的真实宿主设置页面往返验证 dump/find/wait/app/screen/device/console; screen_state 仅表示屏幕亮灭, console 为宿主全局窗口.
+- [x] (插件) `ocr_screen` (映射 `accessibility.readScreenText`, 仅 OCR 插件可用时出现在工具清单; 结果按行合并, 带边界; WebView / Canvas 类界面的主要观察手段). 证据 (E0 / E1, 2026-09-23): 插件 `c338321`, 宿主 `0a472f7fee`; 按宿主可用性与方法/权限授权交集呈现工具, 不覆盖用户关闭的工具组. 有界文字行带屏幕坐标, 多行块标注共享边界, 不传图片. 两台 AVD 验证实际模型提示与运行器准入, OCR 返回为受控数据; 未验收真实识别效果或截图权限弹窗.
+- [x] (测试) JVM: compact 解析与 `NodeRefRegistry` 指纹 / 重定位 / 失效; 变化摘要. 证据 (E0 / E1, 2026-09-23): 新增 23 个 JVM 用例, 总计 311/311; 新增 4 个真实调度器等待/取消 Android 用例, API 24/37 各 27/27; 宿主能力代理各 5/5, 实际插件往返各 15 通过/1 既有可选 Wi-Fi 跳过. 详见 `docs/dev/p41-observation-tools-evidence.md`.
 
 ### P4.2 动作工具
 
@@ -1201,3 +1201,12 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 插件 JVM 288/288 (新增 18), 宿主 JVM 3182 项中 3176 通过/6 既有条件跳过 (新增 6). API 24/37 每台插件 23/23, 宿主执行 12/12, 插件往返 12 通过/1 可选 Wi-Fi 用例跳过. debug/androidTest/Release-R8/lint 和 10 语言 36 产物检查通过, 插件 lint 0 错误/6 既有警告. 证据见 docs/dev/p33-script-execution-evidence.md.
 - 公共文档 `3c50244`, 声明 4.20.0 `08a89c7`, Offline Docs `d13f179` (6.8.0 / 55), Ace `f10e0fa` (1.12.1 / 110) 已同步. 138 模块全量生成/校验, 类型正反例, 补全校验, LSP 生成和运行时检查通过. 全量文档生成同时收敛既有邮件源文档的产物漂移. 保留与本次无关的声明 publishConfig 差异及 Ace releases/ 目录.
 - 仅操作两个私有只读 AVD, 没有操作真机, 没有调用真实模型, 没有推送/发布. P3 的 D32(3) 真机 + 在线模型 E4 验收仍保留且未完成. 下一会话从原 P4.1 观察工具开始, 后续 P5/P6 和 P7/P8 gate 保持原安排.
+
+### 2026-09-23 (P4.1 观察工具)
+
+- 完成原 P4.1 三个子项, 未增加/分拆/丢弃路线图条目. 插件 `6efc062` 接入紧凑节点观察与变化摘要, `c338321` 接入 OCR 可用性与文本行整理; 本记录所在的测试提交补齐等待轮询/取消验证和阶段证据. 插件最终 1.0.0 / build 36 与 Git 提交计数同步.
+- NodeRefRegistry 按任务持有最多 8 份宿主快照, 包/活动变化时失效, 仅在显示指纹唯一且位置变化受限时给出候选重定位. 密码占位与裁剪文字不参与重定位, 实际动作仍须宿主验证原始节点身份. 变化摘要包含新增/消失文字及节点状态变化, partial 表示只比较了可见的有界样本, 不把缺失文字当作完整界面消失证明.
+- 观察统一在进入日志和模型前归一化: dump/find/OCR 有界, wait 支持出现/消失与截止/取消, screen_state 明确为 screenOn, console_tail 保留最新文本行并脱敏, 标明全局控制台窗口. OCR 合并相邻词片段, 多行块保留共享原框, 不伪造逐行坐标; 位图仍不离开宿主.
+- 宿主 `0a472f7fee` 在共享 broker info 中加入可选 availableOptionalMethods, 缺省为空, 只在 OCR 插件可用且当前 grant 同时允许方法和三项权限时报告. 插件每次任务开始刷新并同时用于提示词/Schema/运行器准入; 运行中移除 OCR 仍按工具失败反馈. 最低宿主更新为 6.8.0 / 5288, 三份 API AAR 从该提交同次 release 构建换锁, 无 AIDL 事务或公开 JS API 变更.
+- 插件 JVM 311/311 (新增 23); 宿主 JVM 3182 项中 3176 通过/6 既有条件跳过; 共享能力契约 JVM 4/4. API 24 x86 / 4 KiB 与 API 37 x86_64 / 16 KiB 每台插件 27/27, 宿主代理 5/5, 实际插件往返 15 通过/1 既有可选 Wi-Fi 跳过. debug/androidTest/release-R8/lint 和 10 语言 36 文档产物校验通过, 插件 lint 0 错误/6 既有警告. 证据见 `docs/dev/p41-observation-tools-evidence.md` 与宿主 `docs/dev/evidence/ai-agent-p41-20260923.md`.
+- 仅操作本轮私有只读 AVD; 使用脚本化模型和受控 OCR 返回, 未操作真机或调用真实 Provider/OCR 识别器. 本轮证据为 E0/E1, 未完成 P3/P4 的 E4 或 P7/P8 gate. 下一会话从原 P4.2 动作工具开始; 真机/在线模型验收时再确认可操作设备与模型目标, 实际截图授权弹窗需要用户承接. 未推送/发布, 保留其他仓库已有的无关工作区内容.
