@@ -6,7 +6,7 @@
 
 # v1.0.0
 
-###### 2026/09/23
+###### 2026/09/24
 
 * `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
 * `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
@@ -32,6 +32,7 @@
 * `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 * `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 * `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+* `Fix` Actionable node target repair hints preserve the # reference prefix and omit snapshotId for selectors
 * `Fix` Task admission preloads order intent rules and avoids expensive rule compilation
 * `Fix` Verification distinguishes matching nodes in different windows, keeps screen observation requirements after clipboard reads, and avoids classifying file transfers as payments
 * `Fix` Post-action screen reads that stop responding no longer exceed the stabilization deadline

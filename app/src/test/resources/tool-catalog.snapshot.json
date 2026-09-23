@@ -501,12 +501,14 @@
         "nodeRef": {
           "type": "string",
           "maxLength": 32,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Exact observed reference including the leading #, for example #n12. Never invent a reference."
         },
         "snapshotId": {
           "type": "string",
           "maxLength": 128,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Optional snapshot ID paired with nodeRef. Omit when using selector."
         },
         "selector": {
           "type": "object",
@@ -661,12 +663,14 @@
         "nodeRef": {
           "type": "string",
           "maxLength": 32,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Exact observed reference including the leading #, for example #n12. Never invent a reference."
         },
         "snapshotId": {
           "type": "string",
           "maxLength": 128,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Optional snapshot ID paired with nodeRef. Omit when using selector."
         },
         "selector": {
           "type": "object",
@@ -821,12 +825,14 @@
         "nodeRef": {
           "type": "string",
           "maxLength": 32,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Exact observed reference including the leading #, for example #n12. Never invent a reference."
         },
         "snapshotId": {
           "type": "string",
           "maxLength": 128,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Optional snapshot ID paired with nodeRef. Omit when using selector."
         },
         "selector": {
           "type": "object",
@@ -992,12 +998,14 @@
         "nodeRef": {
           "type": "string",
           "maxLength": 32,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Exact observed reference including the leading #, for example #n12. Never invent a reference."
         },
         "snapshotId": {
           "type": "string",
           "maxLength": 128,
-          "minLength": 1
+          "minLength": 1,
+          "description": "Optional snapshot ID paired with nodeRef. Omit when using selector."
         },
         "selector": {
           "type": "object",

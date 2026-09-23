@@ -70,6 +70,28 @@ class DecisionValidatorTest {
         assertEquals("""{"selector":{"text":"ok"}}""", selected.arguments.toString())
     }
 
+    @Test fun missingReferencePrefixProducesAnActionableRepairWithoutCoercingTheTarget() {
+        val session = DecisionRepairSession(validator, ToolPolicy(), DecisionSchema.degraded())
+        val bad = """{"kind":"tool","tool":"ui_click","arguments":{"nodeRef":"n33","snapshotId":"s1"}}"""
+        val repair = session.evaluate(bad) as DecisionAttempt.Repair
+        assertEquals("TOOL_ARGUMENTS_INVALID", repair.observation.string("error"))
+        assertTrue(repair.observation.string("hint")!!.contains("including the leading #"))
+        val accepted = session.evaluate(bad.replace("n33", "#n33")) as DecisionAttempt.Accepted
+        val tool = accepted.decision as AgentDecision.Tool
+        assertEquals("#n33", tool.arguments.string("nodeRef"))
+        assertEquals("s1", tool.arguments.string("snapshotId"))
+        assertEquals(1, session.repairsUsed)
+    }
+
+    @Test fun selectorSnapshotConflictExplainsWhichPropertyToRemove() {
+        val session = DecisionRepairSession(validator, ToolPolicy(), DecisionSchema.degraded())
+        val repair = session.evaluate("""{"kind":"tool","tool":"ui_click","arguments":{"selector":{"id":"btn_1"},"snapshotId":"s1"}}""") as DecisionAttempt.Repair
+        assertTrue(repair.observation.string("hint")!!.contains("Omit snapshotId when using selector"))
+        val accepted = session.evaluate("""{"kind":"tool","tool":"ui_click","arguments":{"selector":{"id":"btn_1"}}}""") as DecisionAttempt.Accepted
+        assertFalse((accepted.decision as AgentDecision.Tool).arguments.has("snapshotId"))
+        assertEquals(1, session.repairsUsed)
+    }
+
     @Test fun realScriptNullParametersSurviveStringDecoding() {
         val input = """{"id":"coffee","parameters":{"milk":null,"count":1,"delivery":true}}"""
         val root = jsonObject("kind" to "tool".json(), "tool" to "script_run".json(), "arguments" to input.json())

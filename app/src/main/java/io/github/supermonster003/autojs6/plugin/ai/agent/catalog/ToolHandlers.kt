@@ -34,9 +34,10 @@ class ToolHandlers(private val catalog: ToolCatalog) {
         fun target(): JsonObject {
             val ref = args.string("nodeRef")
             val selector = args.getAsJsonObject("selector")
-            if ((ref != null) == (selector != null) || (args.has("snapshotId") && ref == null)) invalid("Choose exactly one nodeRef or selector.")
+            if ((ref != null) == (selector != null)) invalid("Choose exactly one nodeRef or selector.")
+            if (args.has("snapshotId") && ref == null) invalid("snapshotId is only valid with nodeRef. Omit snapshotId when using selector.")
             if (selector != null) { validateSelector(selector); return selector }
-            if (!checkNotNull(ref).matches(Regex("#n[1-9][0-9]*"))) invalid("Invalid node reference.")
+            if (!checkNotNull(ref).matches(Regex("#n[1-9][0-9]*"))) invalid("nodeRef must exactly match an observed reference such as #n12, including the leading #.")
             return jsonObject("nodeRef" to ref.json()).apply { args["snapshotId"]?.let { add("snapshotId", it) } }
         }
         return when (name) {

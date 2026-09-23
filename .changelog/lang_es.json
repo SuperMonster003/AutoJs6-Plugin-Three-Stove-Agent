@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.0.0": {
-      "released_date": "2026/09/23",
+      "released_date": "2026/09/24",
       "hint": [
         "Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6."
       ],
@@ -44,6 +44,7 @@
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ],
       "fix": [
+        "Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector",
         "La admisión precarga las reglas de pedido y evita una compilación costosa de reglas",
         "La verificación distingue nodos de ventanas distintas, mantiene la observación de pantalla tras leer el portapapeles y no confunde transferencias de archivos con pagos",
         "La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización",

@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dépendance",
   "$data": {
     "v1.0.0": {
-      "released_date": "2026/09/23",
+      "released_date": "2026/09/24",
       "hint": [
         "Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6."
       ],
@@ -44,6 +44,7 @@
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
       ],
       "fix": [
+        "Indications précises pour corriger les cibles de noeuds: conserver le préfixe # et omettre snapshotId avec selector",
         "L'admission précharge les règles de commande et évite leur compilation coûteuse",
         "La vérification distingue les noeuds de fenêtres différentes, conserve l'obligation d'observer après lecture du presse-papiers et ne confond plus transfert de fichiers et paiement",
         "Une lecture de l'écran sans réponse après une action ne dépasse plus le délai de stabilisation",
