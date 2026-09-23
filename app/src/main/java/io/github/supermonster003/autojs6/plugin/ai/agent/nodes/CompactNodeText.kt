@@ -11,8 +11,8 @@ object CompactNodeText {
         fun permits(other: Bounds): Boolean {
             val dx = if (left == right) 48L else minOf(48L, (right.toLong() - left) / 2)
             val dy = if (top == bottom) 48L else minOf(48L, (bottom.toLong() - top) / 2)
-            return other.left >= left.toLong() - dx && other.right <= right.toLong() + dx &&
-                other.top >= top.toLong() - dy && other.bottom <= bottom.toLong() + dy
+            return kotlin.math.abs(other.left.toLong() - left) <= dx && kotlin.math.abs(other.right.toLong() - right) <= dx &&
+                kotlin.math.abs(other.top.toLong() - top) <= dy && kotlin.math.abs(other.bottom.toLong() - bottom) <= dy
         }
     }
     data class Node(val ref: String, val depth: Int, val className: String, val id: String, val text: String,

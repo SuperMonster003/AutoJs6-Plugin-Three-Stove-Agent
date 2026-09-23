@@ -44,6 +44,7 @@
         "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
       ],
       "fix": [
+        "Node relocation no longer confuses smaller nested containers with the original action target",
         "Actionable node target repair hints preserve the # reference prefix and omit snapshotId for selectors",
         "Task admission preloads order intent rules and avoids expensive rule compilation",
         "Verification distinguishes matching nodes in different windows, keeps screen observation requirements after clipboard reads, and avoids classifying file transfers as payments",

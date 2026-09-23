@@ -32,6 +32,18 @@ class NodeRefRegistryTest {
         registry.clear(); assertThrows(NodeRefRegistry.Stale::class.java) { registry.resolve("#n1") }
         registry.close(); assertThrows(IllegalStateException::class.java) { registry.record(snapshot("s4")) }
     }
+    @Test fun anonymousContainerRelocationDoesNotAliasSmallerDescendants() {
+        val registry = NodeRefRegistry()
+        registry.record(snapshot("s1", listOf("#n1 FrameLayout [0,746][1800,991]")))
+        registry.record(snapshot("s2", listOf("#n1 FrameLayout [0,746][1800,991]", "#n2 FrameLayout [183,771][623,825]")))
+        assertEquals("#n1", registry.relocate("#n1", "s1").node.ref)
+    }
+    @Test fun aSmallerReplacementInsideTheOldBoundsCannotRelocate() {
+        val registry = NodeRefRegistry()
+        registry.record(snapshot("s1", listOf("#n1 FrameLayout [0,0][100,100]")))
+        registry.record(snapshot("s2", listOf("#n1 FrameLayout [49,49][51,51]")))
+        assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+    }
     @Test fun textDiffCountsDuplicatesAndFlagsPartialSnapshots() {
         val registry = NodeRefRegistry()
         registry.record(snapshot("s1", listOf("#n1 TextView \"Same\" c=(0,0)", "#n2 TextView \"Same\" c=(1,1)")))

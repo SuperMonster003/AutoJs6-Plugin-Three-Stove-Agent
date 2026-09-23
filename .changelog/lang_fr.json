@@ -44,6 +44,7 @@
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
       ],
       "fix": [
+        "La relocalisation des noeuds ne confond plus les petits conteneurs imbriques avec la cible originale",
         "Indications précises pour corriger les cibles de noeuds: conserver le préfixe # et omettre snapshotId avec selector",
         "L'admission précharge les règles de commande et évite leur compilation coûteuse",
         "La vérification distingue les noeuds de fenêtres différentes, conserve l'obligation d'observer après lecture du presse-papiers et ne confond plus transfert de fichiers et paiement",

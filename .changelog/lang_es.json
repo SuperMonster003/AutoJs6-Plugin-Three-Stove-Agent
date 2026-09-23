@@ -44,6 +44,7 @@
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ],
       "fix": [
+        "La relocalizacion de nodos ya no confunde contenedores anidados menores con el objetivo original",
         "Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector",
         "La admisión precarga las reglas de pedido y evita una compilación costosa de reglas",
         "La verificación distingue nodos de ventanas distintas, mantiene la observación de pantalla tras leer el portapapeles y no confunde transferencias de archivos con pagos",
