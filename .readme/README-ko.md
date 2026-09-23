@@ -177,6 +177,7 @@ _2026/09/23_
 
 - `힌트` 개발 미리보기: 호스트 연결과 작업 제어가 연결되었습니다. 스크립트 실행과 화면 복구는 P3/P4, 스크립트 API와 작업 화면은 P5/P6에서 구현합니다.
 - `힌트` 작업은 호스트가 제출합니다. 작업 화면과 ai.agent 스크립트 API는 P5/P6에 예정되어 있습니다.
+- `기능` 등록 스크립트 매개변수 검증과 기본값 적용, 누락 값 질문, 현재 매니페스트 위험 확인 및 전체 매개변수 확인 표
 - `기능` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `기능` 10개 언어의 README, 플러그인 센터 안내, 변경 기록
 - `기능` 30 개 도구, 그룹 제어, 매개변수 Schema, bridge 호출 준비, 제한된 관찰 및 민감 위험 상향을 갖춘 Agent 코어 목록

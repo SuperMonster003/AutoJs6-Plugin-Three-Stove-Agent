@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirmation_parameter">パラメータ</string>
+    <string name="confirmation_value">値</string>
     <string name="launcher_connect">AutoJs6 に接続</string>
     <string name="launcher_host_disabled">AutoJs6 はインストールされていますが無効になっています. システムのアプリ設定で有効にしてから, ここに戻ってください.</string>
     <string name="launcher_host_incompatible">AutoJs6 ビルド %1$d がインストールされていますが, このプラグインにはビルド %2$d 以降が必要です. 先に AutoJs6 を更新してください.</string>

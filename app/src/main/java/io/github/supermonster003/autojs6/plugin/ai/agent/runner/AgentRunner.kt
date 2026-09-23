@@ -212,10 +212,11 @@ class AgentRunner internal constructor(
         beginOperation(b.toolTimeout(), RunError.BUDGET_EXCEEDED, RunError.HOST_UNAVAILABLE,
             { callback -> tools.prepare(invocation, b.toolTimeout(), callback) }) { outcome ->
             when (outcome) {
-                is PortResult.Failure -> toolFailed(outcome.error, unknownPassword = true)
+                is PortResult.Failure -> toolFailed(outcome.error, unknownPassword = true, scriptParameters = outcome.scriptParameters)
                 is PortResult.Success -> {
                     val prepared = outcome.value
                     if (prepared.invocation !== invocation) { finishError(RunError.INVALID_REQUEST); return@beginOperation }
+                    prepared.metadata.script?.let { decision = value.copy(arguments = it.arguments()) }
                     if (prepared.metadata.passwordField) protectText()
                     val spec = policy.requireEnabled(catalog, value.name)
                     val assessment = gate.assess(spec, prepared.metadata)
@@ -251,10 +252,11 @@ class AgentRunner internal constructor(
         }
     }
 
-    private fun toolFailed(error: RunError, unknownPassword: Boolean = false) {
+    private fun toolFailed(error: RunError, unknownPassword: Boolean = false,
+                           scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null) {
         if (unknownPassword) protectText()
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
-        observation = errorObservation(error)
+        observation = scriptParameters?.observation() ?: errorObservation(error)
         record(observation, error)
         nextStep()
     }
@@ -273,7 +275,9 @@ class AgentRunner internal constructor(
         val timeout = minOf(options.limits.confirmationTimeoutMs, checkNotNull(budget).remainingMs)
         val waiting = installInteraction(timeout, tool = prepared, assessment = assessment)
         transition(RunState.WAITING_CONFIRMATION)
-        val summary = StepJournal.clipped(journal.redact(gate.arguments(prepared.invocation.arguments, prepared.metadata)), 4096)
+        val arguments = journal.redact(gate.arguments(prepared.invocation.arguments, prepared.metadata))
+        // Script parameters are at most 16 KiB. Approval must display every effective parameter.
+        val summary = if (prepared.metadata.script != null) arguments else StepJournal.clipped(arguments, 4096)
         emit("confirmation", jsonObject("requestId" to waiting.id.json(), "tool" to spec.name.json(),
             "description" to gate.description(spec, prepared.metadata, options.locale).json(), "risk" to assessment.risk.name.lowercase(Locale.ROOT).json(),
             "arguments" to summary, "allowRunScope" to assessment.allowRunScope.json(), "timeoutMs" to timeout.json()))

@@ -12,6 +12,7 @@
         "任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施."
       ],
       "feature": [
+        "登记脚本参数校验与默认值补全, 缺参询问, 当前清单风险检查及确认参数表",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
         "10 语言的 README, 插件中心说明与更新日志",
         "Agent 核心工具目录, 含 30 个工具, 分组准入, 参数 Schema, bridge 调用准备, 有界观察与敏感风险提升",

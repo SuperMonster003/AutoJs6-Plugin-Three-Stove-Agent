@@ -12,6 +12,7 @@
         "El anfitrión envía las tareas. El panel independiente y la API ai.agent siguen previstos para P5/P6."
       ],
       "feature": [
+        "Validación de parámetros de scripts registrados con valores predeterminados, preguntas por datos faltantes, revisión del riesgo actual y tablas completas para confirmar",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
         "README, instrucciones del centro de plugins y registro de cambios en 10 idiomas",
         "Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles",

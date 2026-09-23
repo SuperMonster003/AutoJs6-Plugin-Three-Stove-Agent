@@ -177,6 +177,7 @@ _2026/09/23_
 
 - `Hint` Development preview: the host link and task controls are connected. Script execution adapters and screen recovery continue in P3/P4; the script API and workbench follow in P5/P6.
 - `Hint` Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6.
+- `Feature` Registered script parameter validation with defaults, missing-value questions, current-manifest risk checks and complete parameter tables for confirmation
 - `Feature` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 - `Feature` README, plugin-center instructions, and changelog in 10 languages
 - `Feature` Agent core catalog with 30 tools, group admission, parameter schemas, bridge-call preparation, bounded observations and sensitive-risk escalation

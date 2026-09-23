@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.model
 
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.*
 
 sealed interface AgentDecision {
     val reasoning: String?
@@ -12,6 +13,11 @@ sealed interface AgentDecision {
 
 class DecisionValidator(private val catalog: ToolCatalog) {
     private val handlers = ToolHandlers(catalog)
+
+    /** Registration is resolved asynchronously after syntax validation. Missing values are tool feedback,
+     * not malformed decisions, so the next turn can ask without consuming JSON repair retries. */
+    fun validateScriptParameters(script: RegisteredScript, parameters: JsonObject): ScriptParameterCheck =
+        ScriptParameters(script.parameters).validate(parameters)
 
     fun validate(parsed: ParsedDecision, policy: ToolPolicy, format: DecisionFormat): AgentDecision {
         val root = parsed.value

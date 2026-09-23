@@ -136,8 +136,10 @@ class LauncherActivity : Activity() {
         }
         val builder = AlertDialog.Builder(this).setTitle(R.string.task_reply)
         if (pending.get("type").asString == "confirmation") {
-            builder.setMessage(pending.get("description").asString + "\n" + pending.get("arguments").toString())
-                .setPositiveButton(R.string.task_allow) { _, _ -> reply(null, true) }
+            if (pending.get("tool")?.asString == "script_run" && pending.getAsJsonObject("arguments")?.get("parameters")?.isJsonObject == true)
+                builder.setView(ScriptConfirmationView.create(this, pending))
+            else builder.setMessage(pending.get("description").asString + "\n" + pending.get("arguments").toString())
+            builder.setPositiveButton(R.string.task_allow) { _, _ -> reply(null, true) }
                 .setNegativeButton(R.string.task_deny) { _, _ -> reply(null, false) }
         } else {
             when (pending.get("kind").asString) {

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirmation_parameter">參數</string>
+    <string name="confirmation_value">值</string>
     <string name="launcher_connect">連接 AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 已安裝但已被停用. 請在系統的應用程式設定中啟用它, 然後返回此頁面.</string>
     <string name="launcher_host_incompatible">已安裝 AutoJs6 組建 %1$d, 但此外掛需要組建 %2$d 或更新版本. 請先更新 AutoJs6.</string>

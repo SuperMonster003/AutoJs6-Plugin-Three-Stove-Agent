@@ -416,7 +416,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P3.2 参数补全与确认
 
-- [ ] (插件) 模型以 `kind: "tool", tool: "script_run", arguments: { id, parameters }` 选择脚本; `DecisionValidator` 按脚本登记的参数 Schema 子集校验 `parameters` (缺必填 -> 生成 "缺少参数" 观察, 模型应转 `ask`; 也允许模型直接 `ask` 带 `memoryKey` 让答案进入记忆提议); 登记 `risk: sensitive` 或 `confirm: before-run` 时进入确认门, 确认文案含脚本描述与参数表.
+- [x] (插件) 模型以 `kind: "tool", tool: "script_run", arguments: { id, parameters }` 选择脚本; `DecisionValidator` 按脚本登记的参数 Schema 子集校验 `parameters` (缺必填 -> 生成 "缺少参数" 观察, 模型应转 `ask`; 也允许模型直接 `ask` 带 `memoryKey` 让答案进入记忆提议); 登记 `risk: sensitive` 或 `confirm: before-run` 时进入确认门, 确认文案含脚本描述与参数表.
 - [ ] (插件) 记忆注入: 参数与记忆 key 同名 (如 `address`) 时, 系统提示中列出可用记忆值供模型填参 (D29 作用域).
 - [ ] (测试) JVM: 参数校验矩阵 (类型 / enum / default 填充 / 多余键拒绝), 确认文案渲染, 记忆填参.
 

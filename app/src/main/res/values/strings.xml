@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirmation_parameter">Parameter</string>
+    <string name="confirmation_value">Value</string>
     <string name="launcher_connect">Connect to AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 is installed but disabled. Enable it in the system app settings, then return here.</string>
     <string name="launcher_host_incompatible">AutoJs6 build %1$d is installed, but this plugin needs build %2$d or later. Update AutoJs6 first.</string>

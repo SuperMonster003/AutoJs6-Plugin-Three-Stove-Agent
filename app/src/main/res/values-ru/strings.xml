@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirmation_parameter">Параметр</string>
+    <string name="confirmation_value">Значение</string>
     <string name="launcher_connect">Подключить AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 установлен, но отключен. Включите его в системных настройках приложений и вернитесь сюда.</string>
     <string name="launcher_host_incompatible">Установлена сборка AutoJs6 %1$d, но этому плагину нужна сборка %2$d или новее. Сначала обновите AutoJs6.</string>

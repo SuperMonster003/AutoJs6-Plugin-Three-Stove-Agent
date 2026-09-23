@@ -22,8 +22,10 @@ enum class RunError {
 
 sealed interface PortResult<out T> {
     data class Success<T>(val value: T) : PortResult<T>
-    data class Failure(val error: RunError, val reason: String? = null, val usage: ModelUsage? = null, val outputBytes: Int = 0) : PortResult<Nothing> {
-        init { require(reason == null || reason == "REQUEST_REJECTED"); require(outputBytes >= 0) }
+    data class Failure(val error: RunError, val reason: String? = null, val usage: ModelUsage? = null, val outputBytes: Int = 0,
+                       val scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null) : PortResult<Nothing> {
+        init { require(reason == null || reason == "REQUEST_REJECTED"); require(outputBytes >= 0)
+            require(scriptParameters == null || error == RunError.TOOL_ARGUMENTS_INVALID) }
     }
 }
 

@@ -12,6 +12,7 @@
         "Tasks are submitted by the host. The standalone workbench and ai.agent script API remain scheduled for P5/P6."
       ],
       "feature": [
+        "Registered script parameter validation with defaults, missing-value questions, current-manifest risk checks and complete parameter tables for confirmation",
         "`ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`",
         "README, plugin-center instructions, and changelog in 10 languages",
         "Agent core catalog with 30 tools, group admission, parameter schemas, bridge-call preparation, bounded observations and sensitive-risk escalation",

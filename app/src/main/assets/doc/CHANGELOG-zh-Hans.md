@@ -10,6 +10,7 @@
 
 * `提示` 开发预览: 宿主链路与任务控制已接入. 专用脚本执行与屏幕恢复继续按 P3/P4 实施, 脚本 API 与任务台按 P5/P6 提供.
 * `提示` 任务由宿主提交. 独立任务台和 ai.agent 脚本 API 仍按 P5/P6 实施.
+* `新增` 登记脚本参数校验与默认值补全, 缺参询问, 当前清单风险检查及确认参数表
 * `新增` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 * `新增` 10 语言的 README, 插件中心说明与更新日志
 * `新增` Agent 核心工具目录, 含 30 个工具, 分组准入, 参数 Schema, bridge 调用准备, 有界观察与敏感风险提升

@@ -10,6 +10,7 @@
 
 * `提示` 開發預覽: 宿主連接與任務控制已接入. 專用腳本執行與畫面恢復繼續按 P3/P4 實作, 腳本 API 與任務台按 P5/P6 提供.
 * `提示` 任務由宿主提交. 獨立任務台和 ai.agent 腳本 API 仍按 P5/P6 實作.
+* `新增` 登記指令碼參數驗證與預設值補全, 缺參詢問, 目前清單風險檢查及確認參數表
 * `新增` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 * `新增` 10 種語言的 README, 外掛中心說明與更新日誌
 * `新增` Agent 核心工具目錄, 含 30 個工具, 分組准入, 參數 Schema, bridge 呼叫準備, 有界觀察與敏感風險提升

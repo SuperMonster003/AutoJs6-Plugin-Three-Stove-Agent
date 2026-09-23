@@ -10,6 +10,7 @@
 
 * `ヒント` 開発プレビュー: ホスト接続とタスク制御を実装しました. スクリプト実行と画面復旧は P3/P4, スクリプト API とタスク画面は P5/P6 で続けます.
 * `ヒント` タスクはホストから送信します. タスク画面と ai.agent スクリプト API は P5/P6 の予定です.
+* `機能` 登録スクリプトの引数検証と既定値の補完, 不足値の質問, 最新マニフェストのリスク確認と全引数の確認表
 * `機能` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
 * `機能` 10 言語の README, プラグインセンターの説明, 変更履歴
 * `機能` 30 ツールの Agent コア一覧, グループ制御, パラメータ Schema, bridge 呼び出し準備, 有界観察と機密操作のリスク引き上げ

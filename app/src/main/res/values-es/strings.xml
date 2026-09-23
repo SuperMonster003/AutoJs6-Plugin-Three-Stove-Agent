@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="confirmation_parameter">Parámetro</string>
+    <string name="confirmation_value">Valor</string>
     <string name="launcher_connect">Conectar con AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 está instalado pero deshabilitado. Habilítelo en los ajustes de aplicaciones del sistema y vuelva aquí.</string>
     <string name="launcher_host_incompatible">La build %1$d de AutoJs6 está instalada, pero este plugin necesita la build %2$d o posterior. Actualice AutoJs6 primero.</string>

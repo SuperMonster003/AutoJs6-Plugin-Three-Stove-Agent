@@ -104,6 +104,11 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
                     policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
                 val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
+                val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered").all {
+                    it in methods && configuration.methods?.contains(it) != false
+                } && policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
+                val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
+                    scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
                     when (outcome) {
@@ -129,7 +134,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                 try { finish(PortResult.Success(RunComponents(
                                     ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
                                         ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
-                                        scripts = presentation), client, scriptTools, selected.maximumTokens))) }
+                                        scripts = presentation), client, registeredTools, selected.maximumTokens))) }
                                 catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
                             }
                             if (!policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))) compiled(null)
