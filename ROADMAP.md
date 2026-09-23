@@ -378,7 +378,7 @@ P2.2 证据 (E1/E2, 2026-09-23): JVM 108/108, SDK 37 私有只读 AVD 8/8, debug
 - [ ] (插件) `AgentRunner`: 状态 `queued -> running -> (waiting_input | waiting_confirmation | running)* -> completed | partial | failed | blocked | cancelled`; 单链路同时 1 个运行 (D24), `RunQueue` 上限 8; 每步: 编译上下文 -> 模型 -> 解析校验 -> 风险与确认门 -> 执行 -> 观察 -> 记账; `cancel` 在任意等待点生效并尝试取消进行中的模型 / 工具调用; 宿主不可用转 `blocked` (D15).
 - [x] (插件) `Budget`: `maxSteps` (默认 40), `maxModelCalls` (60), `maxDurationMs` (10 min, detached 30 min), `maxTotalTokens` (300,000, usage 不可得时估算), `stepToolTimeoutMs` (30 s, 脚本工具按登记 `timeoutMs` 上限 5 min), `confirmationTimeoutMs` (120 s), `askTimeoutMs` (10 min); 任一超限 -> `partial` 或 `failed` 并写明原因; 剩余预算作为观察附注回送模型 (让模型知道何时该收尾).
 - [x] (插件) `ConfirmationGate`: 按 `RiskLevel` + 预设策略 (`default / cautious`) 决定是否请求确认; 确认请求事件含工具名, 人类可读描述 (由 `ToolSpec` 模板渲染, 例 "点击 '提交订单' 按钮"), 参数摘要; 用户可 "允许 / 拒绝 / 本次任务内允许同类" (同类 = 同工具 + 同风险, `SENSITIVE` 的支付类不提供 "同类允许"); 拒绝作为观察回送模型.
-- [ ] (插件) `StepJournal`: 每步记录 `index / decision (裁剪) / tool / arguments / confirmation / observation (裁剪) / usage / elapsedMs / error`; 终态记录 `AgentResult` (附录 A.5); 日志上限 (每任务 200 步 / 1 MiB) 与脱敏 (`ui_set_text` 的 `text` 在登记为密码字段的节点上以 `***` 记录).
+- [x] (插件) `StepJournal`: 每步记录 `index / decision (裁剪) / tool / arguments / confirmation / observation (裁剪) / usage / elapsedMs / error`; 终态记录 `AgentResult` (附录 A.5); 日志上限 (每任务 200 步 / 1 MiB) 与脱敏 (`ui_set_text` 的 `text` 在登记为密码字段的节点上以 `***` 记录).
 - [ ] (测试) JVM: 状态机全路径 (含取消竞争, 宿主死亡, 预算各维度), 确认门矩阵, 日志上限与脱敏; 用假模型 (脚本化决策序列) + 假代理跑通 D32 用例 (1) 的离线剧本.
 
 ### P2.4 上下文编译
