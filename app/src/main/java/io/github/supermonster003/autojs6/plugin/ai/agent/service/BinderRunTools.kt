@@ -4,6 +4,7 @@ import android.os.*
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ObservationTools
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptCatalogSnapshot
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
@@ -19,6 +20,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                               private val workers: LinkWorkers, private val scheduler: RunScheduler, private val catalog: ToolCatalog,
                               private val alive: () -> Boolean, private val methods: Set<String>, private val permissions: Set<String>,
                               private val maximumRequestBytes: Int, private val maximumTimeoutMs: Long) : RunTools {
+    private val observations = ObservationTools()
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
         if (!alive()) callback(PortResult.Failure(RunError.HOST_UNAVAILABLE))
         else if (invocation.name !in IMPLEMENTED || invocation.plan is ToolPlan.AppendText) callback(PortResult.Failure(RunError.TOOL_DISABLED))
@@ -42,12 +44,13 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
             if (cancelled.get()) next.cancel()
         }
         fun success(value: JsonElement) {
-            try { finish(PortResult.Success(ToolReply(value))) } catch (_: Exception) { finish(PortResult.Failure(RunError.LIMIT_EXCEEDED)) }
+            try { finish(PortResult.Success(ToolReply(observations.transform(prepared.invocation, value)))) }
+            catch (_: Exception) { finish(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)) }
         }
         when (val plan = prepared.invocation.plan) {
             is ToolPlan.Call -> call(plan.request) { value -> when (value) {
                 is PortResult.Failure -> finish(value)
-                is PortResult.Success -> success(if (plan.resultLimit != null && value.value.isJsonArray)
+                is PortResult.Success -> success(if (prepared.invocation.name != "ui_find" && plan.resultLimit != null && value.value.isJsonArray)
                     JsonArray().apply { value.value.asJsonArray.take(plan.resultLimit).forEach(::add) } else value.value)
             } }
             is ToolPlan.Poll -> {

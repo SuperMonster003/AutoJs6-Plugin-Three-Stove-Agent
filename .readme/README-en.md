@@ -176,6 +176,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/23_
 
 - `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+- `Feature` Screen observations retain host snapshot references, bounded node and console output, and summaries of visible text and state changes
 - `Feature` Single-script tasks retain the script ID, path, execution ID and reported result after model completion, including explicit null and marked truncation for large results
 - `Feature` Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation
 - `Feature` Scoped preference memory injection for script parameters, with a 4 KiB limit, explicit truncation and task-level opt-out

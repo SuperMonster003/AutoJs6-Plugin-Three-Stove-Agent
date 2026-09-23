@@ -30,7 +30,7 @@
       "required": [],
       "additionalProperties": false
     },
-    "outputHint": "compact text with snapshotId; references belong to this snapshot",
+    "outputHint": "compact text with snapshotId and bounded text/state changes; partial changes describe only the observed subset",
     "bridgeMapping": [
       "accessibility.dump"
     ],
@@ -186,7 +186,7 @@
       ],
       "additionalProperties": false
     },
-    "outputHint": "JSON observation",
+    "outputHint": "bounded nodes, total match count and truncation; use a selector to act",
     "bridgeMapping": [
       "accessibility.findAll"
     ],
@@ -395,7 +395,7 @@
       "required": [],
       "additionalProperties": false
     },
-    "outputHint": "JSON observation",
+    "outputHint": "screenOn boolean; this does not establish lock state",
     "bridgeMapping": [
       "device.isScreenOn"
     ],
@@ -446,7 +446,7 @@
       "required": [],
       "additionalProperties": false
     },
-    "outputHint": "JSON observation",
+    "outputHint": "bounded redacted text lines from the process-wide console window",
     "bridgeMapping": [
       "console.tail"
     ],

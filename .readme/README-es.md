@@ -176,6 +176,7 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 _2026/09/23_
 
 - `Aviso` Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+- `Función` Observaciones con referencias a capturas del anfitrión, salida limitada de nodos y consola, y resúmenes de cambios de texto y estado
 - `Función` Las tareas de un solo script conservan ID, ruta, ID de ejecución y resultado al concluir el modelo, con null explícito y truncamiento indicado de resultados grandes
 - `Función` Ejecución de scripts registrados con comprobación del manifiesto confirmado, observaciones estructuradas, cola de consola censurada y detención del script por tiempo agotado o cancelación
 - `Función` Preferencias en memoria por ámbito para los parámetros de scripts, con límite de 4 KiB, truncamiento explícito y desactivación por tarea
