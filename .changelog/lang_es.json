@@ -11,6 +11,7 @@
         "Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6."
       ],
       "feature": [
+        "La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla",
         "Espera limitada de estabilidad tras cada acción y resumen de cambios desde la última acción en las observaciones siguientes",
         "Acciones vinculadas a nodos inspeccionados por el anfitrión, con adición de texto, desplazamiento limitado y resultados con cambios de ventana",
         "OCR de pantalla disponible solo cuando el anfitrión confirma un plugin OCR autorizado, con texto agrupado en líneas limitadas y coordenadas",

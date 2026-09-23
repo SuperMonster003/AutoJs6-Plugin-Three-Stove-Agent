@@ -27,11 +27,13 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
             operation.finish(PortResult.Success(PreparedTool(invocation, ToolMetadata(forceConfirmation = invocation.name in GESTURES), Prepared(this, call, times))))
         } else {
             val target = call.args[0].asJsonObject.deepCopy()
+            var actionIdentity: String? = null
             try {
                 target.string("nodeRef")?.let { ref ->
                     // Never interpret an implicit model ref against a hidden inspection/dump on the host.
                     val resolved = observations.nodes.resolve(ref, target.string("snapshotId"))
                     target.addProperty("snapshotId", resolved.snapshotId)
+                    actionIdentity = resolved.node.fingerprint("") + ":" + resolved.node.bounds
                 }
             } catch (_: NodeRefRegistry.Stale) { operation.finish(PortResult.Failure(RunError.NODE_REF_STALE)); return operation }
             operation.call(ToolHandlers.bridge("accessibility.inspectNode", jsonArray(target, call.method.json()))) { answer ->
@@ -50,7 +52,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
                         val args = call.args.deepCopy().apply { set(0, bound.deepCopy()) }
                         operation.finish(PortResult.Success(PreparedTool(invocation,
                             ToolMetadata(RiskContext(if (password) "" else text, if (password) "" else desc, pkg),
-                                passwordField = password, forceConfirmation = uncertain || !enabled), Prepared(this, call.copy(args = args), times))))
+                                passwordField = password, forceConfirmation = uncertain || !enabled, actionIdentity = actionIdentity), Prepared(this, call.copy(args = args), times))))
                     } catch (_: Exception) { operation.finish(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)) }
                 }
             }

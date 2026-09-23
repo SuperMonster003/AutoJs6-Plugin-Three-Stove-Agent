@@ -15,6 +15,7 @@ data class ToolMetadata(
     val forceConfirmation: Boolean = false,
     val scriptTimeoutMs: Long? = null,
     val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.PreparedScript? = null,
+    val actionIdentity: String? = null,
 ) {
     init { require(scriptTimeoutMs == null || scriptTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS) }
 }

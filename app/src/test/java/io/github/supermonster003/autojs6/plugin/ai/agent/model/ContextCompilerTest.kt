@@ -19,8 +19,8 @@ class ContextCompilerTest {
         return ContextCompiler(prompts, catalog, selectedPolicy, target, DecisionSchema(catalog).generate(target.protocol, selectedPolicy), limits, fixed, memory)
     }
     private fun context(goal: String = "Open Android settings", history: List<JsonObject> = emptyList(), observation: String? = null,
-                        repair: JsonObject? = null, format: DecisionFormat? = null, locale: String = "en") = RunContext(goal, history, observation, repair,
-        jsonObject("steps" to 39.json(), "modelCalls" to 59.json(), "tokens" to 299_900.json(), "durationMs" to 600_000.json()), format, locale)
+                        repair: JsonObject? = null, format: DecisionFormat? = null, locale: String = "en", guidance: JsonObject = JsonObject()) = RunContext(goal, history, observation, repair,
+        jsonObject("steps" to 39.json(), "modelCalls" to 59.json(), "tokens" to 299_900.json(), "durationMs" to 600_000.json()), format, locale, guidance)
     private fun record(index: Int, observation: String = "verified") = jsonObject("index" to index.json(), "kind" to "tool".json(), "tool" to "ui_dump".json(),
         "decision" to jsonObject("kind" to "tool".json(), "tool" to "ui_dump".json(), "arguments" to JsonObject(), "parseMode" to "STRICT".json(), "repairs" to 0.json()),
         "observation" to observation.json(), "confirmation" to "auto".json())
@@ -66,6 +66,16 @@ class ContextCompilerTest {
         assertTrue(contents(input).any { it.contains("live-observation".repeat(50)) })
         assertTrue(input.messages.count { it.asJsonObject.string("role") == "assistant" } < 8)
         assertEquals(20, history.size)
+    }
+    @Test fun loopGuidanceSurvivesHistoryTrimmingInBothCompactLanguages() {
+        for (goal in listOf("Open Settings", "打开设置")) {
+            val guidance = jsonObject("observeRequired" to true.json(), "changeStrategy" to true.json(),
+                "unchangedActions" to 3.json(), "repeatedActionCount" to 2.json())
+            val input = compiler(local = true).compile(context(goal, history = List(20) { record(it + 1, "old".repeat(1000)) }, guidance = guidance))
+            assertTrue(contents(input).first().contains(guidance.toString()))
+            assertTrue(input.messages.count { it.asJsonObject.string("role") == "assistant" } < 8)
+            assertTrue(input.inputBytes <= 7500)
+        }
     }
     @Test fun impossibleBudgetsFailBeforeRemovingGoalOrRules() {
         assertThrows(ContextLimitExceeded::class.java) { compiler(limits = ContextLimits(maximumBytes = 500)).compile(context()) }

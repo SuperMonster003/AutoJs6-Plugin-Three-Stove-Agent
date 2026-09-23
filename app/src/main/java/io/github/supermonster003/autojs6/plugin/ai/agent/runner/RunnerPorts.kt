@@ -49,7 +49,7 @@ class RunOptions(
 }
 
 class RunContext(val goal: String, val history: List<JsonObject>, val observation: String?, val repair: JsonObject?, val remainingBudget: JsonObject,
-                 val format: DecisionFormat? = null, val locale: String = "en") {
+                 val format: DecisionFormat? = null, val locale: String = "en", val guidance: JsonObject = JsonObject()) {
     override fun toString() = "RunContext(records=${history.size}, repair=${repair != null})"
 }
 
@@ -146,4 +146,5 @@ class RunnerText(json: String, locale: String) {
         val dimension = if (error == RunError.BUDGET_EXCEEDED) strings.string("budget_$budgetDimension") else null
         return message + if (dimension == null) "" else " [$dimension]"
     }
+    fun rule(name: String): String = rows.getAsJsonObject(key).string(name) ?: error("Missing rule text")
 }

@@ -67,7 +67,7 @@ class ContextCompiler(
             val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
             val messages = jsonArray(message("system", prompts.system(language, policy, format,
                 AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
-                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable)), message("user", goal))
+                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance)), message("user", goal))
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach { add(summary(it)) } })))
             for (record in history.takeLast(retained)) {
                 val decision = record.getAsJsonObject("decision")?.deepCopy()

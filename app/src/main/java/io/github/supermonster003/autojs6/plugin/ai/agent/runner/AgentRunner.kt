@@ -25,6 +25,7 @@ class AgentRunner internal constructor(
     private var gate = ConfirmationGate(policy, options.confirmationMode)
     private val handlers = ToolHandlers(catalog)
     private val validator = DecisionValidator(catalog)
+    private val loopRules = LoopRules()
     private var budget: Budget? = null
     private var durationTimer = Cancellation.NONE
     private var operation: Operation? = null
@@ -159,7 +160,7 @@ class AgentRunner internal constructor(
     private fun requestModel(repair: JsonObject?) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
-        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale))
+        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, loopRules.guidance()))
         if (!canContinue()) return
         val reservation = b.reserveModel(input.inputBytes, minOf(options.maximumOutputTokens, input.maximumOutputTokens ?: options.maximumOutputTokens))
         var settled = false
@@ -223,6 +224,12 @@ class AgentRunner internal constructor(
                     prepared.metadata.script?.let { decision = value.copy(arguments = it.arguments()) }
                     if (prepared.metadata.passwordField) protectText()
                     val spec = policy.requireEnabled(catalog, value.name)
+                    if (!loopRules.admit(spec, prepared)) {
+                        record(jsonObject("rule" to "REPEATED_ACTION".json(), "limit" to LoopRules.REPEAT_LIMIT.json()).toString())
+                        val reason = text.rule("repeated_action")
+                        finish(RunState.BLOCKED, reason, unfinished = listOf(reason))
+                        return@beginOperation
+                    }
                     val assessment = gate.assess(spec, prepared.metadata)
                     if (assessment.required) waitForConfirmation(prepared, spec, assessment)
                     else { confirmation = "auto"; executeTool(prepared) }
@@ -241,6 +248,7 @@ class AgentRunner internal constructor(
             emit("progress", jsonObject("step" to b.steps.json(), "message" to (prepared.invocation.arguments["message"] ?: "".json()), "budget" to b.remainingJson()))
         }
         if (!canContinue()) return
+        loopRules.started(checkNotNull(catalog[prepared.invocation.name]))
         b.beginTool()
         when (prepared.invocation.name) {
             "script_run" -> { scriptCalls++; scriptResult = null }
@@ -254,6 +262,7 @@ class AgentRunner internal constructor(
                 is PortResult.Success -> {
                     if (outcome.value.script?.error == null) successfulTools++
                     if (prepared.invocation.name == "script_run") scriptResult = outcome.value.script?.scriptResult
+                    loopRules.succeeded(checkNotNull(catalog[prepared.invocation.name]), outcome.value.result)
                     observation = compiler.observe(prepared.invocation.name, journal.redact(outcome.value.result))
                     record(observation, outcome.value.script?.error)
                     nextStep()
@@ -265,6 +274,7 @@ class AgentRunner internal constructor(
     private fun toolFailed(error: RunError, unknownPassword: Boolean = false,
                            scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null) {
         if (unknownPassword) protectText()
+        (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
         observation = scriptParameters?.observation() ?: errorObservation(error)
         record(observation, error)

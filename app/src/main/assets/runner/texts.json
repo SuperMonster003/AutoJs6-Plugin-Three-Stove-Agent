@@ -9,7 +9,8 @@
     "budget_modelCalls": "Model call limit",
     "budget_duration": "Task time limit",
     "budget_tokens": "Token limit",
-    "budget_toolTimeout": "Tool time limit"
+    "budget_toolTimeout": "Tool time limit",
+    "repeated_action": "The same action was requested three times. The task stopped before executing it again."
   },
   "zh-Hans": {
     "cancelled": "任务已取消.",
@@ -21,7 +22,8 @@
     "budget_modelCalls": "模型调用次数上限",
     "budget_duration": "任务时长上限",
     "budget_tokens": "token 上限",
-    "budget_toolTimeout": "工具时长上限"
+    "budget_toolTimeout": "工具时长上限",
+    "repeated_action": "同一动作已连续请求 3 次. 任务已停止, 未再次执行该动作."
   },
   "zh-Hant-TW": {
     "cancelled": "任務已取消.",
@@ -33,7 +35,8 @@
     "budget_modelCalls": "模型呼叫次數上限",
     "budget_duration": "任務時長上限",
     "budget_tokens": "token 上限",
-    "budget_toolTimeout": "工具時長上限"
+    "budget_toolTimeout": "工具時長上限",
+    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作."
   },
   "zh-Hant-HK": {
     "cancelled": "任務已取消.",
@@ -45,7 +48,8 @@
     "budget_modelCalls": "模型呼叫次數上限",
     "budget_duration": "任務時長上限",
     "budget_tokens": "token 上限",
-    "budget_toolTimeout": "工具時長上限"
+    "budget_toolTimeout": "工具時長上限",
+    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作."
   },
   "fr": {
     "cancelled": "La tâche a été annulée.",
@@ -57,7 +61,8 @@
     "budget_modelCalls": "Limite des appels au modèle",
     "budget_duration": "Durée limite de la tâche",
     "budget_tokens": "Limite des tokens",
-    "budget_toolTimeout": "Durée limite de l'outil"
+    "budget_toolTimeout": "Durée limite de l'outil",
+    "repeated_action": "La même action a été demandée trois fois. La tâche s'est arrêtée avant de l'exécuter à nouveau."
   },
   "es": {
     "cancelled": "La tarea se ha cancelado.",
@@ -69,7 +74,8 @@
     "budget_modelCalls": "Límite de llamadas al modelo",
     "budget_duration": "Límite de tiempo de la tarea",
     "budget_tokens": "Límite de tokens",
-    "budget_toolTimeout": "Límite de tiempo de la herramienta"
+    "budget_toolTimeout": "Límite de tiempo de la herramienta",
+    "repeated_action": "La misma acción se solicitó tres veces. La tarea se detuvo antes de ejecutarla de nuevo."
   },
   "ja": {
     "cancelled": "タスクはキャンセルされました.",
@@ -81,7 +87,8 @@
     "budget_modelCalls": "モデル呼び出し数の上限",
     "budget_duration": "タスク時間の上限",
     "budget_tokens": "token の上限",
-    "budget_toolTimeout": "ツール時間の上限"
+    "budget_toolTimeout": "ツール時間の上限",
+    "repeated_action": "同じ操作が連続して 3 回要求されました. 再実行する前にタスクを停止しました."
   },
   "ko": {
     "cancelled": "작업이 취소되었습니다.",
@@ -93,7 +100,8 @@
     "budget_modelCalls": "모델 호출 수 한도",
     "budget_duration": "작업 시간 한도",
     "budget_tokens": "token 한도",
-    "budget_toolTimeout": "도구 시간 한도"
+    "budget_toolTimeout": "도구 시간 한도",
+    "repeated_action": "같은 동작이 연속으로 3번 요청되었습니다. 다시 실행하기 전에 작업을 중지했습니다."
   },
   "ru": {
     "cancelled": "Задача отменена.",
@@ -105,7 +113,8 @@
     "budget_modelCalls": "Лимит вызовов модели",
     "budget_duration": "Лимит времени задачи",
     "budget_tokens": "Лимит токенов",
-    "budget_toolTimeout": "Лимит времени инструмента"
+    "budget_toolTimeout": "Лимит времени инструмента",
+    "repeated_action": "Одно действие запрошено три раза подряд. Задача остановлена до его повторного выполнения."
   },
   "ar": {
     "cancelled": "تم إلغاء المهمة.",
@@ -117,6 +126,7 @@
     "budget_modelCalls": "حد استدعاءات النموذج",
     "budget_duration": "حد وقت المهمة",
     "budget_tokens": "حد الرموز",
-    "budget_toolTimeout": "حد وقت الأداة"
+    "budget_toolTimeout": "حد وقت الأداة",
+    "repeated_action": "تم طلب الإجراء نفسه ثلاث مرات متتالية. توقفت المهمة قبل تنفيذه مرة أخرى."
   }
 }

@@ -9,6 +9,7 @@
 ###### 2026/09/23
 
 * `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+* `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution
 * `Feature` Actions wait for a bounded stable screen sample and include changes since the last action in subsequent observations
 * `Feature` Screen actions bind confirmation to inspected host nodes, support text append and bounded scrolling, and report action results and window changes
 * `Feature` Screen OCR is offered only when the host reports an available authorized OCR plugin; text is merged into bounded lines with coordinates
