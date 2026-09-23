@@ -52,6 +52,20 @@ class AgentRunnerDoneRulesTest {
         assertEquals(true, f.contexts.last().guidance.flag("orderStatusRequired"))
         assertEquals(3, f.model.calls.size)
     }
+    @Test fun cashierTransactionLabelIsDeniedBeforeExecutionInDefaultMode() {
+        val f = RunnerFixture()
+        f.tools.metadata = { ToolMetadata(RiskContext(nodeText = "确认交易", packageName = "com.sankuai.meituan.takeoutnew")) }
+        f.enqueue(tool("ui_click", """{"nodeRef":"#n89"}"""),
+            done("partial", unfinished = listOf("Payment was declined"), orderStatus = "pending_payment"))
+        val run = f.start()
+        assertEquals(RunState.WAITING_CONFIRMATION, run.state)
+        val request = f.events.last { it.type == "confirmation" }.payload
+        assertEquals("sensitive", request.string("risk")); assertEquals(false, request.flag("allowRunScope"))
+        run.confirm(f.request("confirmation"), false); f.scheduler.drain()
+        assertEquals(RunState.PARTIAL, run.state); assertTrue(f.tools.executions.isEmpty())
+        assertEquals("pending_payment", run.result!!.string("orderStatus"))
+        assertEquals(true, f.contexts.last().guidance.flag("orderStatusRequired"))
+    }
     @Test fun syntaxAndOrderRepairsShareOneAllowanceAndCannotBypassModelBudget() {
         for (maxCalls in listOf(2, 3)) {
             val f = RunnerFixture(); f.enqueue("bad", done(), done(orderStatus = "none"))

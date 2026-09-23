@@ -13,6 +13,16 @@ import java.util.concurrent.atomic.AtomicInteger
 /** Real Android scheduler and packaged assets, injected fake model/device ports; no Binder or real device actions. */
 class AgentRunnerDeviceTest {
     private fun asset(path: String) = InstrumentationRegistry.getInstrumentation().targetContext.assets.open(path).bufferedReader().use { it.readText() }
+    @Test fun packagedTransactionLabelAlwaysNeedsPaymentConfirmation() {
+        val catalog = ToolCatalog(asset("catalog/tools.json")); val policy = ToolPolicy.fromAssets(::asset)
+        val gate = ConfirmationGate(policy, ConfirmationMode.DEFAULT)
+        val click = checkNotNull(catalog["ui_click"])
+        gate.allow(gate.assess(click, ToolMetadata()), ConfirmationScope.RUN)
+        val decision = gate.assess(click, ToolMetadata(RiskContext(nodeText = "确认交易")))
+        assertEquals(RiskLevel.SENSITIVE, decision.risk)
+        assertTrue(decision.required); assertFalse(decision.allowRunScope)
+        assertFalse(gate.allow(decision, ConfirmationScope.RUN))
+    }
     @Test fun settingsWifiScriptRunsToVerifiedResultOnAndroidScheduler() {
         val catalog = ToolCatalog(asset("catalog/tools.json")); val policy = ToolPolicy.fromAssets(::asset)
         val decisions = ArrayDeque(listOf(

@@ -44,6 +44,7 @@
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
       ],
       "fix": [
+        "Les boutons de confirmation de transaction exigent une confirmation de paiement distincte sans réutiliser les autorisations de toute la tâche",
         "Les résultats hors écran aux limites vides ou inversées conservent leur texte et signalent des coordonnées inutilisables au lieu d'une erreur de paramètres",
         "La relocalisation des noeuds distingue les limites et capacités des conteneurs pour ne pas confondre les conteneurs imbriqués avec la cible",
         "Indications précises pour corriger les cibles de noeuds: conserver le préfixe # et omettre snapshotId avec selector",

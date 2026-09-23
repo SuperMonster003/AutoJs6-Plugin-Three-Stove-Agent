@@ -44,6 +44,7 @@
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ],
       "fix": [
+        "Los botones de confirmar transacción requieren una confirmación de pago separada y no reutilizan permisos de toda la tarea",
         "Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos",
         "La relocalización de nodos distingue límites y capacidades de acción para no confundir contenedores anidados con el objetivo",
         "Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector",

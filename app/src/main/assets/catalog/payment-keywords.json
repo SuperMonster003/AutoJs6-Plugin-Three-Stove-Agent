@@ -1,12 +1,12 @@
 {
-  "en": ["pay", "payment", "transfer"],
-  "zh-Hans": ["支付", "付款", "转账"],
-  "zh-Hant-HK": ["支付", "付款", "轉賬"],
-  "zh-Hant-TW": ["支付", "付款", "轉帳"],
-  "fr": ["payer", "paiement", "virement"],
-  "es": ["pagar", "pago", "transferir"],
-  "ja": ["支払", "決済", "送金"],
-  "ko": ["결제", "지불", "송금"],
-  "ru": ["оплат", "платеж", "перевод"],
-  "ar": ["دفع", "سداد", "تحويل"]
+  "en": ["pay", "payment", "transfer", "confirm transaction"],
+  "zh-Hans": ["支付", "付款", "转账", "确认交易"],
+  "zh-Hant-HK": ["支付", "付款", "轉賬", "確認交易"],
+  "zh-Hant-TW": ["支付", "付款", "轉帳", "確認交易"],
+  "fr": ["payer", "paiement", "virement", "confirmer la transaction"],
+  "es": ["pagar", "pago", "transferir", "confirmar transacción"],
+  "ja": ["支払", "決済", "送金", "取引を確定", "取引を確認"],
+  "ko": ["결제", "지불", "송금", "거래 확인"],
+  "ru": ["оплат", "платеж", "перевод", "подтвердить транзакцию"],
+  "ar": ["دفع", "سداد", "تحويل", "تأكيد المعاملة"]
 }

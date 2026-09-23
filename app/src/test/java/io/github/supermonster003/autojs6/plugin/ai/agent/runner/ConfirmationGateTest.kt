@@ -40,6 +40,20 @@ class ConfirmationGateTest {
         assertTrue(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "支付"))).required)
         assertFalse(assess(gate, "ui_dump", ToolMetadata(RiskContext(nodeText = "支付"), payment = true)).required)
     }
+    @Test fun transactionConfirmationAlwaysRequiresASeparatePaymentDecision() {
+        for (mode in ConfirmationMode.entries) for (label in listOf("确认交易", "確認交易", "Confirm transaction")) {
+            val gate = gate(mode)
+            gate.allow(assess(gate, "ui_click"), ConfirmationScope.RUN)
+            gate.allow(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "Delete"))), ConfirmationScope.RUN)
+            val metadata = ToolMetadata(RiskContext(nodeText = label, packageName = "com.sankuai.meituan.takeoutnew"))
+            val transaction = assess(gate, "ui_click", metadata)
+            assertEquals(RiskLevel.SENSITIVE, transaction.risk)
+            assertTrue(transaction.required); assertFalse(transaction.allowRunScope)
+            assertFalse(gate.allow(transaction, ConfirmationScope.RUN))
+            assertTrue(gate.allow(transaction, ConfirmationScope.ONCE))
+            assertTrue(assess(gate, "ui_click", metadata).required)
+        }
+    }
     @Test fun tenLanguagePaymentCatalogPromotesActionsToSensitive() {
         val words = AgentJson.objectOf(F.asset("catalog/payment-keywords.json"))
         assertEquals(10, words.size())
