@@ -16,8 +16,8 @@ class NodeRefRegistryTest {
         assertEquals(old.nodes[0].fingerprint(old.window), match.node.fingerprint(next.window))
     }
     @Test fun ambiguousMovedAndClippedNodesRequireFreshObservation() {
-        for (rows in listOf(listOf("#n1 Button \"Go\" id=go c=(200,20)"),
-            listOf("#n1 Button \"Go\" id=go c=(10,20)", "#n2 Button \"Go\" id=go c=(10,20)"))) {
+        for (rows in listOf(listOf("#n1 Button clickable \"Go\" id=go c=(200,20)"),
+            listOf("#n1 Button clickable \"Go\" id=go c=(10,20)", "#n2 Button clickable \"Go\" id=go c=(10,20)"))) {
             val registry = NodeRefRegistry(); registry.record(snapshot("s1")); registry.record(snapshot("s2", rows))
             assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
         }
@@ -36,6 +36,27 @@ class NodeRefRegistryTest {
         val registry = NodeRefRegistry()
         registry.record(snapshot("s1", listOf("#n1 FrameLayout [0,746][1800,991]")))
         registry.record(snapshot("s2", listOf("#n1 FrameLayout [0,746][1800,991]", "#n2 FrameLayout [183,771][623,825]")))
+        assertEquals("#n1", registry.relocate("#n1", "s1").node.ref)
+    }
+    @Test fun actionableContainerDoesNotAliasIdenticallySizedPassiveWrappers() {
+        val registry = NodeRefRegistry()
+        registry.record(snapshot("s1", listOf("#n1 ViewGroup clickable [0,0][100,100]")))
+        registry.record(snapshot("s2", listOf("#n1 ViewGroup [0,0][100,100]", "#n2 ViewGroup clickable [0,0][100,100]", "#n3 ViewGroup [0,0][100,100]")))
+        assertEquals("#n2", registry.relocate("#n1", "s1").node.ref)
+        registry.record(snapshot("s3", listOf("#n1 ViewGroup clickable [0,0][100,100]", "#n2 ViewGroup clickable [0,0][100,100]")))
+        assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+    }
+    @Test fun changedCapabilitiesCannotRelocateAnOtherwiseIdenticalTarget() {
+        for (flag in listOf("clickable", "long_clickable", "checkable", "scrollable", "editable")) {
+            val registry = NodeRefRegistry()
+            registry.record(snapshot("s1", listOf("#n1 ViewGroup [0,0][100,100]")))
+            registry.record(snapshot("s2", listOf("#n1 ViewGroup $flag [0,0][100,100]")))
+            assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+        }
+    }
+    @Test fun transientSelectionStateDoesNotChangeTargetIdentity() {
+        val registry = NodeRefRegistry(); registry.record(snapshot("s1"))
+        registry.record(snapshot("s2", listOf("#n1 Button clickable checked focused selected \"Go\" id=go c=(10,20)")))
         assertEquals("#n1", registry.relocate("#n1", "s1").node.ref)
     }
     @Test fun aSmallerReplacementInsideTheOldBoundsCannotRelocate() {

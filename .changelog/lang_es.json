@@ -45,7 +45,7 @@
       ],
       "fix": [
         "Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos",
-        "La relocalizacion de nodos ya no confunde contenedores anidados menores con el objetivo original",
+        "La relocalización de nodos distingue límites y capacidades de acción para no confundir contenedores anidados con el objetivo",
         "Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector",
         "La admisión precarga las reglas de pedido y evita una compilación costosa de reglas",
         "La verificación distingue nodos de ventanas distintas, mantiene la observación de pantalla tras leer el portapapeles y no confunde transferencias de archivos con pagos",

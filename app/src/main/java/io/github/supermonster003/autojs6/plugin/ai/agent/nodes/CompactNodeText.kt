@@ -19,13 +19,16 @@ object CompactNodeText {
                     val description: String, val flags: Set<String>, val bounds: Bounds) {
         val relocatable get() = text != "[password]" && !text.endsWith("...") && !description.endsWith("...")
         fun fingerprint(window: String): String = MessageDigest.getInstance("SHA-256")
-            .digest(jsonArray(window.json(), className.json(), id.json(), text.json(), description.json()).toString().toByteArray(Charsets.UTF_8))
+            .digest(jsonArray(window.json(), className.json(), id.json(), text.json(), description.json(),
+                flags.intersect(IDENTITY_FLAGS).sorted().joinToString(",").json()).toString().toByteArray(Charsets.UTF_8))
             .let { bytes -> buildString(64) { bytes.forEach { byte -> val n = byte.toInt() and 255; append("0123456789abcdef"[n ushr 4]); append("0123456789abcdef"[n and 15]) } } }
     }
     data class Snapshot(val id: String, val window: String, val nodes: List<Node>, val truncated: Boolean)
     private val row = Regex("^#n([1-9][0-9]{0,3}) ( *)([^ ]+)(.*)$")
     private val location = Regex(" (?:\\[(-?\\d+),(-?\\d+)]\\[(-?\\d+),(-?\\d+)]|c=\\((-?\\d+),(-?\\d+)\\))$")
     private val flags = setOf("clickable", "long_clickable", "checkable", "checked", "scrollable", "editable", "focused", "selected", "!enabled", "hidden")
+    // Keep action capabilities in the identity, but not transient checked/focused/selected state.
+    private val IDENTITY_FLAGS = setOf("clickable", "long_clickable", "checkable", "scrollable", "editable")
 
     fun parse(value: JsonElement): Snapshot {
         val data = AgentJson.parse(value.toString(), 300 * 1024).asJsonObject
