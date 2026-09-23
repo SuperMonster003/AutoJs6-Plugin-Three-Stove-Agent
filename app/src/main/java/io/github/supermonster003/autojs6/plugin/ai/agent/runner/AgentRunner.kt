@@ -26,6 +26,7 @@ class AgentRunner internal constructor(
     private val handlers = ToolHandlers(catalog)
     private val validator = DecisionValidator(catalog)
     private val loopRules = LoopRules()
+    private val doneRules = DoneRules(text)
     private var budget: Budget? = null
     private var durationTimer = Cancellation.NONE
     private var operation: Operation? = null
@@ -153,14 +154,16 @@ class AgentRunner internal constructor(
         b.beginStep()
         decision = null; parseMode = null; confirmation = null; recorded = false
         stepStartedMs = scheduler.nowMs(); stepUsageStart = b.usageJson(); stepEstimated = false
-        repairSession = DecisionRepairSession(validator, policy, format)
+        repairSession = DecisionRepairSession(validator, policy, format, doneRules::validate)
         requestModel(null)
     }
 
     private fun requestModel(repair: JsonObject?) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
-        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, loopRules.guidance()))
+        if (policy.isOrderGoal(options.goal)) doneRules.requireOrderStatus()
+        val guidance = loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) }
+        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance))
         if (!canContinue()) return
         val reservation = b.reserveModel(input.inputBytes, minOf(options.maximumOutputTokens, input.maximumOutputTokens ?: options.maximumOutputTokens))
         var settled = false
@@ -199,8 +202,13 @@ class AgentRunner internal constructor(
                                 is AgentDecision.Tool -> prepareTool(accepted)
                                 is AgentDecision.Ask -> waitForInput(accepted)
                                 is AgentDecision.Done -> {
-                                    record(null)
-                                    finish(RunState.valueOf(accepted.status.uppercase(Locale.ROOT)), accepted.summary, accepted.evidence, accepted.unfinished, accepted.orderStatus)
+                                    val checked = doneRules.normalize(accepted)
+                                    val final = checked.decision
+                                    decision = final
+                                    record(checked.rules.takeIf { it.isNotEmpty() }?.let { rules ->
+                                        jsonObject("rules" to JsonArray().apply { rules.forEach(::add) }, "proposedStatus" to accepted.status.json()).toString()
+                                    })
+                                    finish(RunState.valueOf(final.status.uppercase(Locale.ROOT)), final.summary, final.evidence, final.unfinished, final.orderStatus)
                                 }
                             }
                         }
@@ -224,6 +232,7 @@ class AgentRunner internal constructor(
                     prepared.metadata.script?.let { decision = value.copy(arguments = it.arguments()) }
                     if (prepared.metadata.passwordField) protectText()
                     val spec = policy.requireEnabled(catalog, value.name)
+                    if (!spec.readOnlyHint && (prepared.metadata.payment || policy.isPayment(prepared.metadata.context))) doneRules.requireOrderStatus()
                     if (!loopRules.admit(spec, prepared)) {
                         record(jsonObject("rule" to "REPEATED_ACTION".json(), "limit" to LoopRules.REPEAT_LIMIT.json()).toString())
                         val reason = text.rule("repeated_action")
@@ -457,7 +466,9 @@ class AgentRunner internal constructor(
             "steps" to (b?.steps ?: 0).json(), "toolCalls" to (b?.toolCalls ?: 0).json(),
             "usage" to (b?.usageJson() ?: jsonObject("modelCalls" to 0.json(), "estimated" to false.json())),
             "durationMs" to (b?.durationMs ?: 0).json(), "evidence" to JsonArray().apply { evidence.forEach(::add) },
-            "unfinished" to JsonArray().apply { unfinished.forEach(::add) })
+            "unfinished" to JsonArray().apply {
+                (if (terminal == RunState.PARTIAL && unfinished.isEmpty()) listOf(text.rule("unfinished_missing")) else unfinished).forEach(::add)
+            })
         orderStatus?.let { value.addProperty("orderStatus", it) }
         error?.let { value.add("error", jsonObject("code" to it.name.json(), "message" to summary.json())) }
         if (error == null && decision is AgentDecision.Done && scriptCalls == 1 && otherActions == 0) {

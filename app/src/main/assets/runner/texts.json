@@ -10,7 +10,10 @@
     "budget_duration": "Task time limit",
     "budget_tokens": "Token limit",
     "budget_toolTimeout": "Tool time limit",
-    "repeated_action": "The same action was requested three times. The task stopped before executing it again."
+    "repeated_action": "The same action was requested three times. The task stopped before executing it again.",
+    "unverified_summary": "The task is incomplete or its completion could not be verified.",
+    "evidence_missing": "Verify the task outcome using observed evidence.",
+    "unfinished_missing": "Identify and finish the remaining work, then verify the outcome."
   },
   "zh-Hans": {
     "cancelled": "任务已取消.",
@@ -23,7 +26,10 @@
     "budget_duration": "任务时长上限",
     "budget_tokens": "token 上限",
     "budget_toolTimeout": "工具时长上限",
-    "repeated_action": "同一动作已连续请求 3 次. 任务已停止, 未再次执行该动作."
+    "repeated_action": "同一动作已连续请求 3 次. 任务已停止, 未再次执行该动作.",
+    "unverified_summary": "任务尚未完成, 或缺少可核实的完成证据.",
+    "evidence_missing": "根据实际观察证据核实任务结果.",
+    "unfinished_missing": "明确并完成剩余工作, 然后核实结果."
   },
   "zh-Hant-TW": {
     "cancelled": "任務已取消.",
@@ -36,7 +42,10 @@
     "budget_duration": "任務時長上限",
     "budget_tokens": "token 上限",
     "budget_toolTimeout": "工具時長上限",
-    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作."
+    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作.",
+    "unverified_summary": "任務尚未完成, 或缺少可核實的完成證據.",
+    "evidence_missing": "根據實際觀察證據核實任務結果.",
+    "unfinished_missing": "明確並完成剩餘工作, 然後核實結果."
   },
   "zh-Hant-HK": {
     "cancelled": "任務已取消.",
@@ -49,7 +58,10 @@
     "budget_duration": "任務時長上限",
     "budget_tokens": "token 上限",
     "budget_toolTimeout": "工具時長上限",
-    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作."
+    "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作.",
+    "unverified_summary": "任務尚未完成, 或缺少可核實的完成證據.",
+    "evidence_missing": "根據實際觀察證據核實任務結果.",
+    "unfinished_missing": "明確並完成剩餘工作, 然後核實結果."
   },
   "fr": {
     "cancelled": "La tâche a été annulée.",
@@ -62,7 +74,10 @@
     "budget_duration": "Durée limite de la tâche",
     "budget_tokens": "Limite des tokens",
     "budget_toolTimeout": "Durée limite de l'outil",
-    "repeated_action": "La même action a été demandée trois fois. La tâche s'est arrêtée avant de l'exécuter à nouveau."
+    "repeated_action": "La même action a été demandée trois fois. La tâche s'est arrêtée avant de l'exécuter à nouveau.",
+    "unverified_summary": "La tâche est incomplète ou son achèvement n'a pas pu être vérifié.",
+    "evidence_missing": "Vérifiez le résultat de la tâche avec des preuves observées.",
+    "unfinished_missing": "Identifiez et terminez le travail restant, puis vérifiez le résultat."
   },
   "es": {
     "cancelled": "La tarea se ha cancelado.",
@@ -75,7 +90,10 @@
     "budget_duration": "Límite de tiempo de la tarea",
     "budget_tokens": "Límite de tokens",
     "budget_toolTimeout": "Límite de tiempo de la herramienta",
-    "repeated_action": "La misma acción se solicitó tres veces. La tarea se detuvo antes de ejecutarla de nuevo."
+    "repeated_action": "La misma acción se solicitó tres veces. La tarea se detuvo antes de ejecutarla de nuevo.",
+    "unverified_summary": "La tarea está incompleta o no se pudo verificar su finalización.",
+    "evidence_missing": "Verifica el resultado de la tarea con pruebas observadas.",
+    "unfinished_missing": "Identifica y termina el trabajo pendiente, luego verifica el resultado."
   },
   "ja": {
     "cancelled": "タスクはキャンセルされました.",
@@ -88,7 +106,10 @@
     "budget_duration": "タスク時間の上限",
     "budget_tokens": "token の上限",
     "budget_toolTimeout": "ツール時間の上限",
-    "repeated_action": "同じ操作が連続して 3 回要求されました. 再実行する前にタスクを停止しました."
+    "repeated_action": "同じ操作が連続して 3 回要求されました. 再実行する前にタスクを停止しました.",
+    "unverified_summary": "タスクが未完了か, 完了を確認できませんでした.",
+    "evidence_missing": "観察した証拠を使ってタスクの結果を確認してください.",
+    "unfinished_missing": "残りの作業を明確にして完了し, 結果を確認してください."
   },
   "ko": {
     "cancelled": "작업이 취소되었습니다.",
@@ -101,7 +122,10 @@
     "budget_duration": "작업 시간 한도",
     "budget_tokens": "token 한도",
     "budget_toolTimeout": "도구 시간 한도",
-    "repeated_action": "같은 동작이 연속으로 3번 요청되었습니다. 다시 실행하기 전에 작업을 중지했습니다."
+    "repeated_action": "같은 동작이 연속으로 3번 요청되었습니다. 다시 실행하기 전에 작업을 중지했습니다.",
+    "unverified_summary": "작업이 완료되지 않았거나 완료 여부를 확인할 수 없습니다.",
+    "evidence_missing": "관찰한 증거를 바탕으로 작업 결과를 확인하세요.",
+    "unfinished_missing": "남은 작업을 파악하여 완료한 뒤 결과를 확인하세요."
   },
   "ru": {
     "cancelled": "Задача отменена.",
@@ -114,7 +138,10 @@
     "budget_duration": "Лимит времени задачи",
     "budget_tokens": "Лимит токенов",
     "budget_toolTimeout": "Лимит времени инструмента",
-    "repeated_action": "Одно действие запрошено три раза подряд. Задача остановлена до его повторного выполнения."
+    "repeated_action": "Одно действие запрошено три раза подряд. Задача остановлена до его повторного выполнения.",
+    "unverified_summary": "Задача не завершена или ее завершение не удалось проверить.",
+    "evidence_missing": "Проверьте результат задачи по наблюдаемым подтверждениям.",
+    "unfinished_missing": "Определите и завершите оставшуюся работу, затем проверьте результат."
   },
   "ar": {
     "cancelled": "تم إلغاء المهمة.",
@@ -127,6 +154,9 @@
     "budget_duration": "حد وقت المهمة",
     "budget_tokens": "حد الرموز",
     "budget_toolTimeout": "حد وقت الأداة",
-    "repeated_action": "تم طلب الإجراء نفسه ثلاث مرات متتالية. توقفت المهمة قبل تنفيذه مرة أخرى."
+    "repeated_action": "تم طلب الإجراء نفسه ثلاث مرات متتالية. توقفت المهمة قبل تنفيذه مرة أخرى.",
+    "unverified_summary": "المهمة غير مكتملة أو تعذر التحقق من اكتمالها.",
+    "evidence_missing": "تحقق من نتيجة المهمة باستخدام الأدلة المرصودة.",
+    "unfinished_missing": "حدد العمل المتبقي وأكمله ثم تحقق من النتيجة."
   }
 }

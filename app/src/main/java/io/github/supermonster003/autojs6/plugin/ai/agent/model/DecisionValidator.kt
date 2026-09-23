@@ -138,7 +138,8 @@ sealed interface DecisionAttempt {
 }
 
 /** One instance per step. A valid decision or exhausted allowance seals the step. */
-class DecisionRepairSession(private val validator: DecisionValidator, private val policy: ToolPolicy, private var format: DecisionFormat) {
+class DecisionRepairSession(private val validator: DecisionValidator, private val policy: ToolPolicy, private var format: DecisionFormat,
+                            private val validateSemantics: (AgentDecision) -> Unit = {}) {
     var repairsUsed = 0
         private set
     private var sealed = false
@@ -148,6 +149,7 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
         return try {
             val parsed = DecisionParser.parse(text, format.degraded)
             val decision = validator.validate(parsed, policy, format)
+            validateSemantics(decision)
             sealed = true
             DecisionAttempt.Accepted(decision, parsed.parseMode)
         } catch (failure: DecisionFailure) {

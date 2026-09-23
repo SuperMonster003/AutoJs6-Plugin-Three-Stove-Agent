@@ -99,9 +99,10 @@ internal class RunnerFixture(policy: ToolPolicy = ToolPolicy.fromAssets(F::asset
     companion object {
         fun tool(name: String, arguments: String = "{}", reasoning: String? = null) = jsonObject("kind" to "tool".json(), "tool" to name.json(),
             "arguments" to AgentJson.objectOf(arguments)).apply { reasoning?.let { addProperty("reasoning", it) } }.toString()
-        fun done(status: String = "completed", summary: String = "Verified", evidence: List<String> = emptyList()) =
+        fun done(status: String = "completed", summary: String = "Verified", evidence: List<String> = listOf("Observed final state"), unfinished: List<String> = emptyList(), orderStatus: String? = null) =
             jsonObject("kind" to "done".json(), "done" to jsonObject("status" to status.json(), "summary" to summary.json(),
-                "evidence" to JsonArray().apply { evidence.forEach(::add) })).toString()
+                "evidence" to JsonArray().apply { evidence.forEach(::add) },
+                "unfinished" to JsonArray().apply { unfinished.forEach(::add) }).apply { orderStatus?.let { addProperty("orderStatus", it) } }).toString()
         fun ask(kind: String = "text", memoryKey: String? = null) = jsonObject("kind" to "ask".json(),
             "ask" to jsonObject("kind" to kind.json(), "question" to "Which value?".json()).apply {
                 if (kind == "choice") add("choices", jsonArray("one".json(), "two".json()))

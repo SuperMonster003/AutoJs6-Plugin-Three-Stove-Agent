@@ -125,7 +125,7 @@ class AgentRunnerTest {
         assertEquals(1, f.tools.executions.size); assertEquals(RunState.WAITING_CONFIRMATION, run.state)
         run.confirm(old, true) { status = it }; f.scheduler.drain(); assertEquals(ReplyStatus.NOT_WAITING, status)
         run.confirm(f.request("confirmation"), false); f.scheduler.drain()
-        f.reply(done("partial")); assertEquals(1, f.tools.executions.size); uniqueTerminal(f, run)
+        f.reply(done("partial", orderStatus = "pending_payment")); assertEquals(1, f.tools.executions.size); uniqueTerminal(f, run)
     }
     @Test fun cautiousRunScopeReusesOnlyItsToolAndRisk() {
         val f = RunnerFixture()
@@ -229,11 +229,11 @@ class AgentRunnerTest {
     }
     @Test fun heavilyEscapedDoneRetainsResultContractWithinEventLimit() {
         val f = RunnerFixture()
-        val decision = AgentJson.objectOf(done(summary = "\u0001".repeat(1000), evidence = List(8) { "\u0002".repeat(200) }))
+        val decision = AgentJson.objectOf(done(status = "partial", summary = "\u0001".repeat(1000), evidence = List(8) { "\u0002".repeat(200) }))
         decision.getAsJsonObject("done").add("unfinished", JsonArray().apply { repeat(8) { add("\u0003".repeat(200)) } })
         f.enqueue(decision.toString()); val run = f.start()
-        assertEquals(RunState.COMPLETED, run.state); assertEquals(run.id, run.result!!.string("id"))
-        assertEquals("completed", run.result!!.string("status")); assertTrue(run.result!!.has("usage"))
+        assertEquals(RunState.PARTIAL, run.state); assertEquals(run.id, run.result!!.string("id"))
+        assertEquals("partial", run.result!!.string("status")); assertTrue(run.result!!.has("usage"))
         assertTrue(StepJournal.bytes(run.result!!) <= 24 * 1024); uniqueTerminal(f, run)
     }
     @Test fun preparationDeadlineCancelsInspectionAndIdentifiesToolBudget() {

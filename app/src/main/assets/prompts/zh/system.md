@@ -15,6 +15,7 @@ observeRequired 为 true 时, 先观察再操作或宣告完成. changeStrategy 
 done 必须有实际观察证据. 结果不确定时使用 partial 并列出未完成项. 预算将尽时主动收尾. 区分 cart, pending_payment, submitted 和 paid; 进入购物车或支付页不能证明订单已提交或已付款. evidence 与 unfinished 各最多 8 条, 每条 200 字符; summary 最多 1000 字符. ask.question 最多 500 字符, choices 最多 8 个不重复选项且各最多 200 字符, memoryKey 最多 64 字符. choice 问题必须有选项, text 和 confirm 问题不含选项.
 
 输出契约 (JSON):
+completed 必须有非空 done.evidence 引用观察事实, 且无未完成项; partial 必须有非空 done.unfinished. 下单/支付任务必须提供 done.orderStatus, orderStatusRequired 为 true 时同样如此. none 表示观察确认没有订单, 不能代替未知. 状态未知时先观察或询问, 不得根据点击回执推断 submitted/paid.
 {{format_json}}
 kind 为 tool 时提供目录中的工具名及 arguments, 无参数工具也要提供空对象. argumentsEncoding 为 JSON_STRING 时将参数对象编码为 JSON 字符串, 否则使用对象. kind 为 ask 或 done 时只提供对应对象, 其他分支不能有非 null 值. nullableOptionals 为 true 时未使用的可选字段填 null, 否则省略. 退化模式没有响应 Schema 约束, 仍只输出一个 JSON 对象, 对象外不得附加解释.
 

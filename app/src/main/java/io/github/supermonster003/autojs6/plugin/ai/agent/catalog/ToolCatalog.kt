@@ -63,6 +63,7 @@ class ToolPolicy(
     paymentPackages: Set<String> = emptySet(),
     paymentKeywords: Set<String> = emptySet(),
     availableTools: Set<String>? = null,
+    orderKeywords: Set<String> = emptySet(),
 ) {
     private val enabled = enabledGroups.toMap()
     private val overrides = riskOverrides.toMap()
@@ -70,7 +71,15 @@ class ToolPolicy(
     private val paymentPackages = paymentPackages.toSet()
     private val paymentKeywords = paymentKeywords.toSet()
     private val available = availableTools?.toSet()
-    fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available)
+    private val orderKeywords = orderKeywords.toSet()
+    private val orderTerms = (orderKeywords + paymentKeywords).map { term ->
+        val escaped = Regex.escape(term.lowercase(Locale.ROOT))
+        // CJK terms are often adjacent to other characters; Latin/Cyrillic/Arabic terms need word boundaries.
+        Regex(if (term.any { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' || it in '\uac00'..'\ud7af' }) escaped
+            else "(?<![\\p{L}\\p{N}_])$escaped(?![\\p{L}\\p{N}_])")
+    }
+    fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords)
+    fun isOrderGoal(goal: String): Boolean = goal.lowercase(Locale.ROOT).let { value -> orderTerms.any { it.containsMatchIn(value) } }
     fun isPayment(context: RiskContext): Boolean {
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
@@ -92,7 +101,8 @@ class ToolPolicy(
         fun fromAssets(readAsset: (String) -> String, enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),
                        ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet(), availableTools: Set<String>? = null) =
             ToolPolicy(enabledGroups, ocrAvailable, riskOverrides, readKeywords(readAsset("catalog/sensitive-keywords.json")),
-                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")), availableTools)
+                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")), availableTools,
+                readKeywords(readAsset("catalog/order-intent-keywords.json")))
         fun readKeywords(json: String): Set<String> = AgentJson.objectOf(json).entrySet()
             .flatMap { it.value.asJsonArray.map(JsonElement::getAsString) }.onEach { require(it.isNotBlank()) }.toSet()
     }

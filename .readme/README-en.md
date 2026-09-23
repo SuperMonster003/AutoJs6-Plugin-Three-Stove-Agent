@@ -176,6 +176,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/23_
 
 - `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+- `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
 - `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution
 - `Feature` Actions wait for a bounded stable screen sample and include changes since the last action in subsequent observations
 - `Feature` Screen actions bind confirmation to inspected host nodes, support text append and bounded scrolling, and report action results and window changes

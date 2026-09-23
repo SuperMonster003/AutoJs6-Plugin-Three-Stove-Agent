@@ -40,7 +40,7 @@ class ModelClientDeviceTest {
                 event("usage", jsonObject("usage" to jsonObject("inputTokens" to 100.json(), "outputTokens" to 10.json())))
                 if (number == 1) event("failed", jsonObject("code" to "TARGET_UNSUPPORTED".json()))
                 else event("completed", jsonObject("targetId" to target.targetId.json(), "finishReason" to 1.json(), "text" to
-                    "```json\n{\"kind\":\"done\",\"done\":{\"status\":\"completed\",\"summary\":\"Verified fixture\"}}\n```".json()))
+                    "```json\n{\"kind\":\"done\",\"done\":{\"status\":\"completed\",\"summary\":\"Verified fixture\",\"evidence\":[\"Observed fixture result\"]}}\n```".json()))
             }
             override fun cancel(requestId: String) = Unit
         }
