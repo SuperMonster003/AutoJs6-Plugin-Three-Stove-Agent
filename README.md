@@ -110,7 +110,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-1. 在安装了 AutoJs6 构建 5287 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
+1. 在安装了 AutoJs6 构建 5288 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
 2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
 3. 启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.
 4. 在启动器的 "脚本目录" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围.
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5287 (6.8.0)
+minimum host build: 5288 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.
@@ -176,6 +176,7 @@ minimum host build: 5287 (6.8.0)
 _2026/09/23_
 
 - `提示` 开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6.
+- `新增` 宿主报告已授权 OCR 插件可用时提供屏幕 OCR, 识别结果合并为带坐标的有界文本行
 - `新增` 界面观察保留宿主快照引用, 提供有界节点与控制台反馈, 并汇总可见文本和节点状态变化
 - `新增` 单脚本任务在模型收尾后保留脚本 ID, 路径, 执行 ID 及上报结果, 区分显式 null 并标记超大结果截断
 - `新增` 登记脚本执行接入确认清单校验, 结构化观察, 控制台尾部脱敏及超时或任务取消时的所属脚本停止
@@ -197,8 +198,8 @@ _2026/09/23_
 - `修复` 控制台拆行和裁剪前处理多行参数脱敏, 避免参数文本与凭据标签重名时漏掉凭据
 - `修复` 连续启动任务时, 已退出的前台服务不再误拒绝下一任务的启动请求
 - `优化` 脚本确认描述按 JSON 转义后的大小限流, 避免大参数表超过 Binder 事件上限
-- `优化` 最低宿主版本为 AutoJs6 6.8.0 / 构建 5287, 用于接收和校验插件的附加脚本目录设置
-- `依赖` 附加同一 AutoJs6 6.8.0 / 5287 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
+- `优化` 最低宿主版本为 AutoJs6 6.8.0 / 构建 5288, 用于发现 OCR 可用性并校验授权
+- `依赖` 附加同一 AutoJs6 6.8.0 / 5288 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
 - `依赖` 附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树
 
 ##### 更多发行历史

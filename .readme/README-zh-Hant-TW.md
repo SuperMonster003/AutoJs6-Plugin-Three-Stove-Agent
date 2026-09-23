@@ -110,7 +110,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1. 在安裝了 AutoJs6 組建 5287 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+1. 在安裝了 AutoJs6 組建 5288 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
 3. 啟動器支援請求宿主連接, 15 秒逾時後引導在 AutoJs6 啟用 AI Agent 並授權.
 4. 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
@@ -150,7 +150,7 @@ service category: ai-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
 aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5287 (6.8.0)
+minimum host build: 5288 (6.8.0)
 ```
 
 `AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 經身分驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續.
@@ -176,6 +176,7 @@ minimum host build: 5287 (6.8.0)
 _2026/09/23_
 
 - `提示` 開發預覽: 登記腳本已接通參數詢問, 執行確認, 結果回報和取消. 介面操作流程繼續在 P4 完善, 任務腳本 API 與完整任務台仍在 P5/P6.
+- `新增` 宿主回報已授權 OCR 插件可用時提供螢幕 OCR, 辨識結果合併為帶座標的有界文字行
 - `新增` 介面觀察保留宿主快照參照, 提供有界節點與主控台回饋, 並彙整可見文字和節點狀態變化
 - `新增` 單腳本任務在模型收尾後保留腳本 ID, 路徑, 執行 ID 及回報結果, 區分明確的 null 並標記過大結果截斷
 - `新增` 登記腳本執行接入確認清單驗證, 結構化觀察, 主控台尾部遮蔽及逾時或任務取消時的所屬腳本停止
@@ -197,8 +198,8 @@ _2026/09/23_
 - `修復` 主控台拆行和裁剪前處理多行參數遮蔽, 避免參數文字與憑證標籤同名時遺漏憑證
 - `修復` 連續啟動任務時, 已退出的前景服務不再誤拒絕下一任務的啟動請求
 - `優化` 指令碼確認描述按 JSON 跳脫後的大小限制, 避免大參數表超過 Binder 事件上限
-- `優化` 最低宿主版本為 AutoJs6 6.8.0 / 組建 5287, 用於接收和校驗外掛的附加指令碼目錄設定
-- `相依性` 附加同一 AutoJs6 6.8.0 / 5287 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
+- `優化` 最低宿主版本為 AutoJs6 6.8.0 / 組建 5288, 用於發現 OCR 可用性並校驗授權
+- `相依性` 附加同一 AutoJs6 6.8.0 / 5288 release 建置的 common-plugin-api, host-capability-api 與 ai-agent-api (MPL 2.0), 透過 SHA-256 鎖定
 - `相依性` 附加 Gson 版本 2.13.2, 用於有界嚴格 JSON 解析與 Schema 資料樹
 
 ##### 更多發行歷史

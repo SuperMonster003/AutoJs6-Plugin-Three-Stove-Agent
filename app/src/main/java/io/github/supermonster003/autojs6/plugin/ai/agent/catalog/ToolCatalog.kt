@@ -70,6 +70,7 @@ class ToolPolicy(
     private val paymentPackages = paymentPackages.toSet()
     private val paymentKeywords = paymentKeywords.toSet()
     private val available = availableTools?.toSet()
+    fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available)
     fun isPayment(context: RiskContext): Boolean {
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }

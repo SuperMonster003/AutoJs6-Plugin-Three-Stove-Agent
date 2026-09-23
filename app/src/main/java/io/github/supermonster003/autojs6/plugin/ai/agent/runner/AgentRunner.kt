@@ -11,7 +11,7 @@ import java.util.Locale
  * Observers must return promptly; the P2.5 adapter forwards events through the oneway callback. */
 class AgentRunner internal constructor(
     val id: String, private val options: RunOptions, private val scheduler: RunScheduler,
-    private val catalog: ToolCatalog, private val policy: ToolPolicy, private var compiler: RunContextCompiler,
+    private val catalog: ToolCatalog, private var policy: ToolPolicy, private var compiler: RunContextCompiler,
     private var model: RunModel, private var tools: RunTools, private val text: RunnerText,
     private val listener: (RunEvent) -> Unit, private val onTerminal: (AgentRunner) -> Unit,
     private val preparation: RunPreparation? = null,
@@ -22,7 +22,7 @@ class AgentRunner internal constructor(
     private val stopping = AtomicReference<RunError?>(null)
     private var terminalClaimed = false // Protected by stopping's monitor, shared with requestStop.
     private val journal = StepJournal()
-    private val gate = ConfirmationGate(policy, options.confirmationMode)
+    private var gate = ConfirmationGate(policy, options.confirmationMode)
     private val handlers = ToolHandlers(catalog)
     private val validator = DecisionValidator(catalog)
     private var budget: Budget? = null
@@ -70,6 +70,7 @@ class AgentRunner internal constructor(
                     is PortResult.Failure -> finishError(outcome.error)
                     is PortResult.Success -> {
                         compiler = outcome.value.compiler; model = outcome.value.model; tools = outcome.value.tools
+                        outcome.value.policy?.let { policy = it; gate = ConfirmationGate(it, options.confirmationMode) }
                         outcome.value.maximumTokens?.let { checkNotNull(budget).narrowTokens(it) }
                         format = model.initialFormat(options.format); nextStep()
                     }

@@ -9,6 +9,7 @@
 ###### 2026/09/23
 
 * `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+* `Feature` Screen OCR is offered only when the host reports an available authorized OCR plugin; text is merged into bounded lines with coordinates
 * `Feature` Screen observations retain host snapshot references, bounded node and console output, and summaries of visible text and state changes
 * `Feature` Single-script tasks retain the script ID, path, execution ID and reported result after model completion, including explicit null and marked truncation for large results
 * `Feature` Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation
@@ -30,6 +31,6 @@
 * `Fix` Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines
 * `Fix` A retiring foreground service no longer rejects the next task while its replacement is starting
 * `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
-* `Improvement` Minimum host is AutoJs6 6.8.0 / build 5287 to receive and validate extra script folders configured in the plugin
-* `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks
+* `Improvement` Minimum host is AutoJs6 6.8.0 / build 5288 for OCR availability discovery and grant checks
+* `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5288 release build (MPL 2.0), with SHA-256 locks
 * `Dependency` Added Gson 2.13.2 for bounded strict JSON parsing and schema trees

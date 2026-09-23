@@ -5,6 +5,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.AiAgentTaskForegroundSe
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ObservationCapabilities
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.*
 import org.autojs.plugin.ai.agent.api.*
@@ -80,7 +81,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     private fun notifyStatus() { runCatching { workers.callbacks.execute { runCatching { callback.onStatus(status()) } } } }
 
-    private fun prepare(request: StartRequest, policy: ToolPolicy, configuration: LinkConfiguration, runId: () -> String) = RunPreparation { complete ->
+    private fun prepare(request: StartRequest, basePolicy: ToolPolicy, configuration: LinkConfiguration, runId: () -> String) = RunPreparation { complete ->
         val stopped = AtomicBoolean()
         val selecting = AtomicReference<Cancellation>(Cancellation.NONE)
         val catalogLoading = AtomicReference<Cancellation>(Cancellation.NONE)
@@ -97,9 +98,12 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val permissions = requireNotNull(grant.getStringArray(H.KEY_GRANT_PERMISSIONS)).toSet().also { require(it.size <= 128) }
                 val maxRequest = grant.getInt(H.KEY_GRANT_MAX_REQUEST_BYTES).also { require(it in 1..512 * 1024) }
                 val maxTimeout = grant.getLong(H.KEY_GRANT_MAX_TIMEOUT_MS).also { require(it in 1..300_000) }
+                val effectiveMethods = methods.intersect(configuration.methods ?: methods)
+                val effectivePermissions = permissions.intersect(configuration.permissions ?: permissions)
+                val optional = grant.getStringArray(H.KEY_AVAILABLE_OPTIONAL_METHODS)?.also { values -> require(values.size <= 256 && values.all { it.length <= 128 }) }?.toSet().orEmpty()
+                val policy = basePolicy.withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
                 val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, runtime.catalog,
-                    { state == C.LINK_STATE_ATTACHED }, methods.intersect(configuration.methods ?: methods),
-                    permissions.intersect(configuration.permissions ?: permissions), maxRequest, maxTimeout)
+                    { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout)
                 val catalogAllowed = "agent.listScripts" in methods && "agent" in permissions &&
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
                     policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
@@ -124,7 +128,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                 else ModelTarget(original.providerId, original.targetId, original.locality, original.protocol, false,
                                     original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit)
                             val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
-                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, request.groups.sorted()).toString()
+                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, request.groups.sorted(), policy.ocrAvailable).toString()
                             val client = synchronized(clients) {
                                 clients.getOrPut(key) {
                                     if (clients.size >= 32) clients.remove(clients.keys.first())
@@ -138,7 +142,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                     ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
                                         ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
                                         memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
-                                        memoryUnavailable = memory.unavailable), client, executionTools, selected.maximumTokens))) }
+                                        memoryUnavailable = memory.unavailable), client, executionTools, selected.maximumTokens, policy))) }
                                 catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
                             }
                             if (!policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))) compiled(null)

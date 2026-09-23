@@ -479,7 +479,7 @@
       "required": [],
       "additionalProperties": false
     },
-    "outputHint": "JSON observation",
+    "outputHint": "bounded text lines with screen-space bounds and confidence; adjacent fragments merge, source-block bounds are shared for multiline sources",
     "bridgeMapping": [
       "accessibility.readScreenText"
     ],

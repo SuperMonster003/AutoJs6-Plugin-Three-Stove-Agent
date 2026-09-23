@@ -11,6 +11,7 @@
         "Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6."
       ],
       "feature": [
+        "Screen OCR is offered only when the host reports an available authorized OCR plugin; text is merged into bounded lines with coordinates",
         "Screen observations retain host snapshot references, bounded node and console output, and summaries of visible text and state changes",
         "Single-script tasks retain the script ID, path, execution ID and reported result after model completion, including explicit null and marked truncation for large results",
         "Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation",
@@ -32,10 +33,10 @@
       ],
       "improvement": [
         "Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit",
-        "Minimum host is AutoJs6 6.8.0 / build 5287 to receive and validate extra script folders configured in the plugin"
+        "Minimum host is AutoJs6 6.8.0 / build 5288 for OCR availability discovery and grant checks"
       ],
       "dependency": [
-        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks",
+        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5288 release build (MPL 2.0), with SHA-256 locks",
         "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
       ],
       "fix": [

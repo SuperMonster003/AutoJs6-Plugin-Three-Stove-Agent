@@ -34,6 +34,7 @@ class ObservationTools {
             if (!entry.isJsonNull && entry != false.json()) add("node", node(entry))
         }
         "console_tail" -> console(value, invocation.arguments.number("lines")?.toInt() ?: 40)
+        "ocr_screen" -> OcrScreenObservation.normalize(value)
         "app_current", "device_info" -> ObservationCompactor.compact(ScriptOutputRedactor.redact(value), MAX_BYTES, false)
         "screen_state" -> { require(value.isJsonPrimitive && value.asJsonPrimitive.isBoolean); jsonObject("screenOn" to value) }
         else -> value

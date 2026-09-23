@@ -9,6 +9,7 @@
 ###### 2026/09/23
 
 * `Note` Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+* `Fonctionnalité` OCR d'écran proposé uniquement si l'hôte signale un plugin OCR autorisé disponible, avec fusion en lignes bornées et coordonnées
 * `Fonctionnalité` Observations avec références aux instantanés de l'hôte, sorties bornées des noeuds et de la console, et résumés des changements de texte et d'état
 * `Fonctionnalité` Les tâches à script unique conservent ID, chemin, ID d'exécution et résultat après la conclusion du modèle, avec null explicite et troncature signalée des grands résultats
 * `Fonctionnalité` Exécution des scripts enregistrés avec vérification du manifeste confirmé, observations structurées, fin de console expurgée et arrêt du script en cas de délai dépassé ou de tâche annulée
@@ -30,6 +31,6 @@
 * `Correctif` Expurgation des paramètres multilignes avant le découpage de la console, sans laisser passer de secret quand un paramètre correspond à son libellé
 * `Correctif` Un service de premier plan en cours de fermeture ne rejette plus le démarrage de la tâche suivante
 * `Amélioration` La taille des descriptions de confirmation tient compte des échappements JSON pour respecter la limite des événements Binder avec de grands tableaux
-* `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5287 pour recevoir et valider les dossiers supplémentaires configurés dans le plugin
-* `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5287 (MPL 2.0), verrouillés par SHA-256
+* `Amélioration` L'hôte minimum est AutoJs6 6.8.0 / build 5288 pour détecter la disponibilité OCR et vérifier les autorisations
+* `Dépendance` Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5288 (MPL 2.0), verrouillés par SHA-256
 * `Dépendance` Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas

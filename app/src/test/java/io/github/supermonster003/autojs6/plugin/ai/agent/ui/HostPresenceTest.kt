@@ -33,6 +33,6 @@ class HostPresenceTest {
     }
 
     private companion object {
-        const val REQUIRED = 5287L
+        const val REQUIRED = 5288L
     }
 }
