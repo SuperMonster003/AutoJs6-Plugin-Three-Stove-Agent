@@ -49,7 +49,13 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
             if (cancelled.get()) next.cancel()
         }
         fun success(value: JsonElement) {
-            try { finish(PortResult.Success(ToolReply(observations.transform(prepared.invocation, value)))) }
+            try {
+                val transformed = observations.transform(prepared.invocation, value)
+                if (prepared.invocation.name == "ui_wait_for" && observations.hasActionBaseline) {
+                    val handle = actions.afterWait(transformed, (end - scheduler.nowMs()).coerceAtLeast(1), ::finish)
+                    current.set(handle); if (cancelled.get()) handle.cancel()
+                } else finish(PortResult.Success(ToolReply(transformed)))
+            }
             catch (_: Exception) { finish(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)) }
         }
         when (val plan = prepared.invocation.plan) {

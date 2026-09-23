@@ -446,7 +446,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 ### P4.2 动作工具
 
 - [x] (插件) `ui_click` / `ui_long_click` (`nodeRef` / `selector`; 坐标形式仅 `gesture` 组), `ui_set_text` (`append`, 密码字段脱敏记录), `ui_scroll` (`direction`, `times`), `ui_press_key` (`back / home / recents / notifications / quick_settings`), `app_launch` (`packageName` / `appName`), `clipboard_get / set`; `gesture` 组 (默认关): `ui_swipe`, `ui_gesture`, `ui_click_xy`; 每个动作返回 `{ ok, actionResult, windowChanged }`. 证据 (E0 / E1, 2026-09-23): 宿主 `0d1c7cc788` 提供只读节点检查与私有执行绑定; 密码替换脱敏, 普通字段在宿主追加, 滚动遇 false 停止, gesture 默认关且逐次确认. API 24/37 真实宿主往返覆盖全部动作; 无效目标不回退为坐标点击.
-- [ ] (插件) 动作后自动等待窗口稳定 (默认 500 ms, `ui_wait_for` 可覆盖) 并在下一步观察中附 "自上一动作以来的变化摘要".
+- [x] (插件) 动作后自动等待窗口稳定 (默认 500 ms, `ui_wait_for` 可覆盖) 并在下一步观察中附 "自上一动作以来的变化摘要". 证据 (E0 / E1, 2026-09-23): 每 250 ms 比较有界快照, 连续 500 ms 无变化后完成, 最长稳定等待 3 s 并服从任务截止; 快照 ID 变化不影响稳定判断. ui_wait_for 按自身条件完成刷新摘要, 隐式节点引用仍使用模型已见的宿主快照, 取消/超时不重发动作.
 - [ ] (测试) instrumentation (AVD): 每个动作工具对宿主 bridge 的往返, `NODE_REF_STALE` 路径, 关闭 `gesture` 组时坐标点击返回 `TOOL_DISABLED`.
 
 ### P4.3 校验与收尾规则

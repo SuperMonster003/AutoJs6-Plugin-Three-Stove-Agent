@@ -9,6 +9,7 @@
 ###### 2026/09/23
 
 * `Aviso` Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+* `Función` Espera limitada de estabilidad tras cada acción y resumen de cambios desde la última acción en las observaciones siguientes
 * `Función` Acciones vinculadas a nodos inspeccionados por el anfitrión, con adición de texto, desplazamiento limitado y resultados con cambios de ventana
 * `Función` OCR de pantalla disponible solo cuando el anfitrión confirma un plugin OCR autorizado, con texto agrupado en líneas limitadas y coordenadas
 * `Función` Observaciones con referencias a capturas del anfitrión, salida limitada de nodos y consola, y resúmenes de cambios de texto y estado

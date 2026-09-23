@@ -90,7 +90,11 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
     private fun completeAction(operation: Operation<ToolReply>, before: CompactNodeText.Snapshot?, result: JsonElement, attempts: Int) {
         val ok = result.asBoolean
         val response = jsonObject("ok" to ok.json(), "actionResult" to result, "windowChanged" to JsonNull.INSTANCE, "attempts" to attempts.json())
-        readSnapshot(operation) { after ->
+        val startedAt = scheduler.nowMs()
+        val stability = ScreenStability(startedAt)
+        fun complete(after: CompactNodeText.Snapshot?, stable: Boolean) {
+            response.add("stability", jsonObject("stable" to stable.json(), "observed" to (after != null).json(),
+                "waitedMs" to (scheduler.nowMs() - startedAt).json(), "partial" to (after?.truncated ?: true).json()))
             if (before != null && after != null) {
                 response.addProperty("windowChanged", before.window != after.window)
                 val changes = NodeRefRegistry().use { registry -> registry.record(before); registry.record(after) }
@@ -99,6 +103,26 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
             }
             operation.finish(PortResult.Success(ToolReply(response)))
         }
+        fun poll() { readSnapshot(operation) { after ->
+            if (after == null) operation.delay((ScreenStability.QUIET_MS - (scheduler.nowMs() - startedAt)).coerceAtLeast(0)) { complete(null, false) }
+            else when (stability.sample(after, scheduler.nowMs())) {
+                ScreenStability.State.WAITING -> operation.delay(ScreenStability.POLL_MS) { poll() }
+                ScreenStability.State.STABLE -> complete(after, true)
+                ScreenStability.State.TIMED_OUT -> complete(after, false)
+            }
+        } }
+        poll()
+    }
+
+    /** An explicit condition wait supplies its own deadline; refresh at that completion point. */
+    fun afterWait(value: JsonElement, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
+        val operation = Operation<ToolReply>(timeoutMs, callback)
+        readSnapshot(operation) { snapshot ->
+            val result = value.asJsonObject.deepCopy()
+            snapshot?.let { observations.sinceAction(it)?.let { changes -> result.add("sinceLastAction", changes) } }
+            operation.finish(PortResult.Success(ToolReply(result)))
+        }
+        return operation
     }
 
     private fun <T> readSnapshot(operation: Operation<T>, receive: (CompactNodeText.Snapshot?) -> Unit) {
@@ -117,6 +141,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
         private val end = scheduler.nowMs() + timeoutMs
         init { own(scheduler.schedule(timeoutMs) { finish(PortResult.Failure(RunError.BUDGET_EXCEEDED)) }) }
         private fun own(handle: Cancellation) { handles.add(handle); if (closed.get()) handle.cancel() }
+        fun delay(ms: Long, action: () -> Unit) { if (!closed.get()) own(scheduler.schedule(ms) { if (!closed.get()) action() }) }
         fun call(request: BridgeCall, receive: (PortResult<JsonElement>) -> Unit) {
             if (closed.get()) return
             val remaining = end - scheduler.nowMs()

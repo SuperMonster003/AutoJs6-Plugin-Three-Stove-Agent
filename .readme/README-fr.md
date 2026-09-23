@@ -176,6 +176,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 _2026/09/23_
 
 - `Note` Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+- `Fonctionnalité` Attente bornée de stabilité après une action et résumé des changements depuis la dernière action dans les observations suivantes
 - `Fonctionnalité` Actions liées aux noeuds inspectés par l'hôte, avec ajout de texte, défilement borné et retour du résultat et des changements de fenêtre
 - `Fonctionnalité` OCR d'écran proposé uniquement si l'hôte signale un plugin OCR autorisé disponible, avec fusion en lignes bornées et coordonnées
 - `Fonctionnalité` Observations avec références aux instantanés de l'hôte, sorties bornées des noeuds et de la console, et résumés des changements de texte et d'état

@@ -10,14 +10,16 @@ class ObservationTools {
     val nodes = NodeRefRegistry()
     private var lastAction: CompactNodeText.Snapshot? = null
     fun actionBaseline(snapshot: CompactNodeText.Snapshot?) { lastAction = snapshot }
+    val hasActionBaseline get() = lastAction != null
+    fun sinceAction(snapshot: CompactNodeText.Snapshot) = lastAction?.let { baseline ->
+        NodeRefRegistry().use { registry -> registry.record(baseline); registry.record(snapshot) }
+    }
     fun transform(invocation: ToolInvocation, value: JsonElement): JsonElement = when (invocation.name) {
         "ui_dump" -> {
             val snapshot = CompactNodeText.parse(value)
             val result = value.asJsonObject.deepCopy()
             result.add("changes", nodes.record(snapshot))
-            lastAction?.let { baseline ->
-                result.add("sinceLastAction", NodeRefRegistry().use { registry -> registry.record(baseline); registry.record(snapshot) })
-            }
+            sinceAction(snapshot)?.let { result.add("sinceLastAction", it) }
             ObservationCompactor.compact(result, MAX_BYTES, false)
         }
         "ui_find" -> {
