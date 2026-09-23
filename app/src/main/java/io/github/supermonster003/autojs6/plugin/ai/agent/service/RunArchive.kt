@@ -72,14 +72,7 @@ internal class RunArchive(private val directory: File) {
         pending.addProperty("submitted", true)
         return true
     }
-    @Synchronized fun get(id: String, stepLimit: Int = 50): JsonObject? = records[id]?.let { source ->
-        val result = source.deepCopy()
-        val steps = result.getAsJsonArray("steps")
-        while (steps.size() > stepLimit) { steps.remove(0); result.addProperty("truncated", true) }
-        while (StepJournal.bytes(result) > 31 * 1024 && steps.size() > 0) { steps.remove(0); result.addProperty("truncated", true) }
-        check(StepJournal.bytes(result) <= 32 * 1024)
-        result
-    }
+    @Synchronized fun get(id: String, stepLimit: Int = 50): JsonObject? = records[id]?.let { project(it, stepLimit) }
     @Synchronized fun list(limit: Int, offset: Int): JsonObject {
         val summaries = records.values.toList().asReversed().drop(offset).take(limit).map { row ->
             jsonObject("runId" to row["runId"], "goal" to AgentJson.truncate(row.string("goal").orEmpty(), 256).json(),
@@ -119,5 +112,23 @@ internal class RunArchive(private val directory: File) {
     companion object {
         private const val MAX_RECORD_BYTES = RunLimits.JOURNAL_BYTES + 32 * 1024
         private val TERMINAL = RunState.entries.filter { it.terminal }.map { it.wire }.toSet()
+        /** Copy only the records that fit. Never repeatedly serialize the entire 1 MiB journal. */
+        internal fun project(source: JsonObject, stepLimit: Int): JsonObject {
+            require(stepLimit in 1..50)
+            val result = JsonObject().apply { source.entrySet().filter { it.key != "steps" }.forEach { add(it.key, it.value.deepCopy()) } }
+            var remaining = 31 * 1024 - StepJournal.bytes(result) - 32
+            val all = source.getAsJsonArray("steps")
+            val kept = ArrayDeque<JsonElement>()
+            for (index in all.size() - 1 downTo maxOf(0, all.size() - stepLimit)) {
+                val value = all[index]
+                val bytes = StepJournal.bytes(value) + 1
+                if (bytes > remaining) break
+                kept.addFirst(value.deepCopy()); remaining -= bytes
+            }
+            result.add("steps", JsonArray().apply { kept.forEach(::add) })
+            if (kept.size < all.size()) result.addProperty("truncated", true)
+            check(StepJournal.bytes(result) <= 32 * 1024)
+            return result
+        }
     }
 }

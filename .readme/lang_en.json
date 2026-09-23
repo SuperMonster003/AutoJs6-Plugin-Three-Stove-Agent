@@ -29,7 +29,7 @@
   "security_points": [
     "The Binder entry points are protected by the `org.autojs.permission.PLUGIN` signature permission, so only AutoJs6 can reach them; the launcher screen is the only other exported component.",
     "The plugin holds no API keys, never binds a model provider and does not request the accessibility permission: model calls and device actions go through brokers that AutoJs6 lends for one attached link and revokes on detach, each bounded by a grant (allowed methods, rates, sizes, model quota).",
-    "The plugin does not use the network. This preview declares no permission besides the plugin permission; foreground service, notification and overlay permissions will be added with the features that need them and documented here.",
+    "No network permission. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE keep active tasks running; POST_NOTIFICATIONS makes progress and stop controls visible. No accessibility or overlay permission is requested.",
     "Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled."
   ],
   "p_security_permission": "Only obtain the plugin from the official [Releases]({{ repo_url }}/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.",

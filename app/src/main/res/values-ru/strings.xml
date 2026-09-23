@@ -9,6 +9,14 @@
     <string name="launcher_link_connecting">Ожидание подключения AutoJs6 (до 15 секунд).</string>
     <string name="launcher_link_timeout">Подключение не установлено за 15 секунд. Откройте AutoJs6, включите AI Agent в центре плагинов и разрешите подключение.</string>
     <string name="launcher_open_host">Открыть AutoJs6</string>
-    <string name="launcher_preview">Запрос подключения из стартового экрана, ожидание до 15 секунд и подсказка по включению и авторизации AI Agent в AutoJs6.</string>
+    <string name="launcher_preview">Предварительная версия: доступны подключение к хосту и уведомления задач. Панель задач и API скриптов появятся позже.</string>
     <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
+    <string name="task_allow">Разрешить один раз</string>
+    <string name="task_channel">Задачи Agent</string>
+    <string name="task_deny">Отклонить</string>
+    <string name="task_reply">Ответить</string>
+    <string name="task_running">Шаг %1$d</string>
+    <string name="task_stop">Остановить</string>
+    <string name="task_view">Открыть</string>
+    <string name="task_waiting">Ожидание ответа</string>
 </resources>

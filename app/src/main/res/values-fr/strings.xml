@@ -9,6 +9,14 @@
     <string name="launcher_link_connecting">Connexion à AutoJs6 en attente (15 secondes maximum).</string>
     <string name="launcher_link_timeout">Aucune connexion après 15 secondes. Ouvrez AutoJs6, activez AI Agent dans le centre de plugins et autorisez la connexion.</string>
     <string name="launcher_open_host">Ouvrir AutoJs6</string>
-    <string name="launcher_preview">Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6.</string>
+    <string name="launcher_preview">Aperçu: connexion au programme hôte et notifications de tâches disponibles. Le tableau de tâches et les API de scripts suivront.</string>
     <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
+    <string name="task_allow">Autoriser une fois</string>
+    <string name="task_channel">Tâches Agent</string>
+    <string name="task_deny">Refuser</string>
+    <string name="task_reply">Répondre</string>
+    <string name="task_running">Étape %1$d</string>
+    <string name="task_stop">Arrêter</string>
+    <string name="task_view">Voir</string>
+    <string name="task_waiting">En attente de votre réponse</string>
 </resources>

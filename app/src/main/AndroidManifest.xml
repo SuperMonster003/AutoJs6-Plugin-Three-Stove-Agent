@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="org.autojs.permission.PLUGIN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
         <package android:name="org.autojs.autojs6" />
@@ -57,6 +60,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".AiAgentTaskForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:process=":agent">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-initiated, bounded Agent tasks using the AutoJs6 host; keeps progress, confirmation and stop controls available until task completion." />
+        </service>
 
         <service
             android:name=".service.AgentLocalService"

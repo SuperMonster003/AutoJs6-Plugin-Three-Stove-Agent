@@ -22,7 +22,8 @@
         "Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso",
         "Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas",
         "Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación",
-        "Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6"
+        "Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6",
+        "Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador"
       ],
       "improvement": [
         "Requisito mínimo fijado en AutoJs6 6.8.0 / build 5285, correspondiente a la entrega de interfaces y accesos del anfitrión en P1"

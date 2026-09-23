@@ -29,7 +29,7 @@
   "security_points": [
     "Binder 入口受 `org.autojs.permission.PLUGIN` 签名权限保护, 只有 AutoJs6 能访问; 启动页是唯一另外导出的组件.",
     "插件不持有 API key, 不自行绑定模型提供方, 也不申请无障碍权限: 模型调用与设备操作经 AutoJs6 为单条附着链路借出并在断开时收回的代理执行, 每个代理都受 grant 约束 (允许的方法, 速率, 体积, 模型配额).",
-    "插件不使用网络. 本预览版除插件权限外不声明任何权限; 前台服务, 通知与悬浮窗权限将随需要它们的功能加入并在此说明.",
+    "不申请网络权限. FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE 用于运行中的任务, POST_NOTIFICATIONS 用于显示进度与停止操作. 不申请无障碍或悬浮窗权限.",
     "任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用."
   ],
   "p_security_permission": "请只从官方 [Releases]({{ repo_url }}/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.",

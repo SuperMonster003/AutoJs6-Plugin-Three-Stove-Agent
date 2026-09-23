@@ -29,7 +29,7 @@
   "security_points": [
     "Los puntos de entrada Binder están protegidos por el permiso de firma `org.autojs.permission.PLUGIN`, por lo que solo AutoJs6 puede alcanzarlos; la pantalla de inicio es el único otro componente exportado.",
     "El plugin no guarda claves de API, nunca se vincula a un proveedor de modelo ni solicita el permiso de accesibilidad: las llamadas al modelo y las acciones en el dispositivo pasan por intermediarios que AutoJs6 presta para un enlace adjunto y revoca al desvincularse, cada uno acotado por una concesión (métodos permitidos, tasas, tamaños, cuota de modelo).",
-    "El plugin no usa la red. Esta vista previa no declara ningún permiso aparte del permiso de plugin; los permisos de servicio en primer plano, notificaciones y superposición se añadirán con las funciones que los necesiten y se documentarán aquí.",
+    "Sin permiso de red. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE mantienen las tareas activas; POST_NOTIFICATIONS muestra progreso y controles de parada. No se solicitan permisos de accesibilidad ni superposición.",
     "El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas."
   ],
   "p_security_permission": "Obtenga el plugin únicamente desde la página oficial de [Releases]({{ repo_url }}/releases) o el centro de plugins de AutoJs6. Los paquetes de origen desconocido pueden fallar la verificación del anfitrión o conllevar riesgos aunque el número de versión parezca idéntico.",

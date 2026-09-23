@@ -23,10 +23,10 @@ class ManifestContractTest {
     }
 
     @Test
-    fun `manifest declares only the plugin permission and queries the host package`() {
+    fun `manifest declares only task foreground and plugin permissions and queries the host package`() {
         val permissions = manifest.children("uses-permission").map { it.androidAttribute("name") }
-        // Roadmap D28: foreground service, notification and overlay permissions arrive with P2.5 / P6.7.
-        assertEquals(listOf(PLUGIN_PERMISSION), permissions)
+        assertEquals(listOf(PLUGIN_PERMISSION, "android.permission.FOREGROUND_SERVICE",
+            "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS"), permissions)
 
         val queried = manifest.child("queries").children("package").map { it.androidAttribute("name") }
         assertEquals(listOf(AiAgentPlugin.HOST_PACKAGE_NAME), queried)
@@ -78,10 +78,13 @@ class ManifestContractTest {
     @Test
     fun `info service and agent service match the identity constants`() {
         val services = manifest.child("application").children("service").associateBy { it.androidAttribute("name") }
-        assertEquals(setOf(".AiAgentPluginInfoService", ".AiAgentPluginService", ".service.AgentLocalService"), services.keys)
+        assertEquals(setOf(".AiAgentPluginInfoService", ".AiAgentPluginService", ".service.AgentLocalService", ".AiAgentTaskForegroundService"), services.keys)
+        for (name in listOf(".service.AgentLocalService", ".AiAgentTaskForegroundService")) {
+            assertEquals("false", services.getValue(name).androidAttribute("exported"))
+            assertEquals(":agent", services.getValue(name).androidAttribute("process"))
+        }
+        assertEquals("specialUse", services.getValue(".AiAgentTaskForegroundService").androidAttribute("foregroundServiceType"))
 
-        assertEquals("false", services.getValue(".service.AgentLocalService").androidAttribute("exported"))
-        assertEquals(":agent", services.getValue(".service.AgentLocalService").androidAttribute("process"))
         val info = services.getValue(".AiAgentPluginInfoService")
         assertDiscoveryContract(info, AiAgentPlugin.INFO_ACTION)
         assertNull(info.androidAttributeOrNull("process"))

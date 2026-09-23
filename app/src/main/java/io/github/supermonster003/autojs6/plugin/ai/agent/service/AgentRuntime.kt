@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.service
 import android.content.Context
 import android.os.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.aiAgentPluginRuntimeInfo
+import io.github.supermonster003.autojs6.plugin.ai.agent.AiAgentTaskForegroundService
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.*
@@ -22,7 +23,7 @@ internal class AgentRuntime private constructor(val context: Context) {
         ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED)
     val archive = RunArchive(File(context.filesDir, "agent-runs"))
     @Volatile var current: HostLink? = null; private set
-    fun taskChanged() = Unit
+    fun taskChanged() = AiAgentTaskForegroundService.changed()
     @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IAiAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)

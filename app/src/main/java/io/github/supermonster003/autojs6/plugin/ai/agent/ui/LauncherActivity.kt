@@ -2,10 +2,12 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
 import android.app.Activity
 import android.app.PendingIntent
+import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import io.github.supermonster003.autojs6.plugin.ai.agent.AiAgentPlugin
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
@@ -30,6 +32,8 @@ class LauncherActivity : Activity() {
     private var deadline = 0L
     private var requestId: String? = null
     private var requested = false
+    private var dialog: AlertDialog? = null
+    private var shownRequest: String? = null
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) { link = IAiAgentLink.Stub.asInterface(binder); poll() }
         override fun onServiceDisconnected(name: ComponentName?) { link = null; show(R.string.launcher_link_timeout) }
@@ -39,7 +43,11 @@ class LauncherActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launcher)
         findViewById<TextView>(R.id.launcher_host_status).text = hostStatusText()
-        findViewById<Button>(R.id.launcher_connect).setOnClickListener { requestAttachment() }
+        findViewById<Button>(R.id.launcher_connect).setOnClickListener {
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
+            requestAttachment()
+        }
         findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
             packageManager.getLaunchIntentForPackage(AiAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
                 intent.putExtra(AiAgentActions.EXTRA_AI_AGENT_ATTACH, true)
@@ -55,6 +63,7 @@ class LauncherActivity : Activity() {
     }
     override fun onStop() {
         visible = false; polling = false; generation++; main.removeCallbacksAndMessages(null)
+        dialog?.dismiss(); dialog = null; shownRequest = null
         if (bound) unbindService(connection)
         bound = false; link = null
         super.onStop()
@@ -84,15 +93,62 @@ class LauncherActivity : Activity() {
         worker.execute {
             val status = runCatching { JsonParser.parseString(current.status.getString(AiAgentContract.KEY_STATUS_JSON)).asJsonObject }.getOrNull()
             val state = status?.get("state")?.asString
+            val runId = status?.get("runningRunId")?.takeUnless { it.isJsonNull }?.asString
+            val pending = if (runId == null) null else runCatching {
+                val reference = Bundle().apply { putInt(AiAgentContract.KEY_CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
+                    putString(AiAgentContract.KEY_RUN_REF_JSON, com.google.gson.JsonObject().apply { addProperty("runId", runId); addProperty("limit", 1) }.toString()) }
+                JsonParser.parseString(current.getRun(reference).getString(AiAgentContract.KEY_RUN_RESPONSE_JSON)).asJsonObject.getAsJsonObject("pending")
+            }.getOrNull()
             main.post {
                 if (!visible || current !== link || expectedGeneration != generation) return@post
                 polling = false
                 if (state == AiAgentContract.LINK_STATE_ATTACHED) { deadline = 0; requested = false; show(R.string.launcher_link_attached) }
                 else if (!requested) requestAttachment()
                 else if (deadline > 0 && SystemClock.elapsedRealtime() >= deadline) { deadline = 0; show(R.string.launcher_link_timeout) }
+                showPending(current, runId, pending)
                 if (visible) main.postDelayed({ poll() }, 500)
             }
         }
+    }
+
+    private fun showPending(current: IAiAgentLink, runId: String?, pending: com.google.gson.JsonObject?) {
+        val request = pending?.get("requestId")?.asString
+        if (request == shownRequest) return
+        dialog?.dismiss(); dialog = null; shownRequest = request
+        if (pending == null || request == null || runId == null || pending.get("submitted")?.asBoolean == true) return
+        fun reply(value: com.google.gson.JsonElement?, allowed: Boolean? = null) {
+            val body = com.google.gson.JsonObject().apply {
+                addProperty("runId", runId); addProperty("requestId", request)
+                if (allowed != null) { addProperty("allowed", allowed); addProperty("scope", "once") } else add("value", value)
+            }
+            worker.execute { runCatching { current.respond(Bundle().apply {
+                putInt(AiAgentContract.KEY_CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
+                putString(AiAgentContract.KEY_RUN_RESPONSE_JSON, body.toString())
+            }) } }
+        }
+        val builder = AlertDialog.Builder(this).setTitle(R.string.task_reply)
+        if (pending.get("type").asString == "confirmation") {
+            builder.setMessage(pending.get("description").asString + "\n" + pending.get("arguments").toString())
+                .setPositiveButton(R.string.task_allow) { _, _ -> reply(null, true) }
+                .setNegativeButton(R.string.task_deny) { _, _ -> reply(null, false) }
+        } else {
+            when (pending.get("kind").asString) {
+                "choice" -> builder.setTitle(pending.get("question").asString).setItems(pending.getAsJsonArray("choices").map { it.asString }.toTypedArray()) { _, index ->
+                    reply(pending.getAsJsonArray("choices")[index])
+                }
+                "confirm" -> builder.setMessage(pending.get("question").asString)
+                    .setPositiveButton(R.string.task_allow) { _, _ -> reply(com.google.gson.JsonPrimitive(true)) }
+                    .setNegativeButton(R.string.task_deny) { _, _ -> reply(com.google.gson.JsonPrimitive(false)) }
+                else -> {
+                    val field = EditText(this).apply { maxLines = 4; filters = arrayOf(android.text.InputFilter.LengthFilter(1000)) }
+                    builder.setMessage(pending.get("question").asString).setView(field)
+                        .setPositiveButton(R.string.task_reply) { _, _ ->
+                            if (field.text.isNotBlank()) reply(com.google.gson.JsonPrimitive(field.text.toString())) else shownRequest = null
+                        }
+                }
+            }
+        }
+        dialog = builder.setOnCancelListener { shownRequest = null }.show()
     }
 
     override fun onResume() {

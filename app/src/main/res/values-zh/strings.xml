@@ -9,6 +9,14 @@
     <string name="launcher_link_connecting">正在等待 AutoJs6 连接 (最多 15 秒).</string>
     <string name="launcher_link_timeout">15 秒内未建立连接. 请打开 AutoJs6, 在插件中心启用 AI Agent 并授权连接.</string>
     <string name="launcher_open_host">打开 AutoJs6</string>
-    <string name="launcher_preview">启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.</string>
+    <string name="launcher_preview">开发预览: 已提供宿主连接与任务通知. 任务台和脚本 API 将在后续阶段提供.</string>
     <string name="plugin_description">按自然语言目标选择已登记脚本并逐步操作界面完成任务</string>
+    <string name="task_allow">允许一次</string>
+    <string name="task_channel">Agent 任务</string>
+    <string name="task_deny">拒绝</string>
+    <string name="task_reply">应答</string>
+    <string name="task_running">第 %1$d 步</string>
+    <string name="task_stop">停止</string>
+    <string name="task_view">查看</string>
+    <string name="task_waiting">正在等待您的应答</string>
 </resources>

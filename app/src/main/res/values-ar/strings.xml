@@ -9,6 +9,14 @@
     <string name="launcher_link_connecting">بانتظار اتصال AutoJs6 (حتى 15 ثانية).</string>
     <string name="launcher_link_timeout">لم يتم الاتصال خلال 15 ثانية. افتح AutoJs6 وفعل AI Agent في مركز الإضافات واسمح بالاتصال.</string>
     <string name="launcher_open_host">فتح AutoJs6</string>
-    <string name="launcher_preview">طلب اتصال من واجهة التشغيل مع مهلة 15 ثانية وإرشاد لتفعيل AI Agent والتصريح بالاتصال في AutoJs6.</string>
+    <string name="launcher_preview">معاينة تطوير: يتوفر اتصال المضيف وإشعارات المهام. ستتوفر لوحة المهام وواجهة السكربتات في مراحل لاحقة.</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
+    <string name="task_allow">السماح مرة واحدة</string>
+    <string name="task_channel">مهام Agent</string>
+    <string name="task_deny">رفض</string>
+    <string name="task_reply">رد</string>
+    <string name="task_running">الخطوة %1$d</string>
+    <string name="task_stop">إيقاف</string>
+    <string name="task_view">عرض</string>
+    <string name="task_waiting">بانتظار ردك</string>
 </resources>

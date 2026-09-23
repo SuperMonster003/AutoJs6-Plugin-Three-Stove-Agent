@@ -126,7 +126,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 - Binder 入口受 `org.autojs.permission.PLUGIN` 签名权限保护, 只有 AutoJs6 能访问; 启动页是唯一另外导出的组件.
 - 插件不持有 API key, 不自行绑定模型提供方, 也不申请无障碍权限: 模型调用与设备操作经 AutoJs6 为单条附着链路借出并在断开时收回的代理执行, 每个代理都受 grant 约束 (允许的方法, 速率, 体积, 模型配额).
-- 插件不使用网络. 本预览版除插件权限外不声明任何权限; 前台服务, 通知与悬浮窗权限将随需要它们的功能加入并在此说明.
+- 不申请网络权限. FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE 用于运行中的任务, POST_NOTIFICATIONS 用于显示进度与停止操作. 不申请无障碍或悬浮窗权限.
 - 任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用.
 
 请只从官方 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.
@@ -187,6 +187,7 @@ _2026/09/23_
 - `新增` Agent 确定性上下文装箱, 支持字节上限, 最近完整步骤对, 中英文提示与节点优先保留; 本地模型使用 3000 token 输入预算和紧凑工具签名
 - `新增` 宿主模型客户端核心, 校验事件顺序并支持 usage 记账, 取消, 超时和有界格式降级; 每次降级计入模型调用且保留决策修复额度
 - `新增` 启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权
+- `新增` 仅在任务存续期间显示前台通知, 提供进度, 停止和查看操作; 可从启动器完成输入与逐次操作确认
 - `优化` 最低宿主要求确定为 AutoJs6 6.8.0 / 构建 5285, 与宿主 P1 接口及入口交付版本一致
 - `依赖` 附加同一 AutoJs6 6.8.0 / 5285 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定
 - `依赖` 附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树

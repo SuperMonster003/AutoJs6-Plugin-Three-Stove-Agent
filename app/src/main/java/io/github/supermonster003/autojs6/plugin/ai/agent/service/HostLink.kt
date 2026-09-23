@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.service
 
 import android.os.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.AiAgentTaskForegroundService
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
@@ -80,6 +81,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val stopped = AtomicBoolean()
         val selecting = AtomicReference<Cancellation>(Cancellation.NONE)
         fun finish(value: PortResult<RunComponents>) { if (!stopped.get()) complete(value) }
+        val foreground = AiAgentTaskForegroundService.ensure(runtime.context) { promoted ->
+        if (!promoted) { finish(PortResult.Failure(RunError.CAPABILITY_DENIED)); return@ensure }
         try { workers.io.execute {
             if (stopped.get()) return@execute
             try {
@@ -122,7 +125,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 selecting.set(handle); if (stopped.get()) handle.cancel()
             } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         } } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
-        Cancellation { stopped.set(true); selecting.get().cancel() }
+        }
+        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel() }
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
         if (state != C.LINK_STATE_ATTACHED) throw WireFailure(if (state == C.LINK_STATE_DETACHED) C.ERROR_LINK_DETACHED else C.ERROR_HOST_UNAVAILABLE)

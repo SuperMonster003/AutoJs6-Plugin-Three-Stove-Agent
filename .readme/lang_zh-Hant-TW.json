@@ -29,7 +29,7 @@
   "security_points": [
     "Binder 入口受 `org.autojs.permission.PLUGIN` 簽章權限保護, 只有 AutoJs6 能存取; 啟動頁是唯一另外匯出的元件.",
     "外掛不持有 API key, 不自行繫結模型提供方, 也不申請無障礙權限: 模型呼叫與裝置操作經 AutoJs6 為單條附著連結借出並在中斷時收回的代理執行, 每個代理都受 grant 約束 (允許的方法, 速率, 體積, 模型配額).",
-    "外掛不使用網路. 本預覽版除外掛權限外不宣告任何權限; 前景服務, 通知與懸浮視窗權限將隨需要它們的功能加入並在此說明.",
+    "不申請網路權限. FOREGROUND_SERVICE 與 FOREGROUND_SERVICE_SPECIAL_USE 用於執行中的任務, POST_NOTIFICATIONS 用於顯示進度與停止操作. 不申請無障礙或懸浮視窗權限.",
     "任務歷史, 預設與偏好記憶只儲存在外掛私有儲存空間; 備份與裝置轉移已停用."
   ],
   "p_security_permission": "請只從官方 [Releases]({{ repo_url }}/releases) 頁面或 AutoJs6 外掛中心取得外掛. 來源不明的安裝套件即使版本號相同, 也可能無法通過主程式驗證或帶來風險.",

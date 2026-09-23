@@ -9,6 +9,14 @@
     <string name="launcher_link_connecting">AutoJs6 연결 대기 중 (최대 15초).</string>
     <string name="launcher_link_timeout">15초 안에 연결되지 않았습니다. AutoJs6 플러그인 센터에서 AI Agent를 활성화하고 연결을 허용하세요.</string>
     <string name="launcher_open_host">AutoJs6 열기</string>
-    <string name="launcher_preview">런처에서 호스트 연결을 요청하고 15초가 지나면 AutoJs6의 AI Agent 활성화와 연결 허용 방법 안내.</string>
+    <string name="launcher_preview">개발 미리보기: 호스트 연결과 작업 알림을 사용할 수 있습니다. 작업 화면과 스크립트 API는 후속 단계에서 제공됩니다.</string>
     <string name="plugin_description">등록된 스크립트를 선택하고 화면을 단계별로 조작하여 자연어 작업을 실행</string>
+    <string name="task_allow">한 번 허용</string>
+    <string name="task_channel">Agent 작업</string>
+    <string name="task_deny">거부</string>
+    <string name="task_reply">응답</string>
+    <string name="task_running">%1$d단계</string>
+    <string name="task_stop">중지</string>
+    <string name="task_view">보기</string>
+    <string name="task_waiting">응답 대기 중</string>
 </resources>
