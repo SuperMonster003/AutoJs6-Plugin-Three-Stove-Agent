@@ -92,6 +92,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
         val response = jsonObject("ok" to ok.json(), "actionResult" to result, "windowChanged" to JsonNull.INSTANCE, "attempts" to attempts.json())
         val startedAt = scheduler.nowMs()
         val stability = ScreenStability(startedAt)
+        var latest: CompactNodeText.Snapshot? = null
         fun complete(after: CompactNodeText.Snapshot?, stable: Boolean) {
             response.add("stability", jsonObject("stable" to stable.json(), "observed" to (after != null).json(),
                 "waitedMs" to (scheduler.nowMs() - startedAt).json(), "partial" to (after?.truncated ?: true).json()))
@@ -103,7 +104,10 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
             }
             operation.finish(PortResult.Success(ToolReply(response)))
         }
+        // A host read may never return; the sampling deadline must not depend on its callback.
+        operation.delay(ScreenStability.MAX_WAIT_MS) { complete(latest, false) }
         fun poll() { readSnapshot(operation) { after ->
+            latest = after
             if (after == null) operation.delay((ScreenStability.QUIET_MS - (scheduler.nowMs() - startedAt)).coerceAtLeast(0)) { complete(null, false) }
             else when (stability.sample(after, scheduler.nowMs())) {
                 ScreenStability.State.WAITING -> operation.delay(ScreenStability.POLL_MS) { poll() }

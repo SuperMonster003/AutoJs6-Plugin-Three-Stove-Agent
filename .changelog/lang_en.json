@@ -42,6 +42,7 @@
         "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
       ],
       "fix": [
+        "Post-action screen reads that stop responding no longer exceed the stabilization deadline",
         "Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines",
         "A retiring foreground service no longer rejects the next task while its replacement is starting"
       ]

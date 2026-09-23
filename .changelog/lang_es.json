@@ -42,6 +42,7 @@
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ],
       "fix": [
+        "La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización",
         "Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta",
         "Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea"
       ]

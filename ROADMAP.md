@@ -447,7 +447,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 - [x] (插件) `ui_click` / `ui_long_click` (`nodeRef` / `selector`; 坐标形式仅 `gesture` 组), `ui_set_text` (`append`, 密码字段脱敏记录), `ui_scroll` (`direction`, `times`), `ui_press_key` (`back / home / recents / notifications / quick_settings`), `app_launch` (`packageName` / `appName`), `clipboard_get / set`; `gesture` 组 (默认关): `ui_swipe`, `ui_gesture`, `ui_click_xy`; 每个动作返回 `{ ok, actionResult, windowChanged }`. 证据 (E0 / E1, 2026-09-23): 宿主 `0d1c7cc788` 提供只读节点检查与私有执行绑定; 密码替换脱敏, 普通字段在宿主追加, 滚动遇 false 停止, gesture 默认关且逐次确认. API 24/37 真实宿主往返覆盖全部动作; 无效目标不回退为坐标点击.
 - [x] (插件) 动作后自动等待窗口稳定 (默认 500 ms, `ui_wait_for` 可覆盖) 并在下一步观察中附 "自上一动作以来的变化摘要". 证据 (E0 / E1, 2026-09-23): 每 250 ms 比较有界快照, 连续 500 ms 无变化后完成, 最长稳定等待 3 s 并服从任务截止; 快照 ID 变化不影响稳定判断. ui_wait_for 按自身条件完成刷新摘要, 隐式节点引用仍使用模型已见的宿主快照, 取消/超时不重发动作.
-- [ ] (测试) instrumentation (AVD): 每个动作工具对宿主 bridge 的往返, `NODE_REF_STALE` 路径, 关闭 `gesture` 组时坐标点击返回 `TOOL_DISABLED`.
+- [x] (测试) instrumentation (AVD): 每个动作工具对宿主 bridge 的往返, `NODE_REF_STALE` 路径, 关闭 `gesture` 组时坐标点击返回 `TOOL_DISABLED`. 证据 (E0 / E1, 2026-09-23): API 24 x86 / 4 KiB 与 API 37 x86_64 / 16 KiB 各真实插件往返 19 通过/1 既有可选 Wi-Fi 跳过, 代理 5/5, 插件 27/27. 覆盖密码后续上下文脱敏, 确认期间目标/子标签改变拒绝执行, 手势禁用不派发; 插件 JVM 333/333. 详见 `docs/dev/p42-action-tools-evidence.md`.
 
 ### P4.3 校验与收尾规则
 
@@ -1210,3 +1210,12 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 宿主 `0a472f7fee` 在共享 broker info 中加入可选 availableOptionalMethods, 缺省为空, 只在 OCR 插件可用且当前 grant 同时允许方法和三项权限时报告. 插件每次任务开始刷新并同时用于提示词/Schema/运行器准入; 运行中移除 OCR 仍按工具失败反馈. 最低宿主更新为 6.8.0 / 5288, 三份 API AAR 从该提交同次 release 构建换锁, 无 AIDL 事务或公开 JS API 变更.
 - 插件 JVM 311/311 (新增 23); 宿主 JVM 3182 项中 3176 通过/6 既有条件跳过; 共享能力契约 JVM 4/4. API 24 x86 / 4 KiB 与 API 37 x86_64 / 16 KiB 每台插件 27/27, 宿主代理 5/5, 实际插件往返 15 通过/1 既有可选 Wi-Fi 跳过. debug/androidTest/release-R8/lint 和 10 语言 36 文档产物校验通过, 插件 lint 0 错误/6 既有警告. 证据见 `docs/dev/p41-observation-tools-evidence.md` 与宿主 `docs/dev/evidence/ai-agent-p41-20260923.md`.
 - 仅操作本轮私有只读 AVD; 使用脚本化模型和受控 OCR 返回, 未操作真机或调用真实 Provider/OCR 识别器. 本轮证据为 E0/E1, 未完成 P3/P4 的 E4 或 P7/P8 gate. 下一会话从原 P4.2 动作工具开始; 真机/在线模型验收时再确认可操作设备与模型目标, 实际截图授权弹窗需要用户承接. 未推送/发布, 保留其他仓库已有的无关工作区内容.
+
+### 2026-09-23 (P4.2 动作工具)
+
+- 完成原 P4.2 三个子项, 未增加/分拆/丢弃路线图条目. 插件 `8a2b64c` 接入动作工具与检查绑定, `7bd70d3` 接入动作后稳定等待; 本记录所在提交补齐取消/截止测试与验收证据, 并修正界面回读无响应时越过稳定等待截止的问题. 最终 1.0.0 / build 39 与 Git 提交计数同步.
+- 宿主 `0d1c7cc788` 提供只读 inspectNode, 私有执行 token 与窗口身份摘要. 确认绑定实际可执行节点, 从子标签向父节点上溯时同时核对原标签身份及父子关系. 目标变化返回 NODE_REF_STALE, 不回退为坐标点击. 最低宿主为 6.8.0 / 5289, 三份 API AAR 从该提交同次 release 构建并一并更新来源锁, 内容哈希不变, 无 AIDL 事务或公开 JS API 变更.
+- 覆盖节点点击/长按, 文字替换/追加, 有界双向滚动, 五种系统键, 按包名/应用名启动, 剪贴板与默认关闭的手势组. 普通字段在宿主追加, 密码替换脱敏, 密码追加因可能读到掩码而拒绝. 动作回执保持 ok/actionResult/windowChanged, 未观察到窗口状态时为 null, false 不伪装成功.
+- 每 250 ms 采样, 连续 500 ms 无变化判为有界样本稳定, 最长稳定等待 3 s 且服从工具/任务截止. 后续 dump 和显式 wait 提供自上一动作以来的摘要, 隐藏采样不改变模型已见引用的绑定. 稳定等待取消/超时均不重发已确认执行的动作, partial 不代表整个应用稳定.
+- 插件 JVM 333/333 (新增 22); 宿主 JVM 3188 项中 3182 通过/6 既有条件跳过. API 24/37 每台插件 27/27, 宿主代理 5/5, 实际插件往返 19 通过/1 可选 Wi-Fi 跳过. debug/androidTest/release-R8/lint 与 10 语言 36 文档产物检查通过, lint 0 错误/6 既有警告. 证据见 `docs/dev/p42-action-tools-evidence.md` 与宿主 `docs/dev/ai-agent-p42-actions-evidence.md`.
+- 仅操作两个私有只读 AVD, 使用受控测试页面与脚本化模型, 未操作真机或真实购物/支付应用. E0/E1 不替代 P3/P4 的 E4. 当前无需用户补充资料或手动操作; P4.4 前需确认在线/本地模型目标与可操作真机, 截图权限弹窗按实际测试承接. 下一会话从原 P4.3 校验与收尾规则开始. 未推送/发布, 其他仓库既有无关内容保持原状.
