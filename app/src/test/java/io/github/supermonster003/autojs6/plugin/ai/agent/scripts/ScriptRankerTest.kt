@@ -9,6 +9,20 @@ import org.junit.Test
 import java.util.Locale
 
 class ScriptRankerTest {
+    @Test fun denseCatalogWithinTheByteCeilingCanExceedTheModelParserNodeBudget() {
+        val schema = jsonObject("type" to "object".json(), "properties" to JsonObject().apply {
+            repeat(14) { add("p$it", jsonObject("type" to "boolean".json())) }
+        }, "required" to JsonArray())
+        val entries = JsonArray().apply { repeat(400) { index -> add(ScriptFixtures.entry("s-$index", "registered").apply {
+            add("parameters", schema); add("examples", JsonArray()); add("tags", JsonArray())
+        }) } }
+        assertTrue(StepJournal.bytes(entries) <= ScriptCatalogSnapshot.MAX_BYTES)
+        assertThrows(IllegalArgumentException::class.java) { AgentJson.parse(entries.toString(), ScriptCatalogSnapshot.MAX_BYTES) }
+        val snapshot = ScriptCatalogSnapshot.parse(entries)
+        assertEquals(400, snapshot.entries.size)
+        assertTrue(ScriptRanker.select(snapshot, "").render().getAsJsonArray("scripts").size() > 0)
+    }
+
     @Test fun lexicalRankingFindsEnglishAndChineseCandidatesBeyondTheFirst24() {
         val fillers = (1..35).map { ScriptFixtures.entry("other-$it", "Calendar utility").apply { add("tags", JsonArray()); add("examples", JsonArray()) } }
         val english = ScriptFixtures.entry("z-clean")

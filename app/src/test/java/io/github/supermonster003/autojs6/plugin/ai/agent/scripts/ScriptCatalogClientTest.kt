@@ -71,4 +71,15 @@ class ScriptCatalogClientTest {
         ScriptCatalogClient { 0 }.load(emptySet(), false, 5000, source) {}
         assertEquals(2, source.calls.size)
     }
+
+    @Test fun invalidationFencesEveryRequestEvenIfAnObserverThrows() {
+        val client = ScriptCatalogClient { 0 }; val source = Source()
+        val results = mutableListOf<PortResult<ScriptCatalogSnapshot>>()
+        client.load(emptySet(), true, 5000, source) { throw IllegalStateException("Lost observer") }
+        client.load(setOf("/sdcard/extra"), true, 5000, source, results::add)
+        client.invalidate()
+        source.reply(0); source.reply(1)
+        assertEquals(2, source.cancellations)
+        assertEquals(listOf(PortResult.Failure(RunError.CANCELLED)), results)
+    }
 }

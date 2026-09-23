@@ -266,7 +266,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.1 仓库骨架
 
-P1.6 回填 (2026-09-23): 最低宿主版本最终确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值的历史记录; 当前身份以 5285 为准. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
+P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将当前最低构建更新为 5286. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
 
 - [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 第 2 节确定标识并全仓库一致 (D1); `{REQUIRES_HOST_VERSION}` = P1 交付契约的宿主 `versionCode` (P0 以 5283 = 当前宿主 5282 + 1 作为临时值, P1.6 回填); `{PLATFORM_VERSIONS_PLUGIN_VERSION}=1.8.3` (已确认 `AutoJs6-Gradle-Platform-Versions/version.properties`, 落地前再确认公共仓库可解析). 证据 (E0 / E1, 2026-09-22): `AiAgentPlugin` 常量 + `AiAgentPluginRuntimeInfoTest` 2 用例; 平台插件 1.8.3 与 native-alignment 1.8.3 经公共仓库解析成功 (Temurin 验收命令通过, 日志只有一段 `Version information`).
 - [x] (插件) 以 `AutoJs6-Plugin-OpenCC` 为构建 / 资源 / 激活基础参照, `AutoJs6-Plugin-MCP-Server` 为契约与宿主链路参照, `AutoJs6-Plugin-Readium-EPUB-Reader` 为独立界面 / 设置 / 更新检查参照生成骨架: `settings.gradle.kts` (平台插件位于 `includeBuild` 之前), 根与 `app` 的 `build.gradle.kts` (无 ABI splits, D27), `build-logic` 四个约定插件, `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD` 按提交计数), 从宿主复制 `.gitignore` / `sign.properties` / `app/sm003.jks` (后两者忽略), `appendDigestToReleasedFiles` 单 APK 形态. 证据 (E0, 2026-09-22): 提交 1 `build: bootstrap ...`; `libs/common-plugin-api.aar` 取自宿主 `973447133` (5282) 的 `assembleRelease`, SHA-256 `ee7eb787...` 锁定; `git check-ignore` 确认 `sign.properties` / `app/sm003.jks` / `local.properties` 被忽略; `assembleDebug` 产出 `autojs6-plugin-ai-agent-v1.0.0.apk`, `verifyDebugNativePageAlignment` 通过 (无原生库).
@@ -410,9 +410,9 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P3.1 脚本目录呈现
 
-- [ ] (插件) `ScriptCatalogClient`: 经 `agent.listScripts` 拉取并缓存 (按链路, 60 s TTL, 任务开始时刷新); `ScriptRanker`: 候选过多时 (> 24) 先按关键词 / tags / examples 的词面相似度裁剪到 24 条再呈现给模型 (纯确定性, 不调模型); 呈现格式为紧凑 JSON (id / description / parameters 摘要 / risk / examples 前 2 条).
-- [ ] (插件) 工具 `script_catalog` (只读, 支持 `query`) 与系统提示中的 "已登记脚本" 段落 (任务开始时自动注入前 24 条); 附加根目录在插件设置中配置并随 `startRun` 的 `scriptRoots` 传给宿主 (宿主校验在允许范围内, D36).
-- [ ] (测试) JVM: 排序与裁剪, 呈现格式快照, 缓存失效.
+- [x] (插件) `ScriptCatalogClient`: 经 `agent.listScripts` 拉取并缓存 (按链路, 60 s TTL, 任务开始时刷新); `ScriptRanker`: 候选过多时 (> 24) 先按关键词 / tags / examples 的词面相似度裁剪到 24 条再呈现给模型 (纯确定性, 不调模型); 呈现格式为紧凑 JSON (id / description / parameters 摘要 / risk / examples 前 2 条). 证据 (E1, 2026-09-23): `6beeca9`, 链路隔离/失效围栏, 中英关键词确定性排序, 重复 ID 排除, 12 KiB 呈现与完整记录裁剪; 详见 `docs/dev/p31-script-catalog-evidence.md`.
+- [x] (插件) 工具 `script_catalog` (只读, 支持 `query`) 与系统提示中的 "已登记脚本" 段落 (任务开始时自动注入前 24 条); 附加根目录在插件设置中配置并随 `startRun` 的 `scriptRoots` 传给宿主 (宿主校验在允许范围内, D36). 证据 (E1/E2, 2026-09-23): 插件 `5636288`, 宿主 `57fbffaeff`; 英中提示与本地上下文预算接线, 私有设置页及 10 语言说明, 宿主校验/保存根目录, 任务只可缩小范围; API 24/37 实际 Binder 验证 30 个登记脚本与 32 个附加根, 查询复用缓存及新任务刷新. 最低宿主同步为 5286, 三个 release API AAR 同次构建换锁.
+- [x] (测试) JVM: 排序与裁剪, 呈现格式快照, 缓存失效. 证据 (E0/E1/E2, 2026-09-23): 插件 JVM 238/238 (本节 22 项), debug/androidTest/release-R8/lint 与 10 语言 36 文档产物校验通过; API 24/37 插件各 20/20, 含 400 条大目录 FD 传输与设置持久化. 宿主全量 JVM 3176 项, 0 失败/错误, 6 条件跳过; 每台宿主回归 26 通过/1 条件跳过 (本轮未启用 Wi-Fi 修改测试). 不等价于真实模型 E4.
 
 ### P3.2 参数补全与确认
 
@@ -1172,3 +1172,11 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - debug/androidTest/Release-R8/lint 通过 (0 errors, 6 warnings, 其中单例仅保留 applicationContext 的静态引用警告已审阅); 10 语言 / 36 生成产物一致. 早期 API 33 冷启动诊断出现一次 startRun 超过 200 ms, 最终断言通过; 不声称已通过 P7 冷启动/负载性能门禁. 详见 `docs/dev/p25-host-link-evidence.md`.
 - 按逻辑本地提交: 插件宿主链路 `7a1a955`, 附着入口 `42082ea`, 前台服务 `5ebaead`; 宿主测试 `8c8e89202e`, 最后将兼容回归与本阶段证据作为原测试子项提交. 插件最终 1.0.0 / build 24 与 Git 提交数一致; 未推送或发布.
 - 下一会话从原 P3.1 ScriptCatalogClient/ScriptRanker 开始. P3/P4 的脚本执行与可信 UI 风险检查, P5 的 ai.agent/AgentRun, P6 的完整任务台和原 P7/P8 gate 均保持原安排. 本轮为假模型 + 真实宿主的 E1/E2, 不构成真实模型 E4 验收.
+
+### 2026-09-23 (P3.1 脚本目录呈现)
+
+- 完成原 P3.1 三个子项, 未增加/分拆/丢弃路线图阶段. 插件 `6beeca9` 实现目录缓存/排序/摘要, `5636288` 接入任务提示/只读查询/根目录设置; 本记录所在的测试提交补足密集目录与失效边界回归, 插件构建 1.0.0 / 27, 提交计数按仓库约定同步.
+- 宿主 `57fbffaeff` 接收经身份验证的根目录提议, 校验存在性与允许范围, 保留宿主其他授权并保存已接受的设置; 目录更新取消插件既有任务, 新任务可通过 scriptRoots 缩小范围. 旧宿主 5285 不处理此设置, 因此最低构建更新为 5286, 常量/Manifest/INFO/AGENTS/10 语言说明一致, 三个 release API AAR 从该提交同次构建换锁. 未变更 AIDL 事务或公开 JS API.
+- 插件最终 JVM 238/238, Android API 24 (x86, 4 KiB) / API 37 (x86_64, 16 KiB) 各 20/20; debug/androidTest/release-R8/lint 与 10 语言 36 产物检查通过, lint 0 错误/6 条既有警告. 大目录用例包含 400 条登记信息, 证明 JSON 节点预算与 FD 路径兼容, 描述和参数摘要保持有界.
+- 宿主全量 JVM 3176 项, 0 失败/错误, 6 条件跳过; 两个契约模块 12/12; 每台 AVD 宿主回归 27 项中 26 通过/1 条件跳过. 真实宿主目录 + 脚本化模型验证排序前 24 条, 额外 query 命中, 任务内缓存, 新任务刷新及根目录拒绝. 全量检查暴露的既有邮件测试竞态以 `0d6f53677d` 单独修正等待关闭事件, 未改邮件生产行为.
+- 证据见 `docs/dev/p31-script-catalog-evidence.md` 及宿主 `docs/dev/evidence/ai-agent-p31-20260923.md`. 只使用私有只读 AVD, 未操作真机, 未运行真实模型任务或脚本, 未推送仓库. 下一会话从原 P3.2 参数补全与确认开始; P3.3 执行与结果及后续阶段保留原顺序.
