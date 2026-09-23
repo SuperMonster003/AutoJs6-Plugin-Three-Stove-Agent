@@ -67,8 +67,10 @@ class AiAgentTaskForegroundService : Service() {
         if (running === this) {
             running = null
             runtime.current?.liveRuns()?.forEach { row -> row.string("runId")?.let { runtime.current?.cancelLocal(it) } }
+            complete(false)
         }
-        complete(false)
+        // A retired instance may be destroyed after ensure() has queued the next start.
+        // Only the current instance owns those pending callbacks.
         super.onDestroy()
     }
     companion object {

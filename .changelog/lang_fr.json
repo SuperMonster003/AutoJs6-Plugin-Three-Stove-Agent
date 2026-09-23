@@ -36,6 +36,10 @@
       "dependency": [
         "Ajout de common-plugin-api, host-capability-api et ai-agent-api provenant du même build release AutoJs6 6.8.0 / 5287 (MPL 2.0), verrouillés par SHA-256",
         "Ajout de Gson 2.13.2 pour analyser strictement le JSON borné et les arbres de schémas"
+      ],
+      "fix": [
+        "Expurgation des paramètres multilignes avant le découpage de la console, sans laisser passer de secret quand un paramètre correspond à son libellé",
+        "Un service de premier plan en cours de fermeture ne rejette plus le démarrage de la tâche suivante"
       ]
     }
   }

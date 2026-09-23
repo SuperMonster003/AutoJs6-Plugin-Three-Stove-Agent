@@ -79,15 +79,14 @@ class ScriptOutcome private constructor(observation: JsonObject, val error: RunE
             val secrets = script.parameters.entrySet().mapNotNull { (_, v) -> v.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString?.takeIf { it.isNotEmpty() } }
             val console = JsonArray()
             val lines = ArrayDeque<String>()
-            tail.forEach { entry -> entry.asString.lineSequence().forEach { line ->
+            tail.forEach { entry -> ScriptOutputRedactor.text(entry.asString, secrets).lineSequence().forEach { line ->
                 lines.add(line)
                 if (lines.size > 40) lines.removeFirst()
             } }
             var remaining = 8192
             for (line in lines.toList().asReversed()) {
-                val redacted = ScriptOutputRedactor.text(line, secrets)
-                val bounded = AgentJson.truncate(redacted, minOf(1024, remaining / 6))
-                if (bounded.isEmpty() && redacted.isNotEmpty()) break
+                val bounded = AgentJson.truncate(line, minOf(1024, remaining / 6))
+                if (bounded.isEmpty() && line.isNotEmpty()) break
                 val cost = StepJournal.bytes(bounded.json()) + 1
                 if (cost > remaining) break
                 console.add(bounded); remaining -= cost
@@ -110,10 +109,10 @@ internal object ScriptOutputRedactor {
     private val key = Regex("(?i)^(?:password|passwd|pwd|token|access[_-]?token|refresh[_-]?token|api[_-]?key|secret|authorization|cookie)$")
     private val assignment = Regex("""(?i)(password|passwd|pwd|(?:access[_-]?|refresh[_-]?)?token|api[_-]?key|secret|authorization|cookie)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;]+)""")
     fun text(value: String, secrets: List<String> = emptyList()): String {
-        var result = value
-        for (secret in secrets.sortedByDescending { it.length }) result = result.replace(secret, "***").replace(secret.json().toString().drop(1).dropLast(1), "***")
-        return assignment.replace(result) { it.groupValues[1] + it.groupValues[2] + "***" }
+        var result = assignment.replace(value) { it.groupValues[1] + it.groupValues[2] + "***" }
             .replace(Regex("(?i)Bearer\\s+[A-Za-z0-9._~+/-]+=*"), "Bearer ***")
+        for (secret in secrets.sortedByDescending { it.length }) result = result.replace(secret, "***").replace(secret.json().toString().drop(1).dropLast(1), "***")
+        return result
     }
     fun redact(value: JsonElement): JsonElement = when {
         value.isJsonObject -> JsonObject().apply { value.asJsonObject.entrySet().forEach { (name, child) -> add(name, if (key.matches(name)) "***".json() else redact(child)) } }

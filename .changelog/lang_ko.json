@@ -36,6 +36,10 @@
       "dependency": [
         "동일한 AutoJs6 6.8.0 / 5287 release 빌드의 common-plugin-api, host-capability-api 및 ai-agent-api (MPL 2.0) 추가, SHA-256으로 고정",
         "제한된 엄격 JSON 파싱과 Schema 트리를 위해 Gson 2.13.2 추가"
+      ],
+      "fix": [
+        "콘솔 줄 분리와 자르기 전에 여러 줄 매개변수를 숨기고 매개변수 텍스트가 자격 증명 레이블과 같을 때의 누락 방지",
+        "종료 중인 포그라운드 서비스가 다음 작업의 시작 요청을 잘못 거부하는 문제"
       ]
     }
   }

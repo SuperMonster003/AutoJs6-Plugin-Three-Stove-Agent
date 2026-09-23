@@ -36,6 +36,10 @@
       "dependency": [
         "Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5287 (MPL 2.0), fijados con SHA-256",
         "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
+      ],
+      "fix": [
+        "Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta",
+        "Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea"
       ]
     }
   }

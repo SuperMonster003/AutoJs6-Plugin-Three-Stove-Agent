@@ -97,6 +97,18 @@ class ScriptInvokerTest {
         val tail = ScriptOutcome.parse(prepared().metadata.script!!, raw).observation.getAsJsonArray("consoleTail")
         assertEquals(40, tail.size()); assertEquals("60", tail[0].asString); assertEquals("99", tail.last().asString)
     }
+    @Test fun multilineArgumentsAreRedactedBeforeMessagesAreSplitIntoLines() {
+        val script = PreparedScript(prepared().metadata.script!!.registration, jsonObject("text" to "private\noffice".json()))
+        val raw = outcome().apply { add("consoleTail", jsonArray("value=private\noffice".json())) }
+        val tail = ScriptOutcome.parse(script, raw).observation.getAsJsonArray("consoleTail")
+        assertEquals(jsonArray("value=***".json()), tail)
+    }
+    @Test fun argumentValuesMatchingCredentialLabelsCannotHideCredentialAssignments() {
+        val script = PreparedScript(prepared().metadata.script!!.registration, jsonObject("label" to "token".json(), "scheme" to "Bearer".json()))
+        val raw = outcome().apply { add("consoleTail", jsonArray("token=credential-one Bearer credential-two".json())) }
+        val tail = ScriptOutcome.parse(script, raw).observation.getAsJsonArray("consoleTail").toString()
+        assertFalse(tail.contains("credential-one")); assertFalse(tail.contains("credential-two"))
+    }
     @Test fun uninspectedScriptCannotReachTheHost() {
         val source = Source(); val valid = prepared(); var result: PortResult<ToolReply>? = null
         ScriptInvoker(source, { "run-1" }, "default").execute(PreparedTool(valid.invocation, valid.metadata), 1000) { result = it }

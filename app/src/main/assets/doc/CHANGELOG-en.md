@@ -26,6 +26,8 @@
 * `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 * `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 * `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+* `Fix` Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines
+* `Fix` A retiring foreground service no longer rejects the next task while its replacement is starting
 * `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
 * `Improvement` Minimum host is AutoJs6 6.8.0 / build 5287 to receive and validate extra script folders configured in the plugin
 * `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks

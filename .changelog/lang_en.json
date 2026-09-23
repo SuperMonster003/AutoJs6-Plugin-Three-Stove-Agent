@@ -36,6 +36,10 @@
       "dependency": [
         "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5287 release build (MPL 2.0), with SHA-256 locks",
         "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
+      ],
+      "fix": [
+        "Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines",
+        "A retiring foreground service no longer rejects the next task while its replacement is starting"
       ]
     }
   }

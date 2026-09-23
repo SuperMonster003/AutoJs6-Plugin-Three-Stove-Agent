@@ -36,6 +36,10 @@
       "dependency": [
         "附加同一 AutoJs6 6.8.0 / 5287 release 构建的 common-plugin-api, host-capability-api 与 ai-agent-api (MPL 2.0), 通过 SHA-256 锁定",
         "附加 Gson 版本 2.13.2, 用于有界严格 JSON 解析与 Schema 数据树"
+      ],
+      "fix": [
+        "控制台拆行和裁剪前处理多行参数脱敏, 避免参数文本与凭据标签重名时漏掉凭据",
+        "连续启动任务时, 已退出的前台服务不再误拒绝下一任务的启动请求"
       ]
     }
   }

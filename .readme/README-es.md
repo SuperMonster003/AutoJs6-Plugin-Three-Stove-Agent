@@ -193,6 +193,8 @@ _2026/09/23_
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 - `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Corrección` Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta
+- `Corrección` Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea
 - `Mejora` Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder
 - `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5287 para recibir y validar las carpetas adicionales configuradas en el plugin
 - `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5287 (MPL 2.0), fijados con SHA-256

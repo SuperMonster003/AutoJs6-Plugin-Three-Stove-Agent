@@ -266,7 +266,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 
 ### P0.1 仓库骨架
 
-P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将当前最低构建更新为 5286. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
+P1.6 回填 (2026-09-23): 该阶段最低宿主版本确定为 AutoJs6 6.8.0 / 5285, 已同步宿主 `AiAgentIds`, 插件常量, 两处 Manifest, INFO 测试, AGENTS 与 10 语言说明. 下文保留 P0 当时 5283 临时值及 P1.6 的历史记录; P3.1 因附加脚本目录配置的宿主校验与恢复, 将最低构建更新为 5286. P3.3 因登记脚本结果与按调用停止, 将当前最低构建更新为 5287. P0 的插件中心显示/启用验收已在 P1.5 的 API 37 AVD 复验通过.
 
 - [x] (插件) 按 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` 第 2 节确定标识并全仓库一致 (D1); `{REQUIRES_HOST_VERSION}` = P1 交付契约的宿主 `versionCode` (P0 以 5283 = 当前宿主 5282 + 1 作为临时值, P1.6 回填); `{PLATFORM_VERSIONS_PLUGIN_VERSION}=1.8.3` (已确认 `AutoJs6-Gradle-Platform-Versions/version.properties`, 落地前再确认公共仓库可解析). 证据 (E0 / E1, 2026-09-22): `AiAgentPlugin` 常量 + `AiAgentPluginRuntimeInfoTest` 2 用例; 平台插件 1.8.3 与 native-alignment 1.8.3 经公共仓库解析成功 (Temurin 验收命令通过, 日志只有一段 `Version information`).
 - [x] (插件) 以 `AutoJs6-Plugin-OpenCC` 为构建 / 资源 / 激活基础参照, `AutoJs6-Plugin-MCP-Server` 为契约与宿主链路参照, `AutoJs6-Plugin-Readium-EPUB-Reader` 为独立界面 / 设置 / 更新检查参照生成骨架: `settings.gradle.kts` (平台插件位于 `includeBuild` 之前), 根与 `app` 的 `build.gradle.kts` (无 ABI splits, D27), `build-logic` 四个约定插件, `version.properties` (`VERSION_NAME=1.0.0`, `VERSION_BUILD` 按提交计数), 从宿主复制 `.gitignore` / `sign.properties` / `app/sm003.jks` (后两者忽略), `appendDigestToReleasedFiles` 单 APK 形态. 证据 (E0, 2026-09-22): 提交 1 `build: bootstrap ...`; `libs/common-plugin-api.aar` 取自宿主 `973447133` (5282) 的 `assembleRelease`, SHA-256 `ee7eb787...` 锁定; `git check-ignore` 确认 `sign.properties` / `app/sm003.jks` / `local.properties` 被忽略; `assembleDebug` 产出 `autojs6-plugin-ai-agent-v1.0.0.apk`, `verifyDebugNativePageAlignment` 通过 (无原生库).
@@ -422,12 +422,14 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P3.3 执行与结果
 
-- [ ] (插件) `ScriptInvoker`: 经 `agent.execRegistered` 启动, 等待至登记 `timeoutMs` (上限 5 min), 结果映射为观察 (`{ outcome, result, consoleTail (最多 40 行, 脱敏), error }`); 超时时调用 `engines.stop` 并回送 `SCRIPT_TIMEOUT`; 任务取消时停止脚本.
-- [ ] (插件) 终态: 若任务只由一次脚本调用构成且脚本上报了 `result`, `AgentResult.script = { id, path, executionId, result }`; 模型仍需以 `done` 收尾并给出 `summary`.
-- [ ] (宿主) 示例脚本 `sample/agent/` (与 D32 用例 (3) 对应的 "清理下载目录旧安装包" 项目 + 一个单文件 `@agent` 示例 "统计剪贴板字数"), 经 `app.listSamples` 可见.
-- [ ] (测试) instrumentation (AVD, 真实宿主): 单文件与项目脚本各一次自然语言调用闭环 (假模型剧本), `ai.agent.result` 往返, 超时停止.
+- [x] (插件) `ScriptInvoker`: 经 `agent.execRegistered` 启动, 等待至登记 `timeoutMs` (上限 5 min), 结果映射为观察 (`{ outcome, result, consoleTail (最多 40 行, 脱敏), error }`); 超时时调用 `engines.stop` 并回送 `SCRIPT_TIMEOUT`; 任务取消时停止脚本.
+- [x] (插件) 终态: 若任务只由一次脚本调用构成且脚本上报了 `result`, `AgentResult.script = { id, path, executionId, result }`; 模型仍需以 `done` 收尾并给出 `summary`.
+- [x] (宿主) 示例脚本 `sample/agent/` (与 D32 用例 (3) 对应的 "清理下载目录旧安装包" 项目 + 一个单文件 `@agent` 示例 "统计剪贴板字数"), 经 `app.listSamples` 可见.
+- [x] (测试) instrumentation (AVD, 真实宿主): 单文件与项目脚本各一次自然语言调用闭环 (假模型剧本), `ai.agent.result` 往返, 超时停止.
 
-验收: D32 用例 (3) 在真机 + 在线模型下 E4 通过 (含一次参数询问与一次确认).
+证据 (E0/E1, 2026-09-23): 插件 JVM 288/288; API 24 (x86, 4 KiB) / API 37 (x86_64, 16 KiB) 各插件 23/23, 宿主执行 12/12, 真实插件往返 12 通过/1 既有条件跳过. 单文件与项目均经假模型询问/确认/执行/done, 覆盖结果回传与超时/取消停止. 构建, Release/R8, lint, 10 语言产物与关联文档/声明同步通过. 详见 [p33-script-execution-evidence.md](docs/dev/p33-script-execution-evidence.md).
+
+验收: D32 用例 (3) 在真机 + 在线模型下 E4 通过 (含一次参数询问与一次确认). 此验收仍未执行, 上述 AVD/假模型证据不替代 E4.
 
 ---
 
@@ -473,7 +475,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 - [ ] (宿主) `Ai` augment 新增 `agent` 子对象 (`AiAgent : Augmentable`): `run(goal, options?)`, `create(options)`, `get(id)`, `list(filter?)`, `catalog(query?)`, `presets()`, `status()`, `result(value)`, `context()`; 参数解析与校验 (goal 非空且 <= 4 KiB, options 键白名单, `budget` 范围, `tools` 只能收紧); 未安装 / 未启用 / 未附着时 `run` 返回已拒绝的句柄 (`state = failed`, `error.code = PLUGIN_UNAVAILABLE`, `error.hint` 指向抽屉入口), 不抛同步异常.
 - [ ] (宿主) `AgentRunNativeObject` (Rhino 对象): `id` / `state` / `goal` / `startedAt` 只读属性; `on(event, listener)` / `off` / `once`; `respond(requestId, value)` / `confirm(requestId, allowed)` / `cancel(reason?)`; `result` (Promise) / `join(timeoutMs?)` (阻塞等待, UI 线程调用抛错); 事件 `state / progress / step / input / confirmation / done / error` 经 `AiAsyncDispatcher` 在脚本线程派发 (MCP / ai 家族同形); `AiAgentService` 按 `ScriptRuntime` 持有句柄, 脚本退出时对非 `detached` 任务 `cancel(script-stopped)` 并释放监听.
 - [ ] (宿主) `interaction: "script"` 时 `input` / `confirmation` 事件带 `requestId` 与超时, 未在超时内 `respond / confirm` 视为拒绝 (D25); `interaction: "plugin"` (默认) 时脚本仍收到只读的 `input` / `confirmation` 通知事件但不可回应.
-- [ ] (宿主) `ai.agent.result(value)` / `ai.agent.context()` 与 P1.4 结果通道对接 (执行带 `agentRunId` 时 `context()` 返回 `{ runId, parameters, presetName }`).
+- [x] (宿主) `ai.agent.result(value)` / `ai.agent.context()` 与 P1.4 结果通道对接 (执行带 `agentRunId` 时 `context()` 返回 `{ runId, parameters, presetName }`). 证据 (E1, 2026-09-23): 为满足原 P3.3 指定的公开结果往返, 随宿主 `42b82ca494` 接通该既有子项; API 24/37 的单文件与项目脚本验证结果和独立上下文快照. 本节其他任务 API/AgentRun 子项仍未完成.
 - [ ] (测试) JVM: 参数解析矩阵 (`AiAgentArgumentsTest`), 句柄状态转移与事件派发顺序, 脚本退出取消; Android (AVD, 真实插件): `run -> progress -> done`, `interaction: "script"` 的 `input` 往返, `detached` 任务在脚本退出后继续并可 `get(id)` 重附着.
 
 ### P5.2 示例与 Ace 补全
@@ -1189,3 +1191,13 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 接入私有记忆快照只读端: global + 当前预设, 同 key 时预设值优先, 更新时间倒序, 4 KiB 整条裁剪并报告截断; memory:false 或禁用 memory 工具组时不读取. 当前入口仍只有 default 预设. P6 的 MemoryStore 写入/管理和命名预设未提前实现, 新安装没有已保存记忆时注入为空.
 - JVM 270/270 (新增 32), API 24/37 各 23/23 (新增 3); Temurin 21 debug/androidTest/release-R8/lint 和 10 语言 36 文档产物校验通过, lint 0 错误/6 条既有警告. 证据见 `docs/dev/p32-script-parameters-evidence.md`. 本轮未修改宿主/其他插件, 未更改公开 JS API/AIDL/AAR, 最低宿主保持 5286, 未操作真机或调用真实模型, 未推送/发布.
 - 下一会话从原 P3.3 ScriptInvoker 开始. 目前 production script_run 已可准备/询问/确认, 允许后的执行仍明确返回 TOOL_DISABLED, 不宣称脚本完成. P3.3 需使用 PreparedScript 中已确认的登记路径/参数并处理等待期间的清单变化, 接入真实宿主执行/停止/结果及样例; P5/P6 与真实模型 E4 gate 保留原安排.
+
+
+### 2026-09-23 (P3.3 执行与结果)
+
+- 完成原 P3.3 四个子项. 插件 `ac62f30` 接通 ScriptInvoker 与超时/取消停止, `78075b5` 保留单脚本任务结果; 本记录所在提交补齐证据和完成标记, 修正多行参数/凭据标签的控制台脱敏顺序, 以及连续启动任务时已退出前台服务误拒绝新请求的竞态. 插件 1.0.0 / build 33 与 Git 提交计数一致, 未增加/分拆/丢弃路线图条目.
+- 宿主 `42b82ca494` 提供按链路隔离的调用 UUID, 记住先于启动的取消, 执行前比对已确认的登记快照, 返回 resultReported 区分显式 null. 公开 ai.agent.result/context 是本节往返测试的必要依赖, 同时完成原 P5.1 已列出的结果通道子项; 未提前实现任务创建/控制和 AgentRun. 最低宿主同步为 5287, 三份 API AAR 从该提交同次 release 构建换锁, 内容哈希不变, AIDL 未变更.
+- 提供 sample/agent/ 下的剪贴板字数单文件与下载目录旧安装包项目. 项目必填 days, 默认 dryRun:true, 仅处理下载目录内的直接普通安装包. 实机清理未执行; API 37 的私有夹具验证实际删除, API 24 共享存储不支持修改时间的夹具验证保留新文件.
+- 插件 JVM 288/288 (新增 18), 宿主 JVM 3182 项中 3176 通过/6 既有条件跳过 (新增 6). API 24/37 每台插件 23/23, 宿主执行 12/12, 插件往返 12 通过/1 可选 Wi-Fi 用例跳过. debug/androidTest/Release-R8/lint 和 10 语言 36 产物检查通过, 插件 lint 0 错误/6 既有警告. 证据见 docs/dev/p33-script-execution-evidence.md.
+- 公共文档 `3c50244`, 声明 4.20.0 `08a89c7`, Offline Docs `d13f179` (6.8.0 / 55), Ace `f10e0fa` (1.12.1 / 110) 已同步. 138 模块全量生成/校验, 类型正反例, 补全校验, LSP 生成和运行时检查通过. 全量文档生成同时收敛既有邮件源文档的产物漂移. 保留与本次无关的声明 publishConfig 差异及 Ace releases/ 目录.
+- 仅操作两个私有只读 AVD, 没有操作真机, 没有调用真实模型, 没有推送/发布. P3 的 D32(3) 真机 + 在线模型 E4 验收仍保留且未完成. 下一会话从原 P4.1 观察工具开始, 后续 P5/P6 和 P7/P8 gate 保持原安排.
