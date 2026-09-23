@@ -199,6 +199,7 @@ _2026/09/24_
 - `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Fix` Offscreen matches with empty or inverted bounds retain their text and are marked as having unusable coordinates instead of reporting argument errors
 - `Fix` Node relocation no longer confuses smaller nested containers with the original action target
 - `Fix` Actionable node target repair hints preserve the # reference prefix and omit snapshotId for selectors
 - `Fix` Task admission preloads order intent rules and avoids expensive rule compilation

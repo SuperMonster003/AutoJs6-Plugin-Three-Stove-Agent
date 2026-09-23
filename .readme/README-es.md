@@ -199,6 +199,7 @@ _2026/09/24_
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 - `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Corrección` Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos
 - `Corrección` La relocalizacion de nodos ya no confunde contenedores anidados menores con el objetivo original
 - `Corrección` Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector
 - `Corrección` La admisión precarga las reglas de pedido y evita una compilación costosa de reglas

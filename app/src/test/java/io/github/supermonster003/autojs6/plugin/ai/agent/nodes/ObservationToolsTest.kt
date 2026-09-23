@@ -62,6 +62,24 @@ class ObservationToolsTest {
         assertTrue(result.getAsJsonArray("nodes")[0].asJsonObject.flag("truncated")!!)
         AgentJson.parse(result.toString())
     }
+    @Test fun invertedAndEmptyPlatformBoundsPreserveMatchesWithoutClaimingUsableCoordinates() {
+        for ((top, bottom) in listOf(4659 to 2840, 100 to 100)) {
+            val entry = node("offscreen item").apply {
+                getAsJsonObject("bounds").addProperty("top", top)
+                getAsJsonObject("bounds").addProperty("bottom", bottom)
+            }
+            val found = transform("ui_find", jsonArray(entry)).asJsonObject.getAsJsonArray("nodes")[0].asJsonObject
+            assertEquals("offscreen item", found.string("text"))
+            assertEquals(entry["bounds"], found["bounds"])
+            assertEquals(false, found.flag("boundsUsable"))
+            val waited = transform("ui_wait_for", jsonObject("matched" to true.json(), "state" to "appear".json(), "node" to entry)).asJsonObject
+            assertEquals(false, waited.getAsJsonObject("node").flag("boundsUsable"))
+        }
+    }
+    @Test fun malformedCoordinatesStillFailObservationValidation() {
+        val entry = node("bad").apply { getAsJsonObject("bounds").addProperty("top", "not a coordinate") }
+        assertThrows(IllegalArgumentException::class.java) { transform("ui_find", jsonArray(entry)) }
+    }
     @Test fun consoleSplitsMessagesBeforeTakingNewestLinesAndRedactsCredentials() {
         val source = jsonObject("entries" to jsonArray(jsonObject("text" to "old\nnew\ntoken=private".json())), "truncated" to false.json())
         val result = transform("console_tail", source, jsonObject("lines" to 2.json())).asJsonObject

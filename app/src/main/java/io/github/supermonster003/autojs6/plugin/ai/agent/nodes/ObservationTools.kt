@@ -55,8 +55,12 @@ class ObservationTools {
             if (original != bounded) addProperty("truncated", true)
         }
         for (key in listOf("clickable", "enabled")) addProperty(key, requireNotNull(source.flag(key)))
-        bounds(source.getAsJsonObject("bounds"))
-        add("bounds", source.getAsJsonObject("bounds").deepCopy())
+        val rawBounds = source.getAsJsonObject("bounds")
+        val coordinates = coordinates(rawBounds)
+        // Android can clip offscreen matches into empty/inverted rectangles. Preserve the
+        // observed text and raw rectangle without presenting it as an actionable location.
+        if (coordinates[0] >= coordinates[2] || coordinates[1] >= coordinates[3]) addProperty("boundsUsable", false)
+        add("bounds", rawBounds.deepCopy())
     }
     private fun console(value: JsonElement, count: Int): JsonElement {
         // The host console window is process-wide; never imply engine-exclusive ownership.
@@ -83,8 +87,12 @@ class ObservationTools {
     companion object {
         const val MAX_BYTES = 20 * 1024
         internal fun bounds(value: JsonObject): CompactNodeText.Bounds {
+            val (left, top, right, bottom) = coordinates(value)
+            return CompactNodeText.Bounds(left, top, right, bottom)
+        }
+        private fun coordinates(value: JsonObject): List<Int> {
             fun coordinate(key: String) = requireNotNull(value.number(key)).also { require(it in Int.MIN_VALUE..Int.MAX_VALUE) }.toInt()
-            return CompactNodeText.Bounds(coordinate("left"), coordinate("top"), coordinate("right"), coordinate("bottom"))
+            return listOf("left", "top", "right", "bottom").map(::coordinate)
         }
     }
 }
