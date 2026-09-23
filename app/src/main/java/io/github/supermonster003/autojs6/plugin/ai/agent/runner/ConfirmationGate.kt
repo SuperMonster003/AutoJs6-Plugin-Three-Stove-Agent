@@ -40,9 +40,8 @@ class ConfirmationGate(private val policy: ToolPolicy, private val mode: Confirm
     }
     fun description(spec: ToolSpec, metadata: ToolMetadata, language: String): String {
         metadata.script?.let {
-            val description = it.registration.description
-            val bounded = AgentJson.truncate(description, 4096)
-            return spec.description(language) + " [" + it.registration.id + "]\n" + bounded + if (bounded != description) "..." else ""
+            val bounded = io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptConfirmation.description(it.registration.description)
+            return spec.description(language) + " [" + it.registration.id + "]\n" + bounded
         }
         val target = if (metadata.passwordField) "***" else AgentJson.truncate(metadata.context.nodeText.ifBlank { metadata.context.nodeDescription }, 400)
         return spec.description(language) + if (target.isEmpty()) "" else " [${target.replace('\n', ' ')}]"

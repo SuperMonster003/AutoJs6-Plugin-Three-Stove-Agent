@@ -418,7 +418,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 - [x] (插件) 模型以 `kind: "tool", tool: "script_run", arguments: { id, parameters }` 选择脚本; `DecisionValidator` 按脚本登记的参数 Schema 子集校验 `parameters` (缺必填 -> 生成 "缺少参数" 观察, 模型应转 `ask`; 也允许模型直接 `ask` 带 `memoryKey` 让答案进入记忆提议); 登记 `risk: sensitive` 或 `confirm: before-run` 时进入确认门, 确认文案含脚本描述与参数表.
 - [x] (插件) 记忆注入: 参数与记忆 key 同名 (如 `address`) 时, 系统提示中列出可用记忆值供模型填参 (D29 作用域).
-- [ ] (测试) JVM: 参数校验矩阵 (类型 / enum / default 填充 / 多余键拒绝), 确认文案渲染, 记忆填参.
+- [x] (测试) JVM: 参数校验矩阵 (类型 / enum / default 填充 / 多余键拒绝), 确认文案渲染, 记忆填参. 证据 (E0/E1, 2026-09-23): JVM 270/270 (本节新增 32 项); API 24 (x86, 4 KiB) / API 37 (x86_64, 16 KiB) 各 23/23, 含私有记忆读取与参数表. debug/androidTest/release-R8/lint 及 10 语言 36 文档产物检查通过. 真实脚本执行仍由 P3.3 接入, 记忆写入/管理仍在 P6; 详见 docs/dev/p32-script-parameters-evidence.md.
 
 ### P3.3 执行与结果
 
@@ -1180,3 +1180,12 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 插件最终 JVM 238/238, Android API 24 (x86, 4 KiB) / API 37 (x86_64, 16 KiB) 各 20/20; debug/androidTest/release-R8/lint 与 10 语言 36 产物检查通过, lint 0 错误/6 条既有警告. 大目录用例包含 400 条登记信息, 证明 JSON 节点预算与 FD 路径兼容, 描述和参数摘要保持有界.
 - 宿主全量 JVM 3176 项, 0 失败/错误, 6 条件跳过; 两个契约模块 12/12; 每台 AVD 宿主回归 27 项中 26 通过/1 条件跳过. 真实宿主目录 + 脚本化模型验证排序前 24 条, 额外 query 命中, 任务内缓存, 新任务刷新及根目录拒绝. 全量检查暴露的既有邮件测试竞态以 `0d6f53677d` 单独修正等待关闭事件, 未改邮件生产行为.
 - 证据见 `docs/dev/p31-script-catalog-evidence.md` 及宿主 `docs/dev/evidence/ai-agent-p31-20260923.md`. 只使用私有只读 AVD, 未操作真机, 未运行真实模型任务或脚本, 未推送仓库. 下一会话从原 P3.2 参数补全与确认开始; P3.3 执行与结果及后续阶段保留原顺序.
+
+### 2026-09-23 (P3.2 参数补全与确认)
+
+- 完成原 P3.2 三个子项, 未增加/分拆/丢弃路线图阶段. 参数校验与确认提交 `cbe5ae5`, 记忆注入提交 `bcf0fb7`; 本记录所在的测试提交补充问答/确认状态流转, Android 参数表和私有记忆读取证据, 插件版本 1.0.0 / build 30 与 Git 提交计数同步.
+- 脚本 ID 先在当前任务目录中解析为登记路径, 再经 agent.readManifest 读取当前清单. DecisionValidator 校验标量 Schema 子集, 默认值先于必填检查, 原始和补全参数均受 16 KiB 限制. 缺参生成 SCRIPT_PARAMETERS_MISSING 工具观察并提示 ask, 不占用 JSON 修复额度. ask.memoryKey 回答保留 memoryProposalOnly, 不自动保存.
+- sensitive/before-run 每次确认, 不授予同类脚本整轮放行. 确认含脚本描述和全部生效参数, 参数表有 10 语言标题, JSON 标量保留类型和转义. 描述大小计入 JSON 转义开销, 与最大参数表合并仍符合 32 KiB Binder 事件限制; 拒绝/取消不会进入执行适配器.
+- 接入私有记忆快照只读端: global + 当前预设, 同 key 时预设值优先, 更新时间倒序, 4 KiB 整条裁剪并报告截断; memory:false 或禁用 memory 工具组时不读取. 当前入口仍只有 default 预设. P6 的 MemoryStore 写入/管理和命名预设未提前实现, 新安装没有已保存记忆时注入为空.
+- JVM 270/270 (新增 32), API 24/37 各 23/23 (新增 3); Temurin 21 debug/androidTest/release-R8/lint 和 10 语言 36 文档产物校验通过, lint 0 错误/6 条既有警告. 证据见 `docs/dev/p32-script-parameters-evidence.md`. 本轮未修改宿主/其他插件, 未更改公开 JS API/AIDL/AAR, 最低宿主保持 5286, 未操作真机或调用真实模型, 未推送/发布.
+- 下一会话从原 P3.3 ScriptInvoker 开始. 目前 production script_run 已可准备/询问/确认, 允许后的执行仍明确返回 TOOL_DISABLED, 不宣称脚本完成. P3.3 需使用 PreparedScript 中已确认的登记路径/参数并处理等待期间的清单变化, 接入真实宿主执行/停止/结果及样例; P5/P6 与真实模型 E4 gate 保留原安排.

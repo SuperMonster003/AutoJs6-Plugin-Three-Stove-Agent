@@ -29,6 +29,7 @@
         "Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries"
       ],
       "improvement": [
+        "Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit",
         "Minimum host is AutoJs6 6.8.0 / build 5286 to receive and validate extra script folders configured in the plugin"
       ],
       "dependency": [
