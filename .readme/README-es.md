@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ La versión 1.0.0 está prevista para ofrecer las siguientes capacidades:
 
 ### Catálogo de herramientas
 
-Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7.
 
 | Herramienta | Grupo | Riesgo | Predeterminado | Descripción |
 | --- | --- | --- | --- | --- |
@@ -115,7 +115,7 @@ Vista previa: los scripts registrados admiten preguntas de parámetros, confirma
 3. Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6.
 4. Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
 
-> Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+> Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7.
 
 ******
 
@@ -175,7 +175,7 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/24_
 
-- `Aviso` Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6.
+- `Aviso` Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7.
 - `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado
 - `Función` La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla
 - `Función` Espera limitada de estabilidad tras cada acción y resumen de cambios desde la última acción en las observaciones siguientes
@@ -199,6 +199,7 @@ _2026/09/24_
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 - `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Corrección` Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento
 - `Corrección` Los botones de confirmar transacción requieren una confirmación de pago separada y no reutilizan permisos de toda la tarea
 - `Corrección` Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos
 - `Corrección` La relocalización de nodos distingue límites y capacidades de acción para no confundir contenedores anidados con el objetivo

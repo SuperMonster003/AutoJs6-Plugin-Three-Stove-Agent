@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/24",
       "hint": [
-        "Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6."
+        "Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7."
       ],
       "feature": [
         "Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state",
@@ -35,15 +35,8 @@
         "Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher",
         "Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries"
       ],
-      "improvement": [
-        "Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit",
-        "Minimum host is AutoJs6 6.8.0 / build 5289 for action node inspection and confirmation bound to execution"
-      ],
-      "dependency": [
-        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5289 release build (MPL 2.0), with SHA-256 locks",
-        "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
-      ],
       "fix": [
+        "Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface",
         "Cashier buttons labeled Confirm transaction require a separate payment confirmation and cannot reuse run-wide permissions",
         "Offscreen matches with empty or inverted bounds retain their text and are marked as having unusable coordinates instead of reporting argument errors",
         "Node relocation distinguishes container bounds and action capabilities to avoid confusing nested containers with the target",
@@ -53,6 +46,14 @@
         "Post-action screen reads that stop responding no longer exceed the stabilization deadline",
         "Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines",
         "A retiring foreground service no longer rejects the next task while its replacement is starting"
+      ],
+      "improvement": [
+        "Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit",
+        "Minimum host is AutoJs6 6.8.0 / build 5289 for action node inspection and confirmation bound to execution"
+      ],
+      "dependency": [
+        "Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5289 release build (MPL 2.0), with SHA-256 locks",
+        "Added Gson 2.13.2 for bounded strict JSON parsing and schema trees"
       ]
     }
   }

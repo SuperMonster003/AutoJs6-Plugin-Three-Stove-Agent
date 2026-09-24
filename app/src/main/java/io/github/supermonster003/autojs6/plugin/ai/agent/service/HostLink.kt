@@ -195,11 +195,12 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         if (state != C.LINK_STATE_ATTACHED) scheduler.execute(::retireIfIdle)
     }
-    private fun respond(json: String): Bundle = with(ControlRequests) {
+    private fun respond(json: String, interaction: String): Bundle = with(ControlRequests) {
         val value = AgentJson.objectOf(json, C.MAX_EVENT_JSON_BYTES)
         closed(value, setOf("runId", "requestId", "value", "allowed", "scope"))
         val id = runId(value)
         val run = active[id] ?: throw WireFailure(C.ERROR_RUN_NOT_FOUND)
+        if (archive.interaction(id) != interaction) throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
         val pending = archive.pending(id) ?: throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
         val requestId = text(value, "requestId", maximum = 128) ?: throw WireFailure(C.ERROR_INVALID_REQUEST)
         if (pending.string("requestId") != requestId) throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
@@ -233,7 +234,9 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         override fun getStatus(): Bundle { check(); return status() }
         override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?): Bundle { check(request); return result { start(read(request, C.KEY_RUN_REQUEST_JSON), callback) } }
-        override fun respond(response: Bundle?): Bundle { check(response); return result { respond(read(response, C.KEY_RUN_RESPONSE_JSON)) } }
+        override fun respond(response: Bundle?): Bundle { check(response); return result {
+            respond(read(response, C.KEY_RUN_RESPONSE_JSON), if (hostValidatedRoots) "script" else "plugin")
+        } }
         override fun cancelRun(reference: Bundle?) {
             check(reference)
             val value = AgentJson.objectOf(read(reference, C.KEY_RUN_REF_JSON))

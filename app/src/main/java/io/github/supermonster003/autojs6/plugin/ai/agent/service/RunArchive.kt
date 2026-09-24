@@ -40,7 +40,7 @@ internal class RunArchive(private val directory: File) {
     @Synchronized fun admit(run: AgentRunner, request: StartRequest) {
         records[run.id] = jsonObject("runId" to run.id.json(), "goal" to request.options.goal.json(),
             "state" to run.state.wire.json(), "startedAt" to System.currentTimeMillis().json(),
-            "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "steps" to JsonArray())
+            "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray())
         markDirty(run.id)
     }
     @Synchronized fun event(event: RunEvent) {
@@ -63,6 +63,7 @@ internal class RunArchive(private val directory: File) {
         markDirty(id)
     }
     @Synchronized fun pending(id: String): JsonObject? = records[id]?.getAsJsonObject("pending")?.deepCopy()
+    @Synchronized fun interaction(id: String): String? = records[id]?.string("interaction")
     @Synchronized fun summary(id: String): JsonObject? = records[id]?.let { row -> JsonObject().apply {
         for (key in listOf("runId", "goal", "state", "step", "progress")) row[key]?.let { add(key, it.deepCopy()) }
     } }
@@ -76,7 +77,7 @@ internal class RunArchive(private val directory: File) {
     @Synchronized fun list(limit: Int, offset: Int): JsonObject {
         val summaries = records.values.toList().asReversed().drop(offset).take(limit).map { row ->
             jsonObject("runId" to row["runId"], "goal" to AgentJson.truncate(row.string("goal").orEmpty(), 256).json(),
-                "state" to row["state"], "startedAt" to row["startedAt"], "detached" to row["detached"])
+                "state" to row["state"], "startedAt" to row["startedAt"], "detached" to row["detached"], "preset" to (row["preset"] ?: "default".json()))
         }
         return jsonObject("runs" to JsonArray().apply { summaries.forEach(::add) }, "total" to records.size.json(), "ready" to ready.json())
     }

@@ -8,7 +8,7 @@
 
 ###### 2026/09/24
 
-* `Hint` Development preview: registered scripts can execute with parameter questions, confirmation, result reporting and cancellation. Screen workflows continue in P4; task script APIs and the workbench follow in P5/P6.
+* `Hint` Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7.
 * `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
 * `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution
 * `Feature` Actions wait for a bounded stable screen sample and include changes since the last action in subsequent observations
@@ -32,6 +32,7 @@
 * `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 * `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 * `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+* `Fix` Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface
 * `Fix` Cashier buttons labeled Confirm transaction require a separate payment confirmation and cannot reuse run-wide permissions
 * `Fix` Offscreen matches with empty or inverted bounds retain their text and are marked as having unusable coordinates instead of reporting argument errors
 * `Fix` Node relocation distinguishes container bounds and action capabilities to avoid confusing nested containers with the target

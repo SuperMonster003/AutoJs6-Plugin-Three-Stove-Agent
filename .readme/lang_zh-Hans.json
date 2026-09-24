@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577]({{ discussion_url }}).",
   "p_introduction_how": "插件既是 AutoJs6 插件, 也是独立应用. 脚本通过 AutoJs6 的 `ai.agent` API 使用它; 用户通过它自己的任务台, AutoJs6 抽屉项, 悬浮球, 系统分享面板, 应用快捷方式和语音输入使用它. 模型调用与设备操作始终经 Binder 交给 AutoJs6: 宿主借给插件一个模型代理 (宿主已知的 AI Provider 插件, 例如 3-Stone AI) 和一个带有限 grant 的能力代理. 插件从不持有凭据, 从不自行绑定模型提供方, 也不申请无障碍权限.",
   "h3_status": "当前状态",
-  "p_status": "开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "开发预览: 登记脚本, 界面操作与 ai.agent 任务 API 已接通. 任务 API 需要 AutoJs6 构建 5293 或更高版本; 完整任务台继续按 P6 实施, 稳定性验收继续按 P7 实施. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "功能",
   "p_features_intro": "1.0.0 计划提供以下能力",
   "features": [
@@ -24,7 +24,7 @@
     "启动器支持请求宿主连接, 15 秒超时后引导在 AutoJs6 启用 AI Agent 并授权.",
     "在启动器的 \"脚本目录\" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围."
   ],
-  "p_usage_note": "开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6.",
+  "p_usage_note": "开发预览: 登记脚本, 界面操作与 ai.agent 任务 API 已接通. 任务 API 需要 AutoJs6 构建 5293 或更高版本; 完整任务台继续按 P6 实施, 稳定性验收继续按 P7 实施.",
   "h3_security": "权限与安全",
   "p_security_intro": "插件遵循明确的边界:",
   "security_points": [
@@ -61,7 +61,7 @@
   "text_link_third_party_notices": "第三方声明",
   "p_instruction_more": "连接指南与当前进度请参阅 [项目 README]({{ repo_url }}) 与 [ROADMAP.md]({{ roadmap_url }}).",
   "h3_tools": "工具目录",
-  "p_tools_status": "开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6.",
+  "p_tools_status": "开发预览: 登记脚本, 界面操作与 ai.agent 任务 API 已接通. 任务 API 需要 AutoJs6 构建 5293 或更高版本; 完整任务台继续按 P6 实施, 稳定性验收继续按 P7 实施.",
   "tool_header_name": "工具",
   "tool_header_group": "分组",
   "tool_header_risk": "风险",

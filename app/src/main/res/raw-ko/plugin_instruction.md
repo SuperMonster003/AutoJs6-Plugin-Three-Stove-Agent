@@ -1,6 +1,6 @@
 AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제 동작으로 바꿉니다. 사용자가 에이전트용으로 등록한 스크립트를 골라 매개변수를 채우고 실행하거나, 접근성 노드 트리로 화면을 관찰하고 관찰, 결정, 실행, 검증의 순환으로 단계별로 조작합니다. 목표를 달성하거나 확인이 필요하거나 예산이 소진될 때까지 계속됩니다. [AutoJs6 토론 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577)에 대한 답입니다.
 
-개발 미리보기: 등록 스크립트의 매개변수 질문, 확인, 결과 보고 및 취소 지원. 화면 작업은 P4, 작업 스크립트 API와 작업대는 P5/P6에서 구현 예정. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+개발 미리보기: 등록 스크립트, 화면 작업 및 ai.agent 작업 API 연결 완료. 작업 API에는 AutoJs6 빌드 5293 이상이 필요. 전체 작업 화면은 P6, 안정성 검증은 P7에서 계속 진행. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 사용 방법
 

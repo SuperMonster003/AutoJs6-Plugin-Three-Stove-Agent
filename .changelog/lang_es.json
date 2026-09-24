@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/24",
       "hint": [
-        "Vista previa: los scripts registrados admiten preguntas de parámetros, confirmación, resultados y cancelación. Los flujos de pantalla siguen en P4 y las API de tareas y el panel en P5/P6."
+        "Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7."
       ],
       "feature": [
         "La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado",
@@ -35,15 +35,8 @@
         "Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador",
         "Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog"
       ],
-      "improvement": [
-        "Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder",
-        "El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5289 para inspeccionar nodos de acción y vincular la confirmación a la ejecución"
-      ],
-      "dependency": [
-        "Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5289 (MPL 2.0), fijados con SHA-256",
-        "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
-      ],
       "fix": [
+        "Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento",
         "Los botones de confirmar transacción requieren una confirmación de pago separada y no reutilizan permisos de toda la tarea",
         "Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos",
         "La relocalización de nodos distingue límites y capacidades de acción para no confundir contenedores anidados con el objetivo",
@@ -53,6 +46,14 @@
         "La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización",
         "Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta",
         "Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea"
+      ],
+      "improvement": [
+        "Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder",
+        "El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5289 para inspeccionar nodos de acción y vincular la confirmación a la ejecución"
+      ],
+      "dependency": [
+        "Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5289 (MPL 2.0), fijados con SHA-256",
+        "Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas"
       ]
     }
   }

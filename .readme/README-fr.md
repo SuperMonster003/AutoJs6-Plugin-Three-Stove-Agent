@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -69,7 +69,7 @@ La version 1.0.0 doit fournir les capacités suivantes:
 
 ### Catalogue des outils
 
-Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7.
 
 | Outil | Groupe | Risque | Défaut | Description |
 | --- | --- | --- | --- | --- |
@@ -115,7 +115,7 @@ Aperçu de développement: les scripts enregistrés prennent en charge questions
 3. Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6.
 4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
 
-> Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+> Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7.
 
 ******
 
@@ -175,7 +175,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/24_
 
-- `Note` Aperçu de développement: les scripts enregistrés prennent en charge questions, confirmation, résultats et annulation. Les parcours écran suivent en P4, les API de tâches et l'espace de travail en P5/P6.
+- `Note` Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7.
 - `Fonctionnalité` La fin de tâche exige des preuves, les résultats partiels listent le travail restant et les commandes ou paiements exigent un état de commande observé
 - `Fonctionnalité` La vérification conserve le compteur d'écrans inchangés après réduction du contexte et bloque la troisième demande d'action équivalente avant exécution
 - `Fonctionnalité` Attente bornée de stabilité après une action et résumé des changements depuis la dernière action dans les observations suivantes
@@ -199,6 +199,7 @@ _2026/09/24_
 - `Fonctionnalité` Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6
 - `Fonctionnalité` Notifications au premier plan pendant les tâches seulement, avec progression, Arrêter et Voir; saisie et confirmation de chaque action depuis le lanceur
 - `Fonctionnalité` Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog
+- `Correctif` Les réponses et confirmations vérifient le propriétaire interaction afin qu'un script ne réponde pas à la place de l'interface du plugin
 - `Correctif` Les boutons de confirmation de transaction exigent une confirmation de paiement distincte sans réutiliser les autorisations de toute la tâche
 - `Correctif` Les résultats hors écran aux limites vides ou inversées conservent leur texte et signalent des coordonnées inutilisables au lieu d'une erreur de paramètres
 - `Correctif` La relocalisation des noeuds distingue les limites et capacités des conteneurs pour ne pas confondre les conteneurs imbriqués avec la cible

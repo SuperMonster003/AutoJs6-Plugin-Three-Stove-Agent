@@ -328,7 +328,7 @@ P0.2 验收状态 (2026-09-22): spike 数据落盘 (`docs/dev/p0-spike-evidence.
 - [x] (宿主) 新模块 `agent`: `listScripts({ roots?, query?, limit? })` (扫描工作目录与配置的附加根, 解析 `project.json` 的 `agent` 字段与单文件 `@agent` 头注释, 返回 `[{ id, path, kind: project|file, description, parameters, result?, risk, confirm, timeoutMs, examples, tags, updatedAt }]`, 上限 500 条 / 256 KiB, 扫描深度 4, 单文件头注释只读前 8 KiB), `readManifest(path)`, `execRegistered(path, arguments, { timeoutMs, captureConsole })` (校验 path 在允许根内, 参数按 Schema 子集校验, 经 `NodeBridgeEngineDispatchService` 启动并等待, 返回 `{ executionId, finished, outcome, error, result, consoleTail }`); 加入 `NodeBridgeModules.supportedMethodsByModule`. 证据 (E1 / E2, 2026-09-23): NodeBridgeAgentPermissionsTest 2/2; Android AgentRegisteredScriptExecutionTest 8/8, 实际 catalog -> schema -> service -> Rhino 往返, 含默认参数, 超时, 销毁取消, 启动前取消, 实际项目入口核对与一次回复. 附加根由宿主配置替换, 请求 roots 只能收窄.
 - [x] (宿主) `project/AgentManifest` (Gson 数据类, `ProjectConfig` 新增 `@SerializedName("agent")` 字段), `AgentManifestParser` (JSDoc 风格 `@agent` / `@description` / `@param {type} [name=default] description` / `@result` / `@risk` / `@confirm` / `@timeout` / `@example` / `@tag` -> 同一数据类; 参数类型子集 `string / number / integer / boolean / enum` + `required` + `default`), `AgentScriptCatalog` (扫描, 缓存按文件 mtime 失效). 格式见附录 E, 文档 `docs/dev/agent-script-manifest-v1.md`. 证据 (E1 / E2, 2026-09-23): AgentManifestParserTest 10/10; AgentScriptCatalogTest 10 项中 9 通过/1 Windows symlink 条件跳过; Android AgentProjectCompatibilityTest 3/3 覆盖真实 FuzzyGson 保存, 文件/目录 symlink 越界与 ICU 头注释解析. D36 的 cwd/agent 深度 8, 嵌套同名目录和重叠根扫描均已落实.
 - [x] (宿主) 结果通道: `ScriptExecution` 增加 `agentResult` 槽位 (有界 64 KiB JSON), `ai.agent.result(value)` (P5 的 augment 中实现, 本条只做宿主执行层) 在执行带有 `agentRunId` 标记时写入; `execRegistered` 完成后读取. 未被 Agent 启动的脚本调用 `ai.agent.result` 记录一条警告并返回 `false`. 证据 (E1 / E2, 2026-09-23): AgentScriptExecutionStateTest 5/5, Android 执行往返验证上下文与 64 KiB 结果槽. 本条执行层通过内部 Java hook 验证, 公开 ai.agent.result/context 及普通脚本警告仍在原 P5 实施.
-- [ ] (测试) JVM: `AgentManifestParserTest` (合法 / 缺字段 / 非法类型 / 8 KiB 截断 / Unicode / 重复 `@param`), `AgentScriptCatalogTest` (扫描上限与深度, mtime 失效), `CompactNodeTextTest` (与 MCP 附录 B 快照一致), `ProjectConfig` 反序列化含 `agent`; Android: `readScreenText` 在无 OCR 插件时的 `unavailable`, `execRegistered` 往返 (含 `ai.agent.result` 与超时) 在 AVD. 部分证据 (E1 / E2, 2026-09-23): 上述 JVM 与 Android 用例已通过, 宿主全量 JVM 3165 项, 0 失败/错误, 6 跳过; AVD 本轮与既有桥接回归合计 31/31, 0 跳过. 保留未勾选: 此条明确包含的公开 ai.agent.result JS 验收须在原 P5 augment 落地后补齐, 本轮内部 Java hook 测试不等价于公开 API 验收.
+- [x] (测试) JVM: `AgentManifestParserTest` (合法 / 缺字段 / 非法类型 / 8 KiB 截断 / Unicode / 重复 `@param`), `AgentScriptCatalogTest` (扫描上限与深度, mtime 失效), `CompactNodeTextTest` (与 MCP 附录 B 快照一致), `ProjectConfig` 反序列化含 `agent`; Android: `readScreenText` 在无 OCR 插件时的 `unavailable`, `execRegistered` 往返 (含 `ai.agent.result` 与超时) 在 AVD. 部分证据 (E1 / E2, 2026-09-23): 上述 JVM 与 Android 用例已通过, 宿主全量 JVM 3165 项, 0 失败/错误, 6 跳过; AVD 本轮与既有桥接回归合计 31/31, 0 跳过. 补充证据 (2026-09-24): 原 P3.3 已在 API 24/37 验证公开 result/context, 单文件与项目真实 Rhino 执行及取消, 本轮 Redmi E4 清理实测补齐真实模型证据. 据此关闭原先仅因公开 JS 往返而保留的测试项; 详见 docs/dev/p33-script-execution-evidence.md 与 docs/dev/p3-real-script-e4-2026-09-24.md.
 
 P1.4 实施说明: 保留原阶段和条目. "位图不出宿主进程" 按截图/裁剪生命周期由宿主管理且不向 Agent 返回图像解释; 复用的外部 OCR 插件仍通过既有宿主 -> OCR 通道接收识别输入, 未另造宿主 OCR 实现. 完整证据见宿主 `docs/dev/evidence/ai-agent-p14-20260923.md`.
 
@@ -474,23 +474,23 @@ P4.4 状态 (2026-09-24 日间): 三台在线 Wi-Fi / 计算器, 至少一次本
 
 ### P5.1 augment 与 `AgentRun`
 
-- [ ] (宿主) `Ai` augment 新增 `agent` 子对象 (`AiAgent : Augmentable`): `run(goal, options?)`, `create(options)`, `get(id)`, `list(filter?)`, `catalog(query?)`, `presets()`, `status()`, `result(value)`, `context()`; 参数解析与校验 (goal 非空且 <= 4 KiB, options 键白名单, `budget` 范围, `tools` 只能收紧); 未安装 / 未启用 / 未附着时 `run` 返回已拒绝的句柄 (`state = failed`, `error.code = PLUGIN_UNAVAILABLE`, `error.hint` 指向抽屉入口), 不抛同步异常.
-- [ ] (宿主) `AgentRunNativeObject` (Rhino 对象): `id` / `state` / `goal` / `startedAt` 只读属性; `on(event, listener)` / `off` / `once`; `respond(requestId, value)` / `confirm(requestId, allowed)` / `cancel(reason?)`; `result` (Promise) / `join(timeoutMs?)` (阻塞等待, UI 线程调用抛错); 事件 `state / progress / step / input / confirmation / done / error` 经 `AiAsyncDispatcher` 在脚本线程派发 (MCP / ai 家族同形); `AiAgentService` 按 `ScriptRuntime` 持有句柄, 脚本退出时对非 `detached` 任务 `cancel(script-stopped)` 并释放监听.
-- [ ] (宿主) `interaction: "script"` 时 `input` / `confirmation` 事件带 `requestId` 与超时, 未在超时内 `respond / confirm` 视为拒绝 (D25); `interaction: "plugin"` (默认) 时脚本仍收到只读的 `input` / `confirmation` 通知事件但不可回应.
-- [x] (宿主) `ai.agent.result(value)` / `ai.agent.context()` 与 P1.4 结果通道对接 (执行带 `agentRunId` 时 `context()` 返回 `{ runId, parameters, presetName }`). 证据 (E1, 2026-09-23): 为满足原 P3.3 指定的公开结果往返, 随宿主 `42b82ca494` 接通该既有子项; API 24/37 的单文件与项目脚本验证结果和独立上下文快照. 本节其他任务 API/AgentRun 子项仍未完成.
-- [ ] (测试) JVM: 参数解析矩阵 (`AiAgentArgumentsTest`), 句柄状态转移与事件派发顺序, 脚本退出取消; Android (AVD, 真实插件): `run -> progress -> done`, `interaction: "script"` 的 `input` 往返, `detached` 任务在脚本退出后继续并可 `get(id)` 重附着.
+- [x] (宿主) `Ai` augment 新增 `agent` 子对象 (`AiAgent : Augmentable`): `run(goal, options?)`, `create(options)`, `get(id)`, `list(filter?)`, `catalog(query?)`, `presets()`, `status()`, `result(value)`, `context()`; 参数解析与校验 (goal 非空且 <= 4 KiB, options 键白名单, `budget` 范围, `tools` 只能收紧); 未安装 / 未启用 / 未附着时 `run` 返回已拒绝的句柄 (`state = failed`, `error.code = PLUGIN_UNAVAILABLE`, `error.hint` 指向抽屉入口), 不抛同步异常.
+- [x] (宿主) `AgentRunNativeObject` (Rhino 对象): `id` / `state` / `goal` / `startedAt` 只读属性; `on(event, listener)` / `off` / `once`; `respond(requestId, value)` / `confirm(requestId, allowed)` / `cancel(reason?)`; `result` (Promise) / `join(timeoutMs?)` (阻塞等待, UI 线程调用抛错); 事件 `state / progress / step / input / confirmation / done / error` 经 `AiAsyncDispatcher` 在脚本线程派发 (MCP / ai 家族同形); `AiAgentService` 按 `ScriptRuntime` 持有句柄, 脚本退出时对非 `detached` 任务 `cancel(script-stopped)` 并释放监听.
+- [x] (宿主) `interaction: "script"` 时 `input` / `confirmation` 事件带 `requestId` 与超时, 未在超时内 `respond / confirm` 视为拒绝 (D25); `interaction: "plugin"` (默认) 时脚本仍收到只读的 `input` / `confirmation` 通知事件但不可回应.
+- [x] (宿主) `ai.agent.result(value)` / `ai.agent.context()` 与 P1.4 结果通道对接 (执行带 `agentRunId` 时 `context()` 返回 `{ runId, parameters, presetName }`). 证据 (E1, 2026-09-23): 为满足原 P3.3 指定的公开结果往返, 随宿主 `42b82ca494` 接通该既有子项; API 24/37 的单文件与项目脚本验证结果和独立上下文快照. 本节其他任务 API/AgentRun 子项于 2026-09-24 按本节范围完成.
+- [x] (测试) JVM: 参数解析矩阵 (`AiAgentArgumentsTest`), 句柄状态转移与事件派发顺序, 脚本退出取消; Android (AVD, 真实插件): `run -> progress -> done`, `interaction: "script"` 的 `input` 往返, `detached` 任务在脚本退出后继续并可 `get(id)` 重附着.
 
 ### P5.2 示例与 Ace 补全
 
-- [ ] (宿主) `sample/ai/agent-*.js` 三个示例 (最简 run; 自定义 `input` 交互; detached + 定时任务), 经 `app.listSamples` 可见.
-- [ ] (文档) `AutoJs6-Plugin-Ace-Editor` 补全数据 (`ai.agent.*`, `AgentRun` 成员) 按其仓库 `AGENTS.md` 生成.
+- [x] (宿主) `sample/ai/agent-*.js` 三个示例 (最简 run; 自定义 `input` 交互; detached + 定时任务), 经 `app.listSamples` 可见.
+- [x] (文档) `AutoJs6-Plugin-Ace-Editor` 补全数据 (`ai.agent.*`, `AgentRun` 成员) 按其仓库 `AGENTS.md` 生成.
 
 ### P5.3 文档, d.ts 与离线文档
 
-- [ ] (文档) `AutoJs6-Documentation/api/ai.md` 新增 `ai.agent` 章节与类型页 (`agentRunType.md`, `agentRunOptionsType.md`, `agentResultType.md`, `agentScriptEntryType.md`, `agentEventType.md`), 说明生命周期 / 确认语义 / 取消不撤销 / 预算; `AutoJs6-TypeScript-Declarations` 对应声明; `AutoJs6-Plugin-Offline-Docs` 同步 (按各仓库 `AGENTS.md` 的生成脚本与版本规则).
-- [ ] (宿主) `.changelog` 10 语言 `feature`: `ai.agent` 脚本 API (含 `ai.agent.result` 与 `@agent` 登记).
+- [x] (文档) `AutoJs6-Documentation/api/ai.md` 新增 `ai.agent` 章节与类型页 (`agentRunType.md`, `agentRunOptionsType.md`, `agentResultType.md`, `agentScriptEntryType.md`, `agentEventType.md`), 说明生命周期 / 确认语义 / 取消不撤销 / 预算; `AutoJs6-TypeScript-Declarations` 对应声明; `AutoJs6-Plugin-Offline-Docs` 同步 (按各仓库 `AGENTS.md` 的生成脚本与版本规则).
+- [x] (宿主) `.changelog` 10 语言 `feature`: `ai.agent` 脚本 API (含 `ai.agent.result` 与 `@agent` 登记).
 
-验收: 三个示例在 AVD 与一台真机上运行通过; 文档生成器 `--check` 通过.
+验收: 三个示例在 AVD 与一台真机上运行通过; 文档生成器 `--check` 通过. 证据 (E1/E2/E3, 2026-09-24): 宿主 build 5293, 插件 build 53; API 37 AVD 与 Sony G8441 API 28 各 11/11, 包括三份原始随包示例, 真实插件与确定性模型. 宿主相关 JVM 72/72, 插件 JVM 373/373 与 Android 32/32; 文档 143 模块, d.ts 4.21.0, Ace 1.13.0/111, 离线文档 6.8.0/56. 详见 [P5 实施证据](docs/dev/p5-script-api-evidence-2026-09-24.md).
 
 ---
 
@@ -1264,3 +1264,5 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 完成原 D32(3) / P3 真机在线模型验收, 没有增加/分拆/丢弃阶段. Redmi 12C / API 33, Model8 Fable 5.1, 宿主 5292 / Agent 47, 3 步 / 1 工具 / 3 模型, 83154 ms, 输入 25566 / 输出 516 token, completed. 详见 docs/dev/p3-real-script-e4-2026-09-24.md.
 - 原始清理项目由真实登记目录选中, 先询问 days 并取得 30, 再以 sensitive / allowRunScope=false 请求一次确认. 确认前所有文件未变; 执行后 ai.agent.result 和 AgentResult.script 均报告删除 3 个旧测试安装包, 独立 stat 验证三个保留文件不变. 未读取/删除用户既有下载文件, 未改变生产代码或降低确认规则.
 - 临时项目和下载夹具已清理, 熄屏时限与原有无障碍服务恢复. 原始证据在忽略目录; 本次文档提交后 build 52 与 Git 提交计数同步, 未推送/发布. 后续按原 P5 继续脚本 API, P7/P8 gate 未通过.
+
+P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 并按既有证据关闭 P1.4 的公开 JS 验收待办. 未增加, 拆分或丢弃阶段. 下一实施起点为原 P6.1 任务台; P1.3 独立 conformance 矩阵及 P7 健壮性仍保留原位置.

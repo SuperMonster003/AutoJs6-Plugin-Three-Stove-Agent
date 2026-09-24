@@ -1,6 +1,6 @@
 AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-开发预览: 登记脚本已接通参数询问, 执行确认, 结果上报和取消. 界面操作流程继续在 P4 完善, 任务脚本 API 与完整任务台仍在 P5/P6. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+开发预览: 登记脚本, 界面操作与 ai.agent 任务 API 已接通. 任务 API 需要 AutoJs6 构建 5293 或更高版本; 完整任务台继续按 P6 实施, 稳定性验收继续按 P7 实施. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 
