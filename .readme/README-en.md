@@ -208,6 +208,7 @@ _2026/09/24_
 - `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Fix` Opening the app on Android 13 no longer crashes when the system bar controller is read before the window decor exists
 - `Fix` Recent history uses task start times for ordering and retention so rewriting files during restart cannot evict newer tasks
 - `Fix` Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface
 - `Fix` Cashier buttons labeled Confirm transaction require a separate payment confirmation and cannot reuse run-wide permissions

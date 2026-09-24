@@ -57,6 +57,9 @@ abstract class HostAppearanceActivity : Activity() {
             if (dark) R.style.Theme_AiAgent_Dialog_Dark else R.style.Theme_AiAgent_Dialog_Light
         } else if (dark) R.style.Theme_AiAgent_Dark else R.style.Theme_AiAgent_Light)
         super.onCreate(savedInstanceState)
+        // PhoneWindow.getInsetsController() on Android 13 dereferences its decor directly.
+        // Materialize it before querying the controller, even before setContentView().
+        val decor = window.decorView
         val attribute = android.util.TypedValue().also { theme.resolveAttribute(android.R.attr.colorBackground, it, true) }
         val background = if (attribute.resourceId != 0) getColor(attribute.resourceId) else attribute.data
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -65,7 +68,7 @@ abstract class HostAppearanceActivity : Activity() {
         if (Build.VERSION.SDK_INT >= 30) window.insetsController?.setSystemBarsAppearance(
             if (dark) 0 else android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
             android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
-        else window.decorView.systemUiVisibility = if (dark) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+        else decor.systemUiVisibility = if (dark) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
             if (Build.VERSION.SDK_INT >= 26) View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR else 0
     }
     override fun onStart() {
