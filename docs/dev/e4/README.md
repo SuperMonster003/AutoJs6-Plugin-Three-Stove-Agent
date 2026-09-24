@@ -7,6 +7,7 @@
 - 安装同签名的宿主 debug APK, 宿主 androidTest APK 与 Agent debug APK. 宿主包含 `AiAgentRealModelE4Test`, 首次落地于提交 `153f5be3f2`.
 - 宿主构建号至少 5289, 本轮深层界面和节点操作能力身份修复使用 5292 (`15ec044ffa`). 在 3-Stone AI 配置在线模型或导入本地模型; 凭据始终保留在 Provider 中.
 - 操作者事先开启 AutoJs6 无障碍和文件访问权限, 解锁设备, 允许测试目标应用和所需后台运行. 测试会重启宿主进程, 如服务被标记异常, 仅重新绑定已经启用的 AutoJs6 服务并保留其他服务.
+- Xiaomi Pad 本轮还需开启宿主抽屉中的前台服务; 仅放行三个应用的后台省电策略仍出现切出宿主后暂停. 此项是实测环境条件, 不代表所有设备都必须采用相同设置.
 - `adb devices` 可见设备. 每台设备一次只运行一个宿主 instrumentation, 不在用户配置模型时启动测试.
 - 安装可通过无障碍读取结果的计算器. 本轮使用 Fossify Calculator 1.4.0; HiPER 的部分显示区不暴露结果文字.
 
@@ -39,6 +40,8 @@ py docs/dev/e4/device_case.py --serial DEVICE --output build/e4-private run buil
 ```
 
 `run` 会等待 instrumentation 返回. 可在另一个终端观察进度或回应. 默认 `interaction=script`, `confirm=cautious`, `memory=false`, 工具组 `observe/act/user`. 可选 `toolGroups`, `context` 与 `budget` 均经正式契约校验, 不能突破预算上限.
+
+当前 P4 的公开 budget 只能收紧默认值 (40 步, 60 次模型调用, 10 分钟, 300,000 token); 内部 RunLimits 是硬上限, 不表示当前调用方可以直接提高默认预算. 确认等待时限也不是公开 budget 字段. 不合法的配置在任务开始前拒绝, 不应为通过验收而放宽校验. 原 P6 的设置能力仍按路线图实现.
 
 `autoConfirmPackages` 仅允许系统设置与两个计算器包名. 只有风险为 normal 且真实前台无障碍根节点包名匹配时, 才逐次确认普通动作; app_launch 单独核对目标包名. 购物测试必须使用空数组, 每个变更动作人工审核, 付款确认拒绝. 测试回复不会改变生产确认门规则.
 
@@ -79,10 +82,14 @@ py docs/dev/e4/device_case.py --serial DEVICE --output build/e4-private cancel c
 - `snapshot.json` / `final.json`: 宿主读取的当前/最终快照, 受公共快照大小上限约束.
 - `full-run.json`: Agent 的完整私有存档. harness 退出或迟到回复导致 snapshot 滞后时, 以可验证的存档终态为准.
 - `harness.json`: 测试程序的耗时/错误; 无模型决策时不能填写虚构的模型指标.
-- `<caseId>-instrumentation.txt`: 测试程序运行结果. adb 退出成功或 `OK (1 test)` 仅说明证据收集过程完成, 不代表任务成功.
+- `<caseId>-instrumentation.txt`: 测试程序运行结果. `OK (1 test)` 仅说明证据收集测试通过, 不代表任务成功; 单凭 adb 退出成功更不能判定测试通过.
+
+驱动同时检查 adb 退出状态与单项测试的 `OK (1 test)` 摘要. AndroidJUnitRunner 报告失败时, adb 仍可能返回 0; 此时驱动收集现有证据后以非零状态退出, 不把配置拒绝或测试崩溃当作正常完成. 反之, instrumentation 通过而 Agent 返回 partial/blocked/failed 的情况仍需按任务结果判定.
 
 验收必须检查最终状态及真实观察. 计算器要看到实际输入过程和界面 `408`; 购物车/付款页面不能单独证明已提交订单. 购物测试须人工核对真实订单状态并保留脱敏截图; 发生提交结果不确定时先查订单, 不重试提交. 当前运行是否允许下单及允许数量由操作者事先明确, 本轮最多一笔待付款且不付款.
 
 原始目标, 地址, 联系方式, UI, 回复与截图都可能包含个人信息. 只保存在忽略目录, 不提交原始证据, 不输出到普通日志. `/sdcard/autojs6-agent-e4` 仅用于调试控制文件, 配置/回复读取后即删除; 不在配置中放 API 密钥. 对外证据文档只保留经过审核的指标与脱敏内容.
 
 Wi-Fi 在线验收须在切断 Wi-Fi 后仍有独立网络连接. 没有该条件时如实记为待补测, 不通过人工恢复网络伪造连续模型闭环. 本地 LiteRT 使用公开目标的默认执行配置, 不假定已经启用 GPU.
+
+3-Stone AI 自身的移动/计费网络选项也必须允许测试所用网络, 否则即使系统有移动连接, 在线调用仍会被 Provider 拒绝. 临时修改时记录原值并在测试后恢复. API 37 设置页未暴露开关时可使用系统正常提供的快捷设置入口, 保留路径差异与测试指导信息, 不改服务身份或系统限制.

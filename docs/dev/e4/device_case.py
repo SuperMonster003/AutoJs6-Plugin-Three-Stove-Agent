@@ -23,6 +23,13 @@ def case_id(value):
     return value
 
 
+def instrumentation_succeeded(output):
+    # adb can exit 0 even when AndroidJUnitRunner reports a failed test.
+    # This driver selects exactly one opt-in test, so require its success summary.
+    return bool(re.search(r"^OK \(1 test\)\s*$", output, re.MULTILINE)) and not re.search(
+        r"^(?:FAILURES!!!|INSTRUMENTATION_FAILED:|INSTRUMENTATION_ABORTED:)", output, re.MULTILINE)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--adb", default="adb")
@@ -128,13 +135,16 @@ def main():
         else:
             case = "catalog"
             method = "publicCatalog"
-        with (args.output / f"{case}-instrumentation.txt").open("wb") as log:
-            subprocess.run([args.adb, "-s", args.serial, "shell", "am", "instrument", "-w", "-r",
-                            "-e", "autojs.agent.e4", "true", "-e", "class", f"{TEST}#{method}", RUNNER],
-                           stdout=log, stderr=subprocess.STDOUT, check=True)
+        log_path = args.output / f"{case}-instrumentation.txt"
+        with log_path.open("wb") as log:
+            process = subprocess.run([args.adb, "-s", args.serial, "shell", "am", "instrument", "-w", "-r",
+                                      "-e", "autojs.agent.e4", "true", "-e", "class", f"{TEST}#{method}", RUNNER],
+                                     stdout=log, stderr=subprocess.STDOUT)
         if args.command == "run":
             collect(case)
-        else:
+        if process.returncode or not instrumentation_succeeded(log_path.read_text(encoding="utf-8", errors="replace")):
+            raise RuntimeError("E4 instrumentation did not pass; inspect the private instrumentation log")
+        if args.command == "catalog":
             value = adb("exec-out", "run-as", "org.autojs.autojs6", "cat", "files/agent-e4/catalog/catalog.json")
             data = json.loads(value.stdout)
             (args.output / "catalog.json").write_bytes(value.stdout)
