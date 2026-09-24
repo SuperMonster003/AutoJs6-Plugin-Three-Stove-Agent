@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Note` Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7.
+* `Note` Aperçu de développement: saisie des objectifs, progression, réponses intégrées et détails des tâches récentes sont disponibles. API ai.agent: AutoJs6 build 5293 ou ultérieur. Gestion de l'historique, préréglages personnalisés et autres entrées restent en P6; validation de robustesse en P7.
+* `Fonctionnalité` Tableau des tâches avec lancement commun, apparence de l'hôte, interactions intégrées, budgets et 20 tâches récentes consultables hors connexion
 * `Fonctionnalité` La fin de tâche exige des preuves, les résultats partiels listent le travail restant et les commandes ou paiements exigent un état de commande observé
 * `Fonctionnalité` La vérification conserve le compteur d'écrans inchangés après réduction du contexte et bloque la troisième demande d'action équivalente avant exécution
 * `Fonctionnalité` Attente bornée de stabilité après une action et résumé des changements depuis la dernière action dans les observations suivantes
@@ -32,6 +33,7 @@
 * `Fonctionnalité` Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6
 * `Fonctionnalité` Notifications au premier plan pendant les tâches seulement, avec progression, Arrêter et Voir; saisie et confirmation de chaque action depuis le lanceur
 * `Fonctionnalité` Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog
+* `Correctif` Tri et conservation de l'historique selon le début des tâches pour éviter que la réécriture des fichiers au redémarrage supprime les plus récentes
 * `Correctif` Les réponses et confirmations vérifient le propriétaire interaction afin qu'un script ne réponde pas à la place de l'interface du plugin
 * `Correctif` Les boutons de confirmation de transaction exigent une confirmation de paiement distincte sans réutiliser les autorisations de toute la tâche
 * `Correctif` Les résultats hors écran aux limites vides ou inversées conservent leur texte et signalent des coordonnées inutilisables au lieu d'une erreur de paramètres

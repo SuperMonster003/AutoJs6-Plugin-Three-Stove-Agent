@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="script_roots_paths" type="id" />
+    <item name="workbench_answer" type="id" />
 </resources>

@@ -30,7 +30,7 @@ internal class AgentRuntime private constructor(val context: Context) {
         current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)
         return HostLink(this, config, model, capability, callback, uid).also { current = it; it.activate() }
     }
-    fun status(): Bundle = current?.status() ?: AgentWire.envelope(AiAgentContract.KEY_STATUS_JSON,
+    fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(AiAgentContract.KEY_STATUS_JSON,
         jsonObject("state" to AiAgentContract.LINK_STATE_DETACHED.json(), "attachedAt" to 0.json(), "queuedCount" to 0.json(),
             "pluginVersion" to info.versionName.json()).toString())
     companion object {

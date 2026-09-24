@@ -8,7 +8,7 @@
   "p_introduction_what": "AI Agent convierte un objetivo en lenguaje natural en acciones sobre un dispositivo Android que ejecuta AutoJs6. O bien elige un script que el usuario ha registrado para el agente, completa sus parámetros y lo ejecuta; o bien observa la pantalla a través del árbol de nodos de accesibilidad y actúa paso a paso (observar, decidir, actuar, verificar) hasta alcanzar el objetivo, necesitar una confirmación o agotar un presupuesto. Responde a la [discusión #577 de AutoJs6]({{ discussion_url }}).",
   "p_introduction_how": "El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los scripts lo usan mediante la API `ai.agent` de AutoJs6; los usuarios lo usan desde su propio espacio de tareas, el cajón de AutoJs6, una burbuja flotante, el menú de compartir del sistema, los accesos directos de la aplicación y la entrada por voz. Las llamadas al modelo y las acciones en el dispositivo siempre pasan por AutoJs6 mediante Binder: el anfitrión presta al plugin un intermediario de modelo (los plugins AI Provider que el anfitrión ya conoce, como 3-Stone AI) y un intermediario de capacidades con una concesión acotada. El plugin nunca guarda credenciales, nunca se vincula por sí mismo a un proveedor de modelo y nunca solicita el permiso de accesibilidad.",
   "h3_status": "Estado",
-  "p_status": "Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7. [ROADMAP.md]({{ roadmap_url }}).",
+  "p_status": "Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7. [ROADMAP.md]({{ roadmap_url }}).",
   "h3_features": "Funciones",
   "p_features_intro": "La versión 1.0.0 está prevista para ofrecer las siguientes capacidades",
   "features": [
@@ -21,10 +21,10 @@
   "usage_steps": [
     "Instale el APK del plugin desde [Releases]({{ repo_url }}/releases) en un dispositivo con AutoJs6 build {{ required_host_version_code }} o posterior.",
     "Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.",
-    "Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6.",
+    "Abre AI Agent, conecta AutoJs6, introduce un objetivo e inicia con el preajuste predeterminado. Responde o confirma en la tarjeta y consulta los detalles de las tareas recientes.",
     "Configure carpetas adicionales en \"Directorios de scripts\" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas."
   ],
-  "p_usage_note": "Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7.",
+  "p_usage_note": "Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7.",
   "h3_security": "Permisos y seguridad",
   "p_security_intro": "El plugin sigue límites explícitos:",
   "security_points": [

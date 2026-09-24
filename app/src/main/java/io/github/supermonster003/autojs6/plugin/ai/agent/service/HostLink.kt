@@ -33,6 +33,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     private val retired = AtomicBoolean()
     @Volatile private var config = initialConfig
     @Volatile private var state = C.LINK_STATE_ATTACHED
+    @Volatile private var modelName: String? = null
+    private val previewStarted = AtomicBoolean()
     private val death = IBinder.DeathRecipient { disconnect(C.LINK_STATE_HOST_UNAVAILABLE) }
     private val watched = listOf(remoteModel.asBinder(), remoteTools.asBinder(), callback.asBinder()).distinct()
     private val emptyPolicy = ToolPolicy(availableTools = emptySet())
@@ -52,12 +54,16 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         try { watched.forEach { it.linkToDeath(death, 0) } } catch (_: Exception) { disconnect(C.LINK_STATE_HOST_UNAVAILABLE) }
         notifyStatus()
     }
-    fun status(): Bundle {
+    fun status(presentation: Boolean = false): Bundle {
+        if (presentation && state == C.LINK_STATE_ATTACHED && previewStarted.compareAndSet(false, true)) {
+            model.select(null) { if (it is PortResult.Success) modelName = it.value.displayName }
+        }
         val runs = active.values.filter { !it.state.terminal }
         return AgentWire.envelope(C.KEY_STATUS_JSON, jsonObject("state" to state.json(), "attachedAt" to attachedAt.json(),
             "runningRunId" to (runs.firstOrNull { it.state != RunState.QUEUED }?.id?.json() ?: JsonNull.INSTANCE),
             "queuedCount" to runs.count { it.state == RunState.QUEUED }.coerceAtMost(RunLimits.QUEUED_RUNS).json(),
-            "pluginVersion" to runtime.info.versionName.json(), "scriptRoots" to JsonArray().apply { config.roots.sorted().forEach(::add) }).toString())
+            "pluginVersion" to runtime.info.versionName.json(), "scriptRoots" to JsonArray().apply { config.roots.sorted().forEach(::add) })
+            .apply { if (presentation) modelName?.let { addProperty("modelName", it) } }.toString())
     }
     fun liveRuns(): List<JsonObject> = active.values.filter { !it.state.terminal }.mapNotNull { archive.summary(it.id) }
     fun cancelLocal(id: String) { active[id]?.cancel() }
@@ -122,6 +128,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                         is PortResult.Failure -> finish(outcome)
                         is PortResult.Success -> try {
                             val selected = outcome.value
+                            modelName = selected.displayName
                             val original = selected.target
                             val schema = fallbacks.select(original.schemaTarget, policy)
                             val target = if ((schema.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0) <= selected.maximumSchemaBytes) original
@@ -166,9 +173,10 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel() }
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
-        if (state != C.LINK_STATE_ATTACHED) throw WireFailure(if (state == C.LINK_STATE_DETACHED) C.ERROR_LINK_DETACHED else C.ERROR_HOST_UNAVAILABLE)
         val configuration = config
-        val request = StartRequest.parse(json, configuration)
+        return RunLauncher.start(state, configuration, json) { request -> admit(request, configuration, callback) }
+    }
+    private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IAiAgentRunCallback?): Bundle {
         val policy = runtime.policy(request.groups)
         val sink = RunSink(callback)
         val admittedId = AtomicReference<String>()
@@ -232,7 +240,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         private fun result(body: () -> Bundle): Bundle = try { body() } catch (e: Exception) {
             AgentWire.error(when (e) { is WireFailure -> e.code; is RunAdmissionFailure -> e.error.name; else -> C.ERROR_INVALID_REQUEST })
         }
-        override fun getStatus(): Bundle { check(); return status() }
+        override fun getStatus(): Bundle { check(); return status(presentation = !hostValidatedRoots) }
         override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?): Bundle { check(request); return result { start(read(request, C.KEY_RUN_REQUEST_JSON), callback) } }
         override fun respond(response: Bundle?): Bundle { check(response); return result {
             respond(read(response, C.KEY_RUN_RESPONSE_JSON), if (hostValidatedRoots) "script" else "plugin")
@@ -243,20 +251,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             ControlRequests.closed(value, setOf("runId", "reason")); ControlRequests.text(value, "reason")
             active[ControlRequests.runId(value)]?.cancel()
         }
-        override fun listRuns(query: Bundle?): Bundle { check(query); return result {
-            val value = AgentJson.objectOf(read(query, C.KEY_RUN_REQUEST_JSON))
-            ControlRequests.closed(value, setOf("limit", "offset"))
-            val limit = ControlRequests.number(value, "limit", 20, 50).toInt()
-            val offset = if (value.has("offset")) requireNotNull(value.number("offset")).also { require(it in 0..1000) }.toInt() else 0
-            AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, archive.list(limit, offset).toString())
-        } }
-        override fun getRun(reference: Bundle?): Bundle { check(reference); return result {
-            val value = AgentJson.objectOf(read(reference, C.KEY_RUN_REF_JSON))
-            ControlRequests.closed(value, setOf("runId", "limit"))
-            val id = ControlRequests.runId(value)
-            val row = archive.get(id, ControlRequests.number(value, "limit", 50, 50).toInt()) ?: throw WireFailure(C.ERROR_RUN_NOT_FOUND)
-            AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, row.toString())
-        } }
+        override fun listRuns(query: Bundle?): Bundle { check(query); return RunQueries(archive).list(query) }
+        override fun getRun(reference: Bundle?): Bundle { check(reference); return RunQueries(archive).get(reference) }
         override fun listPresets(query: Bundle?): Bundle { check(query); return result {
             require(AgentJson.objectOf(read(query, C.KEY_RUN_REQUEST_JSON)).size() == 0)
             AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("presets" to jsonArray(jsonObject("id" to "default".json(), "toolGroups" to

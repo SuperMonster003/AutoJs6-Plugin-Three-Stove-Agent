@@ -100,6 +100,8 @@ fun lockedHostApiAar(id: String): File {
 val hostApiAars = hostApiIds.map(::lockedHostApiAar)
 
 android {
+    // The host can select any bundled locale independently of the Android system language.
+    bundle { language { enableSplit = false } }
     namespace = globalApplicationId
     compileSdk = versions.sdkVersionCompile
 

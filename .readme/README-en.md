@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -112,10 +112,10 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 
 1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5289 or later.
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
-3. Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6.
+3. Open AI Agent, connect to AutoJs6, enter a goal, select the default preset and start. Answer questions or confirm actions in the task card; open recent tasks to review their details.
 4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
 
-> Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7.
+> Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7.
 
 ******
 
@@ -175,7 +175,8 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/24_
 
-- `Hint` Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7.
+- `Hint` Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7.
+- `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected
 - `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
 - `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution
 - `Feature` Actions wait for a bounded stable screen sample and include changes since the last action in subsequent observations
@@ -199,6 +200,7 @@ _2026/09/24_
 - `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Fix` Recent history uses task start times for ordering and retention so rewriting files during restart cannot evict newer tasks
 - `Fix` Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface
 - `Fix` Cashier buttons labeled Confirm transaction require a separate payment confirmation and cannot reuse run-wide permissions
 - `Fix` Offscreen matches with empty or inverted bounds retain their text and are marked as having unusable coordinates instead of reporting argument errors

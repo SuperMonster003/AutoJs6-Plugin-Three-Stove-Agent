@@ -40,7 +40,9 @@ internal class RunArchive(private val directory: File) {
     @Synchronized fun admit(run: AgentRunner, request: StartRequest) {
         records[run.id] = jsonObject("runId" to run.id.json(), "goal" to request.options.goal.json(),
             "state" to run.state.wire.json(), "startedAt" to System.currentTimeMillis().json(),
-            "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray())
+            "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray(),
+            "budget" to request.options.limits.let { jsonObject("maxSteps" to it.maxSteps.json(), "maxModelCalls" to it.maxModelCalls.json(),
+                "maxDurationMs" to it.maxDurationMs.json(), "maxTotalTokens" to it.maxTotalTokens.json()) })
         markDirty(run.id)
     }
     @Synchronized fun event(event: RunEvent) {
@@ -50,7 +52,8 @@ internal class RunArchive(private val directory: File) {
             "input", "confirmation" -> row.add("pending", event.payload.apply { addProperty("type", event.type) })
             "done", "error" -> row.remove("pending")
             "step" -> row.add("step", event.payload["index"] ?: 0.json())
-            "progress" -> row.addProperty("progress", AgentJson.truncate(event.payload.string("message").orEmpty(), 160))
+            "progress" -> { row.addProperty("progress", AgentJson.truncate(event.payload.string("message").orEmpty(), 160))
+                event.payload["budget"]?.let { row.add("remainingBudget", it.deepCopy()) } }
         }
         row.addProperty("sequence", event.sequence)
         markDirty(event.runId)
@@ -75,7 +78,7 @@ internal class RunArchive(private val directory: File) {
     }
     @Synchronized fun get(id: String, stepLimit: Int = 50): JsonObject? = records[id]?.let { project(it, stepLimit) }
     @Synchronized fun list(limit: Int, offset: Int): JsonObject {
-        val summaries = records.values.toList().asReversed().drop(offset).take(limit).map { row ->
+        val summaries = records.values.sortedByDescending { it.number("startedAt") ?: 0 }.drop(offset).take(limit).map { row ->
             jsonObject("runId" to row["runId"], "goal" to AgentJson.truncate(row.string("goal").orEmpty(), 256).json(),
                 "state" to row["state"], "startedAt" to row["startedAt"], "detached" to row["detached"], "preset" to (row["preset"] ?: "default".json()))
         }
@@ -103,7 +106,8 @@ internal class RunArchive(private val directory: File) {
                     }
                 }
                 val removed = synchronized(this) {
-                    val terminal = records.filterValues { it.string("state") in TERMINAL }.keys.toList()
+                    val terminal = records.entries.filter { it.value.string("state") in TERMINAL }
+                        .sortedBy { it.value.number("startedAt") ?: 0 }.map { it.key }
                     terminal.dropLast(20).onEach { records.remove(it); dirty.remove(it) }
                 }
                 removed.forEach { AtomicFile(File(directory, "$it.json")).delete() }

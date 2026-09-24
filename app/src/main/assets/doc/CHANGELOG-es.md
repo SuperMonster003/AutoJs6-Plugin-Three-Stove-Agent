@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Aviso` Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de tareas ai.agent conectados. Las API requieren AutoJs6 build 5293 o posterior; la interfaz completa sigue en P6 y la validación de fiabilidad continúa en P7.
+* `Aviso` Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7.
+* `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión
 * `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado
 * `Función` La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla
 * `Función` Espera limitada de estabilidad tras cada acción y resumen de cambios desde la última acción en las observaciones siguientes
@@ -32,6 +33,7 @@
 * `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 * `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 * `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+* `Corrección` El historial se ordena y conserva por el inicio de las tareas para que reescribir archivos al reiniciar no elimine las más recientes
 * `Corrección` Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento
 * `Corrección` Los botones de confirmar transacción requieren una confirmación de pago separada y no reutilizan permisos de toda la tarea
 * `Corrección` Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos

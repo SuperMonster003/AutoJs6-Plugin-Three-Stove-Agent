@@ -51,7 +51,7 @@ class ManifestContractTest {
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ScriptRootsActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity"), activities.map { it.androidAttribute("name") })
 
         val wake = activities.first()
         assertEquals("true", wake.androidAttribute("exported"))
@@ -71,10 +71,11 @@ class ManifestContractTest {
         assertEquals(listOf("android.intent.action.MAIN"), launcherFilter.children("action").map { it.androidAttribute("name") })
         assertEquals(listOf("android.intent.category.LAUNCHER"), launcherFilter.children("category").map { it.androidAttribute("name") })
 
-        val settings = activities.last()
+        for (settings in activities.drop(2)) {
         assertEquals("false", settings.androidAttribute("exported"))
         assertNull(settings.androidAttributeOrNull("process"))
         assertTrue(settings.children("intent-filter").isEmpty())
+        }
 
         assertTrue(manifest.child("application").children("receiver").isEmpty())
         assertTrue(manifest.child("application").children("provider").isEmpty())

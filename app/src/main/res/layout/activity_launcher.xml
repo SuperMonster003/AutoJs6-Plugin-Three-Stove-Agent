@@ -1,64 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:fillViewport="true">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
-
-        <TextView
-            android:id="@+id/launcher_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/launcher_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/plugin_description"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/launcher_host_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/launcher_preview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/launcher_preview"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <Button
-            android:id="@+id/launcher_connect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/launcher_connect" />
-
-        <Button
-            android:id="@+id/launcher_open_host"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/launcher_open_host" />
-
-        <Button
-            android:id="@+id/launcher_script_roots"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/script_roots_title" />
-
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fitsSystemWindows="true" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/app_name" android:textAppearance="?android:attr/textAppearanceLarge" />
+        <View android:layout_width="match_parent" android:layout_height="3dp"
+            android:layout_marginTop="12dp" android:tag="host-primary" android:background="#52796F" />
+        <TextView android:id="@+id/launcher_host_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:accessibilityLiveRegion="polite" android:textAppearance="?android:attr/textAppearanceSmall" />
+        <Button android:id="@+id/launcher_connect" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/launcher_connect" />
+        <Button android:id="@+id/launcher_open_host" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/launcher_open_host" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+            android:text="@string/workbench_goal_label" android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText android:id="@+id/workbench_goal" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="@string/workbench_goal_hint" android:inputType="textMultiLine|textCapSentences"
+            android:gravity="top|start" android:minLines="3" android:maxLines="8" android:importantForAutofill="no" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workbench_preset"
+            android:labelFor="@id/workbench_preset" />
+        <Spinner android:id="@+id/workbench_preset" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:minHeight="48dp" android:contentDescription="@string/workbench_preset" />
+        <Button android:id="@+id/workbench_voice" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workbench_voice" />
+        <Button android:id="@+id/workbench_send" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workbench_send" />
+        <TextView android:id="@+id/workbench_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:visibility="gone" android:accessibilityLiveRegion="assertive" />
+        <LinearLayout android:id="@+id/workbench_current" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:orientation="vertical" android:visibility="gone">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workbench_current"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView android:id="@+id/workbench_current_goal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:textIsSelectable="true" android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView android:id="@+id/workbench_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:accessibilityLiveRegion="polite" />
+            <TextView android:id="@+id/workbench_step" android:layout_width="match_parent" android:layout_height="wrap_content" android:textIsSelectable="true" />
+            <ProgressBar android:id="@+id/workbench_progress" style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/workbench_budget" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            <LinearLayout android:id="@+id/workbench_pending" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:orientation="vertical" />
+            <Button android:id="@+id/workbench_stop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/task_stop" />
+            <Button android:id="@+id/workbench_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workbench_details" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+            android:text="@string/workbench_recent" android:textAppearance="?android:attr/textAppearanceLarge" />
+        <LinearLayout android:id="@+id/workbench_recent" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <Button android:id="@+id/launcher_script_roots" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:text="@string/script_roots_title" />
     </LinearLayout>
-
 </ScrollView>

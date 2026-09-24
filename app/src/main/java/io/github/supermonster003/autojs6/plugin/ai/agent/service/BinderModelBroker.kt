@@ -14,7 +14,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class SelectedModel(val target: ModelTarget, val maximumInputBytes: Int, val maximumTokens: Long, val maximumSchemaBytes: Int)
+internal class SelectedModel(val target: ModelTarget, val maximumInputBytes: Int, val maximumTokens: Long, val maximumSchemaBytes: Int,
+                             val displayName: String = target.targetId)
 
 /** Worker/descriptor adapter for the host's model broker. No Provider binding or HTTP implementation. */
 internal class BinderModelBroker(private val context: Context, private val broker: IAiAgentModelBroker,
@@ -65,7 +66,9 @@ internal class BinderModelBroker(private val context: Context, private val broke
                                 val selected = if (targetId == null) targets.firstOrNull { it.locality == ModelLocality.ON_DEVICE } ?: targets.firstOrNull()
                                     else targets.firstOrNull { it.targetId == targetId }
                                 if (selected == null) throw WireFailure(C.ERROR_TARGET_UNAVAILABLE)
-                                callback(PortResult.Success(SelectedModel(selected, maxInput, maxTokens, schemaLimit)))
+                                val label = entries.firstOrNull { it.asJsonObject.string("targetId") == selected.targetId }
+                                    ?.asJsonObject?.string("displayName")?.takeIf { it.isNotBlank() } ?: selected.targetId
+                                callback(PortResult.Success(SelectedModel(selected, maxInput, maxTokens, schemaLimit, AgentJson.truncate(label, 256))))
                             }
                             C.MODEL_EVENT_FAILED, C.MODEL_EVENT_CANCELLED -> callback(PortResult.Failure(
                                 RunError.entries.firstOrNull { it.name == event.string("code") } ?: RunError.MODEL_FAILED))

@@ -9,6 +9,7 @@
 
     <queries>
         <package android:name="org.autojs.autojs6" />
+        <intent><action android:name="android.speech.action.RECOGNIZE_SPEECH" /></intent>
     </queries>
 
     <!--
@@ -51,7 +52,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Standalone host-connection entry; P6 adds the task workbench. -->
+        <!-- Standalone task workbench. -->
         <activity
             android:name=".ui.LauncherActivity"
             android:exported="true">
@@ -62,6 +63,7 @@
         </activity>
 
         <activity android:name=".ui.ScriptRootsActivity" android:exported="false" />
+        <activity android:name=".ui.RunDetailActivity" android:exported="false" />
 
         <service
             android:name=".AiAgentTaskForegroundService"

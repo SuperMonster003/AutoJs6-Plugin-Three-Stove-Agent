@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Platform theme only (no AppCompat yet): the P6 workbench adopts the host appearance snapshot. -->
+    <!-- The host snapshot wraps the resource context; unavailable settings follow the system. -->
     <style name="Theme.AiAgent" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+    <style name="Theme.AiAgent.Light" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+    <style name="Theme.AiAgent.Dark" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
 </resources>

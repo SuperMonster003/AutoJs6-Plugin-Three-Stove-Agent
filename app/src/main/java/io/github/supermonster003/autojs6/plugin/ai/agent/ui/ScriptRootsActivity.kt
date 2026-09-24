@@ -1,6 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputType
@@ -9,7 +8,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 
 /** P3.1's small settings entry. The full settings/workbench remains in P6. */
-class ScriptRootsActivity : Activity() {
+class ScriptRootsActivity : HostAppearanceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.script_roots_title)
@@ -39,7 +38,8 @@ class ScriptRootsActivity : Activity() {
             }
         })
         layout.addView(Button(this).apply { setText(android.R.string.cancel); setOnClickListener { finish() } })
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(layout) })
+        setContentView(ScrollView(this).apply { fitsSystemWindows = true; layoutDirection = resources.configuration.layoutDirection; addView(layout) })
+        tint(layout)
     }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("paths", findViewById<EditText>(R.id.script_roots_paths).text.toString())
