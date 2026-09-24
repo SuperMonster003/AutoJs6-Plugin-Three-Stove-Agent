@@ -180,8 +180,10 @@ class WorkbenchActivityTest {
         }
         try {
             assertTrue(connected.await(15, TimeUnit.SECONDS))
+            waitFor("Initial history model call") { model.calls.get() == 1 && model.held != null }
+            model.finish("private-rejected-model-body")
             for (step in 1..12) {
-                waitFor("Model call $step") { model.calls.get() == step && model.held != null }
+                waitFor("Model call $step") { model.calls.get() == step + 1 && model.held != null }
                 model.finish("""{"kind":"ask","ask":{"kind":"text","question":"History question $step?"}}""")
                 var pending: com.google.gson.JsonObject? = null
                 waitFor("Question $step") {
@@ -190,15 +192,19 @@ class WorkbenchActivityTest {
                 }
                 AgentConnection.decode(link.respond(bundle(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to id.json(), "requestId" to pending!!.string("requestId")!!.json(), "value" to privateText.json()).toString())))
             }
-            waitFor("Final model call") { model.calls.get() == 13 && model.held != null }; model.finish(completed)
+            waitFor("Final model call") { model.calls.get() == 14 && model.held != null }; model.finish(completed)
             waitFor("Settled") { AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).string("state") == "completed" }
             val full = query("get"); assertEquals(13, full.getAsJsonArray("steps").size())
+            assertEquals(listOf("DECISION_UNPARSABLE"), full.getAsJsonArray("steps")[0].asJsonObject
+                .getAsJsonObject("decision").getAsJsonArray("rejections").map { it.asString })
+            assertFalse(full.toString().contains("private-rejected-model-body"))
             val projected = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
             assertTrue(projected.flag("truncated") == true)
             ActivityScenario.launch<RunDetailActivity>(Intent(context, RunDetailActivity::class.java).putExtra("runId", id)).use { detail ->
                 waitFor("Full timeline rendered") { var found = false; detail.onActivity {
                     val all = texts(it.findViewById(android.R.id.content))
-                    found = all.any { text -> text.contains("History question 1?") } && all.contains("Workbench fixture complete")
+                    found = all.any { text -> text.contains("History question 1?") } && all.contains("Workbench fixture complete") &&
+                        all.contains(it.getString(R.string.history_rejections, "DECISION_UNPARSABLE"))
                 }; found }
                 detail.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("observation-1").performClick() }
                 detail.recreate()
@@ -213,7 +219,7 @@ class WorkbenchActivityTest {
                         assertEquals("History acceptance fixture", launcher.findViewById<EditText>(R.id.workbench_goal).text.toString())
                         launcher.finish()
                     }
-                    assertEquals(13, model.calls.get())
+                    assertEquals(14, model.calls.get())
                 } finally { instrumentation.removeMonitor(monitor) }
             }
             val file = java.io.File.createTempFile("p62-export-", ".json", context.cacheDir)
@@ -221,6 +227,7 @@ class WorkbenchActivityTest {
                 file.outputStream().use { RunDetailActivity.writeExport(it, query("export")) }
                 assertTrue(file.length() > 0)
                 val text = file.readText(); assertTrue(text.contains("\"redacted\": true")); assertFalse(text.contains("13800123456"))
+                assertTrue(text.contains("DECISION_UNPARSABLE")); assertFalse(text.contains("private-rejected-model-body"))
             } finally { file.delete() }
             ActivityScenario.launch(HistoryActivity::class.java).use { history ->
                 waitFor("History entry") { var found = false; history.onActivity {

@@ -43,6 +43,7 @@
         "Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries"
       ],
       "fix": [
+        "File tools reject traversal, absolute paths and invalid workspace paths before confirmation or host dispatch; task history records bounded rejection categories without rejected model text",
         "Notification confirmation returns to the target app before resuming actions, acknowledgements survive the screen stopping, and floating replies collapse the card before execution",
         "Opening the app on Android 13 no longer crashes when the system bar controller is read before the window decor exists",
         "Recent history uses task start times for ordering and retention so rewriting files during restart cannot evict newer tasks",

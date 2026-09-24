@@ -57,4 +57,15 @@ class StepJournalTest {
         val final = journal.finish(result("completed"))
         assertEquals("completed", final.string("status")); assertEquals("***", final.string("summary"))
     }
+    @Test fun rejectionMetadataSurvivesClippingAndLaterSecretRedaction() {
+        val journal = StepJournal(maxBytes = 2048)
+        val codes = listOf(DecisionRejection.TOOL_DISABLED, DecisionRejection.TOOL_ARGUMENTS_INVALID)
+        val entry = journal.append(record(1, "large".repeat(1000), "\u0001".repeat(4000)).copy(rejections = codes))
+        assertFalse(entry.has("rejections")) // Existing decision metadata, no new public step-event property.
+        assertTrue(entry.flag("truncated")!!)
+        assertEquals(codes.map { it.name }, entry.getAsJsonObject("decision").getAsJsonArray("rejections").map { it.asString })
+        journal.protectText("TOOL_DISABLED")
+        assertEquals(codes.map { it.name }, journal.history().single().getAsJsonObject("decision").getAsJsonArray("rejections").map { it.asString })
+        assertTrue(StepJournal.bytes(journal.snapshot()) <= 2048)
+    }
 }

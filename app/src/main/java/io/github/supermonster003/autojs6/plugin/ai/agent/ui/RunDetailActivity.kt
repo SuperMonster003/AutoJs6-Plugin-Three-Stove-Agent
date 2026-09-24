@@ -117,6 +117,7 @@ class RunDetailActivity : HostAppearanceActivity() {
                 ?: decision.getAsJsonObject("done")?.string("summary") ?: step.string("tool").orEmpty()
             label(getString(R.string.history_decision, summary))
             if (decision.flag("degraded") == true) label(getString(R.string.history_degraded))
+            decision.getAsJsonArray("rejections")?.let { codes -> label(getString(R.string.history_rejections, codes.joinToString { it.asString })) }
             step["arguments"]?.let { label(getString(R.string.history_arguments, HistoryViews.pretty(it))) }
             step.string("confirmation")?.let { confirmation -> label(getString(R.string.history_confirmation, getString(when (confirmation) {
                 "allowed" -> R.string.history_allowed; "denied" -> R.string.history_denied; else -> R.string.history_auto

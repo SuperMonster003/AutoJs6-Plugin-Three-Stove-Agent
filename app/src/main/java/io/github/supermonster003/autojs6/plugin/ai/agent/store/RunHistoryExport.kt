@@ -22,6 +22,11 @@ internal object RunHistoryExport {
                 source.string("confirmation")?.takeIf { it in setOf("auto", "allowed", "denied") }?.let { addProperty("confirmation", it) }
                 for (key in listOf("decision", "arguments", "observation", "error")) if (source.has(key)) addProperty(key, "[redacted]")
                 add("usage", usage(source.getAsJsonObject("usage")))
+                source.getAsJsonObject("decision")?.get("rejections")?.takeIf { it.isJsonArray }?.asJsonArray?.let { codes ->
+                    add("rejections", JsonArray().apply { codes.take(DecisionRepairSession.MAX_REPAIRS + 1).forEach { code ->
+                        if (code.isJsonPrimitive && code.asJsonPrimitive.isString && DecisionRejection.entries.any { it.name == code.asString }) add(code.deepCopy())
+                    } })
+                }
             })
         } })
         run.getAsJsonObject("result")?.let { source -> result.add("result", counters(source, listOf("steps", "toolCalls", "durationMs")).apply {

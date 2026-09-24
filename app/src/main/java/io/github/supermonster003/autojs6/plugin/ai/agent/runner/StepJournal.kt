@@ -8,6 +8,7 @@ data class StepRecord(
     val tool: String? = null, val arguments: JsonObject? = null, val confirmation: String? = null,
     val observation: String? = null, val usage: JsonObject? = null, val elapsedMs: Long = 0,
     val error: String? = null,
+    val rejections: List<DecisionRejection> = emptyList(),
 )
 
 /** Private task history only. Ordinary logs must never print these records. */
@@ -32,8 +33,13 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
     fun append(record: StepRecord): JsonObject {
         check(terminal == null) { "Task journal is settled" }
         require(record.index in 1..RunLimits.STEPS && record.elapsedMs >= 0)
+        require(record.rejections.size <= DecisionRepairSession.MAX_REPAIRS + 1)
+        fun decision(limit: Int) = clipped(redactDecision(record.decision), limit).asJsonObject.apply {
+            // Runtime diagnostics use the existing decision metadata object, including after clipping.
+            if (record.rejections.isNotEmpty()) add("rejections", JsonArray().apply { record.rejections.forEach { add(it.name) } })
+        }
         val entry = jsonObject("index" to record.index.json(), "kind" to record.kind.json(),
-            "decision" to clipped(redactDecision(record.decision), 2048), "elapsedMs" to record.elapsedMs.json())
+            "decision" to decision(2048), "elapsedMs" to record.elapsedMs.json())
         record.tool?.let { entry.addProperty("tool", it) }
         record.arguments?.let { entry.add("arguments", clipped(redact(it), 2048)) }
         record.confirmation?.let { entry.addProperty("confirmation", it) }
@@ -42,7 +48,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         record.error?.let { entry.addProperty("error", it) }
         val limit = minOf(12 * 1024, maxBytes / 2)
         if (bytes(entry) > limit) {
-            entry.add("decision", clipped(entry["decision"], 256))
+            entry.add("decision", decision(256))
             entry["arguments"]?.let { entry.add("arguments", clipped(it, 256)) }
             entry.string("observation")?.let { entry.addProperty("observation", AgentJson.truncate(it, 32)) }
             entry.addProperty("truncated", true)
@@ -86,7 +92,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         for (key in listOf("arguments", "observation", "preview")) get(key)?.let { add(key, redact(it)) }
     }
     private fun redactDecision(value: JsonObject) = redact(value).asJsonObject.apply {
-        for (key in listOf("kind", "tool")) value[key]?.let { add(key, it.deepCopy()) }
+        for (key in listOf("kind", "tool", "rejections")) value[key]?.let { add(key, it.deepCopy()) }
         for ((branch, keys) in listOf("ask" to listOf("kind"), "done" to listOf("status", "orderStatus"))) {
             value.getAsJsonObject(branch)?.let { original -> keys.forEach { key -> original[key]?.let { getAsJsonObject(branch).add(key, it.deepCopy()) } } }
         }

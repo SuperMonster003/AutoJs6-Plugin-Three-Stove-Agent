@@ -63,6 +63,19 @@ class RunHistoryCodecTest {
         assertFalse(filter.matches(fixture(10).apply { addProperty("state", "failed") }))
         assertFalse(filter.matches(fixture(10).apply { addProperty("preset", "other") }))
     }
+    @Test fun decisionRejectionsSurviveStorageAndExportButArbitraryTextIsNeverExported() {
+        val codes = jsonArray("TOOL_DISABLED".json(), "TOOL_ARGUMENTS_INVALID".json(), "LIMIT_EXCEEDED".json())
+        val run = fixture(1).apply { add("steps", jsonArray(step(1).apply { getAsJsonObject("decision").add("rejections", codes) })) }
+        val restored = RunHistoryCodec.decode(RunHistoryCodec.encode(run, 1)).run
+        assertEquals(codes, restored.getAsJsonArray("steps")[0].asJsonObject.getAsJsonObject("decision")["rejections"])
+        assertEquals(codes, RunHistoryExport.redact(restored, emptySet()).getAsJsonArray("steps")[0].asJsonObject["rejections"])
+        for (invalid in listOf("private text".json(), jsonArray("private text".json()), jsonArray(1.json()),
+            JsonArray().apply { repeat(4) { add("TOOL_DISABLED") } })) {
+            val corrupted = fixture(1).apply { add("steps", jsonArray(step(1).apply { getAsJsonObject("decision").add("rejections", invalid) })) }
+            rejects { RunHistoryCodec.encode(corrupted, 1) }
+            assertFalse(RunHistoryExport.redact(corrupted, emptySet()).toString().contains("private text"))
+        }
+    }
     companion object {
         fun fixture(index: Int, state: String = "completed") = jsonObject("runId" to ("00000000-0000-0000-0000-" + index.toString().padStart(12, '0')).json(),
             "goal" to "Fixture $index".json(), "state" to state.json(), "startedAt" to index.json(), "preset" to "default".json(), "steps" to JsonArray())

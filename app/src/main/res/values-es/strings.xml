@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">Este preajuste no está disponible. Elige uno disponible antes de iniciar.</string>
     <string name="history_preset_value">Preajuste: %1$s</string>
+    <string name="history_rejections">Decisiones del modelo rechazadas: %1$s</string>
     <string name="history_rerun">Repetir en el panel de tareas</string>
     <string name="history_reset_dates">Restablecer fechas</string>
     <string name="history_result">Resultado</string>

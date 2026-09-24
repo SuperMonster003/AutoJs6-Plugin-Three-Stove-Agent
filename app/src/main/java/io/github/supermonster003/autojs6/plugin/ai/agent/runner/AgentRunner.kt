@@ -36,6 +36,7 @@ class AgentRunner internal constructor(
     private var decision: AgentDecision? = null
     private var parseMode: ParseMode? = null
     private var repairSession: DecisionRepairSession? = null
+    private var responseLimitExceeded = false
     private var observation: String? = null
     private var confirmation: String? = null
     private var stepStartedMs = 0L
@@ -159,6 +160,7 @@ class AgentRunner internal constructor(
         val b = checkNotNull(budget)
         b.beginStep()
         decision = null; parseMode = null; confirmation = null; recorded = false
+        responseLimitExceeded = false
         stepStartedMs = scheduler.nowMs(); stepUsageStart = b.usageJson(); stepEstimated = false
         userRequestedStep = userProposal != null
         if (userProposal != null) {
@@ -188,6 +190,7 @@ class AgentRunner internal constructor(
             onCancelled = { handle -> (handle as? ModelCallCancellation)?.progress()?.let { settle(it.usage, it.outputBytes) } }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> {
+                    if (outcome.error == RunError.LIMIT_EXCEEDED) responseLimitExceeded = true
                     settle(outcome.usage, outcome.outputBytes)
                     if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
                     b.check()
@@ -201,9 +204,10 @@ class AgentRunner internal constructor(
                 is PortResult.Success -> {
                     val reply = outcome.value
                     val outputBytes = if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.toByteArray(Charsets.UTF_8).size else AgentJson.MAX_MODEL_BYTES + 1
+                    responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
                     settle(reply.usage, outputBytes)
                     b.check()
-                    if (outputBytes > AgentJson.MAX_MODEL_BYTES) { finishError(RunError.LIMIT_EXCEEDED); return@beginOperation }
+                    if (responseLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED); return@beginOperation }
                     when (val attempt = checkNotNull(repairSession).evaluate(reply.text)) {
                         is DecisionAttempt.Repair -> requestModel(attempt.observation)
                         is DecisionAttempt.Exhausted -> finishError(RunError.DECISION_UNPARSABLE)
@@ -422,14 +426,18 @@ class AgentRunner internal constructor(
     }
     private fun record(value: String?, error: RunError? = null) {
         if (recorded) return
-        val current = decision ?: return // Do not invent a model decision when generation/repair failed.
+        val current = decision
+        val rejections = repairSession?.rejections.orEmpty() +
+            if (responseLimitExceeded) listOf(DecisionRejection.LIMIT_EXCEEDED) else emptyList()
+        if (current == null && rejections.isEmpty()) return
         val b = checkNotNull(budget)
         recorded = true
         val usage = b.usageJson().apply {
             for (key in listOf("modelCalls", "inputTokens", "outputTokens", "totalTokens")) addProperty(key, number(key)!! - (stepUsageStart.number(key) ?: 0))
             addProperty("estimated", stepEstimated)
         }
-        val data = StepJournal.decision(current).apply {
+        // An error record contains validator metadata, never a fabricated or rejected model decision.
+        val data = (current?.let(StepJournal::decision) ?: jsonObject("kind" to "error".json(), "source" to "validator".json())).apply {
             if (userRequestedStep) addProperty("source", "user")
             parseMode?.let { addProperty("parseMode", it.name) }
             addProperty("repairs", repairSession?.repairsUsed ?: 0)
@@ -437,7 +445,7 @@ class AgentRunner internal constructor(
         }
         val entry = journal.append(StepRecord(b.steps, data.string("kind")!!, data,
             (current as? AgentDecision.Tool)?.name, (current as? AgentDecision.Tool)?.arguments,
-            confirmation, value, usage, (scheduler.nowMs() - stepStartedMs).coerceAtLeast(0), error?.name))
+            confirmation, value, usage, (scheduler.nowMs() - stepStartedMs).coerceAtLeast(0), error?.name, rejections))
         emit("step", entry)
     }
     private fun protectText() {

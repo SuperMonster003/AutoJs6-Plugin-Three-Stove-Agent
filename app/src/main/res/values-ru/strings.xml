@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">Этот набор настроек недоступен. Выберите доступный набор перед запуском.</string>
     <string name="history_preset_value">Набор настроек: %1$s</string>
+    <string name="history_rejections">Отклоненные решения модели: %1$s</string>
     <string name="history_rerun">Повторить на панели задач</string>
     <string name="history_reset_dates">Сбросить даты</string>
     <string name="history_result">Результат</string>

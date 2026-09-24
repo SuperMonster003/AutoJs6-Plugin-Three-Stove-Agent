@@ -62,6 +62,11 @@ internal object RunHistoryCodec {
                 }
                 for (key in listOf("tool", "confirmation", "observation", "error")) if (step.has(key)) require(step.string(key) != null)
                 for (key in listOf("arguments", "usage")) if (step.has(key)) require(step[key].isJsonObject)
+                decision["rejections"]?.let { codes ->
+                    require(codes.isJsonArray && codes.asJsonArray.size() <= DecisionRepairSession.MAX_REPAIRS + 1)
+                    require(codes.asJsonArray.all { code -> code.isJsonPrimitive && code.asJsonPrimitive.isString &&
+                        DecisionRejection.entries.any { it.name == code.asString } })
+                }
             }
             run["result"]?.let { value ->
                 val result = value.asJsonObject

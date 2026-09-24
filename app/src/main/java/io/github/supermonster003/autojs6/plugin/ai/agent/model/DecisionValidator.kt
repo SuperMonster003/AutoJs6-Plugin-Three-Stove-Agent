@@ -142,6 +142,8 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
                             private val validateSemantics: (AgentDecision) -> Unit = {}) {
     var repairsUsed = 0
         private set
+    private val rejected = mutableListOf<DecisionRejection>()
+    val rejections: List<DecisionRejection> get() = rejected.toList()
     private var sealed = false
     fun switchFormat(next: DecisionFormat) { check(!sealed); format = next }
     fun evaluate(text: String): DecisionAttempt {
@@ -153,6 +155,7 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
             sealed = true
             DecisionAttempt.Accepted(decision, parsed.parseMode)
         } catch (failure: DecisionFailure) {
+            rejected += DecisionRejection.fromCode(failure.code)
             if (repairsUsed == MAX_REPAIRS) {
                 sealed = true
                 DecisionAttempt.Exhausted(DecisionFailure("DECISION_UNPARSABLE", "Decision repair allowance exhausted."))

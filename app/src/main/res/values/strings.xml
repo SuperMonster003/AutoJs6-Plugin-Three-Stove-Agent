@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">This preset is unavailable. Choose an available preset before starting.</string>
     <string name="history_preset_value">Preset: %1$s</string>
+    <string name="history_rejections">Rejected model decisions: %1$s</string>
     <string name="history_rerun">Rerun in workbench</string>
     <string name="history_reset_dates">Reset dates</string>
     <string name="history_result">Result</string>

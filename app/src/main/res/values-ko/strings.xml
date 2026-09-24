@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">이 프리셋을 사용할 수 없습니다. 사용 가능한 프리셋을 선택한 후 시작하세요.</string>
     <string name="history_preset_value">프리셋: %1$s</string>
+    <string name="history_rejections">거부된 모델 결정: %1$s</string>
     <string name="history_rerun">작업 화면에서 다시 실행</string>
     <string name="history_reset_dates">날짜 초기화</string>
     <string name="history_result">결과</string>

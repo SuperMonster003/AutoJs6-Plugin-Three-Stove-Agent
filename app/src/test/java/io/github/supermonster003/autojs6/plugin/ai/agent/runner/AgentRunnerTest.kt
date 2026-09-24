@@ -58,7 +58,10 @@ class AgentRunnerTest {
         assertEquals(RunState.FAILED, run.state); assertEquals("DECISION_UNPARSABLE", error(run))
         assertEquals(3, f.model.calls.size); assertTrue(f.tools.inspections.isEmpty())
         assertEquals(1L, run.result!!.number("steps")); assertNotNull(f.contexts[1].repair)
-        assertTrue(f.journal(run).getAsJsonArray("steps").isEmpty); uniqueTerminal(f, run)
+        val record = f.journal(run).getAsJsonArray("steps").single().asJsonObject
+        assertEquals("error", record.string("kind")); assertEquals("validator", record.getAsJsonObject("decision").string("source"))
+        assertEquals(List(3) { "DECISION_UNPARSABLE" }, record.getAsJsonObject("decision").getAsJsonArray("rejections").map { it.asString })
+        uniqueTerminal(f, run)
     }
     @Test fun repairCanRecoverAndChargesCallsWithinTheSameStep() {
         val f = RunnerFixture(); f.enqueue(tool("not_a_tool"), done())

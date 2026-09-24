@@ -27,6 +27,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
         }
         fun str(key: String) = checkNotNull(args.string(key))
         fun num(key: String) = checkNotNull(args.number(key))
+        if (spec.group == ToolGroup.FILES) WorkspacePath.requireValid(str("path"))
         fun call(method: String, vararg values: JsonElement, timeout: Long = 30_000): BridgeCall {
             require(method in spec.bridgeMapping) { "Undeclared bridge method" }
             return bridge(method, jsonArray(*values), timeout)

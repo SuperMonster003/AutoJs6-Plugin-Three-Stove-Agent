@@ -58,6 +58,21 @@ class ActionToolsTest {
         assertEquals(RunError.NODE_REF_STALE, (f.prepare(args = """{"nodeRef":"#n1"}""") as PortResult.Failure).error)
         assertTrue(f.calls.isEmpty())
     }
+    @Test fun forgedRefsAndForeignSnapshotsFailEveryNodeActionBeforeHostInspection() {
+        for (name in listOf("ui_click", "ui_long_click", "ui_set_text", "ui_scroll")) {
+            for ((ref, snapshot) in listOf("#n2" to "published", "#n1" to "foreign-task", "#n9999" to null)) {
+                val f = Fixture()
+                f.observations.transform(f.invocation("ui_dump", "{}"), dump("published"))
+                val arguments = jsonObject("nodeRef" to ref.json()).apply {
+                    snapshot?.let { addProperty("snapshotId", it) }
+                    if (name == "ui_set_text") addProperty("text", "not written")
+                    if (name == "ui_scroll") addProperty("direction", "forward")
+                }
+                assertEquals(RunError.NODE_REF_STALE, (f.prepare(name, arguments.toString()) as PortResult.Failure).error)
+                assertTrue(f.calls.isEmpty())
+            }
+        }
+    }
     @Test fun passwordMetadataMasksInputAndAppendStaysInsideTheHost() {
         val f = Fixture(false)
         f.reply = { PortResult.Success(inspection().apply { addProperty("password", true) }) }

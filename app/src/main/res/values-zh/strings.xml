@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">此预设已不可用. 请先选择可用预设再开始.</string>
     <string name="history_preset_value">预设: %1$s</string>
+    <string name="history_rejections">被拒绝的模型决策: %1$s</string>
     <string name="history_rerun">回到任务台重跑</string>
     <string name="history_reset_dates">重置日期</string>
     <string name="history_result">任务结果</string>

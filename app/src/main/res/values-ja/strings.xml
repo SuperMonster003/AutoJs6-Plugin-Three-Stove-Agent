@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">このプリセットは利用できません. 利用可能なプリセットを選択してから開始してください.</string>
     <string name="history_preset_value">プリセット: %1$s</string>
+    <string name="history_rejections">拒否したモデルの判断: %1$s</string>
     <string name="history_rerun">タスク画面で再実行</string>
     <string name="history_reset_dates">日付をリセット</string>
     <string name="history_result">結果</string>

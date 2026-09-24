@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">Ce préréglage est indisponible. Choisissez un préréglage disponible avant de démarrer.</string>
     <string name="history_preset_value">Préréglage: %1$s</string>
+    <string name="history_rejections">Décisions du modèle rejetées: %1$s</string>
     <string name="history_rerun">Relancer dans le tableau de tâches</string>
     <string name="history_reset_dates">Réinitialiser les dates</string>
     <string name="history_result">Résultat</string>

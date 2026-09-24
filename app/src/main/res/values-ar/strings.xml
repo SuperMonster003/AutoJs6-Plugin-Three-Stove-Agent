@@ -34,6 +34,7 @@
     <string name="history_label_value">%1$s: %2$s</string>
     <string name="history_preset_unavailable">هذا الإعداد المسبق غير متاح. اختر إعدادا متاحا قبل البدء.</string>
     <string name="history_preset_value">الإعداد المسبق: %1$s</string>
+    <string name="history_rejections">قرارات النموذج المرفوضة: %1$s</string>
     <string name="history_rerun">إعادة التشغيل من لوحة المهام</string>
     <string name="history_reset_dates">إعادة ضبط التواريخ</string>
     <string name="history_result">النتيجة</string>
