@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Parámetro</string>
     <string name="confirmation_value">Valor</string>
     <string name="history_all">Todos</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">Trabajo pendiente</string>
     <string name="history_until">Fecha final</string>
     <string name="history_usage">Uso: %1$s</string>
+    <string name="interaction_allow_run">Permitir esta herramienta con este riesgo durante la tarea</string>
+    <string name="interaction_channel">Preguntas y confirmaciones</string>
+    <string name="interaction_confirmation">La acción necesita confirmación</string>
+    <string name="interaction_expired">Esta solicitud ha finalizado. Abra las tareas para ver la tarea actual.</string>
+    <string name="interaction_later">Responder después</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">Cargando solicitud...</string>
+    <string name="interaction_memory_disabled">La memoria está desactivada para esta tarea. La respuesta solo se usa en esta tarea.</string>
+    <string name="interaction_question">Se necesita su respuesta</string>
+    <string name="interaction_remaining">Tiempo restante: %1$d s</string>
+    <string name="interaction_remember">Recordar esta respuesta</string>
+    <string name="interaction_remember_review">Después de responder, revise y confirme una propuesta de memoria por separado.</string>
+    <string name="interaction_risk">Riesgo: %1$s</string>
+    <string name="interaction_risk_normal">Normal</string>
+    <string name="interaction_risk_read_only">Solo lectura</string>
+    <string name="interaction_risk_sensitive">Sensible</string>
     <string name="launcher_connect">Conectar con AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 está instalado pero deshabilitado. Habilítelo en los ajustes de aplicaciones del sistema y vuelva aquí.</string>
     <string name="launcher_host_incompatible">La build %1$d de AutoJs6 está instalada, pero este plugin necesita la build %2$d o posterior. Actualice AutoJs6 primero.</string>

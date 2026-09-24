@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">參數</string>
     <string name="confirmation_value">值</string>
     <string name="history_all">全部</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">未完成項</string>
     <string name="history_until">截止日期</string>
     <string name="history_usage">用量: %1$s</string>
+    <string name="interaction_allow_run">本次任務內允許此工具的同級風險操作</string>
+    <string name="interaction_channel">詢問與確認</string>
+    <string name="interaction_confirmation">操作需要確認</string>
+    <string name="interaction_expired">此請求已結束. 請開啟任務台查看目前任務.</string>
+    <string name="interaction_later">稍後處理</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">正在讀取請求...</string>
+    <string name="interaction_memory_disabled">本次任務已停用記憶. 回答僅用於目前任務.</string>
+    <string name="interaction_question">需要你的回答</string>
+    <string name="interaction_remaining">剩餘時間: %1$d 秒</string>
+    <string name="interaction_remember">記住此答案</string>
+    <string name="interaction_remember_review">回答後需另行審閱並確認記憶提議.</string>
+    <string name="interaction_risk">風險: %1$s</string>
+    <string name="interaction_risk_normal">一般</string>
+    <string name="interaction_risk_read_only">唯讀</string>
+    <string name="interaction_risk_sensitive">敏感</string>
     <string name="launcher_connect">連接 AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 已安裝但已被停用. 請在系統應用程式設定中啟用它, 然後返回此頁面.</string>
     <string name="launcher_host_incompatible">已安裝 AutoJs6 組建 %1$d, 但此外掛需要組建 %2$d 或更高版本. 請先更新 AutoJs6.</string>

@@ -103,8 +103,8 @@ class WorkbenchActivityTest {
             prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset).commit()
         }
     }
-    private fun waitFor(message: String, predicate: () -> Boolean) {
-        val deadline = SystemClock.elapsedRealtime() + 20000
+    private fun waitFor(message: String, timeoutMs: Long = 20000, predicate: () -> Boolean) {
+        val deadline = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < deadline) { if (predicate()) return; SystemClock.sleep(80) }
         fail(message)
     }
@@ -538,6 +538,290 @@ class WorkbenchActivityTest {
             "before" to (before?.let(MemoryCodec::entry) ?: com.google.gson.JsonNull.INSTANCE), "imported" to imported.json()))
         fun delete(row: MemoryEntry) = query("delete", jsonObject("entry" to MemoryCodec.entry(row)))
         override fun close() { context.unbindService(connection) }
+    }
+    private fun cardButtons(card: LinearLayout) = (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().filter { it !is CompoundButton }
+    private fun interactionNotification() = context.getSystemService(android.app.NotificationManager::class.java).activeNotifications
+        .firstOrNull { it.id == io.github.supermonster003.autojs6.plugin.ai.agent.service.InteractionPresentation.NOTIFICATION_ID }?.notification
+    private fun drawFixture(view: View, name: String, top: Int = 0, height: Int = view.height) {
+        // Capture only controlled fixture views; production confirmation windows remain FLAG_SECURE.
+        val bitmap = android.graphics.Bitmap.createBitmap(view.width, height, android.graphics.Bitmap.Config.ARGB_8888)
+        try {
+            val colors = view.context.theme.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground))
+            bitmap.eraseColor(colors.getColor(0, android.graphics.Color.BLACK)); colors.recycle()
+            view.draw(android.graphics.Canvas(bitmap).apply { translate(0f, -top.toFloat()) })
+            java.io.File(context.cacheDir, name).outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        } finally { bitmap.recycle() }
+    }
+    private fun openInteractionNotification(): ConfirmationActivity {
+        val notification = checkNotNull(interactionNotification())
+        assertEquals(android.app.Notification.VISIBILITY_PRIVATE, notification.visibility)
+        assertNotNull(notification.publicVersion); assertEquals(1, notification.actions.size)
+        if (Build.VERSION.SDK_INT >= 26) assertEquals(android.app.NotificationManager.IMPORTANCE_HIGH,
+            context.getSystemService(android.app.NotificationManager::class.java).getNotificationChannel(notification.channelId).importance)
+        val monitor = instrumentation.addMonitor(ConfirmationActivity::class.java.name, null, false)
+        val automation = instrumentation.uiAutomation
+        val originalFlags = automation.serviceInfo.flags
+        automation.serviceInfo = automation.serviceInfo.apply {
+            flags = originalFlags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+        }
+        var opened = false
+        var diagnostics = ""
+        try {
+            instrumentation.waitForIdleSync()
+            assertTrue(automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS))
+            runCatching { automation.waitForIdle(500, 5000) }
+            val title = notification.extras.getString(android.app.Notification.EXTRA_TITLE)!!
+            waitFor("Notification can be opened by user tap") {
+                val roots = listOfNotNull(automation.rootInActiveWindow) + automation.windows.mapNotNull { it.root }
+                val queue = ArrayDeque(roots)
+                val nodes = mutableListOf<android.view.accessibility.AccessibilityNodeInfo>()
+                var inspected = 0
+                while (queue.isNotEmpty() && inspected++ < 1000) {
+                    val node = queue.removeFirst()
+                    if (node.text?.toString() == title) nodes += node
+                    for (index in 0 until node.childCount) node.getChild(index)?.let(queue::addLast)
+                }
+                diagnostics = "roots=${roots.map { it.packageName.toString() + ":" + it.childCount }}, nodes=$inspected, matches=${nodes.size}, flags=${automation.serviceInfo.flags}, capabilities=${automation.serviceInfo.capabilities}"
+                nodes.any { candidate ->
+                    var clickable: android.view.accessibility.AccessibilityNodeInfo? = candidate
+                    while (clickable != null && !clickable.isClickable) clickable = clickable.parent
+                    if (clickable?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true) return@any true
+                    // Notification rows need not expose an accessibility click action on every Android version.
+                    val bounds = android.graphics.Rect().also(candidate::getBoundsInScreen)
+                    if (!candidate.isVisibleToUser || bounds.isEmpty) false else {
+                        val now = SystemClock.uptimeMillis()
+                        val down = android.view.MotionEvent.obtain(now, now, android.view.MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY(), 0)
+                        val up = android.view.MotionEvent.obtain(now, now + 80, android.view.MotionEvent.ACTION_UP, bounds.exactCenterX(), bounds.exactCenterY(), 0)
+                        down.source = android.view.InputDevice.SOURCE_TOUCHSCREEN; up.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                        try { automation.injectInputEvent(down, true) && automation.injectInputEvent(up, true) }
+                        finally { down.recycle(); up.recycle() }
+                    }
+                }
+            }
+            val activity = monitor.waitForActivityWithTimeout(15000)
+            assertNotNull("Notification tap opens its activity", activity)
+            return (activity as ConfirmationActivity).also { opened = true }
+        } catch (failure: AssertionError) {
+            throw AssertionError("Notification route: $diagnostics", failure)
+        } finally {
+            if (!opened) automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+            automation.serviceInfo = automation.serviceInfo.apply { flags = originalFlags }
+            instrumentation.removeMonitor(monitor)
+        }
+    }
+    @Test fun rememberedAnswerSurvivesRecreationAndRequiresItsOwnInlineApproval() = withFixture(Model(true), listOf("observe", "memory")) { link, model ->
+        MemoriesClient().use { memory ->
+            val key = "answer-${java.util.UUID.randomUUID()}"
+            try { ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                enter(scenario, "P65 answer fixture")
+                waitFor("First model call") { model.held != null }
+                model.finish("""{"kind":"ask","ask":{"kind":"text","question":"Fixture destination?","memoryKey":"$key"}}""")
+                waitUi(scenario, "Remember checkbox") { it.findViewById<CheckBox>(R.id.interaction_remember)?.isEnabled == true }
+                var countdown = ""
+                scenario.onActivity {
+                    it.findViewById<EditText>(R.id.workbench_answer).setText("Office fixture")
+                    it.findViewById<CheckBox>(R.id.interaction_remember).isChecked = true
+                    countdown = it.findViewById<TextView>(R.id.interaction_countdown).text.toString()
+                }
+                SystemClock.sleep(1500); scenario.recreate()
+                waitUi(scenario, "Answer and remember state restored without resetting deadline") {
+                    it.findViewById<EditText>(R.id.workbench_answer)?.text?.toString() == "Office fixture" &&
+                        it.findViewById<CheckBox>(R.id.interaction_remember)?.isChecked == true &&
+                        it.findViewById<TextView>(R.id.interaction_countdown)?.text?.toString() != countdown
+                }
+                scenario.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).single().performClick() }
+                waitUi(scenario, "Separate memory confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 2 }
+                assertEquals(1, model.calls.get()); assertTrue(memory.rows().none { it.key == key })
+                assertNull(interactionNotification())
+                scenario.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).first().performClick() }
+                waitFor("Approved preference saved") { memory.rows().any { it.key == key && it.value == "Office fixture" } }
+                waitFor("Model receives answer and user proposal history") { model.calls.get() == 2 && model.held != null }
+                val row = memory.rows().single { it.key == key }
+                val run = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"${row.sourceRunId}"}""")))
+                assertEquals("user", run.getAsJsonArray("steps")[1].asJsonObject.getAsJsonObject("decision").string("source"))
+                assertTrue(model.requests[1].toString().contains("Office fixture")); model.finish(completed)
+            } } finally { memory.rows().filter { it.key == key }.forEach { memory.delete(it) } }
+        }
+    }
+    @Test fun backgroundNotificationOpensExactConfirmationAndDenialInvalidatesOldEntry() = withFixture(Model(true), listOf("memory")) { link, model ->
+        MemoriesClient().use { memory -> ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            val key = "denied-${java.util.UUID.randomUUID()}"
+            enter(scenario, "P65 background confirmation")
+            waitFor("Model starts") { model.held != null }
+            model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"$key","value":"Denied fixture"}}""")
+            waitUi(scenario, "Inline confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 2 }
+            assertNull(interactionNotification())
+            val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
+            val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+            assertFalse(pending.has("deadlineMs")); assertFalse(pending.has("rememberScope"))
+            val oldEntry = ConfirmationActivity.intent(context, id, pending.string("requestId")!!)
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+            waitFor("Background high priority notification") { interactionNotification() != null }
+            val activity = openInteractionNotification()
+            try {
+                waitFor("Notification destination renders pending confirmation") { var ready = false; instrumentation.runOnMainSync {
+                    ready = activity.findViewById<LinearLayout>(R.id.workbench_pending)?.let { cardButtons(it).size == 2 } == true
+                }; ready }
+                waitFor("Visible dialog suppresses notification") { interactionNotification() == null }
+                instrumentation.runOnMainSync {
+                    assertTrue(activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE != 0)
+                    assertTrue("Review buttons accept user input", cardButtons(activity.findViewById(R.id.workbench_pending)).all { it.isEnabled })
+                    assertEquals("Opening a notification cannot answer it", 1, model.calls.get())
+                    drawFixture(activity.window.decorView, "p65-confirmation-dialog.png")
+                    cardButtons(activity.findViewById(R.id.workbench_pending)).last().performClick()
+                }
+                waitFor("Denial returned to model") { model.calls.get() == 2 && model.held != null }
+                assertTrue(model.requests.last().toString().contains("USER_DENIED")); assertTrue(memory.rows().none { it.key == key })
+                ActivityScenario.launch<ConfirmationActivity>(oldEntry).use { stale ->
+                    waitFor("Old notification is non-interactive") { var ready = false; stale.onActivity {
+                        ready = cardButtons(it.findViewById(R.id.workbench_pending)).isEmpty() &&
+                            texts(it.findViewById(android.R.id.content)).contains(it.getString(R.string.interaction_expired))
+                    }; ready }
+                }
+                model.finish(completed)
+            } finally { instrumentation.runOnMainSync { activity.finish() } }
+        } }
+    }
+    @Test fun confirmationTimeoutWithdrawsBackgroundNotificationAndNeverSaves() = withFixture(Model(true), listOf("memory")) { link, model ->
+        MemoriesClient().use { memory -> ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            val key = "timeout-${java.util.UUID.randomUUID()}"
+            enter(scenario, "P65 timeout fixture")
+            waitFor("First model call") { model.held != null }
+            model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"$key","value":"Expired fixture"}}""")
+            waitUi(scenario, "Confirmation countdown") { it.findViewById<TextView>(R.id.interaction_countdown) != null }
+            val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
+            val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+            assertEquals(120000L, pending.number("timeoutMs"))
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+            waitFor("Notification posted") { interactionNotification() != null }
+            waitFor("Actual 120-second timeout returned to model", 130000) { model.calls.get() == 2 && model.held != null }
+            assertTrue(model.requests.last().toString().contains("USER_TIMEOUT"))
+            waitFor("Expired notification withdrawn") { interactionNotification() == null }
+            assertTrue(memory.rows().none { it.key == key })
+            val response = link.respond(bundle(C.KEY_RUN_RESPONSE_JSON,
+                """{"runId":"$id","requestId":"${pending.string("requestId")}","allowed":true}"""))
+            assertEquals(C.ERROR_RUN_NOT_INTERACTIVE, response.getString(C.KEY_ERROR_CODE))
+            model.finish(completed)
+        } }
+    }
+    @Test fun scriptOwnedQuestionHasNoNotificationAndPluginCannotRespond() = withFixture(Model(true)) { link, model ->
+        val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+            """{"goal":"P65 script ownership","options":{"interaction":"script"}}"""), null)).string("runId")!!
+        waitFor("Script model call") { model.held != null }
+        model.finish("""{"kind":"ask","ask":{"kind":"confirm","question":"Script-owned question?"}}""")
+        var request = ""
+        waitFor("Script input pending") {
+            val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+            request = pending?.string("requestId").orEmpty(); request.isNotEmpty()
+        }
+        ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, request)).use { scenario ->
+            waitFor("Script ownership shown") { var ready = false; scenario.onActivity {
+                ready = texts(it.findViewById(android.R.id.content)).contains(it.getString(R.string.workbench_script_interaction))
+                assertTrue(cardButtons(it.findViewById(R.id.workbench_pending)).isEmpty())
+            }; ready }
+            assertNull(interactionNotification())
+            assertEquals(C.ERROR_RUN_NOT_INTERACTIVE, link.respond(bundle(C.KEY_RUN_RESPONSE_JSON,
+                """{"runId":"$id","requestId":"$request","value":true}""")).getString(C.KEY_ERROR_CODE))
+        }
+    }
+    @Test fun questionKindsAndRunScopeCardRespectRememberAndPaymentFlags() {
+        instrumentation.runOnMainSync {
+            val container = LinearLayout(context)
+            var response: com.google.gson.JsonObject? = null
+            val card = PendingCard(container) { body, done -> response = body; done(true) }
+            for (kind in listOf("text", "choice", "confirm")) {
+                card.render(AgentJson.objectOf("""{"runId":"fixture","interaction":"plugin","pending":{"requestId":"$kind","type":"input","kind":"$kind","question":"Fixture?","choices":["One","Two"],"memoryKey":"office","rememberScope":"global"}}"""))
+                container.findViewById<CheckBox>(R.id.interaction_remember).isChecked = true
+                if (kind == "text") container.findViewById<EditText>(R.id.workbench_answer).setText("Typed fixture")
+                cardButtons(container).first().performClick()
+                assertEquals(true, response?.flag("remember")); assertTrue(response!!.has("value"))
+                if (kind == "confirm") assertTrue(response.getAsJsonPrimitive("value").isBoolean)
+            }
+            for (allowed in listOf(true, false)) {
+                card.render(AgentJson.objectOf("""{"runId":"fixture","interaction":"plugin","pending":{"requestId":"scope-$allowed","type":"confirmation","risk":"sensitive","description":"Fixture","arguments":{},"allowRunScope":$allowed}}"""))
+                assertEquals(if (allowed) 3 else 2, cardButtons(container).size)
+                if (allowed) { cardButtons(container).last().performClick(); assertEquals("run", response?.string("scope")) }
+            }
+        }
+    }
+    @Test fun backgroundQuestionFollowsSeparateMemoryReviewAcrossRecreation() = withFixture(Model(true), listOf("memory")) { link, model ->
+        MemoriesClient().use { memory -> ActivityScenario.launch(LauncherActivity::class.java).use { workbench ->
+            val key = "choice-${java.util.UUID.randomUUID()}"
+            try {
+                enter(workbench, "P65 background choice")
+                waitFor("Question model call") { model.held != null }
+                model.finish("""{"kind":"ask","ask":{"kind":"choice","question":"Fixture preference?","choices":["One","Two"],"memoryKey":"$key"}}""")
+                waitUi(workbench, "Inline choices") { it.findViewById<CheckBox>(R.id.interaction_remember)?.isEnabled == true }
+                val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
+                val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+                workbench.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+                waitFor("Question notification") { interactionNotification() != null }
+                // The route is the same immutable PendingIntent target already tested with a notification tap.
+                ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, pending.string("requestId")!!)).use { dialog ->
+                    fun ready(message: String, check: (ConfirmationActivity) -> Boolean) = waitFor(message) {
+                        var found = false; dialog.onActivity { found = check(it) }; found
+                    }
+                    ready("Question dialog") { it.findViewById<CheckBox>(R.id.interaction_remember)?.isEnabled == true }
+                    dialog.onActivity { it.findViewById<CheckBox>(R.id.interaction_remember).isChecked = true }
+                    dialog.recreate()
+                    ready("Choice remember state restored") { it.findViewById<CheckBox>(R.id.interaction_remember)?.isChecked == true }
+                    dialog.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).last().performClick() }
+                    ready("Separate review in same dialog") {
+                        cardButtons(it.findViewById(R.id.workbench_pending)).firstOrNull()?.text == it.getString(R.string.task_allow)
+                    }
+                    assertTrue(memory.rows().none { it.key == key }); dialog.recreate()
+                    ready("Followed confirmation survives recreation") {
+                        cardButtons(it.findViewById(R.id.workbench_pending)).firstOrNull()?.text == it.getString(R.string.task_allow)
+                    }
+                    dialog.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).first().performClick() }
+                    waitFor("Remembered choice saved") { memory.rows().any { it.key == key && it.value == "Two" } }
+                    waitFor("Model resumes") { model.calls.get() == 2 && model.held != null }
+                }
+                model.finish("""{"kind":"ask","ask":{"kind":"confirm","question":"Second fixture preference?","memoryKey":"$key-next"}}""")
+                var secondRequest = ""
+                waitFor("Second question in same run") {
+                    val next = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+                    secondRequest = next?.string("requestId").orEmpty()
+                    next?.string("type") == "input" && secondRequest != pending.string("requestId")
+                }
+                ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, secondRequest)).use { dialog ->
+                    fun ready(message: String, check: (ConfirmationActivity) -> Boolean) = waitFor(message) {
+                        var found = false; dialog.onActivity { found = check(it) }; found
+                    }
+                    ready("Boolean question") { it.findViewById<CheckBox>(R.id.interaction_remember)?.isEnabled == true }
+                    dialog.onActivity {
+                        it.findViewById<CheckBox>(R.id.interaction_remember).isChecked = true
+                        cardButtons(it.findViewById(R.id.workbench_pending)).last().performClick()
+                    }
+                    ready("Earlier saved proposal cannot close the new review") {
+                        cardButtons(it.findViewById(R.id.workbench_pending)).firstOrNull()?.text == it.getString(R.string.task_allow)
+                    }
+                    assertTrue(memory.rows().none { it.key == "$key-next" })
+                    dialog.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).first().performClick() }
+                    waitFor("Boolean answer saved only after review") { memory.rows().any { it.key == "$key-next" && it.value == "false" } }
+                    waitFor("Second answer returns to model") { model.calls.get() == 3 && model.held != null }; model.finish(completed)
+                }
+            } finally { memory.rows().filter { it.key in setOf(key, "$key-next") }.forEach { memory.delete(it) } }
+        } }
+    }
+    @Test fun confirmationCardArabicNightLargeTextStaysWithinScrollableWidth() {
+        instrumentation.runOnMainSync {
+            val wrapped = HostAppearance("ar", true, 0xff334455.toInt(), 0xffeeddcc.toInt()).wrap(context)
+            val large = wrapped.createConfigurationContext(android.content.res.Configuration(wrapped.resources.configuration).apply { fontScale = 2f })
+            val themed = android.view.ContextThemeWrapper(large, R.style.Theme_AiAgent_Dialog_Dark)
+            val card = LinearLayout(themed).apply { orientation = LinearLayout.VERTICAL; layoutDirection = View.LAYOUT_DIRECTION_RTL }
+            val scroll = ScrollView(themed).apply { addView(card); layoutDirection = View.LAYOUT_DIRECTION_RTL }
+            PendingCard(card) { _, _ -> fail("Layout must not answer") }.render(AgentJson.objectOf(
+                """{"runId":"fixture","interaction":"plugin","pending":{"requestId":"rtl","type":"confirmation","risk":"sensitive","description":"${"Fixture description ".repeat(30)}","arguments":{"value":"${"Long value ".repeat(80)}"},"allowRunScope":true}}"""))
+            val width = (360 * context.resources.displayMetrics.density).toInt()
+            scroll.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(640, View.MeasureSpec.EXACTLY))
+            scroll.layout(0, 0, width, 640)
+            assertEquals(View.LAYOUT_DIRECTION_RTL, card.layoutDirection); assertTrue(card.height > scroll.height)
+            assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_YES, themed.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+            for (button in cardButtons(card)) { assertTrue(button.width in 1..width); assertTrue(button.height > 0) }
+            drawFixture(card, "p65-rtl-confirmation-top.png", height = 640)
+            drawFixture(card, "p65-rtl-confirmation-bottom.png", top = (card.height - 640).coerceAtLeast(0), height = 640)
+        }
     }
     @Test fun confirmedMemoryReachesNextTaskAndDeniedLargeProposalRemainsAnObservation() = withFixture(Model(true), listOf("observe", "memory")) { link, model ->
         MemoriesClient().use { memory -> PresetsClient().use { presets ->

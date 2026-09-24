@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Параметр</string>
     <string name="confirmation_value">Значение</string>
     <string name="history_all">Все</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">Незавершенная работа</string>
     <string name="history_until">Конечная дата</string>
     <string name="history_usage">Использование: %1$s</string>
+    <string name="interaction_allow_run">Разрешить этот инструмент с этим риском для текущей задачи</string>
+    <string name="interaction_channel">Вопросы и подтверждения</string>
+    <string name="interaction_confirmation">Действие требует подтверждения</string>
+    <string name="interaction_expired">Этот запрос завершен. Откройте задачи для просмотра текущей задачи.</string>
+    <string name="interaction_later">Ответить позже</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">Загрузка запроса...</string>
+    <string name="interaction_memory_disabled">Память отключена для этой задачи. Ответ используется только в текущей задаче.</string>
+    <string name="interaction_question">Требуется ваш ответ</string>
+    <string name="interaction_remaining">Осталось: %1$d с</string>
+    <string name="interaction_remember">Запомнить этот ответ</string>
+    <string name="interaction_remember_review">После ответа отдельно проверьте и подтвердите предложение памяти.</string>
+    <string name="interaction_risk">Риск: %1$s</string>
+    <string name="interaction_risk_normal">Обычный</string>
+    <string name="interaction_risk_read_only">Только чтение</string>
+    <string name="interaction_risk_sensitive">Чувствительный</string>
     <string name="launcher_connect">Подключить AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 установлен, но отключен. Включите его в системных настройках приложений и вернитесь сюда.</string>
     <string name="launcher_host_incompatible">Установлена сборка AutoJs6 %1$d, но этому плагину нужна сборка %2$d или новее. Сначала обновите AutoJs6.</string>

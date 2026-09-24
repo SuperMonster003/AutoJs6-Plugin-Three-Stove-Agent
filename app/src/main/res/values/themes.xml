@@ -4,4 +4,12 @@
     <style name="Theme.AiAgent" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
     <style name="Theme.AiAgent.Light" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
     <style name="Theme.AiAgent.Dark" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
+    <style name="Theme.AiAgent.Dialog.Light" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">95%</item>
+    </style>
+    <style name="Theme.AiAgent.Dialog.Dark" parent="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">95%</item>
+    </style>
 </resources>

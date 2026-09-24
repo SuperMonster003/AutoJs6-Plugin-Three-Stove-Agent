@@ -25,7 +25,8 @@ internal class AgentRuntime private constructor(val context: Context) {
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json")) }
     @Volatile var current: HostLink? = null; private set
-    fun taskChanged() = AiAgentTaskForegroundService.changed()
+    val interactions by lazy { InteractionPresentation(this) }
+    fun taskChanged() { AiAgentTaskForegroundService.changed(); interactions.changed() }
     @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IAiAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)

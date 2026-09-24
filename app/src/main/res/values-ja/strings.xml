@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">パラメータ</string>
     <string name="confirmation_value">値</string>
     <string name="history_all">すべて</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">未完了の項目</string>
     <string name="history_until">終了日</string>
     <string name="history_usage">使用量: %1$s</string>
+    <string name="interaction_allow_run">このタスクで同じツールの同じリスクを許可</string>
+    <string name="interaction_channel">質問と確認</string>
+    <string name="interaction_confirmation">操作の確認が必要です</string>
+    <string name="interaction_expired">このリクエストは終了しました. タスク画面で現在のタスクを確認してください.</string>
+    <string name="interaction_later">後で回答</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">リクエストを読み込み中...</string>
+    <string name="interaction_memory_disabled">このタスクでは記憶が無効です. 回答は現在のタスクでのみ使用されます.</string>
+    <string name="interaction_question">回答が必要です</string>
+    <string name="interaction_remaining">残り時間: %1$d 秒</string>
+    <string name="interaction_remember">この回答を記憶</string>
+    <string name="interaction_remember_review">回答後に記憶の提案を別途確認して承認してください.</string>
+    <string name="interaction_risk">リスク: %1$s</string>
+    <string name="interaction_risk_normal">通常</string>
+    <string name="interaction_risk_read_only">読み取り専用</string>
+    <string name="interaction_risk_sensitive">機密</string>
     <string name="launcher_connect">AutoJs6 に接続</string>
     <string name="launcher_host_disabled">AutoJs6 はインストールされていますが無効になっています. システムのアプリ設定で有効にしてから, ここに戻ってください.</string>
     <string name="launcher_host_incompatible">AutoJs6 ビルド %1$d がインストールされていますが, このプラグインにはビルド %2$d 以降が必要です. 先に AutoJs6 を更新してください.</string>

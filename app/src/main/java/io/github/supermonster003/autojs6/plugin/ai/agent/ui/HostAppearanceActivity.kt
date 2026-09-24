@@ -43,6 +43,7 @@ internal data class HostAppearance(val language: String, val dark: Boolean, val 
 
 /** Provider IO stays off the main thread; an unavailable snapshot restores system appearance. */
 abstract class HostAppearanceActivity : Activity() {
+    protected open val dialogTheme = false
     private var applied: HostAppearance? = null
     private var appearanceGeneration = 0
     override fun attachBaseContext(newBase: Context) {
@@ -52,7 +53,9 @@ abstract class HostAppearanceActivity : Activity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         val dark = applied?.dark ?: (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
-        setTheme(if (dark) R.style.Theme_AiAgent_Dark else R.style.Theme_AiAgent_Light)
+        setTheme(if (dialogTheme) {
+            if (dark) R.style.Theme_AiAgent_Dialog_Dark else R.style.Theme_AiAgent_Dialog_Light
+        } else if (dark) R.style.Theme_AiAgent_Dark else R.style.Theme_AiAgent_Light)
         super.onCreate(savedInstanceState)
         val attribute = android.util.TypedValue().also { theme.resolveAttribute(android.R.attr.colorBackground, it, true) }
         val background = if (attribute.resourceId != 0) getColor(attribute.resourceId) else attribute.data
@@ -84,6 +87,7 @@ abstract class HostAppearanceActivity : Activity() {
         val accent = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
             intArrayOf(colors.accent, (colors.accent and 0x00ffffff) or 0x61000000))
         when (view) {
+            is CompoundButton -> view.buttonTintList = accent
             is Button -> {
                 view.backgroundTintList = accent
                 val foreground = if (Color.luminance(colors.accent or (0xff shl 24)) > 0.179f) Color.BLACK else Color.WHITE

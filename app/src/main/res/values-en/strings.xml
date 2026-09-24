@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Parameter</string>
     <string name="confirmation_value">Value</string>
     <string name="history_all">All</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">Unfinished work</string>
     <string name="history_until">Through date</string>
     <string name="history_usage">Usage: %1$s</string>
+    <string name="interaction_allow_run">Allow this tool at this risk level for this task</string>
+    <string name="interaction_channel">Questions and confirmations</string>
+    <string name="interaction_confirmation">Action needs confirmation</string>
+    <string name="interaction_expired">This request has ended. Open the workbench for the current task.</string>
+    <string name="interaction_later">Answer later</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">Loading request...</string>
+    <string name="interaction_memory_disabled">Memory is disabled for this task. The answer is used only in this task.</string>
+    <string name="interaction_question">Your answer is needed</string>
+    <string name="interaction_remaining">Time remaining: %1$d s</string>
+    <string name="interaction_remember">Remember this answer</string>
+    <string name="interaction_remember_review">Review and confirm a separate memory proposal after answering.</string>
+    <string name="interaction_risk">Risk: %1$s</string>
+    <string name="interaction_risk_normal">Normal</string>
+    <string name="interaction_risk_read_only">Read only</string>
+    <string name="interaction_risk_sensitive">Sensitive</string>
     <string name="launcher_connect">Connect to AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 is installed but disabled. Enable it in the system app settings, then return here.</string>
     <string name="launcher_host_incompatible">AutoJs6 build %1$d is installed, but this plugin needs build %2$d or later. Update AutoJs6 first.</string>

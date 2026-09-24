@@ -8,6 +8,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.Cancellation
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentRuntime
 import io.github.supermonster003.autojs6.plugin.ai.agent.ui.LauncherActivity
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.ConfirmationActivity
 
 /** Task-only foreground lifetime. The preparation barrier waits until startForeground succeeds. */
 class AiAgentTaskForegroundService : Service() {
@@ -43,7 +44,11 @@ class AiAgentTaskForegroundService : Service() {
         val manager = getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(NotificationChannel(CHANNEL_ID, getString(R.string.task_channel), NotificationManager.IMPORTANCE_LOW))
         fun builder() = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(this, CHANNEL_ID) else Notification.Builder(this)
-        val view = PendingIntent.getActivity(this, 0, Intent(this, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        val id = row?.string("runId")
+        val pending = id?.let { runtime.archive.pending(it) }
+        val view = if (id != null && runtime.archive.interaction(id) == "plugin" && pending?.string("requestId") != null)
+            ConfirmationActivity.pendingIntent(this, id, pending.string("requestId")!!)
+        else PendingIntent.getActivity(this, 0, Intent(this, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val waiting = row?.string("state") in setOf("waiting_input", "waiting_confirmation")
         val progress = if (waiting) getString(R.string.task_waiting) else getString(R.string.task_running, (row?.number("step")?.toInt() ?: 0) + 1)

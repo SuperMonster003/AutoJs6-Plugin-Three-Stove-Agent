@@ -8,9 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/24",
       "hint": [
-        "Vista previa: P6.1-P6.4 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.5-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8."
+        "Vista previa: P6.1-P6.5 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.6-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8."
       ],
       "feature": [
+        "Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado",
         "Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar",
         "Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria",
         "Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)",

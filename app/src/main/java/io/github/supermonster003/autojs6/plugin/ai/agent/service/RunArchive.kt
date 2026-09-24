@@ -15,6 +15,9 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
     private val disk = Executors.newSingleThreadExecutor { r -> Thread(r, "ai-agent-history").apply { isDaemon = true } }
     private val records = linkedMapOf<String, JsonObject>()
     private val dirty = linkedSetOf<String>()
+    // Live UI hints are never persisted or exposed through the host/script contract.
+    private val deadlines = mutableMapOf<String, Long>()
+    private val rememberScopes = mutableMapOf<String, String>()
     private var scheduled = false
     @Volatile var ready = false; private set
     @Volatile var storageFailed = false; private set
@@ -49,6 +52,10 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         finally { ready = true }
     } }
     @Synchronized fun admit(run: AgentRunner, request: StartRequest) {
+        if ("memory" in request.groups) when (request.memoryScope) {
+            "global", "global_and_preset" -> rememberScopes[run.id] = "global"
+            "preset" -> rememberScopes[run.id] = request.preset
+        }
         records[run.id] = jsonObject("runId" to run.id.json(), "goal" to request.options.goal.json(),
             "state" to run.state.wire.json(), "startedAt" to System.currentTimeMillis().json(),
             "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray(),
@@ -59,9 +66,12 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
     @Synchronized fun event(event: RunEvent) {
         val row = records[event.runId] ?: return
         when (event.type) {
-            "state" -> { row.addProperty("state", event.payload.string("to")); row.remove("pending") }
-            "input", "confirmation" -> row.add("pending", event.payload.apply { addProperty("type", event.type) })
-            "done", "error" -> row.remove("pending")
+            "state" -> { row.addProperty("state", event.payload.string("to")); row.remove("pending"); deadlines.remove(event.runId) }
+            "input", "confirmation" -> {
+                row.add("pending", event.payload.apply { addProperty("type", event.type) })
+                event.interactionDeadlineMs?.let { deadlines[event.runId] = it }
+            }
+            "done", "error" -> { row.remove("pending"); deadlines.remove(event.runId); rememberScopes.remove(event.runId) }
             "step" -> row.add("step", event.payload["index"] ?: 0.json())
             "progress" -> { row.addProperty("progress", AgentJson.truncate(event.payload.string("message").orEmpty(), 160))
                 event.payload["budget"]?.let { row.add("remainingBudget", it.deepCopy()) } }
@@ -77,6 +87,10 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         markDirty(id)
     }
     @Synchronized fun pending(id: String): JsonObject? = records[id]?.getAsJsonObject("pending")?.deepCopy()
+    @Synchronized fun pendingForUi(id: String): JsonObject? = pending(id)?.apply {
+        deadlines[id]?.let { addProperty("deadlineMs", it) }
+        if (has("memoryKey")) rememberScopes[id]?.let { addProperty("rememberScope", it) }
+    }
     @Synchronized fun interaction(id: String): String? = records[id]?.string("interaction")
     @Synchronized fun summary(id: String): JsonObject? = records[id]?.let { row -> JsonObject().apply {
         for (key in listOf("runId", "goal", "state", "step", "progress")) row[key]?.let { add(key, it.deepCopy()) }
@@ -87,7 +101,9 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         pending.addProperty("submitted", true)
         return true
     }
-    @Synchronized fun get(id: String, stepLimit: Int = 50): JsonObject? = records[id]?.let { project(it, stepLimit) }
+    @Synchronized fun get(id: String, stepLimit: Int = 50, presentation: Boolean = false): JsonObject? = records[id]?.let { source ->
+        project(source, stepLimit).apply { if (presentation) pendingForUi(id)?.let { add("pending", it) } }
+    }
     @Synchronized fun full(id: String): JsonObject? = records[id]?.deepCopy()
     /** All private history commands and file access run on the same worker as journal writes. */
     fun history(action: () -> JsonObject, complete: (Result<JsonObject>) -> Unit) {

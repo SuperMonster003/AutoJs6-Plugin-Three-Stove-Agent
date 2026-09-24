@@ -227,7 +227,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     private fun respond(json: String, interaction: String): Bundle = with(ControlRequests) {
         val value = AgentJson.objectOf(json, C.MAX_EVENT_JSON_BYTES)
-        closed(value, setOf("runId", "requestId", "value", "allowed", "scope"))
+        closed(value, setOf("runId", "requestId", "value", "allowed", "scope") + if (interaction == "plugin") setOf("remember") else emptySet())
         val id = runId(value)
         val run = active[id] ?: throw WireFailure(C.ERROR_RUN_NOT_FOUND)
         if (archive.interaction(id) != interaction) throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
@@ -235,7 +235,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val requestId = text(value, "requestId", maximum = 128) ?: throw WireFailure(C.ERROR_INVALID_REQUEST)
         if (pending.string("requestId") != requestId) throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
         if (pending.string("type") == "confirmation") {
-            require(!value.has("value"))
+            require(!value.has("value") && !value.has("remember"))
             val allowed = requireNotNull(value.flag("allowed"))
             val scope = text(value, "scope", "once", 8).also { require(it in setOf("once", "run")) }
             require(scope != "run" || pending.flag("allowRunScope") == true)
@@ -251,8 +251,13 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 "text" -> require(answer.isJsonPrimitive && answer.asJsonPrimitive.isString && answer.asString.isNotBlank())
                 else -> throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
             }
+            val remember = if (value.has("remember")) requireNotNull(value.flag("remember")) else false
+            val scope = if (remember) {
+                requireNotNull(pending.string("memoryKey"))
+                requireNotNull(archive.pendingForUi(id)?.string("rememberScope"))
+            } else null
             if (!archive.claimPending(id, requestId)) throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
-            run.respond(requestId, answer)
+            run.respond(requestId, answer, scope)
         }
         AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to id.json(), "accepted" to true.json()).toString())
     }

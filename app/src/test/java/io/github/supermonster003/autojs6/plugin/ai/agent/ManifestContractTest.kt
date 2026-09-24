@@ -51,7 +51,9 @@ class ManifestContractTest {
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.ConfirmationActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals("true", activities.last().androidAttribute("excludeFromRecents"))
+        assertEquals("@style/Theme.AiAgent.Dialog.Light", activities.last().androidAttribute("theme"))
 
         val wake = activities.first()
         assertEquals("true", wake.androidAttribute("exported"))

@@ -67,6 +67,8 @@
         <activity android:name=".ui.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.PresetsActivity" android:exported="false" />
         <activity android:name=".ui.MemoryActivity" android:exported="false" />
+        <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true"
+            android:theme="@style/Theme.AiAgent.Dialog.Light" />
 
         <service
             android:name=".AiAgentTaskForegroundService"

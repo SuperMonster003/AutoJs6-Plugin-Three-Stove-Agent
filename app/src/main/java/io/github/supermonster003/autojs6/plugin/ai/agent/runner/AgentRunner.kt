@@ -42,6 +42,7 @@ class AgentRunner internal constructor(
     private var stepUsageStart = JsonObject()
     private var stepEstimated = false
     private var recorded = true
+    private var userRequestedStep = false
     private var successfulTools = 0
     private var scriptCalls = 0
     private var otherActions = 0
@@ -91,7 +92,7 @@ class AgentRunner internal constructor(
         return true
     }
 
-    fun respond(requestId: String, value: JsonElement, callback: (ReplyStatus) -> Unit = {}) {
+    fun respond(requestId: String, value: JsonElement, rememberScope: String? = null, callback: (ReplyStatus) -> Unit = {}) {
         if (state.terminal) { safely { callback(ReplyStatus.NOT_WAITING) }; return }
         val copy = try { AgentJson.parse(value.toString(), 4096) } catch (_: Exception) { null }
         dispatchReply(callback) {
@@ -100,6 +101,7 @@ class AgentRunner internal constructor(
             val status = when {
                 ask == null -> ReplyStatus.NOT_WAITING
                 copy == null || !validAnswer(ask, copy) -> ReplyStatus.INVALID
+                rememberScope != null && (ask.memoryKey == null || !policy.isEnabled(checkNotNull(catalog["memory_propose"]))) -> ReplyStatus.INVALID
                 else -> {
                     clearInteraction()
                     transition(RunState.RUNNING)
@@ -107,7 +109,11 @@ class AgentRunner internal constructor(
                     ask.memoryKey?.let { answer.addProperty("memoryKey", it); answer.addProperty("memoryProposalOnly", true) }
                     observation = ToolObservation.success(answer)
                     record(observation)
-                    guarded { nextStep() }
+                    guarded {
+                        if (rememberScope == null) nextStep()
+                        else nextStep(AgentDecision.Tool("memory_propose", jsonObject("key" to checkNotNull(ask.memoryKey).json(),
+                            "value" to copy.asString.json(), "scope" to rememberScope.json()), null))
+                    }
                     ReplyStatus.ACCEPTED
                 }
             }
@@ -148,12 +154,17 @@ class AgentRunner internal constructor(
         }
     }
 
-    private fun nextStep() {
+    private fun nextStep(userProposal: AgentDecision.Tool? = null) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
         b.beginStep()
         decision = null; parseMode = null; confirmation = null; recorded = false
         stepStartedMs = scheduler.nowMs(); stepUsageStart = b.usageJson(); stepEstimated = false
+        userRequestedStep = userProposal != null
+        if (userProposal != null) {
+            // Explicit UI intent is charged as a tool step and still passes preparation and ConfirmationGate.
+            repairSession = null; decision = userProposal; prepareTool(userProposal); return
+        }
         repairSession = DecisionRepairSession(validator, policy, format, doneRules::validate)
         requestModel(null)
     }
@@ -419,6 +430,7 @@ class AgentRunner internal constructor(
             addProperty("estimated", stepEstimated)
         }
         val data = StepJournal.decision(current).apply {
+            if (userRequestedStep) addProperty("source", "user")
             parseMode?.let { addProperty("parseMode", it.name) }
             addProperty("repairs", repairSession?.repairsUsed ?: 0)
             addProperty("degraded", format.degraded)
@@ -487,7 +499,8 @@ class AgentRunner internal constructor(
         emit("state", jsonObject("from" to previous.wire.json(), "to" to next.wire.json()))
     }
     private fun emit(type: String, payload: JsonObject) {
-        val event = RunEvent(id, ++eventSequence, type, payload)
+        val event = RunEvent(id, ++eventSequence, type, payload,
+            if (type in setOf("input", "confirmation")) interaction?.deadlineMs else null)
         safely { listener(event) } // A detached observer cannot abort an owned task.
     }
     private inline fun safely(action: () -> Unit) { try { action() } catch (_: Exception) { /* No private exception text in ordinary logs. */ } }

@@ -119,7 +119,8 @@ interface RunTools {
 }
 
 enum class ReplyStatus { ACCEPTED, NOT_WAITING, INVALID }
-class RunEvent(val runId: String, val sequence: Long, val type: String, data: JsonObject) {
+class RunEvent(val runId: String, val sequence: Long, val type: String, data: JsonObject,
+               internal val interactionDeadlineMs: Long? = null) {
     private val snapshot = data.deepCopy()
     val payload: JsonObject get() = snapshot.deepCopy()
     override fun toString() = "RunEvent(runId=$runId, sequence=$sequence, type=$type)"

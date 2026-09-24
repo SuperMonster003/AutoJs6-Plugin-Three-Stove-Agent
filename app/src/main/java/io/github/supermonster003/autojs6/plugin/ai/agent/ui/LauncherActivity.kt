@@ -22,6 +22,7 @@ import java.util.UUID
 class LauncherActivity : HostAppearanceActivity() {
     private lateinit var agent: AgentConnection
     private lateinit var pending: PendingCard
+    private val visibility by lazy { InteractionVisibility(this, followsRun = true) }
     private lateinit var goal: EditText
     private lateinit var preset: Spinner
     private val scriptRoots by lazy { ScriptRootSettings(this) }
@@ -94,6 +95,8 @@ class LauncherActivity : HostAppearanceActivity() {
         updateSend(); tint(findViewById(android.R.id.content))
     }
     override fun onStart() { super.onStart(); requested = false; sending = false; agent.start() }
+    override fun onResume() { super.onResume(); visibility.start() }
+    override fun onPause() { visibility.stop(); super.onPause() }
     override fun onStop() {
         drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
         agent.stop(); super.onStop()
@@ -178,6 +181,7 @@ class LauncherActivity : HostAppearanceActivity() {
             findViewById<Button>(R.id.workbench_stop).visibility = if (WorkbenchText.active(row)) View.VISIBLE else View.GONE
         }
         pending.render(row)
+        visibility.render(row)
         val key = value.runs.toString()
         if (key != recentKey) {
             recentKey = key

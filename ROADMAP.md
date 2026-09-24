@@ -48,7 +48,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D22 | 脚本调用与结果通道 | 已登记脚本经宿主 bridge `agent.execRegistered(path, arguments, options)` 启动 (内部为 `engines.execScriptFile` + `captureConsole` + 等待完成), 参数经 `engines.myEngine().execArgv` 传入; 脚本用宿主 augment `ai.agent.result(value)` 上报结构化结果 (仅在被 Agent 启动时生效, 否则记录警告), 未上报时以退出状态 + 控制台尾部作为结果. 登记为 `sensitive` 的脚本按 D8 在启动前确认. |
 | D23 | 插件默认关闭且需官方 / 受信签名 | 宿主侧 `AidlPluginHost(defaultEnabled = false)` (`PluginDefaultEnabledPolicy` 加入 `ai-agent`); 抽屉开关或附着请求首次生效时要求插件处于 `OFFICIAL` 或 `TRUSTED` 授权态, `USER_GRANTED` 需额外确认对话框 (MCP D18 同形). Agent 可自主操作设备, 风险等级与 MCP 相当. |
 | D24 | JS 任务归属 | 从脚本启动的任务在宿主侧以 `AgentRunHandle` 归属到 `ScriptRuntime`, 脚本停止时对非 `detached` 任务发送 `cancel(reason = script-stopped)`; `detached` 任务归属插件, JS 句柄只是观察者. 同一时刻每条链路最多 1 个运行中任务 (队列上限 8, 其余排队或拒绝, 见附录 B.5). |
-| D25 | 确认与询问的承接方 | 任务事件 `confirmation` / `input` 默认由插件界面承接 (前台时对话框, 后台时通知动作 + 悬浮卡片); 脚本以 `interaction: "script"` 启动的任务改由 JS `input` / `confirmation` 事件承接, 超时 (默认 120 s) 视为拒绝并取消当前步骤. 取消只停止后续执行, 不撤销已提交的操作. |
+| D25 | 确认与询问的承接方 | 任务事件 `confirmation` / `input` 默认由插件界面承接 (前台时对话框, 后台时通知动作 + 悬浮卡片); 脚本以 `interaction: "script"` 启动的任务改由 JS `input` / `confirmation` 事件承接, 超时 (确认默认 120 s, 询问按 P2.3 默认 10 min, 均受任务预算限制) 视为拒绝并取消当前步骤. 取消只停止后续执行, 不撤销已提交的操作. |
 | D26 | 观察格式与节点引用 | `ui_dump` 返回宿主 `accessibility.dump` 新增的 `compact` 格式 (每节点一行, `#n<序号>` 引用, 中心点与边界, 只列非空属性, 与 MCP 附录 B 完全一致, 由宿主 P1.4 提供, MCP 插件后续可迁移); 动作工具接受 `nodeRef` / `selector` (`BridgeSelector` 方言) / 坐标 (仅 `gesture` 组) 三者之一; 引用按指纹重定位, 失效返回 `NODE_REF_STALE`. |
 | D27 | 无原生库, 单 APK | 插件由 ABI 无关的 Kotlin 字节码与资源构成, 不启用 ABI splits, `getInfo()` 显式 `supportedAbis = emptyArray()`; 发布文件名 `autojs6-plugin-ai-agent-v{VERSION_NAME}-{CRC32}.apk`. |
 | D28 | 插件权限集合 | `org.autojs.permission.PLUGIN`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `POST_NOTIFICATIONS`, `SYSTEM_ALERT_WINDOW` (仅悬浮球, 运行时请求), `INTERNET` (仅更新检查, 模型流量不经插件). 不申请无障碍 / 存储 / 麦克风. |
@@ -530,9 +530,11 @@ P6.4 证据: `docs/dev/p64-memory-evidence-2026-09-24.md`. 私有单条原子存
 
 ### P6.5 确认与询问的承接
 
-- [ ] (插件) `ConfirmationActivity` (对话框主题, 从通知或悬浮卡片进入; 显示工具描述 / 参数摘要 / 风险等级 / 剩余时间; 按钮 允许 / 拒绝 / 本次任务内允许同类 (非支付类)); 询问卡片 (`text / choice / confirm` 三种, `memoryKey` 存在时附 "记住此答案" 复选框 -> `memory_propose`); 前台时内联在任务台, 后台时通知 (高优先级, 动作按钮直达) + 悬浮卡片 (悬浮球开启时).
-- [ ] (插件) 超时处理 (D25): 倒计时到期视为拒绝, 任务收到观察 `USER_TIMEOUT` 并由模型决定 `ask` 重试或 `partial`.
-- [ ] (测试) instrumentation: 前台 / 后台两条路径的确认往返, 超时拒绝.
+- [x] (插件) `ConfirmationActivity` (对话框主题, 从通知或悬浮卡片进入; 显示工具描述 / 参数摘要 / 风险等级 / 剩余时间; 按钮 允许 / 拒绝 / 本次任务内允许同类 (非支付类)); 询问卡片 (`text / choice / confirm` 三种, `memoryKey` 存在时附 "记住此答案" 复选框 -> `memory_propose`); 前台时内联在任务台, 后台时通知 (高优先级, 动作按钮直达) + 悬浮卡片 (悬浮球开启时).
+- [x] (插件) 超时处理 (D25): 倒计时到期视为拒绝, 任务收到观察 `USER_TIMEOUT` 并由模型决定 `ask` 重试或 `partial`.
+- [x] (测试) instrumentation: 前台 / 后台两条路径的确认往返, 超时拒绝.
+
+P6.5 验收: JVM 435 项, Sony G8441 API 28 / AVD API 37 instrumentation 各 57 项通过, 含实际通知入口与真实 120 s 超时. 共用卡片/请求入口已准备; 悬浮球开启后的实际悬浮显示仍随原 P6.7 验收, 本阶段不提前增加悬浮权限. D25 的简写按 P2.3 澄清为确认 120 s / 询问 10 min, 运行时默认值不变. 详见 `docs/dev/p65-interaction-evidence-2026-09-24.md`.
 
 ### P6.6 设置, 发行历史与更新检查
 
@@ -1307,3 +1309,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - JVM 430 项, AVD API 37 / Sony G8441 API 28 instrumentation 各 50 项通过. 覆盖确认后下一任务读取, 大参数拒绝, 导入重建/跳过, 编辑草稿/确认/删除, FD 大响应, 冲突及冷启动迁移. 系统文件选择器实际完成两条导入中的一条, 导出 204 字节并核验; 进程强制结束后条目仍保留, 最后清理夹具. 验证大字体和阿拉伯语 RTL/夜间显示. 详见 `docs/dev/p64-memory-evidence-2026-09-24.md`.
 - debug/androidTest/release R8/lint 与 10 语言 36 产物检查通过, lint 保持原有 6 项警告. 文档 `8155a4f` / project code 77 与离线文档 `0cb1d42` / build 58 同步记忆语义, 两种离线 APK 内容清单验证通过 (199 文件 / 11591728 字节). TypeScript/Ace 签名不变且保留用户既有改动. 宿主保持 aeed8edcb9 / 5293, 未改 Rhino 同步成果.
 - 插件本次 build 57 对齐提交计数. 未新增购物/付款或真实模型推理验收, 未推送/发布. 下一起点为原 P6.5 确认与询问, 包括 "记住此答案" 与后台入口. P6.6/P6.7 与 P7/P8 保持原位置. 当前无需用户提供额外资料, 设备或手动操作.
+
+### 2026-09-24 (P6.5 确认与询问)
+
+- 完成原 P6.5 的私有确认页面, 任务台共用卡片, 前后台通知承接与超时验收. 显示描述/参数/风险/倒计时, 任务级授权限定同一工具及同级风险, 支付和记忆提议逐次确认. 旧通知不可回答新请求, script 归属仍由 JS 承接. 共用入口供原 P6.7 悬浮卡片接入, 未前移悬浮权限或改变阶段结构.
+- "记住此答案" 支持 text/choice/confirm, 在允许的作用域生成单独 memory_propose, 标记用户来源并计入步数/工具预算, 再经确认写入. 草稿和勾选随页面重建恢复; 同一任务多次回答分别审阅. UI 截止点仅走私有投影, 使用 runner 单调时钟. D25 按 P2.3 澄清确认 120 s / 询问 10 min, 未改变既有预算值.
+- JVM 435 项, G8441 API 28 / AVD API 37 全量 instrumentation 各 57 项通过 (244.543 s / 221.816 s), 含通知实际点击, 旧入口失效, 真实 120 s 超时拒绝, 无记忆写入, 模型收到 USER_TIMEOUT, script 归属及 RTL/夜间/2 倍字体布局. debug/androidTest/release R8/lint 与十语言 36 产物检查通过; lint 保持原有 6 项警告. 详见 `docs/dev/p65-interaction-evidence-2026-09-24.md`.
+- 仅修改 AI Agent, build 58 对齐提交计数. 宿主保持 aeed8edcb9 / 5293, Rhino 同步成果未改动; 公开脚本/AIDL 签名不变, 相关文档/TypeScript/Ace 无需接口同步且用户改动保留. 未新增订单/付款, 未新增真实 Model8/Gemma 推理验收, 未推送/发布.
+- 下一起点为原 P6.6 设置/发行历史/更新, 后续 P6.7 与 P7/P8 保持原位置. 当前无需用户提供额外资料, 设备或手动操作.

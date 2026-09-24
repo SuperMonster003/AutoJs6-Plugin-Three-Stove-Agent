@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">المعلمة</string>
     <string name="confirmation_value">القيمة</string>
     <string name="history_all">الكل</string>
@@ -41,6 +41,21 @@
     <string name="history_unfinished">العمل غير المكتمل</string>
     <string name="history_until">تاريخ النهاية</string>
     <string name="history_usage">الاستخدام: %1$s</string>
+    <string name="interaction_allow_run">السماح بهذه الأداة بهذا المستوى من المخاطر لهذه المهمة</string>
+    <string name="interaction_channel">الأسئلة والتأكيدات</string>
+    <string name="interaction_confirmation">الإجراء يحتاج إلى تأكيد</string>
+    <string name="interaction_expired">انتهى هذا الطلب. افتح لوحة المهام لعرض المهمة الحالية.</string>
+    <string name="interaction_later">الإجابة لاحقا</string>
+    <string name="interaction_loading" tools:ignore="TypographyEllipsis">جار تحميل الطلب...</string>
+    <string name="interaction_memory_disabled">الذاكرة معطلة لهذه المهمة. تستخدم الإجابة في المهمة الحالية فقط.</string>
+    <string name="interaction_question">إجابتك مطلوبة</string>
+    <string name="interaction_remaining">الوقت المتبقي: %1$d ثانية</string>
+    <string name="interaction_remember">تذكر هذه الإجابة</string>
+    <string name="interaction_remember_review">راجع اقتراح الذاكرة وأكده بشكل منفصل بعد الإجابة.</string>
+    <string name="interaction_risk">المخاطر: %1$s</string>
+    <string name="interaction_risk_normal">عادي</string>
+    <string name="interaction_risk_read_only">للقراءة فقط</string>
+    <string name="interaction_risk_sensitive">حساس</string>
     <string name="launcher_connect">الاتصال بـ AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 مثبت لكنه معطل. فعله من إعدادات التطبيقات في النظام ثم عد إلى هنا.</string>
     <string name="launcher_host_incompatible">البناء %1$d من AutoJs6 مثبت, لكن هذا المكون الإضافي يحتاج إلى البناء %2$d أو أحدث. حدث AutoJs6 أولا.</string>

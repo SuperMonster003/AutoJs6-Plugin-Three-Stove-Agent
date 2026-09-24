@@ -8,9 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/24",
       "hint": [
-        "Version de développement: P6.1-P6.4 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.5-P6.7; la fiabilité et les conditions de publication restent en P7/P8."
+        "Version de développement: P6.1-P6.5 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.6-P6.7; la fiabilité et les conditions de publication restent en P7/P8."
       ],
       "feature": [
+        "Confirmation dans les tâches et notifications avec risque, compte à rebours, autorisation par tâche et mémoire des réponses confirmée séparément",
         "Mémoire des préférences avec confirmation de chaque proposition, recherche par portée, protection des conflits, stockage par entrée, modification, suppression et sauvegarde JSON avec approbation individuelle des imports",
         "Préréglages nommés avec création, modification, duplication, suppression et choix par défaut; catalogue des modèles avec localisation et prise en charge du JSON structuré, contexte fixe, restrictions des outils et budgets, confirmation, dossiers approuvés et portée mémoire",
         "Chronologie complète et résultats, filtres par état/préréglage/date, brouillons de relance, suppression, export JSON expurgé et historique privé versionné avec migration et nettoyage LRU (200 tâches / 32 MiB)",

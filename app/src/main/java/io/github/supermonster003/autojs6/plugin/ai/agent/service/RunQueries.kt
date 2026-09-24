@@ -5,7 +5,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 
 /** Read-only private history survives link loss. Both endpoints use the same bounded projections. */
-internal class RunQueries(private val archive: RunArchive) {
+internal class RunQueries(private val archive: RunArchive, private val presentation: Boolean = false) {
     fun list(query: Bundle?): Bundle = answer {
         val value = AgentJson.objectOf(AgentWire.control(query, C.KEY_RUN_REQUEST_JSON))
         ControlRequests.closed(value, setOf("limit", "offset"))
@@ -16,7 +16,7 @@ internal class RunQueries(private val archive: RunArchive) {
     fun get(reference: Bundle?): Bundle = answer {
         val value = AgentJson.objectOf(AgentWire.control(reference, C.KEY_RUN_REF_JSON))
         ControlRequests.closed(value, setOf("runId", "limit"))
-        val row = archive.get(ControlRequests.runId(value), ControlRequests.number(value, "limit", 50, 50).toInt())
+        val row = archive.get(ControlRequests.runId(value), ControlRequests.number(value, "limit", 50, 50).toInt(), presentation)
             ?: throw WireFailure(C.ERROR_RUN_NOT_FOUND)
         row.toString()
     }
