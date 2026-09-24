@@ -305,8 +305,8 @@ class AgentRunner internal constructor(
         val waiting = installInteraction(timeout, tool = prepared, assessment = assessment)
         transition(RunState.WAITING_CONFIRMATION)
         val arguments = journal.redact(gate.arguments(prepared.invocation.arguments, prepared.metadata))
-        // Script parameters are at most 16 KiB. Approval must display every effective parameter.
-        val summary = if (prepared.metadata.script != null) arguments else StepJournal.clipped(arguments, 4096)
+        // Script parameters and memory values are bounded. Approval must display the full proposed change.
+        val summary = if (prepared.metadata.script != null || prepared.metadata.memoryScope != null) arguments else StepJournal.clipped(arguments, 4096)
         emit("confirmation", jsonObject("requestId" to waiting.id.json(), "tool" to spec.name.json(),
             "description" to gate.description(spec, prepared.metadata, options.locale).json(), "risk" to assessment.risk.name.lowercase(Locale.ROOT).json(),
             "arguments" to summary, "allowRunScope" to assessment.allowRunScope.json(), "timeoutMs" to timeout.json()))

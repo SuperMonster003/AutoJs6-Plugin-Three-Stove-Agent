@@ -21,6 +21,11 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.service.PresetEndpoint
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.PresetCodec
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.Preset
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryCodec
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.MemoryCodec
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.MemoryEntry
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IMemoryStore
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IMemoryStoreCallback
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.MemoryEndpoint
 import org.autojs.plugin.ai.agent.api.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import org.autojs.plugin.host.capability.api.*
@@ -77,7 +82,7 @@ class WorkbenchActivityTest {
         override fun dispatch(request: Bundle?, callback: IHostCapabilityCallback?) { error("Fixture must not operate the device") }
         override fun destroy(reason: Bundle?) = Unit
     }
-    private fun withFixture(model: Model = Model(), action: (IAiAgentLink, Model) -> Unit) {
+    private fun withFixture(model: Model = Model(), groups: List<String> = listOf("observe"), action: (IAiAgentLink, Model) -> Unit) {
         val connected = CountDownLatch(1); var plugin: IAiAgentPlugin? = null
         val connection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) { plugin = IAiAgentPlugin.Stub.asInterface(service); connected.countDown() }
@@ -89,7 +94,7 @@ class WorkbenchActivityTest {
         var link: IAiAgentLink? = null
         try {
             assertTrue(connected.await(15, TimeUnit.SECONDS))
-            link = plugin!!.attach(bundle(C.KEY_LINK_CONFIG_JSON, """{"grantSummary":{"toolGroups":["observe"]}}"""), model, capabilities,
+            link = plugin!!.attach(bundle(C.KEY_LINK_CONFIG_JSON, JSONObject().put("grantSummary", JSONObject().put("toolGroups", JSONArray(groups))).toString()), model, capabilities,
                 object : IAiAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
             action(link, model)
         } finally {
@@ -500,6 +505,203 @@ class WorkbenchActivityTest {
                 assertEquals(0, model.calls.get())
             } finally { client.named("delete", key) }
         }
+    }
+    private inner class MemoriesClient : AutoCloseable {
+        private var endpoint: IMemoryStore? = null
+        private val connected = CountDownLatch(1)
+        var usedDescriptor = false
+        private val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { endpoint = IMemoryStore.Stub.asInterface(service); connected.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        init {
+            assertTrue(context.bindService(Intent(context, AgentLocalService::class.java).setAction(MemoryEndpoint.ACTION), connection, Context.BIND_AUTO_CREATE))
+            assertTrue(connected.await(15, TimeUnit.SECONDS))
+        }
+        fun query(operation: String, data: com.google.gson.JsonObject = com.google.gson.JsonObject()): Result<com.google.gson.JsonObject> {
+            data.addProperty("operation", operation)
+            val latch = CountDownLatch(1); var result: Result<com.google.gson.JsonObject>? = null
+            endpoint!!.query(bundle(C.KEY_RUN_REQUEST_JSON, data.toString()), object : IMemoryStoreCallback.Stub() {
+                override fun onResult(response: Bundle) {
+                    result = runCatching {
+                        response.getString(C.KEY_ERROR_CODE)?.let { AgentWire.closeDescriptors(response); error(it) }
+                        usedDescriptor = response.containsKey(C.KEY_PAYLOAD_FD)
+                        AgentWire.take(response, C.KEY_RUN_RESPONSE_JSON, C.KEY_PAYLOAD_FD, 32768, MemoryEndpoint.MAX_RESPONSE_BYTES)
+                            .use { AgentJson.objectOf(it.read(), MemoryEndpoint.MAX_RESPONSE_BYTES) }
+                    }; latch.countDown()
+                }
+            })
+            assertTrue(latch.await(20, TimeUnit.SECONDS)); return checkNotNull(result)
+        }
+        fun rows() = query("list").getOrThrow().getAsJsonArray("entries").map { MemoryCodec.decodeEntry(it.asJsonObject) }
+        fun save(row: MemoryEntry, before: MemoryEntry? = null, imported: Boolean = true) = query("save", jsonObject("entry" to MemoryCodec.entry(row),
+            "before" to (before?.let(MemoryCodec::entry) ?: com.google.gson.JsonNull.INSTANCE), "imported" to imported.json()))
+        fun delete(row: MemoryEntry) = query("delete", jsonObject("entry" to MemoryCodec.entry(row)))
+        override fun close() { context.unbindService(connection) }
+    }
+    @Test fun confirmedMemoryReachesNextTaskAndDeniedLargeProposalRemainsAnObservation() = withFixture(Model(true), listOf("observe", "memory")) { link, model ->
+        MemoriesClient().use { memory -> PresetsClient().use { presets ->
+            val name = "memory-${java.util.UUID.randomUUID()}"; val key = "drink-${java.util.UUID.randomUUID()}"
+            fun run(id: String) = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+            fun proposal(value: String, entryKey: String = key) = jsonObject("kind" to "tool".json(), "tool" to "memory_propose".json(),
+                "arguments" to jsonObject("key" to entryKey.json(), "value" to value.json(), "scope" to name.json())).toString()
+            try {
+                presets.save(Preset(name, memoryScope = "preset")).getOrThrow()
+                ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).putExtra("rerunPreset", name)).use { scenario ->
+                    enter(scenario, "P64 memory fixture")
+                    waitFor("First memory model") { model.calls.get() == 1 && model.held != null }
+                    val id = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")
+                        .first { it.asJsonObject.string("preset") == name }.asJsonObject.string("runId")!!
+                    model.finish(proposal("Hot medium latte fixture"))
+                    waitUi(scenario, "Memory confirmation shown") { it.findViewById<LinearLayout>(R.id.workbench_pending).let { card ->
+                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 2 } }
+                    val pending = run(id).getAsJsonObject("pending")
+                    assertEquals("memory_propose", pending.string("tool")); assertFalse(pending.flag("allowRunScope")!!)
+                    assertEquals(name, pending.getAsJsonObject("arguments").string("scope")); assertTrue(memory.rows().none { it.key == key })
+                    scenario.onActivity { activity -> val card = activity.findViewById<LinearLayout>(R.id.workbench_pending)
+                        (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().first().performClick() }
+                    waitFor("Confirmed memory stored") { model.calls.get() == 2 && model.held != null }
+                    val saved = memory.rows().single { it.key == key }; assertEquals(id, saved.sourceRunId)
+                    assertEquals("Hot medium latte fixture", saved.value); model.finish(completed)
+                    waitFor("First memory task settled") { run(id).string("state") == "completed" }
+                    enter(scenario, "P64 use remembered preference")
+                    waitFor("Next task model") { model.calls.get() == 3 && model.held != null }
+                    assertTrue(model.requests[2].toString().contains("Hot medium latte fixture"))
+                    val second = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")
+                        .first { it.asJsonObject.string("preset") == name && it.asJsonObject.string("runId") != id }.asJsonObject.string("runId")!!
+                    val large = "\u0001".repeat(4096); model.finish(proposal(large, "$key-x"))
+                    waitFor("Full large memory confirmation") { run(second).getAsJsonObject("pending")?.string("tool") == "memory_propose" }
+                    assertEquals(large, run(second).getAsJsonObject("pending").getAsJsonObject("arguments").string("value"))
+                    waitUi(scenario, "Deny large memory") { it.findViewById<LinearLayout>(R.id.workbench_pending).let { card ->
+                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 2 } }
+                    scenario.onActivity { activity -> val card = activity.findViewById<LinearLayout>(R.id.workbench_pending)
+                        (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().last().performClick() }
+                    waitFor("Denial returned to model") { model.calls.get() == 4 && model.held != null }
+                    assertTrue(model.requests[3].toString().contains("USER_DENIED")); assertTrue(memory.rows().none { it.key == "$key-x" })
+                    model.finish(completed); waitFor("Denied proposal run settled") { run(second).string("state") == "completed" }
+                }
+                val disabled = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                    """{"goal":"P64 disabled injection","options":{"preset":"$name","memory":false}}"""), null)).string("runId")!!
+                waitFor("Disabled injection task") { model.calls.get() == 5 && model.held != null }
+                assertFalse(model.requests[4].toString().contains("Hot medium latte fixture")); model.finish(completed)
+                waitFor("Disabled injection task settled") { run(disabled).string("state") == "completed" }
+            } finally { memory.rows().filter { it.scope == name }.forEach { memory.delete(it) }; presets.named("delete", name) }
+        } }
+    }
+    @Test fun memoryImportRequiresEachApprovalAndRestoresPendingReviewWithoutWriting() {
+        MemoriesClient().use { client ->
+            val prefix = "import-${java.util.UUID.randomUUID()}"
+            val first = MemoryEntry(prefix, "Reviewed fixture", "global", java.util.UUID.randomUUID().toString(), 1, 1)
+            val second = first.copy(key = "$prefix-x", value = "Skipped fixture")
+            try {
+                ActivityScenario.launch(MemoryActivity::class.java).use { scenario ->
+                    fun ready(message: String, tag: String) = waitFor(message) { var found = false; scenario.onActivity {
+                        found = it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>(tag)?.isEnabled == true }; found }
+                    ready("Memory loaded", "memory-import")
+                    val input = MemoryCodec.encode(listOf(first, second)).byteInputStream()
+                    scenario.onActivity { it.beginImport(MemoryActivity.readImport(input)) }
+                    ready("First import review", "memory-accept"); assertTrue(client.rows().none { it.key.startsWith(prefix) })
+                    scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("memory-accept").performClick() }
+                    waitFor("One row saved") { client.rows().count { it.key.startsWith(prefix) } == 1 }
+                    ready("Second review", "memory-accept"); instrumentation.waitForIdleSync(); scenario.recreate()
+                    ready("Pending review restored", "memory-skip")
+                    scenario.onActivity { activity ->
+                        assertTrue(texts(activity.findViewById(android.R.id.content)).contains(second.value))
+                        activity.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("memory-skip").performClick()
+                    }
+                    ready("Import finished", "memory-import"); assertTrue(client.rows().none { it.key == second.key })
+                }
+                val output = java.io.ByteArrayOutputStream(); MemoryActivity.writeExport(output, client.query("export").getOrThrow())
+                assertEquals(client.rows().toSet(), MemoryActivity.readImport(output.toByteArray().inputStream()).toSet())
+                assertTrue(runCatching { MemoryActivity.readImport(byteArrayOf(0xc3.toByte(), 0x28).inputStream()) }.isFailure)
+            } finally { client.rows().filter { it.key.startsWith(prefix) }.forEach { client.delete(it) } }
+        }
+    }
+    @Test fun privateMemoryLargeBackupUsesDescriptorAndRejectsStaleManagementWrites() {
+        MemoriesClient().use { client ->
+            val prefix = "large-${java.util.UUID.randomUUID()}"
+            val first = MemoryEntry(prefix, "\u0001".repeat(4096), "global", java.util.UUID.randomUUID().toString(), 1, 1)
+            try {
+                client.save(first).getOrThrow(); client.save(first.copy(key = "$prefix-x")).getOrThrow()
+                val rows = client.rows(); assertTrue(client.usedDescriptor)
+                val saved = rows.single { it.key == prefix }
+                val edited = saved.copy(value = "Updated fixture")
+                client.save(edited, saved, false).getOrThrow()
+                assertTrue(client.save(saved, saved, false).isFailure); assertTrue(client.delete(saved).isFailure)
+                val latest = client.rows().single { it.key == prefix }
+                assertEquals(saved.sourceRunId, latest.sourceRunId); assertEquals(saved.createdAt, latest.createdAt)
+                assertEquals(edited.value, latest.value)
+                assertTrue(client.save(first.copy(key = "$prefix-z", scope = "missing-preset-${java.util.UUID.randomUUID()}")).isFailure)
+            } finally { client.rows().filter { it.key.startsWith(prefix) }.forEach { client.delete(it) } }
+        }
+    }
+    @Test fun memoryEditorPreservesDraftAndRequiresConfirmationForEditsAndDeletion() {
+        MemoriesClient().use { client ->
+            val key = "edit-${java.util.UUID.randomUUID()}"
+            val entry = MemoryEntry(key, "Original fixture", "global", java.util.UUID.randomUUID().toString(), 1, 1)
+            fun acceptDialog() {
+                val automation = instrumentation.uiAutomation; val flags = automation.serviceInfo.flags
+                automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS }
+                try { waitFor("Memory confirmation dialog") {
+                    val node = automation.rootInActiveWindow?.findAccessibilityNodeInfosByViewId("android:id/button1")?.firstOrNull()
+                    node?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
+                } } finally { automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags } }
+            }
+            try {
+                client.save(entry).getOrThrow()
+                ActivityScenario.launch(MemoryActivity::class.java).use { scenario ->
+                    fun ready(message: String, tag: String) = waitFor(message) { var found = false; scenario.onActivity {
+                        found = it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>(tag)?.isEnabled == true }; found }
+                    fun click(tag: String) = scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>(tag).performClick() }
+                    ready("Entry listed", "memory-entry-global:$key"); click("memory-entry-global:$key")
+                    scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<EditText>("memory-value").setText("Draft fixture") }
+                    scenario.recreate(); ready("Editor restored", "memory-value")
+                    scenario.onActivity {
+                        assertEquals("Draft fixture", it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<EditText>("memory-value").text.toString())
+                    }
+                    assertEquals(entry.value, client.rows().single { it.key == key }.value)
+                    click("memory-save"); assertEquals(entry.value, client.rows().single { it.key == key }.value); acceptDialog()
+                    ready("Saved entry listed", "memory-entry-global:$key")
+                    assertEquals("Draft fixture", client.rows().single { it.key == key }.value)
+                    click("memory-entry-global:$key"); click("memory-delete")
+                    assertTrue(client.rows().any { it.key == key }); acceptDialog()
+                    ready("Deletion completed", "memory-import"); assertTrue(client.rows().none { it.key == key })
+                }
+            } finally { client.rows().filter { it.key == key }.forEach { client.delete(it) } }
+        }
+    }
+    @Test fun memoryManagementUsesArabicNightAppearanceWithinScrollableWidth() {
+        val original = HostAppearance.cached
+        val release = CountDownLatch(1); val entered = CountDownLatch(1)
+        // Hold only the host-appearance refresh; memory IPC and rendering remain real.
+        HostAppearance.worker.execute { entered.countDown(); release.await(30, TimeUnit.SECONDS) }
+        assertTrue(entered.await(15, TimeUnit.SECONDS))
+        HostAppearance.cached = HostAppearance("ar", true, 0xff334455.toInt(), 0xffeeddcc.toInt())
+        try {
+            ActivityScenario.launch(MemoryActivity::class.java).use { scenario ->
+                waitFor("Arabic memory management loaded") { var loaded = false; scenario.onActivity { activity ->
+                    val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                    loaded = root.findViewWithTag<Button>("memory-import")?.isLaidOut == true
+                }; loaded }
+                scenario.onActivity { activity ->
+                    val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                    assertEquals("ar", activity.resources.configuration.locales[0].language)
+                    assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_YES, activity.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                    assertEquals(View.LAYOUT_DIRECTION_RTL, (root.getChildAt(0) as ScrollView).getChildAt(0).layoutDirection)
+                    for (tag in listOf("memory-refresh", "memory-export", "memory-import")) {
+                        val view = root.findViewWithTag<Button>(tag)
+                        assertTrue(view.width in 1..root.width); assertTrue(view.height > 0)
+                    }
+                }
+                instrumentation.waitForIdleSync()
+                // The screenshot is a visual artifact; allow the platform's entry animation to finish.
+                SystemClock.sleep(500)
+                instrumentation.uiAutomation.takeScreenshot()?.let { bitmap ->
+                    java.io.File(context.cacheDir, "p64-memory-rtl.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                    bitmap.recycle()
+                }
+            }
+        } finally { HostAppearance.cached = original; release.countDown() }
     }
     private fun texts(view: View): List<String> = when (view) {
         is TextView -> listOf(view.text.toString())

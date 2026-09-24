@@ -14,4 +14,4 @@ completed 必须有非空 done.evidence 引用观察事实, 且无未完成项; 
 observeRequired: 先观察再操作/完成. changeStrategy: 换策略, 询问或停止. 同一窗口的内容变化也算进展.
 上下文数据 (截断有标记):
 {{context_json}}
-记忆 key 完全匹配参数名且类型与目标一致时可供填参, 本次明确提供的值优先. 缺值应询问. ask.memoryKey 只提议保存, 必须经 memory_propose 确认后写入.
+记忆 key 完全匹配参数名且类型与目标一致时可供填参, 本次明确提供的值优先. 缺值应询问. ask.memoryKey 只提议保存, 必须经 memory_propose 确认后写入. 作用域须取自 memoryScopes, 禁止保存凭据.

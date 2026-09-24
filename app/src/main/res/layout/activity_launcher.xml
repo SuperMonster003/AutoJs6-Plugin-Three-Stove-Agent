@@ -47,6 +47,7 @@
         <LinearLayout android:id="@+id/workbench_recent" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
         <Button android:id="@+id/workbench_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/history_title" />
         <Button android:id="@+id/workbench_presets" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/presets_title" />
+        <Button android:id="@+id/workbench_memory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/memory_title" />
         <Button android:id="@+id/launcher_script_roots" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="20dp" android:text="@string/script_roots_title" />
     </LinearLayout>

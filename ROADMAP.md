@@ -523,8 +523,10 @@ P6.3 证据: `docs/dev/p63-presets-evidence-2026-09-24.md`. 私有版本化原�
 
 ### P6.4 记忆
 
-- [ ] (插件) `MemoryActivity` + `MemoryStore` (D29): 条目 `{ key, value, scope, sourceRunId, createdAt, updatedAt }`, 上限 500 条 / 256 KiB, 查看 / 编辑 / 删除 / 导出 / 导入 (JSON, 导入时逐条确认); 工具 `memory_get(keys?)` (只读) 与 `memory_propose(key, value, scope?)` (生成 `confirmation` 事件, 用户确认后写入; 拒绝作为观察回送); 系统提示注入当前作用域的条目 (上限 4 KiB, 超出按更新时间截断).
-- [ ] (测试) JVM: `MemoryCodecTest`, 作用域过滤, 注入截断; instrumentation: 任务中的 `memory_propose` 确认 -> 下一任务命中.
+- [x] (插件) `MemoryActivity` + `MemoryStore` (D29): 条目 `{ key, value, scope, sourceRunId, createdAt, updatedAt }`, 上限 500 条 / 256 KiB, 查看 / 编辑 / 删除 / 导出 / 导入 (JSON, 导入时逐条确认); 工具 `memory_get(keys?)` (只读) 与 `memory_propose(key, value, scope?)` (生成 `confirmation` 事件, 用户确认后写入; 拒绝作为观察回送); 系统提示注入当前作用域的条目 (上限 4 KiB, 超出按更新时间截断).
+- [x] (测试) JVM: `MemoryCodecTest`, 作用域过滤, 注入截断; instrumentation: 任务中的 `memory_propose` 确认 -> 下一任务命中.
+
+P6.4 证据: `docs/dev/p64-memory-evidence-2026-09-24.md`. 私有单条原子存储, 旧快照迁移, 写入冲突保护, 完整提议确认与拒绝观察已接通. JVM 430 项, API 37/28 instrumentation 各 50 项; 系统文件选择器验证逐条导入与 JSON 导出, 进程重启后保留已确认条目. memory: false 仅关闭自动注入, 查询/提议还受 memory 工具组与预设范围约束. "记住此答案" 复选框与后台确认入口仍属原 P6.5.
 
 ### P6.5 确认与询问的承接
 
@@ -1297,3 +1299,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - JVM 411 项, AVD API 37 / Sony G8441 API 28 全量 instrumentation 各 45 项通过. 覆盖真实预设 UI/重建/启动, 默认选择, 排队后编辑删除, 大上下文 FD 读取和失效目标. 真实宿主目录可显示 Gemma 本地与 Model8 在线目标; 空闲宿主冻结后的不可用通过重新连接恢复, 不宣称修复了该后台生命周期限制. debug/androidTest/release R8/lint 与 10 语言 36 产物检查通过. 详见 `docs/dev/p63-presets-evidence-2026-09-24.md`.
 - 官方文档 `85f46af` / project code 76 更新预设语义并重新生成; 离线文档 `4941418` / build 57 同步精确来源, debug/release 内容清单核验通过 (199 文件 / 11587454 字节). TypeScript/Ace 的既有签名无需改动, 用户原有改动保留. 宿主保持 aeed8edcb9 / 5293, 未触碰 Rhino 同步.
 - 插件本次 build 56 对齐提交计数. 未新增购物或付款, 未推送/发布. 下一起点为原 P6.4 记忆, 固定快捷方式仍属于 P6.7; P7/P8 gate 尚未通过. 当前无需用户提供额外资料, 设备或手动操作.
+
+### 2026-09-24 (P6.4 记忆)
+
+- 完成原 P6.4 的实现与测试条目, 未增加/分拆/丢弃阶段. 记忆页支持作用域筛选, 查看来源与时间, 编辑/删除确认, JSON 导入逐条审阅确认和可还原的导出. 私有存储最多 500 条 / 256 KiB, 按条目原子写入, 迁移旧快照并保留损坏文件; 旧确认不能覆盖并发更新.
+- memory_get 与 memory_propose 沿用既有工具目录, 限当前预设允许的 global/当前预设范围. 每条提议单独确认, 完整展示有效作用域与值, 拒绝回送 USER_DENIED. 下一任务最多注入 4 KiB 最新完整条目, 当前预设同名 key 优先. memory: false 仅关闭自动注入, 要同时禁止查询/提议需关闭 memory 工具组或预设记忆范围. 识别到凭据键名/令牌格式时拒绝保存, 不宣称可识别所有伪装秘密.
+- JVM 430 项, AVD API 37 / Sony G8441 API 28 instrumentation 各 50 项通过. 覆盖确认后下一任务读取, 大参数拒绝, 导入重建/跳过, 编辑草稿/确认/删除, FD 大响应, 冲突及冷启动迁移. 系统文件选择器实际完成两条导入中的一条, 导出 204 字节并核验; 进程强制结束后条目仍保留, 最后清理夹具. 验证大字体和阿拉伯语 RTL/夜间显示. 详见 `docs/dev/p64-memory-evidence-2026-09-24.md`.
+- debug/androidTest/release R8/lint 与 10 语言 36 产物检查通过, lint 保持原有 6 项警告. 文档 `8155a4f` / project code 77 与离线文档 `0cb1d42` / build 58 同步记忆语义, 两种离线 APK 内容清单验证通过 (199 文件 / 11591728 字节). TypeScript/Ace 签名不变且保留用户既有改动. 宿主保持 aeed8edcb9 / 5293, 未改 Rhino 同步成果.
+- 插件本次 build 57 对齐提交计数. 未新增购物/付款或真实模型推理验收, 未推送/发布. 下一起点为原 P6.5 确认与询问, 包括 "记住此答案" 与后台入口. P6.6/P6.7 与 P7/P8 保持原位置. 当前无需用户提供额外资料, 设备或手动操作.

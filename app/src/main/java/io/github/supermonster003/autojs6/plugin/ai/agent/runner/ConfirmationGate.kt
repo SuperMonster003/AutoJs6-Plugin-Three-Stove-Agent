@@ -16,6 +16,7 @@ data class ToolMetadata(
     val scriptTimeoutMs: Long? = null,
     val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.PreparedScript? = null,
     val actionIdentity: String? = null,
+    val memoryScope: String? = null,
 ) {
     init { require(scriptTimeoutMs == null || scriptTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS) }
 }
@@ -48,6 +49,7 @@ class ConfirmationGate(private val policy: ToolPolicy, private val mode: Confirm
         return spec.description(language) + if (target.isEmpty()) "" else " [${target.replace('\n', ' ')}]"
     }
     fun arguments(arguments: JsonObject, metadata: ToolMetadata): JsonObject = (metadata.script?.arguments() ?: arguments.deepCopy()).apply {
+        metadata.memoryScope?.let { addProperty("scope", it) }
         if (metadata.passwordField && has("text")) addProperty("text", "***")
     }
 }

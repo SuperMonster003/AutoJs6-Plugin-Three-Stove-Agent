@@ -103,6 +103,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val stopped = AtomicBoolean()
         val selecting = AtomicReference<Cancellation>(Cancellation.NONE)
         val catalogLoading = AtomicReference<Cancellation>(Cancellation.NONE)
+        val memoryLoading = AtomicReference<Cancellation>(Cancellation.NONE)
         fun finish(value: PortResult<RunComponents>) { if (!stopped.get()) complete(value) }
         val foreground = AiAgentTaskForegroundService.ensure(runtime.context) { promoted ->
         if (!promoted) { finish(PortResult.Failure(RunError.CAPABILITY_DENIED)); return@ensure }
@@ -132,8 +133,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                     policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
-                val memory = runtime.memories.snapshot(request.preset, request.memory, request.memoryScope)
-                val executionTools = ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset))
+                val executionTools = MemoryTools(runtime.memories, request.preset, request.memoryScope, runId, { state == C.LINK_STATE_ATTACHED },
+                    ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset)))
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
                     when (outcome) {
@@ -157,12 +158,21 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                             val format = client.initialFormat(request.options.format)
                             fun compiled(presentation: ScriptPresentation?) {
                                 if (stopped.get()) return
-                                try { finish(PortResult.Success(RunComponents(
-                                    ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
-                                        ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
-                                        memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
-                                        memoryUnavailable = memory.unavailable), client, executionTools, selected.maximumTokens, policy))) }
-                                catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
+                                val memoryCall = runtime.memories.snapshot(request.preset, request.memory, request.memoryScope) { memory ->
+                                    if (stopped.get()) return@snapshot
+                                    try { finish(PortResult.Success(RunComponents(
+                                        ContextCompiler(runtime.prompts, runtime.catalog, policy, target, format,
+                                            ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
+                                            memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
+                                            memoryUnavailable = memory.unavailable, memoryScopes = if ("memory" !in request.groups) emptyList() else when (request.memoryScope) {
+                                                "global_and_preset" -> listOf("global", request.preset)
+                                                "global" -> listOf("global")
+                                                "preset" -> listOf(request.preset)
+                                                else -> emptyList()
+                                            }), client, executionTools, selected.maximumTokens, policy))) }
+                                    catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
+                                }
+                                memoryLoading.set(memoryCall); if (stopped.get()) memoryCall.cancel()
                             }
                             if (!policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))) compiled(null)
                             else {
@@ -182,7 +192,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         } } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         }
-        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel() }
+        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel(); memoryLoading.get().cancel() }
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
         val configuration = config

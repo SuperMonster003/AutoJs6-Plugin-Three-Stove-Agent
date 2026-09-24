@@ -20,9 +20,9 @@ internal class AgentRuntime private constructor(val context: Context) {
     val runnerText = asset("runner/texts.json")
     private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json", "catalog/order-intent-keywords.json").associateWith(::asset)
     fun policy(groups: Set<String>) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
-        ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run")
+        ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run" + MemoryTools.NAMES)
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
-    val memories = PrivateMemorySource(File(context.filesDir, "agent-memory.json"))
+    val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json")) }
     @Volatile var current: HostLink? = null; private set
     fun taskChanged() = AiAgentTaskForegroundService.changed()

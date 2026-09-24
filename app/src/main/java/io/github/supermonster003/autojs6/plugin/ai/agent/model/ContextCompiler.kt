@@ -26,6 +26,7 @@ class ContextCompiler(
     private val limits: ContextLimits = ContextLimits(),
     private val fixedContext: String = "", memories: JsonArray = JsonArray(), private val scripts: ScriptPresentation? = null,
     private val memoryTruncated: Boolean = false, private val memoryUnavailable: Boolean = false,
+    private val memoryScopes: List<String>? = null,
 ) : RunContextCompiler {
     private val memories = AgentJson.parse(memories.toString(), 4096).asJsonArray
     private val local = target.locality == ModelLocality.ON_DEVICE
@@ -67,7 +68,7 @@ class ContextCompiler(
             val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
             val messages = jsonArray(message("system", prompts.system(language, policy, format,
                 AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
-                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance)), message("user", goal))
+                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes)), message("user", goal))
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach { add(summary(it)) } })))
             for (record in history.takeLast(retained)) {
                 val decision = record.getAsJsonObject("decision")?.deepCopy()

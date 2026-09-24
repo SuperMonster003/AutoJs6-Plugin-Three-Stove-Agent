@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: P6.1-P6.3 provide the workbench, task history and named presets. The ai.agent API requires AutoJs6 build 5293 or later. Memory management and the remaining interfaces continue in P6.4-P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: P6.1-P6.4 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.5-P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -116,8 +116,9 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
 5. Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
 6. Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Choose a model from the host catalog, or keep automatic selection. A missing selected model fails without switching targets. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately.
+7. Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
 
-> Development preview: P6.1-P6.3 provide the workbench, task history and named presets. The ai.agent API requires AutoJs6 build 5293 or later. Memory management and the remaining interfaces continue in P6.4-P6.7; reliability and release gates remain in P7/P8.
+> Development preview: P6.1-P6.4 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.5-P6.7; reliability and release gates remain in P7/P8.
 
 ******
 
@@ -177,7 +178,8 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/24_
 
-- `Hint` Development preview: P6.1-P6.3 provide the workbench, task history and named presets. The ai.agent API requires AutoJs6 build 5293 or later. Memory management and the remaining interfaces continue in P6.4-P6.7; reliability and release gates remain in P7/P8.
+- `Hint` Development preview: P6.1-P6.4 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.5-P6.7; reliability and release gates remain in P7/P8.
+- `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
 - `Feature` Named presets with creation, editing, copying, deletion and default selection; host model catalog labels for locality and structured JSON, fixed context, narrower tool groups and budgets, confirmation policy, approved script folders and memory scope
 - `Feature` Full task timelines and results, status/preset/date filters, rerun drafts, deletion, redacted JSON export, and versioned private history with migration and LRU cleanup at 200 tasks / 32 MiB
 - `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected

@@ -31,9 +31,11 @@ class AgentLocalService : Service() {
     }
     private val history by lazy { HistoryEndpoint(runtime.archive, cacheDir, runtime.catalog.tools.map { it.name }.toSet()) }
     private val presets by lazy { PresetEndpoint(runtime, cacheDir) }
+    private val memory by lazy { MemoryEndpoint(runtime, cacheDir) }
     override fun onBind(intent: Intent?): IBinder = when (intent?.action) {
         HistoryEndpoint.ACTION -> history
         PresetEndpoint.ACTION -> presets
+        MemoryEndpoint.ACTION -> memory
         else -> binder
     }
 }

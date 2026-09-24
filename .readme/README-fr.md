@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-Aperçu de développement: P6.1-P6.3 proposent les tâches, leur historique et les préréglages nommés. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La gestion de la mémoire et les autres interfaces suivent en P6.4-P6.7; les validations de fiabilité et de publication restent en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Version de développement: P6.1-P6.4 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.5-P6.7; la fiabilité et les conditions de publication restent en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -116,8 +116,9 @@ Aperçu de développement: scripts enregistrés, actions écran et API de tâche
 4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
 5. 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
 6. Ouvrez les préréglages depuis les tâches pour enregistrer une configuration. Les noms identifient les scripts et les portées mémoire; dupliquez pour utiliser un autre nom. Le préréglage intégré default peut être modifié mais pas supprimé. Choisissez un modèle du catalogue de l'hôte ou la sélection automatique. Un modèle choisi indisponible provoque un échec sans substitution. Les options de tâche peuvent seulement réduire les limites du préréglage. Les contextes fixe et de tâche partagent 8 KiB. La mémoire peut inclure les entrées globales et celles du préréglage, un seul ensemble, ou aucun. Modifier ou supprimer un préréglage ne change pas les tâches en attente. Stockage privé: 32 préréglages / 1 MiB maximum.
+7. Ouvrez Mémoire pour consulter, modifier, supprimer ou sauvegarder les préférences. Limites: 500 entrées / 256 KiB, avec portée, tâche source et dates. Confirmez chaque memory_propose et chaque entrée importée. Créez d'abord les préréglages manquants. L'injection automatique conserve les entrées complètes les plus récentes de la portée autorisée, jusqu'à 4 KiB; le préréglage courant prime sur une clé globale identique. memory: false désactive uniquement l'injection. Désactivez aussi le groupe memory ou la portée pour bloquer recherches et propositions. L'export contient les valeurs réelles et leur origine. Ne stockez pas de secrets; les clés et formats de jetons reconnaissables sont refusés.
 
-> Aperçu de développement: P6.1-P6.3 proposent les tâches, leur historique et les préréglages nommés. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La gestion de la mémoire et les autres interfaces suivent en P6.4-P6.7; les validations de fiabilité et de publication restent en P7/P8.
+> Version de développement: P6.1-P6.4 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.5-P6.7; la fiabilité et les conditions de publication restent en P7/P8.
 
 ******
 
@@ -177,7 +178,8 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/24_
 
-- `Note` Aperçu de développement: P6.1-P6.3 proposent les tâches, leur historique et les préréglages nommés. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La gestion de la mémoire et les autres interfaces suivent en P6.4-P6.7; les validations de fiabilité et de publication restent en P7/P8.
+- `Note` Version de développement: P6.1-P6.4 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.5-P6.7; la fiabilité et les conditions de publication restent en P7/P8.
+- `Fonctionnalité` Mémoire des préférences avec confirmation de chaque proposition, recherche par portée, protection des conflits, stockage par entrée, modification, suppression et sauvegarde JSON avec approbation individuelle des imports
 - `Fonctionnalité` Préréglages nommés avec création, modification, duplication, suppression et choix par défaut; catalogue des modèles avec localisation et prise en charge du JSON structuré, contexte fixe, restrictions des outils et budgets, confirmation, dossiers approuvés et portée mémoire
 - `Fonctionnalité` Chronologie complète et résultats, filtres par état/préréglage/date, brouillons de relance, suppression, export JSON expurgé et historique privé versionné avec migration et nettoyage LRU (200 tâches / 32 MiB)
 - `Fonctionnalité` Tableau des tâches avec lancement commun, apparence de l'hôte, interactions intégrées, budgets et 20 tâches récentes consultables hors connexion

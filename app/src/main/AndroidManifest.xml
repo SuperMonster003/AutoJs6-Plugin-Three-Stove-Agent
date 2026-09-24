@@ -66,6 +66,7 @@
         <activity android:name=".ui.RunDetailActivity" android:exported="false" />
         <activity android:name=".ui.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.PresetsActivity" android:exported="false" />
+        <activity android:name=".ui.MemoryActivity" android:exported="false" />
 
         <service
             android:name=".AiAgentTaskForegroundService"

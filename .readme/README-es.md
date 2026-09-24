@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa: P6.1-P6.4 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.5-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -116,8 +116,9 @@ Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de t
 4. Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
 5. Hasta 200 tareas / 32 MiB. Se eliminan primero las tareas terminadas consultadas hace más tiempo. Repetir rellena el objetivo y preajuste originales en el panel. Revísalos y pulsa Iniciar tarea para ejecutarla. Vaciar el historial conserva las tareas en curso. Se conservan contadores, nombres de herramientas y confirmaciones. Se eliminan objetivos, parámetros, observaciones y resultados de scripts. Elige dónde guardar el archivo.
 6. Abra Preajustes en el panel para guardar una configuración. Los nombres identifican scripts y ámbitos de memoria; copie el preajuste para usar otro nombre. El default integrado se puede editar pero no eliminar. Elija un modelo del catálogo del host o la selección automática. Un modelo elegido no disponible falla sin sustituirse. Las opciones de tarea solo pueden reducir los límites del preajuste. El contexto fijo y el de la tarea comparten un límite de 8 KiB. La memoria puede incluir entradas globales y del preajuste, solo uno de los dos ámbitos, o ninguno. Editar o eliminar no cambia las tareas en cola. Almacenamiento privado: hasta 32 preajustes / 1 MiB.
+7. Abra Memoria para consultar, editar, eliminar o respaldar preferencias. Hasta 500 entradas / 256 KiB, con ámbito, tarea de origen y fechas. Confirme cada memory_propose y cada entrada importada. Cree primero los preajustes que falten. La inyección automática conserva entradas completas recientes del ámbito permitido, hasta 4 KiB; el preajuste actual prevalece sobre claves globales iguales. memory: false solo desactiva la inyección. Desactive el grupo memory o el ámbito para impedir también consultas y propuestas. La exportación incluye valores reales y procedencia. No almacene credenciales; se rechazan claves y formatos de token reconocibles.
 
-> Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8.
+> Vista previa: P6.1-P6.4 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.5-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8.
 
 ******
 
@@ -177,7 +178,8 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/24_
 
-- `Aviso` Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8.
+- `Aviso` Vista previa: P6.1-P6.4 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.5-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8.
+- `Función` Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar
 - `Función` Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria
 - `Función` Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)
 - `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión

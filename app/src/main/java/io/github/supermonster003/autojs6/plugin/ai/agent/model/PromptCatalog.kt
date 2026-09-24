@@ -16,7 +16,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     fun system(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
                memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
                compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null, memoryUnavailable: Boolean = false,
-               guidance: JsonObject = JsonObject()): String {
+               guidance: JsonObject = JsonObject(), memoryScopes: List<String>? = null): String {
         bounded(fixedContext, 8 * 1024)
         // P3.2 supplies global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
@@ -28,6 +28,10 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                 "memoryTruncated" to memoryTruncated.json()).apply {
                     if (contextTruncated) addProperty("contextTruncated", true)
                     if (memoryUnavailable) addProperty("memoryUnavailable", true)
+                    memoryScopes?.let { scopes ->
+                        require(scopes.size <= 2); scopes.forEach { io.github.supermonster003.autojs6.plugin.ai.agent.store.MemoryCodec.scope(it) }
+                        add("memoryScopes", JsonArray().apply { scopes.forEach(::add) })
+                    }
                 }.toString(),
         ))
         return if (registeredScripts == null) system else {

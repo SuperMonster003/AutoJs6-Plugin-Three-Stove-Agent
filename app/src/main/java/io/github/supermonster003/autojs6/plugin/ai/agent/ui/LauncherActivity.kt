@@ -78,6 +78,7 @@ class LauncherActivity : HostAppearanceActivity() {
         findViewById<Button>(R.id.workbench_details).setOnClickListener { currentId?.let(::openDetail) }
         findViewById<Button>(R.id.workbench_history).setOnClickListener { startActivity(Intent(this, HistoryActivity::class.java)) }
         findViewById<Button>(R.id.workbench_presets).setOnClickListener { startActivity(Intent(this, PresetsActivity::class.java)) }
+        findViewById<Button>(R.id.workbench_memory).setOnClickListener { startActivity(Intent(this, MemoryActivity::class.java)) }
         findViewById<Button>(R.id.launcher_script_roots).setOnClickListener { startActivity(Intent(this, ScriptRootsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_connect).setOnClickListener { requested = false; requestAttachment() }
         findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
