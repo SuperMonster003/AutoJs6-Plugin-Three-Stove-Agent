@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-Aperçu de développement: saisie des objectifs, progression, réponses intégrées et détails des tâches récentes sont disponibles. API ai.agent: AutoJs6 build 5293 ou ultérieur. Gestion de l'historique, préréglages personnalisés et autres entrées restent en P6; validation de robustesse en P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Aperçu de développement: le tableau de tâches P6.1 et l'historique P6.2 sont disponibles. L'API ai.agent exige AutoJs6 build 5293 ou ultérieur. Les préréglages personnalisés et autres interfaces suivent en P6.3-P6.7; la fiabilité et la publication restent en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -114,8 +114,9 @@ Aperçu de développement: scripts enregistrés, actions écran et API de tâche
 2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
 3. Ouvrez AI Agent, connectez AutoJs6, saisissez un objectif et démarrez avec le préréglage par défaut. Répondez dans la carte et consultez les détails des tâches récentes.
 4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
+5. 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
 
-> Aperçu de développement: saisie des objectifs, progression, réponses intégrées et détails des tâches récentes sont disponibles. API ai.agent: AutoJs6 build 5293 ou ultérieur. Gestion de l'historique, préréglages personnalisés et autres entrées restent en P6; validation de robustesse en P7.
+> Aperçu de développement: le tableau de tâches P6.1 et l'historique P6.2 sont disponibles. L'API ai.agent exige AutoJs6 build 5293 ou ultérieur. Les préréglages personnalisés et autres interfaces suivent en P6.3-P6.7; la fiabilité et la publication restent en P7/P8.
 
 ******
 
@@ -175,7 +176,8 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/24_
 
-- `Note` Aperçu de développement: saisie des objectifs, progression, réponses intégrées et détails des tâches récentes sont disponibles. API ai.agent: AutoJs6 build 5293 ou ultérieur. Gestion de l'historique, préréglages personnalisés et autres entrées restent en P6; validation de robustesse en P7.
+- `Note` Aperçu de développement: le tableau de tâches P6.1 et l'historique P6.2 sont disponibles. L'API ai.agent exige AutoJs6 build 5293 ou ultérieur. Les préréglages personnalisés et autres interfaces suivent en P6.3-P6.7; la fiabilité et la publication restent en P7/P8.
+- `Fonctionnalité` Chronologie complète et résultats, filtres par état/préréglage/date, brouillons de relance, suppression, export JSON expurgé et historique privé versionné avec migration et nettoyage LRU (200 tâches / 32 MiB)
 - `Fonctionnalité` Tableau des tâches avec lancement commun, apparence de l'hôte, interactions intégrées, budgets et 20 tâches récentes consultables hors connexion
 - `Fonctionnalité` La fin de tâche exige des preuves, les résultats partiels listent le travail restant et les commandes ou paiements exigent un état de commande observé
 - `Fonctionnalité` La vérification conserve le compteur d'écrans inchangés après réduction du contexte et bloque la troisième demande d'action équivalente avant exécution

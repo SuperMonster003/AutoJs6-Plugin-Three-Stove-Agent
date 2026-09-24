@@ -1,6 +1,6 @@
 AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-Aperçu de développement: saisie des objectifs, progression, réponses intégrées et détails des tâches récentes sont disponibles. API ai.agent: AutoJs6 build 5293 ou ultérieur. Gestion de l'historique, préréglages personnalisés et autres entrées restent en P6; validation de robustesse en P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Aperçu de développement: le tableau de tâches P6.1 et l'historique P6.2 sont disponibles. L'API ai.agent exige AutoJs6 build 5293 ou ultérieur. Les préréglages personnalisés et autres interfaces suivent en P6.3-P6.7; la fiabilité et la publication restent en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### Utilisation
 
@@ -8,5 +8,6 @@ Aperçu de développement: saisie des objectifs, progression, réponses intégr�
 2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
 3. Ouvrez AI Agent, connectez AutoJs6, saisissez un objectif et démarrez avec le préréglage par défaut. Répondez dans la carte et consultez les détails des tâches récentes.
 4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
+5. 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
 
 Consultez le [README du projet](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) et [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour le guide de connexion et l'avancement actuel.

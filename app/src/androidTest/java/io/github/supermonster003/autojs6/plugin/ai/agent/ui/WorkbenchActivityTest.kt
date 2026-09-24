@@ -11,6 +11,11 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentWire
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.RunArchive
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistory
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistoryCallback
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.HistoryEndpoint
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentLocalService
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryCodec
 import org.autojs.plugin.ai.agent.api.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import org.autojs.plugin.host.capability.api.*
@@ -50,7 +55,8 @@ class WorkbenchActivityTest {
             if (calls.incrementAndGet() > 1 && !holdEveryCall) finish(completed)
         }
         fun finish(text: String) { val (id, callback) = checkNotNull(held); held = null
-            emit(callback, id, "completed", 2, JSONObject().put("text", text).put("targetId", "workbench:fixture").put("finishReason", 0)) }
+            emit(callback, id, "usage", 2, JSONObject().put("usage", JSONObject().put("inputTokens", 1).put("outputTokens", 1).put("totalTokens", 2)))
+            emit(callback, id, "completed", 3, JSONObject().put("text", text).put("targetId", "workbench:fixture").put("finishReason", 0)) }
         override fun cancel(reference: Bundle?) = Unit
         override fun destroy(reason: Bundle?) = Unit
     }
@@ -133,6 +139,85 @@ class WorkbenchActivityTest {
             assertEquals(1, model.calls.get())
         }
     }
+    @Test fun fullHistoryCrossesBinderReplaysExportsAndRerunsWithoutExecuting() = withFixture(Model(true)) { link, model ->
+        val started = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+            """{"goal":"History acceptance fixture","options":{"interaction":"plugin"}}"""), null))
+        val id = started.string("runId")!!
+        val privateText = "Private fixture address 13800123456 " + "a".repeat(3400)
+        val connected = CountDownLatch(1); var endpoint: IRunHistory? = null
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { endpoint = IRunHistory.Stub.asInterface(service); connected.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        assertTrue(context.bindService(Intent(context, AgentLocalService::class.java).setAction(HistoryEndpoint.ACTION), connection, Context.BIND_AUTO_CREATE))
+        fun query(operation: String): com.google.gson.JsonObject {
+            val latch = CountDownLatch(1); var value: com.google.gson.JsonObject? = null; var failure: Throwable? = null
+            endpoint!!.query(bundle(C.KEY_RUN_REQUEST_JSON, jsonObject("operation" to operation.json(), "runId" to id.json()).toString()), object : IRunHistoryCallback.Stub() {
+                override fun onResult(response: Bundle) {
+                    try {
+                        assertNull(response.getString(C.KEY_ERROR_CODE))
+                        if (operation == "get") assertTrue("Large history uses a descriptor", response.containsKey(C.KEY_PAYLOAD_FD))
+                        value = AgentWire.take(response, C.KEY_RUN_RESPONSE_JSON, C.KEY_PAYLOAD_FD, 32768, RunHistoryCodec.MAX_BYTES).use { AgentJson.objectOf(it.read(), RunHistoryCodec.MAX_BYTES, 131072) }
+                    } catch (t: Throwable) { failure = t } finally { latch.countDown() }
+                }
+            })
+            assertTrue(latch.await(15, TimeUnit.SECONDS)); failure?.let { throw it }; return value!!
+        }
+        try {
+            assertTrue(connected.await(15, TimeUnit.SECONDS))
+            for (step in 1..12) {
+                waitFor("Model call $step") { model.calls.get() == step && model.held != null }
+                model.finish("""{"kind":"ask","ask":{"kind":"text","question":"History question $step?"}}""")
+                var pending: com.google.gson.JsonObject? = null
+                waitFor("Question $step") {
+                    pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
+                    pending?.flag("submitted") != true && pending?.string("question") == "History question $step?"
+                }
+                AgentConnection.decode(link.respond(bundle(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to id.json(), "requestId" to pending!!.string("requestId")!!.json(), "value" to privateText.json()).toString())))
+            }
+            waitFor("Final model call") { model.calls.get() == 13 && model.held != null }; model.finish(completed)
+            waitFor("Settled") { AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).string("state") == "completed" }
+            val full = query("get"); assertEquals(13, full.getAsJsonArray("steps").size())
+            val projected = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+            assertTrue(projected.flag("truncated") == true)
+            ActivityScenario.launch<RunDetailActivity>(Intent(context, RunDetailActivity::class.java).putExtra("runId", id)).use { detail ->
+                waitFor("Full timeline rendered") { var found = false; detail.onActivity {
+                    val all = texts(it.findViewById(android.R.id.content))
+                    found = all.any { text -> text.contains("History question 1?") } && all.contains("Workbench fixture complete")
+                }; found }
+                detail.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("observation-1").performClick() }
+                detail.recreate()
+                waitFor("Expanded observation survives recreation") { var found = false; detail.onActivity {
+                    found = texts(it.findViewById(android.R.id.content)).any { text -> text.contains(privateText) }
+                }; found }
+                val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
+                try {
+                    detail.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("rerun").performClick() }
+                    val launcher = instrumentation.waitForMonitorWithTimeout(monitor, 10000) as LauncherActivity
+                    instrumentation.runOnMainSync {
+                        assertEquals("History acceptance fixture", launcher.findViewById<EditText>(R.id.workbench_goal).text.toString())
+                        launcher.finish()
+                    }
+                    assertEquals(13, model.calls.get())
+                } finally { instrumentation.removeMonitor(monitor) }
+            }
+            val file = java.io.File.createTempFile("p62-export-", ".json", context.cacheDir)
+            try {
+                file.outputStream().use { RunDetailActivity.writeExport(it, query("export")) }
+                assertTrue(file.length() > 0)
+                val text = file.readText(); assertTrue(text.contains("\"redacted\": true")); assertFalse(text.contains("13800123456"))
+            } finally { file.delete() }
+            ActivityScenario.launch(HistoryActivity::class.java).use { history ->
+                waitFor("History entry") { var found = false; history.onActivity {
+                    found = texts(it.findViewById(android.R.id.content)).any { text -> text.contains("History acceptance fixture") }
+                }; found }
+                history.recreate()
+            }
+            query("delete")
+            val missing = link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))
+            assertEquals(C.ERROR_RUN_NOT_FOUND, missing.getString(C.KEY_ERROR_CODE))
+        } finally { context.unbindService(connection) }
+    }
     @Test fun missingHostGuidanceDisablesTaskAdmissionAndPreservesDraft() = withFixture { _, _ ->
         ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
             scenario.onActivity { it.hostReader = { null }; it.findViewById<EditText>(R.id.workbench_goal).setText("Draft only") }
@@ -142,6 +227,19 @@ class WorkbenchActivityTest {
             }
             scenario.recreate()
             scenario.onActivity { assertEquals("Draft only", it.findViewById<EditText>(R.id.workbench_goal).text.toString()) }
+        }
+    }
+    @Test fun removedRerunPresetDoesNotSilentlySelectDefault() = withFixture { _, model ->
+        ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java)
+            .putExtra("rerunGoal", "Only prepare this draft").putExtra("rerunPreset", "removed-preset")).use { scenario ->
+            waitUi(scenario, "Missing preset preserved") {
+                it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == "removed-preset" &&
+                    it.findViewById<TextView>(R.id.workbench_error).text == it.getString(R.string.history_preset_unavailable)
+            }
+            scenario.onActivity { assertFalse(it.findViewById<Button>(R.id.workbench_send).isEnabled) }
+            scenario.recreate()
+            waitUi(scenario, "Preset survives recreation") { it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == "removed-preset" }
+            assertEquals(0, model.calls.get())
         }
     }
     @Test fun confirmationCardRepliesOnceAndCannotAnswerForScriptOwner() {
@@ -171,7 +269,7 @@ class WorkbenchActivityTest {
         assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_YES, config.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)
         value.putInt(S.KEY_PROTOCOL_VERSION, 999); assertNull(HostAppearance.decode(value))
     }
-    @Test fun reloadedHistoryRetainsNewestTasksDespiteReversedFileModificationTimes() {
+    @Test fun legacyHistoryMigratesAllRecordsAndKeepsStartTimeOrdering() {
         val directory = java.io.File(context.cacheDir, "p61-history-${java.util.UUID.randomUUID()}").apply { check(mkdirs()) }
         val stamp = System.currentTimeMillis()
         for (index in 1..21) {
@@ -181,7 +279,7 @@ class WorkbenchActivityTest {
                 check(setLastModified(stamp - index * 1000))
             }
         }
-        val archive = RunArchive(directory)
+        val archive = RunArchive(java.io.File(directory, "runs"), directory)
         // Drain the private writer before asserting retention and deleting only this fixture's directory.
         val disk = RunArchive::class.java.getDeclaredField("disk").apply { isAccessible = true }.get(archive) as java.util.concurrent.ExecutorService
         try {
@@ -189,12 +287,40 @@ class WorkbenchActivityTest {
             disk.submit {}.get(10, TimeUnit.SECONDS)
             val rows = archive.list(20, 0).getAsJsonArray("runs")
             assertEquals(20, rows.size())
+            assertFalse(archive.storageFailed)
+            assertEquals(21L, archive.list(200, 0).number("total"))
+            assertEquals(setOf("runs", "total", "ready"), archive.list(20, 0).keySet())
+            assertTrue(java.io.File(directory, "runs/index.json").isFile)
+            assertTrue(directory.listFiles { file -> file.name.endsWith(".json") }!!.isEmpty())
             assertEquals(21L, rows.first().asJsonObject.number("startedAt"))
             assertEquals(2L, rows.last().asJsonObject.number("startedAt"))
         } finally {
             disk.shutdown(); assertTrue(disk.awaitTermination(10, TimeUnit.SECONDS))
             assertEquals(context.cacheDir.canonicalFile, directory.canonicalFile.parentFile)
             directory.deleteRecursively()
+        }
+    }
+    @Test fun restartedTasksBecomeBlockedAndClearingDoesNotResurrectDirtyRecords() {
+        val directory = java.io.File(context.cacheDir, "p62-history-${java.util.UUID.randomUUID()}").apply { check(mkdirs()) }
+        val id = java.util.UUID.randomUUID().toString()
+        val run = AgentJson.objectOf("""{"runId":"$id","goal":"Crash fixture","state":"waiting_input","startedAt":1,"preset":"default","steps":[],"pending":{"question":"Unanswered"}}""")
+        java.io.File(directory, "$id.json").writeText(RunHistoryCodec.encode(run, 1))
+        val archive = RunArchive(directory)
+        val disk = RunArchive::class.java.getDeclaredField("disk").apply { isAccessible = true }.get(archive) as java.util.concurrent.ExecutorService
+        try {
+            waitFor("History loaded") { archive.ready }; disk.submit {}.get(10, TimeUnit.SECONDS)
+            assertFalse(archive.storageFailed)
+            assertEquals("blocked", archive.full(id)?.string("state")); assertFalse(archive.full(id)!!.has("pending"))
+            archive.journal(id, jsonObject("steps" to com.google.gson.JsonArray()))
+            val cleared = CountDownLatch(1); var success = false
+            archive.history({ archive.remove(null); com.google.gson.JsonObject() }) { success = it.isSuccess; cleared.countDown() }
+            assertTrue(cleared.await(10, TimeUnit.SECONDS)); assertTrue(success)
+            disk.submit {}.get(10, TimeUnit.SECONDS)
+            assertNull(archive.full(id)); assertFalse(java.io.File(directory, "$id.json").exists())
+            assertTrue(io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryStore(directory).open().isEmpty())
+        } finally {
+            disk.shutdown(); assertTrue(disk.awaitTermination(10, TimeUnit.SECONDS))
+            assertEquals(context.cacheDir.canonicalFile, directory.canonicalFile.parentFile); directory.deleteRecursively()
         }
     }
     @Test fun arabicNightLayoutKeepsLargeTextAndControlsWithinScrollableWidth() {

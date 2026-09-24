@@ -4,28 +4,39 @@ import android.util.AtomicFile
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.*
 import java.io.File
 import java.util.concurrent.Executors
 
-/** Bounded private crash journal. P6 adds workbench storage, export and retention settings.
+/** Bounded private crash journal and full history.
  * No disk IO occurs on a Binder thread. Restarted tasks are historical blocked records only. */
-internal class RunArchive(private val directory: File) {
+internal class RunArchive(directory: File, private val legacyDirectory: File? = null) {
+    private val store = RunHistoryStore(directory)
     private val disk = Executors.newSingleThreadExecutor { r -> Thread(r, "ai-agent-history").apply { isDaemon = true } }
     private val records = linkedMapOf<String, JsonObject>()
     private val dirty = linkedSetOf<String>()
     private var scheduled = false
     @Volatile var ready = false; private set
+    @Volatile var storageFailed = false; private set
     init { disk.execute {
-        directory.mkdirs()
-        directory.listFiles { f -> f.name.endsWith(".json") }?.sortedByDescending { it.lastModified() }?.take(29)?.reversed()?.forEach { file ->
-            runCatching {
-                val atomic = AtomicFile(file)
-                val value = atomic.openRead().use { input ->
+        try {
+            val loaded = store.open().associateBy { it.string("runId")!! }.toMutableMap()
+            // The old writer retained at most 29 files. Remove a legacy file only after durable migration.
+            legacyDirectory?.listFiles { f -> f.name.endsWith(".json") }?.forEach { file ->
+                val value = runCatching {
                     require(file.length() <= MAX_RECORD_BYTES)
-                    AgentJson.objectOf(input.bufferedReader(Charsets.UTF_8).readText(), MAX_RECORD_BYTES)
+                    AgentJson.objectOf(AtomicFile(file).openRead().use { it.bufferedReader().readText() }, MAX_RECORD_BYTES, 131_072)
+                        .apply { if (!has("preset")) addProperty("preset", "default") }
+                        .also { RunHistoryCodec.validate(it); require(file.name == "${it.string("runId")}.json") }
+                }.getOrNull() ?: return@forEach
+                val id = value.string("runId")!!
+                if (id !in loaded) {
+                    store.save(value).forEach(loaded::remove)
+                    if (store.contains(id)) loaded[id] = value
                 }
-                val id = ControlRequests.runId(value)
-                require(file.name == "$id.json")
+                AtomicFile(file).delete()
+            }
+            for ((id, value) in loaded) {
                 val state = RunState.entries.firstOrNull { it.wire == value.string("state") } ?: error("Invalid state")
                 if (!state.terminal) {
                     value.addProperty("state", RunState.BLOCKED.wire)
@@ -34,8 +45,8 @@ internal class RunArchive(private val directory: File) {
                 }
                 synchronized(this) { if (!records.containsKey(id)) { records[id] = value; markDirty(id) } }
             }
-        }
-        ready = true
+        } catch (_: Exception) { storageFailed = true }
+        finally { ready = true }
     } }
     @Synchronized fun admit(run: AgentRunner, request: StartRequest) {
         records[run.id] = jsonObject("runId" to run.id.json(), "goal" to request.options.goal.json(),
@@ -77,6 +88,26 @@ internal class RunArchive(private val directory: File) {
         return true
     }
     @Synchronized fun get(id: String, stepLimit: Int = 50): JsonObject? = records[id]?.let { project(it, stepLimit) }
+    @Synchronized fun full(id: String): JsonObject? = records[id]?.deepCopy()
+    /** All private history commands and file access run on the same worker as journal writes. */
+    fun history(action: () -> JsonObject, complete: (Result<JsonObject>) -> Unit) {
+        disk.execute { complete(runCatching { check(ready && !storageFailed); action() }) }
+    }
+    fun touch(id: String) {
+        val removed = store.touch(id)
+        synchronized(this) { removed.forEach { records.remove(it); dirty.remove(it) } }
+    }
+    fun remove(id: String?) {
+        val ids = synchronized(this) {
+            if (id != null) {
+                val row = records[id] ?: error("Missing run")
+                require(row.string("state") in TERMINAL) { "Active run" }
+                setOf(id)
+            } else records.filterValues { it.string("state") in TERMINAL }.keys.toSet()
+        }
+        store.delete(ids)
+        synchronized(this) { ids.forEach { records.remove(it); dirty.remove(it) } }
+    }
     @Synchronized fun list(limit: Int, offset: Int): JsonObject {
         val summaries = records.values.sortedByDescending { it.number("startedAt") ?: 0 }.drop(offset).take(limit).map { row ->
             jsonObject("runId" to row["runId"], "goal" to AgentJson.truncate(row.string("goal").orEmpty(), 256).json(),
@@ -95,27 +126,15 @@ internal class RunArchive(private val directory: File) {
                     dirty.remove(nextId)
                     nextId to records[nextId]?.deepCopy()
                 }
-                next.second?.let { value ->
-                    val bytes = value.toString().toByteArray(Charsets.UTF_8)
-                    if (bytes.size <= MAX_RECORD_BYTES) {
-                        val file = AtomicFile(File(directory, "${next.first}.json"))
-                        runCatching {
-                            val stream = file.startWrite()
-                            try { stream.write(bytes); file.finishWrite(stream) } catch (e: Exception) { file.failWrite(stream); throw e }
-                        }
-                    }
-                }
-                val removed = synchronized(this) {
-                    val terminal = records.entries.filter { it.value.string("state") in TERMINAL }
-                        .sortedBy { it.value.number("startedAt") ?: 0 }.map { it.key }
-                    terminal.dropLast(20).onEach { records.remove(it); dirty.remove(it) }
-                }
-                removed.forEach { AtomicFile(File(directory, "$it.json")).delete() }
+                if (!storageFailed) try {
+                    val removed = next.second?.let(store::save).orEmpty()
+                    synchronized(this) { removed.forEach { records.remove(it); dirty.remove(it) } }
+                } catch (_: Exception) { storageFailed = true }
             }
         }
     }
     companion object {
-        private const val MAX_RECORD_BYTES = RunLimits.JOURNAL_BYTES + 32 * 1024
+        private const val MAX_RECORD_BYTES = RunHistoryCodec.MAX_BYTES
         private val TERMINAL = RunState.entries.filter { it.terminal }.map { it.wire }.toSet()
         /** Copy only the records that fit. Never repeatedly serialize the entire 1 MiB journal. */
         internal fun project(source: JsonObject, stepLimit: Int): JsonObject {

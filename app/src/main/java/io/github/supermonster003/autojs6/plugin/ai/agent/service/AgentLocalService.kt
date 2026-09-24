@@ -29,5 +29,6 @@ class AgentLocalService : Service() {
         override fun updateConfig(configuration: Bundle?) { call(configuration) { it.updateConfig(configuration); Bundle() } }
         override fun detach(reason: Bundle?) { call(reason) { it.detach(reason); Bundle() } }
     }
-    override fun onBind(intent: Intent?): IBinder = binder
+    private val history by lazy { HistoryEndpoint(runtime.archive, cacheDir, runtime.catalog.tools.map { it.name }.toSet()) }
+    override fun onBind(intent: Intent?): IBinder = if (intent?.action == HistoryEndpoint.ACTION) history else binder
 }

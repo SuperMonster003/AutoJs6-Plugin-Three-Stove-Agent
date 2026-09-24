@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -114,8 +114,9 @@ Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de t
 2. Abra el centro de plugins de AutoJs6, confirme que `AI Agent` se reconoce y habilítelo. Los paquetes oficiales superan automáticamente la verificación de firma.
 3. Abre AI Agent, conecta AutoJs6, introduce un objetivo e inicia con el preajuste predeterminado. Responde o confirma en la tarjeta y consulta los detalles de las tareas recientes.
 4. Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
+5. Hasta 200 tareas / 32 MiB. Se eliminan primero las tareas terminadas consultadas hace más tiempo. Repetir rellena el objetivo y preajuste originales en el panel. Revísalos y pulsa Iniciar tarea para ejecutarla. Vaciar el historial conserva las tareas en curso. Se conservan contadores, nombres de herramientas y confirmaciones. Se eliminan objetivos, parámetros, observaciones y resultados de scripts. Elige dónde guardar el archivo.
 
-> Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7.
+> Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8.
 
 ******
 
@@ -175,7 +176,8 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/24_
 
-- `Aviso` Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7.
+- `Aviso` Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8.
+- `Función` Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)
 - `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión
 - `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado
 - `Función` La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla

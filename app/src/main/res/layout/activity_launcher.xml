@@ -45,6 +45,7 @@
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
             android:text="@string/workbench_recent" android:textAppearance="?android:attr/textAppearanceLarge" />
         <LinearLayout android:id="@+id/workbench_recent" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <Button android:id="@+id/workbench_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/history_title" />
         <Button android:id="@+id/launcher_script_roots" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="20dp" android:text="@string/script_roots_title" />
     </LinearLayout>

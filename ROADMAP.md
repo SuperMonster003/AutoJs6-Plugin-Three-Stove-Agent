@@ -508,9 +508,11 @@ P6.1 证据: `docs/dev/p61-workbench-evidence-2026-09-24.md`. AVD API 37 与 G84
 
 ### P6.2 任务详情与历史
 
-- [ ] (插件) `RunDetailActivity`: 逐步时间线 (决策摘要 / 工具与参数 / 确认结果 / 观察摘要 (可展开) / 耗时 / usage), 终态卡片 (`status / summary / evidence / 未完成项 / script.result`), 操作: 重跑 (同目标同预设), 导出 (JSON, 脱敏), 删除; 运行中实时更新.
-- [ ] (插件) `HistoryActivity` + `RunHistoryStore` (`files/runs/<id>.json` + 索引, 上限 200 条 / 32 MiB, LRU 清理, codec 版本化 fail-closed), 筛选 (状态 / 预设 / 日期), 清空.
-- [ ] (测试) JVM: `RunHistoryCodecTest`, 上限与 LRU; instrumentation: 详情回放与导出文件存在.
+- [x] (插件) `RunDetailActivity`: 逐步时间线 (决策摘要 / 工具与参数 / 确认结果 / 观察摘要 (可展开) / 耗时 / usage), 终态卡片 (`status / summary / evidence / 未完成项 / script.result`), 操作: 重跑 (同目标同预设), 导出 (JSON, 脱敏), 删除; 运行中实时更新.
+- [x] (插件) `HistoryActivity` + `RunHistoryStore` (`files/runs/<id>.json` + 索引, 上限 200 条 / 32 MiB, LRU 清理, codec 版本化 fail-closed), 筛选 (状态 / 预设 / 日期), 清空.
+- [x] (测试) JVM: `RunHistoryCodecTest`, 上限与 LRU; instrumentation: 详情回放与导出文件存在.
+
+P6.2 证据: `docs/dev/p62-history-evidence-2026-09-24.md`. JVM 390 项, AVD API 37 / G8441 API 28 instrumentation 各 42 项通过. 完整私有 FD 历史回放超过公共 32 KiB 查询上限的 13 步记录, 旧存档迁移与 LRU/容量/重建/清空验证通过. 重跑只预填同目标同预设, 用户点击开始后执行; 失效预设不会静默替换. 脱敏导出移除自由文本并保留诊断元数据, 实际系统文件保存器生成 JSON 已核验. 公共宿主契约不变.
 
 ### P6.3 预设
 
@@ -1276,3 +1278,12 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 官方宿主设置快照异步读取, 同步语言/夜间/主题色, 不可用时回退系统; 修正浅色主题按钮对比度, API 28 状态栏对比度和宿主 locale 与进程 locale 不同时的 RTL 方向. 10 语言资源及 36 份生成文档已同步.
 - JVM 375 项, AVD API 37 / G8441 API 28 全量 instrumentation 各 39 项通过; debug/androidTest/release R8/lint 与文档检查通过. 包含逆序文件时间戳下重载 21 条记录后仍保留最近 20 条的回归验证. debug 的私有模型注入服务未进入 release. 详情见同日 P6.1 证据.
 - 本次仅修改 AI Agent 插件, build 54 对齐提交计数. 宿主保持 aeed8edcb9 / 5293, 未触碰 Rhino 上游同步成果. 不推送/发布, 未新增购物或支付操作. 下一起点为原 P6.2 任务详情与历史; P6.3-P6.7, P7/P8 gate 保持原位置, 未增加/分拆/丢弃阶段. 当前无需用户提供额外资料或手动操作.
+
+
+### 2026-09-24 (P6.2 任务详情与历史)
+
+- 完成原 P6.2 三个条目, 未增加/分拆/丢弃阶段. 完整时间线与终态结果, 可展开观察, 实时刷新, 历史筛选/删除/清空, 重跑草稿和脱敏 JSON 导出均已接通. 运行中任务不会被删除, 重跑不会自动执行或沿用过去的确认; 原预设不存在时禁止静默改用 default.
+- 私有版本化存储位于 files/runs, 上限 200 条 / 32 MiB, 按访问时间 LRU 清理终态任务并迁移旧存档. 重启任务只保留 blocked 记录. 私有异步 AIDL/FD 读取完整日志, 公共宿主 AIDL/JSON 信封和 32 KiB getRun 边界保持不变.
+- JVM 390 项, AVD API 37 / Sony G8441 API 28 全量 instrumentation 各 42 项通过. 覆盖 13 步大记录实际 Binder/回放/展开状态恢复/重跑不执行/脱敏导出文件, 旧存档迁移, 清空不复活以及失效预设. AVD 系统文件保存器实际导出 1103 字节 JSON 并核验, 临时文件已清理. 详见同日 P6.2 证据.
+- debug/androidTest/release R8/lint 与 10 语言 36 份生成文档校验通过, lint 无新增警告. 仅修改 AI Agent 插件, build 55 对齐提交计数; 宿主保持 5293, 未触碰 Rhino 同步. 未新增购物/付款, 未推送/发布.
+- 下一起点为原 P6.3 预设. P6.4-P6.7, P7/P8 gate 保留原位置. 当前无需用户补充资料, 设备或手动操作.

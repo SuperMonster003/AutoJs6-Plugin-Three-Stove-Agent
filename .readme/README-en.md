@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: the P6.1 workbench and P6.2 task history are available. The ai.agent API requires AutoJs6 build 5293 or later. Custom presets and other interfaces continue in P6.3-P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -114,8 +114,9 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
 3. Open AI Agent, connect to AutoJs6, enter a goal, select the default preset and start. Answer questions or confirm actions in the task card; open recent tasks to review their details.
 4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
+5. Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
 
-> Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7.
+> Development preview: the P6.1 workbench and P6.2 task history are available. The ai.agent API requires AutoJs6 build 5293 or later. Custom presets and other interfaces continue in P6.3-P6.7; reliability and release gates remain in P7/P8.
 
 ******
 
@@ -175,7 +176,8 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/24_
 
-- `Hint` Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7.
+- `Hint` Development preview: the P6.1 workbench and P6.2 task history are available. The ai.agent API requires AutoJs6 build 5293 or later. Custom presets and other interfaces continue in P6.3-P6.7; reliability and release gates remain in P7/P8.
+- `Feature` Full task timelines and results, status/preset/date filters, rerun drafts, deletion, redacted JSON export, and versioned private history with migration and LRU cleanup at 200 tasks / 32 MiB
 - `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected
 - `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
 - `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution

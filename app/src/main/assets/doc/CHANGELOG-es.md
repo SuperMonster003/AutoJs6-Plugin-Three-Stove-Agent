@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Aviso` Vista previa: el panel permite introducir objetivos, ver el progreso, responder y consultar tareas recientes. La API ai.agent requiere AutoJs6 build 5293 o posterior. La gestión del historial, los preajustes personalizados y otras entradas continúan en P6; la validación de robustez sigue en P7.
+* `Aviso` Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8.
+* `Función` Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)
 * `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión
 * `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado
 * `Función` La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla

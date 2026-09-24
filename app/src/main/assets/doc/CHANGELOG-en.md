@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Hint` Development preview: the task workbench supports goal input, progress, inline replies and recent task details. The ai.agent task API requires AutoJs6 build 5293 or later. History management, custom presets and other entries continue in P6; reliability acceptance remains in P7.
+* `Hint` Development preview: the P6.1 workbench and P6.2 task history are available. The ai.agent API requires AutoJs6 build 5293 or later. Custom presets and other interfaces continue in P6.3-P6.7; reliability and release gates remain in P7/P8.
+* `Feature` Full task timelines and results, status/preset/date filters, rerun drafts, deletion, redacted JSON export, and versioned private history with migration and LRU cleanup at 200 tasks / 32 MiB
 * `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected
 * `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
 * `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution

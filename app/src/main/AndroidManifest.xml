@@ -64,6 +64,7 @@
 
         <activity android:name=".ui.ScriptRootsActivity" android:exported="false" />
         <activity android:name=".ui.RunDetailActivity" android:exported="false" />
+        <activity android:name=".ui.HistoryActivity" android:exported="false" />
 
         <service
             android:name=".AiAgentTaskForegroundService"
