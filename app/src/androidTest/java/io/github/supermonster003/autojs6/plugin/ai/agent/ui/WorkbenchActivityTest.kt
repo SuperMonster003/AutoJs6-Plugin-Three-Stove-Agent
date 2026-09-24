@@ -23,6 +23,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.service.PresetEndpoint
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.PresetCodec
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.Preset
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryCodec
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryStore
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.MemoryCodec
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.MemoryEntry
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.IMemoryStore
@@ -325,7 +326,7 @@ class WorkbenchActivityTest {
             directory.deleteRecursively()
         }
     }
-    @Test fun restartedTasksBecomeBlockedAndClearingDoesNotResurrectDirtyRecords() {
+    @Test fun restartedTasksFailWithProcessDeathAndClearingDoesNotResurrectDirtyRecords() {
         val directory = java.io.File(context.cacheDir, "p62-history-${java.util.UUID.randomUUID()}").apply { check(mkdirs()) }
         val id = java.util.UUID.randomUUID().toString()
         val run = AgentJson.objectOf("""{"runId":"$id","goal":"Crash fixture","state":"waiting_input","startedAt":1,"preset":"default","steps":[],"pending":{"question":"Unanswered"}}""")
@@ -335,7 +336,9 @@ class WorkbenchActivityTest {
         try {
             waitFor("History loaded") { archive.ready }; disk.submit {}.get(10, TimeUnit.SECONDS)
             assertFalse(archive.storageFailed)
-            assertEquals("blocked", archive.full(id)?.string("state")); assertFalse(archive.full(id)!!.has("pending"))
+            assertEquals("failed", archive.full(id)?.string("state")); assertFalse(archive.full(id)!!.has("pending"))
+            assertEquals("process-died", archive.full(id)!!.getAsJsonObject("result").string("error"))
+            assertEquals("failed", RunHistoryStore(directory).open().single().string("state"))
             archive.journal(id, jsonObject("steps" to com.google.gson.JsonArray()))
             val cleared = CountDownLatch(1); var success = false
             archive.history({ archive.remove(null); com.google.gson.JsonObject() }) { success = it.isSuccess; cleared.countDown() }
@@ -1153,8 +1156,14 @@ class WorkbenchActivityTest {
                         putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Floating acceptance fixture")
                     }) == true
                 }
-                val card = checkNotNull(floatingFrame(true))
-                tap(card.left + (ball.width() / 2), card.top + (ball.height() / 2))
+                // The IME can still reposition the overlay after editing. Activate the real
+                // labeled control instead of reusing a pre-animation screen coordinate.
+                val labels = HostAppearance.read(context)?.wrap(context) ?: context
+                waitFor("Collapse actual card after editing") {
+                    overlayRoot()?.findAccessibilityNodeInfosByText(labels.getString(R.string.floating_collapse))
+                        ?.firstOrNull { it.isClickable && it.isEnabled }
+                        ?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
+                }
                 waitFor("Collapsed after editing") { floatingFrame(false) != null }
                 SystemClock.sleep(300)
                 val again = checkNotNull(floatingFrame(false)); tap(again.centerX(), again.centerY())
@@ -1162,7 +1171,6 @@ class WorkbenchActivityTest {
                 waitFor("Draft retained") {
                     overlayRoot()?.findAccessibilityNodeInfosByViewId("${context.packageName}:id/workbench_goal")?.firstOrNull()?.text?.toString() == "Floating acceptance fixture"
                 }
-                val labels = HostAppearance.read(context)?.wrap(context) ?: context
                 waitFor("Start from actual overlay") {
                     val node = overlayRoot()?.findAccessibilityNodeInfosByText(labels.getString(R.string.workbench_send))?.firstOrNull { it.isClickable && it.isEnabled }
                     node?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
@@ -1206,11 +1214,19 @@ class WorkbenchActivityTest {
                     // A user's PIN/pattern cannot be dismissed by the test harness. Exercise lock
                     // restoration on unsecured test devices while retaining confirmation coverage everywhere.
                     if (!context.getSystemService(android.app.KeyguardManager::class.java).isDeviceSecure) {
-                        val position = checkNotNull(floatingFrame(false))
-                        shell("input keyevent KEYCODE_SLEEP")
-                        waitFor("Lock hides overlay") { floatingFrame(false) == null && floatingFrame(true) == null }
-                        shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard")
-                        waitFor("Unlock restores remembered position") { floatingFrame(false)?.let { kotlin.math.abs(it.left - position.left) < 3 && kotlin.math.abs(it.top - position.top) < 3 } == true }
+                        val power = context.getSystemService(PowerManager::class.java)
+                        val keyguard = context.getSystemService(android.app.KeyguardManager::class.java)
+                        repeat(3) {
+                            val position = checkNotNull(floatingFrame(false))
+                            shell("input keyevent KEYCODE_SLEEP")
+                            waitFor("Lock hides overlay") { !power.isInteractive && floatingFrame(false) == null && floatingFrame(true) == null }
+                            shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard")
+                            waitFor("Device is awake and unlocked") { power.isInteractive && !keyguard.isKeyguardLocked }
+                            // Sample across the broadcast/display transition, not a single old frame.
+                            SystemClock.sleep(2200)
+                            waitFor("Unlock restores remembered position") { floatingFrame(false)?.let { kotlin.math.abs(it.left - position.left) < 3 && kotlin.math.abs(it.top - position.top) < 3 } == true }
+                            assertNotNull(interactionNotification())
+                        }
                     }
                     SystemClock.sleep(300)
                     frame = checkNotNull(floatingFrame(false)); tap(frame.left + size / 2, frame.centerY())

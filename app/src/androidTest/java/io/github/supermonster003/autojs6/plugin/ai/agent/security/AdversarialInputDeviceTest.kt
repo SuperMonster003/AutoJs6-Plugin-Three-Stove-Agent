@@ -169,7 +169,16 @@ class AdversarialInputDeviceTest {
         val result = runCatching { recycle(screenNode(AdversarialScreenActivity.ATTACK)); action() }
         val cleanup = runCatching {
             val close = screenNode(AdversarialScreenActivity.CLOSE)
-            try { close.performAction(AccessibilityNodeInfo.ACTION_CLICK) } finally { recycle(close) }
+            try { assertTrue(close.performAction(AccessibilityNodeInfo.ACTION_CLICK)) } finally { recycle(close) }
+            // performAction acknowledges dispatch, not Activity destruction. The next test
+            // must not read or click this closing window instead of its newly created one.
+            val deadline = SystemClock.elapsedRealtime() + 15_000
+            fun stillVisible(): Boolean {
+                val root = instrumentation.uiAutomation.rootInActiveWindow ?: return false
+                return try { root.refresh() && root.packageName?.toString() == fixturePackage } finally { recycle(root) }
+            }
+            while (stillVisible() && SystemClock.elapsedRealtime() < deadline) SystemClock.sleep(50)
+            assertFalse("Previous injection window has closed", stillVisible())
         }
         result.exceptionOrNull()?.let { failure -> cleanup.exceptionOrNull()?.let(failure::addSuppressed); throw failure }
         cleanup.getOrThrow()

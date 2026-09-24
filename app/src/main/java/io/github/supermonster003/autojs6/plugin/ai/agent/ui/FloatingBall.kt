@@ -43,6 +43,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var context: Context = themed()
     private var closed = false
     private var unlocked = power.isInteractive && !keyguard.isKeyguardLocked
+    private var wakeGeneration = 0
     private var expanded = false
     private var sending = false
     private var snapshot: WorkbenchSnapshot? = null
@@ -68,11 +69,19 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private val events = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_SCREEN_OFF -> { unlocked = false; expanded = false; removeWindow() }
-                Intent.ACTION_USER_PRESENT, Intent.ACTION_SCREEN_ON -> { unlocked = power.isInteractive && !keyguard.isKeyguardLocked; changed() }
+                Intent.ACTION_SCREEN_OFF -> { wakeGeneration++; unlocked = false; expanded = false; removeWindow() }
+                Intent.ACTION_USER_PRESENT, Intent.ACTION_SCREEN_ON -> reconcileWake(++wakeGeneration, 20)
                 Intent.ACTION_CONFIGURATION_CHANGED -> { readAppearance = true; removeWindow(); changed() }
             }
         }
+    }
+    private fun reconcileWake(generation: Int, remaining: Int) {
+        if (closed || generation != wakeGeneration) return
+        // Power/keyguard/display state may settle after the broadcast, especially without a
+        // secure keyguard. Reconcile for two seconds after this event, never poll while idle.
+        val ready = power.isInteractive && !keyguard.isKeyguardLocked
+        if (ready != unlocked || remaining == 20 || remaining == 0) { unlocked = ready; changed() }
+        if (remaining > 0) main.postDelayed({ reconcileWake(generation, remaining - 1) }, 100)
     }
     private val permissions = AppOpsManager.OnOpChangedListener { _, packageName ->
         if (packageName == app.packageName) main.post { if (!closed) changed() }

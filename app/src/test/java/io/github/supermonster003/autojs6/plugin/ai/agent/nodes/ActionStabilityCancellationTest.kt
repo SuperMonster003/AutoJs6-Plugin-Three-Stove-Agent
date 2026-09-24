@@ -16,11 +16,13 @@ class ActionStabilityCancellationTest {
         var reads = 0
         var moving = false
         var holdReadback = false
+        var locked = false
         var pendingRead: ((PortResult<JsonElement>) -> Unit)? = null
         val tools = ActionTools(scheduler, observations, { request, callback ->
             if (request.method == "dump") {
                 reads++
-                if (holdReadback && actions > 0) pendingRead = callback
+                if (locked) callback(PortResult.Failure(RunError.SCREEN_LOCKED))
+                else if (holdReadback && actions > 0) pendingRead = callback
                 else callback(PortResult.Success(dump("s$reads", rows = listOf("#n1 TextView \"${if (moving) reads else actions}\" c=(10,10)"))))
             } else { actions++; callback(PortResult.Success(true.json())) }
             Cancellation.NONE
@@ -32,6 +34,16 @@ class ActionStabilityCancellationTest {
             tools.prepare(invocation, 5000) { result = (it as PortResult.Success).value }
             return result!!
         }
+    }
+    @Test fun aLockedBaselineCannotBeIgnoredBeforeDispatchingAnAction() {
+        val f = Fixture(); f.locked = true; var result: PortResult<ToolReply>? = null
+        f.tools.execute(f.prepared(), 5000) { result = it }; f.scheduler.drain()
+        assertEquals(RunError.SCREEN_LOCKED, (result as PortResult.Failure).error)
+        assertEquals(0, f.actions); assertEquals(1, f.reads)
+        f.locked = false; f.scheduler.advance(6000)
+        assertEquals(0, f.actions)
+        f.tools.execute(f.prepared(), 5000) { result = it }; f.scheduler.advance(3000)
+        assertTrue(result is PortResult.Success); assertEquals(1, f.actions)
     }
     @Test fun cancellationAfterAcknowledgementStopsStabilizationWithoutRepeatingTheAction() {
         val f = Fixture(); var done = false

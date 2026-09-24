@@ -7,6 +7,25 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class RunSnapshotTest {
+    @Test fun processRecoveryFailsEveryUnfinishedStateAndPreservesTerminalHistory() {
+        for (state in io.github.supermonster003.autojs6.plugin.ai.agent.runner.RunState.entries) {
+            val source = jsonObject("state" to state.wire.json(), "goal" to "fixture".json(),
+                "steps" to JsonArray(), "pending" to jsonObject("requestId" to "old".json()))
+            if (state.terminal) source.add("result", jsonObject("status" to state.wire.json(), "error" to "HOST_UNAVAILABLE".json()))
+            val before = source.deepCopy()
+            RunArchive.recoverInterrupted(source)
+            if (state.terminal) assertEquals(before, source)
+            else {
+                assertEquals("failed", source.string("state")); assertFalse(source.has("pending"))
+                assertEquals("process-died", source.getAsJsonObject("result").string("error"))
+                assertEquals("failed", source.getAsJsonObject("result").string("status"))
+                assertEquals(before["goal"], source["goal"]); assertEquals(before["steps"], source["steps"])
+            }
+            val recovered = source.deepCopy()
+            RunArchive.recoverInterrupted(source)
+            assertEquals(recovered, source)
+        }
+    }
     @Test fun boundedRecentStepsPreserveResultAndCannotMutateThePrivateArchive() {
         val source = jsonObject("goal" to "中".repeat(1300).json(), "state" to "completed".json(),
             "result" to jsonObject("status" to "completed".json(), "summary" to "verified".json()),

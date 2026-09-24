@@ -9,7 +9,7 @@ import java.io.File
 import java.util.concurrent.Executors
 
 /** Bounded private crash journal and full history.
- * No disk IO occurs on a Binder thread. Restarted tasks are historical blocked records only. */
+ * No disk IO occurs on a Binder thread. Interrupted tasks are failed history, never queued again. */
 internal class RunArchive(directory: File, private val legacyDirectory: File? = null) {
     private val store = RunHistoryStore(directory)
     private val disk = Executors.newSingleThreadExecutor { r -> Thread(r, "ai-agent-history").apply { isDaemon = true } }
@@ -40,12 +40,7 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
                 AtomicFile(file).delete()
             }
             for ((id, value) in loaded) {
-                val state = RunState.entries.firstOrNull { it.wire == value.string("state") } ?: error("Invalid state")
-                if (!state.terminal) {
-                    value.addProperty("state", RunState.BLOCKED.wire)
-                    value.remove("pending")
-                    value.add("result", jsonObject("status" to "blocked".json(), "error" to RunError.HOST_UNAVAILABLE.name.json()))
-                }
+                recoverInterrupted(value)
                 synchronized(this) { if (!records.containsKey(id)) { records[id] = value; markDirty(id) } }
             }
         } catch (_: Exception) { storageFailed = true }
@@ -153,6 +148,13 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
     companion object {
         private const val MAX_RECORD_BYTES = RunHistoryCodec.MAX_BYTES
         private val TERMINAL = RunState.entries.filter { it.terminal }.map { it.wire }.toSet()
+        internal fun recoverInterrupted(value: JsonObject) {
+            val state = RunState.entries.firstOrNull { it.wire == value.string("state") } ?: error("Invalid state")
+            if (state.terminal) return
+            value.addProperty("state", RunState.FAILED.wire)
+            value.remove("pending")
+            value.add("result", jsonObject("status" to "failed".json(), "error" to "process-died".json()))
+        }
         /** Copy only the records that fit. Never repeatedly serialize the entire 1 MiB journal. */
         internal fun project(source: JsonObject, stepLimit: Int): JsonObject {
             require(stepLimit in 1..50)

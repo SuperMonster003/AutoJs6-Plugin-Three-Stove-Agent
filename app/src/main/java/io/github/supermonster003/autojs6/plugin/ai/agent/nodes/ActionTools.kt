@@ -135,7 +135,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
         if (!canObserve) { receive(null); return }
         operation.call(ToolHandlers.bridge("accessibility.dump", jsonArray(jsonObject("format" to "compact".json(), "maxNodes" to 200.json(), "maxDepth" to 32.json(), "visibleOnly" to true.json())))) { value ->
             when (value) {
-                is PortResult.Failure -> if (value.error.hostLost) operation.finish(value) else receive(null)
+                is PortResult.Failure -> if (value.error.hostLost || value.error == RunError.SCREEN_LOCKED) operation.finish(value) else receive(null)
                 is PortResult.Success -> receive(runCatching { CompactNodeText.parse(value.value) }.getOrNull())
             }
         }

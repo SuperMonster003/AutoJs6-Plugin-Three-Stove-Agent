@@ -213,6 +213,8 @@ _2026/09/25_
 - `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Fix` The floating task ball could remain hidden after waking an unlocked device while screen state was still settling
+- `Fix` Interrupted tasks are recorded as failed after plugin process death; locked-screen observations stop actions until the device is unlocked
 - `Fix` File tools reject traversal, absolute paths and invalid workspace paths before confirmation or host dispatch; task history records bounded rejection categories without rejected model text
 - `Fix` Notification confirmation returns to the target app before resuming actions, acknowledgements survive the screen stopping, and floating replies collapse the card before execution
 - `Fix` Opening the app on Android 13 no longer crashes when the system bar controller is read before the window decor exists
