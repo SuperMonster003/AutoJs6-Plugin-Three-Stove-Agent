@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <queries>
         <package android:name="org.autojs.autojs6" />
@@ -13,7 +14,7 @@
     </queries>
 
     <!--
-        The plugin never talks to the network on its own (roadmap D28): model traffic and device
+        Only user-initiated update checks use the network (roadmap D28). Model traffic and device
         actions go through the AutoJs6 host over Binder. Foreground-service and notification
         permissions keep active tasks visible. Overlay permission remains in P6.7.
     -->
@@ -67,6 +68,8 @@
         <activity android:name=".ui.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.PresetsActivity" android:exported="false" />
         <activity android:name=".ui.MemoryActivity" android:exported="false" />
+        <activity android:name=".ui.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true"
             android:theme="@style/Theme.AiAgent.Dialog.Light" />
 

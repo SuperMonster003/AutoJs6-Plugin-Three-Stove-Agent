@@ -539,8 +539,10 @@ P6.5 验收: JVM 435 项, Sony G8441 API 28 / AVD API 37 instrumentation 各 57 
 ### P6.6 设置, 发行历史与更新检查
 
 - [ ] (插件) `SettingsActivity`: 全局工具组开关 (`gesture / files / shell` 默认关, `ocr` 自动), 默认预设, 默认预算, 审慎模式, 悬浮球开关 (请求 `SYSTEM_ALERT_WINDOW`), 语音输入开关, 数据管理 (历史 / 预设 / 记忆各显示条数与占用, 清除), 附加脚本根目录 (D36), 关于 (版本 / 构建 / 日期 / 作者 / 许可证 / 第三方声明 / 源码), 发行历史, 检查更新; 从宿主插件中心 / 抽屉项 / 任务台菜单可进入.
-- [ ] (插件) `ReleaseHistoryActivity` (按 locale 选择 `doc/CHANGELOG-{tag}.md`, 回退英语, 失败本地化错误) 与 `AppUpdateCoordinator` / `AppUpdateRepository` / `AppVersionPolicy` / `UpdateSchedulePolicy` (GitHub Releases API, 超时 / 取消 / 失败提示 / 忽略版本 / 每日一次 / 计量网络不自动检查 / 不自动检查, Neutral = 内置发行历史, Positive = 发布页, 不下载 APK) (Readium 形态).
-- [ ] (测试) JVM: `AppVersionPolicyTest`, `UpdateSchedulePolicyTest`, `ReleaseHistoryTest`, 设置 codec; instrumentation: 设置持久化, 发行历史打开, 数据清除后 store 为空.
+- [x] (插件) `ReleaseHistoryActivity` (按 locale 选择 `doc/CHANGELOG-{tag}.md`, 回退英语, 失败本地化错误) 与 `AppUpdateCoordinator` / `AppUpdateRepository` / `AppVersionPolicy` / `UpdateSchedulePolicy` (GitHub Releases API, 超时 / 取消 / 失败提示 / 忽略版本 / 每日一次 / 计量网络不自动检查 / 不自动检查, Neutral = 内置发行历史, Positive = 发布页, 不下载 APK) (Readium 形态).
+- [x] (测试) JVM: `AppVersionPolicyTest`, `UpdateSchedulePolicyTest`, `ReleaseHistoryTest`, 设置 codec; instrumentation: 设置持久化, 发行历史打开, 数据清除后 store 为空.
+
+P6.6 证据: `docs/dev/p66-settings-evidence-2026-09-24.md`. 设置主体, 全局工具/预算/审慎策略, 默认预设/语音/目录入口, 分类计数/占用/确认清除及关于页面已完成; 首项只剩悬浮球开关/权限, 须与原 P6.7 的真实 FloatingBall 联验, 保持未勾选且不新增或拆分阶段. 清除预设保留一个初始内置 default. JVM 452 项, Sony G8441 API 28 / AVD API 37 全量 instrumentation 各 66 项通过. 更新只允许手动触发, 成功结果缓存 24 h, 不下载 APK. Documentation code 78 与 Offline Docs build 59 已同步. 用户新增的 Sony XQ-DQ72 (QV770340J7, API 33) 纳入后续设备矩阵, 本轮另修复并验证其窗口初始化启动崩溃.
 
 ### P6.7 悬浮球, 分享, 快捷方式与语音
 
@@ -1317,3 +1319,13 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - JVM 435 项, G8441 API 28 / AVD API 37 全量 instrumentation 各 57 项通过 (244.543 s / 221.816 s), 含通知实际点击, 旧入口失效, 真实 120 s 超时拒绝, 无记忆写入, 模型收到 USER_TIMEOUT, script 归属及 RTL/夜间/2 倍字体布局. debug/androidTest/release R8/lint 与十语言 36 产物检查通过; lint 保持原有 6 项警告. 详见 `docs/dev/p65-interaction-evidence-2026-09-24.md`.
 - 仅修改 AI Agent, build 58 对齐提交计数. 宿主保持 aeed8edcb9 / 5293, Rhino 同步成果未改动; 公开脚本/AIDL 签名不变, 相关文档/TypeScript/Ace 无需接口同步且用户改动保留. 未新增订单/付款, 未新增真实 Model8/Gemma 推理验收, 未推送/发布.
 - 下一起点为原 P6.6 设置/发行历史/更新, 后续 P6.7 与 P7/P8 保持原位置. 当前无需用户提供额外资料, 设备或手动操作.
+
+
+### 2026-09-24: P6.6 设置主体, 发行历史与手动更新
+
+- 设置主体与既有运行准入接通: 全局工具组, 默认预算, 审慎模式, 语音, 默认预设, 脚本目录, 三类数据占用与确认清除, 关于/许可证/第三方声明. 设置与预设在入队时固定, 任务参数只能继续收紧. 私有异步 Binder 与原子存储不改变公共 AIDL/JS 签名.
+- 内置发行历史按 locale 加载并回退英语; 手动更新查询固定 GitHub Releases API, 成功缓存 24 h, 支持取消/失败/忽略, 内置历史与发布页分开进入, 不自动检查或下载 APK. 10 语言文档/11 资源目录与生成检查通过.
+- JVM 452 项, G8441 API 28 与 AVD API 37 各 66 项 instrumentation 全通过; 含跨进程设置, 隔离数据清除, 更新导航, RTL/夜间/字体 1.3, 以及既有真实 120 s 确认超时回归. debug/androidTest/release/lint 通过, lint 仍为 6 个既有 warning. 见 `docs/dev/p66-settings-evidence-2026-09-24.md`.
+- 用户报告 XQ-DQ72 build 56 无法启动, 根据真实 crash buffer 定位到 decor 未初始化时读取系统栏控制器. 独立修复提交 a872174 / build 59, 三设备启动/重建回归通过, 该设备冷启动 183 ms. 已将 QV770340J7 加入后续回归列表.
+- 设置功能提交为 build 60. Documentation e9ce36a / code 78 与 Offline Docs 9b0830a / build 59 同步预算和全局策略. 宿主仍 aeed8edcb9 / 5293, 未触碰 Rhino 同步工作; 保留 Types 的 package.json 与 Ace 的 releases/ 原有工作. 无真实模型/购物/付款, 未推送或发布.
+- 下一起点为原 P6.7 悬浮球, 分享, 快捷方式与语音, 同时闭合原 P6.6 首项的悬浮球开关/权限. P6.6 首项保持待联验, 不增加/分拆/丢弃原条目; P7/P8 gate 未通过. QV770340J7 在启动修复验收后断开 ADB, 待重新连接后安装最终 build 60, 补全回归并恢复临时屏幕超时; 其余设备环境已恢复, 本会话启动的 AVD 已关闭.

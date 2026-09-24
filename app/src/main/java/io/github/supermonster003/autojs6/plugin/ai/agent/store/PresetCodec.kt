@@ -3,7 +3,6 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.store
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
-import io.github.supermonster003.autojs6.plugin.ai.agent.runner.BudgetLimits
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 
 /** Names are stable public identifiers, also used by history and private memory scopes. */
@@ -27,8 +26,7 @@ internal object PresetCodec {
     const val MAX_ROW_BYTES = 96 * 1024
     const val MAX_FILE_BYTES = 1024 * 1024
     val scopes = listOf("global_and_preset", "global", "preset", "none")
-    val ceilings = BudgetLimits.defaults(true).let { mapOf("maxSteps" to it.maxSteps.toLong(), "maxModelCalls" to it.maxModelCalls.toLong(),
-        "maxDurationMs" to it.maxDurationMs, "maxTotalTokens" to it.maxTotalTokens) }
+    val ceilings = SettingsCodec.ceilings
     fun name(text: String) = text.also {
         AgentJson.checkUnicode(it)
         require(it.isNotBlank() && it == it.trim() && it.toByteArray(Charsets.UTF_8).size <= 128 && it != "global" && it.none(Character::isISOControl))

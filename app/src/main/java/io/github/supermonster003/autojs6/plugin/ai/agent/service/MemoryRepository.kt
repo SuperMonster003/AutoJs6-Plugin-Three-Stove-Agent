@@ -30,7 +30,9 @@ internal class MemoryRepository(directory: File, legacy: File? = null) : AutoClo
         val stopped = AtomicBoolean()
         try { worker.execute {
             if (stopped.get()) return@execute
-            val result = runCatching { checkNotNull(loaded); work(store).also { loaded = store.snapshot() } }
+            val result = runCatching { checkNotNull(loaded); work(store) }
+            // A category clear can stop after some durable deletions; publish the actual remaining rows.
+            runCatching { loaded = store.snapshot() }
             if (!stopped.get()) complete(result)
         } } catch (failure: Exception) { complete(Result.failure(failure)) }
         return Cancellation { stopped.set(true) }

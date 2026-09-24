@@ -63,11 +63,14 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             "runningRunId" to (runs.firstOrNull { it.state != RunState.QUEUED }?.id?.json() ?: JsonNull.INSTANCE),
             "queuedCount" to runs.count { it.state == RunState.QUEUED }.coerceAtMost(RunLimits.QUEUED_RUNS).json(),
             "pluginVersion" to runtime.info.versionName.json(), "scriptRoots" to JsonArray().apply { config.roots.sorted().forEach(::add) })
-            .apply { if (presentation) modelName?.let { addProperty("modelName", it) } }.toString())
+            .apply { if (presentation) {
+                modelName?.let { addProperty("modelName", it) }
+                addProperty("voiceEnabled", runCatching { runtime.settings.snapshot().voice }.getOrDefault(false))
+            } }.toString())
     }
     fun liveRuns(): List<JsonObject> = active.values.filter { !it.state.terminal }.mapNotNull { archive.summary(it.id) }
     fun cancelLocal(id: String) { active[id]?.cancel() }
-    fun presetConfiguration(): LinkConfiguration = config
+    fun presetConfiguration(): LinkConfiguration = config.withSettings(runtime.settings.snapshot())
     fun targets(callback: (PortResult<List<SelectedModel>>) -> Unit): Cancellation = if (state == C.LINK_STATE_ATTACHED) model.list(callback) else {
         callback(PortResult.Failure(RunError.HOST_UNAVAILABLE)); Cancellation.NONE
     }
@@ -75,7 +78,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val snapshot = runtime.presets.snapshot()
         return AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("defaultName" to snapshot.defaultName.json(), "presets" to JsonArray().apply {
             snapshot.presets.forEach { preset -> add(jsonObject("id" to preset.name.json(), "toolGroups" to JsonArray().apply {
-                preset.groups(config.groups).sorted().forEach(::add)
+                preset.groups(presetConfiguration().groups).sorted().forEach(::add)
             })) }
         }).toString())
     }
@@ -196,7 +199,10 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
         val configuration = config
-        return RunLauncher.start(state, configuration, json, runtime.presets.snapshot()) { request -> admit(request, configuration, callback) }
+        return synchronized(runtime.admissionLock) {
+            check(!runtime.maintenance)
+            RunLauncher.start(state, configuration, json, runtime.presets.snapshot(), runtime.settings.snapshot()) { request -> admit(request, configuration, callback) }
+        }
     }
     private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IAiAgentRunCallback?): Bundle {
         val policy = runtime.policy(request.groups)

@@ -32,7 +32,12 @@ internal object ControlRequests {
 internal class LinkConfiguration private constructor(val locale: String, val roots: Set<String>, val methods: Set<String>?,
                                                     val permissions: Set<String>?, val groups: Set<String>, val maxInput: Int, val maxTokens: Long,
                                                     val source: JsonObject) {
+    fun availableGroups(): Set<String> = if (source.getAsJsonObject("grantSummary")?.has("toolGroups") == true) groups
+        else ToolGroup.entries.map { it.id }.toSet()
+    fun withSettings(settings: AgentSettings) = LinkConfiguration(locale, roots, methods, permissions,
+        availableGroups().intersect(settings.toolGroups), maxInput, maxTokens, source)
     fun narrows(previous: LinkConfiguration, hostValidatedRoots: Boolean = false): Boolean = (hostValidatedRoots || previous.roots.containsAll(roots)) && previous.groups.containsAll(groups) &&
+        previous.availableGroups().containsAll(availableGroups()) &&
         (previous.methods == null || methods != null && previous.methods.containsAll(methods)) &&
         (previous.permissions == null || permissions != null && previous.permissions.containsAll(permissions)) && maxInput <= previous.maxInput && maxTokens <= previous.maxTokens
     companion object {
@@ -45,7 +50,7 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
             closed(grant, setOf("methods", "permissions", "toolGroups", "maxInputBytesPerRequest", "maxTotalTokens"))
             val groups = strings(grant, "toolGroups", ToolGroup.entries.filter { it.defaultEnabled }.map { it.id }.toSet())
             // Only the authenticated host can widen its initial grant. Run options still only narrow it.
-            require(groups.all { id -> ToolGroup.entries.any { it.id == id && (it.defaultEnabled || it == ToolGroup.GESTURE) } })
+            require(groups.all { id -> ToolGroup.entries.any { it.id == id } })
             LinkConfiguration(text(value, "locale", "en", 64)!!, roots,
                 if (grant.has("methods")) strings(grant, "methods", max = 256) else null,
                 if (grant.has("permissions")) strings(grant, "permissions", max = 128) else null, groups,
@@ -58,7 +63,8 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
 internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>,
                             val preset: String, val memory: Boolean, val memoryScope: String = "global_and_preset") {
     companion object {
-        fun parse(json: String, config: LinkConfiguration, presets: PresetSnapshot = PresetSnapshot.INITIAL): StartRequest = with(ControlRequests) {
+        fun parse(json: String, config: LinkConfiguration, presets: PresetSnapshot = PresetSnapshot.INITIAL,
+                  settings: AgentSettings? = null): StartRequest = with(ControlRequests) {
             val value = AgentJson.objectOf(json, 32 * 1024)
             closed(value, setOf("goal", "options", "origin"))
             require(text(value, "origin", "script", 16) in setOf("script", "ui"))
@@ -70,7 +76,7 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             val allowedRoots = preset.scriptRoots?.intersect(config.roots) ?: config.roots
             val root = ScriptRoots.validate(strings(opts, "scriptRoots", allowedRoots))
             require(allowedRoots.containsAll(root))
-            val allowedGroups = preset.groups(config.groups)
+            val allowedGroups = preset.groups(if (settings == null) config.groups else config.withSettings(settings).groups)
             val groups = when {
                 !opts.has("tools") -> allowedGroups
                 opts["tools"].isJsonArray -> strings(opts, "tools")
@@ -80,7 +86,13 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
                 }
             }
             require(allowedGroups.containsAll(groups))
-            val defaults = BudgetLimits.defaults(detached)
+            val inheritedDefaults = BudgetLimits.defaults(detached)
+            val defaults = inheritedDefaults.copy(
+                maxSteps = settings?.budget?.get("maxSteps")?.toInt() ?: inheritedDefaults.maxSteps,
+                maxModelCalls = settings?.budget?.get("maxModelCalls")?.toInt() ?: inheritedDefaults.maxModelCalls,
+                maxDurationMs = minOf(settings?.budget?.get("maxDurationMs") ?: inheritedDefaults.maxDurationMs,
+                    if (detached) RunLimits.DETACHED_DURATION_MS else RunLimits.DURATION_MS),
+                maxTotalTokens = settings?.budget?.get("maxTotalTokens") ?: inheritedDefaults.maxTotalTokens)
             val budget = obj(opts, "budget")
             closed(budget, setOf("maxSteps", "maxModelCalls", "maxDurationMs", "maxTotalTokens"))
             fun limit(key: String, ceiling: Long): Long {
@@ -92,8 +104,9 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
                 maxModelCalls = limit("maxModelCalls", defaults.maxModelCalls.toLong()).toInt(),
                 maxDurationMs = limit("maxDurationMs", defaults.maxDurationMs),
                 maxTotalTokens = limit("maxTotalTokens", minOf(defaults.maxTotalTokens, config.maxTokens)))
-            val confirm = text(opts, "confirm", preset.confirmPolicy, 16).also {
-                require(it in setOf("default", "cautious") && (preset.confirmPolicy != "cautious" || it == "cautious"))
+            val cautious = preset.confirmPolicy == "cautious" || settings?.cautious == true
+            val confirm = text(opts, "confirm", if (cautious) "cautious" else "default", 16).also {
+                require(it in setOf("default", "cautious") && (!cautious || it == "cautious"))
             }
             val interaction = text(opts, "interaction", "plugin", 16).also { require(it in setOf("plugin", "script")) }!!
             val target = text(opts, "target", preset.targetId)?.let(PresetCodec::target)

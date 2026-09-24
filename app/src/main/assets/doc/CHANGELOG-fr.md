@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Note` Version de développement: P6.1-P6.5 fournissent les tâches, l'historique, les préréglages et la mémoire des préférences. L'API ai.agent nécessite AutoJs6 build 5293 ou ultérieur. Les interfaces restantes suivent P6.6-P6.7; la fiabilité et les conditions de publication restent en P7/P8.
+* `Note` Aperçu de développement: tâches, historique, profils, mémoire, paramètres, notes de version et vérification manuelle des mises à jour sont disponibles. ai.agent exige AutoJs6 build 5293 ou ultérieur. Les entrées flottantes et externes suivent en P6.7; fiabilité et publication restent en P7/P8.
+* `Fonctionnalité` Paramètres globaux, gestion des catégories de données, historique et mentions légales hors ligne, vérification manuelle annulable avec cache quotidien et versions ignorées
 * `Fonctionnalité` Confirmation dans les tâches et notifications avec risque, compte à rebours, autorisation par tâche et mémoire des réponses confirmée séparément
 * `Fonctionnalité` Mémoire des préférences avec confirmation de chaque proposition, recherche par portée, protection des conflits, stockage par entrée, modification, suppression et sauvegarde JSON avec approbation individuelle des imports
 * `Fonctionnalité` Préréglages nommés avec création, modification, duplication, suppression et choix par défaut; catalogue des modèles avec localisation et prise en charge du JSON structuré, contexte fixe, restrictions des outils et budgets, confirmation, dossiers approuvés et portée mémoire

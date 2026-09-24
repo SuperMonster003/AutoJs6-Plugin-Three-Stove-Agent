@@ -264,6 +264,13 @@ extra {
 }
 
 // Reject accidental native dependencies on every ABI.
+val bundledLegalAssets = tasks.register<Sync>("bundleLegalAssets") {
+    from(listOf(rootProject.file("LICENSE"), rootProject.file("THIRD_PARTY_NOTICES.md"))) { into("legal") }
+    into(layout.buildDirectory.dir("generated/legal-assets"))
+}
+android.sourceSets.getByName("main").assets.directories.add(layout.buildDirectory.dir("generated/legal-assets").get().asFile.path)
+tasks.named("preBuild").configure { dependsOn(bundledLegalAssets) }
+
 nativeAlignment { expectNoNativeLibraries.set(true) }
 
 tasks.withType<VerifyNativePageAlignment>().configureEach {

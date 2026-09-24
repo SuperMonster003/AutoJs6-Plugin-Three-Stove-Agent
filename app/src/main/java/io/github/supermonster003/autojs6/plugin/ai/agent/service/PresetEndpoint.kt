@@ -50,7 +50,7 @@ internal class PresetEndpoint(private val runtime: AgentRuntime, private val cac
         runtime.presets.query({ store, snapshot ->
             fun name() = PresetCodec.name(requireNotNull(value.string("name")))
             fun fields(vararg keys: String) { require(value.keySet() == setOf("operation", *keys)) }
-            fun configuration() = runtime.current?.presetConfiguration() ?: LinkConfiguration.parse("{}")
+            fun configuration() = runtime.current?.presetConfiguration() ?: LinkConfiguration.parse("{}").withSettings(runtime.settings.snapshot())
             when (value.string("operation")) {
                 "list" -> {
                     fields(); val config = configuration()

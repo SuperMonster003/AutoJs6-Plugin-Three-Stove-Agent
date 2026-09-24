@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Hint` Development preview: P6.1-P6.5 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.6-P6.7; reliability and release gates remain in P7/P8.
+* `Hint` Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
+* `Feature` Global settings, per-category data management, offline release history and legal notices, and cancellable manual update checks with daily caching and ignored versions
 * `Feature` Inline and notification confirmation with risk, countdown, task-scoped approval and separately confirmed answer memory
 * `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
 * `Feature` Named presets with creation, editing, copying, deletion and default selection; host model catalog labels for locality and structured JSON, fixed context, narrower tool groups and budgets, confirmation policy, approved script folders and memory scope

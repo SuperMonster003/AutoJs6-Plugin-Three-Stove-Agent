@@ -113,6 +113,7 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         val removed = store.touch(id)
         synchronized(this) { removed.forEach { records.remove(it); dirty.remove(it) } }
     }
+    @Synchronized fun statistics() = jsonObject("count" to records.size.json(), "bytes" to store.bytes().json())
     fun remove(id: String?) {
         val ids = synchronized(this) {
             if (id != null) {

@@ -17,6 +17,7 @@ internal class RunHistoryStore(
     private data class Entry(val state: String, val started: Long, val accessed: Long, val bytes: Long)
     private val entries = linkedMapOf<String, Entry>()
     private var opened = false
+    fun bytes(): Long = entries.values.sumOf { it.bytes } + File(directory, "index.json").length()
     init { require(maxCount in 1..200 && maxBytes in (INDEX_BYTES + 2048L)..(32L * 1024 * 1024)) }
     fun open(): List<JsonObject> {
         check(!opened)

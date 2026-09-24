@@ -39,6 +39,8 @@ internal class PresetStore(private val file: File) {
         val before = checkNotNull(current); before.resolve(name)
         return write(PresetSnapshot(name, before.presets))
     }
+    fun clear(): PresetSnapshot = write(PresetSnapshot.INITIAL)
+    fun bytes(): Long = if (file.exists()) file.length() else 0
     private fun write(next: PresetSnapshot): PresetSnapshot {
         val text = PresetCodec.encode(next)
         check(file.parentFile!!.isDirectory || file.parentFile!!.mkdirs())

@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-Vista previa: P6.1-P6.5 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.6-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -118,8 +118,10 @@ Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de t
 6. Abra Preajustes en el panel para guardar una configuración. Los nombres identifican scripts y ámbitos de memoria; copie el preajuste para usar otro nombre. El default integrado se puede editar pero no eliminar. Elija un modelo del catálogo del host o la selección automática. Un modelo elegido no disponible falla sin sustituirse. Las opciones de tarea solo pueden reducir los límites del preajuste. El contexto fijo y el de la tarea comparten un límite de 8 KiB. La memoria puede incluir entradas globales y del preajuste, solo uno de los dos ámbitos, o ninguno. Editar o eliminar no cambia las tareas en cola. Almacenamiento privado: hasta 32 preajustes / 1 MiB.
 7. Abra Memoria para consultar, editar, eliminar o respaldar preferencias. Hasta 500 entradas / 256 KiB, con ámbito, tarea de origen y fechas. Confirme cada memory_propose y cada entrada importada. Cree primero los preajustes que falten. La inyección automática conserva entradas completas recientes del ámbito permitido, hasta 4 KiB; el preajuste actual prevalece sobre claves globales iguales. memory: false solo desactiva la inyección. Desactive el grupo memory o el ámbito para impedir también consultas y propuestas. La exportación incluye valores reales y procedencia. No almacene credenciales; se rechazan claves y formatos de token reconocibles.
 8. Responda en las tareas en primer plano o abra la notificación prioritaria en segundo plano. La confirmación muestra herramienta, parámetros, riesgo y tiempo restante. Permitir acciones similares se limita a esta herramienta y riesgo en esta tarea; los pagos y la memoria siempre requieren aprobación individual. Recordar una respuesta crea una propuesta memory_propose separada en el ámbito permitido. Las confirmaciones esperan normalmente 120 segundos y las preguntas hasta 10 minutos, dentro del presupuesto de la tarea. Al expirar se devuelve USER_TIMEOUT; el modelo decide si pregunta de nuevo o informa un resultado parcial. Las solicitudes antiguas no responden a las nuevas. Los permisos y canales afectan a las notificaciones. Las tarjetas flotantes siguen en P6.7.
+9. Abra Ajustes desde tareas para elegir grupos, presupuestos, modo prudente, voz y perfil predeterminado. Los cambios afectan a tareas nuevas. gesture/files/shell empiezan desactivados; OCR requiere un complemento autorizado y disponible en el anfitrión. Los presupuestos vacíos heredan los valores iniciales y respetan los límites del protocolo. Perfiles y opciones solo pueden reducirlos. La gestión muestra cantidades y bytes; borrar una categoría exige confirmación y ninguna tarea activa. Borrar perfiles restaura default. También hay carpetas de scripts, licencias y fuente.
+10. Historial y avisos legales se incluyen sin conexión. La consulta a GitHub Releases es manual, con caché de éxitos de 24 horas, cancelación y versiones ignoradas. El diálogo abre el historial interno o la página de publicación en el navegador. Sin consultas automáticas ni descargas APK.
 
-> Vista previa: P6.1-P6.5 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.6-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8.
+> Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8.
 
 ******
 
@@ -131,7 +133,7 @@ El plugin sigue límites explícitos:
 
 - Los puntos de entrada Binder están protegidos por el permiso de firma `org.autojs.permission.PLUGIN`, por lo que solo AutoJs6 puede alcanzarlos; la pantalla de inicio es el único otro componente exportado.
 - El plugin no guarda claves de API, nunca se vincula a un proveedor de modelo ni solicita el permiso de accesibilidad: las llamadas al modelo y las acciones en el dispositivo pasan por intermediarios que AutoJs6 presta para un enlace adjunto y revoca al desvincularse, cada uno acotado por una concesión (métodos permitidos, tasas, tamaños, cuota de modelo).
-- Sin permiso de red. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE mantienen las tareas activas; POST_NOTIFICATIONS muestra progreso y controles de parada. No se solicitan permisos de accesibilidad ni superposición.
+- INTERNET solo consulta manualmente versiones de GitHub. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE sirven para tareas activas; POST_NOTIFICATIONS muestra progreso y detención. Sin permisos de accesibilidad, superposición, almacenamiento o micrófono.
 - El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas.
 
 Obtenga el plugin únicamente desde la página oficial de [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) o el centro de plugins de AutoJs6. Los paquetes de origen desconocido pueden fallar la verificación del anfitrión o conllevar riesgos aunque el número de versión parezca idéntico.
@@ -179,7 +181,8 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/24_
 
-- `Aviso` Vista previa: P6.1-P6.5 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.6-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8.
+- `Aviso` Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8.
+- `Función` Ajustes globales, gestión de categorías de datos, historial y avisos legales sin conexión, consulta manual cancelable con caché diario y versiones ignoradas
 - `Función` Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado
 - `Función` Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar
 - `Función` Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria

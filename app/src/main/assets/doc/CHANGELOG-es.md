@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Aviso` Vista previa: P6.1-P6.5 ofrecen tareas, historial, preajustes y memoria de preferencias. La API ai.agent requiere AutoJs6 compilación 5293 o posterior. Las interfaces restantes siguen en P6.6-P6.7; fiabilidad y condiciones de publicación permanecen en P7/P8.
+* `Aviso` Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8.
+* `Función` Ajustes globales, gestión de categorías de datos, historial y avisos legales sin conexión, consulta manual cancelable con caché diario y versiones ignoradas
 * `Función` Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado
 * `Función` Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar
 * `Función` Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria

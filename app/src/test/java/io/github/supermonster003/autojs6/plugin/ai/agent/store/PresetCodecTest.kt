@@ -41,8 +41,8 @@ class PresetCodecTest {
     }
     @Test fun rejectsAuthorityFieldsUnknownScopesAndUnboundedBudgets() {
         for (extra in listOf("\"riskOverrides\":{}", "\"confirmPolicy\":\"never\"", "\"memoryScope\":\"other-preset\"",
-            "\"toolGroups\":[\"unknown\"]", "\"toolGroups\":[\"act\",\"act\"]", "\"budget\":{\"maxSteps\":41}",
-            "\"budget\":{\"maxSteps\":1.5}", "\"budget\":{\"maxSteps\":0}", "\"budget\":{\"maxTotalTokens\":300001}",
+            "\"toolGroups\":[\"unknown\"]", "\"toolGroups\":[\"act\",\"act\"]", "\"budget\":{\"maxSteps\":201}",
+            "\"budget\":{\"maxSteps\":1.5}", "\"budget\":{\"maxSteps\":0}", "\"budget\":{\"maxTotalTokens\":1000001}",
             "\"budget\":{\"maxModelCalls\":\"2\"}", "\"scriptRoots\":[\"/sdcard/../private\"]", "\"context\":null")) {
             assertNotNull(extra, runCatching { PresetCodec.decodePreset(AgentJson.objectOf("{\"name\":\"test\",$extra}")) }.exceptionOrNull())
         }

@@ -37,7 +37,7 @@ class ControlRequestsTest {
         val previous = LinkConfiguration.parse("""{"scriptRoots":["/sdcard/scripts"],"grantSummary":{"methods":["app.launch"],"permissions":["accessibility"],"toolGroups":["observe","act"],"maxTotalTokens":1000}}""")
         assertTrue(LinkConfiguration.parse("""{"grantSummary":{"methods":[],"permissions":[],"toolGroups":["observe"],"maxTotalTokens":100}}""").narrows(previous))
         assertFalse(LinkConfiguration.parse("{}").narrows(previous))
-        assertThrows(IllegalArgumentException::class.java) { LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["shell"]}}""") }
+        assertFalse(LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["shell"]}}""").narrows(previous))
         assertThrows(IllegalArgumentException::class.java) { LinkConfiguration.parse("""{"grantSummary":{"modelCallsPerMinute":1}}""") }
     }
     @Test fun goalAndContextUseUtf8LimitsAndClosedSchemas() {

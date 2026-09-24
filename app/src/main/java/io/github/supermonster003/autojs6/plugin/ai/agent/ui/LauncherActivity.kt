@@ -80,6 +80,7 @@ class LauncherActivity : HostAppearanceActivity() {
         findViewById<Button>(R.id.workbench_history).setOnClickListener { startActivity(Intent(this, HistoryActivity::class.java)) }
         findViewById<Button>(R.id.workbench_presets).setOnClickListener { startActivity(Intent(this, PresetsActivity::class.java)) }
         findViewById<Button>(R.id.workbench_memory).setOnClickListener { startActivity(Intent(this, MemoryActivity::class.java)) }
+        findViewById<Button>(R.id.workbench_settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_script_roots).setOnClickListener { startActivity(Intent(this, ScriptRootsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_connect).setOnClickListener { requested = false; requestAttachment() }
         findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
@@ -89,7 +90,7 @@ class LauncherActivity : HostAppearanceActivity() {
             }
         }
         findViewById<Button>(R.id.workbench_voice).apply {
-            visibility = if (speechIntent().resolveActivity(packageManager) == null) View.GONE else View.VISIBLE
+            visibility = View.GONE
             setOnClickListener { runCatching { startActivityForResult(speechIntent(), VOICE_REQUEST) }.onFailure { showError() } }
         }
         updateSend(); tint(findViewById(android.R.id.content))
@@ -145,6 +146,8 @@ class LauncherActivity : HostAppearanceActivity() {
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
+        findViewById<Button>(R.id.workbench_voice).visibility = if (value.status.flag("voiceEnabled") == true &&
+            speechIntent().resolveActivity(packageManager) != null) View.VISIBLE else View.GONE
         availablePresets = value.presets
         val nextDefault = followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset
         if (nextDefault) selectedPreset = value.defaultPreset

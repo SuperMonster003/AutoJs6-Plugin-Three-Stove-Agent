@@ -10,6 +10,8 @@ import java.security.MessageDigest
 internal class MemoryStore(private val directory: File, private val legacy: File? = null) {
     private var rows: List<MemoryEntry>? = null
     fun snapshot(): List<MemoryEntry> = checkNotNull(rows)
+    fun bytes(): Long = snapshot().sumOf { File(directory, fileName(it.scope, it.key)).length() }
+    fun clear() { snapshot().toList().forEach { delete(it.scope, it.key, it) } }
     fun open(): List<MemoryEntry> {
         check(rows == null)
         check(!directory.exists() || directory.isDirectory)

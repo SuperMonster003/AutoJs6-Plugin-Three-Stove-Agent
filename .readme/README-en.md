@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: P6.1-P6.5 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.6-P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -118,8 +118,10 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 6. Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Choose a model from the host catalog, or keep automatic selection. A missing selected model fails without switching targets. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately.
 7. Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
 8. Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery. Floating cards follow in P6.7.
+9. Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
+10. Release history and legal notices are bundled for offline reading. Check updates manually through GitHub Releases, with a 24-hour success cache, cancellation and an ignored-version setting. The dialog opens release history inside the app or the release page in a browser. Checks never run automatically and APKs are not downloaded.
 
-> Development preview: P6.1-P6.5 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.6-P6.7; reliability and release gates remain in P7/P8.
+> Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
 
 ******
 
@@ -131,7 +133,7 @@ The plugin follows explicit boundaries:
 
 - The Binder entry points are protected by the `org.autojs.permission.PLUGIN` signature permission, so only AutoJs6 can reach them; the launcher screen is the only other exported component.
 - The plugin holds no API keys, never binds a model provider and does not request the accessibility permission: model calls and device actions go through brokers that AutoJs6 lends for one attached link and revokes on detach, each bounded by a grant (allowed methods, rates, sizes, model quota).
-- No network permission. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE keep active tasks running; POST_NOTIFICATIONS makes progress and stop controls visible. No accessibility or overlay permission is requested.
+- INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and stop actions. No accessibility, overlay, storage or microphone permission is requested.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
 
 Only obtain the plugin from the official [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.
@@ -179,7 +181,8 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/24_
 
-- `Hint` Development preview: P6.1-P6.5 provide the workbench, history, presets and preference memory. The ai.agent API requires AutoJs6 build 5293 or later. Remaining interfaces continue in P6.6-P6.7; reliability and release gates remain in P7/P8.
+- `Hint` Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
+- `Feature` Global settings, per-category data management, offline release history and legal notices, and cancellable manual update checks with daily caching and ignored versions
 - `Feature` Inline and notification confirmation with risk, countdown, task-scoped approval and separately confirmed answer memory
 - `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
 - `Feature` Named presets with creation, editing, copying, deletion and default selection; host model catalog labels for locality and structured JSON, fixed context, narrower tool groups and budgets, confirmation policy, approved script folders and memory scope

@@ -11,7 +11,7 @@ import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 import java.io.File
 
 /** One instance in :agent, shared by the exported link, private UI binding and foreground service. */
-internal class AgentRuntime private constructor(val context: Context) {
+internal class AgentRuntime internal constructor(val context: Context) {
     val info = context.aiAgentPluginRuntimeInfo()
     val verifier = HostCallerVerifier(context)
     fun asset(path: String) = context.assets.open(path).bufferedReader().use { it.readText() }
@@ -24,6 +24,13 @@ internal class AgentRuntime private constructor(val context: Context) {
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json")) }
+    val settings = SettingsRepository(File(context.filesDir, "agent-settings.json"))
+    val admissionLock = Any()
+    @Volatile var maintenance = false; private set
+    fun beginMaintenance(): Boolean = synchronized(admissionLock) {
+        if (maintenance || current?.liveRuns()?.isNotEmpty() == true) false else { maintenance = true; true }
+    }
+    fun endMaintenance() { synchronized(admissionLock) { maintenance = false } }
     @Volatile var current: HostLink? = null; private set
     val interactions by lazy { InteractionPresentation(this) }
     fun taskChanged() { AiAgentTaskForegroundService.changed(); interactions.changed() }
@@ -35,7 +42,7 @@ internal class AgentRuntime private constructor(val context: Context) {
     }
     fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(AiAgentContract.KEY_STATUS_JSON,
         jsonObject("state" to AiAgentContract.LINK_STATE_DETACHED.json(), "attachedAt" to 0.json(), "queuedCount" to 0.json(),
-            "pluginVersion" to info.versionName.json()).toString())
+            "pluginVersion" to info.versionName.json(), "voiceEnabled" to runCatching { settings.snapshot().voice }.getOrDefault(false).json()).toString())
     companion object {
         @Volatile private var instance: AgentRuntime? = null
         fun get(context: Context): AgentRuntime = instance ?: synchronized(this) {
