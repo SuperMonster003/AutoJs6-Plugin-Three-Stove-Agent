@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -115,8 +115,9 @@ Vista previa de desarrollo: scripts registrados, acciones de pantalla y API de t
 3. Abre AI Agent, conecta AutoJs6, introduce un objetivo e inicia con el preajuste predeterminado. Responde o confirma en la tarjeta y consulta los detalles de las tareas recientes.
 4. Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
 5. Hasta 200 tareas / 32 MiB. Se eliminan primero las tareas terminadas consultadas hace más tiempo. Repetir rellena el objetivo y preajuste originales en el panel. Revísalos y pulsa Iniciar tarea para ejecutarla. Vaciar el historial conserva las tareas en curso. Se conservan contadores, nombres de herramientas y confirmaciones. Se eliminan objetivos, parámetros, observaciones y resultados de scripts. Elige dónde guardar el archivo.
+6. Abra Preajustes en el panel para guardar una configuración. Los nombres identifican scripts y ámbitos de memoria; copie el preajuste para usar otro nombre. El default integrado se puede editar pero no eliminar. Elija un modelo del catálogo del host o la selección automática. Un modelo elegido no disponible falla sin sustituirse. Las opciones de tarea solo pueden reducir los límites del preajuste. El contexto fijo y el de la tarea comparten un límite de 8 KiB. La memoria puede incluir entradas globales y del preajuste, solo uno de los dos ámbitos, o ninguno. Editar o eliminar no cambia las tareas en cola. Almacenamiento privado: hasta 32 preajustes / 1 MiB.
 
-> Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8.
+> Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8.
 
 ******
 
@@ -176,7 +177,8 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/24_
 
-- `Aviso` Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8.
+- `Aviso` Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8.
+- `Función` Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria
 - `Función` Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)
 - `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión
 - `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado

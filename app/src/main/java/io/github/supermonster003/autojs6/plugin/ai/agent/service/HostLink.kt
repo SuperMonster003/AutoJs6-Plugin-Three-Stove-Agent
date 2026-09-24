@@ -67,6 +67,18 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     fun liveRuns(): List<JsonObject> = active.values.filter { !it.state.terminal }.mapNotNull { archive.summary(it.id) }
     fun cancelLocal(id: String) { active[id]?.cancel() }
+    fun presetConfiguration(): LinkConfiguration = config
+    fun targets(callback: (PortResult<List<SelectedModel>>) -> Unit): Cancellation = if (state == C.LINK_STATE_ATTACHED) model.list(callback) else {
+        callback(PortResult.Failure(RunError.HOST_UNAVAILABLE)); Cancellation.NONE
+    }
+    fun presetList(): Bundle {
+        val snapshot = runtime.presets.snapshot()
+        return AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("defaultName" to snapshot.defaultName.json(), "presets" to JsonArray().apply {
+            snapshot.presets.forEach { preset -> add(jsonObject("id" to preset.name.json(), "toolGroups" to JsonArray().apply {
+                preset.groups(config.groups).sorted().forEach(::add)
+            })) }
+        }).toString())
+    }
     @Synchronized fun disconnect(next: String) {
         if (state != C.LINK_STATE_ATTACHED) return
         state = next
@@ -120,7 +132,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                     policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
-                val memory = runtime.memories.snapshot(request.preset, request.memory)
+                val memory = runtime.memories.snapshot(request.preset, request.memory, request.memoryScope)
                 val executionTools = ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset))
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
@@ -174,7 +186,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
         val configuration = config
-        return RunLauncher.start(state, configuration, json) { request -> admit(request, configuration, callback) }
+        return RunLauncher.start(state, configuration, json, runtime.presets.snapshot()) { request -> admit(request, configuration, callback) }
     }
     private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IAiAgentRunCallback?): Bundle {
         val policy = runtime.policy(request.groups)
@@ -255,8 +267,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         override fun getRun(reference: Bundle?): Bundle { check(reference); return RunQueries(archive).get(reference) }
         override fun listPresets(query: Bundle?): Bundle { check(query); return result {
             require(AgentJson.objectOf(read(query, C.KEY_RUN_REQUEST_JSON)).size() == 0)
-            AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("presets" to jsonArray(jsonObject("id" to "default".json(), "toolGroups" to
-                JsonArray().apply { config.groups.sorted().forEach { add(it) } }))).toString())
+            presetList()
         } }
         override fun updateConfig(configuration: Bundle?) {
             check(configuration)

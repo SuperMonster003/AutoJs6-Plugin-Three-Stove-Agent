@@ -1,0 +1,53 @@
+# P6.3 named presets
+
+Date: 2026-09-24. Scope: the two original P6.3 implementation and test items. No roadmap item was added, split or removed. Agent 1.0.0 / build 56; host remains `aeed8edcb9` / build 5293. Task execution uses controlled models and isolated fixtures (E0/E1/E2); a separate UI smoke reads the real host model catalog. This is not another real-model E4 task or shopping run.
+
+## Delivered behavior
+
+- The workbench opens `PresetsActivity` for creation, editing, copying, deletion and default selection. The built-in `default` remains editable and cannot be deleted. Deleting the selected default returns new tasks to `default`. Names are stable script/history/memory identifiers and remain fixed after creation; copying creates a new name. Unsaved editor values and model selection survive activity recreation. Saving freezes the form until acknowledgment; errors scroll into view.
+- A preset stores an optional model target, enabled tool groups, budget overrides, default/cautious confirmation policy, fixed context, optional approved script directories and memory scope. Missing group/directory overrides inherit current global settings; an explicit empty set remains empty. Empty budget fields inherit task limits.
+- The selector calls the existing `IAiAgentModelBroker.listTargets` through the attached host link. It labels on-device, remote or hybrid locality and structured JSON or degraded mode. Model names and capabilities occupy separate lines, and the popup uses the available width. Refresh preserves an explicitly selected target even when it disappears from the catalog. A missing selected target fails with `TARGET_UNAVAILABLE`; it never silently switches to another model. Automatic selection retains the existing local-first policy. An explicit per-task target may override the preset's target default.
+- `RunLauncher` resolves an omitted preset to the current default for both scripts and the workbench. Explicitly requesting `default` still selects that built-in preset; requesting a deleted name is rejected. The workbench follows the chosen default for a fresh draft and preserves explicit selections and historical rerun presets.
+
+## Admission, confirmation and memory boundaries
+
+Preset saving cannot enable globally disabled tool groups or unapproved script directories. At admission, saved groups and roots are intersected with current grants. Task options may reduce those sets and budgets further, but cannot enlarge them. Budget limits also retain the existing task-ownership duration and host token ceilings. A cautious preset cannot be downgraded by task options. Sensitive operations and every payment confirmation continue through the original confirmation gate, with no run-scoped approval for payments.
+
+Fixed context is combined with per-task context instead of being replaced by it. The existing 8 KiB UTF-8 admission limit applies after combining context and, when present, serializing parameters. Preset context itself is limited to 8 KiB before JSON escaping. The preset's resolved values are captured before queuing, so editing or deleting its store entry does not change an admitted task.
+
+Memory scope can include global and current-preset entries, global only, current preset only, or neither. It never grants access to another preset's memory. `memory: false`, a disabled memory tool group or scope `none` prevents memory injection. This stage implements preset scope selection; the memory management UI and write workflow remain in original P6.4.
+
+## Persistence and private IPC
+
+`PresetStore` owns `files/agent-presets.json` with schema version 1, a default name and a preset array. Limits are 32 presets including the built-in entry, 96 KiB per serialized row and 1 MiB per file. Names are unique, valid UTF-8 identifiers of at most 128 bytes; `global` is reserved. Model IDs use the existing syntax and 256-character limit. Unknown fields/versions, duplicate entries, malformed UTF-8, invalid defaults and unsupported policies/scopes are rejected. Unreadable files are preserved rather than reset.
+
+Writes use a temporary file, synced contents and a backup before replacement; the in-memory snapshot is published only after success. Recovery validates an interrupted-write backup before restoring it. Temporary and backup files require working space beyond the retained file limit.
+
+`PresetRepository` is the sole store owner in `:agent`, with serialized worker IO and an in-memory admission snapshot. Binder admission never performs or waits for disk IO; unavailable storage fails closed. The same-UID, unexported `AgentLocalService` exposes private asynchronous `IPresetStore`/callback interfaces. Requests are bounded to 96 KiB plus envelope allowance, at most eight pending operations, and responses to 256 KiB. Responses above 32 KiB use read-only file descriptors with unlinked temporary paths. Catalog and UI requests have bounded deadlines and stale UI callbacks are discarded.
+
+No public host AIDL, JS signature, host API AAR, runtime dependency or permission changed. The plugin still obtains models and capabilities through AutoJs6, without direct Provider binding, HTTP model calls or credentials.
+
+## Verification
+
+- JVM: 411 tests, 0 failures/errors/skips. The 21 new tests cover complete codec round trips, inheritance versus explicit empty sets, UTF-8 and JSON-escaping limits, 256-character target boundaries, unsupported data, file/count limits, CRUD/default/copy/reload, interrupted and failed writes, grant narrowing, context merging, budget ownership, sensitive/payment confirmation, memory subsets and shared UI/script admission.
+- Full Android instrumentation: 45 tests on AVD API 37 (x86_64, 16 KiB pages) and 45 on Sony G8441 API 28 (arm64). Three new cases exercise the real private Binder and activities with a controlled model; their capability broker rejects device actions.
+- The editor case creates a named preset, selects the fixture model, narrows tools and budgets, enables cautious confirmation, supplies fixed context and disables memory. It recreates the editor, saves, selects the preset in the workbench and completes a task. Captured model requests and run metadata verify the target, context and budget.
+- The store/queue case exercises creation, copying, duplicate rejection, default selection and deletion protection. A second task queues behind a held model call; its preset is edited and deleted before preparation. It still receives the original context. Deleting the selected default restores the built-in entry; subsequently requesting the deleted name fails.
+- The payload case round-trips an 8 KiB NUL context whose JSON escaping exceeds the inline response threshold, exercising the actual FD path. A missing target produces `TARGET_UNAVAILABLE` without calling model generation. Fixture catalog labels exercise remote locality and degraded mode. Tests delete only their own named presets and restore the previous default and workbench drafts.
+- An early G8441 run exposed an existing missing-host test race: an asynchronous host-appearance update could recreate the activity after a per-instance test reader was injected. The test now applies its missing-host fixture to the current instance while waiting. No production host detection was weakened; subsequent full suites pass.
+- Real catalog smoke on the AVD lists `gemma-4-E2B-it-litert-lm.litertlm` as on-device/structured JSON and `Model8` as online/structured JSON through host 5293 and 3-Stone AI 214. Initial idle-host attempts became unavailable; ActivityManager recorded the host frozen and killed after a synchronous Binder request. Reopening the host and reconnecting restored catalog access. The final smoke passes, with the long model label visually checked. This only verifies catalog integration, not model inference, and does not claim the idle-host lifecycle limitation is fixed.
+- Debug, androidTest and release APK assembly, R8, native-library absence verification and lint pass. Lint has 0 errors and the same 6 existing warnings: 2 dependency notices, 1 runtime context cache, 1 unused round icon and 2 duplicate icons. All 10 language sources, 11 resource directories with 47 added strings, and 36 generated Markdown artifacts are synchronized.
+
+Raw logs, test fixtures and screenshots remain in ignored `build/p63-*` paths. The committed evidence contains no credentials, private addresses or user screenshots. No shopping application was operated, and no order or payment was created.
+
+The final build log is `build/p63-build-layout.log`. Final full-device logs are `build/p63-layout-emulator-5586.log` (45 tests, 26.666 s) and `build/p63-layout-BH900ASK9E.log` (45 tests, 65.764 s); `build/p63-catalog-final.log` and its screenshot record the final two-line selector smoke. The AVD's temporarily enabled host AI Agent switch was restored to disabled, its original observed notification grant was retained, and the temporary UI dump was removed before shutting down this session's headless emulator without saving a snapshot. Font scale 1.0, day mode and disabled accessibility were verified. G8441 retains build 56, font scale 1.0, day mode, its 120000 ms screen timeout and the original accessibility-service list; it was returned to the home screen. No other physical device was operated during P6.3.
+
+## Documentation integration
+
+The official documentation explains named/default presets, task narrowing, context merging, memory scope and missing-target behavior. Source Markdown, generated HTML/JSON and the offline search index are synchronized. Documentation commit `85f46af5206bf80e79ccb9b68c5f90881f75b050` is version 6.8.0 / project code 76. Generator and style checks pass.
+
+Offline Documentation commit `4941418` is version 6.8.0 / build 57. Its two provenance records and README source metadata point to the exact documentation commit above. Full offline verification checks both debug and release APKs: 199 content files, 11,587,454 bytes, canonical SHA-256 `4f21f7c19ff896a3e506d9dcb064fc844b832c1f720387c65aef1469d4ad24b7`. The ten language changelogs and 25 generated Markdown artifacts are consistent.
+
+TypeScript and Ace signatures already support the existing preset option and preset-list result, so no declaration or completion signature changes are required. The user's unrelated TypeScript package metadata edit and Ace `releases/` directory are preserved. Host sources, including the Rhino synchronization work, are untouched.
+
+Only local commits are made; no push or release. Next work remains original P6.4. P6.5-P6.7 and P7/P8 retain their original positions; preset app shortcuts remain in P6.7.

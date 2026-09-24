@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Note` Aperçu de développement: le tableau de tâches P6.1 et l'historique P6.2 sont disponibles. L'API ai.agent exige AutoJs6 build 5293 ou ultérieur. Les préréglages personnalisés et autres interfaces suivent en P6.3-P6.7; la fiabilité et la publication restent en P7/P8.
+* `Note` Aperçu de développement: P6.1-P6.3 proposent les tâches, leur historique et les préréglages nommés. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La gestion de la mémoire et les autres interfaces suivent en P6.4-P6.7; les validations de fiabilité et de publication restent en P7/P8.
+* `Fonctionnalité` Préréglages nommés avec création, modification, duplication, suppression et choix par défaut; catalogue des modèles avec localisation et prise en charge du JSON structuré, contexte fixe, restrictions des outils et budgets, confirmation, dossiers approuvés et portée mémoire
 * `Fonctionnalité` Chronologie complète et résultats, filtres par état/préréglage/date, brouillons de relance, suppression, export JSON expurgé et historique privé versionné avec migration et nettoyage LRU (200 tâches / 32 MiB)
 * `Fonctionnalité` Tableau des tâches avec lancement commun, apparence de l'hôte, interactions intégrées, budgets et 20 tâches récentes consultables hors connexion
 * `Fonctionnalité` La fin de tâche exige des preuves, les résultats partiels listent le travail restant et les commandes ou paiements exigent un état de commande observé

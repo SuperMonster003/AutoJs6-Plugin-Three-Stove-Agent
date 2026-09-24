@@ -8,7 +8,8 @@
 
 ###### 2026/09/24
 
-* `Hint` Development preview: the P6.1 workbench and P6.2 task history are available. The ai.agent API requires AutoJs6 build 5293 or later. Custom presets and other interfaces continue in P6.3-P6.7; reliability and release gates remain in P7/P8.
+* `Hint` Development preview: P6.1-P6.3 provide the workbench, task history and named presets. The ai.agent API requires AutoJs6 build 5293 or later. Memory management and the remaining interfaces continue in P6.4-P6.7; reliability and release gates remain in P7/P8.
+* `Feature` Named presets with creation, editing, copying, deletion and default selection; host model catalog labels for locality and structured JSON, fixed context, narrower tool groups and budgets, confirmation policy, approved script folders and memory scope
 * `Feature` Full task timelines and results, status/preset/date filters, rerun drafts, deletion, redacted JSON export, and versioned private history with migration and LRU cleanup at 200 tasks / 32 MiB
 * `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected
 * `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state

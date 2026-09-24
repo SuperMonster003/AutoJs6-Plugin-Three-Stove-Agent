@@ -23,11 +23,13 @@ internal class AgentRuntime private constructor(val context: Context) {
         ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run")
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
     val memories = PrivateMemorySource(File(context.filesDir, "agent-memory.json"))
+    val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json")) }
     @Volatile var current: HostLink? = null; private set
     fun taskChanged() = AiAgentTaskForegroundService.changed()
     @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IAiAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)
+        presets // Start loading on its own worker before admission; never read disk on Binder.
         return HostLink(this, config, model, capability, callback, uid).also { current = it; it.activate() }
     }
     fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(AiAgentContract.KEY_STATUS_JSON,

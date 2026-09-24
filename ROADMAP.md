@@ -516,8 +516,10 @@ P6.2 证据: `docs/dev/p62-history-evidence-2026-09-24.md`. JVM 390 项, AVD API
 
 ### P6.3 预设
 
-- [ ] (插件) `PresetsActivity` + `PresetStore`: 预设 = `{ name, targetId?, toolGroups (启用集合, 只能收紧), budget 覆盖, confirmPolicy (default / cautious), context (固定上下文文本, <= 8 KiB), scriptRoots?, memoryScope }`; 内置 `default`; 新建 / 编辑 / 复制 / 删除 / 设为默认; 模型目标选择器来自 `IAiAgentModelBroker.listTargets` (显示 locality 与是否支持 structured-json, 不支持者标注 "退化模式"); App Shortcut 固定 (P6.7).
-- [ ] (测试) JVM: `PresetCodecTest`, 收紧规则 (预设不能启用被全局关闭的组, 不能放宽 `SENSITIVE`); instrumentation: 创建预设并以其启动任务.
+- [x] (插件) `PresetsActivity` + `PresetStore`: 预设 = `{ name, targetId?, toolGroups (启用集合, 只能收紧), budget 覆盖, confirmPolicy (default / cautious), context (固定上下文文本, <= 8 KiB), scriptRoots?, memoryScope }`; 内置 `default`; 新建 / 编辑 / 复制 / 删除 / 设为默认; 模型目标选择器来自 `IAiAgentModelBroker.listTargets` (显示 locality 与是否支持 structured-json, 不支持者标注 "退化模式"); App Shortcut 固定 (P6.7).
+- [x] (测试) JVM: `PresetCodecTest`, 收紧规则 (预设不能启用被全局关闭的组, 不能放宽 `SENSITIVE`); instrumentation: 创建预设并以其启动任务.
+
+P6.3 证据: `docs/dev/p63-presets-evidence-2026-09-24.md`. 私有版本化原子存储最多 32 个预设 / 1 MiB, 名称是不可变脚本/记忆标识, 可复制换名. UI 与脚本统一解析当前默认预设并固定入队快照, 单次参数只能收紧工具/预算/确认/目录约束; 固定上下文合并后检查 8 KiB. 记忆范围只允许 global/当前预设的子集. JVM 411 项, API 37/28 instrumentation 各 45 项; 模型目录来自既有宿主代理, 不改公共 AIDL 或脚本签名. 文档及离线包已同步. 固定桌面快捷方式仍在原 P6.7.
 
 ### P6.4 记忆
 
@@ -1287,3 +1289,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - JVM 390 项, AVD API 37 / Sony G8441 API 28 全量 instrumentation 各 42 项通过. 覆盖 13 步大记录实际 Binder/回放/展开状态恢复/重跑不执行/脱敏导出文件, 旧存档迁移, 清空不复活以及失效预设. AVD 系统文件保存器实际导出 1103 字节 JSON 并核验, 临时文件已清理. 详见同日 P6.2 证据.
 - debug/androidTest/release R8/lint 与 10 语言 36 份生成文档校验通过, lint 无新增警告. 仅修改 AI Agent 插件, build 55 对齐提交计数; 宿主保持 5293, 未触碰 Rhino 同步. 未新增购物/付款, 未推送/发布.
 - 下一起点为原 P6.3 预设. P6.4-P6.7, P7/P8 gate 保留原位置. 当前无需用户补充资料, 设备或手动操作.
+
+### 2026-09-24 (P6.3 预设)
+
+- 完成原 P6.3 的实现与测试条目, 未增加/分拆/丢弃阶段. 任务台新增预设管理, 支持新建/编辑/复制/删除/设为默认, 模型目录标注本地性和结构化/退化模式. 内置 default 可编辑但不可删除, 名称作为脚本/历史/记忆标识固定, 复制可换名.
+- 私有版本化原子存储最多 32 个预设 / 1 MiB, IO 串行工作线程处理. UI 和脚本共用 RunLauncher, 固定入队时解析的配置; 编辑/删除预设不改变已入队任务. 全局授权/预设/单次参数逐层收紧工具, 预算, 确认和目录; 不降低敏感/支付确认. 固定及任务上下文合并后检查 8 KiB; 记忆范围限全局/当前预设的子集. 显式目标失效时失败, 不静默换模型.
+- JVM 411 项, AVD API 37 / Sony G8441 API 28 全量 instrumentation 各 45 项通过. 覆盖真实预设 UI/重建/启动, 默认选择, 排队后编辑删除, 大上下文 FD 读取和失效目标. 真实宿主目录可显示 Gemma 本地与 Model8 在线目标; 空闲宿主冻结后的不可用通过重新连接恢复, 不宣称修复了该后台生命周期限制. debug/androidTest/release R8/lint 与 10 语言 36 产物检查通过. 详见 `docs/dev/p63-presets-evidence-2026-09-24.md`.
+- 官方文档 `85f46af` / project code 76 更新预设语义并重新生成; 离线文档 `4941418` / build 57 同步精确来源, debug/release 内容清单核验通过 (199 文件 / 11587454 字节). TypeScript/Ace 的既有签名无需改动, 用户原有改动保留. 宿主保持 aeed8edcb9 / 5293, 未触碰 Rhino 同步.
+- 插件本次 build 56 对齐提交计数. 未新增购物或付款, 未推送/发布. 下一起点为原 P6.4 记忆, 固定快捷方式仍属于 P6.7; P7/P8 gate 尚未通过. 当前无需用户提供额外资料, 设备或手动操作.

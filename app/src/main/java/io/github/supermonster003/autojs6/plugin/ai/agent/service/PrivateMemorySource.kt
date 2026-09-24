@@ -9,8 +9,8 @@ import java.nio.charset.CodingErrorAction
 
 /** Worker-only read side. P6's MemoryStore will write this versioned private snapshot after confirmation. */
 internal class PrivateMemorySource(private val file: File) {
-    fun snapshot(preset: String, enabled: Boolean): MemoryContext {
-        if (!enabled || !file.exists() && !File(file.path + ".bak").exists()) return MemoryContext.EMPTY
+    fun snapshot(preset: String, enabled: Boolean, scope: String = "global_and_preset"): MemoryContext {
+        if (!enabled || scope == "none" || !file.exists() && !File(file.path + ".bak").exists()) return MemoryContext.EMPTY
         return try {
             val bytes = AtomicFile(file).openRead().use { stream ->
                 val output = ByteArrayOutputStream()
@@ -25,7 +25,7 @@ internal class PrivateMemorySource(private val file: File) {
             }
             val json = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
                 .decode(ByteBuffer.wrap(bytes)).toString()
-            MemoryContext.decode(json, preset)
+            MemoryContext.decode(json, preset, scope in setOf("global_and_preset", "global"), scope in setOf("global_and_preset", "preset"))
         } catch (_: Exception) { MemoryContext.UNAVAILABLE }
     }
 }

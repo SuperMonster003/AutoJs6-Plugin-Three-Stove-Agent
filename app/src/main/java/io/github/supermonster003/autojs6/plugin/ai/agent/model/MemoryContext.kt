@@ -17,7 +17,7 @@ class MemoryContext private constructor(entries: JsonArray, val truncated: Boole
         val EMPTY = MemoryContext(JsonArray(), false)
         val UNAVAILABLE = MemoryContext(JsonArray(), false, true)
 
-        fun decode(json: String, preset: String): MemoryContext {
+        fun decode(json: String, preset: String, includeGlobal: Boolean = true, includePreset: Boolean = true): MemoryContext {
             require(preset.isNotBlank() && preset.codePointCount(0, preset.length) <= 128)
             val root = AgentJson.objectOf(json, MAX_FILE_BYTES)
             require(root.keySet() == setOf("version", "entries") && root.number("version") == 1L)
@@ -37,7 +37,7 @@ class MemoryContext private constructor(entries: JsonArray, val truncated: Boole
                 val created = requireNotNull(row.number("createdAt")); val updated = requireNotNull(row.number("updatedAt"))
                 require(created >= 0 && updated >= created && seen.add(scope to key))
                 row
-            }.filter { it.string("scope") == "global" || it.string("scope") == preset }
+            }.filter { includeGlobal && it.string("scope") == "global" || includePreset && it.string("scope") == preset }
             // A preset-specific preference overrides a global value with the same exact key.
             val selected = rows.groupBy { it.string("key")!! }.values.map { group ->
                 group.firstOrNull { it.string("scope") == preset } ?: group.single()

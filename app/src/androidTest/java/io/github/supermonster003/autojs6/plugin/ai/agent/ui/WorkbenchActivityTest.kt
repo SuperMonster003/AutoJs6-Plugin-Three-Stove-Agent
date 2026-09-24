@@ -15,6 +15,11 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistory
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistoryCallback
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.HistoryEndpoint
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentLocalService
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IPresetStore
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IPresetStoreCallback
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.PresetEndpoint
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.PresetCodec
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.Preset
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryCodec
 import org.autojs.plugin.ai.agent.api.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
@@ -36,6 +41,7 @@ class WorkbenchActivityTest {
     private val completed = """{"kind":"done","done":{"status":"completed","summary":"Workbench fixture complete","evidence":["Fixture answer received"]}}"""
     private inner class Model(private val holdEveryCall: Boolean = false) : IAiAgentModelBroker.Stub() {
         val calls = AtomicInteger()
+        val requests = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
         @Volatile var held: Pair<String, IAiAgentModelCallback>? = null
         override fun getBrokerInfo() = bundle(C.KEY_MODEL_BROKER_INFO_JSON,
             """{"available":true,"providerId":"workbench","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
@@ -50,7 +56,9 @@ class WorkbenchActivityTest {
             emit(callback, id, "completed", 2, JSONObject().put("targets", JSONArray("""[{"targetId":"workbench:fixture","displayName":"Workbench fixture model","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")))
         }
         override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
-            val id = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).getString("requestId")
+            val json = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
+            requests.add(json)
+            val id = json.getString("requestId")
             emit(callback, id, "started", 1); held = id to callback
             if (calls.incrementAndGet() > 1 && !holdEveryCall) finish(completed)
         }
@@ -222,6 +230,9 @@ class WorkbenchActivityTest {
         ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
             scenario.onActivity { it.hostReader = { null }; it.findViewById<EditText>(R.id.workbench_goal).setText("Draft only") }
             waitUi(scenario, "Missing host guidance") {
+                // A fresh host-appearance snapshot may recreate the activity before its first poll.
+                // Apply this test's package fixture to the current instance, including that replacement.
+                it.hostReader = { null }
                 !it.findViewById<Button>(R.id.workbench_send).isEnabled &&
                     it.findViewById<TextView>(R.id.launcher_host_status).text == it.getString(R.string.launcher_host_missing, 5289L)
             }
@@ -342,6 +353,152 @@ class WorkbenchActivityTest {
                 assertTrue(field.width in 1..width); assertTrue(field.height > 0)
             }
             assertTrue((view as ScrollView).getChildAt(0).height > view.height)
+        }
+    }
+    private inner class PresetsClient : AutoCloseable {
+        private var endpoint: IPresetStore? = null
+        private val connected = CountDownLatch(1)
+        private val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { endpoint = IPresetStore.Stub.asInterface(service); connected.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        init {
+            assertTrue(context.bindService(Intent(context, AgentLocalService::class.java).setAction(PresetEndpoint.ACTION), connection, Context.BIND_AUTO_CREATE))
+            assertTrue(connected.await(15, TimeUnit.SECONDS))
+        }
+        fun query(operation: String, value: com.google.gson.JsonObject = com.google.gson.JsonObject()): Result<com.google.gson.JsonObject> {
+            value.addProperty("operation", operation)
+            val latch = CountDownLatch(1); var result: Result<com.google.gson.JsonObject>? = null
+            endpoint!!.query(bundle(C.KEY_RUN_REQUEST_JSON, value.toString()), object : IPresetStoreCallback.Stub() {
+                override fun onResult(response: Bundle) {
+                    result = runCatching {
+                        response.getString(C.KEY_ERROR_CODE)?.let { AgentWire.closeDescriptors(response); error(it) }
+                        AgentWire.take(response, C.KEY_RUN_RESPONSE_JSON, C.KEY_PAYLOAD_FD, 32768, PresetEndpoint.MAX_RESPONSE_BYTES)
+                            .use { AgentJson.objectOf(it.read(), PresetEndpoint.MAX_RESPONSE_BYTES) }
+                    }
+                    latch.countDown()
+                }
+            })
+            assertTrue(latch.await(20, TimeUnit.SECONDS)); return checkNotNull(result)
+        }
+        fun save(preset: Preset, create: Boolean = true) = query("save", jsonObject("preset" to PresetCodec.encodePreset(preset), "create" to create.json()))
+        fun named(operation: String, name: String) = query(operation, jsonObject("name" to name.json()))
+        override fun close() { context.unbindService(connection) }
+    }
+    @Test fun presetEditorCreatesRestoresAndStartsWithSelectedTargetContextAndBudget() = withFixture(Model(true)) { link, model ->
+        PresetsClient().use { client ->
+            val key = "ui-${java.util.UUID.randomUUID()}"
+            try {
+                ActivityScenario.launch(PresetsActivity::class.java).use { scenario ->
+                    fun ready(message: String, check: (PresetsActivity) -> Boolean) = waitFor(message) { var ok = false; scenario.onActivity { ok = check(it) }; ok }
+                    ready("Preset list loaded") { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-new") != null }
+                    scenario.onActivity { activity ->
+                        val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                        root.findViewWithTag<Button>("preset-new").performClick()
+                        root.findViewWithTag<EditText>("preset-name").setText(key)
+                        root.findViewWithTag<EditText>("preset-context").setText("P63 fixture fixed context")
+                        root.findViewWithTag<EditText>("preset-maxSteps").setText("3")
+                        root.findViewWithTag<EditText>("preset-maxTotalTokens").setText("10000")
+                        root.findViewWithTag<CheckBox>("preset-inherit-groups").isChecked = false
+                        root.findViewWithTag<Spinner>("preset-confirm").setSelection(1)
+                        root.findViewWithTag<Spinner>("preset-memory").setSelection(3)
+                    }
+                    ready("Host model catalog shown with locality and fallback") { activity ->
+                        val spinner = activity.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Spinner>("preset-target")
+                        spinner.count == 2 && spinner.getItemAtPosition(1).toString().contains(activity.getString(R.string.presets_degraded)) &&
+                            spinner.getItemAtPosition(1).toString().contains(activity.getString(R.string.presets_remote))
+                    }
+                    scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Spinner>("preset-target").setSelection(1) }
+                    instrumentation.waitForIdleSync(); scenario.recreate()
+                    ready("Editor draft and model selection restored") { activity ->
+                        val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                        root.findViewWithTag<EditText>("preset-context")?.text?.toString() == "P63 fixture fixed context" &&
+                            root.findViewWithTag<Spinner>("preset-target")?.selectedItem?.toString()?.contains("Workbench fixture model") == true &&
+                            root.findViewWithTag<Spinner>("preset-confirm")?.selectedItemPosition == 1
+                    }
+                    scenario.onActivity { activity ->
+                        val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                        assertEquals("3", root.findViewWithTag<EditText>("preset-maxSteps").text.toString())
+                        assertEquals(3, root.findViewWithTag<Spinner>("preset-memory").selectedItemPosition)
+                        assertFalse(root.findViewWithTag<CheckBox>("preset-group-shell").isEnabled)
+                        root.findViewWithTag<Button>("preset-save").performClick()
+                    }
+                    ready("Saved preset appears") { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-$key") != null }
+                }
+                val saved = PresetCodec.decodePreset(client.named("get", key).getOrThrow())
+                assertEquals("workbench:fixture", saved.targetId); assertEquals("none", saved.memoryScope)
+                assertEquals(setOf("observe"), saved.toolGroups); assertEquals("cautious", saved.confirmPolicy)
+                assertTrue(AgentConnection.decode(link.listPresets(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("presets").any { it.asJsonObject.string("id") == key })
+                ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).putExtra("rerunPreset", key)).use { scenario ->
+                    enter(scenario, "Preset UI fixture goal")
+                    waitFor("Preset model started") { model.calls.get() == 1 && model.held != null }
+                    assertEquals("workbench:fixture", model.requests.single().getString("targetId"))
+                    assertTrue(model.requests.single().toString().contains("P63 fixture fixed context"))
+                    val rows = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")
+                    val id = rows.first { it.asJsonObject.string("preset") == key }.asJsonObject.string("runId")!!
+                    val run = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+                    assertEquals(3, run.getAsJsonObject("budget").number("maxSteps")!!.toInt())
+                    model.finish(completed)
+                    waitUi(scenario, "Preset run completed") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_completed) }
+                }
+            } finally { client.named("delete", key) }
+        }
+    }
+    @Test fun privatePresetCrudDefaultAndQueuedSnapshotSurviveEditsAndDeletion() = withFixture(Model(true)) { link, model ->
+        PresetsClient().use { client ->
+            val oldDefault = client.query("list").getOrThrow().string("defaultName")!!
+            val first = "store-${java.util.UUID.randomUUID()}"; val second = "copy-${java.util.UUID.randomUUID()}"
+            try {
+                assertTrue(client.named("delete", "default").isFailure)
+                assertTrue(client.save(Preset(first, toolGroups = setOf("shell"))).isFailure)
+                val preset = Preset(first, toolGroups = setOf("observe"), context = "Original queued context")
+                client.save(preset).getOrThrow(); assertTrue(client.save(preset).isFailure)
+                val copied = PresetCodec.decodePreset(client.named("get", first).getOrThrow()).copy(name = second)
+                client.save(copied).getOrThrow(); client.named("default", second).getOrThrow()
+                val prefs = context.getSharedPreferences("workbench", Context.MODE_PRIVATE)
+                prefs.edit().putString("goal", "").commit()
+                ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                    waitUi(scenario, "Workbench honors chosen default") { it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == second }
+                }
+                val firstRun = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON, """{"goal":"First preset fixture"}"""), null)).string("runId")!!
+                waitFor("First run preparing") { model.calls.get() == 1 && model.held != null }
+                val queued = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON, """{"goal":"Queued preset fixture"}"""), null)).string("runId")!!
+                client.save(copied.copy(context = "Edited after admission"), false).getOrThrow()
+                client.named("delete", second).getOrThrow()
+                assertEquals("default", client.query("list").getOrThrow().string("defaultName"))
+                model.finish(completed)
+                waitFor("Queued run uses admitted snapshot") { model.calls.get() == 2 && model.held != null }
+                assertTrue(model.requests[1].toString().contains("Original queued context"))
+                assertFalse(model.requests[1].toString().contains("Edited after admission"))
+                model.finish(completed)
+                for (id in listOf(firstRun, queued)) waitFor("Settled preset run") {
+                    AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).string("state") == "completed"
+                }
+                assertEquals(C.ERROR_INVALID_REQUEST, link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                    """{"goal":"Deleted preset must not run","options":{"preset":"$second"}}"""), null).getString(C.KEY_ERROR_CODE))
+            } finally {
+                client.named("default", oldDefault); client.named("delete", second); client.named("delete", first)
+            }
+        }
+    }
+    @Test fun largePresetPayloadCrossesPrivateBinderAndMissingTargetFailsWithoutFallback() = withFixture { link, model ->
+        PresetsClient().use { client ->
+            val key = "payload-${java.util.UUID.randomUUID()}"
+            try {
+                val large = Preset(key, targetId = "profile:removed", context = "\u0000".repeat(8192))
+                client.save(large).getOrThrow()
+                assertEquals(large, PresetCodec.decodePreset(client.named("get", key).getOrThrow()))
+                val targets = client.query("targets").getOrThrow().getAsJsonArray("targets")
+                assertEquals("REMOTE", targets.single().asJsonObject.string("locality"))
+                assertFalse(targets.single().asJsonObject.flag("structuredJson")!!)
+                val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                    """{"goal":"Missing model fixture","options":{"preset":"$key"}}"""), null)).string("runId")!!
+                waitFor("Missing target fails closed") {
+                    val run = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+                    run.string("state") == "failed" && run.toString().contains("TARGET_UNAVAILABLE")
+                }
+                assertEquals(0, model.calls.get())
+            } finally { client.named("delete", key) }
         }
     }
     private fun texts(view: View): List<String> = when (view) {

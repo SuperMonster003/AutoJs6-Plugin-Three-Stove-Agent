@@ -8,9 +8,10 @@
     "v1.0.0": {
       "released_date": "2026/09/24",
       "hint": [
-        "Vista previa de desarrollo: el panel P6.1 y el historial P6.2 están disponibles. La API ai.agent requiere AutoJs6 build 5293 o posterior. Los preajustes personalizados y otras interfaces continúan en P6.3-P6.7; la fiabilidad y la publicación siguen en P7/P8."
+        "Vista previa: P6.1-P6.3 ofrecen el panel de tareas, historial y preajustes con nombre. ai.agent requiere AutoJs6 build 5293 o posterior. La gestión de memoria y las demás interfaces continúan en P6.4-P6.7; fiabilidad y publicación siguen en P7/P8."
       ],
       "feature": [
+        "Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria",
         "Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)",
         "Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión",
         "La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado",

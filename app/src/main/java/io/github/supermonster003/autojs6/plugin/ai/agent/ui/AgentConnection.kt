@@ -10,7 +10,7 @@ import org.autojs.plugin.ai.agent.api.IAiAgentLink
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import java.util.concurrent.Executors
 
-internal data class WorkbenchSnapshot(val status: JsonObject, val runs: List<JsonObject>, val run: JsonObject?, val presets: List<String>)
+internal data class WorkbenchSnapshot(val status: JsonObject, val runs: List<JsonObject>, val run: JsonObject?, val presets: List<String>, val defaultPreset: String = "default")
 
 /** A visible screen's private connection. Bounded polling stops with the screen; it does not own tasks. */
 internal class AgentConnection(private val context: Context, private val receive: (WorkbenchSnapshot) -> Unit) {
@@ -53,9 +53,9 @@ internal class AgentConnection(private val context: Context, private val receive
                 val id = if (prefer) status.string("runningRunId") ?: selected ?: recent.firstOrNull()?.string("runId") else selected
                 val run = id?.let { runCatching { decode(current.getRun(request(C.KEY_RUN_REF_JSON, jsonObject("runId" to it.json())))) }.getOrNull() }
                 val presets = if (status.string("state") == C.LINK_STATE_ATTACHED) runCatching {
-                    decode(current.listPresets(request(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("presets").map { it.asJsonObject.string("id")!! }
-                }.getOrDefault(emptyList()) else emptyList()
-                WorkbenchSnapshot(status, recent, run, presets)
+                    decode(current.listPresets(request(C.KEY_RUN_REQUEST_JSON)))
+                }.getOrNull() else null
+                WorkbenchSnapshot(status, recent, run, presets?.getAsJsonArray("presets")?.map { it.asJsonObject.string("id")!! }.orEmpty(), presets?.string("defaultName") ?: "default")
             }.getOrElse { WorkbenchSnapshot(jsonObject("state" to "host-unavailable".json()), emptyList(), null, emptyList()) }
             main.post {
                 if (expected != generation || current !== link || !bound) return@post

@@ -29,6 +29,18 @@ internal class BinderModelBroker(private val context: Context, private val broke
         send(id, requestJson, false, onEvent) { code -> onFailure(RunError.entries.firstOrNull { it.name == code } ?: RunError.MODEL_FAILED) }
     }
     fun select(targetId: String?, callback: (PortResult<SelectedModel>) -> Unit): Cancellation {
+        return list { result ->
+            when (result) {
+                is PortResult.Failure -> callback(result)
+                is PortResult.Success -> {
+                    val selected = if (targetId == null) result.value.firstOrNull { it.target.locality == ModelLocality.ON_DEVICE } ?: result.value.firstOrNull()
+                        else result.value.firstOrNull { it.target.targetId == targetId }
+                    callback(if (selected == null) PortResult.Failure(RunError.TARGET_UNAVAILABLE) else PortResult.Success(selected))
+                }
+            }
+        }
+    }
+    fun list(callback: (PortResult<List<SelectedModel>>) -> Unit): Cancellation {
         val id = "catalog-${UUID.randomUUID()}"
         val cancelled = AtomicBoolean()
         try { workers.io.execute {
@@ -62,13 +74,13 @@ internal class BinderModelBroker(private val context: Context, private val broke
                             C.MODEL_EVENT_STARTED -> Unit
                             C.MODEL_EVENT_COMPLETED -> {
                                 val entries = requireNotNull(event.getAsJsonArray("targets")); require(entries.size() <= 256)
-                                val targets = entries.mapNotNull { entry -> runCatching { ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit) }.getOrNull() }
-                                val selected = if (targetId == null) targets.firstOrNull { it.locality == ModelLocality.ON_DEVICE } ?: targets.firstOrNull()
-                                    else targets.firstOrNull { it.targetId == targetId }
-                                if (selected == null) throw WireFailure(C.ERROR_TARGET_UNAVAILABLE)
-                                val label = entries.firstOrNull { it.asJsonObject.string("targetId") == selected.targetId }
-                                    ?.asJsonObject?.string("displayName")?.takeIf { it.isNotBlank() } ?: selected.targetId
-                                callback(PortResult.Success(SelectedModel(selected, maxInput, maxTokens, schemaLimit, AgentJson.truncate(label, 256))))
+                                val targets = entries.mapNotNull { entry -> runCatching {
+                                    val target = ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit)
+                                    val label = entry.asJsonObject.string("displayName")?.takeIf { it.isNotBlank() } ?: target.targetId
+                                    SelectedModel(target, maxInput, maxTokens, schemaLimit, AgentJson.truncate(label, 256))
+                                }.getOrNull() }
+                                require(targets.map { it.target.targetId }.distinct().size == targets.size)
+                                callback(PortResult.Success(targets))
                             }
                             C.MODEL_EVENT_FAILED, C.MODEL_EVENT_CANCELLED -> callback(PortResult.Failure(
                                 RunError.entries.firstOrNull { it.name == event.string("code") } ?: RunError.MODEL_FAILED))

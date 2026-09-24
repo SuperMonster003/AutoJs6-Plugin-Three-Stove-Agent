@@ -5,6 +5,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.*
 
 /** Pure validation of the public control JSON. No model-supplied field grants authority. */
 internal object ControlRequests {
@@ -55,48 +56,57 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
 }
 
 internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>,
-                            val preset: String, val memory: Boolean) {
+                            val preset: String, val memory: Boolean, val memoryScope: String = "global_and_preset") {
     companion object {
-        fun parse(json: String, config: LinkConfiguration): StartRequest = with(ControlRequests) {
+        fun parse(json: String, config: LinkConfiguration, presets: PresetSnapshot = PresetSnapshot.INITIAL): StartRequest = with(ControlRequests) {
             val value = AgentJson.objectOf(json, 32 * 1024)
             closed(value, setOf("goal", "options", "origin"))
             require(text(value, "origin", "script", 16) in setOf("script", "ui"))
             val opts = obj(value, "options")
             closed(opts, setOf("preset", "target", "tools", "budget", "confirm", "interaction", "detached", "context", "parameters", "memory", "scriptRoots", "locale"))
-            val preset = text(opts, "preset", "default")!!
-            require(preset == "default") // Named presets arrive in P6.
+            val preset = presets.resolve(text(opts, "preset"))
             val detached = flag(opts, "detached", false)
             val memory = flag(opts, "memory", true)
-            val root = ScriptRoots.validate(strings(opts, "scriptRoots", config.roots))
-            require(config.roots.containsAll(root))
+            val allowedRoots = preset.scriptRoots?.intersect(config.roots) ?: config.roots
+            val root = ScriptRoots.validate(strings(opts, "scriptRoots", allowedRoots))
+            require(allowedRoots.containsAll(root))
+            val allowedGroups = preset.groups(config.groups)
             val groups = when {
-                !opts.has("tools") -> config.groups
+                !opts.has("tools") -> allowedGroups
                 opts["tools"].isJsonArray -> strings(opts, "tools")
                 else -> {
                     val tools = obj(opts, "tools"); closed(tools, setOf("enable", "disable"))
-                    strings(tools, "enable", config.groups) - strings(tools, "disable").also { require(it.all { id -> ToolGroup.entries.any { it.id == id } }) }
+                    strings(tools, "enable", allowedGroups) - strings(tools, "disable").also { require(it.all { id -> ToolGroup.entries.any { it.id == id } }) }
                 }
             }
-            require(config.groups.containsAll(groups))
+            require(allowedGroups.containsAll(groups))
             val defaults = BudgetLimits.defaults(detached)
             val budget = obj(opts, "budget")
             closed(budget, setOf("maxSteps", "maxModelCalls", "maxDurationMs", "maxTotalTokens"))
+            fun limit(key: String, ceiling: Long): Long {
+                val inherited = minOf(ceiling, preset.budget[key] ?: ceiling)
+                return number(budget, key, inherited, inherited)
+            }
             val limits = defaults.copy(
-                maxSteps = number(budget, "maxSteps", defaults.maxSteps.toLong(), defaults.maxSteps.toLong()).toInt(),
-                maxModelCalls = number(budget, "maxModelCalls", defaults.maxModelCalls.toLong(), defaults.maxModelCalls.toLong()).toInt(),
-                maxDurationMs = number(budget, "maxDurationMs", defaults.maxDurationMs, defaults.maxDurationMs),
-                maxTotalTokens = number(budget, "maxTotalTokens", minOf(defaults.maxTotalTokens, config.maxTokens), minOf(defaults.maxTotalTokens, config.maxTokens)))
-            val confirm = text(opts, "confirm", "default", 16).also { require(it in setOf("default", "cautious")) }
+                maxSteps = limit("maxSteps", defaults.maxSteps.toLong()).toInt(),
+                maxModelCalls = limit("maxModelCalls", defaults.maxModelCalls.toLong()).toInt(),
+                maxDurationMs = limit("maxDurationMs", defaults.maxDurationMs),
+                maxTotalTokens = limit("maxTotalTokens", minOf(defaults.maxTotalTokens, config.maxTokens)))
+            val confirm = text(opts, "confirm", preset.confirmPolicy, 16).also {
+                require(it in setOf("default", "cautious") && (preset.confirmPolicy != "cautious" || it == "cautious"))
+            }
             val interaction = text(opts, "interaction", "plugin", 16).also { require(it in setOf("plugin", "script")) }!!
-            val target = text(opts, "target")?.also { require(it.length <= 256 && it.matches(Regex("[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}"))) }
-            val fixed = if (opts.has("context")) requireNotNull(opts.string("context")) else ""
+            val target = text(opts, "target", preset.targetId)?.let(PresetCodec::target)
+            val additional = if (opts.has("context")) requireNotNull(opts.string("context")) else ""
+            val fixed = listOf(preset.context, additional).filter { it.isNotEmpty() }.joinToString("\n\n")
             require(fixed.toByteArray(Charsets.UTF_8).size <= 8192)
             val parameters = obj(opts, "parameters")
             require(parameters.toString().toByteArray(Charsets.UTF_8).size <= 16 * 1024)
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
             require(context.toByteArray(Charsets.UTF_8).size <= 8192)
             StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
-                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root, preset, memory && "memory" in groups)
+                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root,
+                preset.name, memory && "memory" in groups && preset.memoryScope != "none", preset.memoryScope)
         }
     }
 }

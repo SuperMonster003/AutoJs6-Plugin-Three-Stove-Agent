@@ -35,6 +35,7 @@ class LauncherActivity : HostAppearanceActivity() {
     private var presetIds = emptyList<String>()
     private var availablePresets = emptyList<String>()
     private var selectedPreset = "default"
+    private var followDefault = true
     private var recentKey = ""
     internal var hostReader: () -> HostPackageSnapshot? = { readHostPackage() }
 
@@ -47,6 +48,7 @@ class LauncherActivity : HostAppearanceActivity() {
         selectedPreset = savedInstanceState?.getString("preset") ?: intent.getStringExtra("rerunPreset") ?: drafts.getString("preset", "default")!!
         goal = findViewById(R.id.workbench_goal)
         goal.setText(savedInstanceState?.getString("goal") ?: intent.getStringExtra("rerunGoal") ?: drafts.getString("goal", ""))
+        followDefault = savedInstanceState?.getBoolean("followDefault") ?: (!intent.hasExtra("rerunPreset") && goal.text.isBlank())
         goal.filters = arrayOf(InputFilter.LengthFilter(4096))
         goal.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -57,7 +59,7 @@ class LauncherActivity : HostAppearanceActivity() {
         preset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                presetIds.getOrNull(position)?.let { selectedPreset = it; updateSend() }
+                presetIds.getOrNull(position)?.let { if (it != selectedPreset) followDefault = false; selectedPreset = it; updateSend() }
             }
         }
         pending = PendingCard(findViewById(R.id.workbench_pending)) { body, complete ->
@@ -75,6 +77,7 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         findViewById<Button>(R.id.workbench_details).setOnClickListener { currentId?.let(::openDetail) }
         findViewById<Button>(R.id.workbench_history).setOnClickListener { startActivity(Intent(this, HistoryActivity::class.java)) }
+        findViewById<Button>(R.id.workbench_presets).setOnClickListener { startActivity(Intent(this, PresetsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_script_roots).setOnClickListener { startActivity(Intent(this, ScriptRootsActivity::class.java)) }
         findViewById<Button>(R.id.launcher_connect).setOnClickListener { requested = false; requestAttachment() }
         findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
@@ -98,6 +101,7 @@ class LauncherActivity : HostAppearanceActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("goal", goal.text.toString()); outState.putString("preset", selectedPreset)
         outState.putString("selectedId", agent.selectedId)
+        outState.putBoolean("followDefault", followDefault)
         pending.save(outState)
         super.onSaveInstanceState(outState)
     }
@@ -138,9 +142,11 @@ class LauncherActivity : HostAppearanceActivity() {
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
         availablePresets = value.presets
+        val nextDefault = followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset
+        if (nextDefault) selectedPreset = value.defaultPreset
         // Preserve a historical preset that has since disappeared. Never silently rerun with default.
         val displayedPresets = (value.presets + selectedPreset).distinct()
-        if (displayedPresets != presetIds) {
+        if (displayedPresets != presetIds || nextDefault) {
             presetIds = displayedPresets
             preset.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item,
                 presetIds.map { if (it == "default") getString(R.string.workbench_default_preset) else it })
