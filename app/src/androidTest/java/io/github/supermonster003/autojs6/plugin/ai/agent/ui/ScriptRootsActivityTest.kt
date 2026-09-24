@@ -26,7 +26,7 @@ class ScriptRootsActivityTest {
             val first = open().also { activity = it }
             instrumentation.runOnMainSync {
                 val field = first.findViewById<EditText>(R.id.script_roots_paths)
-                val save = views(first.window.decorView).filterIsInstance<Button>().single { it.text == context.getString(R.string.script_roots_save) }
+                val save = views(first.window.decorView).filterIsInstance<Button>().single { it.text == first.getString(R.string.script_roots_save) }
                 field.setText("/sdcard/../data")
                 save.performClick()
                 assertNotNull(field.error); assertFalse(first.isFinishing)
@@ -42,7 +42,7 @@ class ScriptRootsActivityTest {
                 val field = second.findViewById<EditText>(R.id.script_roots_paths)
                 assertTrue(field.text.toString().contains("/sdcard/AgentSamples"))
                 field.setText("")
-                views(second.window.decorView).filterIsInstance<Button>().single { it.text == context.getString(R.string.script_roots_save) }.performClick()
+                views(second.window.decorView).filterIsInstance<Button>().single { it.text == second.getString(R.string.script_roots_save) }.performClick()
             }
             instrumentation.waitForIdleSync()
             assertTrue(ScriptRootSettings(context).configured)

@@ -100,7 +100,10 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         workers.close(); scheduler.close()
         runtime.taskChanged()
     }
-    private fun notifyStatus() { runCatching { workers.callbacks.execute { runCatching { callback.onStatus(status()) } } } }
+    private fun notifyStatus() {
+        runtime.presentationChanged()
+        runCatching { workers.callbacks.execute { runCatching { callback.onStatus(status()) } } }
+    }
 
     private fun prepare(request: StartRequest, basePolicy: ToolPolicy, configuration: LinkConfiguration, runId: () -> String) = RunPreparation { complete ->
         val stopped = AtomicBoolean()

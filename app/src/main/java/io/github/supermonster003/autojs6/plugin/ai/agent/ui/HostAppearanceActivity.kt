@@ -84,8 +84,11 @@ abstract class HostAppearanceActivity : Activity() {
         }
     }
     override fun onStop() { appearanceGeneration++; super.onStop() }
-    internal fun tint(view: View) {
-        val colors = applied ?: return
+    internal fun tint(view: View) = tintHost(view, applied)
+}
+
+internal fun tintHost(view: View, appearance: HostAppearance?) {
+        val colors = appearance ?: return
         // Keep platform text contrast/disabled states; use host colors on accents only.
         val accent = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
             intArrayOf(colors.accent, (colors.accent and 0x00ffffff) or 0x61000000))
@@ -101,6 +104,5 @@ abstract class HostAppearanceActivity : Activity() {
             is ProgressBar -> { view.progressTintList = accent; view.indeterminateTintList = accent }
         }
         if (view.tag == "host-primary") view.backgroundTintList = ColorStateList.valueOf(colors.primary)
-        if (view is ViewGroup) for (index in 0 until view.childCount) tint(view.getChildAt(index))
-    }
+        if (view is ViewGroup) for (index in 0 until view.childCount) tintHost(view.getChildAt(index), colors)
 }

@@ -10,6 +10,7 @@ import java.io.FileOutputStream
 internal data class AgentSettings(
     val toolGroups: Set<String> = ToolGroup.entries.filter { it.defaultEnabled }.map { it.id }.toSet(),
     val budget: Map<String, Long> = emptyMap(), val cautious: Boolean = false, val voice: Boolean = true,
+    val floating: Boolean = false,
 )
 
 /** Private format; a corrupt or future version never silently restores a more permissive policy. */
@@ -19,7 +20,10 @@ internal object SettingsCodec {
         "maxDurationMs" to RunLimits.DETACHED_DURATION_MS, "maxTotalTokens" to RunLimits.TOKENS)
     fun decode(text: String): AgentSettings {
         val root = AgentJson.objectOf(text, MAX_BYTES)
-        require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") && root.number("version") == 1L)
+        val version = root.number("version")
+        require(version == 1L || version == 2L)
+        require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") +
+            if (version == 2L) setOf("floating") else emptySet())
         val groups = requireNotNull(root["toolGroups"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }
@@ -28,12 +32,13 @@ internal object SettingsCodec {
         val limits = budget.keySet().associateWith { key ->
             val ceiling = requireNotNull(ceilings[key]); requireNotNull(runCatching { budget.number(key) }.getOrNull()).also { require(it in 1..ceiling) }
         }
-        return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")))
+        return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
+            if (version == 2L) requireNotNull(root.flag("floating")) else false)
     }
-    fun json(value: AgentSettings) = jsonObject("version" to 1.json(), "toolGroups" to JsonArray().apply {
+    fun json(value: AgentSettings) = jsonObject("version" to 2.json(), "toolGroups" to JsonArray().apply {
         value.toolGroups.sorted().forEach(::add)
     }, "budget" to JsonObject().apply { value.budget.forEach { (key, number) -> addProperty(key, number) } },
-        "cautious" to value.cautious.json(), "voice" to value.voice.json())
+        "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json())
     fun encode(value: AgentSettings): String = json(value).toString().also { decode(it) }
 }
 

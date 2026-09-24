@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">パラメータ</string>
     <string name="confirmation_value">値</string>
+    <string name="entry_invalid">タスクの下書きを開くかショートカットを作成できません.</string>
+    <string name="floating_collapse">タスクカードを閉じる. ドラッグで移動</string>
+    <string name="floating_open">タスクカードを開く. ドラッグで移動</string>
+    <string name="floating_permission_required">フローティングボールを有効にするには他のアプリの上への表示を許可してください.</string>
+    <string name="floating_setting_note">初期状態では無効です. 他のアプリの上への表示を許可して保存してください. AutoJs6 の接続中のみ表示し, 切断時とロック時は非表示になります. 待機中のフォアグラウンドサービスは使用しません.</string>
+    <string name="floating_workbench">タスク画面を開く</string>
     <string name="history_all">すべて</string>
     <string name="history_allowed">許可済み</string>
     <string name="history_arguments">引数: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">データ管理</string>
     <string name="settings_default">既定のプリセット: %1$s</string>
     <string name="settings_error">設定を読み込みまたは保存できません. 制限を確認して再試行してください. データ消去前に実行中のタスクを停止してください.</string>
+    <string name="settings_floating">フローティングボールを有効にする</string>
     <string name="settings_license">ライセンス</string>
     <string name="settings_notices">第三者に関する表示</string>
     <string name="settings_ocr_note">OCR グループが有効で, ホストが承認済みの認識プラグインを検出すると OCR が利用できます.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d 件 / %3$d バイト</string>
     <string name="settings_version">バージョン: %1$s\nビルド: %2$d\n日付: %3$s\n作者: %4$s</string>
     <string name="settings_voice">音声入力を有効にする</string>
+    <string name="shortcut_goal">固定の目標 (任意)</string>
+    <string name="shortcut_new_task">新規タスク</string>
+    <string name="shortcut_pin">ホーム画面に固定</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">ショートカットはこのプリセットと任意の目標の下書きを開きます. 確認後にタスク開始を押してください.</string>
     <string name="task_allow">今回のみ許可</string>
     <string name="task_channel">Agent タスク</string>
     <string name="task_deny">拒否</string>

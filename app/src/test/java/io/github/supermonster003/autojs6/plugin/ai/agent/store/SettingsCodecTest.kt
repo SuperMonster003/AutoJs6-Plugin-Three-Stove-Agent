@@ -21,12 +21,22 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 2.json(), "extra" to true.json(), "voice" to "true".json()))
+        for ((key, value) in listOf("version" to 3.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json()))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add(key, value) }.toString()) }
         for (budget in listOf("""{"maxSteps":201}""", """{"maxSteps":1.5}""", """{"maxSteps":0}""", """{"unknown":1}"""))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add("budget", AgentJson.parse(budget)) }.toString()) }
         reject { SettingsCodec.decode(valid.deepCopy().apply { add("toolGroups", AgentJson.parse("[\"shell\",\"shell\"]")) }.toString()) }
         reject { SettingsCodec.decode(" ".repeat(4097)) }
+    }
+    @Test fun oldSettingsMigrateWithoutEnablingAnOverlayOrChangingAuthority() {
+        val chosen = AgentSettings(cautious = true, voice = false, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
+        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating") }
+        assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
+        assertFalse(SettingsCodec.decode(legacy.toString()).floating)
+        val enabled = chosen.copy(floating = true)
+        assertEquals(enabled, SettingsCodec.decode(SettingsCodec.encode(enabled)))
+        reject { SettingsCodec.decode(legacy.deepCopy().apply { addProperty("floating", true) }.toString()) }
+        reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { remove("floating") }.toString()) }
     }
     @Test fun settingsPersistAndRecoverBackupsWithoutReplacingCorruptFiles() {
         val file = File(temp.newFolder(), "settings.json"); val store = SettingsStore(file)

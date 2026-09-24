@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.*
-import android.speech.RecognizerIntent
 import android.text.*
 import android.view.View
 import android.widget.*
@@ -46,10 +45,12 @@ class LauncherActivity : HostAppearanceActivity() {
         findViewById<View>(android.R.id.content).layoutDirection = resources.configuration.layoutDirection
         agent = AgentConnection(this, ::render)
         agent.selectedId = savedInstanceState?.getString("selectedId")
-        selectedPreset = savedInstanceState?.getString("preset") ?: intent.getStringExtra("rerunPreset") ?: drafts.getString("preset", "default")!!
+        val entry = TaskEntries.read(intent)
+        if (savedInstanceState == null && intent.action == TaskEntries.PRESET_TASK && entry != null) TaskEntries.opened(this, entry)
+        selectedPreset = savedInstanceState?.getString("preset") ?: entry?.preset ?: drafts.getString("preset", "default")!!
         goal = findViewById(R.id.workbench_goal)
-        goal.setText(savedInstanceState?.getString("goal") ?: intent.getStringExtra("rerunGoal") ?: drafts.getString("goal", ""))
-        followDefault = savedInstanceState?.getBoolean("followDefault") ?: (!intent.hasExtra("rerunPreset") && goal.text.isBlank())
+        goal.setText(savedInstanceState?.getString("goal") ?: entry?.goal ?: drafts.getString("goal", ""))
+        followDefault = savedInstanceState?.getBoolean("followDefault") ?: (entry?.preset == null && (entry != null || goal.text.isBlank()))
         goal.filters = arrayOf(InputFilter.LengthFilter(4096))
         goal.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -91,7 +92,7 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         findViewById<Button>(R.id.workbench_voice).apply {
             visibility = View.GONE
-            setOnClickListener { runCatching { startActivityForResult(speechIntent(), VOICE_REQUEST) }.onFailure { showError() } }
+            setOnClickListener { runCatching { startActivityForResult(SpeechInput.intent(this@LauncherActivity), SpeechInput.REQUEST) }.onFailure { showError() } }
         }
         updateSend(); tint(findViewById(android.R.id.content))
     }
@@ -113,12 +114,9 @@ class LauncherActivity : HostAppearanceActivity() {
     @Deprecated("Platform speech result callback")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == VOICE_REQUEST && resultCode == RESULT_OK) data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            ?.firstOrNull()?.let { goal.setText(AgentJson.truncate(it, 4096)); goal.setSelection(goal.length()) }
+        if (requestCode == SpeechInput.REQUEST && resultCode == RESULT_OK) SpeechInput.result(data)
+            ?.let { goal.setText(it); goal.setSelection(goal.length()) }
     }
-    private fun speechIntent() = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        .putExtra(RecognizerIntent.EXTRA_LANGUAGE, resources.configuration.locales[0].toLanguageTag())
 
     private fun launchRun() {
         if (!attached || sending || selectedPreset !in availablePresets) return
@@ -147,7 +145,7 @@ class LauncherActivity : HostAppearanceActivity() {
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
         findViewById<Button>(R.id.workbench_voice).visibility = if (value.status.flag("voiceEnabled") == true &&
-            speechIntent().resolveActivity(packageManager) != null) View.VISIBLE else View.GONE
+            SpeechInput.available(this)) View.VISIBLE else View.GONE
         availablePresets = value.presets
         val nextDefault = followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset
         if (nextDefault) selectedPreset = value.defaultPreset
@@ -244,5 +242,4 @@ class LauncherActivity : HostAppearanceActivity() {
         val version = if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
         return HostPackageSnapshot(info.applicationInfo?.enabled == true, version, info.versionName.orEmpty())
     }
-    private companion object { const val VOICE_REQUEST = 12 }
 }

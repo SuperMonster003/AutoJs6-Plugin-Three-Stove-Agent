@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Параметр</string>
     <string name="confirmation_value">Значение</string>
+    <string name="entry_invalid">Не удалось открыть черновик или создать ярлык.</string>
+    <string name="floating_collapse">Свернуть карточку. Перетащите для перемещения</string>
+    <string name="floating_open">Открыть карточку. Перетащите для перемещения</string>
+    <string name="floating_permission_required">Разрешите показ поверх других приложений для плавающей кнопки.</string>
+    <string name="floating_setting_note">По умолчанию выключена. Разрешите показ поверх других приложений и сохраните. Кнопка видна при подключении AutoJs6 и скрыта при отключении или блокировке. Служба переднего плана не работает в простое.</string>
+    <string name="floating_workbench">Открыть задачи</string>
     <string name="history_all">Все</string>
     <string name="history_allowed">Разрешено</string>
     <string name="history_arguments">Параметры: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">Управление данными</string>
     <string name="settings_default">Профиль по умолчанию: %1$s</string>
     <string name="settings_error">Не удалось прочитать или сохранить настройки. Проверьте ограничения и повторите. Перед очисткой данных остановите активные задачи.</string>
+    <string name="settings_floating">Включить плавающую кнопку</string>
     <string name="settings_license">Лицензия</string>
     <string name="settings_notices">Уведомления третьих сторон</string>
     <string name="settings_ocr_note">OCR доступно автоматически, если группа включена и хост обнаружил разрешенный плагин распознавания.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d записей / %3$d байт</string>
     <string name="settings_version">Версия: %1$s\nСборка: %2$d\nДата: %3$s\nАвтор: %4$s</string>
     <string name="settings_voice">Включить голосовой ввод</string>
+    <string name="shortcut_goal">Фиксированная цель (необязательно)</string>
+    <string name="shortcut_new_task">Новая задача</string>
+    <string name="shortcut_pin">Закрепить на главном экране</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">Ярлык открывает этот пресет и необязательную цель для проверки. Для выполнения нажмите кнопку запуска задачи.</string>
     <string name="task_allow">Разрешить один раз</string>
     <string name="task_channel">Задачи Agent</string>
     <string name="task_deny">Отклонить</string>

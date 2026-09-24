@@ -12,6 +12,9 @@ import java.io.File
 
 /** One instance in :agent, shared by the exported link, private UI binding and foreground service. */
 internal class AgentRuntime internal constructor(val context: Context) {
+    private val main = Handler(Looper.getMainLooper())
+    private var initialized = false
+    private var floating: io.github.supermonster003.autojs6.plugin.ai.agent.ui.FloatingBall? = null
     val info = context.aiAgentPluginRuntimeInfo()
     val verifier = HostCallerVerifier(context)
     fun asset(path: String) = context.assets.open(path).bufferedReader().use { it.readText() }
@@ -23,8 +26,8 @@ internal class AgentRuntime internal constructor(val context: Context) {
         ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + "script_run" + MemoryTools.NAMES)
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
-    val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json")) }
-    val settings = SettingsRepository(File(context.filesDir, "agent-settings.json"))
+    val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json"), ::presentationChanged) }
+    val settings = SettingsRepository(File(context.filesDir, "agent-settings.json"), ::presentationChanged)
     val admissionLock = Any()
     @Volatile var maintenance = false; private set
     fun beginMaintenance(): Boolean = synchronized(admissionLock) {
@@ -33,7 +36,15 @@ internal class AgentRuntime internal constructor(val context: Context) {
     fun endMaintenance() { synchronized(admissionLock) { maintenance = false } }
     @Volatile var current: HostLink? = null; private set
     val interactions by lazy { InteractionPresentation(this) }
-    fun taskChanged() { AiAgentTaskForegroundService.changed(); interactions.changed() }
+    fun taskChanged() { AiAgentTaskForegroundService.changed(); interactions.changed(); presentationChanged() }
+    fun presentationChanged() { main.post {
+        if (!initialized) return@post
+        if (runCatching { settings.snapshot().floating }.getOrDefault(false)) {
+            if (floating == null) floating = io.github.supermonster003.autojs6.plugin.ai.agent.ui.FloatingBall(this)
+            floating?.changed()
+        } else { floating?.close(); floating = null }
+    } }
+    init { initialized = true; presentationChanged() }
     @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IAiAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)

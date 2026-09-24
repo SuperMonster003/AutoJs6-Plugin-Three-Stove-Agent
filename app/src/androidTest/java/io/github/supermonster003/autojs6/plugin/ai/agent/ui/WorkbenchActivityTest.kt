@@ -10,6 +10,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentWire
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.IAgentSettings
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.SettingsEndpoint
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.RunArchive
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistory
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.IRunHistoryCallback
@@ -645,6 +647,7 @@ class WorkbenchActivityTest {
     }
     @Test fun backgroundNotificationOpensExactConfirmationAndDenialInvalidatesOldEntry() = withFixture(Model(true), listOf("memory")) { link, model ->
         MemoriesClient().use { memory -> ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            var workbenchTask = -1; scenario.onActivity { workbenchTask = it.taskId }
             val key = "denied-${java.util.UUID.randomUUID()}"
             enter(scenario, "P65 background confirmation")
             waitFor("Model starts") { model.held != null }
@@ -659,6 +662,7 @@ class WorkbenchActivityTest {
             waitFor("Background high priority notification") { interactionNotification() != null }
             val activity = openInteractionNotification()
             try {
+                assertNotEquals("Confirmation must not bring the workbench task over the target app", workbenchTask, activity.taskId)
                 waitFor("Notification destination renders pending confirmation") { var ready = false; instrumentation.runOnMainSync {
                     ready = activity.findViewById<LinearLayout>(R.id.workbench_pending)?.let { cardButtons(it).size == 2 } == true
                 }; ready }
@@ -671,6 +675,7 @@ class WorkbenchActivityTest {
                     cardButtons(activity.findViewById(R.id.workbench_pending)).last().performClick()
                 }
                 waitFor("Denial returned to model") { model.calls.get() == 2 && model.held != null }
+                waitFor("Answered confirmation closes its separate task") { activity.isFinishing || activity.isDestroyed }
                 assertTrue(model.requests.last().toString().contains("USER_DENIED")); assertTrue(memory.rows().none { it.key == key })
                 ActivityScenario.launch<ConfirmationActivity>(oldEntry).use { stale ->
                     waitFor("Old notification is non-interactive") { var ready = false; stale.onActivity {
@@ -681,6 +686,30 @@ class WorkbenchActivityTest {
                 model.finish(completed)
             } finally { instrumentation.runOnMainSync { activity.finish() } }
         } }
+    }
+    @Test fun confirmationCommandCompletionSurvivesConnectionStop() = withFixture { _, _ ->
+        val connected = CountDownLatch(1); val entered = CountDownLatch(1)
+        val release = CountDownLatch(1); val completed = CountDownLatch(1)
+        var acknowledged = false
+        val connection = AgentConnection(context) { if (it.status.string("state") == C.LINK_STATE_ATTACHED) connected.countDown() }
+        try {
+            instrumentation.runOnMainSync { connection.start() }
+            assertTrue(connected.await(10, TimeUnit.SECONDS))
+            instrumentation.runOnMainSync {
+                connection.command({ link ->
+                    entered.countDown(); check(release.await(10, TimeUnit.SECONDS))
+                    link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON, """{"limit":1}"""))
+                }, completeWhileStopped = true) { result -> acknowledged = result.isSuccess; completed.countDown() }
+            }
+            assertTrue(entered.await(10, TimeUnit.SECONDS))
+            instrumentation.runOnMainSync { connection.stop() }
+            release.countDown()
+            assertTrue("Accepted command completion is not lost when a target app stops the confirmation UI", completed.await(10, TimeUnit.SECONDS))
+            assertTrue(acknowledged)
+        } finally {
+            release.countDown()
+            instrumentation.runOnMainSync { connection.stop(); connection.close() }
+        }
     }
     @Test fun confirmationTimeoutWithdrawsBackgroundNotificationAndNeverSaves() = withFixture(Model(true), listOf("memory")) { link, model ->
         MemoriesClient().use { memory -> ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
@@ -986,6 +1015,212 @@ class WorkbenchActivityTest {
                 }
             }
         } finally { HostAppearance.cached = original; release.countDown() }
+    }
+    @Test fun shareAndShortcutOpenDraftsAndEachStartExactlyOneTask() = withFixture { link, model ->
+        val automation = instrumentation.uiAutomation
+        val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
+        try {
+            val command = "am start -a android.intent.action.SEND -t text/plain -n ${context.packageName}/.ui.ShareTargetActivity --es android.intent.extra.TEXT Share_acceptance_fixture"
+            ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command)).use { it.readBytes() }
+            instrumentation.waitForMonitorWithTimeout(monitor, 15000) as LauncherActivity
+            var launcher: LauncherActivity? = null
+            assertEquals(0, model.calls.get())
+            waitFor("Share draft with preset selector") { var ready = false; instrumentation.runOnMainSync {
+                launcher = androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED).filterIsInstance<LauncherActivity>().firstOrNull()
+                ready = launcher?.findViewById<EditText>(R.id.workbench_goal)?.text?.toString() == "Share_acceptance_fixture" &&
+                    launcher?.findViewById<Button>(R.id.workbench_send)?.isEnabled == true
+            }; ready }
+            instrumentation.runOnMainSync { launcher!!.findViewById<Button>(R.id.workbench_send).performClick() }
+            waitFor("Share model call") { model.calls.get() == 1 && model.held != null }; model.finish(completed)
+            waitFor("Share completes") { AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId") == null }
+            instrumentation.runOnMainSync { launcher!!.finish() }
+            val entry = TaskEntry("Shortcut acceptance fixture", "default")
+            ActivityScenario.launch<LauncherActivity>(TaskEntries.intent(context, entry)).use { scenario ->
+                waitUi(scenario, "Shortcut draft") {
+                    it.findViewById<EditText>(R.id.workbench_goal).text.toString() == entry.goal && it.findViewById<Button>(R.id.workbench_send).isEnabled
+                }
+                assertEquals(1, model.calls.get())
+                scenario.onActivity { it.findViewById<Button>(R.id.workbench_send).performClick() }
+                waitFor("Shortcut model call") { model.calls.get() == 2 }
+                waitUi(scenario, "Shortcut completed") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_completed) }
+            }
+        } finally { instrumentation.removeMonitor(monitor) }
+    }
+    @Test fun entryParsingRejectsMalformedSharesAndSpeechFillsWithoutRunning() = withFixture { _, model ->
+        assertNull(TaskEntries.read(Intent(Intent.ACTION_SEND).setType("image/png").putExtra(Intent.EXTRA_TEXT, "bad")))
+        assertNull(TaskEntries.read(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "中".repeat(1400))))
+        assertNull(TaskEntries.read(Intent(TaskEntries.PRESET_TASK).putExtra("rerunGoal", "missing preset")))
+        assertEquals(TaskEntry(""), TaskEntries.read(Intent(TaskEntries.NEW_TASK)))
+        val shared = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, android.text.SpannableString("plain text"))
+            .putExtra("allowed", true).putExtra("rerunPreset", "untrusted")
+        assertEquals(TaskEntry("plain text"), TaskEntries.read(shared))
+        ActivityScenario.launch<LauncherActivity>(TaskEntries.intent(context, TaskEntry("Before speech"))).use { scenario ->
+            waitUi(scenario, "Attached") { it.findViewById<Button>(R.id.workbench_send).isEnabled }
+            scenario.onActivity {
+                assertEquals(it.resources.configuration.locales[0].toLanguageTag(), SpeechInput.intent(it).getStringExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE))
+                if (!SpeechInput.available(it)) assertEquals(View.GONE, it.findViewById<View>(R.id.workbench_voice).visibility)
+                LauncherActivity::class.java.getDeclaredMethod("onActivityResult", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, Intent::class.java)
+                    .apply { isAccessible = true }.invoke(it, SpeechInput.REQUEST, android.app.Activity.RESULT_OK,
+                        Intent().putStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS, arrayListOf("Speech draft")))
+                assertEquals("Speech draft", it.findViewById<EditText>(R.id.workbench_goal).text.toString())
+            }
+            assertEquals(0, model.calls.get())
+        }
+        if (Build.VERSION.SDK_INT >= 25) assertTrue(context.getSystemService(android.content.pm.ShortcutManager::class.java).manifestShortcuts.any { it.id == "new-task" })
+    }
+    private fun withFloatingSettings(action: () -> Unit) {
+        val connected = CountDownLatch(1); var endpoint: IAgentSettings? = null
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { endpoint = IAgentSettings.Stub.asInterface(service); connected.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        fun query(body: com.google.gson.JsonObject): com.google.gson.JsonObject {
+            val latch = CountDownLatch(1); var response: Bundle? = null
+            endpoint!!.query(AgentConnection.request(C.KEY_RUN_REQUEST_JSON, body), object : IPresetStoreCallback.Stub() {
+                override fun onResult(result: Bundle?) { response = result; latch.countDown() }
+            })
+            assertTrue(latch.await(15, TimeUnit.SECONDS)); return AgentConnection.decode(response!!)
+        }
+        assertTrue(context.bindService(Intent(context, AgentLocalService::class.java).setAction(SettingsEndpoint.ACTION), connection, Context.BIND_AUTO_CREATE))
+        var saved: com.google.gson.JsonObject? = null
+        val original = shell("appops get ${context.packageName} SYSTEM_ALERT_WINDOW")
+        val mode = Regex("SYSTEM_ALERT_WINDOW: (allow|ignore|deny|default)").find(original)?.groupValues?.get(1) ?: "default"
+        val prefs = context.getSharedPreferences("floating", Context.MODE_PRIVATE)
+        val oldDraft = prefs.all
+        try {
+            assertTrue(connected.await(15, TimeUnit.SECONDS))
+            saved = query(jsonObject("operation" to "get".json())).getAsJsonObject("settings").deepCopy()
+            shell("appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow")
+            prefs.edit().clear().commit()
+            query(jsonObject("operation" to "save".json(), "settings" to saved.deepCopy().apply { addProperty("floating", true) }))
+            action()
+        } finally {
+            saved?.let { query(jsonObject("operation" to "save".json(), "settings" to it)) }
+            shell("appops set ${context.packageName} SYSTEM_ALERT_WINDOW $mode")
+            val editor = prefs.edit().clear()
+            oldDraft.forEach { (key, value) -> when (value) { is String -> editor.putString(key, value); is Float -> editor.putFloat(key, value) } }
+            editor.commit(); context.unbindService(connection)
+        }
+    }
+    private fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command))
+        .bufferedReader().use { it.readText() }
+    private fun floatingFrame(card: Boolean): android.graphics.Rect? {
+        val title = if (card) "AI Agent floating card" else "AI Agent floating ball"
+        val dump = shell("dumpsys window windows")
+        val lines = dump.lineSequence().dropWhile { !it.contains("Window #") || !it.contains(title) }.drop(1).takeWhile { !it.contains("Window #") }.joinToString("\n")
+        if (!lines.contains("isOnScreen=true") || !lines.contains("isVisible=true") || !lines.contains("HAS_DRAWN")) return null
+        val match = Regex("(?:mFrame|frame)=\\[(-?\\d+),(-?\\d+)\\]\\[(-?\\d+),(-?\\d+)\\]").find(lines) ?: return null
+        val coordinates = match.groupValues.drop(1).map(String::toInt)
+        return android.graphics.Rect(coordinates[0], coordinates[1], coordinates[2], coordinates[3]).takeIf { it.width() > 0 && it.height() > 0 }
+    }
+    private fun tap(x: Int, y: Int) {
+        shell("input tap $x $y")
+    }
+    @Test fun floatingWindowFramesExpandDraftSurvivesCollapseAndStopsTask() = withFixture { link, model ->
+        withFloatingSettings {
+            shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard"); shell("input keyevent KEYCODE_HOME")
+            SystemClock.sleep(500) // Let the launcher transition finish before injecting a touch.
+            waitFor("Floating ball frame") { floatingFrame(false) != null }
+            val beforeDrag = checkNotNull(floatingFrame(false))
+            shell("input swipe ${beforeDrag.centerX()} ${beforeDrag.centerY()} ${beforeDrag.centerX() - beforeDrag.width() * 2} ${beforeDrag.centerY() + beforeDrag.height()} 400")
+            waitFor("Drag changes frame within usable screen") { floatingFrame(false)?.left?.let { it < beforeDrag.left && it >= 0 } == true }
+            val ball = checkNotNull(floatingFrame(false))
+            assertTrue(ball.top > 0)
+            assertFalse(shell("dumpsys activity services ${context.packageName}").contains("isForeground=true"))
+            tap(ball.centerX(), ball.centerY())
+            waitFor("Floating card frame") { floatingFrame(true)?.width()?.let { it > ball.width() } == true }
+            val automation = instrumentation.uiAutomation
+            val flags = automation.serviceInfo.flags
+            automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
+            fun overlayRoot() = automation.windows.firstOrNull {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM && it.root?.packageName == context.packageName
+            }?.root
+            try {
+                val fieldFrame = checkNotNull(floatingFrame(true))
+                SystemClock.sleep(300) // WindowManager animates the old compact surface to the new frame.
+                tap(fieldFrame.centerX(), fieldFrame.top + (ball.height() * 2))
+                waitFor("Floating text field") {
+                    val input = overlayRoot()?.findAccessibilityNodeInfosByViewId("${context.packageName}:id/workbench_goal")?.firstOrNull()
+                    input?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
+                        putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Floating acceptance fixture")
+                    }) == true
+                }
+                val card = checkNotNull(floatingFrame(true))
+                tap(card.left + (ball.width() / 2), card.top + (ball.height() / 2))
+                waitFor("Collapsed after editing") { floatingFrame(false) != null }
+                SystemClock.sleep(300)
+                val again = checkNotNull(floatingFrame(false)); tap(again.centerX(), again.centerY())
+                waitFor("Reopened card") { floatingFrame(true) != null }
+                waitFor("Draft retained") {
+                    overlayRoot()?.findAccessibilityNodeInfosByViewId("${context.packageName}:id/workbench_goal")?.firstOrNull()?.text?.toString() == "Floating acceptance fixture"
+                }
+                val labels = HostAppearance.read(context)?.wrap(context) ?: context
+                waitFor("Start from actual overlay") {
+                    val node = overlayRoot()?.findAccessibilityNodeInfosByText(labels.getString(R.string.workbench_send))?.firstOrNull { it.isClickable && it.isEnabled }
+                    node?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
+                }
+                waitFor("Floating model call") { model.calls.get() == 1 }
+                val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
+                waitFor("Running ball resized") { floatingFrame(false)?.width()?.let { it > ball.width() } == true }
+                SystemClock.sleep(300)
+                val running = checkNotNull(floatingFrame(false))
+                tap(running.right - ball.width() / 2, running.centerY())
+                waitFor("Overlay stop cancels run") { AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).string("state") == "cancelled" }
+                link.detach(bundle(org.autojs.plugin.host.capability.api.HostCapabilityContract.KEY_REASON_JSON, """{"reason":"floating-test"}"""))
+                waitFor("Detached overlay hidden") { floatingFrame(false) == null && floatingFrame(true) == null }
+            } finally { automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags } }
+        }
+    }
+    @Test fun floatingConfirmationSuppressesOnlyItsVisibleRequestAndRestoresAfterUnlock() = withFixture(Model(true), listOf("memory")) { link, model ->
+        withFloatingSettings {
+            ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                enter(scenario, "P67 floating confirmation fixture")
+                waitFor("Model started") { model.held != null }
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+                shell("input keyevent KEYCODE_HOME"); SystemClock.sleep(300)
+                model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"p67-denied-fixture","value":"Not stored"}}""")
+                waitFor("Collapsed overlay keeps notification") { interactionNotification() != null && floatingFrame(false) != null }
+                var frame = checkNotNull(floatingFrame(false)); val size = frame.height()
+                tap(frame.left + size / 2, frame.centerY())
+                waitFor("Visible confirmation card suppresses notification") { floatingFrame(true) != null && interactionNotification() == null }
+                val automation = instrumentation.uiAutomation; val flags = automation.serviceInfo.flags
+                automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
+                try {
+                    val labels = HostAppearance.read(context)?.wrap(context) ?: context
+                    fun root() = automation.windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM && it.root?.packageName == context.packageName }?.root
+                    waitFor("Real confirmation buttons in overlay") { root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.task_deny))?.any { it.isClickable } == true }
+                    assertTrue(shell("dumpsys window windows").contains("SECURE"))
+                    waitFor("Collapse actual confirmation card") {
+                        root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.floating_collapse))?.firstOrNull { it.isClickable }
+                            ?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
+                    }
+                    waitFor("Collapsed card restores notification") { floatingFrame(false) != null && interactionNotification() != null }
+                    // A user's PIN/pattern cannot be dismissed by the test harness. Exercise lock
+                    // restoration on unsecured test devices while retaining confirmation coverage everywhere.
+                    if (!context.getSystemService(android.app.KeyguardManager::class.java).isDeviceSecure) {
+                        val position = checkNotNull(floatingFrame(false))
+                        shell("input keyevent KEYCODE_SLEEP")
+                        waitFor("Lock hides overlay") { floatingFrame(false) == null && floatingFrame(true) == null }
+                        shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard")
+                        waitFor("Unlock restores remembered position") { floatingFrame(false)?.let { kotlin.math.abs(it.left - position.left) < 3 && kotlin.math.abs(it.top - position.top) < 3 } == true }
+                    }
+                    SystemClock.sleep(300)
+                    frame = checkNotNull(floatingFrame(false)); tap(frame.left + size / 2, frame.centerY())
+                    waitFor("Deny in overlay") {
+                        root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.task_deny))?.firstOrNull { it.isClickable && it.isEnabled }
+                            ?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
+                    }
+                    waitFor("Denial reaches runner") { model.calls.get() == 2 && model.held != null }
+                    waitFor("Reply collapses the card before the next observation") { floatingFrame(false) != null && floatingFrame(true) == null }
+                    assertTrue(model.requests.last().toString().contains("USER_DENIED")); model.finish(completed)
+                    waitFor("Completed") { AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId") == null }
+                } finally {
+                    shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard")
+                    automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags }
+                }
+            }
+        }
     }
     private fun texts(view: View): List<String> = when (view) {
         is TextView -> listOf(view.text.toString())

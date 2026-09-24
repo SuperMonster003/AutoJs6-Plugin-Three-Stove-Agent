@@ -15,6 +15,8 @@ internal data class WorkbenchSnapshot(val status: JsonObject, val runs: List<Jso
 /** A visible screen's private connection. Bounded polling stops with the screen; it does not own tasks. */
 internal class AgentConnection(private val context: Context, private val receive: (WorkbenchSnapshot) -> Unit) {
     private val main = Handler(Looper.getMainLooper())
+    private val completions = Handler(Looper.getMainLooper())
+    private var closed = false
     private val worker = Executors.newSingleThreadExecutor()
     private var link: IAiAgentLink? = null
     private var bound = false
@@ -36,7 +38,7 @@ internal class AgentConnection(private val context: Context, private val receive
         if (bound) context.unbindService(connection)
         bound = false; link = null
     }
-    fun close() { worker.shutdown() }
+    fun close() { closed = true; completions.removeCallbacksAndMessages(null); worker.shutdown() }
     fun refresh() {
         val current = link ?: return
         if (polling || !bound) return
@@ -64,13 +66,21 @@ internal class AgentConnection(private val context: Context, private val receive
             }
         }
     }
-    fun command(action: (IAiAgentLink) -> Bundle, complete: (Result<JsonObject>) -> Unit) {
+    fun command(action: (IAiAgentLink) -> Bundle, completeWhileStopped: Boolean = false, complete: (Result<JsonObject>) -> Unit) {
         val current = link
         if (current == null) { complete(Result.failure(IllegalStateException(C.ERROR_LINK_DETACHED))); return }
         val expected = generation
         worker.execute {
             val result = runCatching { decode(action(current)) }
-            main.post { if (expected == generation && bound) { complete(result); refresh() } }
+            // A confirmed app launch may stop its confirmation activity before the reply arrives.
+            // Its close acknowledgement must survive onStop, but never onDestroy.
+            val handler = if (completeWhileStopped) completions else main
+            handler.post {
+                if (!closed && (completeWhileStopped || expected == generation && bound)) {
+                    complete(result)
+                    if (expected == generation && bound) refresh()
+                }
+            }
         }
     }
     companion object {

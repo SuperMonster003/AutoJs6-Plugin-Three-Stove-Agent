@@ -6,9 +6,10 @@
 
 # v1.0.0
 
-###### 2026/09/24
+###### 2026/09/25
 
-* `Note` Aperçu de développement: tâches, historique, profils, mémoire, paramètres, notes de version et vérification manuelle des mises à jour sont disponibles. ai.agent exige AutoJs6 build 5293 ou ultérieur. Les entrées flottantes et externes suivent en P6.7; fiabilité et publication restent en P7/P8.
+* `Note` Aperçu de développement: les écrans P6, les paramètres, la bulle flottante, le partage, les raccourcis et les brouillons vocaux sont disponibles. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La fiabilité et la publication restent à valider dans P7/P8.
+* `Fonctionnalité` Bulle facultative avec saisie, progression, arrêt et confirmation, partage de texte, raccourcis statiques et de préréglages, reconnaissance vocale système sans envoi automatique
 * `Fonctionnalité` Paramètres globaux, gestion des catégories de données, historique et mentions légales hors ligne, vérification manuelle annulable avec cache quotidien et versions ignorées
 * `Fonctionnalité` Confirmation dans les tâches et notifications avec risque, compte à rebours, autorisation par tâche et mémoire des réponses confirmée séparément
 * `Fonctionnalité` Mémoire des préférences avec confirmation de chaque proposition, recherche par portée, protection des conflits, stockage par entrée, modification, suppression et sauvegarde JSON avec approbation individuelle des imports
@@ -38,6 +39,7 @@
 * `Fonctionnalité` Connexion demandée depuis le lanceur avec délai de 15 secondes et aide pour activer et autoriser AI Agent dans AutoJs6
 * `Fonctionnalité` Notifications au premier plan pendant les tâches seulement, avec progression, Arrêter et Voir; saisie et confirmation de chaque action depuis le lanceur
 * `Fonctionnalité` Le catalogue des scripts est actualisé au début de chaque tâche, avec un cache de liaison de 60 secondes, un classement déterministe de 24 candidats au plus, des résumés bornés et les recherches script_catalog
+* `Correctif` La confirmation revient dans l'application cible avant de reprendre les actions, traite les accusés après l'arrêt de l'écran et replie la carte flottante avant l'exécution
 * `Correctif` Le lancement sous Android 13 ne plante plus lors de la lecture du contrôleur des barres système avant la création de la vue de fenêtre
 * `Correctif` Tri et conservation de l'historique selon le début des tâches pour éviter que la réécriture des fichiers au redémarrage supprime les plus récentes
 * `Correctif` Les réponses et confirmations vérifient le propriétaire interaction afin qu'un script ne réponde pas à la place de l'interface du plugin

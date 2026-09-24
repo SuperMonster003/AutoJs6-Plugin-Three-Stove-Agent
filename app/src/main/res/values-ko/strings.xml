@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">매개변수</string>
     <string name="confirmation_value">값</string>
+    <string name="entry_invalid">작업 초안을 열거나 바로가기를 만들 수 없습니다.</string>
+    <string name="floating_collapse">작업 카드 접기. 드래그하여 이동</string>
+    <string name="floating_open">작업 카드 열기. 드래그하여 이동</string>
+    <string name="floating_permission_required">플로팅 볼을 사용하려면 다른 앱 위에 표시를 허용하세요.</string>
+    <string name="floating_setting_note">기본적으로 꺼져 있습니다. 다른 앱 위에 표시를 허용한 후 저장하세요. AutoJs6 연결 중에만 표시되고 연결 해제나 잠금 시 숨겨집니다. 대기 중에는 포그라운드 서비스를 유지하지 않습니다.</string>
+    <string name="floating_workbench">작업 화면 열기</string>
     <string name="history_all">전체</string>
     <string name="history_allowed">허용됨</string>
     <string name="history_arguments">매개변수: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">데이터 관리</string>
     <string name="settings_default">기본 사전 설정: %1$s</string>
     <string name="settings_error">설정을 읽거나 저장할 수 없습니다. 제한을 확인하고 다시 시도하세요. 데이터를 지우기 전에 실행 중인 작업을 중지하세요.</string>
+    <string name="settings_floating">플로팅 볼 사용</string>
     <string name="settings_license">라이선스</string>
     <string name="settings_notices">타사 고지</string>
     <string name="settings_ocr_note">OCR 그룹이 활성화되고 호스트가 승인된 인식 플러그인을 찾으면 OCR을 자동으로 사용할 수 있습니다.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d개 / %3$d바이트</string>
     <string name="settings_version">버전: %1$s\n빌드: %2$d\n날짜: %3$s\n작성자: %4$s</string>
     <string name="settings_voice">음성 입력 사용</string>
+    <string name="shortcut_goal">고정 목표 (선택)</string>
+    <string name="shortcut_new_task">새 작업</string>
+    <string name="shortcut_pin">홈 화면에 고정</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">바로가기는 이 프리셋과 선택한 목표 초안을 엽니다. 확인 후 작업 시작을 누르면 실행됩니다.</string>
     <string name="task_allow">한 번 허용</string>
     <string name="task_channel">Agent 작업</string>
     <string name="task_deny">거부</string>

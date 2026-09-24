@@ -26,7 +26,8 @@ class ManifestContractTest {
     fun `manifest declares only task foreground and plugin permissions and queries the host package`() {
         val permissions = manifest.children("uses-permission").map { it.androidAttribute("name") }
         assertEquals(listOf(PLUGIN_PERMISSION, "android.permission.FOREGROUND_SERVICE",
-            "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS", "android.permission.INTERNET"), permissions)
+            "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS", "android.permission.INTERNET",
+            "android.permission.SYSTEM_ALERT_WINDOW"), permissions)
 
         val queried = manifest.child("queries").children("package").map { it.androidAttribute("name") }
         assertEquals(listOf(AiAgentPlugin.HOST_PACKAGE_NAME), queried)
@@ -51,7 +52,7 @@ class ManifestContractTest {
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.ReleaseHistoryActivity", ".ui.ConfirmationActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.ReleaseHistoryActivity", ".ui.ConfirmationActivity"), activities.map { it.androidAttribute("name") })
         assertEquals("true", activities.last().androidAttribute("excludeFromRecents"))
         assertEquals("@style/Theme.AiAgent.Dialog.Light", activities.last().androidAttribute("theme"))
 
@@ -73,7 +74,14 @@ class ManifestContractTest {
         assertEquals(listOf("android.intent.action.MAIN"), launcherFilter.children("action").map { it.androidAttribute("name") })
         assertEquals(listOf("android.intent.category.LAUNCHER"), launcherFilter.children("category").map { it.androidAttribute("name") })
 
-        for (settings in activities.drop(2)) {
+        val share = activities[2]
+        assertEquals("true", share.androidAttribute("exported"))
+        assertNull(share.androidAttributeOrNull("permission"))
+        val filter = share.child("intent-filter")
+        assertEquals(listOf("android.intent.action.SEND"), filter.children("action").map { it.androidAttribute("name") })
+        assertEquals("text/plain", filter.child("data").androidAttribute("mimeType"))
+        assertEquals("@xml/shortcuts", launcher.child("meta-data").androidAttribute("resource"))
+        for (settings in activities.drop(3)) {
         assertEquals("false", settings.androidAttribute("exported"))
         assertNull(settings.androidAttributeOrNull("process"))
         assertTrue(settings.children("intent-filter").isEmpty())

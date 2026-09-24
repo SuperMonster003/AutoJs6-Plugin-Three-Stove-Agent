@@ -1,6 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.app.Activity
 import android.content.Context
 import android.widget.*
 import com.google.gson.*
@@ -8,7 +7,7 @@ import java.text.DateFormat
 import java.util.Date
 
 internal object HistoryViews {
-    fun column(activity: Activity) = LinearLayout(activity).apply {
+    fun column(context: Context) = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         val padding = (16 * resources.displayMetrics.density).toInt()
         setPadding(padding, padding / 2, padding, padding / 2)

@@ -99,21 +99,38 @@ class PresetsActivity : HostAppearanceActivity() {
     }
     private fun actions(key: String) {
         val labels = listOf(R.string.presets_edit, R.string.presets_copy, R.string.presets_set_default) +
-            if (key == "default") emptyList() else listOf(R.string.presets_delete)
+            (if (key == "default") emptyList() else listOf(R.string.presets_delete)) +
+            (if (TaskEntries.canPin(this)) listOf(R.string.shortcut_pin) else emptyList())
         AlertDialog.Builder(this).setTitle(key).setItems(labels.map(::getString).toTypedArray()) { _, index ->
-            when (index) {
-                0, 1 -> request("get", jsonObject("name" to key.json())) { row ->
+            when (labels[index]) {
+                R.string.presets_edit, R.string.presets_copy -> request("get", jsonObject("name" to key.json())) { row ->
                     editing = key.takeIf { index == 0 }
                     if (index == 1) row.addProperty("name", "")
                     showEditor(row)
                 }
-                2 -> request("default", jsonObject("name" to key.json())) { refresh() }
-                3 -> AlertDialog.Builder(this).setMessage(getString(R.string.presets_delete_confirm, key))
+                R.string.presets_set_default -> request("default", jsonObject("name" to key.json())) { refresh() }
+                R.string.presets_delete -> AlertDialog.Builder(this).setMessage(getString(R.string.presets_delete_confirm, key))
                     .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.presets_delete) { _, _ ->
                         request("delete", jsonObject("name" to key.json())) { refresh() }
                     }.show()
+                R.string.shortcut_pin -> pin(key)
             }
         }.show()
+    }
+    private fun pin(key: String) {
+        val goal = EditText(this).apply {
+            setHint(R.string.shortcut_goal); contentDescription = getString(R.string.shortcut_goal)
+            filters = arrayOf(InputFilter.LengthFilter(4096))
+        }
+        val dialog = AlertDialog.Builder(this).setTitle(R.string.shortcut_pin).setMessage(R.string.shortcut_review)
+            .setView(goal).setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.shortcut_pin, null).create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val success = runCatching { TaskEntries.pin(this, TaskEntry(goal.text.toString().trim(), key)) }.getOrDefault(false)
+                if (success) dialog.dismiss() else goal.error = getString(R.string.entry_invalid)
+            }
+        }
+        dialog.show()
     }
     private fun field(label: Int, tag: String, value: String, multiline: Boolean = false): EditText {
         val caption = HistoryViews.label(body, getString(label))

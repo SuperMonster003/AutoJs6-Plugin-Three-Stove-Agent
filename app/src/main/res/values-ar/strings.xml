@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">المعلمة</string>
     <string name="confirmation_value">القيمة</string>
+    <string name="entry_invalid">تعذر فتح مسودة المهمة أو إنشاء اختصارها.</string>
+    <string name="floating_collapse">طي بطاقة المهمة. اسحب للتحريك</string>
+    <string name="floating_open">فتح بطاقة المهمة. اسحب للتحريك</string>
+    <string name="floating_permission_required">اسمح بالظهور فوق التطبيقات الأخرى لتفعيل الكرة العائمة.</string>
+    <string name="floating_setting_note">معطلة افتراضيا. اسمح بالظهور فوق التطبيقات الأخرى ثم احفظ. تظهر الكرة عند اتصال AutoJs6 وتختفي عند الانقطاع أو القفل. لا تبقى خدمة أمامية أثناء الخمول.</string>
+    <string name="floating_workbench">فتح لوحة المهام</string>
     <string name="history_all">الكل</string>
     <string name="history_allowed">مسموح</string>
     <string name="history_arguments">المعلمات: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">إدارة البيانات</string>
     <string name="settings_default">الإعداد المسبق الافتراضي: %1$s</string>
     <string name="settings_error">تعذرت قراءة الإعدادات أو حفظها. تحقق من الحدود وأعد المحاولة. أوقف المهام النشطة قبل مسح البيانات.</string>
+    <string name="settings_floating">تفعيل الكرة العائمة</string>
     <string name="settings_license">الترخيص</string>
     <string name="settings_notices">إشعارات الجهات الخارجية</string>
     <string name="settings_ocr_note">يتاح OCR تلقائيا عند تفعيل المجموعة واكتشاف المضيف إضافة تعرف مصرح بها.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d عنصر / %3$d بايت</string>
     <string name="settings_version">الإصدار: %1$s\nالبنية: %2$d\nالتاريخ: %3$s\nالمؤلف: %4$s</string>
     <string name="settings_voice">تفعيل الإدخال الصوتي</string>
+    <string name="shortcut_goal">هدف ثابت (اختياري)</string>
+    <string name="shortcut_new_task">مهمة جديدة</string>
+    <string name="shortcut_pin">تثبيت على الشاشة الرئيسية</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">يفتح الاختصار هذا الإعداد المسبق وهدفا اختياريا للمراجعة. اضغط بدء المهمة للتنفيذ.</string>
     <string name="task_allow">السماح مرة واحدة</string>
     <string name="task_channel">مهام Agent</string>
     <string name="task_deny">رفض</string>

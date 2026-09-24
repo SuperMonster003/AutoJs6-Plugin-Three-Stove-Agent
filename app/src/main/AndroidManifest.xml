@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <queries>
         <package android:name="org.autojs.autojs6" />
@@ -16,7 +17,7 @@
     <!--
         Only user-initiated update checks use the network (roadmap D28). Model traffic and device
         actions go through the AutoJs6 host over Binder. Foreground-service and notification
-        permissions keep active tasks visible. Overlay permission remains in P6.7.
+        permissions keep active tasks visible. Overlay permission is requested only from settings.
     -->
     <application
         android:allowBackup="false"
@@ -57,11 +58,22 @@
         <activity
             android:name=".ui.LauncherActivity"
             android:exported="true">
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.ShareTargetActivity" android:exported="true" android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ui.VoiceInputActivity" android:exported="false" android:excludeFromRecents="true"
+            android:theme="@style/Theme.AiAgent.Dialog.Light" />
 
         <activity android:name=".ui.ScriptRootsActivity" android:exported="false" />
         <activity android:name=".ui.RunDetailActivity" android:exported="false" />
@@ -70,7 +82,7 @@
         <activity android:name=".ui.MemoryActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
-        <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true"
+        <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
             android:theme="@style/Theme.AiAgent.Dialog.Light" />
 
         <service

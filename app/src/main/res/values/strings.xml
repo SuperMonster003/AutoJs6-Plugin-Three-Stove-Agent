@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Parameter</string>
     <string name="confirmation_value">Value</string>
+    <string name="entry_invalid">Unable to open this task draft or create its shortcut.</string>
+    <string name="floating_collapse">Collapse task card; drag to move</string>
+    <string name="floating_open">Open task card; drag to move</string>
+    <string name="floating_permission_required">Allow display over other apps to enable the floating ball.</string>
+    <string name="floating_setting_note">Off by default. Allow display over other apps, then save. The ball appears while AutoJs6 is connected and hides when disconnected or locked. It does not keep an idle foreground service.</string>
+    <string name="floating_workbench">Open workbench</string>
     <string name="history_all">All</string>
     <string name="history_allowed">Allowed</string>
     <string name="history_arguments">Parameters: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">Data management</string>
     <string name="settings_default">Default preset: %1$s</string>
     <string name="settings_error">Unable to read or save settings. Check the limits and try again. Stop active tasks before clearing data.</string>
+    <string name="settings_floating">Enable floating ball</string>
     <string name="settings_license">License</string>
     <string name="settings_notices">Third-party notices</string>
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: Entries: %2$d. Bytes: %3$d</string>
     <string name="settings_version">Version: %1$s\nBuild: %2$d\nDate: %3$s\nAuthor: %4$s</string>
     <string name="settings_voice">Enable voice input</string>
+    <string name="shortcut_goal">Fixed goal (optional)</string>
+    <string name="shortcut_new_task">New task</string>
+    <string name="shortcut_pin">Pin to home screen</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">The shortcut opens this preset and an optional goal for review. Press Start task to run.</string>
     <string name="task_allow">Allow once</string>
     <string name="task_channel">Agent tasks</string>
     <string name="task_deny">Deny</string>

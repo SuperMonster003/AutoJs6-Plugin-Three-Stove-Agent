@@ -538,20 +538,24 @@ P6.5 验收: JVM 435 项, Sony G8441 API 28 / AVD API 37 instrumentation 各 57 
 
 ### P6.6 设置, 发行历史与更新检查
 
-- [ ] (插件) `SettingsActivity`: 全局工具组开关 (`gesture / files / shell` 默认关, `ocr` 自动), 默认预设, 默认预算, 审慎模式, 悬浮球开关 (请求 `SYSTEM_ALERT_WINDOW`), 语音输入开关, 数据管理 (历史 / 预设 / 记忆各显示条数与占用, 清除), 附加脚本根目录 (D36), 关于 (版本 / 构建 / 日期 / 作者 / 许可证 / 第三方声明 / 源码), 发行历史, 检查更新; 从宿主插件中心 / 抽屉项 / 任务台菜单可进入.
+- [x] (插件) `SettingsActivity`: 全局工具组开关 (`gesture / files / shell` 默认关, `ocr` 自动), 默认预设, 默认预算, 审慎模式, 悬浮球开关 (请求 `SYSTEM_ALERT_WINDOW`), 语音输入开关, 数据管理 (历史 / 预设 / 记忆各显示条数与占用, 清除), 附加脚本根目录 (D36), 关于 (版本 / 构建 / 日期 / 作者 / 许可证 / 第三方声明 / 源码), 发行历史, 检查更新; 从宿主插件中心 / 抽屉项 / 任务台菜单可进入.
 - [x] (插件) `ReleaseHistoryActivity` (按 locale 选择 `doc/CHANGELOG-{tag}.md`, 回退英语, 失败本地化错误) 与 `AppUpdateCoordinator` / `AppUpdateRepository` / `AppVersionPolicy` / `UpdateSchedulePolicy` (GitHub Releases API, 超时 / 取消 / 失败提示 / 忽略版本 / 每日一次 / 计量网络不自动检查 / 不自动检查, Neutral = 内置发行历史, Positive = 发布页, 不下载 APK) (Readium 形态).
 - [x] (测试) JVM: `AppVersionPolicyTest`, `UpdateSchedulePolicyTest`, `ReleaseHistoryTest`, 设置 codec; instrumentation: 设置持久化, 发行历史打开, 数据清除后 store 为空.
 
 P6.6 证据: `docs/dev/p66-settings-evidence-2026-09-24.md`. 设置主体, 全局工具/预算/审慎策略, 默认预设/语音/目录入口, 分类计数/占用/确认清除及关于页面已完成; 首项只剩悬浮球开关/权限, 须与原 P6.7 的真实 FloatingBall 联验, 保持未勾选且不新增或拆分阶段. 清除预设保留一个初始内置 default. JVM 452 项, Sony G8441 API 28 / AVD API 37 全量 instrumentation 各 66 项通过. 更新只允许手动触发, 成功结果缓存 24 h, 不下载 APK. Documentation code 78 与 Offline Docs build 59 已同步. 用户新增的 Sony XQ-DQ72 (QV770340J7, API 33) 纳入后续设备矩阵, 本轮另修复并验证其窗口初始化启动崩溃.
 
+P6.7 回填 (2026-09-25): 首项的悬浮球开关/系统权限申请已随真实 FloatingBall 联验完成并勾选, 见 `docs/dev/p67-entry-evidence-2026-09-24.md`. 上段保留 P6.6 当时的证据状态.
+
 ### P6.7 悬浮球, 分享, 快捷方式与语音
 
-- [ ] (插件) `FloatingBall` (overlay `TYPE_APPLICATION_OVERLAY`, 仅在设置开启且权限授予时显示; 空闲态为小球, 点击展开输入卡片 (预设选择 + 文本 + 语音); 运行态显示当前步骤一行与停止按钮; 等待态显示询问 / 确认卡片; 可拖动, 记忆位置, 避开状态栏与导航栏; 不在宿主未附着时显示输入, 改为 "连接" 按钮). 注意: uiautomator 只看到活动窗口, overlay 的 instrumentation 断言用 `dumpsys window` 帧信息 (既有 smoke 经验).
-- [ ] (插件) `ShareTargetActivity` (`ACTION_SEND` + `text/plain`, 取 `EXTRA_TEXT` 作为目标, 显示预设选择后发起); App Shortcuts (`shortcuts.xml` 静态 "新任务" + 动态: 用户在预设页 "固定到桌面", 每个快捷方式 = 预设 + 可选固定目标文本).
-- [ ] (插件) 语音输入: `RecognizerIntent.ACTION_RECOGNIZE_SPEECH` (语言跟随界面, 无识别器时按钮隐藏), 结果回填输入框不自动发送.
-- [ ] (测试) instrumentation: 分享入口经 `am start -a SEND` 发起任务; 快捷方式 Intent 解析; 悬浮球在 AVD 上显示 / 展开 / 停止 (帧信息断言); 语音按钮在无识别器时隐藏.
+- [x] (插件) `FloatingBall` (overlay `TYPE_APPLICATION_OVERLAY`, 仅在设置开启且权限授予时显示; 空闲态为小球, 点击展开输入卡片 (预设选择 + 文本 + 语音); 运行态显示当前步骤一行与停止按钮; 等待态显示询问 / 确认卡片; 可拖动, 记忆位置, 避开状态栏与导航栏; 不在宿主未附着时显示输入, 改为 "连接" 按钮). 注意: uiautomator 只看到活动窗口, overlay 的 instrumentation 断言用 `dumpsys window` 帧信息 (既有 smoke 经验).
+- [x] (插件) `ShareTargetActivity` (`ACTION_SEND` + `text/plain`, 取 `EXTRA_TEXT` 作为目标, 显示预设选择后发起); App Shortcuts (`shortcuts.xml` 静态 "新任务" + 动态: 用户在预设页 "固定到桌面", 每个快捷方式 = 预设 + 可选固定目标文本).
+- [x] (插件) 语音输入: `RecognizerIntent.ACTION_RECOGNIZE_SPEECH` (语言跟随界面, 无识别器时按钮隐藏), 结果回填输入框不自动发送.
+- [x] (测试) instrumentation: 分享入口经 `am start -a SEND` 发起任务; 快捷方式 Intent 解析; 悬浮球在 AVD 上显示 / 展开 / 停止 (帧信息断言); 语音按钮在无识别器时隐藏.
 
 验收: 无脚本用户在真机 (Redmi API 33 或 Xiaomi Pad API 35) 上从悬浮球发起 D32 用例 (1), 在后台通知中完成一次确认, 在历史中回看; 分享与快捷方式各发起一次任务.
+
+P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬浮球发起 Wi-Fi 用例, 后台通知逐次确认, 开关从关闭变为开启并回读, 从悬浮球进入历史/详情回看 Completed. 最终单轮 7 步 / 6 工具 / 7 模型调用, 202708 ms, 86982 输入 + 512 输出 tokens, 非估算. 分享及 MIUI 桌面固定快捷方式各有真实模型 completed 记录. 最终使用临时 USB CONNECT 代理, 不能作为 LTE 直连稳定性证据; 所有 MODEL_FAILED/partial/blocked 重试均独立保留. JVM 455 项, API 37 AVD / G8441 API 28 / QV770340J7 API 33 各 71 项 instrumentation 通过. 语音实际识别准确率未验收. 原条目的未附着 "连接" 按钮与 D38 不一致, 按固定决策 D38 隐藏整个球并从工作台恢复连接, 保留原条目而不重定义阶段. 插件修复通知确认的任务返回及应答时序, 宿主 `1fdc0db987` / 5294 修复滞后窗口名称引发的节点失效误判. 详见 `docs/dev/p67-entry-evidence-2026-09-24.md`; P7/P8 gate 未通过.
 
 ---
 
@@ -563,11 +567,11 @@ P6.6 证据: `docs/dev/p66-settings-evidence-2026-09-24.md`. 设置主体, 全�
 - [ ] (插件) 性能基线: 每步开销 (上下文编译 + 解析 + 校验) < 20 ms (JVM 基准), `ui_dump` 200 节点往返 < 300 ms (AVD), 单任务内存峰值记录; 历史与记忆 store 写放大控制 (按条目文件, 不整文件重写).
 - [ ] (插件) 电量与常驻: 前台服务只在运行中存在; 悬浮球空闲不轮询; 无任务时插件进程可被回收且下次附着正常.
 - [ ] (测试) `test-apps:ai-agent-conformance` (宿主仓库): 假 Agent 插件 (最小 `attach` + `startRun` 回显 + 敌意回调) 供宿主 instrumentation 使用; 本仓库假宿主测试 APK (P2.5) 覆盖 attach / grant 拒绝 / death.
-- [ ] (测试) 兼容矩阵: AVD API 24 (前台服务 / 通知兼容), Sony G8441 API 28, Redmi 12C API 33, Xiaomi Pad API 35 (HyperOS 悬浮窗与 a11y 重绑坑), AVD API 37; 每台记录: 安装 / 激活 / 附着 / 用例 (1) / 确认路径 / 悬浮球.
+- [ ] (测试) 兼容矩阵: AVD API 24 (前台服务 / 通知兼容), Sony G8441 API 28, Redmi 12C API 33, Sony XQ-DQ72 / QV770340J7 API 33 (按用户补充纳入), Xiaomi Pad API 35 (HyperOS 悬浮窗与 a11y 重绑坑), AVD API 37; 每台记录: 安装 / 激活 / 附着 / 用例 (1) / 确认路径 / 悬浮球.
 - [ ] (插件) 安全审计清单 (本仓库 `docs/dev/security-checklist.md`): 权限最小化 (D28), 导出组件, 广播校验, 日志脱敏 (提示词 / 观察 / 记忆值不进普通日志), 记忆不存凭据, 导出文件脱敏, 确认门不可被预设绕过, 付款类无 "同类允许".
 - [ ] (插件) lint 0 错误; 无障碍标签 / 大字体 / 夜间 / RTL 检查覆盖所有新界面.
 
-验收: 敌意与生命周期矩阵在 AVD 全绿; 五台矩阵记录完整 (缺席设备明确写 "未执行").
+验收: 敌意与生命周期矩阵在 AVD 全绿; 六台矩阵记录完整 (缺席设备明确写 "未执行").
 
 ---
 
@@ -1329,3 +1333,13 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 用户报告 XQ-DQ72 build 56 无法启动, 根据真实 crash buffer 定位到 decor 未初始化时读取系统栏控制器. 独立修复提交 a872174 / build 59, 三设备启动/重建回归通过, 该设备冷启动 183 ms. 已将 QV770340J7 加入后续回归列表.
 - 设置功能提交为 build 60. Documentation e9ce36a / code 78 与 Offline Docs 9b0830a / build 59 同步预算和全局策略. 宿主仍 aeed8edcb9 / 5293, 未触碰 Rhino 同步工作; 保留 Types 的 package.json 与 Ace 的 releases/ 原有工作. 无真实模型/购物/付款, 未推送或发布.
 - 下一起点为原 P6.7 悬浮球, 分享, 快捷方式与语音, 同时闭合原 P6.6 首项的悬浮球开关/权限. P6.6 首项保持待联验, 不增加/分拆/丢弃原条目; P7/P8 gate 未通过. QV770340J7 在启动修复验收后断开 ADB, 待重新连接后安装最终 build 60, 补全回归并恢复临时屏幕超时; 其余设备环境已恢复, 本会话启动的 AVD 已关闭.
+
+### 2026-09-24 至 25 日: P6.7 悬浮球与系统入口
+
+- 完成原 P6.7 四项及真机验收, 闭合 P6.6 的悬浮球开关/权限. 球由附着运行时按事件管理, 默认关闭, 可拖动/记位/输入/选择预设/停止/回答确认, 无空闲轮询或空闲前台服务. 锁屏或失去权限/附着时隐藏, 未附着行为按 D38 的隐藏决策解释原条目冲突, 未增加或拆分阶段.
+- 分享/静态新任务/动态与固定预设快捷方式均先进入有界草稿, 不携带授权或自动运行. 系统语音识别跟随界面语言, 回填不发送, 无识别器时隐藏; 未验收语音识别准确率. 只新增 SYSTEM_ALERT_WINDOW, 不申请模型凭据/无障碍/麦克风/存储权限, 不改变公共 JS/AIDL 或 API AAR.
+- Redmi 12C API 33 / Model8 Fable 5.1 最终从桌面悬浮球打开设置并开启 Wi-Fi, 经后台通知单次确认, 回读 checked, 从历史/详情查看完成记录. 7 步 / 6 工具 / 7 模型调用, 202708 ms, 86982 输入 + 512 输出 tokens, 非估算. 分享和真实 MIUI 桌面固定快捷方式另有 completed 记录. 最终使用仅允许 Model8 TLS 的临时 USB CONNECT 代理; MODEL_FAILED 仍偶发, 不宣称 LTE 直连稳定性问题已解决, 所有 12 次运行结果见 `docs/dev/p67-entry-evidence-2026-09-24.md`.
+- 实测修复两处问题: 插件确认页独立任务并在返回目标窗口后应答, 悬浮确认先收起后应答; 宿主节点窗口身份改用实际窗口 ID/根指纹, 避免滞后应用名导致有效引用误判失效, 保留节点和动作检查. 宿主单独提交 `1fdc0db987` / build 5294, 21 项相关 JVM 和 API 37 真实窗口 2/2 通过. 未触碰 Rhino 同步代码. Redmi 宿主 instrumentation 的环境绑定失败如实记录, 恢复原有服务后真实 E4 通过.
+- 插件 JVM 455 项; API 37 AVD / G8441 API 28 / QV770340J7 API 33 全量 instrumentation 各 71 项通过, 耗时 257.349 / 262.694 / 171.842 s. QV 启动专项 1/1, 冷启动 323 ms, 原 locale 查找测试已修正. G8441 图案锁由用户手动解锁, 后续安全锁设备跳过自动锁屏段, AVD 承担无密码锁屏恢复验证. debug/androidTest/release R8/lint/十语言 36 产物验证通过, lint 仍为原有 6 项 warning.
+- 插件 build 61 对齐提交计数. 保留真实任务历史, 恢复临时设备超时/方向/权限/后台策略, 清理临时预设/草稿/桌面快捷方式和代理, 保留用户移动网络, 关闭本轮 AVD. 其他相关仓库的既有改动保留, 未新增订单/付款, 未推送或发布.
+- 当前模型切换入口为预设编辑页的模型目标, 保存后在任务台或悬浮球选择该预设. `Connected to AutoJs6 - ...` 仍为只读连接状态/默认目标预览, 不等同当前预设选择. 下一起点为原 P7 的健壮性/安全/性能/兼容矩阵, 已按用户要求加入 QV770340J7; P7/P8 gate 尚未通过. 当前无必须由用户补充的资料或手动操作.

@@ -6,9 +6,10 @@
 
 # v1.0.0
 
-###### 2026/09/24
+###### 2026/09/25
 
-* `Hint` Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
+* `Hint` Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8.
+* `Feature` Optional floating task input, progress, stop and confirmation cards; plain-text sharing, static and pinned preset shortcuts, and system speech recognition that fills a draft without sending
 * `Feature` Global settings, per-category data management, offline release history and legal notices, and cancellable manual update checks with daily caching and ignored versions
 * `Feature` Inline and notification confirmation with risk, countdown, task-scoped approval and separately confirmed answer memory
 * `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
@@ -38,6 +39,7 @@
 * `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 * `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 * `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+* `Fix` Notification confirmation returns to the target app before resuming actions, acknowledgements survive the screen stopping, and floating replies collapse the card before execution
 * `Fix` Opening the app on Android 13 no longer crashes when the system bar controller is read before the window decor exists
 * `Fix` Recent history uses task start times for ordering and retention so rewriting files during restart cannot evict newer tasks
 * `Fix` Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface

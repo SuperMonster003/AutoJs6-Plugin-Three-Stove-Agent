@@ -3,6 +3,8 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.net.Uri
+import android.provider.Settings
 import android.text.InputType
 import android.view.View
 import android.widget.*
@@ -26,9 +28,12 @@ class SettingsActivity : HostAppearanceActivity() {
     private val budgets = linkedMapOf<String, EditText>()
     private lateinit var cautious: CheckBox
     private lateinit var voice: CheckBox
+    private lateinit var floating: CheckBox
+    private var awaitingOverlayPermission = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); setTitle(R.string.settings_title)
         draft = savedInstanceState?.getString("draft")?.let { runCatching { AgentJson.objectOf(it) }.getOrNull() }
+        awaitingOverlayPermission = savedInstanceState?.getBoolean("overlayPermission") == true
         column = HistoryViews.column(this).apply { layoutDirection = resources.configuration.layoutDirection }
         message = HistoryViews.label(column, getString(R.string.interaction_loading))
         setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(column) })
@@ -38,7 +43,20 @@ class SettingsActivity : HostAppearanceActivity() {
     override fun onStart() { super.onStart(); saving = false; connection.start() }
     override fun onStop() { if (rendered) draft = readDraft(); connection.stop(); updates.cancel(); prompt?.dismiss(); prompt = null; super.onStop() }
     override fun onDestroy() { updates.close(); super.onDestroy() }
-    override fun onSaveInstanceState(outState: Bundle) { outState.putString("draft", (if (rendered) readDraft() else draft)?.toString()); super.onSaveInstanceState(outState) }
+    override fun onResume() {
+        super.onResume()
+        if (awaitingOverlayPermission) {
+            awaitingOverlayPermission = false
+            val granted = Settings.canDrawOverlays(this)
+            draft?.addProperty("floating", granted)
+            if (rendered) floating.isChecked = granted
+            if (!granted) Toast.makeText(this, R.string.floating_permission_required, Toast.LENGTH_LONG).show()
+        }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("overlayPermission", awaitingOverlayPermission)
+        outState.putString("draft", (if (rendered) readDraft() else draft)?.toString()); super.onSaveInstanceState(outState)
+    }
     private fun request(operation: String, fields: JsonObject = JsonObject(), complete: (JsonObject) -> Unit) {
         fields.addProperty("operation", operation)
         connection.query(fields) { result -> result.onSuccess(complete).onFailure { error() } }
@@ -74,6 +92,16 @@ class SettingsActivity : HostAppearanceActivity() {
         }
         cautious = checkbox(R.string.presets_cautious, "cautious", form.flag("cautious") == true)
         voice = checkbox(R.string.settings_voice, "voice", form.flag("voice") == true)
+        floating = checkbox(R.string.settings_floating, "floating", form.flag("floating") == true && Settings.canDrawOverlays(this))
+        HistoryViews.label(column, getString(R.string.floating_setting_note))
+        floating.setOnCheckedChangeListener { _, checked ->
+            if (checked && !Settings.canDrawOverlays(this)) {
+                floating.isChecked = false
+                draft = readDraft(); awaitingOverlayPermission = true
+                runCatching { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) }
+                    .onFailure { awaitingOverlayPermission = false; error() }
+            }
+        }
         button(R.string.settings_save, "save") {
             if (saving) return@button
             val next = readDraft()
@@ -124,12 +152,12 @@ class SettingsActivity : HostAppearanceActivity() {
         button(R.string.update_check, "update") { updates.check() }
         rendered = true; tint(column)
     }
-    private fun readDraft() = jsonObject("version" to 1.json(), "toolGroups" to JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) },
+    private fun readDraft() = jsonObject("version" to 2.json(), "toolGroups" to JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) },
         "budget" to JsonObject().apply { budgets.forEach { (key, field) ->
             val text = field.text.toString().trim(); if (text.isNotEmpty()) {
                 val number = text.toLongOrNull(); if (number == null) addProperty(key, text) else addProperty(key, number)
             }
-        } }, "cautious" to cautious.isChecked.json(), "voice" to voice.isChecked.json())
+        } }, "cautious" to cautious.isChecked.json(), "voice" to voice.isChecked.json(), "floating" to floating.isChecked.json())
     companion object {
         internal val budgetLabels = linkedMapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             "maxDurationMs" to R.string.presets_duration, "maxTotalTokens" to R.string.presets_tokens)

@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -117,11 +117,12 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 5. Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
 6. Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Choose a model from the host catalog, or keep automatic selection. A missing selected model fails without switching targets. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately.
 7. Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
-8. Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery. Floating cards follow in P6.7.
+8. Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery.
 9. Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
 10. Release history and legal notices are bundled for offline reading. Check updates manually through GitHub Releases, with a 24-hour success cache, cancellation and an ignored-version setting. The dialog opens release history inside the app or the release page in a browser. Checks never run automatically and APKs are not downloaded.
+11. Enable the floating ball in Settings, allow display over other apps, then save. It is off by default, appears only while AutoJs6 is connected, hides on lock or disconnect, and has no idle foreground service. Drag to move; tap to enter a goal, choose a preset, review a question or confirmation, or stop a task. Collapsing the card restores background confirmation notifications. Share plain text to AI Agent, use the New task app shortcut, or pin a preset with an optional goal from Presets. All entries open editable drafts and require Start task. A deleted preset never falls back silently. Voice uses the system recognizer in the interface language, is hidden when unavailable and fills text without sending.
 
-> Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
+> Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8.
 
 ******
 
@@ -131,9 +132,9 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 
 The plugin follows explicit boundaries:
 
-- The Binder entry points are protected by the `org.autojs.permission.PLUGIN` signature permission, so only AutoJs6 can reach them; the launcher screen is the only other exported component.
+- Binder contract entries require the org.autojs.permission.PLUGIN signature permission. The launcher (also used by shortcuts) and the text/plain ACTION_SEND share target are public; they accept bounded goal/preset drafts only. External intents cannot execute tasks, provide confirmations or change grants. Private settings, voice results and task controls are not exported.
 - The plugin holds no API keys, never binds a model provider and does not request the accessibility permission: model calls and device actions go through brokers that AutoJs6 lends for one attached link and revokes on detach, each bounded by a grant (allowed methods, rates, sizes, model quota).
-- INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and stop actions. No accessibility, overlay, storage or microphone permission is requested.
+- INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and confirmations. SYSTEM_ALERT_WINDOW is requested only when the user enables the floating ball in Settings. No accessibility, storage or microphone permission is requested.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
 
 Only obtain the plugin from the official [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.
@@ -179,9 +180,10 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 #### v1.0.0
 
-_2026/09/24_
+_2026/09/25_
 
-- `Hint` Development preview: the workbench, history, presets, memory, settings, release history and manual update checks are available. The ai.agent API requires AutoJs6 build 5293 or later. Floating and external entries continue in P6.7; reliability and release gates remain in P7/P8.
+- `Hint` Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8.
+- `Feature` Optional floating task input, progress, stop and confirmation cards; plain-text sharing, static and pinned preset shortcuts, and system speech recognition that fills a draft without sending
 - `Feature` Global settings, per-category data management, offline release history and legal notices, and cancellable manual update checks with daily caching and ignored versions
 - `Feature` Inline and notification confirmation with risk, countdown, task-scoped approval and separately confirmed answer memory
 - `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
@@ -211,6 +213,7 @@ _2026/09/24_
 - `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
 - `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
 - `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Fix` Notification confirmation returns to the target app before resuming actions, acknowledgements survive the screen stopping, and floating replies collapse the card before execution
 - `Fix` Opening the app on Android 13 no longer crashes when the system bar controller is read before the window decor exists
 - `Fix` Recent history uses task start times for ordering and retention so rewriting files during restart cannot evict newer tasks
 - `Fix` Input and confirmation responses enforce interaction ownership so scripts cannot answer on behalf of the plugin interface

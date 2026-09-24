@@ -6,9 +6,10 @@
 
 # v1.0.0
 
-###### 2026/09/24
+###### 2026/09/25
 
-* `Aviso` Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8.
+* `Aviso` Vista previa de desarrollo: están disponibles las pantallas P6, ajustes, burbuja flotante, compartir, accesos directos y borradores por voz. ai.agent requiere AutoJs6 build 5293 o posterior. Fiabilidad y publicación siguen pendientes en P7/P8.
+* `Función` Entrada flotante opcional, progreso, parada y confirmación, compartir texto, accesos estáticos y de preajustes, y reconocimiento de voz del sistema sin envío automático
 * `Función` Ajustes globales, gestión de categorías de datos, historial y avisos legales sin conexión, consulta manual cancelable con caché diario y versiones ignoradas
 * `Función` Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado
 * `Función` Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar
@@ -38,6 +39,7 @@
 * `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 * `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 * `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+* `Corrección` La confirmación vuelve a la app de destino antes de reanudar acciones, procesa la respuesta aunque se detenga la pantalla y contrae la tarjeta flotante antes de ejecutar
 * `Corrección` El inicio en Android 13 ya no falla al consultar el controlador de las barras del sistema antes de crear la vista de la ventana
 * `Corrección` El historial se ordena y conserva por el inicio de las tareas para que reescribir archivos al reiniciar no elimine las más recientes
 * `Corrección` Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento

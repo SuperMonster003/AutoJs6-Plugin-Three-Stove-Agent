@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:targetApi="25">
+    <shortcut android:shortcutId="new-task" android:enabled="true"
+        android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/shortcut_new_task">
+        <intent android:action="io.github.supermonster003.autojs6.plugin.ai.agent.NEW_TASK"
+            android:targetPackage="io.github.supermonster003.autojs6.plugin.ai.agent"
+            android:targetClass="io.github.supermonster003.autojs6.plugin.ai.agent.ui.LauncherActivity" />
+    </shortcut>
+</shortcuts>

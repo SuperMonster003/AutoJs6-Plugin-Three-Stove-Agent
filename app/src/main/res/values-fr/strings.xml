@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Paramètre</string>
     <string name="confirmation_value">Valeur</string>
+    <string name="entry_invalid">Impossible d\'ouvrir ce brouillon ou de créer son raccourci.</string>
+    <string name="floating_collapse">Réduire la carte. Faire glisser pour déplacer</string>
+    <string name="floating_open">Ouvrir la carte. Faire glisser pour déplacer</string>
+    <string name="floating_permission_required">Autorisez la superposition pour activer la bulle flottante.</string>
+    <string name="floating_setting_note">Désactivée par défaut. Autorisez la superposition, puis enregistrez. La bulle apparaît lorsque AutoJs6 est connecté et se masque à la déconnexion ou au verrouillage. Aucun service de premier plan au repos.</string>
+    <string name="floating_workbench">Ouvrir les tâches</string>
     <string name="history_all">Tous</string>
     <string name="history_allowed">Autorisé</string>
     <string name="history_arguments">Paramètres: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">Gestion des données</string>
     <string name="settings_default">Profil par défaut: %1$s</string>
     <string name="settings_error">Lecture ou enregistrement impossible. Vérifiez les limites et réessayez. Arrêtez les tâches actives avant d\'effacer les données.</string>
+    <string name="settings_floating">Activer la bulle flottante</string>
     <string name="settings_license">Licence</string>
     <string name="settings_notices">Mentions tierces</string>
     <string name="settings_ocr_note">L\'OCR est disponible si ce groupe est activé et si l\'hôte détecte un module de reconnaissance autorisé.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d éléments / %3$d octets</string>
     <string name="settings_version">Version: %1$s\nBuild: %2$d\nDate: %3$s\nAuteur: %4$s</string>
     <string name="settings_voice">Activer la saisie vocale</string>
+    <string name="shortcut_goal">Objectif fixe (facultatif)</string>
+    <string name="shortcut_new_task">Nouvelle tâche</string>
+    <string name="shortcut_pin">Épingler sur l\'écran d\'accueil</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">Le raccourci ouvre ce préréglage et un objectif facultatif pour vérification. Appuyez sur Démarrer pour exécuter.</string>
     <string name="task_allow">Autoriser une fois</string>
     <string name="task_channel">Tâches Agent</string>
     <string name="task_deny">Refuser</string>

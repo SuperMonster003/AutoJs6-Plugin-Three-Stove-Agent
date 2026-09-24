@@ -23,6 +23,7 @@ class ConfirmationActivity : HostAppearanceActivity() {
     private var requestId: String? = null
     private var displayedStep = 0L
     private var memoryAfterStep = Long.MAX_VALUE
+    private var afterStop: (() -> Unit)? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -41,12 +42,27 @@ class ConfirmationActivity : HostAppearanceActivity() {
         agent = AgentConnection(this, ::render).apply { selectedId = runId; preferRunning = false }
         card = PendingCard(pending) { body, complete ->
             if (body.flag("remember") == true) memoryAfterStep = displayedStep + 1
-            agent.command({ it.respond(AgentConnection.request(C.KEY_RUN_RESPONSE_JSON, body)) }) { result ->
-                complete(result.isSuccess)
-                if (result.isSuccess) {
-                    // A checked answer creates a fresh request; follow its separate memory confirmation.
-                    if (body.flag("remember") == true) requestId = null else finish()
-                } else { message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE }
+            val submit = {
+                agent.command({ it.respond(AgentConnection.request(C.KEY_RUN_RESPONSE_JSON, body)) }, completeWhileStopped = true) { result ->
+                    complete(result.isSuccess)
+                    if (result.isSuccess) {
+                        // A checked answer creates a fresh request; follow its separate memory confirmation.
+                        if (body.flag("remember") == true) requestId = null else finish()
+                    } else if (body.flag("remember") == true) {
+                        message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE
+                    } else {
+                        Toast.makeText(applicationContext, R.string.workbench_request_failed, Toast.LENGTH_LONG).show(); finish()
+                    }
+                }
+            }
+            if (body.flag("remember") == true) submit() else {
+                // Restore the target application's window before the runner resumes a bound action.
+                // onStop runs after the underlying activity resumes; acknowledgement then closes us.
+                afterStop = submit
+                if (!moveTaskToBack(true)) {
+                    afterStop = null; complete(false)
+                    message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE
+                }
             }
         }
         card.restore(savedInstanceState)
@@ -58,7 +74,10 @@ class ConfirmationActivity : HostAppearanceActivity() {
     override fun onStart() { super.onStart(); agent.start() }
     override fun onResume() { super.onResume(); visibility.start() }
     override fun onPause() { visibility.stop(); super.onPause() }
-    override fun onStop() { agent.stop(); super.onStop() }
+    override fun onStop() {
+        val submit = afterStop; afterStop = null; submit?.invoke()
+        agent.stop(); super.onStop()
+    }
     override fun onDestroy() { agent.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         card.save(outState); outState.putBoolean("awaitingMemory", requestId == null)
@@ -89,6 +108,8 @@ class ConfirmationActivity : HostAppearanceActivity() {
         private const val EXTRA_RUN_ID = "runId"
         private const val EXTRA_REQUEST_ID = "requestId"
         internal fun intent(context: Context, runId: String, requestId: String) = Intent(context, ConfirmationActivity::class.java)
+            // Finishing must return to the target app, not resurrect the workbench's task.
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             .setData(Uri.Builder().scheme("agent-interaction").authority("request").appendPath(runId).appendPath(requestId).build())
             .putExtra(EXTRA_RUN_ID, runId).putExtra(EXTRA_REQUEST_ID, requestId)
         internal fun pendingIntent(context: Context, runId: String, requestId: String): PendingIntent = PendingIntent.getActivity(context, 0,

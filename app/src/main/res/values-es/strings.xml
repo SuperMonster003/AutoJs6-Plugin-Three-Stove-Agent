@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">Parámetro</string>
     <string name="confirmation_value">Valor</string>
+    <string name="entry_invalid">No se puede abrir este borrador ni crear su acceso directo.</string>
+    <string name="floating_collapse">Contraer tarjeta. Arrastra para mover</string>
+    <string name="floating_open">Abrir tarjeta. Arrastra para mover</string>
+    <string name="floating_permission_required">Permite mostrar sobre otras aplicaciones para activar la burbuja flotante.</string>
+    <string name="floating_setting_note">Desactivada por defecto. Permite la superposición y guarda. La burbuja aparece con AutoJs6 conectado y se oculta al desconectar o bloquear. No mantiene un servicio en primer plano en reposo.</string>
+    <string name="floating_workbench">Abrir tareas</string>
     <string name="history_all">Todos</string>
     <string name="history_allowed">Permitido</string>
     <string name="history_arguments">Parámetros: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">Gestión de datos</string>
     <string name="settings_default">Perfil predeterminado: %1$s</string>
     <string name="settings_error">No se pueden leer o guardar los ajustes. Revise los límites y reintente. Detenga las tareas activas antes de borrar datos.</string>
+    <string name="settings_floating">Activar burbuja flotante</string>
     <string name="settings_license">Licencia</string>
     <string name="settings_notices">Avisos de terceros</string>
     <string name="settings_ocr_note">OCR está disponible automáticamente si este grupo está activo y el anfitrión detecta un complemento de reconocimiento autorizado.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d elementos / %3$d bytes</string>
     <string name="settings_version">Versión: %1$s\nCompilación: %2$d\nFecha: %3$s\nAutor: %4$s</string>
     <string name="settings_voice">Activar entrada de voz</string>
+    <string name="shortcut_goal">Objetivo fijo (opcional)</string>
+    <string name="shortcut_new_task">Nueva tarea</string>
+    <string name="shortcut_pin">Fijar en pantalla de inicio</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">El acceso directo abre este preajuste y un objetivo opcional para revisarlos. Pulsa Iniciar tarea para ejecutar.</string>
     <string name="task_allow">Permitir una vez</string>
     <string name="task_channel">Tareas del Agent</string>
     <string name="task_deny">Denegar</string>

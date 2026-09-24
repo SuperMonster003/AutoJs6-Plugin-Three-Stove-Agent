@@ -2,6 +2,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="confirmation_parameter">參數</string>
     <string name="confirmation_value">值</string>
+    <string name="entry_invalid">無法開啟此任務草稿或建立捷徑.</string>
+    <string name="floating_collapse">收起任務卡片, 拖曳可移動</string>
+    <string name="floating_open">展開任務卡片, 拖曳可移動</string>
+    <string name="floating_permission_required">請允許顯示在其他應用程式上層以啟用懸浮球.</string>
+    <string name="floating_setting_note">預設關閉. 請授權顯示在其他應用程式上層後儲存. 僅在 AutoJs6 已連線時顯示, 中斷或鎖定時隱藏. 閒置時不維持前景服務.</string>
+    <string name="floating_workbench">開啟任務台</string>
     <string name="history_all">全部</string>
     <string name="history_allowed">已允許</string>
     <string name="history_arguments">參數: %1$s</string>
@@ -162,6 +168,7 @@
     <string name="settings_data">資料管理</string>
     <string name="settings_default">預設組態: %1$s</string>
     <string name="settings_error">無法讀取或儲存設定. 請檢查限制後重試. 清除資料前請先停止執行中的任務.</string>
+    <string name="settings_floating">啟用懸浮球</string>
     <string name="settings_license">授權條款</string>
     <string name="settings_notices">第三方聲明</string>
     <string name="settings_ocr_note">啟用 OCR 組後, 宿主偵測到已授權的辨識外掛時會自動提供 OCR.</string>
@@ -174,6 +181,11 @@
     <string name="settings_usage">%1$s: %2$d 筆 / %3$d 位元組</string>
     <string name="settings_version">版本: %1$s\n組建: %2$d\n日期: %3$s\n作者: %4$s</string>
     <string name="settings_voice">啟用語音輸入</string>
+    <string name="shortcut_goal">固定目標 (選填)</string>
+    <string name="shortcut_new_task">新增任務</string>
+    <string name="shortcut_pin">固定至主畫面</string>
+    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_review">捷徑開啟此預設與選填的目標草稿供核對. 點擊開始任務後才執行.</string>
     <string name="task_allow">允許一次</string>
     <string name="task_channel">Agent 任務</string>
     <string name="task_deny">拒絕</string>

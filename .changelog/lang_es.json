@@ -6,11 +6,12 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.0.0": {
-      "released_date": "2026/09/24",
+      "released_date": "2026/09/25",
       "hint": [
-        "Vista previa: tareas, historial, perfiles, memoria, ajustes, notas de versión y búsqueda manual de actualizaciones disponibles. ai.agent requiere AutoJs6 build 5293 o posterior. Las entradas flotantes y externas siguen en P6.7; fiabilidad y publicación permanecen en P7/P8."
+        "Vista previa de desarrollo: están disponibles las pantallas P6, ajustes, burbuja flotante, compartir, accesos directos y borradores por voz. ai.agent requiere AutoJs6 build 5293 o posterior. Fiabilidad y publicación siguen pendientes en P7/P8."
       ],
       "feature": [
+        "Entrada flotante opcional, progreso, parada y confirmación, compartir texto, accesos estáticos y de preajustes, y reconocimiento de voz del sistema sin envío automático",
         "Ajustes globales, gestión de categorías de datos, historial y avisos legales sin conexión, consulta manual cancelable con caché diario y versiones ignoradas",
         "Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado",
         "Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar",
@@ -42,6 +43,7 @@
         "Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog"
       ],
       "fix": [
+        "La confirmación vuelve a la app de destino antes de reanudar acciones, procesa la respuesta aunque se detenga la pantalla y contrae la tarjeta flotante antes de ejecutar",
         "El inicio en Android 13 ya no falla al consultar el controlador de las barras del sistema antes de crear la vista de la ventana",
         "El historial se ordena y conserva por el inicio de las tareas para que reescribir archivos al reiniciar no elimine las más recientes",
         "Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento",
