@@ -286,7 +286,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/26_
 
 - `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
-- `Hint` Host transport for visual input is implemented. Screenshot tasks are not yet available in this plugin; 3-Stone AI model support and Agent capture tools and budgets still need implementation. See ROADMAP.md
+- `Hint` Host image transport and 3-Stone AI online image mappings are implemented. Real online vision acceptance is still pending; this plugin's capture tools, visual prompts and image budgets need implementation before screenshot tasks are available. See ROADMAP.md
 - `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
 - `Dependency` Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+
 

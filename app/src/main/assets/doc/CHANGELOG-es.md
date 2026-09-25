@@ -9,7 +9,7 @@
 ###### 2026/09/26
 
 * `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
-* `Aviso` El transporte de imágenes del anfitrión está implementado. Este plugin aún no ofrece tareas con capturas de pantalla; faltan el soporte de modelos de 3-Stone AI y las herramientas de captura y presupuestos de Agent. Véase ROADMAP.md
+* `Aviso` El transporte de imágenes del host y su adaptación en línea en 3-Stone AI están implementados. La validación con un modelo visual en línea sigue pendiente. Las tareas con capturas requieren implementar las herramientas de captura, las instrucciones visuales y los presupuestos de imágenes del plugin. Consulta ROADMAP.md
 * `Función` Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 * `Dependencia` Artefactos release de las API del host sincronizados con AutoJs6 build 5297; el contrato básico de conexión sigue compatible con build 5289+
 
