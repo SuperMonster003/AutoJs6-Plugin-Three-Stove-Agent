@@ -10,7 +10,7 @@
       "hint": [
         "Version 1.0.0 provides natural-language tasks, registered-script invocation and device actions with risk-based confirmation. See [ROADMAP.md]({{ roadmap_url }}) for verified cases, model limitations and outstanding device checks. Native tool calling, visual input and dynamic script generation are planned for 1.1.0.",
         "Requires Android 7+, AutoJs6 6.8.0 / build 5293+ for task APIs, and an enabled 3-Stone AI plugin with a configured model. OCR is optional. The attachment protocol alone requires host build 5289+.",
-        "Compatibility note: the native-tool host extension in AutoJs6 build 5297 is compatible with this version. This version still uses structured JSON decisions; Provider and Agent native-tool adoption is tracked in [ROADMAP.md]({{ roadmap_url }})."
+        "Compatibility note: the native-tool host extension in AutoJs6 build 5297 is compatible with this version. The 3-Stone AI 1.2.0 development candidate implements online tool continuation for three protocols. This Agent version still uses structured JSON decisions; native-loop adoption and task comparisons remain in [ROADMAP.md]({{ roadmap_url }})."
       ],
       "feature": [
         "Natural-language task workbench with inline questions, progress, stop and results; optional floating input, text sharing, preset shortcuts and voice drafts",

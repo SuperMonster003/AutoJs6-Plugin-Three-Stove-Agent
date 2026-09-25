@@ -620,8 +620,8 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 ### P9.1 原生 Tool Calling
 
-- [x] (宿主) `AiPluginAskRequest` 开放 `tools` 与 `maximumToolRounds` (仅经模型代理路径, 脚本 `ai.ask` 是否开放另议); `AndroidAiPluginAskRunner.onToolCalls` 从 `Unsupported` 改为向调用方产出 `toolCalls` 事件并接受 `toolResults` 续轮 (协议已定义 `SCHEMA_TOOL_*`, 16 轮上限); 模型代理新增事件 `tool_calls` 与方法 `submitToolResults`. 证据: 宿主 `3e4e3a3cff` / build 5297, JVM 244 + Agent API 7 + Provider API 77 全部通过; 独立测试签名 API 24 / API 37.1 各 41/41, 严格 lint 0 错误. 仅宿主支持完成, 模型和插件接入及真实任务对比仍待办, 详见 [宿主原生工具验收](docs/dev/p91-host-tools-evidence-2026-09-25.md).
-- [ ] (模型) 3-Stone AI `supportsTools = true`: 在线三协议的工具定义 / 调用 / 结果映射, 本地 LiteRT-LM 视模型能力 (不支持时目标级不声明 `tools` 能力).
+- [x] (宿主) `AiPluginAskRequest` 开放 `tools` 与 `maximumToolRounds` (仅经模型代理路径, 脚本 `ai.ask` 是否开放另议); `AndroidAiPluginAskRunner.onToolCalls` 从 `Unsupported` 改为向调用方产出 `toolCalls` 事件并接受 `toolResults` 续轮 (协议已定义 `SCHEMA_TOOL_*`, 16 轮上限); 模型代理新增事件 `tool_calls` 与方法 `submitToolResults`. 证据: 宿主 `3e4e3a3cff` / build 5297, JVM 244 + Agent API 7 + Provider API 77 全部通过; 独立测试签名 API 24 / API 37.1 各 41/41, 严格 lint 0 错误. 该项证据仅覆盖宿主, 模型/插件接入及真实任务对比的进度见以下条目, 详见 [宿主原生工具验收](docs/dev/p91-host-tools-evidence-2026-09-25.md).
+- [x] (模型) 3-Stone AI `supportsTools = true`: 在线三协议的工具定义 / 调用 / 结果映射, 本地 LiteRT-LM 视模型能力 (不支持时目标级不声明 `tools` 能力). 证据: Provider `4e887e8` / 1.2.0 开发候选 / build 215, JVM 373/373, API 24 x86_64 与 API 37.1 / 16 KiB 各 13/13. 保留 Gemini 签名, 并行调用, 严格结果匹配, 原始截止时间及累计用量; 暂不组合持久 ai.session. Agent 原生循环和真实任务对比仍待办, 详见 [Provider 原生工具验收](docs/dev/p91-provider-tools-evidence-2026-09-25.md).
 - [ ] (插件) `ModelClient` 在目标声明 `tools` 能力时改用原生工具循环 (`ToolCatalog` 直接作为工具定义), 否则保持 D7 的结构化 JSON 循环; 两条路径共用 `DecisionValidator` / `ConfirmationGate` / `StepJournal`.
 - [ ] (测试) 假 Provider 的工具往返, 两条路径的用例 (1) (2) 对比数据.
 
@@ -1498,3 +1498,12 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 首次 AVD 的签名前置条件失败 11 项, 18 项通过; 随后使用没有生产签名文件的隔离工作区完成两台成功回归. 4 GiB lint 堆瓶颈与一次命令引号错误如实保留, 12 GiB/G1 严格重跑 9m 49s 通过. 不绕过签名或降低测试断言, 完整证据见 docs/dev/p91-host-tools-evidence-2026-09-25.md.
 - 宿主十语言日志与协议已同步; 插件十语言 changelog 增加兼容提示, 36 产物校验通过. 本次插件 build 80 对齐提交数, 仅记录文档, 不改已发布 1.0.0 标签/APK. 无 Rhino, 真实模型, 真机设置或订单/付款改动; 私有模拟器已关闭, 本次不推送/发布.
 - 下一起点为原 P9.1 的 3-Stone AI 三协议工具映射, 然后继续插件原生循环和 Wi-Fi/计算器双路径对比; 其余 P9.1/P9.2/P9.3 均未提前勾选. 当前及紧接着的 Provider 开发无需 Redmi SIM 或新增手动操作; 后续在线 Wi-Fi 对比仅在用例期间需要独立网络. QV710AF65F / XQ-AT72 Android 12 仍按用户预计 2026-09-27 20:00 UTC+8 前上线后补测.
+
+### 2026-09-25: P9.1 3-Stone AI 三协议原生工具续轮
+
+- 完成原 P9.1 的模型条目, 不增加/分拆/丢弃阶段. Provider 提交 4e887e8, 1.2.0 开发候选 / build 215; OpenAI 兼容 Chat Completions, Anthropic Messages 与 Gemini GenerateContent 均实现定义/流式调用/结果映射, 本地 LiteRT-LM 仍不声明 tools.
+- 工具必须已声明, callId 不重复, 结果完整匹配待处理批次; 上限 16 轮 / 32 个待处理调用. Gemini 原始签名和各协议续轮字段保留在 Provider 内, 输出 token 预算跨轮扣减, usage 按模型调用累加. 等待与 FD 读取沿用原始截止时间, 取消/回收关闭资源; 先核验结果 ID 再读取 FD. 暂不将工具循环与持久 ai.session 组合.
+- Provider 完整 JVM 373/373; 独立 API 24 x86_64 和 API 37.1 x86_64 / 16 KiB 各 13/13, 包含 11 项新会话与 2 项发现/元数据测试. 新测试使用 AIDL proxy 编解码, 真实 Android FD 和可控 backend/UID 夹具; 不冒充跨 UID 宿主到在线模型验收. Debug/androidTest/R8 release/签名归档/16 KiB 静态对齐通过, lint 0 错误 / 97 警告. 证据见 docs/dev/p91-provider-tools-evidence-2026-09-25.md.
+- 两台安装归档 x86_64 release 后均可启动入口. 额外将 debug instrumentation 运行于 R8 release 的尝试在运行器加载 Kotlin Intrinsics 时退出, 如实保留为夹具不匹配失败; 不削弱生产 R8 规则或宣称 release Binder 已通过. 本轮不推送/发布, 后续发行验收仍需匹配 release 的外部/Binder 测试入口.
+- 插件十语言 changelog 仅更新进度/兼容提示, 本次文档回执 build 81 对齐提交数. 已发布的 Agent v1.0.0 标签/APK 和运行代码保持不变. 没有宿主/Rhino 修改, 真实模型调用, 真机设置, 订单或付款; 本轮私有模拟器已关闭.
+- 下一起点为原 P9.1 的 Agent ModelClient 原生循环及共享 DecisionValidator / ConfirmationGate / StepJournal, 然后做原 Wi-Fi/计算器两路径对比. 当前及紧接着的插件开发无需 Redmi SIM 或新增手动操作; 在线 Wi-Fi 对比时再临时使用一台具备独立网络的设备. QV710AF65F / XQ-AT72 Android 12 仍待预计 2026-09-27 20:00 UTC+8 前上线后补测.

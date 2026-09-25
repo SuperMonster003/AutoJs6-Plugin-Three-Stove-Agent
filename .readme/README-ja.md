@@ -284,7 +284,7 @@ _2026/09/25_
 
 - `ヒント` 1.0.0 は自然言語タスク, 登録済みスクリプトの呼び出し, リスクに応じた確認を伴う端末操作を提供します. 検証済みの事例, モデルの制限, 未実施の端末検証は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください. ネイティブツール呼び出し, 画像入力, 動的スクリプト生成は 1.1.0 で対応予定です.
 - `ヒント` Android 7+, タスク API には AutoJs6 6.8.0 / build 5293+, モデル設定済みの有効な 3-Stone AI が必要です. OCR は任意です. 接続プロトコル単体の最低ホストは build 5289+ です.
-- `ヒント` 互換性について: AutoJs6 build 5297 のネイティブツール用ホスト拡張は本バージョンと互換性があります. 本バージョンは引き続き構造化 JSON の決定を使用します. Provider と Agent のネイティブツール対応状況は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
+- `ヒント` 互換性: AutoJs6 build 5297 のネイティブツール仲介拡張はこのバージョンと互換性があります. 3-Stone AI 1.2.0 開発候補版はオンライン 3 プロトコルのツール継続を実装しています. この Agent は引き続き構造化 JSON 決定を使用します. ネイティブループの連携と比較テストは [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) の予定です.
 - `機能` 自然言語タスク画面に質問, 進捗, 停止, 結果を表示し, 任意のフローティング入力, テキスト共有, プリセットショートカット, 音声下書きに対応
 - `機能` ai.agent API でタスク作成, イベント, 照会, 応答, 取消に対応し, detached タスクや登録スクリプトの結果/文脈も利用可能
 - `機能` project.json / @agent 登録スクリプトの検索, パラメータ検証と既定値, 不足値の質問, 確認, 有界実行, 構造化結果
