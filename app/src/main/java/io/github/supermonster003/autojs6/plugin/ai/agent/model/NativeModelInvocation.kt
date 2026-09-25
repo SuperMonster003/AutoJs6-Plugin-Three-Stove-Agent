@@ -7,7 +7,9 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 internal class NativeModelInvocation(private val broker: ModelBrokerTransport, private val target: ModelTarget,
                                       private val scheduler: RunScheduler, private val id: String,
                                       private val initialBytes: Int, private val maximumInputBytes: Int, private val outputLimit: Int,
-                                      names: Set<String>, callback: (PortResult<ModelReply>) -> Unit) : NativeContinuation {
+                                      names: Set<String>, callback: (PortResult<ModelReply>) -> Unit,
+                                      private val vision: Boolean = false, initialImageTokens: Long = 0,
+                                      initialImageCount: Int = 0, initialImageBytes: Long = 0) : NativeContinuation {
     override val limits = requireNotNull(target.nativeTools)
     private val lock = Any()
     private val events = NativeModelEvents(id, target.targetId, target.maximumOutputBytes, names, limits.rounds)
@@ -15,6 +17,9 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
     private var deliveredRound: Round? = null
     private var pendingCalls = emptyList<NativeToolCall>()
     private var resultBytes = 0
+    private var retainedImageTokens = initialImageTokens
+    private var imageCount = initialImageCount
+    private var imageBytes = initialImageBytes
     private var ended = false
     private var failure: RunError? = null
     private var idleProgress: PortResult.Failure? = null
@@ -32,11 +37,11 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
         override fun progress() = synchronized(lock) { snapshot ?: events.progress() }
     }
     override fun claim() { synchronized(lock) { deliveredRound?.claimed = true } }
-    fun dispatch(request: String, timeoutMs: Long): Cancellation {
+    fun dispatch(request: String, timeoutMs: Long, images: List<ModelImage> = emptyList()): Cancellation {
         val round = checkNotNull(current)
         val timer = scheduler.schedule(timeoutMs) { abort(RunError.MODEL_TIMEOUT) }
         synchronized(lock) { if (ended) timer.cancel() else deadline = timer }
-        dispatch { broker.generate(request, ::onEvent, ::abort) }
+        dispatch { broker.generate(request, images, ::onEvent, ::abort) }
         return round
     }
     override fun inputBytes(results: List<NativeToolResult>): Int = synchronized(lock) {
@@ -44,6 +49,10 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
         val size = initialBytes.toLong() + events.retainedBytes + resultBytes + results.sumOf { StepJournal.bytes(it.wire()).toLong() }
         if (size > maximumInputBytes) throw ContextLimitExceeded()
         size.toInt()
+    }
+    override fun imageTokens(results: List<NativeToolResult>): Long = synchronized(lock) {
+        resultEnvelope(results)
+        retainedImageTokens + results.sumOf { result -> result.images.sumOf { it.estimatedTokens } }
     }
     override fun resume(results: List<NativeToolResult>, maximumOutputTokens: Int, timeoutMs: Long,
                         callback: (PortResult<ModelReply>) -> Unit): Cancellation {
@@ -60,6 +69,9 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
                 inputBytes(results)
                 request = resultEnvelope(results)
                 resultBytes += results.sumOf { StepJournal.bytes(it.wire()) }
+                retainedImageTokens += results.sumOf { result -> result.images.sumOf { it.estimatedTokens } }
+                imageCount += results.sumOf { it.images.size }
+                imageBytes += results.sumOf { result -> result.images.sumOf { it.byteCount } }
                 events.resume(); pendingCalls = emptyList()
                 Round(callback).also { current = it }
             } catch (_: ContextLimitExceeded) { error = RunError.LIMIT_EXCEEDED; null }
@@ -74,15 +86,19 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
             callback(failed.copy(error = checkNotNull(error)))
             return Cancellation.NONE
         }
-        dispatch { broker.submitToolResults(checkNotNull(request), ::abort) }
+        dispatch { broker.submitToolResults(checkNotNull(request), results.flatMap { it.images }, ::abort) }
         return round
     }
     private fun resultEnvelope(results: List<NativeToolResult>): String {
         require(pendingCalls.isNotEmpty() && results.size == pendingCalls.size)
         require(results.map { it.id }.distinct().size == results.size && results.map { it.id }.toSet() == pendingCalls.map { it.id }.toSet())
         results.forEach { AgentJson.checkUnicode(it.output); require(it.output.toByteArray(Charsets.UTF_8).size <= limits.resultBytes) }
+        val images = results.flatMap { it.images }
+        require(images.isEmpty() || vision)
+        if (images.isNotEmpty()) requireNotNull(target.vision).validate(images, imageCount, imageBytes)
         return jsonObject("requestId" to id.json(), "round" to events.round.json(), "results" to JsonArray().apply {
-            results.forEach { add(it.wire()) }
+            var index = 0
+            results.forEach { add(it.wire(index)); index += it.images.size }
         }).toString().also { if (it.toByteArray(Charsets.UTF_8).size > limits.batchBytes) throw ContextLimitExceeded() }
     }
     override fun onFailure(callback: (RunError) -> Unit) {

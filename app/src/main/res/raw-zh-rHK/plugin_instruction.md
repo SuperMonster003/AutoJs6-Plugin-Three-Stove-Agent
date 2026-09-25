@@ -4,6 +4,8 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 目前 Model8 對比中仍出現空回應, Provider 失敗及預算中止. [對比證據](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部取樣結果, 尚不能證明兩類任務可穩定完成.
 
+圖片輸入要求兼容宿主, observe 工具組和明確啟用圖片輸入的視覺模型. 實作與確定性測試已完成, 真實線上視覺驗收仍待補測. 舊系統和純文字目標繼續使用文字觀察. 見 ROADMAP.md
+
 ### 使用方法
 
 1. 在安裝了 AutoJs6 組建 5293 或更高版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.

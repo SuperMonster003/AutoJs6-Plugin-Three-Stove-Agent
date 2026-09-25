@@ -4,6 +4,8 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 현재 Model8 비교에서는 빈 응답, Provider 실패와 예산 초과 중단이 발생합니다. [비교 기록](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md)에 모든 시도를 보존하며, 두 작업의 안정적인 완료는 아직 확인되지 않았습니다.
 
+이미지 입력에는 호환 호스트, observe 그룹 및 이미지 입력을 명시적으로 활성화한 시각 모델이 필요합니다. 구현과 결정적 테스트는 완료되었으며 실제 온라인 시각 모델 검증은 대기 중입니다. 이전 시스템과 텍스트 전용 모델은 텍스트 관찰을 유지합니다. ROADMAP.md 참조
+
 ### 사용 방법
 
 1. AutoJs6 빌드 5293 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.

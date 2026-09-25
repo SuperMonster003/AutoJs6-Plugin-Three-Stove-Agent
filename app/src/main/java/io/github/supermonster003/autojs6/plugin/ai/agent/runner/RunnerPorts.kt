@@ -49,13 +49,18 @@ class RunOptions(
 }
 
 class RunContext(val goal: String, val history: List<JsonObject>, val observation: String?, val repair: JsonObject?, val remainingBudget: JsonObject,
-                 val format: DecisionFormat? = null, val locale: String = "en", val guidance: JsonObject = JsonObject()) {
+                 val format: DecisionFormat? = null, val locale: String = "en", val guidance: JsonObject = JsonObject(),
+                 val images: List<ModelImage> = emptyList()) {
     override fun toString() = "RunContext(records=${history.size}, repair=${repair != null})"
 }
 
 /** P2.4's compiler supplies the bounded message array and accounts for the response schema bytes. */
 class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: DecisionFormat? = null, val maximumOutputTokens: Int? = null,
-                 tools: JsonArray = JsonArray(), val maximumContextBytes: Int = 128 * 1024) {
+                 tools: JsonArray = JsonArray(), val maximumContextBytes: Int = 128 * 1024,
+                 images: List<ModelImage> = emptyList(), val imageMessageIndex: Int? = null, val vision: Boolean = false) {
+    val images = images.toList()
+    val imageTokens: Long get() = images.sumOf { it.estimatedTokens }
+    val imageRefs: JsonArray get() = imageReferences(images, messageIndex = imageMessageIndex)
     private val data = AgentJson.parse(messages.toString(), 128 * 1024).asJsonArray
     private val definitions = AgentJson.parse(tools.toString(), 128 * 1024).asJsonArray
     init {
@@ -64,11 +69,14 @@ class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: Deci
         require(maximumOutputTokens == null || maximumOutputTokens in 1..65_536)
         require(format == null || schemaBytes == (format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0))
         require(definitions.size() <= 64 && (definitions.isEmpty || format?.nativeTools == true))
+        VisionLimits().validate(this.images)
+        require(this.images.isEmpty() || (vision && imageMessageIndex != null && imageMessageIndex in 0 until data.size() &&
+            data[imageMessageIndex].asJsonObject.string("role") == "user"))
     }
     val messages: JsonArray get() = data.deepCopy()
     val tools: JsonArray get() = definitions.deepCopy()
     val inputBytes: Int get() = data.toString().toByteArray(Charsets.UTF_8).size + schemaBytes +
-        if (definitions.isEmpty) 0 else StepJournal.bytes(definitions)
+        (if (definitions.isEmpty) 0 else StepJournal.bytes(definitions)) + (if (images.isEmpty()) 0 else StepJournal.bytes(imageRefs))
     override fun toString() = "ModelInput(bytes=$inputBytes)"
 }
 fun interface RunContextCompiler {
@@ -111,7 +119,9 @@ class ToolInvocation(val name: String, arguments: JsonObject, plan: ToolPlan) {
 class PreparedTool(val invocation: ToolInvocation, val metadata: ToolMetadata, val opaqueContext: Any? = null) {
     override fun toString() = "PreparedTool(name=${invocation.name})"
 }
-class ToolReply(result: JsonElement, val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutcome? = null) {
+class ToolReply(result: JsonElement, val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutcome? = null,
+                images: List<ModelImage> = emptyList()) {
+    val images = images.toList().also { require(it.size <= 1) }
     private val data = AgentJson.parse(result.toString(), 512 * 1024)
     val result: JsonElement get() = data.deepCopy()
     override fun toString() = "ToolReply(bytes=${StepJournal.bytes(data)})"

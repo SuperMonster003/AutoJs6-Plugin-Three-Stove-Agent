@@ -1,8 +1,8 @@
 # P9.2 vision protocol decision
 
-Status: **accepted architectural direction; host and Provider implementation
+Status: **accepted architectural direction; host, Provider and Agent implementation
 verified by deterministic tests on 2026-09-26, real online vision acceptance
-and Agent capture integration pending**. On
+pending**. On
 2026-09-25 the maintainer selected "Extend V2: negotiate 2.1 image input" in
 response to the original P9.2 decision. No new roadmap stage or public Agent
 JS API is introduced by this decision.
@@ -68,5 +68,8 @@ implemented; see [the Provider implementation receipt](p92-provider-vision-evide
 Three Model8 synthetic-image attempts returned empty text, and the user reports
 no suitable online vision target currently available. Real-model acceptance
 remains pending without a conclusion about the cause of those empty responses.
-The remaining Agent capture/prompt/budget implementation can proceed separately;
-P9.2 as a whole is not yet complete.
+Agent capture, visual prompts, image budgets and JSON/native attachments are now
+implemented; see [the Agent implementation receipt](p92-agent-vision-evidence-2026-09-26.md).
+Capture uses the existing host accessibility screenshot API on Android 11+;
+older systems keep text observations. P9.2 as a whole is not yet complete while
+real online visual-model acceptance remains pending.

@@ -59,9 +59,9 @@ def main():
     output = root / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result, encoding="utf-8")
-    if "OK (8 tests)" not in result or "FAILURES!!!" in result:
+    if "OK (11 tests)" not in result or "FAILURES!!!" in result:
         raise SystemExit(f"Conformance failed; see {output}")
-    print(f"FAKE_HOST_OK tests=8 log={output}")
+    print(f"FAKE_HOST_OK tests=11 log={output}")
 
 
 if __name__ == "__main__":

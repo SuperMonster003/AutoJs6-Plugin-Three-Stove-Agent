@@ -8,7 +8,7 @@ import java.util.Locale
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
         listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts",
-            "json_response", "json_compact_response", "json_response_details", "native_response").associateWith { name ->
+            "json_response", "json_compact_response", "json_response_details", "native_response", "vision").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
         }
@@ -21,7 +21,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         bounded(fixedContext, 8 * 1024)
         // P3.2 supplies global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
-        val system = render(language, if (compact) "compact_system" else "system", mapOf(
+        var system = render(language, if (compact) "compact_system" else "system", mapOf(
             "tools_json" to if (compact || format.nativeTools) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
             "response_rules" to templates.getValue(language(language)).getValue(if (format.nativeTools) "native_response"
                 else if (compact) "json_compact_response" else "json_response").trimEnd(),
@@ -38,6 +38,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                 }.toString(),
         ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
             else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) })
+        if (catalog["screen_capture"]?.let(policy::isEnabled) == true) system += "\n" + templates.getValue(language(language)).getValue("vision").trimEnd()
         return if (registeredScripts == null) system else {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
             system + "\n" + render(language, "scripts", mapOf("scripts_json" to data))

@@ -4,6 +4,8 @@ Version 1.1.0 is in development. Targets that advertise tools use native tool ca
 
 The current Model8 comparison includes empty responses, Provider failures and budget stops. The [comparison evidence](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) records every trial; it does not establish reliable completion of both tasks.
 
+Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
+
 ### Usage
 
 1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5293 or later.

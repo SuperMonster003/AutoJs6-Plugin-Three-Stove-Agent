@@ -9,13 +9,14 @@
       "released_date": "2026/09/26",
       "hint": [
         "Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action",
-        "Le transport des images par l'hôte et leur adaptation en ligne dans 3-Stone AI sont implémentés. La validation avec un modèle visuel en ligne reste à faire. Les outils de capture, les instructions visuelles et les budgets d'images du plugin doivent encore être implémentés avant les tâches avec captures d'écran. Voir ROADMAP.md"
+        "Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md"
       ],
       "feature": [
-        "Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun"
+        "Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun",
+        "Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs"
       ],
       "dependency": [
-        "Artefacts release des API hôte synchronisés avec AutoJs6 build 5297; contrat de connexion de base compatible avec build 5289+"
+        "Mise à niveau des trois artefacts API hôte release vers AutoJs6 52ce694f92 / build 5297 pour les images négociées, en conservant le contrat de connexion build 5289+"
       ]
     },
     "v1.0.0": {

@@ -9,13 +9,14 @@
       "released_date": "2026/09/26",
       "hint": [
         "Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON",
-        "El transporte de imágenes del host y su adaptación en línea en 3-Stone AI están implementados. La validación con un modelo visual en línea sigue pendiente. Las tareas con capturas requieren implementar las herramientas de captura, las instrucciones visuales y los presupuestos de imágenes del plugin. Consulta ROADMAP.md"
+        "La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md"
       ],
       "feature": [
-        "Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido"
+        "Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido",
+        "Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas"
       ],
       "dependency": [
-        "Artefactos release de las API del host sincronizados con AutoJs6 build 5297; el contrato básico de conexión sigue compatible con build 5289+"
+        "Actualización de los tres artefactos API del host release a AutoJs6 52ce694f92 / build 5297 para imágenes negociadas, manteniendo el contrato de conexión build 5289+"
       ]
     },
     "v1.0.0": {

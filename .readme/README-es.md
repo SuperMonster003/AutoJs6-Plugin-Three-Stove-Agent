@@ -56,6 +56,8 @@ La versión 1.1.0 está en desarrollo. Los destinos que anuncian tools usan llam
 
 La comparación actual con Model8 incluye respuestas vacías, fallos del Provider y paradas por límites de presupuesto. Los [resultados de comparación](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservan todos los ensayos; aún no demuestran una finalización fiable de ambas tareas.
 
+La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
+
 ******
 
 ### Funciones
@@ -69,6 +71,7 @@ La implementación actual ofrece estas funciones:
 - Seguridad por diseño: las herramientas de solo lectura se ejecutan automáticamente, las acciones sensibles (pago, envío, borrado, escritura de archivos, shell, gestos por coordenadas, scripts registrados como sensibles) requieren confirmación, y cada ejecución tiene presupuestos de pasos, llamadas al modelo, duración y tokens.
 - API de script e interfaz de usuario: `ai.agent.run(goal, options)` devuelve un manejador `AgentRun` con eventos, respuestas y cancelación; la aplicación independiente ofrece un espacio de tareas con historial, preajustes, memoria de preferencias, ajustes e historial de versiones.
 - Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
+- Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
 
 ### Capturas de pantalla
 
@@ -187,6 +190,7 @@ La tabla se genera desde el ToolCatalog incluido. El objetivo real de pantalla p
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
 | `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
 | `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
 | `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
@@ -239,6 +243,7 @@ El plugin sigue límites explícitos:
 - El plugin no guarda claves de API, nunca se vincula a un proveedor de modelo ni solicita el permiso de accesibilidad: las llamadas al modelo y las acciones en el dispositivo pasan por intermediarios que AutoJs6 presta para un enlace adjunto y revoca al desvincularse, cada uno acotado por una concesión (métodos permitidos, tasas, tamaños, cuota de modelo).
 - INTERNET solo sirve para comprobaciones manuales en GitHub. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE mantienen tareas activas; POST_NOTIFICATIONS muestra progreso y confirmaciones. SYSTEM_ALERT_WINDOW se solicita solo al activar la burbuja en Ajustes. No se solicitan permisos de accesibilidad, almacenamiento ni micrófono.
 - El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas.
+- Las capturas se envían mediante AutoJs6 al modelo elegido, que puede estar en línea. La pantalla debe estar activa y desbloqueada. El historial guarda dimensiones y bytes, sin el contenido de las imágenes. Las decisiones JSON conservan la imagen actual hasta otra observación o respuesta. Las conversaciones nativas conservan imágenes previas dentro de los límites del lote y de la sesión, reservando sus tokens en cada ronda.
 
 Obtenga el plugin únicamente desde la página oficial de [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) o el centro de plugins de AutoJs6. Los paquetes de origen desconocido pueden fallar la verificación del anfitrión o conllevar riesgos aunque el número de versión parezca idéntico.
 
@@ -286,9 +291,10 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 _2026/09/26_
 
 - `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
-- `Aviso` El transporte de imágenes del host y su adaptación en línea en 3-Stone AI están implementados. La validación con un modelo visual en línea sigue pendiente. Las tareas con capturas requieren implementar las herramientas de captura, las instrucciones visuales y los presupuestos de imágenes del plugin. Consulta ROADMAP.md
+- `Aviso` La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
 - `Función` Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
-- `Dependencia` Artefactos release de las API del host sincronizados con AutoJs6 build 5297; el contrato básico de conexión sigue compatible con build 5289+
+- `Función` Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
+- `Dependencia` Actualización de los tres artefactos API del host release a AutoJs6 52ce694f92 / build 5297 para imágenes negociadas, manteniendo el contrato de conexión build 5289+
 
 #### v1.0.0
 

@@ -56,6 +56,8 @@ Version 1.1.0 is in development. Targets that advertise tools use native tool ca
 
 The current Model8 comparison includes empty responses, Provider failures and budget stops. The [comparison evidence](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) records every trial; it does not establish reliable completion of both tasks.
 
+Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
+
 ******
 
 ### Features
@@ -69,6 +71,7 @@ The current implementation provides these capabilities:
 - Safety by design: read-only tools run automatically, sensitive actions (payment, sending, deletion, file writes, shell, coordinate gestures, scripts registered as sensitive) require confirmation, and every run has step, model-call, duration and token budgets.
 - Script API and user interface: `ai.agent.run(goal, options)` returns an `AgentRun` handle with events, responses and cancellation; the standalone app offers a task workbench with history, presets, preference memory, settings and release history.
 - Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
+- Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
 
 ### Screenshots
 
@@ -187,6 +190,7 @@ This table is generated from the packaged ToolCatalog. Risk can be raised by the
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
 | `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
 | `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
 | `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
@@ -239,6 +243,7 @@ The plugin follows explicit boundaries:
 - The plugin holds no API keys, never binds a model provider and does not request the accessibility permission: model calls and device actions go through brokers that AutoJs6 lends for one attached link and revokes on detach, each bounded by a grant (allowed methods, rates, sizes, model quota).
 - INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and confirmations. SYSTEM_ALERT_WINDOW is requested only when the user enables the floating ball in Settings. No accessibility, storage or microphone permission is requested.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
+- Screenshots are sent through AutoJs6 to the selected model, which may be online. Capture requires an unlocked, interactive screen. Step history stores dimensions and byte counts, not picture contents. JSON decisions retain the current image until another observation or answer replaces it; native conversations retain earlier images within per-call and session limits and reserve their tokens again for each round.
 
 Only obtain the plugin from the official [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.
 
@@ -286,9 +291,10 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/26_
 
 - `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
-- `Hint` Host image transport and 3-Stone AI online image mappings are implemented. Real online vision acceptance is still pending; this plugin's capture tools, visual prompts and image budgets need implementation before screenshot tasks are available. See ROADMAP.md
+- `Hint` Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
 - `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
-- `Dependency` Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+
+- `Feature` Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
+- `Dependency` Upgrade the three host API release artifacts to AutoJs6 52ce694f92 / build 5297 for negotiated image input; preserve the base build 5289+ attachment contract
 
 #### v1.0.0
 

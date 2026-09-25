@@ -429,7 +429,7 @@ def tool_table(root: Path, code: str, values: dict[str, Any]) -> str:
     lines = ["| " + " | ".join(columns) + " |", "| --- | --- | --- | --- | --- |"]
     language = "zh" if code.startswith("zh") else "en"
     for row in sorted(rows, key=lambda row: (row["group"], row["name"])):
-        default = "auto (OCR)" if row["group"] == "ocr" else "on" if row["defaultEnabled"] else "off"
+        default = "auto (vision)" if row["name"] == "screen_capture" else "auto (OCR)" if row["group"] == "ocr" else "on" if row["defaultEnabled"] else "off"
         description = row["description"][language].replace("|", "\\|").replace("\n", " ")
         lines.append(f'| `{row["name"]}` | `{row["group"]}` | `{row["risk"]}` | `{default}` | {description} |')
     return "\n".join(lines)

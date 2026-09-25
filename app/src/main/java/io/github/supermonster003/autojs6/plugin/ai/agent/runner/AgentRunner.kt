@@ -38,6 +38,7 @@ class AgentRunner internal constructor(
     private var repairSession: DecisionRepairSession? = null
     private var responseLimitExceeded = false
     private var observation: String? = null
+    private var observationImages = emptyList<ModelImage>()
     private var confirmation: String? = null
     private var stepStartedMs = 0L
     private var stepUsageStart = JsonObject()
@@ -113,6 +114,7 @@ class AgentRunner internal constructor(
                     val answer = jsonObject("answer" to copy)
                     ask.memoryKey?.let { answer.addProperty("memoryKey", it); answer.addProperty("memoryProposalOnly", true) }
                     observation = ToolObservation.success(answer)
+                    observationImages = emptyList()
                     record(observation)
                     guarded {
                         if (rememberScope == null) nextStep()
@@ -188,10 +190,11 @@ class AgentRunner internal constructor(
         val guidance = loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) }
         val continuation = nativeTurn?.continuation
         val results = if (continuation == null) emptyList() else nativeResults.toList()
-        val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance))
+        val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance, observationImages))
         val inputBytes = continuation?.inputBytes(results) ?: checkNotNull(input).inputBytes
         if (!canContinue()) return
-        val reservation = b.reserveModel(inputBytes, minOf(options.maximumOutputTokens, input?.maximumOutputTokens ?: options.maximumOutputTokens))
+        val imageTokens = continuation?.imageTokens(results) ?: checkNotNull(input).imageTokens
+        val reservation = b.reserveModel(inputBytes, minOf(options.maximumOutputTokens, input?.maximumOutputTokens ?: options.maximumOutputTokens), imageTokens)
         var settled = false
         fun settle(usage: ModelUsage?, outputBytes: Int) {
             if (settled) return
@@ -295,6 +298,8 @@ class AgentRunner internal constructor(
 
     private fun executeTool(prepared: PreparedTool) {
         if (!canContinue()) return
+        if (!checkNotNull(catalog[prepared.invocation.name]).readOnlyHint) observationImages = emptyList()
+        if (prepared.invocation.name == "screen_capture" && nativeResults.sumOf { it.images.size } >= 4) throw ContextLimitExceeded()
         val b = checkNotNull(budget)
         // An inspection cannot smuggle a longer non-script operation through script metadata.
         val scriptTimeout = if (prepared.invocation.name == "script_run") prepared.metadata.scriptTimeoutMs else null
@@ -315,11 +320,14 @@ class AgentRunner internal constructor(
             when (outcome) {
                 is PortResult.Failure -> toolFailed(outcome.error)
                 is PortResult.Success -> {
+                    require(outcome.value.images.isEmpty() || (prepared.invocation.name == "screen_capture" && policy.visionAvailable))
+                    require(prepared.invocation.name != "screen_capture" || outcome.value.images.size == 1)
+                    observationImages = outcome.value.images
                     if (outcome.value.script?.error == null) successfulTools++
                     if (prepared.invocation.name == "script_run") scriptResult = outcome.value.script?.scriptResult
                     loopRules.succeeded(checkNotNull(catalog[prepared.invocation.name]), outcome.value.result)
                     observation = compiler.observe(prepared.invocation.name, journal.redact(outcome.value.result))
-                    record(observation, outcome.value.script?.error)
+                    record(observation, outcome.value.script?.error, outcome.value.images)
                     nextStep()
                 }
             }
@@ -332,6 +340,7 @@ class AgentRunner internal constructor(
         (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
         observation = scriptParameters?.observation() ?: errorObservation(error)
+        observationImages = emptyList()
         record(observation, error)
         nextStep()
     }
@@ -375,12 +384,14 @@ class AgentRunner internal constructor(
         clearInteraction(); transition(RunState.RUNNING)
         if (wasConfirmation) confirmation = "denied"
         observation = errorObservation(RunError.USER_TIMEOUT)
+        observationImages = emptyList()
         record(observation, RunError.USER_TIMEOUT)
         nextStep()
     }
     private fun rejected(error: RunError) {
         confirmation = "denied"
         observation = errorObservation(error)
+        observationImages = emptyList()
         record(observation, error)
         guarded { nextStep() }
     }
@@ -455,7 +466,7 @@ class AgentRunner internal constructor(
         catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED) }
         catch (_: Exception) { finishError(RunError.INVALID_REQUEST) }
     }
-    private fun record(value: String?, error: RunError? = null) {
+    private fun record(value: String?, error: RunError? = null, images: List<ModelImage> = emptyList()) {
         if (recorded) return
         val current = decision
         val rejections = repairSession?.rejections.orEmpty() +
@@ -478,12 +489,12 @@ class AgentRunner internal constructor(
             (current as? AgentDecision.Tool)?.name, (current as? AgentDecision.Tool)?.arguments,
             confirmation, value, usage, (scheduler.nowMs() - stepStartedMs).coerceAtLeast(0), error?.name, rejections))
         activeNativeCall?.let { call ->
-            nativeResults += nativeResult(call, value ?: errorObservation(RunError.INVALID_REQUEST), error != null)
+            nativeResults += nativeResult(call, value ?: errorObservation(RunError.INVALID_REQUEST), error != null, images)
             activeNativeCall = null
         }
         emit("step", entry)
     }
-    private fun nativeResult(call: NativeToolCall, value: String, isError: Boolean): NativeToolResult {
+    private fun nativeResult(call: NativeToolCall, value: String, isError: Boolean, images: List<ModelImage> = emptyList()): NativeToolResult {
         val turn = checkNotNull(nativeTurn)
         val limits = turn.continuation.limits
         // Include verification and remaining allowances in the actual continuation. Bound the JSON
@@ -496,7 +507,7 @@ class AgentRunner internal constructor(
         var maximum = minOf(ToolObservation.DEFAULT_MAX_BYTES, limits.resultBytes, allowance - 256)
         while (maximum >= 128) {
             val compacted = ObservationCompactor.compact(result, maximum, false).toString()
-            val output = NativeToolResult(call.id, compacted, isError)
+            val output = NativeToolResult(call.id, compacted, isError, images)
             if (StepJournal.bytes(output.wire()) <= allowance) return output
             maximum /= 2
         }
@@ -523,6 +534,7 @@ class AgentRunner internal constructor(
         if (state.terminal) return
         clearOperation(cancel = true); clearInteraction()
         closeNative()
+        observationImages = emptyList()
         budget?.abandonModel()
         protectText() // Also protects an unresolved/password-unknown text operation on cancellation.
         record(errorObservation(error), error)
@@ -546,6 +558,7 @@ class AgentRunner internal constructor(
         check(terminal.terminal)
         clearOperation(cancel = true); clearInteraction(); safely(durationTimer::cancel)
         closeNative()
+        observationImages = emptyList()
         val b = budget
         val value = jsonObject("id" to id.json(), "status" to terminal.wire.json(), "summary" to summary.json(),
             "steps" to (b?.steps ?: 0).json(), "toolCalls" to (b?.toolCalls ?: 0).json(),

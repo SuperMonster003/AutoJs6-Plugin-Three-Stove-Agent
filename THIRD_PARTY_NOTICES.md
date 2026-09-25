@@ -7,10 +7,10 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 ## AutoJs6 plugin APIs
 
 - Components: `common-plugin-api.aar`, `host-capability-api.aar`, `ai-agent-api.aar`
-- Source: <https://github.com/SuperMonster003/AutoJs6> (`plugin-api/common-plugin-api`, `plugin-api/host-capability-api`, `plugin-api/ai-agent-api`), host build 5297 (6.8.0), commit `3e4e3a3cff`, built together as release artifacts on 2026-09-25
+- Source: <https://github.com/SuperMonster003/AutoJs6> (`plugin-api/common-plugin-api`, `plugin-api/host-capability-api`, `plugin-api/ai-agent-api`), host build 5297 (6.8.0), commit `52ce694f92`, built together as release artifacts on 2026-09-26
 - common-plugin-api SHA-256: `ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15`
-- host-capability-api SHA-256: `23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1`
-- ai-agent-api SHA-256: `4f97269b45904181e7fa1cde27c819eeaa8f9ca47f71092b3281efe0ed2dd57b`
+- host-capability-api SHA-256: `0c9233f43848cc3a9d9a87071f46ecb71935964693a53de017529dfa2de79c28`
+- ai-agent-api SHA-256: `c47c46244346d78c6e05897f150f68ffe7b095802e88488d0b934eb67231e53f`
 - All hashes are pinned in `locks/host-api-aars.lock` and checked during Gradle configuration
 - License: Mozilla Public License 2.0
 

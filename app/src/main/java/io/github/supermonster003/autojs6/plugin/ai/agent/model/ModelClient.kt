@@ -14,6 +14,12 @@ interface ModelBrokerTransport {
     fun generate(requestJson: String, onEvent: (String) -> Unit)
     fun generate(requestJson: String, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) = generate(requestJson, onEvent)
     fun submitToolResults(requestJson: String, onFailure: (RunError) -> Unit) { onFailure(RunError.TARGET_UNSUPPORTED) }
+    fun generate(requestJson: String, images: List<ModelImage>, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) {
+        if (images.isEmpty()) generate(requestJson, onEvent, onFailure) else onFailure(RunError.TARGET_UNSUPPORTED)
+    }
+    fun submitToolResults(requestJson: String, images: List<ModelImage>, onFailure: (RunError) -> Unit) {
+        if (images.isEmpty()) submitToolResults(requestJson, onFailure) else onFailure(RunError.TARGET_UNSUPPORTED)
+    }
     fun cancel(requestId: String)
 }
 
@@ -60,6 +66,8 @@ class ModelClient(
             require(format.protocol == target.protocol && (!format.degraded || input.schemaBytes == 0))
             require(format.degraded || format.nativeTools || target.structuredJson)
             require(!format.nativeTools || target.nativeTools != null)
+            require(!input.vision || (target.vision != null && policy.visionAvailable))
+            if (input.images.isNotEmpty()) requireNotNull(target.vision).validate(input.images)
             val messages = input.messages
             require(messages.size() in 1..256)
             messages.forEach {
@@ -74,16 +82,19 @@ class ModelClient(
                     minOf(maximumOutputTokens, input.maximumOutputTokens ?: maximumOutputTokens).json(),
                 "stream" to target.supportsStreaming.json(), "timeoutMs" to timeoutMs.json()).apply {
                 format.responseSchemaJson?.let { add("responseSchema", AgentJson.objectOf(it, DecisionSchema.MAX_SCHEMA_BYTES)) }
+                if (input.vision) addProperty("vision", true)
+                if (input.images.isNotEmpty()) add("imageRefs", input.imageRefs)
                 if (!input.tools.isEmpty) {
                     add("tools", input.tools); addProperty("maximumToolRounds", checkNotNull(target.nativeTools).rounds)
                 }
             }.toString().also { require(it.toByteArray(Charsets.UTF_8).size <= 2 * 1024 * 1024) }
         } catch (_: ContextLimitExceeded) { callback(PortResult.Failure(RunError.LIMIT_EXCEEDED)); return Cancellation.NONE }
         catch (_: Exception) { callback(PortResult.Failure(RunError.INVALID_REQUEST)); return Cancellation.NONE }
-        return if (input.tools.isEmpty) Invocation(id, callback).apply { dispatch(request, timeoutMs) }
+        return if (input.tools.isEmpty) Invocation(id, callback).apply { dispatch(request, timeoutMs, input.images) }
         else NativeModelInvocation(broker, target, scheduler, id, input.inputBytes, minOf(target.maximumContextBytes, input.maximumContextBytes),
             minOf(maximumOutputTokens, input.maximumOutputTokens ?: maximumOutputTokens),
-            input.tools.map { requireNotNull(it.asJsonObject.string("name")) }.toSet(), callback).dispatch(request, timeoutMs)
+            input.tools.map { requireNotNull(it.asJsonObject.string("name")) }.toSet(), callback,
+            input.vision, input.imageTokens, input.images.size, input.images.sumOf { it.byteCount }).dispatch(request, timeoutMs, input.images)
     }
 
     /** Only a worker may block; the P2.5 adapter must exclude main/Binder/runner threads.
@@ -120,10 +131,10 @@ class ModelClient(
         private var cancelSent = false
         private var timer = Cancellation.NONE
 
-        fun dispatch(request: String, timeoutMs: Long) {
+        fun dispatch(request: String, timeoutMs: Long, images: List<ModelImage>) {
             val deadline = scheduler.schedule(timeoutMs) { abort(RunError.MODEL_TIMEOUT) }
             synchronized(lock) { if (completed) deadline.cancel() else timer = deadline }
-            try { broker.generate(request, ::onEvent, ::abort) }
+            try { broker.generate(request, images, ::onEvent, ::abort) }
             catch (_: Exception) { abort(RunError.HOST_UNAVAILABLE) }
             finally { synchronized(lock) { dispatching = false }; sendCancel() }
         }

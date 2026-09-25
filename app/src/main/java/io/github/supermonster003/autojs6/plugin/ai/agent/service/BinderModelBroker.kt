@@ -24,9 +24,12 @@ internal class BinderModelBroker(private val context: Context, private val broke
     private val closed = AtomicBoolean()
     override fun generate(requestJson: String, onEvent: (String) -> Unit) = generate(requestJson, onEvent) {}
     override fun generate(requestJson: String, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) {
+        generate(requestJson, emptyList(), onEvent, onFailure)
+    }
+    override fun generate(requestJson: String, images: List<ModelImage>, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) {
         val request = AgentJson.objectOf(requestJson, C.MAX_MODEL_REQUEST_PAYLOAD_BYTES)
         val id = requireNotNull(request.string("requestId"))
-        send(id, requestJson, false, onEvent) { code -> onFailure(RunError.entries.firstOrNull { it.name == code } ?: RunError.MODEL_FAILED) }
+        send(id, requestJson, false, onEvent, { code -> onFailure(RunError.entries.firstOrNull { it.name == code } ?: RunError.MODEL_FAILED) }, images.toList())
     }
     fun select(targetId: String?, callback: (PortResult<SelectedModel>) -> Unit): Cancellation {
         return list { result ->
@@ -60,6 +63,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
                 val maxTokens = (tokenLimit - minOf(tokenLimit, consumed)).coerceAtLeast(0)
                 val schemaLimit = requireNotNull(info.number("maximumResponseSchemaBytes")).also { require(it in 0..C.MAX_RESPONSE_SCHEMA_BYTES) }.toInt()
                 val nativeTools = NativeToolLimits.fromBroker(info)
+                val vision = VisionLimits.fromBroker(info)
                 require(maxInput > 0 && outputLimit > 0)
                 var sequence = 0L
                 val request = jsonObject("requestId" to id.json(), "timeoutMs" to 10_000.json()).toString()
@@ -76,7 +80,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
                             C.MODEL_EVENT_COMPLETED -> {
                                 val entries = requireNotNull(event.getAsJsonArray("targets")); require(entries.size() <= 256)
                                 val targets = entries.mapNotNull { entry -> runCatching {
-                                    val target = ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit, nativeTools)
+                                    val target = ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit, nativeTools, vision)
                                     val label = entry.asJsonObject.string("displayName")?.takeIf { it.isNotBlank() } ?: target.targetId
                                     SelectedModel(target, maxInput, maxTokens, schemaLimit, AgentJson.truncate(label, 256))
                                 }.getOrNull() }
@@ -100,6 +104,10 @@ internal class BinderModelBroker(private val context: Context, private val broke
         return Cancellation { cancelled.set(true); cancel(id) }
     }
     override fun submitToolResults(requestJson: String, onFailure: (RunError) -> Unit) {
+        submitToolResults(requestJson, emptyList(), onFailure)
+    }
+    override fun submitToolResults(requestJson: String, images: List<ModelImage>, onFailure: (RunError) -> Unit) {
+        val attachments = images.toList()
         val request = AgentJson.objectOf(requestJson, C.MAX_MODEL_TOOL_RESULTS_BYTES)
         val id = requireNotNull(request.string("requestId"))
         val ordered = streams[id]
@@ -107,12 +115,13 @@ internal class BinderModelBroker(private val context: Context, private val broke
         fun failed() { streams.remove(id)?.close(); onFailure(RunError.HOST_UNAVAILABLE) }
         try { workers.io.execute {
             if (closed.get() || streams[id] !== ordered) return@execute
-            try { sendPayload(id, requestJson) { bundle ->
+            try { sendPayload(id, requestJson, attachments) { bundle ->
                 if (streams[id] === ordered) broker.submitToolResults(bundle)
             } } catch (_: Exception) { failed() }
         } } catch (_: Exception) { failed() }
     }
-    private fun send(id: String, json: String, catalog: Boolean, event: (String) -> Unit, failure: (String) -> Unit) {
+    private fun send(id: String, json: String, catalog: Boolean, event: (String) -> Unit, failure: (String) -> Unit,
+                     images: List<ModelImage> = emptyList()) {
         if (closed.get()) { failure(C.ERROR_LINK_DETACHED); return }
         val ordered = OrderedModelEvents(workers, { value ->
             event(value)
@@ -131,12 +140,29 @@ internal class BinderModelBroker(private val context: Context, private val broke
             if (closed.get() || streams[id] !== ordered) return@execute
             try {
                 if (catalog) broker.listTargets(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json), callback)
-                else sendPayload(id, json) { bundle -> if (streams[id] === ordered) broker.generate(bundle, callback) }
+                else sendPayload(id, json, images) { bundle -> if (streams[id] === ordered) broker.generate(bundle, callback) }
             } catch (_: Exception) { streams.remove(id)?.close(); failure(C.ERROR_HOST_UNAVAILABLE) }
         } } catch (_: Exception) { streams.remove(id)?.close(); failure(C.ERROR_HOST_UNAVAILABLE) }
     }
     /** Worker-only. Both generation and continuation preserve descriptor ownership across Binder. */
-    private fun sendPayload(id: String, json: String, send: (Bundle) -> Unit) {
+    private fun sendPayload(id: String, json: String, images: List<ModelImage>, send: (Bundle) -> Unit) {
+        VisionLimits().validate(images)
+        val descriptors = mutableListOf<ParcelFileDescriptor>()
+        try {
+            images.forEach { image ->
+                val file = File.createTempFile("agent-image-", ".bin", context.cacheDir)
+                try {
+                    file.outputStream().use(image::writeTo)
+                    descriptors += ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+                } finally { file.delete() }
+            }
+            sendJsonPayload(id, json) { bundle ->
+                if (descriptors.isNotEmpty()) bundle.putParcelableArray(C.KEY_MODEL_IMAGE_FDS, descriptors.toTypedArray())
+                send(bundle)
+            }
+        } finally { descriptors.forEach { runCatching { it.close() } } }
+    }
+    private fun sendJsonPayload(id: String, json: String, send: (Bundle) -> Unit) {
         if (json.toByteArray(Charsets.UTF_8).size <= C.MAX_MODEL_REQUEST_INLINE_BYTES) {
             send(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json)); return
         }

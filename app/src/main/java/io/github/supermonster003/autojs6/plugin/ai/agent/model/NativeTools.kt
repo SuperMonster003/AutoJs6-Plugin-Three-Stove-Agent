@@ -21,8 +21,11 @@ class NativeToolCall(val id: String, val name: String, arguments: JsonObject) {
     val decision: JsonObject get() = jsonObject("kind" to "tool".json(), "tool" to name.json(), "arguments" to data.deepCopy())
     override fun toString() = "NativeToolCall(name=$name)"
 }
-class NativeToolResult(val id: String, val output: String, val isError: Boolean) {
-    fun wire() = jsonObject("callId" to id.json(), "output" to output.json(), "isError" to isError.json())
+class NativeToolResult(val id: String, val output: String, val isError: Boolean, images: List<ModelImage> = emptyList()) {
+    val images = images.toList()
+    fun wire(firstImageIndex: Int = 0) = jsonObject("callId" to id.json(), "output" to output.json(), "isError" to isError.json()).apply {
+        if (images.isNotEmpty()) add("imageRefs", imageReferences(images, firstImageIndex))
+    }
     override fun toString() = "NativeToolResult(bytes=${output.toByteArray(Charsets.UTF_8).size}, isError=$isError)"
 }
 class NativeToolTurn(calls: List<NativeToolCall>, val continuation: NativeContinuation) {
@@ -37,6 +40,7 @@ interface NativeContinuation : Cancellation {
     /** Transfers a delivered pause from the model operation to the run, closing cancellation races. */
     fun claim()
     fun inputBytes(results: List<NativeToolResult>): Int
+    fun imageTokens(results: List<NativeToolResult>): Long = 0
     fun resume(results: List<NativeToolResult>, maximumOutputTokens: Int, timeoutMs: Long,
                callback: (PortResult<ModelReply>) -> Unit): Cancellation
     /** A host failure/deadline must also interrupt a paused confirmation or tool operation. */

@@ -13,10 +13,10 @@ class ToolCatalogTest {
     @Test fun catalogAndKeywordSnapshotsFreezeTheApprovedSurface() {
         val snapshot = JsonArray().apply { catalog.tools.forEach { add(it.snapshot()) } }
         assertEquals(AgentJson.parse(F.snapshot("tool-catalog.snapshot.json"), 256 * 1024), snapshot)
-        assertEquals(30, catalog.tools.size)
+        assertEquals(31, catalog.tools.size)
         assertNull(catalog["ask_user"])
         assertNull(catalog["script_run_source"])
-        assertNull(catalog["screen_capture"])
+        assertNotNull(catalog["screen_capture"])
         assertEquals(AgentJson.parse(F.snapshot("sensitive-keywords.snapshot.json")), AgentJson.parse(F.asset("catalog/sensitive-keywords.json")))
         assertEquals(10, AgentJson.objectOf(F.asset("catalog/sensitive-keywords.json")).size())
     }

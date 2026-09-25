@@ -19,7 +19,8 @@ import java.util.concurrent.atomic.AtomicReference
 internal class BinderRunTools(private val broker: IHostCapabilityBroker, private val ownerUid: Int,
                               private val workers: LinkWorkers, private val scheduler: RunScheduler, private val catalog: ToolCatalog,
                               private val alive: () -> Boolean, private val methods: Set<String>, private val permissions: Set<String>,
-                              private val maximumRequestBytes: Int, private val maximumTimeoutMs: Long) : RunTools {
+                              private val maximumRequestBytes: Int, private val maximumTimeoutMs: Long,
+                              private val capture: ScreenCaptureTransport? = null) : RunTools {
     private val observations = ObservationTools()
     private val actions = ActionTools(scheduler, observations, { request, callback ->
         dispatch(request.copy(timeoutMs = minOf(request.timeoutMs, maximumTimeoutMs)), callback)
@@ -33,6 +34,13 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         return Cancellation.NONE
     }
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
+        if (prepared.invocation.name == "screen_capture") {
+            val call = (prepared.invocation.plan as ToolPlan.Call).request.copy(timeoutMs = minOf(timeoutMs, maximumTimeoutMs))
+            if ("${call.module}.${call.method}" !in methods || !permissions.containsAll(call.permissions)) {
+                callback(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE
+            }
+            return capture?.execute(call, maximumRequestBytes, callback) ?: Cancellation.NONE.also { callback(PortResult.Failure(RunError.TARGET_UNSUPPORTED)) }
+        }
         if (prepared.invocation.name in ActionTools.NAMES) return actions.execute(prepared, timeoutMs, callback)
         val cancelled = AtomicBoolean()
         val current = AtomicReference<Cancellation>(Cancellation.NONE)
@@ -166,7 +174,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         return Cancellation { closed.set(true); payload.getAndSet(null)?.close() }
     }
     companion object {
-        val IMPLEMENTED = setOf("ui_dump", "ui_find", "ui_wait_for", "app_current", "screen_state", "device_info", "console_tail", "ocr_screen",
+        val IMPLEMENTED = setOf("ui_dump", "ui_find", "ui_wait_for", "app_current", "screen_state", "screen_capture", "device_info", "console_tail", "ocr_screen",
             "ui_click", "ui_long_click", "ui_set_text", "ui_scroll", "ui_press_key", "app_launch", "clipboard_get", "clipboard_set",
             "ui_click_xy", "ui_swipe", "ui_gesture", "script_catalog", "script_stop", "files_list", "files_stat", "files_read", "files_write", "shell_exec", "report_progress")
         fun bridgeError(error: JsonObject?): RunError {
