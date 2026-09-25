@@ -1,7 +1,8 @@
 # P9.2 vision protocol decision
 
-Status: **accepted architectural direction; host implementation verified on 2026-09-26,
-Provider mappings and Agent capture integration pending**. On
+Status: **accepted architectural direction; host and Provider implementation
+verified by deterministic tests on 2026-09-26, real online vision acceptance
+and Agent capture integration pending**. On
 2026-09-25 the maintainer selected "Extend V2: negotiate 2.1 image input" in
 response to the original P9.2 decision. No new roadmap stage or public Agent
 JS API is introduced by this decision.
@@ -62,5 +63,10 @@ audio and video are outside this P9.2 proposal.
 The maintainer's answer is recorded here and in the existing roadmap session
 log. Host wire fields, limits, broker transport and compatibility tests are now
 implemented; see [the host implementation receipt](p92-host-vision-evidence-2026-09-26.md).
-The remaining two original P9.2 items still require implementation and real-model
-verification before P9.2 as a whole can be checked off.
+Provider mappings, explicit per-model opt-in and descriptor validation are now
+implemented; see [the Provider implementation receipt](p92-provider-vision-evidence-2026-09-26.md).
+Three Model8 synthetic-image attempts returned empty text, and the user reports
+no suitable online vision target currently available. Real-model acceptance
+remains pending without a conclusion about the cause of those empty responses.
+The remaining Agent capture/prompt/budget implementation can proceed separately;
+P9.2 as a whole is not yet complete.
