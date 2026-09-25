@@ -627,7 +627,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 ### P9.2 视觉输入
 
-- [ ] (宿主) AI Provider 协议演进 (维护者于 2026-09-25 确认: 在 V2 家族内协商新增 2.1 图片输入能力, 追加 `image` content part 与 `vision` 能力, 旧组件继续使用 2.0); 模型代理 `generate` 接受 `imageRefs` (PFD); 宿主 `accessibility.screenshot` 已有. [已确认的协议方向](docs/dev/p92-vision-protocol-proposal.md), 尚未实施.
+- [x] (宿主) AI Provider 协议演进 (维护者已确认在 V2 家族内协商 2.1 图片输入, 旧组件保留 2.0); 模型代理 generate 接受 imageRefs (PFD), 原生工具结果也支持图片; 宿主 accessibility.screenshot 已有. 2026-09-26 宿主提交 52ce694f92, 完成协议, 独立图片限额, 预算及描述符生命周期, 相关 JVM 351/351, API 24 / 37.1 模型代理各 20/20, 旧 Provider 与现有 R8 Agent 兼容回归通过. [宿主实现证据](docs/dev/p92-host-vision-evidence-2026-09-26.md).
 - [ ] (模型) 3-Stone AI 在线视觉模型支持.
 - [ ] (插件) 工具 `screen_capture` (缩放到最长边 1280, JPEG 70) 作为观察输入; 视觉模式下的提示词与预算 (图片 token 估算).
 
@@ -1528,3 +1528,13 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - Agent 本次只修改采集器, 证据, 十语言 README/插件说明及提交计数 build 83. 36 生成产物和文本标点测试通过, 真机仍使用已验证的官方签名 R8 Agent 1.1.0 / 82 与 Provider 1.2.0 / 215. 未新增 Provider 源码改动, 未发布/推送/改标签, 已发布 v1.0.0 保留.
 - G8441 与 XQ-DQ72 临时 Wi-Fi/屏幕超时均恢复, 无障碍组件集合核对一致; 两台私有 AVD 已关闭并保留数据, 宿主隔离验证工作区已对齐 7ce99cc204 且干净. 未操作购物, 订单或付款, 未更改凭据/模型/代理/VPN 配置.
 - 当前没有待用户完成的手动操作. 本轮采样结束, 测试 SIM 可移走; P9.2 协议/视觉开发只需普通联网, 后续在线 Wi-Fi 切换复测期间再临时提供独立网络, 不要求 Redmi 长期保留 SIM. QV710AF65F / XQ-AT72 Android 12 仍缺席, 按用户预计 2026-09-27 20:00 UTC+8 前上线后补测.
+
+### 2026-09-26: P9.2 宿主视觉协议与图片模型代理
+
+- 完成原 P9.2 的宿主条目, 提交 52ce694f92, 不增加/分拆/丢弃阶段. 根据已确认的方案协商 V2.1 image/vision, 保留旧 V2.0 文本编码与 AIDL 顺序. Agent 基础契约仍 V1, 模型代理以 visionVersion=1 发现扩展, 支持 generate 初始图片和同一原生会话的工具结果图片.
+- 仅 JPEG/PNG, 每批 4 张 / 8 MiB, 单张 4 MiB, 每边 4096, 初始及续轮合计 16 张 / 32 MiB. 严格校验目标能力, FD 索引, 字节/摘要/MIME/实际尺寸与可解码性; 图片与文本限额独立. 历史保留图片进入每轮 token 预留, 实际累计 usage 替换估算. 原始截止时间, 取消, 调用频率与确认规则保持有效, 普通日志不记录图片内容.
+- 相关 JVM 351/351: Provider API 84, Agent API 7, 假 Provider 32, 宿主 AI/模型代理/runtime.api.ai 228. 隔离标准测试签名宿主 debug/androidTest/假 Provider 构建及 16 KiB 静态对齐通过. 最终宿主 228 项 JVM 和 lint 再次通过, lint 0 错误 / 2403 警告 / 3 提示; Provider API lint 无问题, Agent API 1 警告, 假 Provider 2 警告. 未将此记作宿主全库 JVM 或宿主 R8 发行验收.
+- API 24 x86 与 API 37.1 x86_64 / 16 KiB 模型代理各 20/20, 包含 6 项合成图片测试; 最后补强深层嵌套 Bundle FD 清理后两台各 1/1 补测. 已有 R8 Agent 1.1.0 / 82 与真实宿主及独立假 Provider 各 4/4. 新/旧 Provider Binder 版本及目录各 2/2, 旧 2.0 Provider 的文本和原生工具往返各 2/2. 目录验证覆盖旧请求契约, 不声称安装旧生产宿主; 旧解码器的编码兼容另有 JVM 样本.
+- 保留初期夹具版本不一致, 辅助测试编译错误, testOnly 安装参数和一次 ADB 失联重连的记录. 未放宽生产版本/签名校验或熔断. 详细边界见 docs/dev/p92-host-vision-evidence-2026-09-26.md 及宿主 docs/dev/evidence/ai-agent-p92-host-20260926.md.
+- Agent 本次仅文档/证据/十语言兼容提示与构建计数更新, build 84 对齐提交数; 36 生成产物校验与文本标点检查通过. 运行代码和锁定 AAR 未更新, 3-Stone AI 源码未改动, 视觉任务尚不可端到端使用. 无新公开 JS API, 无 Rhino 同步文件改动, 无真机安装/网络改动/真实模型调用/订单/付款. 不推送, 发布或改标签, 两台私有 AVD 已关闭并保留数据.
+- 下一起点为原 P9.2 的 3-Stone AI 在线视觉模型映射, 再完成 Agent screen_capture (最长边 1280, JPEG 70), 视觉提示词和预算, 然后做真实支持模型验收. P9.1 Wi-Fi 双路径对比仍待补测, 不用本轮视觉协议测试替代. 当前无需新增资料, 关键决定或人工操作, 也无需 Redmi 保留 SIM; 后续在线 Wi-Fi 开关复测时再提供独立网络. QV710AF65F / XQ-AT72 Android 12 仍缺席, 按用户预计 2026-09-27 20:00 UTC+8 前上线后补测.

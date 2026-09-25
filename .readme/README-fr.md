@@ -283,9 +283,10 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 #### v1.1.0
 
-_2026/09/25_
+_2026/09/26_
 
 - `Note` Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action
+- `Note` Le transport des images par l'hôte est implémenté. Les tâches utilisant des captures d'écran ne sont pas encore disponibles dans ce plugin; la prise en charge des modèles 3-Stone AI, les outils de capture et les budgets Agent restent à implémenter. Voir ROADMAP.md
 - `Fonctionnalité` Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
 - `Dépendance` Artefacts release des API hôte synchronisés avec AutoJs6 build 5297; contrat de connexion de base compatible avec build 5289+
 
