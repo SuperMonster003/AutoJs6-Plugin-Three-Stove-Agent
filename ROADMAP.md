@@ -598,14 +598,15 @@ P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬
 - [x] (插件) README 10 语言 (简介 / 功能 / 安装 / 快速开始 (界面与脚本两条路径) / 脚本登记格式 / 工具与风险等级表 (由 `ToolCatalog` 生成) / 预设与记忆 / 兼容性 (宿主最低版本, 需要 3-Stone AI 或其它 Provider 插件, 可选 OCR 插件) / 常见问题 (为什么需要宿主, 为什么付款总要确认, 本地模型的局限) / 发行历史 / 许可证); 截图 (任务台 / 详情 / 确认 / 悬浮球) 与当前实现一致.
 - [x] (插件) `.changelog` 10 语言 1.0.0 条目; `py .python/generate_markdown.py` 与 `--check`.
 - [ ] (宿主) `.changelog` 10 语言补齐 P1 / P5 未记录项; `docs/dev/ai-agent-protocol-v1.md` 与 `agent-script-manifest-v1.md` 状态改为 "versioned V1"; 宿主插件安装索引加入 `ai-agent`.
-- [ ] (文档) 文档 / d.ts / 离线文档 / Ace 四仓库版本与发布 (按各自 `AGENTS.md`).
+- [x] (文档) 文档 / d.ts / 离线文档 / Ace 四仓库版本与发布 (按各自 `AGENTS.md`).
 - [ ] (发布) Temurin 验收构建 (`assembleDebug` + `testDebugUnitTest`), `assembleDebugAndroidTest`, `lintDebug`, `appendDigestToReleasedFiles` (单 APK, CRC32 文件名), 安装 + 激活 + 附着 + 用例 (1) smoke 于两台设备; `VERSION_BUILD` 与提交数一致; `git status --short` 为空.
 - [ ] (发布) GitHub Release v1.0.0 (发布说明含宿主最低版本, Provider 插件要求, 已知限制: 视觉 / 原生工具 / 动态脚本为 1.1.0).
 
 2026-09-25 文档准备证据: `docs/dev/p8-docs-evidence-2026-09-25.md`. 前两项完成.
 宿主协议, P1/P5 日志核对和安装向导 Tools 可选条目已完成; 官方在线索引仅接收已发布且含 APK 的 Release,
 实际下载条目和 required inventory 须在最终发布后生成, 因此原宿主/索引项保留未勾选. 不修改索引准入规则,
-不填占位下载地址, 不新增或分拆阶段. 四仓库版本/发布和最终两设备 smoke 继续按原条目推进.
+不填占位下载地址, 不新增或分拆阶段. 四仓库版本/发布已完成, 见 `docs/dev/p8-companions-evidence-2026-09-25.md`.
+最终两设备 smoke 与 Agent 正式发布继续按原条目推进.
 
 ---
 
@@ -1460,3 +1461,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 官方索引仓库要求真实已发布 APK, 原宿主/索引项因实际下载条目与 inventory 待最终发布后生成而保持未勾选. 不更改准入规则或捏造发行记录, 不新增/分拆/丢弃阶段. 本轮无 GitHub/npm/Pages 发布或推送.
 - 只读核对四个后续仓库, 保留 Types package.json 与 Ace releases/ 的原有工作. 下一起点为四仓库版本/发布准备及最终签名包与双设备 smoke, 在正式发布后闭合索引依赖. QV710AF65F / Android 12 离线待补继续保留.
 - 四台真机未改动, 本轮无需 SIM 或额外手动操作. README 专用空白模拟器已关闭; 自动执行检查拒绝其临时数据目录删除 (仅返回 blocked by policy), 数据保留于忽略的 build/p8-docs-private/avd-home, 不影响原模拟器或提交. 插件最终 build 73 对齐提交数.
+
+### 2026-09-25: P8 四仓库版本与发布
+
+- 完成原 P8 四仓库条目, 不增加/拆分/丢弃阶段. 在线文档 build 79 已部署 Pages; d.ts 4.21.1 已发布 npm 并从官方仓库重新安装验证; Offline Documentation 6.8.3 / build 60 与 Ace Editor 1.13.1 / build 113 已发布 GitHub Release. 两个文档来源均指向文档提交 5d3ec6e, 内容版本仍为 6.8.0.
+- 规范 BAT 完成 143 模块文档生成/离线校验及宿主类型导出. 修正 d.ts 自依赖, 10 份 TS smoke 和两个独立安装目录编译通过; npm 登录/2FA 由用户完成, 最终线上完整性与已测 tarball 一致. Ace 同步 69 个手工声明组并生成五组 LSP 聚合, 71 模块 / 4391 成员校验通过.
+- 真机发现并修复 Ace 32 位 APK 在 64 位设备上按设备首选 ABI 校验 LuaLS 的错误, 保留二进制及哈希锁不变. Ace JVM 171/171, API 37 扩展测试 11/11, 六台环境真实宿主调用已签名配套发行包共 24/24. Redmi 扩展 TS 诊断仍有 2 秒预算超时, 没有放宽预算或记作全通过. 两插件完整 debug/androidTest/lint/R8/签名/多语言产物验收通过; lint 分别为 0 错误 / 27 和 47 既有警告.
+- 配套提交为文档 5d3ec6e, d.ts 2841c40, 离线文档 c19f2d7, Ace 7862a10 / 31490c1; 宿主 145a94eeeb 仅增加签名发行包独立验证. 官方索引 7f31dce 已推送, 两个条目绑定六个最终 APK 的真实哈希/签名/来源, 42 项索引测试通过. 完整证据见 docs/dev/p8-companions-evidence-2026-09-25.md.
+- 保留 d.ts package.json 原有发布配置改动和 Ace releases/ 旧文件, 未触碰 Rhino 源码. 用户重连 XQ-DQ72 后补齐其配套验收, XQ-AT72 Android 12 仍离线待补. 配套验收无需 SIM, 未操作模型/网络/订单. 下一步为 Agent 最终签名包与两个设备的真实模型 Wi-Fi 用例; 仅此用例临时需要独立网络. 插件 build 74 对齐本逻辑提交.
