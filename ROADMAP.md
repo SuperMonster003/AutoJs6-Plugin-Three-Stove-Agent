@@ -597,24 +597,20 @@ P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬
 
 - [x] (插件) README 10 语言 (简介 / 功能 / 安装 / 快速开始 (界面与脚本两条路径) / 脚本登记格式 / 工具与风险等级表 (由 `ToolCatalog` 生成) / 预设与记忆 / 兼容性 (宿主最低版本, 需要 3-Stone AI 或其它 Provider 插件, 可选 OCR 插件) / 常见问题 (为什么需要宿主, 为什么付款总要确认, 本地模型的局限) / 发行历史 / 许可证); 截图 (任务台 / 详情 / 确认 / 悬浮球) 与当前实现一致.
 - [x] (插件) `.changelog` 10 语言 1.0.0 条目; `py .python/generate_markdown.py` 与 `--check`.
-- [ ] (宿主) `.changelog` 10 语言补齐 P1 / P5 未记录项; `docs/dev/ai-agent-protocol-v1.md` 与 `agent-script-manifest-v1.md` 状态改为 "versioned V1"; 宿主插件安装索引加入 `ai-agent`.
+- [x] (宿主) `.changelog` 10 语言补齐 P1 / P5 未记录项; `docs/dev/ai-agent-protocol-v1.md` 与 `agent-script-manifest-v1.md` 状态改为 "versioned V1"; 宿主插件安装索引加入 `ai-agent`.
 - [x] (文档) 文档 / d.ts / 离线文档 / Ace 四仓库版本与发布 (按各自 `AGENTS.md`).
-- [ ] (发布) Temurin 验收构建 (`assembleDebug` + `testDebugUnitTest`), `assembleDebugAndroidTest`, `lintDebug`, `appendDigestToReleasedFiles` (单 APK, CRC32 文件名), 安装 + 激活 + 附着 + 用例 (1) smoke 于两台设备; `VERSION_BUILD` 与提交数一致; `git status --short` 为空.
-- [ ] (发布) GitHub Release v1.0.0 (发布说明含宿主最低版本, Provider 插件要求, 已知限制: 视觉 / 原生工具 / 动态脚本为 1.1.0).
+- [x] (发布) Temurin 验收构建 (`assembleDebug` + `testDebugUnitTest`), `assembleDebugAndroidTest`, `lintDebug`, `appendDigestToReleasedFiles` (单 APK, CRC32 文件名), 安装 + 激活 + 附着 + 用例 (1) smoke 于两台设备; `VERSION_BUILD` 与提交数一致; `git status --short` 为空.
+- [x] (发布) GitHub Release v1.0.0 (发布说明含宿主最低版本, Provider 插件要求, 已知限制: 视觉 / 原生工具 / 动态脚本为 1.1.0).
 
-2026-09-25 文档准备证据: `docs/dev/p8-docs-evidence-2026-09-25.md`. 前两项完成.
-宿主协议, P1/P5 日志核对和安装向导 Tools 可选条目已完成; 官方在线索引仅接收已发布且含 APK 的 Release,
-实际下载条目和 required inventory 须在最终发布后生成, 因此原宿主/索引项保留未勾选. 不修改索引准入规则,
-不填占位下载地址, 不新增或分拆阶段. 四仓库版本/发布已完成, 见 `docs/dev/p8-companions-evidence-2026-09-25.md`.
-最终两设备 smoke 与 Agent 正式发布继续按原条目推进.
+2026-09-25 P8 已按原六项完成, 未新增/分拆/丢弃阶段. 文档准备, 四仓库配套发布和最终发行证据分别见 `docs/dev/p8-docs-evidence-2026-09-25.md`, `docs/dev/p8-companions-evidence-2026-09-25.md`, `docs/dev/p8-release-evidence-2026-09-25.md`.
 
-2026-09-25 最终候选证据: `docs/dev/p8-release-evidence-2026-09-25.md`. build 75 修复模型把剩余预算误判为已消耗预算的问题, 不改实际预算硬限制或公共 API. JVM 476 通过 / 1 性能开关跳过, lint 0 错误 / 6 既有提示; API 37.1 全量 80 通过 / 2 截图开关跳过, API 24 契约 4/4, XQ-DQ72 与 API 37.1 正式包入口各 5/5. 两台最终正式包的真实模型 Wi-Fi 用例均 completed, XQ 使用受限临时代理, AVD 使用模拟蜂窝直连; 失败轮次和环境恢复独立记录. 首次公共 CI 的全新 AVD 缺宿主夹具, 已补齐隔离夹具和唤醒/通知前提, 远程复验和正式发布仍待完成, 原条目暂不勾选.
+最终发行包为 1.0.0 / build 78, 源码 20a2ecc, 单 APK `185ddeb2`, SHA-256 `c2bced292ff41d13dfbb370a58c56b9a9ce71cc687e8dba02631298c481ec6f9`. Temurin 构建/JVM/R8/签名/lint/十语言产物通过, JVM 476 通过 / 1 性能开关跳过, lint 0 错误 / 6 既有提示. 最终源码远程 CI 的 API 24/35 全套通过, 本地全新 API 35 全量 80 通过 / 2 截图开关跳过 (286.630 s), XQ-DQ72 与 API 37.1 正式包入口各 5/5. build 75/76 其他设备矩阵单独保留, 不冒充 build 78 测量.
 
-2026-09-25 CI 补验: build 75 的 JVM/构建/lint, Markdown 与 API 35 全套通过; API 24 剩余失败来自测试对旧版悬浮窗类型及十六进制窗口标志的识别. build 76 仅修正上述测试和提交计数, 生产任务逻辑不变; 最终包 SHA-256 与前后验收边界见同一证据文档. 正式发布仍须等待远程复验及 build 76 的两设备 smoke, 不把中间成功轮次冒充最终包验收.
+最终 build 78 在 XQ-DQ72 和 API 37.1 上的 Model8 / Fable 5.1 Wi-Fi 任务均 completed, 分别 12 步 / 12 次调用 / 64287 ms 和 6 步 / 6 次调用 / 87349 ms, 含模型观察与独立开关读回. AVD 最终成功轮耗时包含人工确认, 上一轮工具参数无效失败另记, 不是模型速度指标. 两次成功使用受限临时 CONNECT 代理, 不代表运营商直连稳定性验收. 所有失败尝试, Redmi 本地 Gemma 4 E2B IT 的 LOW_MEMORY / BINDER_DIED 和缺席设备均独立记录. 临时代理/设置已还原, 无订单/付款操作.
 
-2026-09-25 build 76 后续验收: 最终签名包在 XQ-DQ72 与 API 37.1 上的 Model8 / Fable 5.1 Wi-Fi 任务均 completed, 使用受限临时代理, 含实际观察与独立开关读回; Redmi 本地模型为 LOW_MEMORY / BINDER_DIED 失败. 四台最终包入口各 5/5, 本地额外全量 80 通过 / 2 截图开关跳过 (253.491 s), 设置和临时路由已恢复. 远程 API 24 全套通过, API 35 两次运行均失败, 涉及拖动和可见注入夹具. build 77 仅补充测试失败时的 CI 窗口/焦点/截图证据, 不改断言或生产逻辑, P8 gate/Release/索引仍未完成.
+build 75 修复模型误读剩余额度的提示词歧义, 不改实际预算/公共 API. build 76 修正 Android 7 测试的窗口类型/安全标志识别; build 77 增加 CI 失败诊断; build 78 显式注入所有移动事件并等待夹具 Activity 启动, 原结果断言不变. build 76/77 远程失败和最初诊断文件未成功取回均保留, 不以本地通过抹去失败.
 
-2026-09-25 测试同步修正: 全新 API 35 隔离环境的原三项专项 3/3, 清空夹具应用后的全量 80 通过 / 2 跳过 (278.032 s), 不能抹去远程失败. 核对 Android 输入源码后, build 78 将定时 shell swipe 改为逐个注入并验证移动事件, 避免慢速 DOWN 分发耗尽全部滑动时间; 独立注入页面改为等待 Activity 启动完成后检查节点. 原结果断言保持不变, 修改后 API 24 专项 4/4 / API 35 专项 3/3. 最终候选重建及远程 gate 继续待验收.
+GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已加入 ai-agent, inventory 45 / entries 61, 46 项单测通过. 宿主协议/versioned V1/P1/P5 日志与安装向导对应 fc1a9423d8. 完整任务 API 需要 6.8.0 开发版 build 5293+, 当前公开稳定版 6.7.0 不兼容. 本次发布回执文档提交为 build 79, 正式标签和 APK 仍绑定 build 78. 下一起点为原 P9.1.
 
 ---
 
@@ -1484,3 +1480,12 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 远程 36118973193 的 API 24/JVM/构建/lint 与 Markdown 36118973189 通过, API 35 首轮拖动失败, 完整重跑又有拖动及两项夹具节点不可见失败. 本地 API 37.1 按 CI 动画设置复验 80 通过 / 2 跳过, 不能替代 API 35 远程失败. 因此未发布或写入正式索引.
 - build 77 仅添加显式启用的 CI 模拟器失败诊断, 在清理夹具前记录窗口/焦点/截图并作为失败产物上传. 未降低测试断言, 未修改生产任务/隐私逻辑. 继续使用隔离 API 35 环境定位, 原 P8 条目保持待验收.
 - Redmi 本地 Gemma 4 E2B IT 被 Android LOW_MEMORY 终止, 其 MODEL_FAILED / BINDER_DIED 记录保留. 临时代理及 ADB reverse 已撤除, XQ/AVD 的 Wi-Fi VALIDATED, Provider 计费网络和各设备原始配置均已恢复. 当前不需要 Redmi SIM 或用户额外手动操作, 无订单/付款动作.
+
+### 2026-09-25: P8 最终验收与 1.0.0 发布
+
+- 电源恢复后继续原 P8, 完成剩余宿主/官方索引, 最终发行 gate 和 GitHub Release 三项, 六项全部有记录. 不改变路线图阶段或把 P9 功能提前标记完成.
+- 最终源码 20a2ecc 的 CI 36123770984 和 Markdown 36123770974 均通过. API 24/35 全套断言保留; 本地全新 API 35 80 通过 / 2 跳过. build 76 的两次远程失败及 build 77 的拖动失败仍保留, 不宣称先前根因已有完整事件轨迹证实.
+- 最终 build 78 的 XQ 与 API 37.1 Wi-Fi smoke 均完成, 含开关状态双重核验. Redmi 本地 LOW_MEMORY / BINDER_DIED 和其他 PROVIDER_FAILED 仍属失败. 代理, 转发, 计费网络选项及设备原有设置已恢复, Wi-Fi VALIDATED, 无订单/付款.
+- v1.0.0 标签固定在 20a2ecc, APK CRC32 185ddeb2. 官方索引 8aaca1c 已推送并读回校验. 本条纯文档回执使 VERSION_BUILD 与分支 79 个提交一致, 不重建或覆盖已发布 APK.
+- 官方索引 a02b919 修正独立字符串名称读取和已知文件下载失败时的元数据降级, 46 项回归通过; 8aaca1c 加入实际发行包并同步 27 个应用真实显示名称, 其余既有元数据保持一致. 索引远程 CI 36127609425 通过.
+- 未修改宿主 Rhino 工作; Types package.json 原有改动与 Ace releases/ 旧文件保留. QV710AF65F / XQ-AT72 Android 12 仍待预计 2026-09-27 20:00 UTC+8 前上线后补测. 当前无需 Redmi SIM 或新增人工操作; 后续在线 Wi-Fi 对比实测再临时使用一台具备独立网络的设备即可. 下一起点为原 P9.1 原生 Tool Calling.

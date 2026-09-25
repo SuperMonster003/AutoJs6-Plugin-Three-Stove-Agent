@@ -1,9 +1,10 @@
 # P8 final release gate evidence
 
-Date: 2026-09-25. Last measured signed candidate: 1.0.0 / build 76.
-Build 77 adds test-only failure diagnostics; no release is published yet.
-Final device results and publication receipts are recorded below as they are
-verified. A generated APK alone does not close the original P8 gate.
+Date: 2026-09-25. Published version: 1.0.0 / build 78.
+The original P8 release gate, GitHub Release and official index admission are
+complete. Earlier build results and failed attempts remain labeled below.
+The final build 78 section and publication receipts bind the released APK;
+intermediate passes do not replace its validation.
 
 ## Budget semantics corrected during the gate
 
@@ -31,16 +32,19 @@ instructions correctly.
 ## Build and artifact
 
 - Temurin 21: debug, androidTest, JVM, lint, signed R8 release and
-  `appendDigestToReleasedFiles` passed. Build 75 took 1m 35s; the final build 76
-  took 1m 52s after the test-only Android 7 compatibility correction.
+  `appendDigestToReleasedFiles` passed. Build 75 took 1m 35s, build 76 took
+  1m 52s, and build 78 took 1m 14s. After the workflow/evidence-only amendment,
+  the exact published HEAD was rebuilt in 13s. Its embedded Git revision and
+  signature changed; its executable code and resources remained identical.
+  The rebuilt APK received its own final two-device validation below.
 - JVM: 476 passed, 1 opt-in performance test skipped, 0 failures/errors.
 - Lint: 0 errors, 6 existing warnings.
 - All 10 languages / 36 generated Markdown artifacts match their sources.
 - Single APK, no native payload, Android API 24 minimum / target API 37.
   Actual manifest checked for production components and permissions.
-- Final APK: `autojs6-plugin-ai-agent-v1.0.0-6aa5a3d0.apk`, 642082 bytes.
-- CRC32: `6aa5a3d0`.
-- SHA-256: `2ab19c8e822e50427a3bddc6940aefbd57f7d6e705504f37630aa8b32617c257`.
+- Final APK: `autojs6-plugin-ai-agent-v1.0.0-185ddeb2.apk`, 642082 bytes.
+- CRC32: `185ddeb2`.
+- SHA-256: `c2bced292ff41d13dfbb370a58c56b9a9ce71cc687e8dba02631298c481ec6f9`.
 - Signer SHA-256:
   `31a681fcfffb3e428420cae280ded89292b12a3b0f59e19b7a73e32a8ae4c213`.
 
@@ -55,21 +59,21 @@ required commit-based version code; production task logic is identical.
 
 ## Device validation
 
-The following initial device checks and real-model cases used build 75. Final
-build 76 verification is recorded separately before closing the release gate.
+This section records build 75 checks. Builds 76 and 78 are recorded
+separately below; earlier checks are not reported as final-build measurements.
 
-Final API 24 contract: 4/4, 0.207 s. Final XQ-DQ72 / API 33 production entry:
+Build 75 API 24 contract: 4/4, 0.207 s. XQ-DQ72 / API 33 production entry:
 5/5, 2.240 s, including the installed plugin's protected broadcast attaching
 the real host controller in 257 ms. Tests run from the real host against the
 signed R8 release. Full plugin instrumentation uses its matching debug APK,
-then reinstalls the final signed release.
+then reinstalls the corresponding signed release.
 
 Before the budget correction, API 37.1 / x86_64 / 16 KB full instrumentation
 reported 82 tests: 80 passed and 2 opt-in README capture cases skipped,
 281.054 s. This is retained as an intermediate result, separate from the
-final-source rerun.
+budget-corrected build 75 rerun.
 
-The final-source API 37.1 / x86_64 / 16 KB rerun passed 80 tests with only the
+The budget-corrected build 75 API 37.1 / x86_64 / 16 KB rerun passed 80 tests with only the
 2 opt-in README capture cases skipped (82 reported, 290.313 s). Its production
 entry suite then passed 5/5 in 2.574 s against the signed release, including
 protected broadcast attachment in 528 ms.
@@ -81,7 +85,7 @@ API 28 (2.905 s, attachment 618 ms), and Redmi 12C / API 33 (4.887 s, attachment
 1029 ms). These checks start no model task and do not switch network state;
 their screen timeouts and notification permissions were restored.
 
-## Real-model cases
+## Build 75 real-model cases
 
 All cases use the user's configured Model8 / Fable 5.1 target through the
 production host broker and actual Agent release APK. The driver uses cautious
@@ -118,8 +122,9 @@ restriction on that image's Internet settings page. The two System UI actions
 (open quick settings and click the observed Wi-Fi switch) were inspected and
 approved once. Both the model's checked-node observation and `wifi_on=1`
 confirmed completion. The duration includes waiting for manual confirmation;
-it is not an inference-speed measurement. These two successful cases validate build 75. The final build 76 has its
-own two-device smoke below, and remote CI still keeps publication open.
+it is not an inference-speed measurement. These successes validate build
+75. The separate build 76 smoke still left remote CI unresolved; the final
+build 78 validation and publication are recorded at the end of this document.
 
 Before the power interruption, the temporary proxy, its ADB reverse mapping
 and helper process were removed. XQ's Wi-Fi connection was independently
@@ -129,9 +134,11 @@ in 3-Stone AI and the host's external-storage app-op were restored to their
 original values. No network passwords, account settings or SIM configuration
 were changed.
 
-## Final build 76 device and real-model results
+## Build 76 device and real-model results
 
-The exact APK above was installed and verified through the real host's
+The intermediate APK `autojs6-plugin-ai-agent-v1.0.0-6aa5a3d0.apk` (SHA-256
+`2ab19c8e822e50427a3bddc6940aefbd57f7d6e705504f37630aa8b32617c257`) is archived
+privately. It was installed and verified through the real host's
 signed-release entry suite on four devices. Each passed 5/5, including the
 protected production broadcast and actual host-controller attachment:
 
@@ -142,7 +149,7 @@ protected production broadcast and actual host-controller attachment:
 | AVD API 24 | 24 | 3.920 | 1312 |
 | AVD API 37.1 / 16 KB | 37 | 4.075 | 1100 |
 
-The final-package real-model tasks are independent attempts, without changing
+The build 76 real-model tasks are independent attempts, without changing
 production confirmations, budgets or completion decisions. Online cases use
 Model8 / Fable 5.1; the Redmi case uses local Gemma 4 E2B IT. `Result steps`
 includes a terminal error step where recorded; it is not an extra model
@@ -163,14 +170,14 @@ failure callback does not establish a specific server or network root cause;
 the failed attempts remain failures, including XQ case 01 after the switch
 had already changed.
 
-Both final-package successes used the temporary loopback CONNECT proxy over
+Both build 76 successes used the temporary loopback CONNECT proxy over
 ADB, restricted to model8.run:443 with end-to-end TLS. XQ case 02 ran alone
 after restarting its Provider. API 37 case 02 used the observed quick-settings
 Wi-Fi switch, with its two System UI actions separately inspected and approved.
 Both the model's checked-switch observation and independent wifi_on=1 confirmed
 completion. The AVD duration includes manual-confirmation wait time. These
-results complete the original two-device release smoke on the measured route;
-they are not certification of carrier-direct reliability or every model.
+results validate that candidate on the measured route. They do not replace
+build 78's final smoke or certify carrier-direct reliability or every model.
 
 All temporary proxy settings, ADB reverse mappings and the helper process
 were removed. Both network dumps report Wi-Fi VALIDATED after restoration.
@@ -195,7 +202,7 @@ and real-host replacement guards, installs the test-only host plus Agent,
 prepares notification permission, and keeps the disposable screen awake and
 unlocked. Production package/version/signer checks and all test assertions
 remain enabled. The original four independent broker tests are unchanged.
-Final CI results are recorded after the new source commit has run remotely.
+These historical CI corrections are followed by the final build 78 results below.
 
 The build 75 CI rerun passed JVM/build/lint, Markdown and the complete API 35
 suite (2 opt-in capture cases skipped). API 24 had one remaining failure:
@@ -259,7 +266,7 @@ artifacts, and never enters release code or ordinary content logs. CI pulls
 these artifacts before the emulator runner shuts down. Test selections,
 assertions, budgets and production behavior are unchanged. A fresh local
 API 35 / Google APIs / Pixel 7 AVD is being used to reproduce the CI condition.
-GitHub Release and official index admission remain pending.
+At build 77, GitHub Release and official index admission remained pending.
 
 ## Input and activity synchronization follow-up
 
@@ -285,10 +292,10 @@ passed 4/4 on API 24 (16.969 s) and 3/3 on API 35 (6.889 s). An initial local
 ADB invocation exited before instrumentation and has a separate harness log;
 it is not counted as a test pass.
 
-Build 78 contains only this test synchronization change, documentation and
-the commit-based version counter. Its final APK and remote gate must still
-be verified before release. No production API, budget, privacy setting or
-model behavior changed in builds 76 through 78.
+Build 78 contains only these test/CI synchronization changes, documentation
+and the commit-based version counter. Its final APK and remote gate are
+verified below. No production API, budget, privacy setting or model behavior
+changed in builds 76 through 78.
 
 The build 77 CI run passed API 24 and both injection cases, but again failed
 the API 35 drag check. Its recorded initial frame was Rect(912, 847, 1080,
@@ -296,3 +303,111 @@ the API 35 drag check. Its recorded initial frame was Rect(912, 847, 1080,
 diagnostic upload could not create its local destination because the root
 build directory did not exist on the runner. Build 78 now creates that parent
 before pulling; the missing screenshot is not claimed as observed evidence.
+
+## Final build 78 verification
+
+The first build 78 package (`a149479f`, SHA-256
+`f6d2082d01996d22a16846638c61cbf68d4644257bc5d3b6c42cb9c2bdd2afd9`) was built
+before the CI artifact-directory correction amended the commit. It embeds
+the pre-amendment revision a8ce653. Both case 01 tasks completed on that file:
+XQ 10 steps / 10 calls / 56202 ms, AVD 9 steps / 10 calls / 317748 ms. The AVD
+included a confirmation timeout and a subsequent individually approved retry.
+Those measurements are retained as intermediate results, not final receipts.
+
+The publication guard stopped before creating a Release when it found both
+build 78 APKs after the final rebuild. Comparison of every ZIP entry found
+only META-INF/version-control-info.textproto changed, from a8ce653 to 20a2ecc;
+DEX, resources, manifest and ZIP timestamps are identical. The earlier hash
+check had read the old named file and did not establish rebuild identity.
+The old APK was archived privately. The final package below was reinstalled,
+signature-checked and retested on both devices. Publication now additionally
+checks its embedded revision against the exact release source.
+
+The released source is `20a2ecc25a5e3932f3996ff206d834daed8ba2d0`. Its local Temurin
+build passed 476 JVM tests with one opt-in performance case skipped, lint with
+0 errors / 6 existing warnings, debug/androidTest, signed R8 release and native
+payload guards. Ten languages / 36 generated Markdown files match. The final
+fresh isolated API 35 full run passed 80 tests with only the 2 opt-in README
+captures skipped, 286.630 s. The disposable AVD was stopped; its data remains.
+
+The exact signed release passed the real-host production entry suite 5/5 on
+XQ-DQ72 (2.030 s, attachment 369 ms) and API 37.1 / 16 KB (3.517 s, attachment
+1082 ms), including installation, activation and protected host attachment.
+
+| Final build 78 case | Outcome | Steps / model calls | Duration ms | Input / output tokens | Independent Wi-Fi read |
+| --- | --- | --- | --- | --- | --- |
+| p8-build78-xq-wifi-02 | completed | 12 / 12 | 64287 | 197635 / 974 | wifi_on=1 |
+| p8-build78-avd37-wifi-02 | DECISION_UNPARSABLE | 5 / 7 | 95829 | 98591 / 629 | wifi_on=1, not task completion |
+| p8-build78-avd37-wifi-03 | completed | 6 / 6 | 87349 | 86871 / 631 | wifi_on=1 |
+
+These cases use Model8 / Fable 5.1 through the production host, with exact
+reported token usage. AVD case 02 emitted an unsupported checkable selector
+argument three times. The original two-repair limit correctly stopped it with
+TOOL_ARGUMENTS_INVALID records and terminal DECISION_UNPARSABLE. Its changed
+Wi-Fi state does not count as completion. Case 03 is a separate run with the
+same configuration and unchanged schema, validation and repair limits.
+
+In each successful case, the model observed the checked switch. Both used
+the restricted temporary CONNECT route described above, not a demonstrated
+carrier-direct success. Opening quick settings and clicking its newly observed
+Wi-Fi toggle were each reviewed and approved once. The AVD duration includes
+operator waiting and is not a model-speed measurement. No production timeout,
+budget, confirmation policy or completion result was overridden.
+
+Afterward, both devices' original Wi-Fi state, screen timeout, accessibility
+service list/enabled flag and storage app-op mode were compared with their
+saved values. All six proxy keys, including the actual PAC URL key, were
+restored; ADB reverse and the PC helper were removed. Both Wi-Fi networks
+returned VALIDATED. The AVD Provider's metered-network setting was restored
+to false through its UI and verified. No credentials, VPN, DNS, SIM, saved
+network or account configuration was changed; no order or payment was made.
+
+The exact source's [Build integrity run](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/actions/runs/36123770984)
+passed all three jobs: JVM/build/lint and the full API 24 / API 35 suites.
+Its [Markdown run](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/actions/runs/36123770974)
+also passed. Both emulator suites retain only their two opt-in capture skips.
+The earlier builds 76/77 failed remotely as recorded above; their results were
+not replaced by local passes or by an unchanged successful rerun. The final
+source includes the explicit input delivery and Activity launch synchronization
+changes, with the original drag, canary, denial and deletion assertions intact.
+
+## Official index metadata correction
+
+The first complete index generation exposed two metadata problems before
+commit. AI Agent's application name is in strings_donottranslate.xml, while
+the generator read only strings.xml and fell back to the repository name.
+Separately, a TLS handshake timeout fetching MLKit Barcode's declared
+version.properties produced versionCode 0 and dropped its existing artifact
+admission fields. The local diff check caught this; that output was not pushed.
+
+The index generator now requires a complete published source tree and fails
+if a file declared in that tree cannot be read. Genuinely absent optional
+legacy files remain optional. It merges strings.xml and strings_*.xml within
+each values directory and rejects duplicate names. Four added regression tests
+cover failed version retrieval, unavailable/truncated trees, split app names
+with localized descriptions, and ambiguous/unreadable string files. All 46
+index tests pass. Regeneration adds AI Agent and corrects 27 existing display
+titles from their published resources; all other existing item data, including
+MLKit Barcode's version and admission receipts, matches the previous index.
+
+## Publication receipts
+
+- [GitHub Release v1.0.0](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases/tag/v1.0.0)
+  is published, non-draft and non-prerelease, with exactly the one APK above.
+- The release tag resolves to `20a2ecc25a5e3932f3996ff206d834daed8ba2d0`. That source's
+  VERSION_BUILD equals its 78 reachable commits, and its worktree was clean
+  before publication. GitHub's asset size and SHA-256 match the tested local
+  APK; apksigner verified its certificate and APK v2 signature.
+- Official index commit `8aaca1c4766c6f4d87a7e77326c1b865ff9df1f4` admits the actual
+  release via `release-manifests/io.github.supermonster003.autojs6.plugin.ai.agent/78.json`.
+  The required inventory has 45 projects and the generated index 61 entries.
+  The entry retains requiresHostVersion 5289 (attachment), nativePageAlignment 0,
+  exact source/tag, version 1.0.0 / 78, signer and final artifact size/hash.
+  Full task usage requires host build 5293, as documented in the release.
+  All 46 index unit tests passed, followed by full generation and remote
+  readback of the committed entry and admission receipt.
+  The index's [publication CI](https://github.com/SuperMonster003/AutoJs6-Official-Plugins-Index/actions/runs/36127609425)
+  also passed its tests and full regeneration against the pushed source.
+- This evidence/roadmap-only completion commit advances the branch counter to
+  79. It does not replace or retag the tested build 78 APK. Historical failed
+  CI/model attempts and absent-device limitations remain visible.
