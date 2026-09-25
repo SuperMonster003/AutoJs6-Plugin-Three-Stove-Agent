@@ -2,6 +2,8 @@ AI Agent turns a natural-language goal into actions on an Android device running
 
 Version 1.1.0 is in development. Targets that advertise tools use native tool calling through a compatible AutoJs6 host; other targets keep the JSON decision loop. Real Wi-Fi/calculator comparisons, visual input and dynamic scripts remain in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+The current Model8 comparison includes empty responses, Provider failures and budget stops. The [comparison evidence](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) records every trial; it does not establish reliable completion of both tasks.
+
 ### Usage
 
 1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5293 or later.

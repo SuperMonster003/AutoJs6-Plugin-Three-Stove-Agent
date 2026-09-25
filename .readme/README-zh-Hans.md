@@ -54,6 +54,8 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 1.1.0 正在开发. 声明 tools 能力的目标通过兼容 AutoJs6 宿主使用原生工具调用, 其他目标保留 JSON 决策循环. 真实 Wi-Fi/计算器对比, 视觉输入及动态脚本仍见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+当前 Model8 对比中仍出现空响应, Provider 失败及预算中止. [对比证据](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部采样结果, 尚不能证明两类任务可稳定完成.
+
 ******
 
 ### 功能

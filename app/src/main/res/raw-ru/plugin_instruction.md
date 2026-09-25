@@ -2,6 +2,8 @@ AI Agent превращает цель на естественном языке 
 
 Версия 1.1.0 в разработке. Цели с возможностью tools используют нативные вызовы через совместимый хост AutoJs6; остальные сохраняют цикл JSON. Реальные сравнения Wi-Fi/калькулятора, визуальный ввод и динамические скрипты остаются в [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+В текущем сравнении Model8 встречаются пустые ответы, сбои Provider и остановки по лимиту бюджета. [Результаты сравнения](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) сохраняют все попытки; надежное завершение обеих задач пока не подтверждено.
+
 ### Использование
 
 1. Установите APK плагина со страницы [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) на устройство с AutoJs6 сборки 5293 или новее.

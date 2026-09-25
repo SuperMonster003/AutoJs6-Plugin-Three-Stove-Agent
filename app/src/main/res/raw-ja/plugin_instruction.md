@@ -2,6 +2,8 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 1.1.0 は開発中です. tools 能力を宣言する対象は対応する AutoJs6 ホスト経由でネイティブツールを呼び出し, その他は JSON 決定ループを維持します. 実際の Wi-Fi/電卓比較, 画像入力, 動的スクリプトの予定は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
 
+現在の Model8 比較では空の応答, Provider の失敗, 予算上限による停止が発生しています. [比較の記録](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) に全試行を残しており, 両タスクの安定した完了はまだ確認できていません.
+
 ### 使い方
 
 1. AutoJs6 ビルド 5293 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.

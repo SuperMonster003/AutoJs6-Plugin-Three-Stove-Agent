@@ -54,6 +54,8 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 La versión 1.1.0 está en desarrollo. Los destinos que anuncian tools usan llamadas nativas mediante un host AutoJs6 compatible; los demás conservan el ciclo JSON. Las comparaciones reales Wi-Fi/calculadora, visión y scripts dinámicos siguen en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+La comparación actual con Model8 incluye respuestas vacías, fallos del Provider y paradas por límites de presupuesto. Los [resultados de comparación](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservan todos los ensayos; aún no demuestran una finalización fiable de ambas tareas.
+
 ******
 
 ### Funciones

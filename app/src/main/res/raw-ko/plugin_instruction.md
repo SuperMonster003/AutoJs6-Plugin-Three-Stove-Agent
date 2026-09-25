@@ -2,6 +2,8 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 1.1.0은 개발 중입니다. tools 기능을 선언한 대상은 호환 AutoJs6 호스트를 통해 네이티브 도구를 호출하고, 나머지는 JSON 결정 루프를 유지합니다. 실제 Wi-Fi/계산기 비교, 시각 입력과 동적 스크립트는 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에 남아 있습니다.
 
+현재 Model8 비교에서는 빈 응답, Provider 실패와 예산 초과 중단이 발생합니다. [비교 기록](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md)에 모든 시도를 보존하며, 두 작업의 안정적인 완료는 아직 확인되지 않았습니다.
+
 ### 사용 방법
 
 1. AutoJs6 빌드 5293 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.

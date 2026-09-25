@@ -2,6 +2,8 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 1.1.0 正在開發. 宣告 tools 能力的目標透過相容 AutoJs6 主程式使用原生工具呼叫, 其他目標保留 JSON 決策循環. 真實 Wi-Fi/計算機比較, 視覺輸入及動態指令碼仍見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+目前 Model8 對比中仍出現空回應, Provider 失敗及預算中止. [對比證據](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部取樣結果, 尚不能證明兩類任務可穩定完成.
+
 ### 使用方式
 
 1. 在安裝了 AutoJs6 組建 5293 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
