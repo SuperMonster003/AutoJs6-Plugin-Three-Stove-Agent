@@ -621,13 +621,13 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 ### P9.1 原生 Tool Calling
 
 - [x] (宿主) `AiPluginAskRequest` 开放 `tools` 与 `maximumToolRounds` (仅经模型代理路径, 脚本 `ai.ask` 是否开放另议); `AndroidAiPluginAskRunner.onToolCalls` 从 `Unsupported` 改为向调用方产出 `toolCalls` 事件并接受 `toolResults` 续轮 (协议已定义 `SCHEMA_TOOL_*`, 16 轮上限); 模型代理新增事件 `tool_calls` 与方法 `submitToolResults`. 证据: 宿主 `3e4e3a3cff` / build 5297, JVM 244 + Agent API 7 + Provider API 77 全部通过; 独立测试签名 API 24 / API 37.1 各 41/41, 严格 lint 0 错误. 该项证据仅覆盖宿主, 模型/插件接入及真实任务对比的进度见以下条目, 详见 [宿主原生工具验收](docs/dev/p91-host-tools-evidence-2026-09-25.md).
-- [x] (模型) 3-Stone AI `supportsTools = true`: 在线三协议的工具定义 / 调用 / 结果映射, 本地 LiteRT-LM 视模型能力 (不支持时目标级不声明 `tools` 能力). 证据: Provider `4e887e8` / 1.2.0 开发候选 / build 215, JVM 373/373, API 24 x86_64 与 API 37.1 / 16 KiB 各 13/13. 保留 Gemini 签名, 并行调用, 严格结果匹配, 原始截止时间及累计用量; 暂不组合持久 ai.session. Agent 原生循环和真实任务对比仍待办, 详见 [Provider 原生工具验收](docs/dev/p91-provider-tools-evidence-2026-09-25.md).
+- [x] (模型) 3-Stone AI `supportsTools = true`: 在线三协议的工具定义 / 调用 / 结果映射, 本地 LiteRT-LM 视模型能力 (不支持时目标级不声明 `tools` 能力). 证据: Provider `4e887e8` / 1.2.0 开发候选 / build 215, JVM 373/373, API 24 x86_64 与 API 37.1 / 16 KiB 各 13/13. 保留 Gemini 签名, 并行调用, 严格结果匹配, 原始截止时间及累计用量; 暂不组合持久 ai.session. Agent 原生循环已完成, 真实任务对比限制见以下测试条目, 详见 [Provider 原生工具验收](docs/dev/p91-provider-tools-evidence-2026-09-25.md).
 - [x] (插件) `ModelClient` 在目标声明 `tools` 能力时改用原生工具循环 (`ToolCatalog` 直接作为工具定义), 否则保持 D7 的结构化 JSON 循环; 两条路径共用 `DecisionValidator` / `ConfirmationGate` / `StepJournal`. 证据: Agent 1.1.0 开发候选 / build 82, 目标与宿主双重协商, 整批校验后逐项确认执行, 同请求续轮和累计用量差分; JVM 506 通过 / 1 既有性能开关跳过, API 24 / 37.1 完整 Android 各 80 通过 / 2 截图开关跳过, 最后一次原生用量修正后两台 debug 与 R8 release 跨 UID 专项各 8/8. 保留原始会话期限, 上下文/输出预算和 16 轮上限; 不宣称真实模型对比完成, 详见 [Agent 原生工具验收](docs/dev/p91-agent-tools-evidence-2026-09-25.md).
-- [ ] (测试) 假 Provider 的工具往返, 两条路径的用例 (1) (2) 对比数据.
+- [ ] (测试) 假 Provider 的工具往返, 两条路径的用例 (1) (2) 对比数据. 进展 (2026-09-25 至 26 日): 真实宿主 + R8 Agent + 假 Provider 三方链路及模型代理检查, API 24 / 37.1 各 18/18, 故障用例保留熔断并按宿主进程隔离. 宿主 7ce99cc204 修正紧凑节点树缩短资源 ID 导致的字面选择器失配, JVM 22/22 和两台真实观察/查询往返通过. 用户恢复 G8441 无障碍后, JSON / native 均通过界面计算并回读 408 (84224 / 77569 ms, 11 / 13 模型调用). XQ-DQ72 修正后两条路径虽均成功打开 Wi-Fi, 随后的模型调用仍失败, 未完成最终任务确认. 本轮 15 次真实任务全部保留 (2 completed / 2 partial / 11 failed), 另有 1 次无模型调用的前置环境失败; Wi-Fi 对比验收保持待办, 不以失败采样冒充通过. 详见 [双路径对比与修正证据](docs/dev/p91-comparison-evidence-2026-09-25.md).
 
 ### P9.2 视觉输入
 
-- [ ] (宿主) AI Provider 协议演进 (V2 追加 `image` content part 与 `vision` 能力, 或按协议文档另立视觉家族, 由维护者拍板); 模型代理 `generate` 接受 `imageRefs` (PFD); 宿主 `accessibility.screenshot` 已有.
+- [ ] (宿主) AI Provider 协议演进 (维护者于 2026-09-25 确认: 在 V2 家族内协商新增 2.1 图片输入能力, 追加 `image` content part 与 `vision` 能力, 旧组件继续使用 2.0); 模型代理 `generate` 接受 `imageRefs` (PFD); 宿主 `accessibility.screenshot` 已有. [已确认的协议方向](docs/dev/p92-vision-protocol-proposal.md), 尚未实施.
 - [ ] (模型) 3-Stone AI 在线视觉模型支持.
 - [ ] (插件) 工具 `screen_capture` (缩放到最长边 1280, JPEG 70) 作为观察输入; 视觉模式下的提示词与预算 (图片 token 估算).
 
@@ -1517,3 +1517,14 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 最终完整 JVM 506 通过 / 1 既有性能开关跳过 (新增 30 项原生回归), debug/androidTest/R8 release/签名归档/十语言 36 产物通过, lint 0 错误 / 6 既有提示. 独立 API 24 / x86 与 API 37.1 / x86_64 / 16 KiB 全量 Android 各 80 通过 / 2 截图开关跳过. 最后原生累计用量边界修正后, JVM/构建/lint 再次通过, 两台各完成 debug 8/8 和 R8 release 8/8 外部 Binder 复验. 完整证据及首轮失败见 docs/dev/p91-agent-tools-evidence-2026-09-25.md.
 - 本地正式签名开发候选为 1.1.0 / 82 / CRC32 6ccf9b95, SHA-256 665238f325ce384333470b8e3ac0603c047063f8c4573e7e95294f6f9ddeb205. R8 设备验证使用隔离工作区的标准 Android 测试签名, 与正式签名包 DEX/资源/清单一致; 12 个既有文本资产仅 LF/CRLF 不同. 不把测试签名包冒充正式签名安装验收, 不把提交前归档冒充正式标签发行.
 - 下一起点为原 P9.1 的测试条目: 完成假 Provider 组合链路, 再取得真实模型 Wi-Fi/计算器双路径对比数据. 本轮不推送/发布, 不安装真机, 不修改真机网络, 不产生订单或付款; 已发布 v1.0.0 保留. 当前无需 Redmi SIM 或新增人工操作, 后续在线 Wi-Fi 对比仅在用例期间需要一台独立联网设备. QV710AF65F / XQ-AT72 Android 12 仍待预计 2026-09-27 20:00 UTC+8 前上线后补测.
+
+### 2026-09-25 至 26 日: P9.1 组合链路, 双路径实测与 P9.2 协议决定
+
+- 推进原 P9.1 测试条目, 不增加/分拆/丢弃阶段. 宿主 eb86fda238 增加真实宿主 + R8 Agent + 独立假 Provider 的跨 UID 组合测试: 双工具观察, 整批非法参数拒绝, 确认拒绝与等待期间取消. 合并既有模型代理测试, API 24 / API 37.1 各 18/18; API 37 故障注入会触发进程级熔断, 用独立宿主进程隔离用例, 保留先前失败和生产熔断规则. 最终夹具收窄与宿主修正后, 两台组合专项各 4/4.
+- 真机数据定位出宿主观察缺陷: 紧凑树把 org.fossify.math:id/btn_2 缩为 btn_2, 但字面选择器按完整 ID 匹配. 宿主 7ce99cc204 保留完整资源 ID, 不放宽选择器或命名空间, 同步十语言日志. 22 项相关 JVM 和 API 24 / 37.1 的真实 Settings 观察到 ui_find 往返均通过. 宿主 debug/androidTest 构建通过; 假 Provider JVM 32/32, lint 0 错误 / 2 既有提示. 本次未重跑宿主整库 lint/无关 JVM, 未触碰 Rhino 同步.
+- G8441 / API 28 使用 Model8 Fable 5.1, 修正前 4 次均未完成. 升级后无障碍服务未绑定的一次前置失败没有调用模型, 用户手动恢复后继续. 最终 JSON 10 步 / 9 工具 / 11 模型调用 / 84224 ms / 160238 tokens; native 12 步 / 11 工具 / 13 模型调用 / 77569 ms / 212690 tokens, 两者均实际按键计算 12*34 并回读 408, 独立 UI 核验一致. native 清空旧表达式后重新计算, 不是复用 JSON 结果; 另一次 native 空响应失败保留. 样本不支持稳定性或性能优劣结论.
+- XQ-DQ72 / QV770340J7 / API 35 使用已验证的移动数据, 修正前后 native/JSON 各两轮. 最后两条路径均打开 Wi-Fi, 但切换后的模型调用仍为 MODEL_FAILED / PROVIDER_FAILED, 没有完成最终任务确认; 其他采样还出现空响应. 全部 15 次真实任务为 2 completed / 2 partial / 11 failed, 不把开关已打开计作任务通过. 详见 docs/dev/p91-comparison-evidence-2026-09-25.md, P9.1 测试复选项仍待 Wi-Fi 对比验收.
+- 按原 P9.2 要求完成维护者拍板: 用户选择在 V2 家族内协商 2.1 图片输入能力, 旧组件保留 2.0. 已确认的方案在 docs/dev/p92-vision-protocol-proposal.md, 后续无需重复询问该架构选择. 尚未实现图片协议/Provider/Agent, 三个原复选项保持未完成.
+- Agent 本次只修改采集器, 证据, 十语言 README/插件说明及提交计数 build 83. 36 生成产物和文本标点测试通过, 真机仍使用已验证的官方签名 R8 Agent 1.1.0 / 82 与 Provider 1.2.0 / 215. 未新增 Provider 源码改动, 未发布/推送/改标签, 已发布 v1.0.0 保留.
+- G8441 与 XQ-DQ72 临时 Wi-Fi/屏幕超时均恢复, 无障碍组件集合核对一致; 两台私有 AVD 已关闭并保留数据, 宿主隔离验证工作区已对齐 7ce99cc204 且干净. 未操作购物, 订单或付款, 未更改凭据/模型/代理/VPN 配置.
+- 当前没有待用户完成的手动操作. 本轮采样结束, 测试 SIM 可移走; P9.2 协议/视觉开发只需普通联网, 后续在线 Wi-Fi 切换复测期间再临时提供独立网络, 不要求 Redmi 长期保留 SIM. QV710AF65F / XQ-AT72 Android 12 仍缺席, 按用户预计 2026-09-27 20:00 UTC+8 前上线后补测.

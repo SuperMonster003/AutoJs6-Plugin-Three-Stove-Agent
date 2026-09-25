@@ -54,6 +54,8 @@
 
 الإصدار 1.1.0 قيد التطوير. تستخدم الأهداف التي تعلن tools استدعاءات أدوات أصلية عبر مضيف AutoJs6 متوافق, وتحتفظ الأهداف الأخرى بحلقة JSON. تظل مقارنات Wi-Fi/الآلة الحاسبة الفعلية والإدخال المرئي والبرامج الديناميكية في [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
+تتضمن مقارنة Model8 الحالية ردودا فارغة وإخفاقات في Provider وتوقفا عند حدود الميزانية. تحتفظ [نتائج المقارنة](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) بجميع المحاولات, ولا تثبت بعد إتمام المهمتين بصورة موثوقة.
+
 ******
 
 ### الميزات

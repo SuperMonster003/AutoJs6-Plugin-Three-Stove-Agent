@@ -14,7 +14,8 @@ TEST = "org.autojs.autojs.core.plugin.agent.AiAgentRealModelE4Test"
 RUNNER = "org.autojs.autojs6.test/androidx.test.runner.AndroidJUnitRunner"
 CONTROL = "/sdcard/autojs6-agent-e4"
 EVIDENCE = ("started.json", "snapshot.json", "pending.json", "final.json",
-            "harness.json", "events.jsonl", "model-events.jsonl", "capability-errors.jsonl", "node-queries.jsonl")
+            "harness.json", "events.jsonl", "model-events.jsonl", "model-continuations.jsonl",
+            "capability-errors.jsonl", "node-queries.jsonl")
 
 
 def case_id(value):
