@@ -152,9 +152,9 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                             val schema = fallbacks.select(original.schemaTarget, policy)
                             val target = if ((schema.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0) <= selected.maximumSchemaBytes) original
                                 else ModelTarget(original.providerId, original.targetId, original.locality, original.protocol, false,
-                                    original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit)
+                                    original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools)
                             val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
-                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, request.groups.sorted(), policy.ocrAvailable).toString()
+                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, request.groups.sorted(), policy.ocrAvailable).toString()
                             val client = synchronized(clients) {
                                 clients.getOrPut(key) {
                                     if (clients.size >= 32) clients.remove(clients.keys.first())

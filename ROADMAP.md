@@ -622,7 +622,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 - [x] (宿主) `AiPluginAskRequest` 开放 `tools` 与 `maximumToolRounds` (仅经模型代理路径, 脚本 `ai.ask` 是否开放另议); `AndroidAiPluginAskRunner.onToolCalls` 从 `Unsupported` 改为向调用方产出 `toolCalls` 事件并接受 `toolResults` 续轮 (协议已定义 `SCHEMA_TOOL_*`, 16 轮上限); 模型代理新增事件 `tool_calls` 与方法 `submitToolResults`. 证据: 宿主 `3e4e3a3cff` / build 5297, JVM 244 + Agent API 7 + Provider API 77 全部通过; 独立测试签名 API 24 / API 37.1 各 41/41, 严格 lint 0 错误. 该项证据仅覆盖宿主, 模型/插件接入及真实任务对比的进度见以下条目, 详见 [宿主原生工具验收](docs/dev/p91-host-tools-evidence-2026-09-25.md).
 - [x] (模型) 3-Stone AI `supportsTools = true`: 在线三协议的工具定义 / 调用 / 结果映射, 本地 LiteRT-LM 视模型能力 (不支持时目标级不声明 `tools` 能力). 证据: Provider `4e887e8` / 1.2.0 开发候选 / build 215, JVM 373/373, API 24 x86_64 与 API 37.1 / 16 KiB 各 13/13. 保留 Gemini 签名, 并行调用, 严格结果匹配, 原始截止时间及累计用量; 暂不组合持久 ai.session. Agent 原生循环和真实任务对比仍待办, 详见 [Provider 原生工具验收](docs/dev/p91-provider-tools-evidence-2026-09-25.md).
-- [ ] (插件) `ModelClient` 在目标声明 `tools` 能力时改用原生工具循环 (`ToolCatalog` 直接作为工具定义), 否则保持 D7 的结构化 JSON 循环; 两条路径共用 `DecisionValidator` / `ConfirmationGate` / `StepJournal`.
+- [x] (插件) `ModelClient` 在目标声明 `tools` 能力时改用原生工具循环 (`ToolCatalog` 直接作为工具定义), 否则保持 D7 的结构化 JSON 循环; 两条路径共用 `DecisionValidator` / `ConfirmationGate` / `StepJournal`. 证据: Agent 1.1.0 开发候选 / build 82, 目标与宿主双重协商, 整批校验后逐项确认执行, 同请求续轮和累计用量差分; JVM 506 通过 / 1 既有性能开关跳过, API 24 / 37.1 完整 Android 各 80 通过 / 2 截图开关跳过, 最后一次原生用量修正后两台 debug 与 R8 release 跨 UID 专项各 8/8. 保留原始会话期限, 上下文/输出预算和 16 轮上限; 不宣称真实模型对比完成, 详见 [Agent 原生工具验收](docs/dev/p91-agent-tools-evidence-2026-09-25.md).
 - [ ] (测试) 假 Provider 的工具往返, 两条路径的用例 (1) (2) 对比数据.
 
 ### P9.2 视觉输入
@@ -1507,3 +1507,13 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 两台安装归档 x86_64 release 后均可启动入口. 额外将 debug instrumentation 运行于 R8 release 的尝试在运行器加载 Kotlin Intrinsics 时退出, 如实保留为夹具不匹配失败; 不削弱生产 R8 规则或宣称 release Binder 已通过. 本轮不推送/发布, 后续发行验收仍需匹配 release 的外部/Binder 测试入口.
 - 插件十语言 changelog 仅更新进度/兼容提示, 本次文档回执 build 81 对齐提交数. 已发布的 Agent v1.0.0 标签/APK 和运行代码保持不变. 没有宿主/Rhino 修改, 真实模型调用, 真机设置, 订单或付款; 本轮私有模拟器已关闭.
 - 下一起点为原 P9.1 的 Agent ModelClient 原生循环及共享 DecisionValidator / ConfirmationGate / StepJournal, 然后做原 Wi-Fi/计算器两路径对比. 当前及紧接着的插件开发无需 Redmi SIM 或新增手动操作; 在线 Wi-Fi 对比时再临时使用一台具备独立网络的设备. QV710AF65F / XQ-AT72 Android 12 仍待预计 2026-09-27 20:00 UTC+8 前上线后补测.
+
+
+### 2026-09-25: P9.1 Agent 原生工具循环
+
+- 完成原 P9.1 的插件条目, 不新增/分拆/丢弃阶段. Agent 1.1.0 开发候选 / build 82 在宿主工具扩展与目标 tools 能力同时满足时使用原生循环, 否则保留 D7 JSON. 工具定义来自 ToolCatalog, 整批经过 DecisionValidator 后逐项经过 ConfirmationGate 和 StepJournal; ask/done 仍沿用现有决策与交互.
+- 同一模型代理请求通过 submitToolResults 续轮, 每轮重新准入预算, 累计 usage 转为增量, 包含后续才补报 totalTokens 的情况. 批内每项使用独立步骤与确认, 最多 2 次修复. 取消, 链路丢失和原始截止时间覆盖等待工具阶段; 回调尚未交给任务时取消也会关闭模型. 动作后出错不会切换 JSON 重放. 原始输出 token 和上下文上限跨原生轮次保留, 具体限制见证据.
+- 从干净宿主 3e4e3a3cff / build 5297 同次构建并更新三份 release AAR, 哈希/来源/许可同步. 基础契约仍 V1, 公开 JS 与 d.ts 接口不变. 宿主和 Provider 无源码改动, 未触碰 Rhino 同步.
+- 最终完整 JVM 506 通过 / 1 既有性能开关跳过 (新增 30 项原生回归), debug/androidTest/R8 release/签名归档/十语言 36 产物通过, lint 0 错误 / 6 既有提示. 独立 API 24 / x86 与 API 37.1 / x86_64 / 16 KiB 全量 Android 各 80 通过 / 2 截图开关跳过. 最后原生累计用量边界修正后, JVM/构建/lint 再次通过, 两台各完成 debug 8/8 和 R8 release 8/8 外部 Binder 复验. 完整证据及首轮失败见 docs/dev/p91-agent-tools-evidence-2026-09-25.md.
+- 本地正式签名开发候选为 1.1.0 / 82 / CRC32 6ccf9b95, SHA-256 665238f325ce384333470b8e3ac0603c047063f8c4573e7e95294f6f9ddeb205. R8 设备验证使用隔离工作区的标准 Android 测试签名, 与正式签名包 DEX/资源/清单一致; 12 个既有文本资产仅 LF/CRLF 不同. 不把测试签名包冒充正式签名安装验收, 不把提交前归档冒充正式标签发行.
+- 下一起点为原 P9.1 的测试条目: 完成假 Provider 组合链路, 再取得真实模型 Wi-Fi/计算器双路径对比数据. 本轮不推送/发布, 不安装真机, 不修改真机网络, 不产生订单或付款; 已发布 v1.0.0 保留. 当前无需 Redmi SIM 或新增人工操作, 后续在线 Wi-Fi 对比仅在用例期间需要一台独立联网设备. QV710AF65F / XQ-AT72 Android 12 仍待预计 2026-09-27 20:00 UTC+8 前上线后补测.

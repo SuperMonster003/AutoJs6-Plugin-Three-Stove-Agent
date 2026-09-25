@@ -4,6 +4,14 @@
 
 ******
 
+# v1.1.0
+
+###### 2026/09/25
+
+* `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
+* `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
+* `Dependency` Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+
+
 # v1.0.0
 
 ###### 2026/09/25

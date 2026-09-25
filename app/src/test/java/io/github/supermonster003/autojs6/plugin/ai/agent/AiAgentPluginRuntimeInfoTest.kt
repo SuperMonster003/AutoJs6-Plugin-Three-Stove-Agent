@@ -13,7 +13,7 @@ class AiAgentPluginRuntimeInfoTest {
             name = "AI Agent",
             description = "Runs natural-language tasks by choosing registered scripts and operating the screen step by step",
             instruction = "# AI Agent",
-            versionName = "1.0.0",
+            versionName = "1.1.0",
             versionCode = 1L,
             versionDate = "Sep 22, 2026",
         )
@@ -25,7 +25,7 @@ class AiAgentPluginRuntimeInfoTest {
         assertEquals("ai-agent", info.id)
         assertEquals("ai-agent", info.engine)
         assertEquals("default", info.variant)
-        assertEquals("1.0.0", info.versionName)
+        assertEquals("1.1.0", info.versionName)
         assertEquals(1L, info.versionCode)
         assertEquals("Sep 22, 2026", info.versionDate)
         assertArrayEquals(emptyArray<String>(), info.supportedAbis)

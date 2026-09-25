@@ -54,22 +54,30 @@ class RunContext(val goal: String, val history: List<JsonObject>, val observatio
 }
 
 /** P2.4's compiler supplies the bounded message array and accounts for the response schema bytes. */
-class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: DecisionFormat? = null, val maximumOutputTokens: Int? = null) {
+class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: DecisionFormat? = null, val maximumOutputTokens: Int? = null,
+                 tools: JsonArray = JsonArray(), val maximumContextBytes: Int = 128 * 1024) {
     private val data = AgentJson.parse(messages.toString(), 128 * 1024).asJsonArray
+    private val definitions = AgentJson.parse(tools.toString(), 128 * 1024).asJsonArray
     init {
         require(schemaBytes in 0..DecisionSchema.MAX_SCHEMA_BYTES)
+        require(maximumContextBytes in 1..128 * 1024)
         require(maximumOutputTokens == null || maximumOutputTokens in 1..65_536)
         require(format == null || schemaBytes == (format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0))
+        require(definitions.size() <= 64 && (definitions.isEmpty || format?.nativeTools == true))
     }
     val messages: JsonArray get() = data.deepCopy()
-    val inputBytes: Int get() = data.toString().toByteArray(Charsets.UTF_8).size + schemaBytes
+    val tools: JsonArray get() = definitions.deepCopy()
+    val inputBytes: Int get() = data.toString().toByteArray(Charsets.UTF_8).size + schemaBytes +
+        if (definitions.isEmpty) 0 else StepJournal.bytes(definitions)
     override fun toString() = "ModelInput(bytes=$inputBytes)"
 }
 fun interface RunContextCompiler {
     fun compile(context: RunContext): ModelInput
     fun observe(tool: String, result: JsonElement): String = ToolObservation.success(result)
 }
-class ModelReply(val text: String, val usage: ModelUsage? = null) {
+class ModelReply(val text: String, val usage: ModelUsage? = null, val nativeTurn: NativeToolTurn? = null,
+                 val outputBytes: Int = text.toByteArray(Charsets.UTF_8).size) {
+    init { require(outputBytes >= 0) }
     override fun toString() = "ModelReply(bytes=${text.toByteArray(Charsets.UTF_8).size})"
 }
 /** Captures already observed usage when the runner's own deadline or stop wins the callback race. */

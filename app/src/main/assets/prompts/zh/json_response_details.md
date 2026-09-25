@@ -1,0 +1,1 @@
+kind 为 tool 时提供目录中的工具名及 arguments, 无参数工具也要提供空对象. argumentsEncoding 为 JSON_STRING 时将参数对象编码为 JSON 字符串, 否则使用对象. kind 为 ask 或 done 时只提供对应对象, 其他分支不能有非 null 值. nullableOptionals 为 true 时未使用的可选字段填 null, 否则省略. 退化模式没有响应 Schema 约束, 仍只输出一个 JSON 对象, 对象外不得附加解释.

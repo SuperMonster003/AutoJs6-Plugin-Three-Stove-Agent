@@ -12,9 +12,11 @@ data class DecisionFormat(
     val argumentsEncoding: ArgumentsEncoding,
     val responseSchemaJson: String?,
     val reason: String,
+    val nativeTools: Boolean = false,
 ) {
-    val degraded: Boolean get() = responseSchemaJson == null
-    val nullableOptionals: Boolean get() = !degraded && protocol == ModelProtocol.OPENAI
+    init { require(!nativeTools || (responseSchemaJson == null && argumentsEncoding == ArgumentsEncoding.OBJECT)) }
+    val degraded: Boolean get() = responseSchemaJson == null && !nativeTools
+    val nullableOptionals: Boolean get() = !nativeTools && !degraded && protocol == ModelProtocol.OPENAI
 }
 
 class DecisionSchema(private val catalog: ToolCatalog) {
@@ -122,6 +124,7 @@ class DecisionSchema(private val catalog: ToolCatalog) {
         const val MAX_SCHEMA_BYTES = 16 * 1024
         fun degraded(protocol: ModelProtocol = ModelProtocol.UNKNOWN, reason: String = "STRUCTURED_JSON_UNAVAILABLE") =
             DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, reason)
+        fun native(protocol: ModelProtocol) = DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, "NATIVE_TOOLS", nativeTools = true)
 
         private fun schemaType(type: String) = jsonObject("type" to type.json())
         private fun enumSchema(values: List<String>) = schemaType("string").apply {

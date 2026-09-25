@@ -159,7 +159,7 @@ AutoJs6-Plugin-AI-Agent/
 ## 9. Agent 专属约束 (CONDITIONAL, 随路线图 P2 起生效)
 
 - 工具只在 `catalog/ToolCatalog` 登记 (snake_case `<组>_<动作>`, 封闭 JSON Schema `additionalProperties: false`, 风险等级, 所属组, 默认开关, 映射的 bridge `module.method`); 快照测试 `app/src/test/resources/tool-catalog.snapshot.json` 变更时 MUST 一并更新并写入 changelog. 提示词工具清单与 README 工具表都从目录派生, 不手写.
-- 决策只接受 `AgentDecision` 扁平 JSON (附录 D); `DecisionValidator` 校验工具名与参数 Schema, 非法决策作为观察回送, 修复重试次数按 P0.2 结论固定为每步最多 2 次 (结构化与退化模式一致), MUST NOT 无限重试.
+- JSON 路径只接受 `AgentDecision` 扁平 JSON (附录 D). P9.1 原生路径必须同时协商宿主工具扩展和目标 `tools` 能力, 从 `ToolCatalog` 派生定义, 将调用转为同一 `AgentDecision` 后经 `DecisionValidator` 校验整批工具名与参数 Schema, 逐项经过 `ConfirmationGate` 和 `StepJournal`; ask/done 仍使用扁平 JSON. 非法决策作为观察回送, 修复重试次数按 P0.2 结论固定为每步最多 2 次 (原生, 结构化与退化模式一致), MUST NOT 无限重试. 原生续轮重新准入预算, 保留原始截止时间, 不得在动作后发生错误时切换 JSON 重放.
 - 文件工具在插件侧先校验有界的工作目录相对路径, 宿主仍负责实际目录与符号链接边界. 解析/校验拒绝的决策只在既有 decision 元数据中记录固定分类, 每步最多 3 项; 无有效决策时以 `source=validator` 的错误步骤保留诊断, 不伪造模型决策, 不保留被拒正文.
 - 分级确认 (D8) MUST NOT 被工具组开关绕过: 敏感工具与登记为 `sensitive` 的脚本在执行前经 `ConfirmationGate`; 审慎模式让所有非只读操作都确认; 确认超时视为拒绝.
 - 预算 (步数, 模型调用次数, 时长, token) 在 `Budget` 中集中计数, 超限即以 `BUDGET_EXCEEDED` 终止并报告; 插件默认值不得超过附录 B.5 的契约上限.

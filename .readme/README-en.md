@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Version 1.0.0 provides natural-language tasks, registered-script invocation and device actions with risk-based confirmation. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for verified cases, model limitations and outstanding device checks. Native tool calling, visual input and dynamic script generation are planned for 1.1.0.
+Version 1.1.0 is in development. Targets that advertise tools use native tool calling through a compatible AutoJs6 host; other targets keep the JSON decision loop. Real Wi-Fi/calculator comparisons, visual input and dynamic scripts remain in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -66,6 +66,7 @@ The current implementation provides these capabilities:
 - Step-by-step screen operation: the agent observes the accessibility node tree in a compact text form (and screen text through an OCR plugin when one is installed), then clicks, types, scrolls and presses keys through the AutoJs6 capability broker until it can verify the goal.
 - Safety by design: read-only tools run automatically, sensitive actions (payment, sending, deletion, file writes, shell, coordinate gestures, scripts registered as sensitive) require confirmation, and every run has step, model-call, duration and token budgets.
 - Script API and user interface: `ai.agent.run(goal, options)` returns an `AgentRun` handle with events, responses and cancellation; the standalone app offers a task workbench with history, presets, preference memory, settings and release history.
+- Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
 
 ### Screenshots
 
@@ -222,7 +223,7 @@ Payment is a separate sensitive action. Approval of an order, a script or simila
 
 **What are the limits of local models?**
 
-Tasks depend on instruction following, valid decision JSON and the available context. Small models may fail even when loading succeeds; the Gemma 4 E2B IT Wi-Fi case did not pass the recorded decision-validation run. Start with small tasks and review partial/failed results. Version 1.0.0 uses text node/OCR observations and a JSON decision loop; visual input, native tool calling and generated scripts remain in the 1.1.0 roadmap.
+Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. Visual input and dynamic scripts remain planned.
 
 ******
 
@@ -277,6 +278,14 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 ### Release History
 
 ******
+
+#### v1.1.0
+
+_2026/09/25_
+
+- `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
+- `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
+- `Dependency` Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+
 
 #### v1.0.0
 

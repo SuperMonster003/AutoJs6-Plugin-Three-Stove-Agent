@@ -50,6 +50,10 @@ class AgentRunner internal constructor(
     private var scriptResult: JsonObject? = null
     private var format = options.format
     private var formatFallbacks = 0
+    private var nativeTurn: NativeToolTurn? = null
+    private val nativeQueue = ArrayDeque<AgentDecision.Tool>()
+    private val nativeResults = mutableListOf<NativeToolResult>()
+    private var activeNativeCall: NativeToolCall? = null
 
     private class Operation(val onCancelled: (Cancellation) -> Unit) {
         var active = true
@@ -168,6 +172,12 @@ class AgentRunner internal constructor(
             repairSession = null; decision = userProposal; prepareTool(userProposal); return
         }
         repairSession = DecisionRepairSession(validator, policy, format, doneRules::validate)
+        if (nativeQueue.isNotEmpty()) {
+            val accepted = nativeQueue.removeFirst()
+            activeNativeCall = checkNotNull(nativeTurn).calls[nativeResults.size]
+            decision = accepted; parseMode = ParseMode.NATIVE_TOOL
+            prepareTool(accepted); return
+        }
         requestModel(null)
     }
 
@@ -176,9 +186,12 @@ class AgentRunner internal constructor(
         val b = checkNotNull(budget)
         if (policy.isOrderGoal(options.goal)) doneRules.requireOrderStatus()
         val guidance = loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) }
-        val input = compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance))
+        val continuation = nativeTurn?.continuation
+        val results = if (continuation == null) emptyList() else nativeResults.toList()
+        val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance))
+        val inputBytes = continuation?.inputBytes(results) ?: checkNotNull(input).inputBytes
         if (!canContinue()) return
-        val reservation = b.reserveModel(input.inputBytes, minOf(options.maximumOutputTokens, input.maximumOutputTokens ?: options.maximumOutputTokens))
+        val reservation = b.reserveModel(inputBytes, minOf(options.maximumOutputTokens, input?.maximumOutputTokens ?: options.maximumOutputTokens))
         var settled = false
         fun settle(usage: ModelUsage?, outputBytes: Int) {
             if (settled) return
@@ -186,7 +199,8 @@ class AgentRunner internal constructor(
             stepEstimated = stepEstimated || usage?.inputTokens == null || usage.outputTokens == null
         }
         beginOperation(minOf(options.modelTimeoutMs, b.remainingMs), RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
-            { callback -> model.generate(input, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) },
+            { callback -> if (continuation == null) model.generate(checkNotNull(input), reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback)
+                else continuation.resume(results, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) },
             onCancelled = { handle -> (handle as? ModelCallCancellation)?.progress()?.let { settle(it.usage, it.outputBytes) } }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> {
@@ -194,7 +208,7 @@ class AgentRunner internal constructor(
                     settle(outcome.usage, outcome.outputBytes)
                     if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
                     b.check()
-                    val next = if (formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
+                    val next = if (continuation == null && formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
                     if (next == null) finishError(outcome.error) else {
                         formatFallbacks++; format = next
                         checkNotNull(repairSession).switchFormat(next)
@@ -203,16 +217,33 @@ class AgentRunner internal constructor(
                 }
                 is PortResult.Success -> {
                     val reply = outcome.value
-                    val outputBytes = if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.toByteArray(Charsets.UTF_8).size else AgentJson.MAX_MODEL_BYTES + 1
+                    nativeTurn = reply.nativeTurn; nativeResults.clear(); activeNativeCall = null
+                    nativeTurn?.continuation?.claim()
+                    val outputBytes = maxOf(reply.outputBytes, if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.toByteArray(Charsets.UTF_8).size else AgentJson.MAX_MODEL_BYTES + 1)
                     responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
                     settle(reply.usage, outputBytes)
                     b.check()
                     if (responseLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED); return@beginOperation }
-                    when (val attempt = checkNotNull(repairSession).evaluate(reply.text)) {
-                        is DecisionAttempt.Repair -> requestModel(attempt.observation)
+                    val turn = reply.nativeTurn
+                    if (turn != null && (turn.continuation.limits.batchBytes - 256) / turn.calls.size < 1024) {
+                        finishError(RunError.LIMIT_EXCEEDED); return@beginOperation
+                    }
+                    turn?.continuation?.onFailure { error -> enqueueCallback { guarded {
+                        if (nativeTurn?.continuation === turn.continuation) finishError(error)
+                    } } }
+                    val attempt = if (turn == null) checkNotNull(repairSession).evaluate(reply.text) else checkNotNull(repairSession).evaluateNative(turn.calls)
+                    when (attempt) {
+                        is DecisionAttempt.Repair -> {
+                            turn?.calls?.forEach { nativeResults += nativeResult(it, attempt.observation.toString(), true) }
+                            requestModel(attempt.observation)
+                        }
                         is DecisionAttempt.Exhausted -> finishError(RunError.DECISION_UNPARSABLE)
                         is DecisionAttempt.Accepted -> {
                             decision = attempt.decision; parseMode = attempt.parseMode
+                            if (turn != null) {
+                                activeNativeCall = turn.calls.first()
+                                nativeQueue.addAll(attempt.remainingTools)
+                            }
                             when (val accepted = attempt.decision) {
                                 is AgentDecision.Tool -> prepareTool(accepted)
                                 is AgentDecision.Ask -> waitForInput(accepted)
@@ -446,7 +477,39 @@ class AgentRunner internal constructor(
         val entry = journal.append(StepRecord(b.steps, data.string("kind")!!, data,
             (current as? AgentDecision.Tool)?.name, (current as? AgentDecision.Tool)?.arguments,
             confirmation, value, usage, (scheduler.nowMs() - stepStartedMs).coerceAtLeast(0), error?.name, rejections))
+        activeNativeCall?.let { call ->
+            nativeResults += nativeResult(call, value ?: errorObservation(RunError.INVALID_REQUEST), error != null)
+            activeNativeCall = null
+        }
         emit("step", entry)
+    }
+    private fun nativeResult(call: NativeToolCall, value: String, isError: Boolean): NativeToolResult {
+        val turn = checkNotNull(nativeTurn)
+        val limits = turn.continuation.limits
+        // Include verification and remaining allowances in the actual continuation. Bound the JSON
+        // string after escaping so even a 32-call batch stays inside the negotiated envelope limit.
+        val result = AgentJson.objectOf(value, ToolObservation.DEFAULT_MAX_BYTES).apply {
+            add("remaining_budget", checkNotNull(budget).remainingJson())
+            add("verification", loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) })
+        }
+        val allowance = (limits.batchBytes - 256) / turn.calls.size
+        var maximum = minOf(ToolObservation.DEFAULT_MAX_BYTES, limits.resultBytes, allowance - 256)
+        while (maximum >= 128) {
+            val compacted = ObservationCompactor.compact(result, maximum, false).toString()
+            val output = NativeToolResult(call.id, compacted, isError)
+            if (StepJournal.bytes(output.wire()) <= allowance) return output
+            maximum /= 2
+        }
+        throw ContextLimitExceeded()
+    }
+    private fun closeNative() {
+        val current = nativeTurn?.continuation
+        nativeTurn = null; nativeQueue.clear(); nativeResults.clear(); activeNativeCall = null
+        current?.let {
+            safely(it::cancel)
+            val progress = it.takeProgress()
+            budget?.settleProgress(progress.usage, progress.outputBytes)
+        }
     }
     private fun protectText() {
         (decision as? AgentDecision.Tool)?.takeIf { it.name == "ui_set_text" }?.arguments?.string("text")?.let(journal::protectText)
@@ -459,6 +522,7 @@ class AgentRunner internal constructor(
     private fun finishError(error: RunError, budgetDimension: String? = null) {
         if (state.terminal) return
         clearOperation(cancel = true); clearInteraction()
+        closeNative()
         budget?.abandonModel()
         protectText() // Also protects an unresolved/password-unknown text operation on cancellation.
         record(errorObservation(error), error)
@@ -481,6 +545,7 @@ class AgentRunner internal constructor(
         if (stop != null) { finishStop(stop); return }
         check(terminal.terminal)
         clearOperation(cancel = true); clearInteraction(); safely(durationTimer::cancel)
+        closeNative()
         val b = budget
         val value = jsonObject("id" to id.json(), "status" to terminal.wire.json(), "summary" to summary.json(),
             "steps" to (b?.steps ?: 0).json(), "toolCalls" to (b?.toolCalls ?: 0).json(),

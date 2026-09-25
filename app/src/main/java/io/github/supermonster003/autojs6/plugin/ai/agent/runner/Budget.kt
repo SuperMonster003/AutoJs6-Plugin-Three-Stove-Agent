@@ -82,7 +82,16 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
         require(outputBytes >= 0)
         check(reservation === ticket) { "Model call was already settled" }
         reservation = null
-        val input = usage?.inputTokens ?: ticket.inputEstimate
+        charge(usage, outputBytes, ticket.inputEstimate)
+    }
+    /** Late cumulative usage while a native invocation waits for tools, not another model call. */
+    fun settleProgress(usage: ModelUsage?, outputBytes: Int) {
+        require(outputBytes >= 0)
+        if (outputBytes == 0 && listOfNotNull(usage?.inputTokens, usage?.outputTokens, usage?.totalTokens).all { it == 0L }) return
+        charge(usage, outputBytes, 0)
+    }
+    private fun charge(usage: ModelUsage?, outputBytes: Int, inputEstimate: Long) {
+        val input = usage?.inputTokens ?: inputEstimate
         val output = usage?.outputTokens ?: estimate(outputBytes)
         inputTokens = saturatedAdd(inputTokens, input)
         outputTokens = saturatedAdd(outputTokens, output)

@@ -122,7 +122,7 @@ class SettingsActivityTest {
         assertEquals(1L, query(endpoint, "get").getAsJsonObject("memoryData").number("count"))
     }
     @Test fun bundledReleaseHistoryLicenseAndNoticesOpenWithoutNetwork() {
-        for ((document, expected) in listOf("history" to "v1.0.0", "license" to "Mozilla Public License", "notices" to "Gson")) {
+        for ((document, expected) in listOf("history" to "v1.1.0", "license" to "Mozilla Public License", "notices" to "Gson")) {
             ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
                 waitFor("Bundled $document") { var ready = false; scenario.onActivity {
                     ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.text?.contains(expected, ignoreCase = true) == true
@@ -189,7 +189,7 @@ class SettingsActivityTest {
             ActivityScenario.launch(ReleaseHistoryActivity::class.java).use { scenario ->
                 waitFor("RTL release history layout") { var ready = false; scenario.onActivity {
                     ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.let { view ->
-                        view.isLaidOut && view.text.contains("v1.0.0") } == true
+                        view.isLaidOut && view.text.contains("v1.1.0") } == true
                 }; ready }
                 scenario.onActivity { inspect(it, "history") }
             }

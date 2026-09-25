@@ -43,6 +43,13 @@ class ToolCatalog(json: String) {
     }
     operator fun get(name: String): ToolSpec? = byName[name]
 
+    /** The host's native definitions are a projection of the same catalog used by local validation. */
+    fun nativeDefinitions(policy: ToolPolicy, language: String): JsonArray = JsonArray().apply {
+        tools.filter(policy::isEnabled).sortedBy { it.name }.forEach { spec ->
+            add(jsonObject("name" to spec.name.json(), "description" to spec.description(language).json(), "inputSchema" to spec.inputSchema))
+        }
+    }
+
     fun render(policy: ToolPolicy, language: String = "en"): String = JsonArray().apply {
         tools.filter(policy::isEnabled).sortedWith(compareBy({ it.group.id }, { it.name })).forEach { spec ->
             add(jsonObject("name" to spec.name.json(), "group" to spec.group.id.json(),

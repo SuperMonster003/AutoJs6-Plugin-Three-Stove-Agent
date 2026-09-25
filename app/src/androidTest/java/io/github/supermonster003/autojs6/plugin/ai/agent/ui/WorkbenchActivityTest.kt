@@ -80,6 +80,7 @@ class WorkbenchActivityTest {
             emit(callback, id, "usage", 2, JSONObject().put("usage", JSONObject().put("inputTokens", 1).put("outputTokens", 1).put("totalTokens", 2)))
             emit(callback, id, "completed", 3, JSONObject().put("text", text).put("targetId", "workbench:fixture").put("finishReason", 0)) }
         override fun cancel(reference: Bundle?) = Unit
+        override fun submitToolResults(request: Bundle?) { error("Fixture does not advertise native tools") }
         override fun destroy(reason: Bundle?) = Unit
     }
     private val capabilities = object : IHostCapabilityBroker.Stub() {

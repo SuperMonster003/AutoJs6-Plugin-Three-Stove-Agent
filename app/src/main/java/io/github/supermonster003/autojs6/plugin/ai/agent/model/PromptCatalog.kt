@@ -7,7 +7,8 @@ import java.util.Locale
 /** Assets supply rules; user/screen/script/memory content is inserted exactly once as JSON data. */
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
-        listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts").associateWith { name ->
+        listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts",
+            "json_response", "json_compact_response", "json_response_details", "native_response").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
         }
@@ -21,7 +22,9 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         // P3.2 supplies global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
         val system = render(language, if (compact) "compact_system" else "system", mapOf(
-            "tools_json" to if (compact) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
+            "tools_json" to if (compact || format.nativeTools) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
+            "response_rules" to templates.getValue(language(language)).getValue(if (format.nativeTools) "native_response"
+                else if (compact) "json_compact_response" else "json_response").trimEnd(),
             "format_json" to if (compact) compactContract(format) else DecisionSchema.promptContract(format),
             "verification_json" to AgentJson.objectOf(guidance.toString(), 2048).toString(),
             "context_json" to jsonObject("fixedContext" to fixedContext.json(), "memories" to AgentJson.parse(memory),
@@ -33,7 +36,8 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                         add("memoryScopes", JsonArray().apply { scopes.forEach(::add) })
                     }
                 }.toString(),
-        ))
+        ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
+            else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) })
         return if (registeredScripts == null) system else {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
             system + "\n" + render(language, "scripts", mapOf("scripts_json" to data))
@@ -62,7 +66,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     fun context(language: String, section: String, value: JsonElement): String = render(language, "context",
         mapOf("context_json" to jsonObject("section" to section.json(), "data" to value).toString()))
 
-    private fun compactContract(format: DecisionFormat) = """
+    private fun compactContract(format: DecisionFormat) = if (format.nativeTools) DecisionSchema.promptContract(format) else """
         {kind:tool|ask|done,tool?:enabled name,arguments?:${if (format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) "JSON-encoded object string" else "object"},ask?:{question:string<=500,kind?:text|choice|confirm,choices?:string[1..8]<=200 each,memoryKey?:string<=64},done?:{status:completed|partial|failed|blocked,summary:string<=1000,evidence?:string[0..8]<=200 each,unfinished?:string[0..8]<=200 each,orderStatus?:none|cart|pending_payment|submitted|paid}}
         Only the selected branch. ${if (format.nullableOptionals) "Unused optional fields must be null." else "Omit unused fields."} Choice needs distinct choices; text/confirm have none. Degraded=${format.degraded}: output one JSON object even without a schema.
     """.trimIndent()

@@ -11,8 +11,11 @@ def main():
     parser.add_argument("--output", default="build/p7-fake-host-android.log")
     parser.add_argument("--prepare-only", action="store_true",
                         help="Install the guarded fake host and Agent for the main instrumentation suite")
+    parser.add_argument("--release-plugin", action="store_true",
+                        help="Exercise the R8 release Agent with this external fake-host test APK; both must use the same test signer")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
+    version = next(line.split("=", 1)[1].strip() for line in (root / "version.properties").read_text().splitlines() if line.startswith("VERSION_NAME="))
 
     def adb(*command, timeout=60):
         result = subprocess.run([args.adb, "-s", args.serial, *command], capture_output=True, text=True,
@@ -28,8 +31,9 @@ def main():
     installed = adb("shell", "dumpsys", "package", "org.autojs.autojs6")
     if "versionName=" in installed and "versionName=conformance" not in installed:
         raise SystemExit("Refusing to replace a real AutoJs6 installation")
+    variant = "release" if args.release_plugin else "debug"
     apks = [root / "test-apps/fake-host/build/outputs/apk/debug/fake-host-debug.apk",
-            root / "app/build/outputs/apk/debug/autojs6-plugin-ai-agent-v1.0.0.apk"]
+            root / f"app/build/outputs/apk/{variant}/autojs6-plugin-ai-agent-v{version}.apk"]
     if not args.prepare_only:
         apks.append(root / "test-apps/fake-host/build/outputs/apk/androidTest/debug/fake-host-debug-androidTest.apk")
     for apk in apks:
@@ -55,9 +59,9 @@ def main():
     output = root / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result, encoding="utf-8")
-    if "OK (4 tests)" not in result or "FAILURES!!!" in result:
+    if "OK (8 tests)" not in result or "FAILURES!!!" in result:
         raise SystemExit(f"Conformance failed; see {output}")
-    print(f"FAKE_HOST_OK tests=4 log={output}")
+    print(f"FAKE_HOST_OK tests=8 log={output}")
 
 
 if __name__ == "__main__":
