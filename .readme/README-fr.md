@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-La version 1.0.0 propose des tâches en langage naturel, des appels de scripts enregistrés et des actions sur le périphérique avec confirmation selon le risque. Consultez [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour les cas vérifiés, les limites des modèles et les vérifications de périphériques restantes. Les appels natifs aux outils, les entrées visuelles et la génération dynamique de scripts sont prévus pour 1.1.0.
+La version 1.1.0 est en développement. Les cibles annonçant tools utilisent les appels natifs via un hôte AutoJs6 compatible; les autres conservent la boucle JSON. Les comparaisons réelles Wi-Fi/calculatrice, la vision et les scripts dynamiques restent dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -66,6 +66,7 @@ L'implémentation actuelle propose les fonctions suivantes:
 - Manipulation de l'écran étape par étape : l'agent observe l'arbre de noeuds d'accessibilité sous forme de texte compact (et le texte de l'écran via un plugin OCR lorsqu'il est installé), puis clique, saisit, fait défiler et appuie sur des touches via le courtier de capacités d'AutoJs6 jusqu'à pouvoir vérifier l'objectif.
 - Sécurité par conception : les outils en lecture seule s'exécutent automatiquement, les actions sensibles (paiement, envoi, suppression, écriture de fichiers, shell, gestes par coordonnées, scripts enregistrés comme sensibles) nécessitent une confirmation, et chaque exécution a des budgets d'étapes, d'appels de modèle, de durée et de jetons.
 - API de script et interface utilisateur : `ai.agent.run(goal, options)` renvoie un handle `AgentRun` avec événements, réponses et annulation ; l'application autonome offre un espace de tâches avec historique, préréglages, mémoire de préférences, paramètres et historique des versions.
+- Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
 
 ### Captures
 
@@ -222,7 +223,7 @@ Le paiement est une action sensible distincte. Approuver une commande, un script
 
 **Quelles sont les limites des modèles locaux?**
 
-Les tâches dépendent du respect des consignes, de décisions JSON valides et du contexte disponible. Un petit modèle peut échouer après un chargement réussi; le cas Wi-Fi consigné pour Gemma 4 E2B IT a échoué à la validation des décisions. Commencez par des tâches simples et consultez les résultats partial/failed. 1.0.0 utilise le texte des noeuds/OCR et une boucle JSON; vision, appels natifs aux outils et scripts générés restent prévus pour 1.1.0.
+Un modèle chargé ne garantit pas la réussite. Le test enregistré de validation des décisions Wi-Fi avec Gemma 4 E2B IT a échoué; cette cible conserve JSON. Les appels natifs nécessitent un hôte et une cible compatibles, avec les mêmes validations, confirmations et budgets. Commencez par de petites tâches et examinez les résultats partial/failed. La vision et les scripts dynamiques restent prévus.
 
 ******
 
@@ -277,6 +278,14 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 ### Historique des versions
 
 ******
+
+#### v1.1.0
+
+_2026/09/25_
+
+- `Note` Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action
+- `Fonctionnalité` Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
+- `Dépendance` Artefacts release des API hôte synchronisés avec AutoJs6 build 5297; contrat de connexion de base compatible avec build 5289+
 
 #### v1.0.0
 

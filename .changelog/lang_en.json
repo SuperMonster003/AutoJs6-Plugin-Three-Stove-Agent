@@ -5,6 +5,18 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v1.1.0": {
+      "released_date": "2026/09/25",
+      "hint": [
+        "Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON"
+      ],
+      "feature": [
+        "Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules"
+      ],
+      "dependency": [
+        "Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/09/25",
       "hint": [

@@ -71,6 +71,37 @@ class FakeHostConformanceTest {
         }
     }
     @Test fun disabledToolNeverReachesCapabilityBroker() = denial("disabled-tool", 0)
+    @Test fun nativeBatchUsesRealCrossUidContinuationAndCumulativeUsage() = nativeRoundTrip("native-denied", 2)
+    @Test fun nativeInvalidBatchIsRepairedWithoutAnyDeviceOperation() = nativeRoundTrip("native-repair", 0)
+    private fun nativeRoundTrip(mode: String, expectedTools: Int) {
+        Fixture(mode).use { fixture ->
+            val id = start(fixture.link)
+            waitFor("Native round trip completed") { row(fixture.link, id).getString("state") in setOf("completed", "failed", "blocked") }
+            val result = row(fixture.link, id)
+            assertEquals(result.toString(), "completed", result.getString("state"))
+            assertEquals(1, fixture.driver.stats().getInt("models")); assertEquals(1, fixture.driver.stats().getInt("continuations"))
+            assertEquals(expectedTools, fixture.driver.stats().getInt("tools")); assertTrue(fixture.driver.stats().getBoolean("observedDenial"))
+            val usage = result.getJSONObject("result").getJSONObject("usage")
+            assertEquals(2, usage.getInt("modelCalls")); assertEquals(34, usage.getInt("totalTokens"))
+        }
+    }
+    @Test fun targetToolsCapabilityOnOldHostKeepsJsonPath() {
+        Fixture("legacy-tools").use { fixture ->
+            val id = start(fixture.link)
+            waitFor("Old broker completed") { row(fixture.link, id).getString("state") == "completed" }
+            assertEquals(1, fixture.driver.stats().getInt("models")); assertEquals(0, fixture.driver.stats().getInt("continuations"))
+        }
+    }
+    @Test fun cancelDuringNativeToolClosesPausedModelWithoutContinuing() {
+        Fixture("native-hold").use { fixture ->
+            val id = start(fixture.link)
+            waitFor("First native tool waiting") { fixture.driver.stats().getInt("tools") == 1 }
+            val before = fixture.driver.stats().getInt("cancellations")
+            fixture.link.cancelRun(envelope(C.KEY_RUN_REF_JSON, JSONObject().put("runId", id).toString()))
+            waitFor("Paused model cancelled") { row(fixture.link, id).getString("state") == "cancelled" && fixture.driver.stats().getInt("cancellations") > before }
+            assertEquals(1, fixture.driver.stats().getInt("tools")); assertEquals(0, fixture.driver.stats().getInt("continuations"))
+        }
+    }
     @Test fun capabilityGrantRejectionReturnsAnObservationAndCanFinish() = denial("denied", 1)
     private fun denial(mode: String, expectedTools: Int) {
         Fixture(mode).use { fixture ->

@@ -20,6 +20,11 @@ class FakeHostService : Service() {
     private var link: IAiAgentLink? = null
     private var mode = "hold"
     private val models = AtomicInteger(); private val tools = AtomicInteger()
+    private val continuations = AtomicInteger(); private val cancellations = AtomicInteger()
+    private var nativeRequest: Pair<String, IAiAgentModelCallback>? = null
+    private var nativeSequence = 0
+    private var nativeIds = emptyList<String>()
+    private val nativeMode get() = mode.startsWith("native-")
     @Volatile private var pluginUid = -1
     @Volatile private var observedDenial = false
     private fun enforce() { check(Binder.getCallingUid() == Process.myUid()) }
@@ -29,7 +34,10 @@ class FakeHostService : Service() {
     }
     private val model = object : IAiAgentModelBroker.Stub() {
         override fun getBrokerInfo() = envelope(C.KEY_MODEL_BROKER_INFO_JSON,
-            """{"available":true,"providerId":"fake-host","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
+            JSONObject("""{"available":true,"providerId":"fake-host","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
+                if (nativeMode) { put("toolCallingVersion", 1); put("maximumToolRounds", 16)
+                    put("maximumToolResultBytes", 65536); put("maximumToolResultBatchBytes", 131072) }
+            }.toString()).apply {
             putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""")
         }
         override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
@@ -37,12 +45,31 @@ class FakeHostService : Service() {
             worker.execute {
                 callback.onEvent(envelope(C.KEY_MODEL_EVENT_JSON, JSONObject().put("requestId", id).put("sequence", 1).put("type", "started").toString()))
                 callback.onEvent(envelope(C.KEY_MODEL_EVENT_JSON, JSONObject().put("requestId", id).put("sequence", 2).put("type", "completed")
-                    .put("targets", org.json.JSONArray("""[{"targetId":"fixture:fake-host","displayName":"Fake host","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")).toString()))
+                    .put("targets", org.json.JSONArray("""[{"targetId":"fixture:fake-host","displayName":"Fake host","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""").apply {
+                        if (nativeMode || mode == "legacy-tools") getJSONObject(0).put("capabilityIds", org.json.JSONArray().put("tools"))
+                    }).toString()))
             }
         }
         override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
             val body = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
             val index = models.incrementAndGet()
+            if (nativeMode) {
+                check(body.has("tools") && !body.getBoolean("structuredJson") && !body.has("responseSchema"))
+                check(body.getJSONArray("tools").toString().contains("device_info"))
+                worker.execute {
+                    nativeRequest = body.getString("requestId") to callback; nativeSequence = 0
+                    nativeEvent("started")
+                    // The optional total first appears at completion; it must not recharge round one.
+                    nativeEvent("usage", JSONObject().put("usage", JSONObject().put("inputTokens", 10).put("outputTokens", 5)))
+                    nativeIds = listOf("first", "second")
+                    val calls = org.json.JSONArray()
+                    nativeIds.forEach { id -> calls.put(JSONObject().put("callId", id).put("name", "device_info")
+                        .put("arguments", JSONObject().apply { if (mode == "native-repair" && id == "second") put("unknown", true) })) }
+                    nativeEvent("tool_calls", JSONObject().put("round", 1).put("calls", calls))
+                }
+                return
+            }
+            check(!body.has("tools")) // Even a tools-capable target cannot opt in on an old host.
             if (index > 1) observedDenial = body.toString().contains("TOOL_DISABLED") || body.toString().contains("CAPABILITY_DENIED")
             if (mode == "hold") return
             val decision = if (index == 1 && mode == "denied") """{"kind":"tool","tool":"device_info","arguments":{}}"""
@@ -55,8 +82,28 @@ class FakeHostService : Service() {
                     .put("text", decision).put("targetId", "fixture:fake-host").put("finishReason", 0).toString()))
             }
         }
-        override fun cancel(reference: Bundle?) = Unit
+        override fun cancel(reference: Bundle?) { cancellations.incrementAndGet() }
+        override fun submitToolResults(request: Bundle?) {
+            check(nativeMode)
+            val body = JSONObject(requireNotNull(request).getString(C.KEY_MODEL_REQUEST_JSON)!!)
+            worker.execute {
+                check(body.getString("requestId") == nativeRequest!!.first && body.getInt("round") == 1)
+                val results = body.getJSONArray("results")
+                check((0 until results.length()).map { results.getJSONObject(it).getString("callId") } == nativeIds)
+                check((0 until results.length()).all { results.getJSONObject(it).getBoolean("isError") })
+                observedDenial = results.toString().contains(if (mode == "native-repair") "TOOL_ARGUMENTS_INVALID" else "CAPABILITY_DENIED")
+                continuations.incrementAndGet()
+                nativeEvent("usage", JSONObject().put("usage", JSONObject().put("inputTokens", 25).put("outputTokens", 9).put("totalTokens", 34)))
+                nativeEvent("completed", JSONObject().put("text", """{"kind":"done","done":{"status":"completed","summary":"Native fixture complete","evidence":["Tool results received"]}}""")
+                    .put("targetId", "fixture:fake-host").put("finishReason", 0))
+                nativeRequest = null
+            }
+        }
         override fun destroy(reason: Bundle?) = Unit
+    }
+    private fun nativeEvent(type: String, fields: JSONObject = JSONObject()) {
+        val (id, callback) = checkNotNull(nativeRequest)
+        callback.onEvent(envelope(C.KEY_MODEL_EVENT_JSON, fields.put("requestId", id).put("type", type).put("sequence", ++nativeSequence).toString()))
     }
     private val capability = object : IHostCapabilityBroker.Stub() {
         override fun getBrokerInfo() = Bundle().apply {
@@ -66,6 +113,7 @@ class FakeHostService : Service() {
         }
         override fun dispatch(request: Bundle, callback: IHostCapabilityCallback) {
             tools.incrementAndGet()
+            if (mode == "native-hold") return
             val id = JSONObject(request.getString(H.KEY_BRIDGE_REQUEST_JSON)!!).getString("id")
             worker.execute { callback.onResponse(Bundle().apply {
                 putBoolean(H.KEY_BRIDGE_RESPONSE_OK, false)
@@ -80,7 +128,7 @@ class FakeHostService : Service() {
             enforce()
             return worker.submit<Bundle> {
                 check(connection == null); mode = nextMode
-                models.set(0); tools.set(0); observedDenial = false
+                models.set(0); tools.set(0); continuations.set(0); cancellations.set(0); observedDenial = false; nativeRequest = null
                 val ready = CountDownLatch(1); var plugin: IAiAgentPlugin? = null
                 val bound = object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName, service: IBinder) { plugin = IAiAgentPlugin.Stub.asInterface(service); ready.countDown() }
@@ -95,6 +143,7 @@ class FakeHostService : Service() {
         }
         override fun stats(): Bundle { enforce(); return Bundle().apply {
             putInt("models", models.get()); putInt("tools", tools.get()); putBoolean("observedDenial", observedDenial); putInt("pluginUid", pluginUid)
+            putInt("continuations", continuations.get()); putInt("cancellations", cancellations.get())
         } }
         override fun detach() {
             enforce(); link?.detach(envelope(H.KEY_REASON_JSON, "{}")); link = null

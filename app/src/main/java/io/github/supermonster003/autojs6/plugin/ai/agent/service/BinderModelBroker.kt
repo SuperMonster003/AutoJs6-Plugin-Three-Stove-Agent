@@ -59,6 +59,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
                 val consumed = (grant.number("consumedTokens") ?: 0).also { require(it >= 0) }
                 val maxTokens = (tokenLimit - minOf(tokenLimit, consumed)).coerceAtLeast(0)
                 val schemaLimit = requireNotNull(info.number("maximumResponseSchemaBytes")).also { require(it in 0..C.MAX_RESPONSE_SCHEMA_BYTES) }.toInt()
+                val nativeTools = NativeToolLimits.fromBroker(info)
                 require(maxInput > 0 && outputLimit > 0)
                 var sequence = 0L
                 val request = jsonObject("requestId" to id.json(), "timeoutMs" to 10_000.json()).toString()
@@ -75,7 +76,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
                             C.MODEL_EVENT_COMPLETED -> {
                                 val entries = requireNotNull(event.getAsJsonArray("targets")); require(entries.size() <= 256)
                                 val targets = entries.mapNotNull { entry -> runCatching {
-                                    val target = ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit)
+                                    val target = ModelTarget.fromCatalog(provider, entry.asJsonObject, outputLimit, nativeTools)
                                     val label = entry.asJsonObject.string("displayName")?.takeIf { it.isNotBlank() } ?: target.targetId
                                     SelectedModel(target, maxInput, maxTokens, schemaLimit, AgentJson.truncate(label, 256))
                                 }.getOrNull() }
@@ -98,6 +99,19 @@ internal class BinderModelBroker(private val context: Context, private val broke
         } } catch (_: Exception) { callback(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         return Cancellation { cancelled.set(true); cancel(id) }
     }
+    override fun submitToolResults(requestJson: String, onFailure: (RunError) -> Unit) {
+        val request = AgentJson.objectOf(requestJson, C.MAX_MODEL_TOOL_RESULTS_BYTES)
+        val id = requireNotNull(request.string("requestId"))
+        val ordered = streams[id]
+        if (closed.get() || ordered == null) { onFailure(RunError.HOST_UNAVAILABLE); return }
+        fun failed() { streams.remove(id)?.close(); onFailure(RunError.HOST_UNAVAILABLE) }
+        try { workers.io.execute {
+            if (closed.get() || streams[id] !== ordered) return@execute
+            try { sendPayload(id, requestJson) { bundle ->
+                if (streams[id] === ordered) broker.submitToolResults(bundle)
+            } } catch (_: Exception) { failed() }
+        } } catch (_: Exception) { failed() }
+    }
     private fun send(id: String, json: String, catalog: Boolean, event: (String) -> Unit, failure: (String) -> Unit) {
         if (closed.get()) { failure(C.ERROR_LINK_DETACHED); return }
         val ordered = OrderedModelEvents(workers, { value ->
@@ -117,19 +131,23 @@ internal class BinderModelBroker(private val context: Context, private val broke
             if (closed.get() || streams[id] !== ordered) return@execute
             try {
                 if (catalog) broker.listTargets(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json), callback)
-                else if (json.toByteArray(Charsets.UTF_8).size <= C.MAX_MODEL_REQUEST_INLINE_BYTES) broker.generate(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json), callback)
-                else {
-                    val file = File.createTempFile("agent-model-", ".json", context.cacheDir)
-                    try {
-                        file.writeText(json, Charsets.UTF_8)
-                        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-                            val bundle = AgentWire.envelope(C.KEY_MODEL_REF_JSON, jsonObject("requestId" to id.json()).toString()).apply { putParcelable(C.KEY_PAYLOAD_FD, fd) }
-                            if (streams[id] === ordered) broker.generate(bundle, callback)
-                        }
-                    } finally { file.delete() }
-                }
+                else sendPayload(id, json) { bundle -> if (streams[id] === ordered) broker.generate(bundle, callback) }
             } catch (_: Exception) { streams.remove(id)?.close(); failure(C.ERROR_HOST_UNAVAILABLE) }
         } } catch (_: Exception) { streams.remove(id)?.close(); failure(C.ERROR_HOST_UNAVAILABLE) }
+    }
+    /** Worker-only. Both generation and continuation preserve descriptor ownership across Binder. */
+    private fun sendPayload(id: String, json: String, send: (Bundle) -> Unit) {
+        if (json.toByteArray(Charsets.UTF_8).size <= C.MAX_MODEL_REQUEST_INLINE_BYTES) {
+            send(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json)); return
+        }
+        val file = File.createTempFile("agent-model-", ".json", context.cacheDir)
+        try {
+            file.writeText(json, Charsets.UTF_8)
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+                send(AgentWire.envelope(C.KEY_MODEL_REF_JSON, jsonObject("requestId" to id.json()).toString())
+                    .apply { putParcelable(C.KEY_PAYLOAD_FD, fd) })
+            }
+        } finally { file.delete() }
     }
     override fun cancel(requestId: String) {
         streams.remove(requestId)?.close()

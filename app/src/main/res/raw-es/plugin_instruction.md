@@ -1,6 +1,6 @@
 AI Agent convierte un objetivo en lenguaje natural en acciones sobre un dispositivo Android que ejecuta AutoJs6. O bien elige un script que el usuario ha registrado para el agente, completa sus parámetros y lo ejecuta; o bien observa la pantalla a través del árbol de nodos de accesibilidad y actúa paso a paso (observar, decidir, actuar, verificar) hasta alcanzar el objetivo, necesitar una confirmación o agotar un presupuesto. Responde a la [discusión #577 de AutoJs6](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-La versión 1.0.0 ofrece tareas en lenguaje natural, ejecución de scripts registrados y acciones del dispositivo con confirmación según el riesgo. Consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para los casos verificados, las limitaciones de los modelos y las comprobaciones de dispositivos pendientes. Las llamadas nativas a herramientas, la entrada visual y la generación dinámica de scripts están previstas para 1.1.0.
+La versión 1.1.0 está en desarrollo. Los destinos que anuncian tools usan llamadas nativas mediante un host AutoJs6 compatible; los demás conservan el ciclo JSON. Las comparaciones reales Wi-Fi/calculadora, visión y scripts dinámicos siguen en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### Uso
 

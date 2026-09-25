@@ -2,7 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.model
 
 import com.google.gson.JsonObject
 
-enum class ParseMode { STRICT, EXTRACTED }
+enum class ParseMode { STRICT, EXTRACTED, NATIVE_TOOL }
 data class ParsedDecision(val value: JsonObject, val parseMode: ParseMode)
 
 /** Model syntax failures carry only fixed diagnostics, never fragments of the response. */

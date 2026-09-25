@@ -43,6 +43,8 @@ class ContextCompiler(
         val format = context.format ?: initialFormat
         val schemaBytes = format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0
         val language = language(context.goal, context.locale)
+        val tools = if (format.nativeTools) catalog.nativeDefinitions(policy, language) else JsonArray()
+        val toolBytes = if (tools.isEmpty) 0 else StepJournal.bytes(tools)
         val goal = prompts.goal(language, context.goal)
         require(context.history.size <= RunLimits.STEPS)
         val history = context.history.map { AgentJson.objectOf(it.toString(), 12 * 1024) }
@@ -104,10 +106,10 @@ class ContextCompiler(
         // Drop historical pairs first, then historical summaries. Keep recent pairs whole.
         while (true) {
             val messages = build()
-            val size = StepJournal.bytes(messages).toLong() + schemaBytes
+            val size = StepJournal.bytes(messages).toLong() + schemaBytes + toolBytes
             if (size <= maximumBytes) {
                 val outputLimit = if (local) (4096 - Budget.estimate(size.toInt())).toInt().coerceAtLeast(1) else null
-                return ModelInput(messages, schemaBytes, format, outputLimit)
+                return ModelInput(messages, schemaBytes, format, outputLimit, tools, maximumBytes)
             }
             when {
                 retained > 0 -> { retained--; summaryCount = minOf(summaryCount + 1, 32) }

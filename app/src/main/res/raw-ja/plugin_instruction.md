@@ -1,6 +1,6 @@
 AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイス上の実際の操作に変えます. ユーザーがエージェント用に登録したスクリプトを選んでパラメーターを補い実行するか, アクセシビリティのノードツリーを通じて画面を観察し, 観察, 判断, 操作, 検証の循環で段階的に操作します. 目標を達成するか, 確認が必要になるか, 予算を使い切るまで続けます. [AutoJs6 ディスカッション #577](https://github.com/SuperMonster003/AutoJs6/discussions/577) への回答です.
 
-1.0.0 は自然言語タスク, 登録済みスクリプトの呼び出し, リスクに応じた確認を伴う端末操作を提供します. 検証済みの事例, モデルの制限, 未実施の端末検証は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください. ネイティブツール呼び出し, 画像入力, 動的スクリプト生成は 1.1.0 で対応予定です.
+1.1.0 は開発中です. tools 能力を宣言する対象は対応する AutoJs6 ホスト経由でネイティブツールを呼び出し, その他は JSON 決定ループを維持します. 実際の Wi-Fi/電卓比較, 画像入力, 動的スクリプトの予定は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
 
 ### 使い方
 

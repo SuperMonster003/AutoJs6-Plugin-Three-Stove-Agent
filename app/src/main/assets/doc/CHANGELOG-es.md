@@ -4,6 +4,14 @@
 
 ******
 
+# v1.1.0
+
+###### 2026/09/25
+
+* `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
+* `Función` Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
+* `Dependencia` Artefactos release de las API del host sincronizados con AutoJs6 build 5297; el contrato básico de conexión sigue compatible con build 5289+
+
 # v1.0.0
 
 ###### 2026/09/25

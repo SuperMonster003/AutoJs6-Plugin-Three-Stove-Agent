@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
 interface ModelBrokerTransport {
     fun generate(requestJson: String, onEvent: (String) -> Unit)
     fun generate(requestJson: String, onEvent: (String) -> Unit, onFailure: (RunError) -> Unit) = generate(requestJson, onEvent)
+    fun submitToolResults(requestJson: String, onFailure: (RunError) -> Unit) { onFailure(RunError.TARGET_UNSUPPORTED) }
     fun cancel(requestId: String)
 }
 
@@ -23,12 +24,19 @@ class ModelClient(
     private val blockingAllowed: () -> Boolean,
 ) : RunModel {
     private var structuredUnsupported = false
+    private var toolsUnsupported = false
 
     @Synchronized override fun initialFormat(proposed: DecisionFormat): DecisionFormat =
-        if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED") else fallbacks.select(target.schemaTarget, policy)
+        if (target.nativeTools != null && !toolsUnsupported) DecisionSchema.native(target.protocol)
+        else if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED") else fallbacks.select(target.schemaTarget, policy)
 
     @Synchronized override fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? {
         if (previous.degraded || previous.protocol != target.protocol || !target.supportsOutputLimit) return null
+        if (previous.nativeTools) {
+            if (failure.error != RunError.TARGET_UNSUPPORTED && !(failure.error == RunError.MODEL_FAILED && failure.reason == "REQUEST_REJECTED")) return null
+            toolsUnsupported = true
+            return fallbacks.select(target.schemaTarget, policy)
+        }
         return when {
             failure.error == RunError.TARGET_UNSUPPORTED && !structuredUnsupported -> {
                 structuredUnsupported = true
@@ -50,7 +58,8 @@ class ModelClient(
             require(timeoutMs <= 600_000 && maximumOutputTokens in 1..65_536)
             val format = requireNotNull(input.format)
             require(format.protocol == target.protocol && (!format.degraded || input.schemaBytes == 0))
-            require(format.degraded || target.structuredJson)
+            require(format.degraded || format.nativeTools || target.structuredJson)
+            require(!format.nativeTools || target.nativeTools != null)
             val messages = input.messages
             require(messages.size() in 1..256)
             messages.forEach {
@@ -61,14 +70,20 @@ class ModelClient(
             require(messages.last().asJsonObject.string("role") == "user")
             if (input.inputBytes > target.maximumContextBytes) throw ContextLimitExceeded()
             jsonObject("requestId" to id.json(), "targetId" to target.targetId.json(), "messages" to messages,
-                "structuredJson" to (!format.degraded).json(), "maximumOutputTokens" to
+                "structuredJson" to (format.responseSchemaJson != null).json(), "maximumOutputTokens" to
                     minOf(maximumOutputTokens, input.maximumOutputTokens ?: maximumOutputTokens).json(),
                 "stream" to target.supportsStreaming.json(), "timeoutMs" to timeoutMs.json()).apply {
                 format.responseSchemaJson?.let { add("responseSchema", AgentJson.objectOf(it, DecisionSchema.MAX_SCHEMA_BYTES)) }
+                if (!input.tools.isEmpty) {
+                    add("tools", input.tools); addProperty("maximumToolRounds", checkNotNull(target.nativeTools).rounds)
+                }
             }.toString().also { require(it.toByteArray(Charsets.UTF_8).size <= 2 * 1024 * 1024) }
         } catch (_: ContextLimitExceeded) { callback(PortResult.Failure(RunError.LIMIT_EXCEEDED)); return Cancellation.NONE }
         catch (_: Exception) { callback(PortResult.Failure(RunError.INVALID_REQUEST)); return Cancellation.NONE }
-        return Invocation(id, callback).apply { dispatch(request, timeoutMs) }
+        return if (input.tools.isEmpty) Invocation(id, callback).apply { dispatch(request, timeoutMs) }
+        else NativeModelInvocation(broker, target, scheduler, id, input.inputBytes, minOf(target.maximumContextBytes, input.maximumContextBytes),
+            minOf(maximumOutputTokens, input.maximumOutputTokens ?: maximumOutputTokens),
+            input.tools.map { requireNotNull(it.asJsonObject.string("name")) }.toSet(), callback).dispatch(request, timeoutMs)
     }
 
     /** Only a worker may block; the P2.5 adapter must exclude main/Binder/runner threads.

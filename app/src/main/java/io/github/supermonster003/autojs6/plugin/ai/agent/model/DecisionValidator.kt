@@ -132,7 +132,7 @@ class DecisionValidator(private val catalog: ToolCatalog) {
 }
 
 sealed interface DecisionAttempt {
-    data class Accepted(val decision: AgentDecision, val parseMode: ParseMode) : DecisionAttempt
+    data class Accepted(val decision: AgentDecision, val parseMode: ParseMode, val remainingTools: List<AgentDecision.Tool> = emptyList()) : DecisionAttempt
     data class Repair(val observation: JsonObject, val attempt: Int) : DecisionAttempt
     data class Exhausted(val error: DecisionFailure) : DecisionAttempt
 }
@@ -146,14 +146,28 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
     val rejections: List<DecisionRejection> get() = rejected.toList()
     private var sealed = false
     fun switchFormat(next: DecisionFormat) { check(!sealed); format = next }
-    fun evaluate(text: String): DecisionAttempt {
+    fun evaluate(text: String): DecisionAttempt = evaluate {
+        val parsed = DecisionParser.parse(text, format.degraded)
+        val decision = validator.validate(parsed, policy, format)
+        if (format.nativeTools && decision is AgentDecision.Tool) throw DecisionFailure("DECISION_UNPARSABLE", "Use the native tool interface; text responses may only ask or finish.")
+        validateSemantics(decision)
+        DecisionAttempt.Accepted(decision, parsed.parseMode)
+    }
+    /** Validate the entire proposed batch before any preparation or side effect. */
+    fun evaluateNative(calls: List<NativeToolCall>): DecisionAttempt = evaluate {
+        check(format.nativeTools && calls.isNotEmpty())
+        val decisions = calls.map { call ->
+            (validator.validate(ParsedDecision(call.decision, ParseMode.NATIVE_TOOL), policy, format) as AgentDecision.Tool)
+                .also(validateSemantics)
+        }
+        DecisionAttempt.Accepted(decisions.first(), ParseMode.NATIVE_TOOL, decisions.drop(1))
+    }
+    private fun evaluate(accept: () -> DecisionAttempt.Accepted): DecisionAttempt {
         check(!sealed) { "Decision step is already settled" }
         return try {
-            val parsed = DecisionParser.parse(text, format.degraded)
-            val decision = validator.validate(parsed, policy, format)
-            validateSemantics(decision)
+            val result = accept()
             sealed = true
-            DecisionAttempt.Accepted(decision, parsed.parseMode)
+            result
         } catch (failure: DecisionFailure) {
             rejected += DecisionRejection.fromCode(failure.code)
             if (repairsUsed == MAX_REPAIRS) {
