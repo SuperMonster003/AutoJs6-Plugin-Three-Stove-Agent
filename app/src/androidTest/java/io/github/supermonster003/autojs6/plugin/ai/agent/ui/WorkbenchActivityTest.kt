@@ -2,6 +2,8 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
 import android.content.*
 import android.os.*
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -1157,7 +1159,33 @@ class WorkbenchActivityTest {
         return android.graphics.Rect(coordinates[0], coordinates[1], coordinates[2], coordinates[3]).takeIf { it.width() > 0 && it.height() > 0 }
     }
     private fun tap(x: Int, y: Int) {
-        shell("input tap $x $y")
+        pointerGesture(x, y, x, y, 0)
+    }
+    private fun pointerGesture(fromX: Int, fromY: Int, toX: Int, toY: Int, moves: Int) {
+        val downTime = SystemClock.uptimeMillis()
+        fun send(action: Int, x: Float, y: Float) {
+            val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action, x, y, 0).apply {
+                source = InputDevice.SOURCE_TOUCHSCREEN
+            }
+            try { assertTrue("Overlay pointer event was injected", instrumentation.uiAutomation.injectInputEvent(event, true)) }
+            finally { event.recycle() }
+        }
+        var ended = false
+        try {
+            send(MotionEvent.ACTION_DOWN, fromX.toFloat(), fromY.toFloat())
+            // Shell swipe budgets its duration from before DOWN dispatch. On a busy
+            // emulator that dispatch can consume the budget, leaving no MOVE events.
+            // Deliver every sample, even when a synchronous dispatch takes longer.
+            for (step in 1..moves) {
+                SystemClock.sleep(20)
+                val fraction = step.toFloat() / moves
+                send(MotionEvent.ACTION_MOVE, fromX + (toX - fromX) * fraction, fromY + (toY - fromY) * fraction)
+            }
+            send(MotionEvent.ACTION_UP, toX.toFloat(), toY.toFloat())
+            ended = true
+        } finally {
+            if (!ended) runCatching { send(MotionEvent.ACTION_CANCEL, toX.toFloat(), toY.toFloat()) }
+        }
     }
     @Test fun idleCollapsedAndExpandedFloatingWindowsDoNotPollOrStartForegroundWork() = withFixture { link, model ->
         withFloatingSettings {
@@ -1190,7 +1218,8 @@ class WorkbenchActivityTest {
             SystemClock.sleep(500) // Let the launcher transition finish before injecting a touch.
             waitFor("Floating ball frame") { floatingFrame(false) != null }
             val beforeDrag = checkNotNull(floatingFrame(false))
-            shell("input swipe ${beforeDrag.centerX()} ${beforeDrag.centerY()} ${beforeDrag.centerX() - beforeDrag.width() * 2} ${beforeDrag.centerY() + beforeDrag.height()} 400")
+            pointerGesture(beforeDrag.centerX(), beforeDrag.centerY(),
+                beforeDrag.centerX() - beforeDrag.width() * 2, beforeDrag.centerY() + beforeDrag.height(), 20)
             waitFor("Drag changes frame within usable screen from $beforeDrag") { floatingFrame(false)?.left?.let { it < beforeDrag.left && it >= 0 } == true }
             val ball = checkNotNull(floatingFrame(false))
             assertTrue(ball.top > 0)

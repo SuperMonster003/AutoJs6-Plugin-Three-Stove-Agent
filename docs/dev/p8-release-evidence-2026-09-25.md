@@ -260,3 +260,39 @@ these artifacts before the emulator runner shuts down. Test selections,
 assertions, budgets and production behavior are unchanged. A fresh local
 API 35 / Google APIs / Pixel 7 AVD is being used to reproduce the CI condition.
 GitHub Release and official index admission remain pending.
+
+## Input and activity synchronization follow-up
+
+The fresh local API 35 / Pixel 7 / Google APIs revision 9 emulator passed the
+three originally failing cases (21.171 s), then the full suite after clearing
+only its fixture applications (80 passed, 2 opt-in captures skipped, 278.032 s).
+This does not explain away the remote failures.
+
+Review of [Android 15's input command](https://github.com/aosp-mirror/platform_frameworks_base/blob/android15-release/services/core/java/com/android/server/input/InputShellCommand.java)
+identified a timing hazard: shell swipe starts its duration budget before
+synchronously dispatching DOWN. A slow dispatch can use that entire budget
+and leave no MOVE events before UP. The floating test now injects all 20
+pointer MOVE samples explicitly through public UiAutomation, checking each
+dispatch result. The original window movement assertion is retained. This
+removes the identified hazard without changing production drag handling;
+failure artifacts remain necessary to establish the exact earlier CI cause.
+
+The separate injection-fixture APK now launches through `am start -W` after
+UiAutomation is connected, before the existing node-visibility deadline
+starts. The actual canary, observed hostile text, denial and deletion
+assertions remain unchanged. Local focused checks of these test changes
+passed 4/4 on API 24 (16.969 s) and 3/3 on API 35 (6.889 s). An initial local
+ADB invocation exited before instrumentation and has a separate harness log;
+it is not counted as a test pass.
+
+Build 78 contains only this test synchronization change, documentation and
+the commit-based version counter. Its final APK and remote gate must still
+be verified before release. No production API, budget, privacy setting or
+model behavior changed in builds 76 through 78.
+
+The build 77 CI run passed API 24 and both injection cases, but again failed
+the API 35 drag check. Its recorded initial frame was Rect(912, 847, 1080,
+1015), ruling out a left-edge starting position in that attempt. The first
+diagnostic upload could not create its local destination because the root
+build directory did not exist on the runner. Build 78 now creates that parent
+before pulling; the missing screenshot is not claimed as observed evidence.

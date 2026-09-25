@@ -1,7 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.security
 
-import android.content.Intent
 import android.graphics.Rect
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -167,7 +167,13 @@ class AdversarialInputDeviceTest {
         error("Injection fixture node was not visible")
     }
     private fun withScreen(action: () -> Unit) {
-        instrumentation.context.startActivity(Intent().setClassName(fixturePackage, AdversarialScreenActivity::class.java.name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        // Connect UiAutomation before starting the separate test APK, then wait for
+        // ActivityManager's launch completion before budgeting node visibility time.
+        val component = "$fixturePackage/${AdversarialScreenActivity::class.java.name}"
+        val launch = ParcelFileDescriptor.AutoCloseInputStream(
+            instrumentation.uiAutomation.executeShellCommand("am start -W -n $component")
+        ).bufferedReader().use { it.readText() }
+        assertTrue("Injection fixture launch completed: $launch", launch.lineSequence().any { it.trim() == "Status: ok" })
         val result = runCatching { recycle(screenNode(AdversarialScreenActivity.ATTACK)); action() }
         val cleanup = runCatching {
             val close = screenNode(AdversarialScreenActivity.CLOSE)
