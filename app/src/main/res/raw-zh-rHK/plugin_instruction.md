@@ -1,10 +1,10 @@
 AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智能代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 按觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-開發預覽: P6 任務介面, 設定, 懸浮球, 分享, 捷徑和語音草稿已接通. ai.agent API 需要 AutoJs6 build 5293 或更新版本. P7/P8 穩定性與發佈檢查尚未通過. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.0.0 開發預覽. 任務 API 與各介面入口已實現, P7 審核證據已記錄. P8 發佈檢查與正式發佈尚未完成. 已通過案例及已知限制見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 
-1. 在安裝了 AutoJs6 組建 5289 或更高版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+1. 在安裝了 AutoJs6 組建 5293 或更高版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
 2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發佈套件會自動通過簽名驗證.
 3. 開啟 AI Agent 並連接 AutoJs6, 輸入目標, 選擇預設後開始. 在任務卡片中回答詢問或確認操作, 點擊最近任務查看詳情.
 4. 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
@@ -15,5 +15,9 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 9. 從任務台開啟 "設定", 選擇工具組, 預算, 審慎模式, 語音輸入及預設組態. 修改對新任務生效. gesture/files/shell 初始關閉, OCR 亦需宿主提供可用且獲授權的插件. 預算留空沿用初始預設值, 設定值受協議上限約束, 預設與單次參數只能繼續收緊. 資料管理顯示項目數及位元組用量, 按類別清除須確認且不能有執行中的任務; 清除預設後還原內置 default. 亦可開啟腳本目錄, 授權條款及原始碼連結.
 10. 發行歷史與法律聲明隨應用離線提供. 更新檢查由用戶手動觸發, 經 GitHub Releases 查詢, 成功結果快取 24 小時, 可取消或忽略版本. 更新對話框可開啟應用內發行歷史或瀏覽器發佈頁. 不自動檢查, 不下載 APK.
 11. 在設定中開啟懸浮球, 授權顯示在其他應用程式上層後儲存. 預設關閉, 僅在 AutoJs6 已連線時顯示, 鎖屏或中斷時隱藏, 閒置時不維持前景服務. 可拖動調整位置, 點擊輸入目標並選擇預設, 查看詢問或確認, 停止任務. 收起卡片後恢復背景確認通知. 可將純文字分享至 AI Agent, 使用新增任務捷徑, 或在預設頁將預設及可選固定目標固定至主畫面. 所有入口先顯示可編輯草稿, 點擊開始任務才執行. 預設已刪除時不自動改用其他預設. 語音使用跟隨介面語言的系統識別器, 不可用時隱藏, 結果只填入而不自動傳送.
+
+安裝並啟用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中設定線上模型或匯入支援的本機模型. 目前宿主模型代理選用 3-Stone AI, 其他 Provider 需要宿主完成整合後才能使用. 在 AI Agent > 預設 中選擇模型目標. Connected to AutoJs6 表示宿主連線狀態, 模型選擇位於預設中.
+
+支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5289+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要啟用宿主的無障礙服務. OCR 為可選能力, 需要安裝並授權 OCR 外掛, 且宿主報告其可用. AI Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
 
 連接指南與目前進度請參閱 [專案 README](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent) 與 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).

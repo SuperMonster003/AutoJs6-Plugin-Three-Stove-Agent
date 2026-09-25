@@ -55,21 +55,125 @@
 
 {{ placeholder_features }}
 
+### {{ h3_screenshots }}
+
+{{ p_screenshots }}
+
+| {{ screenshot_workbench }} | {{ screenshot_detail }} |
+| --- | --- |
+| <img src="{{ repo_url }}/blob/master/docs/images/workbench.png?raw=true" alt="{{ screenshot_workbench }}" width="288" /> | <img src="{{ repo_url }}/blob/master/docs/images/detail.png?raw=true" alt="{{ screenshot_detail }}" width="288" /> |
+| {{ screenshot_confirmation }} | {{ screenshot_floating }} |
+| <img src="{{ repo_url }}/blob/master/docs/images/confirmation.png?raw=true" alt="{{ screenshot_confirmation }}" width="288" /> | <img src="{{ repo_url }}/blob/master/docs/images/floating.png?raw=true" alt="{{ screenshot_floating }}" width="288" /> |
+
+******
+
+### {{ h3_installation }}
+
+******
+
+{{ placeholder_installation_steps }}
+
+{{ p_provider_setup }}
+
+### {{ h3_compatibility }}
+
+{{ p_compatibility }}
+
+### {{ h3_quickstart_ui }}
+
+{{ p_quickstart_ui }}
+
+### {{ h3_quickstart_script }}
+
+{{ p_quickstart_script }}
+
+```javascript
+let run = ai.agent.run('{{ example_goal }}', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+{{ p_script_result }}
+
+### {{ h3_registration }}
+
+{{ p_registration }}
+
+```javascript
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through AI Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+{{ p_registration_project }}
+
+```json
+{
+  "name": "Text counter",
+  "main": "main.js",
+  "agent": {
+    "id": "text-counter",
+    "description": "Count Unicode characters in the supplied text",
+    "parameters": {
+      "type": "object",
+      "properties": { "text": { "type": "string" } },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "risk": "readonly",
+    "confirm": "never",
+    "timeoutMs": 10000
+  }
+}
+```
+
+{{ p_registration_limits }}
+
 ### {{ h3_tools }}
 
 {{ p_tools_status }}
 
 {{ placeholder_tool_table }}
 
-******
+### {{ h3_presets_memory }}
+
+{{ p_presets_usage }}
+
+{{ p_memory_usage }}
 
 ### {{ h3_usage }}
 
-******
+{{ placeholder_usage_details }}
 
-{{ placeholder_usage_steps }}
+### {{ h3_faq }}
 
-> {{ p_usage_note }}
+**{{ faq_host_question }}**
+
+{{ faq_host_answer }}
+
+**{{ faq_payment_question }}**
+
+{{ faq_payment_answer }}
+
+**{{ faq_local_question }}**
+
+{{ faq_local_answer }}
 
 ******
 

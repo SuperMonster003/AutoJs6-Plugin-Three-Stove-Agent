@@ -20,5 +20,8 @@
   "required_host_version_code": "5289",
   "required_host_version_name": "6.8.0",
   "android_min_sdk": "24",
-  "min_android_version": "7.0"
+  "min_android_version": "7.0",
+  "script_host_version_code": "5293",
+  "provider_url": "https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI",
+  "manifest_url": "{{ autojs6_url }}/blob/master/docs/dev/agent-script-manifest-v1.md"
 }

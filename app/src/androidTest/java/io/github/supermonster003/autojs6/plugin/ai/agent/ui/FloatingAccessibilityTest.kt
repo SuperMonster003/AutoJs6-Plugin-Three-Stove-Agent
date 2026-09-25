@@ -32,11 +32,19 @@ class FloatingAccessibilityTest {
     }
 
     @Suppress("DEPRECATION")
-    @Test fun floatingStatesHaveAccessibleControlsAndUnclippedText() {
+    @Test fun floatingStatesHaveAccessibleControlsAndUnclippedText() = renderStates(false)
+
+    @Test fun captureReadmeFloating() {
+        ReadmeCapture.requireOptIn()
+        renderStates(true)
+    }
+
+    private fun renderStates(capture: Boolean) {
         val audit = UiAccessibilityAudit()
         val namespace = "layout-${UUID.randomUUID()}"
         val directory = File(context.cacheDir, namespace).apply { check(mkdirs()) }
         val prefs = context.getSharedPreferences(namespace, Context.MODE_PRIVATE)
+        if (capture) prefs.edit().putString("goal", "Read the Android version and show the result.").commit()
         val fixture = object : ContextWrapper(context) {
             override fun getFilesDir() = directory
             override fun getSharedPreferences(name: String?, mode: Int) = prefs
@@ -67,7 +75,8 @@ class FloatingAccessibilityTest {
                     call(floating!!, "removeWindow")
                     field(floating, "snapshot").set(floating, WorkbenchSnapshot(
                         jsonObject("state" to C.LINK_STATE_ATTACHED.json(), "voiceEnabled" to true.json()),
-                        listOfNotNull(run), run, listOf("A preset with a long display name"), "A preset with a long display name"))
+                        listOfNotNull(run), run, listOf(if (capture) "default" else "A preset with a long display name"),
+                        if (capture) "default" else "A preset with a long display name"))
                     field(floating, "expanded").setBoolean(floating, expanded)
                     call(floating, "publish")
                 }
@@ -78,11 +87,15 @@ class FloatingAccessibilityTest {
                 instrumentation.waitForIdleSync()
                 instrumentation.runOnMainSync {
                     val root = field(floating!!, "root").get(floating) as LinearLayout
-                    audit.inspect(root, "floating-$name")
+                    if (capture) ReadmeCapture.save(root, "floating") else audit.inspect(root, "floating-$name")
                 }
             }
             val active = jsonObject("runId" to runId.json(), "state" to "running".json(),
                 "goal" to "Layout inspection with a long progress label".json(), "interaction" to "plugin".json())
+            if (capture) {
+                show("entry", true, null)
+                return
+            }
             show("idle", false, null)
             show("running", false, active)
             show("entry", true, null)

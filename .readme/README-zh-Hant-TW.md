@@ -52,7 +52,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-開發預覽: P6 任務介面, 設定, 懸浮球, 分享, 捷徑和語音草稿已接通. ai.agent API 需要 AutoJs6 build 5293 或更新版本. P7/P8 穩定性與發佈檢查尚未通過. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.0.0 開發預覽. 任務 API 與各介面入口已實作, P7 稽核證據已記錄. P8 發布檢查與正式發布尚未完成. 已通過案例及已知限制見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -60,16 +60,107 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1.0.0 規劃提供以下能力:
+目前實作提供以下能力:
 
 - 指令碼選擇: 透過 `project.json` 或 `@agent` 頭部註解登記的指令碼連同描述與參數 Schema 呈現給模型; 智慧代理挑選指令碼, 補齊參數, 在需要時請求確認, 在 AutoJs6 中執行並讀取結構化結果.
 - 介面逐步操作: 智慧代理以緊湊文字形式觀察無障礙節點樹 (安裝了 OCR 外掛時還能讀取畫面文字), 然後經 AutoJs6 能力代理點擊, 輸入, 捲動與按鍵, 直到能夠驗證目標已達成.
 - 安全設計: 唯讀工具自動執行; 敏感操作 (付款, 傳送, 刪除, 寫入檔案, shell, 座標手勢, 登記為敏感的指令碼) 需要確認; 每次任務都有步數, 模型呼叫次數, 時長與 token 預算.
 - 指令碼 API 與使用者介面: `ai.agent.run(goal, options)` 回傳帶事件, 回應與取消的 `AgentRun` 控制代碼; 獨立應用程式提供任務台, 歷史, 預設, 偏好記憶, 設定與發行歷史.
 
+### 介面截圖
+
+以下為 Android API 37.1 上的真實英文介面, 使用專用範例任務及預設回應的示範模型. 圖片用於展示介面, 不作為真實模型任務成功的證據, 不含私人帳號資料. [截圖重現說明](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+
+| 任務台 | 任務詳情 |
+| --- | --- |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="任務台" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="任務詳情" width="288" /> |
+| 操作確認 | 懸浮任務輸入 |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="操作確認" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="懸浮任務輸入" width="288" /> |
+
+******
+
+### 安裝
+
+******
+
+1. 在安裝了 AutoJs6 組建 5293 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
+2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
+
+安裝並啟用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中設定線上模型或匯入支援的本機模型. 目前宿主模型代理選用 3-Stone AI, 其他 Provider 需要宿主完成整合後才能使用. 在 AI Agent > 預設 中選擇模型目標. Connected to AutoJs6 表示宿主連線狀態, 模型選擇位於預設中.
+
+### 相容性
+
+支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5289+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要啟用宿主的無障礙服務. OCR 為選用能力, 需要安裝並授權 OCR 外掛, 且宿主回報其可用. AI Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
+
+### 介面快速開始
+
+開啟 AI Agent 並連線 AutoJs6, 輸入目標, 選擇預設後開始. 在任務卡片中回答詢問或確認操作, 點選最近任務查看詳情.
+
+### 指令碼快速開始
+
+連接 AI Agent 並設定模型後, 在 AutoJs6 執行以下 JavaScript. 詢問與確認由外掛介面處理. 如需使用已儲存的設定, 在選項加入 `preset: "your-preset-name"`.
+
+```javascript
+let run = ai.agent.run('讀取 Android 版本, 根據實際觀察結果報告.', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+請檢查 `result.status`: Promise 兌現的結果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任務. 模型目標, 事件, 預算及指令碼處理互動見 [ai.agent API](https://docs.autojs6.com/#ai).
+
+### 登記指令碼
+
+將下例儲存為 AutoJs6 工作目錄或宿主已批准的指令碼目錄中的 `text-counter.js`. 檔案開頭的 `@agent` JSDoc 表示主動登記至目錄. 向 Agent 提出統計指定文字字元數的需求即可, 必填參數缺失時會先詢問.
+
+```javascript
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through AI Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+亦可在 `main.js` 旁放置以下 `project.json`, main.js 的程式碼與上例相同, 讀取 `ai.agent.context().parameters` 並呼叫 `ai.agent.result(...)`. 專案登記內容放在 `agent` 物件中.
+
+```json
+{
+  "name": "Text counter",
+  "main": "main.js",
+  "agent": {
+    "id": "text-counter",
+    "description": "Count Unicode characters in the supplied text",
+    "parameters": {
+      "type": "object",
+      "properties": { "text": { "type": "string" } },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "risk": "readonly",
+    "confirm": "never",
+    "timeoutMs": 10000
+  }
+}
+```
+
+參數類型支援 string, number, integer 和 boolean, 不支援巢狀物件或陣列. sensitive 指令碼執行前始終需要確認. 請僅登記已審閱的指令碼, 風險宣告不會為 JavaScript 建立沙箱. [完整登記格式](https://github.com/SuperMonster003/AutoJs6/blob/master/docs/dev/agent-script-manifest-v1.md).
+
 ### 工具目錄
 
-開發預覽: 登記腳本, 畫面操作與 ai.agent 任務 API 已接通. 任務 API 需要 AutoJs6 組建 5293 或更高版本; 完整任務台繼續按 P6 實施, 穩定性驗收繼續按 P7 實施.
+此表由封裝的 ToolCatalog 產生. 實際畫面目標可能提高風險等級, 審慎模式亦會確認所有非唯讀操作. 設定, 預設, 任務選項及宿主授權共同限制可用工具組.
 
 | 工具 | 分組 | 風險 | 預設 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -104,25 +195,34 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | 确认后执行有时限的非 Root shell 命令. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | 报告有界进度, 不声明任务已完成. |
 
-******
+### 預設與記憶
+
+從任務台開啟 "預設" 儲存任務設定. 名稱是腳本與記憶的固定識別碼, 更名請複製預設. 內建 default 可編輯但不能刪除. 模型從宿主清單選擇, 也可保留自動選擇; 指定模型失效時失敗, 不自動換目標. 任務選項只能進一步收緊預設限制. 固定上下文與任務上下文合計最多 8 KiB. 記憶範圍可選全域及目前預設, 僅其中一種或關閉. 編輯或刪除預設不改變已排入佇列的任務. 私有儲存最多 32 個預設 / 1 MiB.
+
+開啟 "記憶" 檢視, 編輯, 刪除或備份偏好. 最多 500 筆 / 256 KiB, 保留作用域, 來源任務和時間資訊. memory_propose 與匯入的每筆記憶均須單獨確認. 未知預設作用域須先建立對應預設. 自動注入允許範圍內最新的完整項目, 最多 4 KiB; 目前預設的同名 key 覆蓋全域值. memory: false 僅關閉自動注入; 同時禁止查詢和提議請關閉 memory 工具組或選擇無記憶作用域. 匯出包含實際值及來源資訊. 請勿儲存憑證, 可識別的憑證鍵名和權杖格式會被拒絕.
 
 ### 使用方式
 
-******
+- 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
+- 最多 200 條任務 / 32 MiB. 優先清理最久未查看的已結束任務. 重跑會把原目標和預設填入任務台, 核對後點選開始任務再次執行. 清空歷史會保留執行中的任務. 匯出保留診斷計數, 工具名稱和確認結果. 目標, 參數, 觀察內容及腳本結果會移除. 請選擇檔案儲存位置.
+- 前景在任務台回答, 背景從高優先通知開啟對應請求. 確認頁顯示工具, 參數, 風險及剩餘時間. 同類授權僅適用於本次任務內同一工具的同級風險操作; 付款與記憶提議始終逐次確認. "記住此答案" 在允許的記憶作用域內產生單獨的 memory_propose 供檢閱. 確認通常等待 120 秒, 詢問最多 10 分鐘, 均受任務預算限制. 逾時回傳 USER_TIMEOUT, 由模型決定再次詢問或回報部分完成. 舊請求無法回答新請求. 背景提醒受通知權限與頻道設定影響.
+- 從任務台開啟 "設定", 選擇工具組, 預算, 審慎模式, 語音輸入及預設組態. 修改對新任務生效. gesture/files/shell 初始關閉, OCR 亦需宿主提供可用且授權的外掛. 預算留空沿用初始預設值, 設定值受協定上限約束, 預設與單次參數只能繼續收緊. 資料管理顯示項目數及位元組用量, 按類別清除須確認且不能有執行中的任務; 清除預設後還原內建 default. 亦可開啟腳本目錄, 授權條款及原始碼連結.
+- 發行歷史與法律聲明隨應用程式離線提供. 更新檢查由使用者手動觸發, 經 GitHub Releases 查詢, 成功結果快取 24 小時, 可取消或忽略版本. 更新對話框可開啟應用程式內發行歷史或瀏覽器發佈頁. 不自動檢查, 不下載 APK.
+- 在設定中開啟懸浮球, 授權顯示在其他應用程式上層後儲存. 預設關閉, 僅在 AutoJs6 已連線時顯示, 鎖定或中斷時隱藏, 閒置時不維持前景服務. 可拖曳調整位置, 點擊輸入目標並選擇預設, 查看詢問或確認, 停止任務. 收起卡片後恢復背景確認通知. 可將純文字分享至 AI Agent, 使用新增任務捷徑, 或在預設頁將預設及選填固定目標固定至主畫面. 所有入口先顯示可編輯草稿, 點擊開始任務才執行. 預設已刪除時不自動改用其他預設. 語音使用跟隨介面語言的系統辨識器, 不可用時隱藏, 結果只填入而不自動傳送.
 
-1. 在安裝了 AutoJs6 組建 5289 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安裝外掛 APK.
-2. 開啟 AutoJs6 外掛中心, 確認 `AI Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
-3. 開啟 AI Agent 並連線 AutoJs6, 輸入目標, 選擇預設後開始. 在任務卡片中回答詢問或確認操作, 點選最近任務查看詳情.
-4. 在啟動器的 "指令碼目錄" 中設定附加目錄, 每行一個絕對路徑. 儲存後由宿主校驗並套用; 任務只能縮小已批准的目錄範圍.
-5. 最多 200 條任務 / 32 MiB. 優先清理最久未查看的已結束任務. 重跑會把原目標和預設填入任務台, 核對後點選開始任務再次執行. 清空歷史會保留執行中的任務. 匯出保留診斷計數, 工具名稱和確認結果. 目標, 參數, 觀察內容及腳本結果會移除. 請選擇檔案儲存位置.
-6. 從任務台開啟 "預設" 儲存任務設定. 名稱是腳本與記憶的固定識別碼, 更名請複製預設. 內建 default 可編輯但不能刪除. 模型從宿主清單選擇, 也可保留自動選擇; 指定模型失效時失敗, 不自動換目標. 任務選項只能進一步收緊預設限制. 固定上下文與任務上下文合計最多 8 KiB. 記憶範圍可選全域及目前預設, 僅其中一種或關閉. 編輯或刪除預設不改變已排入佇列的任務. 私有儲存最多 32 個預設 / 1 MiB.
-7. 開啟 "記憶" 檢視, 編輯, 刪除或備份偏好. 最多 500 筆 / 256 KiB, 保留作用域, 來源任務和時間資訊. memory_propose 與匯入的每筆記憶均須單獨確認. 未知預設作用域須先建立對應預設. 自動注入允許範圍內最新的完整項目, 最多 4 KiB; 目前預設的同名 key 覆蓋全域值. memory: false 僅關閉自動注入; 同時禁止查詢和提議請關閉 memory 工具組或選擇無記憶作用域. 匯出包含實際值及來源資訊. 請勿儲存憑證, 可識別的憑證鍵名和權杖格式會被拒絕.
-8. 前景在任務台回答, 背景從高優先通知開啟對應請求. 確認頁顯示工具, 參數, 風險及剩餘時間. 同類授權僅適用於本次任務內同一工具的同級風險操作; 付款與記憶提議始終逐次確認. "記住此答案" 在允許的記憶作用域內產生單獨的 memory_propose 供檢閱. 確認通常等待 120 秒, 詢問最多 10 分鐘, 均受任務預算限制. 逾時回傳 USER_TIMEOUT, 由模型決定再次詢問或回報部分完成. 舊請求無法回答新請求. 背景提醒受通知權限與頻道設定影響.
-9. 從任務台開啟 "設定", 選擇工具組, 預算, 審慎模式, 語音輸入及預設組態. 修改對新任務生效. gesture/files/shell 初始關閉, OCR 亦需宿主提供可用且授權的外掛. 預算留空沿用初始預設值, 設定值受協定上限約束, 預設與單次參數只能繼續收緊. 資料管理顯示項目數及位元組用量, 按類別清除須確認且不能有執行中的任務; 清除預設後還原內建 default. 亦可開啟腳本目錄, 授權條款及原始碼連結.
-10. 發行歷史與法律聲明隨應用程式離線提供. 更新檢查由使用者手動觸發, 經 GitHub Releases 查詢, 成功結果快取 24 小時, 可取消或忽略版本. 更新對話框可開啟應用程式內發行歷史或瀏覽器發佈頁. 不自動檢查, 不下載 APK.
-11. 在設定中開啟懸浮球, 授權顯示在其他應用程式上層後儲存. 預設關閉, 僅在 AutoJs6 已連線時顯示, 鎖定或中斷時隱藏, 閒置時不維持前景服務. 可拖曳調整位置, 點擊輸入目標並選擇預設, 查看詢問或確認, 停止任務. 收起卡片後恢復背景確認通知. 可將純文字分享至 AI Agent, 使用新增任務捷徑, 或在預設頁將預設及選填固定目標固定至主畫面. 所有入口先顯示可編輯草稿, 點擊開始任務才執行. 預設已刪除時不自動改用其他預設. 語音使用跟隨介面語言的系統辨識器, 不可用時隱藏, 結果只填入而不自動傳送.
+### 常見問題
 
-> 開發預覽: P6 任務介面, 設定, 懸浮球, 分享, 捷徑和語音草稿已接通. ai.agent API 需要 AutoJs6 build 5293 或更新版本. P7/P8 穩定性與發佈檢查尚未通過.
+**為什麼需要 AutoJs6?**
+
+外掛負責任務循環與介面, AutoJs6 負責模型存取, 無障礙操作及登記指令碼執行. 未連接相容宿主時可檢視歷史, 無法啟動新的裝置任務. 宿主斷開會阻塞活動任務, 重新連接不會自動重播任務.
+
+**為什麼每次付款都要確認?**
+
+付款是獨立的敏感操作. 批准下單, 指令碼或同類操作不等於批准付款. 每次識別到的付款動作均需單獨確認, 逾時視為拒絕. 批准前請核對商家, 商品, 地址及金額.
+
+**本機模型有哪些限制?**
+
+任務依賴模型遵循指令, 輸出合法決策 JSON 及可用上下文. 小模型成功載入後仍可能無法完成任務; 已記錄的 Gemma 4 E2B IT Wi-Fi 案例未通過決策驗證. 建議從簡短任務開始, 檢查 partial/failed 結果. 1.0.0 使用文字節點/OCR 觀察及 JSON 決策循環, 視覺輸入, 原生工具呼叫及動態產生指令碼仍屬於 1.1.0 路線圖.
 
 ******
 

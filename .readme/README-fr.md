@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-Aperçu de développement: les écrans P6, les paramètres, la bulle flottante, le partage, les raccourcis et les brouillons vocaux sont disponibles. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La fiabilité et la publication restent à valider dans P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Aperçu de développement de 1.0.0. Les API de tâches et les entrées de l'interface sont implémentées; les preuves d'audit P7 sont consignées. Les contrôles et la publication P8 restent à effectuer. Voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour les cas validés et les limites connues.
 
 ******
 
@@ -60,16 +60,107 @@ Aperçu de développement: les écrans P6, les paramètres, la bulle flottante, 
 
 ******
 
-La version 1.0.0 doit fournir les capacités suivantes:
+L'implémentation actuelle propose les fonctions suivantes:
 
 - Sélection de scripts : les scripts enregistrés via `project.json` ou un commentaire d'en-tête `@agent` sont présentés au modèle avec leurs descriptions et schémas de paramètres ; l'agent en choisit un, complète les paramètres, demande confirmation si nécessaire, l'exécute dans AutoJs6 et lit son résultat structuré.
 - Manipulation de l'écran étape par étape : l'agent observe l'arbre de noeuds d'accessibilité sous forme de texte compact (et le texte de l'écran via un plugin OCR lorsqu'il est installé), puis clique, saisit, fait défiler et appuie sur des touches via le courtier de capacités d'AutoJs6 jusqu'à pouvoir vérifier l'objectif.
 - Sécurité par conception : les outils en lecture seule s'exécutent automatiquement, les actions sensibles (paiement, envoi, suppression, écriture de fichiers, shell, gestes par coordonnées, scripts enregistrés comme sensibles) nécessitent une confirmation, et chaque exécution a des budgets d'étapes, d'appels de modèle, de durée et de jetons.
 - API de script et interface utilisateur : `ai.agent.run(goal, options)` renvoie un handle `AgentRun` avec événements, réponses et annulation ; l'application autonome offre un espace de tâches avec historique, préréglages, mémoire de préférences, paramètres et historique des versions.
 
+### Captures
+
+Interface anglaise réelle sur Android API 37.1 avec des tâches fictives et un modèle aux réponses programmées. Ces images illustrent l'interface, sans attester la réussite avec un modèle réel. Aucune donnée privée de compte n'est incluse. [Procédure de capture](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+
+| Tableau des tâches | Détails de la tâche |
+| --- | --- |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="Tableau des tâches" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="Détails de la tâche" width="288" /> |
+| Confirmation d'action | Saisie flottante |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="Confirmation d'action" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="Saisie flottante" width="288" /> |
+
+******
+
+### Installation
+
+******
+
+1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5293 ou ultérieure.
+2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
+
+Installez et activez [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), puis configurez-y un modèle en ligne ou importez un modèle local compatible. Le courtier actuel de l'hôte sélectionne 3-Stone AI; un autre Provider nécessite une intégration côté hôte. Choisissez le modèle dans AI Agent > Préréglages. Connected to AutoJs6 indique la connexion à l'hôte; le choix du modèle se fait dans les préréglages.
+
+### Compatibilité
+
+Android 7.0+ (API 24). La connexion nécessite AutoJs6 6.8.0 / build 5289+; l'API complète et ce guide nécessitent build 5293+. Utilisez une compilation contenant les changements Agent. Activez le service d'accessibilité de l'hôte pour agir sur l'écran. OCR est facultatif et nécessite un plugin installé, autorisé et déclaré disponible par l'hôte. AI Agent ne conserve aucun identifiant de modèle et ne possède pas de service d'accessibilité propre.
+
+### Démarrer depuis l'interface
+
+Ouvrez AI Agent, connectez AutoJs6, saisissez un objectif et démarrez avec le préréglage par défaut. Répondez dans la carte et consultez les détails des tâches récentes.
+
+### Démarrer depuis un script
+
+Exécutez ce JavaScript dans AutoJs6 après connexion de AI Agent et configuration du modèle. L'interface du plugin reçoit les questions et confirmations. Pour réutiliser une configuration, ajoutez `preset: "your-preset-name"` aux options.
+
+```javascript
+let run = ai.agent.run('Lire la version Android et rapporter la valeur observée.', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+Vérifiez `result.status`: une promesse résolue peut contenir completed, partial, failed, blocked ou cancelled. `run.cancel()` arrête la tâche. Voir [ai.agent API](https://docs.autojs6.com/#ai) pour les modèles, événements, budgets et réponses par script.
+
+### Enregistrer un script
+
+Enregistrez cet exemple dans `text-counter.js`, dans le répertoire de travail AutoJs6 ou un dossier approuvé par l'hôte. Le premier JSDoc contenant `@agent` inscrit le fichier au catalogue. Demandez le nombre de caractères d'un texte; les paramètres obligatoires manquants sont demandés avant exécution.
+
+```javascript
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through AI Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+Vous pouvez aussi placer ce `project.json` à côté de `main.js`, dont le corps lit `ai.agent.context().parameters` et appelle `ai.agent.result(...)` comme ci-dessus. La déclaration du projet se place dans l'objet `agent`.
+
+```json
+{
+  "name": "Text counter",
+  "main": "main.js",
+  "agent": {
+    "id": "text-counter",
+    "description": "Count Unicode characters in the supplied text",
+    "parameters": {
+      "type": "object",
+      "properties": { "text": { "type": "string" } },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "risk": "readonly",
+    "confirm": "never",
+    "timeoutMs": 10000
+  }
+}
+```
+
+Les types acceptés sont string, number, integer et boolean; les objets imbriqués et tableaux ne sont pas pris en charge. Les scripts sensitive exigent toujours une confirmation préalable. N'enregistrez que des scripts relus: la déclaration du risque ne crée pas de bac à sable JavaScript. [Format complet](https://github.com/SuperMonster003/AutoJs6/blob/master/docs/dev/agent-script-manifest-v1.md).
+
 ### Catalogue des outils
 
-Aperçu de développement: scripts enregistrés, actions écran et API de tâches ai.agent sont reliés. Les API de tâches nécessitent AutoJs6 build 5293 ou ultérieur; l'interface complète suit en P6 et la validation de fiabilité continue en P7.
+Ce tableau provient du ToolCatalog embarqué. La cible réelle à l'écran peut accroître le risque; le mode prudent confirme aussi les actions autres que la lecture seule. Paramètres, préréglages, options et autorisations de l'hôte limitent les groupes disponibles.
 
 | Outil | Groupe | Risque | Défaut | Description |
 | --- | --- | --- | --- | --- |
@@ -104,25 +195,34 @@ Aperçu de développement: scripts enregistrés, actions écran et API de tâche
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
-******
+### Préréglages et mémoire
+
+Ouvrez les préréglages depuis les tâches pour enregistrer une configuration. Les noms identifient les scripts et les portées mémoire; dupliquez pour utiliser un autre nom. Le préréglage intégré default peut être modifié mais pas supprimé. Choisissez un modèle du catalogue de l'hôte ou la sélection automatique. Un modèle choisi indisponible provoque un échec sans substitution. Les options de tâche peuvent seulement réduire les limites du préréglage. Les contextes fixe et de tâche partagent 8 KiB. La mémoire peut inclure les entrées globales et celles du préréglage, un seul ensemble, ou aucun. Modifier ou supprimer un préréglage ne change pas les tâches en attente. Stockage privé: 32 préréglages / 1 MiB maximum.
+
+Ouvrez Mémoire pour consulter, modifier, supprimer ou sauvegarder les préférences. Limites: 500 entrées / 256 KiB, avec portée, tâche source et dates. Confirmez chaque memory_propose et chaque entrée importée. Créez d'abord les préréglages manquants. L'injection automatique conserve les entrées complètes les plus récentes de la portée autorisée, jusqu'à 4 KiB; le préréglage courant prime sur une clé globale identique. memory: false désactive uniquement l'injection. Désactivez aussi le groupe memory ou la portée pour bloquer recherches et propositions. L'export contient les valeurs réelles et leur origine. Ne stockez pas de secrets; les clés et formats de jetons reconnaissables sont refusés.
 
 ### Utilisation
 
-******
+- Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
+- 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
+- Répondez dans les tâches au premier plan, ou ouvrez la notification prioritaire en arrière-plan. La confirmation affiche outil, paramètres, risque et temps restant. Une autorisation répétée reste limitée à cet outil et ce risque dans cette tâche; paiements et mémoire demandent toujours une confirmation individuelle. Mémoriser une réponse crée une proposition memory_propose séparée dans la portée autorisée. Une confirmation attend normalement 120 secondes, une question jusqu'à 10 minutes, dans le budget de la tâche. Un délai expiré renvoie USER_TIMEOUT; le modèle choisit de redemander ou de signaler un résultat partiel. Les anciens liens ne répondent pas aux nouvelles demandes. Les permissions et canaux contrôlent les notifications.
+- Ouvrez les paramètres depuis les tâches pour choisir groupes, budgets, mode prudent, saisie vocale et profil par défaut. Les changements concernent les nouvelles tâches. gesture/files/shell sont désactivés initialement; OCR exige un plugin autorisé et disponible sur le service hôte. Un budget vide reprend les valeurs initiales, dans les limites du protocole. Profils et options ne peuvent que les réduire. La gestion affiche nombres et octets; effacer une catégorie exige confirmation et aucune tâche active. Effacer les profils restaure default. Dossiers de scripts, licences et source sont accessibles.
+- Historique et mentions légales sont disponibles hors ligne. La vérification GitHub Releases est manuelle, avec cache de succès de 24 heures, annulation et version ignorée. La boîte ouvre les notes internes ou la page de publication dans le navigateur. Aucune vérification automatique ni téléchargement APK.
+- Activez la bulle dans les paramètres, autorisez la superposition et enregistrez. Désactivée par défaut, elle apparaît seulement avec AutoJs6 connecté et se masque au verrouillage ou à la déconnexion, sans service de premier plan au repos. Déplacez-la par glissement et touchez-la pour saisir un objectif, choisir un préréglage, répondre ou arrêter. Réduire la carte rétablit les notifications de confirmation. Partagez du texte brut, utilisez Nouvelle tâche ou épinglez un préréglage avec un objectif facultatif. Chaque entrée ouvre un brouillon modifiable et exige de démarrer explicitement. Aucun remplacement silencieux des préréglages supprimés. La reconnaissance vocale suit la langue de l'interface, se masque si indisponible et remplit le texte sans envoyer.
 
-1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5289 ou ultérieure.
-2. Ouvrez le centre de plugins d'AutoJs6, vérifiez que `AI Agent` est reconnu et activez-le. Les paquets officiels passent automatiquement la vérification de signature.
-3. Ouvrez AI Agent, connectez AutoJs6, saisissez un objectif et démarrez avec le préréglage par défaut. Répondez dans la carte et consultez les détails des tâches récentes.
-4. Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
-5. 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
-6. Ouvrez les préréglages depuis les tâches pour enregistrer une configuration. Les noms identifient les scripts et les portées mémoire; dupliquez pour utiliser un autre nom. Le préréglage intégré default peut être modifié mais pas supprimé. Choisissez un modèle du catalogue de l'hôte ou la sélection automatique. Un modèle choisi indisponible provoque un échec sans substitution. Les options de tâche peuvent seulement réduire les limites du préréglage. Les contextes fixe et de tâche partagent 8 KiB. La mémoire peut inclure les entrées globales et celles du préréglage, un seul ensemble, ou aucun. Modifier ou supprimer un préréglage ne change pas les tâches en attente. Stockage privé: 32 préréglages / 1 MiB maximum.
-7. Ouvrez Mémoire pour consulter, modifier, supprimer ou sauvegarder les préférences. Limites: 500 entrées / 256 KiB, avec portée, tâche source et dates. Confirmez chaque memory_propose et chaque entrée importée. Créez d'abord les préréglages manquants. L'injection automatique conserve les entrées complètes les plus récentes de la portée autorisée, jusqu'à 4 KiB; le préréglage courant prime sur une clé globale identique. memory: false désactive uniquement l'injection. Désactivez aussi le groupe memory ou la portée pour bloquer recherches et propositions. L'export contient les valeurs réelles et leur origine. Ne stockez pas de secrets; les clés et formats de jetons reconnaissables sont refusés.
-8. Répondez dans les tâches au premier plan, ou ouvrez la notification prioritaire en arrière-plan. La confirmation affiche outil, paramètres, risque et temps restant. Une autorisation répétée reste limitée à cet outil et ce risque dans cette tâche; paiements et mémoire demandent toujours une confirmation individuelle. Mémoriser une réponse crée une proposition memory_propose séparée dans la portée autorisée. Une confirmation attend normalement 120 secondes, une question jusqu'à 10 minutes, dans le budget de la tâche. Un délai expiré renvoie USER_TIMEOUT; le modèle choisit de redemander ou de signaler un résultat partiel. Les anciens liens ne répondent pas aux nouvelles demandes. Les permissions et canaux contrôlent les notifications.
-9. Ouvrez les paramètres depuis les tâches pour choisir groupes, budgets, mode prudent, saisie vocale et profil par défaut. Les changements concernent les nouvelles tâches. gesture/files/shell sont désactivés initialement; OCR exige un plugin autorisé et disponible sur le service hôte. Un budget vide reprend les valeurs initiales, dans les limites du protocole. Profils et options ne peuvent que les réduire. La gestion affiche nombres et octets; effacer une catégorie exige confirmation et aucune tâche active. Effacer les profils restaure default. Dossiers de scripts, licences et source sont accessibles.
-10. Historique et mentions légales sont disponibles hors ligne. La vérification GitHub Releases est manuelle, avec cache de succès de 24 heures, annulation et version ignorée. La boîte ouvre les notes internes ou la page de publication dans le navigateur. Aucune vérification automatique ni téléchargement APK.
-11. Activez la bulle dans les paramètres, autorisez la superposition et enregistrez. Désactivée par défaut, elle apparaît seulement avec AutoJs6 connecté et se masque au verrouillage ou à la déconnexion, sans service de premier plan au repos. Déplacez-la par glissement et touchez-la pour saisir un objectif, choisir un préréglage, répondre ou arrêter. Réduire la carte rétablit les notifications de confirmation. Partagez du texte brut, utilisez Nouvelle tâche ou épinglez un préréglage avec un objectif facultatif. Chaque entrée ouvre un brouillon modifiable et exige de démarrer explicitement. Aucun remplacement silencieux des préréglages supprimés. La reconnaissance vocale suit la langue de l'interface, se masque si indisponible et remplit le texte sans envoyer.
+### Questions fréquentes
 
-> Aperçu de développement: les écrans P6, les paramètres, la bulle flottante, le partage, les raccourcis et les brouillons vocaux sont disponibles. ai.agent nécessite AutoJs6 build 5293 ou ultérieur. La fiabilité et la publication restent à valider dans P7/P8.
+**Pourquoi AutoJs6 est-il nécessaire?**
+
+Le plugin gère la boucle et l'interface. AutoJs6 gère les modèles, les actions d'accessibilité et les scripts enregistrés. Sans hôte compatible connecté, l'historique reste lisible mais aucune nouvelle tâche sur l'appareil ne peut démarrer. La perte de l'hôte bloque les tâches; la reconnexion ne les rejoue jamais automatiquement.
+
+**Pourquoi confirmer chaque paiement?**
+
+Le paiement est une action sensible distincte. Approuver une commande, un script ou des actions similaires n'autorise pas un paiement. Chaque action de paiement détectée exige sa propre confirmation; un délai expiré vaut refus. Vérifiez le marchand, les produits, l'adresse et le montant avant approbation.
+
+**Quelles sont les limites des modèles locaux?**
+
+Les tâches dépendent du respect des consignes, de décisions JSON valides et du contexte disponible. Un petit modèle peut échouer après un chargement réussi; le cas Wi-Fi consigné pour Gemma 4 E2B IT a échoué à la validation des décisions. Commencez par des tâches simples et consultez les résultats partial/failed. 1.0.0 utilise le texte des noeuds/OCR et une boucle JSON; vision, appels natifs aux outils et scripts générés restent prévus pour 1.1.0.
 
 ******
 

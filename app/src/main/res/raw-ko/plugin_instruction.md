@@ -1,10 +1,10 @@
 AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제 동작으로 바꿉니다. 사용자가 에이전트용으로 등록한 스크립트를 골라 매개변수를 채우고 실행하거나, 접근성 노드 트리로 화면을 관찰하고 관찰, 결정, 실행, 검증의 순환으로 단계별로 조작합니다. 목표를 달성하거나 확인이 필요하거나 예산이 소진될 때까지 계속됩니다. [AutoJs6 토론 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577)에 대한 답입니다.
 
-개발 미리보기: P6 작업 화면, 설정, 플로팅 볼, 공유, 바로가기 및 음성 초안을 사용할 수 있습니다. ai.agent API에는 AutoJs6 build 5293 이상이 필요합니다. P7/P8 안정성 및 출시 검증은 아직 완료되지 않았습니다. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.0.0 개발 미리 보기입니다. 작업 API와 화면 진입점이 구현되었고 P7 감사 증거가 기록되었습니다. P8 출시 검사와 공개는 아직 완료되지 않았습니다. 통과 사례와 알려진 제한은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)를 참고하세요.
 
 ### 사용 방법
 
-1. AutoJs6 빌드 5289 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
+1. AutoJs6 빌드 5293 이상이 설치된 기기에 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases)에서 플러그인 APK를 설치합니다.
 2. AutoJs6 플러그인 센터를 열어 `AI Agent`가 인식되는지 확인하고 활성화합니다. 공식 릴리스 패키지는 서명 검증을 자동으로 통과합니다.
 3. AI Agent를 열고 AutoJs6에 연결한 다음 목표를 입력하고 기본 프리셋으로 시작하세요. 작업 카드에서 응답하거나 작업을 확인하고 최근 작업에서 상세 정보를 확인하세요.
 4. 런처의 "스크립트 디렉터리"에서 추가 폴더를 설정하고 줄마다 절대 경로를 하나씩 입력하세요. 저장한 경로는 호스트가 검증하여 적용하며 작업은 승인된 폴더 범위만 좁힐 수 있습니다.
@@ -15,5 +15,9 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 9. 작업 화면의 설정에서 도구 그룹, 예산, 신중 모드, 음성 입력과 기본 프리셋을 선택합니다. 변경 사항은 새 작업에 적용됩니다. gesture/files/shell은 기본으로 꺼져 있으며 OCR에는 호스트가 허용한 사용 가능한 플러그인이 필요합니다. 비어 있는 예산은 초기 기본값을 따르고 설정값은 프로토콜 상한 이내여야 합니다. 프리셋과 개별 옵션은 범위를 줄일 수만 있습니다. 데이터 관리에서 항목 수와 바이트를 확인하고 실행 중인 작업이 없을 때 확인 후 범주별로 지웁니다. 프리셋 삭제는 내장 default로 복원합니다. 스크립트 폴더, 라이선스와 소스 링크도 제공합니다.
 10. 릴리스 기록과 법적 고지는 오프라인으로 읽습니다. GitHub Releases 업데이트 확인은 수동으로 실행하며 성공 결과를 24시간 저장합니다. 취소와 버전 무시가 가능하고 앱 내 기록이나 브라우저 릴리스 페이지를 열 수 있습니다. 자동 확인이나 APK 다운로드는 하지 않습니다.
 11. 설정에서 플로팅 볼을 켜고 다른 앱 위에 표시를 허용한 후 저장하세요. 기본적으로 꺼져 있으며 AutoJs6 연결 중에만 표시되고 잠금이나 연결 해제 시 숨겨집니다. 대기 중 포그라운드 서비스는 없습니다. 드래그로 이동하고 눌러 목표 및 프리셋 입력, 질문 및 확인 응답, 작업 중지를 할 수 있습니다. 카드를 접으면 백그라운드 확인 알림이 복원됩니다. 일반 텍스트 공유, 새 작업 바로가기, 프리셋 화면의 고정 목표 바로가기를 사용할 수 있습니다. 모든 진입점은 편집 가능한 초안을 열며 시작 버튼을 눌러야 실행됩니다. 삭제된 프리셋을 자동 대체하지 않습니다. 음성 인식은 화면 언어를 사용하고 지원되지 않으면 숨겨집니다. 결과는 입력란에만 채우고 전송하지 않습니다.
+
+[3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI)를 설치하고 활성화한 뒤 온라인 모델을 설정하거나 지원되는 로컬 모델을 가져오세요. 현재 호스트 모델 중개자는 3-Stone AI를 선택합니다. 다른 Provider는 호스트 통합이 필요합니다. AI Agent > 프리셋에서 모델을 선택하세요. Connected to AutoJs6는 호스트 연결 상태이며 모델 선택은 프리셋에 있습니다.
+
+Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5289+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스를 켜야 합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. AI Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
 
 연결 안내와 현재 진행 상황은 [프로젝트 README](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent)와 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)를 참고하세요.

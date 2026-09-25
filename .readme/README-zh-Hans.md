@@ -52,7 +52,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-开发预览: P6 任务界面, 设置, 悬浮球, 分享, 快捷方式和语音草稿已接通. ai.agent API 需要 AutoJs6 build 5293 或更高版本. P7/P8 健壮性与发布门禁尚未通过. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.0.0 开发预览. 任务 API 与各界面入口已实现, P7 审计证据已记录. P8 发布检查与正式发布尚未完成. 已通过用例和已知限制见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -60,16 +60,107 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-1.0.0 计划提供以下能力:
+当前实现提供以下能力:
 
 - 脚本选择: 通过 `project.json` 或 `@agent` 头注释登记的脚本连同描述与参数 Schema 呈现给模型; 智能体挑选脚本, 补全参数, 在需要时请求确认, 在 AutoJs6 中运行并读取结构化结果.
 - 界面逐步操作: 智能体以紧凑文本形式观察无障碍节点树 (安装了 OCR 插件时还能读取屏幕文字), 然后经 AutoJs6 能力代理点击, 输入, 滚动与按键, 直到能够校验目标已达成.
 - 安全设计: 只读工具自动执行; 敏感操作 (支付, 发送, 删除, 写文件, shell, 坐标手势, 登记为敏感的脚本) 需要确认; 每次任务都有步数, 模型调用次数, 时长与 token 预算.
 - 脚本 API 与用户界面: `ai.agent.run(goal, options)` 返回带事件, 回应与取消的 `AgentRun` 句柄; 独立应用提供任务台, 历史, 预设, 偏好记忆, 设置与发行历史.
 
+### 界面截图
+
+以下为 Android API 37.1 上的真实英文界面, 使用专门的示例任务和预设响应的演示模型. 图片用于展示界面, 不作为真实模型任务成功的证据, 不含私人账户数据. [截图复现说明](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+
+| 任务台 | 任务详情 |
+| --- | --- |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="任务台" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="任务详情" width="288" /> |
+| 操作确认 | 悬浮任务输入 |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="操作确认" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="悬浮任务输入" width="288" /> |
+
+******
+
+### 安装
+
+******
+
+1. 在安装了 AutoJs6 构建 5293 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
+2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
+
+安装并启用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中配置在线模型或导入受支持的本地模型. 当前宿主模型代理选择 3-Stone AI, 其他 Provider 需要宿主完成接入后才能使用. 在 AI Agent > 预设 中选择模型目标. Connected to AutoJs6 表示宿主连接状态, 模型选择位于预设中.
+
+### 兼容性
+
+支持 Android 7.0+ (API 24). 宿主附着要求 AutoJs6 6.8.0 / build 5289+, 完整任务 API 与本快速开始要求 build 5293+. 请使用包含 Agent 改动的宿主构建. 屏幕操作需要开启宿主的无障碍服务. OCR 为可选能力, 需要安装并授权 OCR 插件, 且宿主报告其可用. AI Agent 本身不保存模型凭据, 不提供独立无障碍服务.
+
+### 界面快速开始
+
+打开 AI Agent 并连接 AutoJs6, 输入目标, 选择默认预设后开始. 在任务卡片中回答询问或确认操作, 点击最近任务查看详情.
+
+### 脚本快速开始
+
+连接 AI Agent 并配置模型后, 在 AutoJs6 中运行以下 JavaScript. 询问与确认由插件界面承接. 如需使用已保存的配置, 在选项中加入 `preset: "your-preset-name"`.
+
+```javascript
+let run = ai.agent.run('读取 Android 版本, 根据实际观察结果报告.', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+请检查 `result.status`: Promise 兑现的结果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任务. 模型目标, 事件, 预算及脚本承接交互见 [ai.agent API](https://docs.autojs6.com/#ai).
+
+### 登记脚本
+
+将下例保存为 AutoJs6 工作目录或宿主已批准的脚本目录中的 `text-counter.js`. 文件开头的 `@agent` JSDoc 表示主动登记到目录. 向 Agent 提出统计指定文本字符数的需求即可, 必填参数缺失时会先询问.
+
+```javascript
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through AI Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+也可在 `main.js` 旁放置以下 `project.json`, main.js 的代码与上例相同, 读取 `ai.agent.context().parameters` 并调用 `ai.agent.result(...)`. 项目登记内容放在 `agent` 对象中.
+
+```json
+{
+  "name": "Text counter",
+  "main": "main.js",
+  "agent": {
+    "id": "text-counter",
+    "description": "Count Unicode characters in the supplied text",
+    "parameters": {
+      "type": "object",
+      "properties": { "text": { "type": "string" } },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "risk": "readonly",
+    "confirm": "never",
+    "timeoutMs": 10000
+  }
+}
+```
+
+参数类型支持 string, number, integer 和 boolean, 不支持嵌套对象或数组. sensitive 脚本执行前始终需要确认. 请仅登记已经审阅的脚本, 风险声明不会为 JavaScript 建立沙箱. [完整登记格式](https://github.com/SuperMonster003/AutoJs6/blob/master/docs/dev/agent-script-manifest-v1.md).
+
 ### 工具目录
 
-开发预览: 登记脚本, 界面操作与 ai.agent 任务 API 已接通. 任务 API 需要 AutoJs6 构建 5293 或更高版本; 完整任务台继续按 P6 实施, 稳定性验收继续按 P7 实施.
+此表由打包的 ToolCatalog 生成. 实际屏幕目标可能提高风险等级, 审慎模式还会确认所有非只读操作. 设置, 预设, 任务选项与宿主授权共同限制可用工具组.
 
 | 工具 | 分组 | 风险 | 默认 | 描述 |
 | --- | --- | --- | --- | --- |
@@ -104,25 +195,34 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | 确认后执行有时限的非 Root shell 命令. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | 报告有界进度, 不声明任务已完成. |
 
-******
+### 预设与记忆
+
+从任务台打开 "预设" 保存任务配置. 名称是脚本与记忆的固定标识, 换名请复制预设. 内置 default 可编辑但不能删除. 模型从宿主目录选择, 也可保留自动选择; 指定模型失效时失败, 不自动换目标. 任务选项只能进一步收紧预设限制. 固定上下文与任务上下文合计最多 8 KiB. 记忆范围可选全局及当前预设, 仅其中一种或关闭. 编辑或删除预设不改变已入队任务. 私有存储最多 32 个预设 / 1 MiB.
+
+打开 "记忆" 查看, 编辑, 删除或备份偏好. 最多 500 条 / 256 KiB, 保留作用域, 来源任务和时间信息. memory_propose 与导入的每条记忆均须单独确认. 未知预设作用域须先创建对应预设. 自动注入允许范围内最新的完整条目, 最多 4 KiB; 当前预设的同名 key 覆盖全局值. memory: false 仅关闭自动注入; 同时禁止查询和提议请关闭 memory 工具组或选择无记忆作用域. 导出包含真实值及来源信息. 请勿保存凭据, 可识别的凭据键名和令牌格式会被拒绝.
 
 ### 使用方法
 
-******
+- 在启动器的 "脚本目录" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围.
+- 最多 200 条任务 / 32 MiB. 优先清理最久未查看的已结束任务. 重跑会把原目标和预设填入任务台, 核对后点击开始任务再次执行. 清空历史会保留运行中的任务. 导出保留诊断计数, 工具名称和确认结果. 目标, 参数, 观察内容及脚本结果会移除. 请选择文件保存位置.
+- 前台在任务台回答, 后台从高优先级通知打开对应请求. 确认页显示工具, 参数, 风险及剩余时间. 同类授权只适用于本次任务内同一工具的同级风险操作; 支付和记忆提议始终逐次确认. "记住此答案" 在允许的记忆作用域内生成单独的 memory_propose 供审阅. 确认通常等待 120 秒, 询问最多 10 分钟, 均受任务预算限制. 超时返回 USER_TIMEOUT, 由模型决定再次询问或报告部分完成. 旧请求无法回答新请求. 后台提醒受通知权限和频道设置影响.
+- 从任务台打开 "设置", 选择工具组, 预算, 审慎模式, 语音输入和默认预设. 修改对新任务生效. gesture/files/shell 初始关闭, OCR 还需宿主提供可用且授权的插件. 预算留空沿用初始默认值, 设置值受协议硬上限约束, 预设与单次参数只能继续收紧. 数据管理显示条数与字节占用, 按类别清除须确认且不能有运行中任务; 清除预设后恢复内置 default. 也可进入脚本目录, 许可证及源码链接.
+- 发行历史与法律声明随应用离线提供. 检查更新由用户手动触发, 经 GitHub Releases 查询, 成功结果缓存 24 小时, 可取消或忽略版本. 更新对话框可打开应用内发行历史或浏览器发布页. 不自动检查, 不下载 APK.
+- 在设置中开启悬浮球, 授权显示在其他应用上层后保存. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 AI Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
 
-1. 在安装了 AutoJs6 构建 5289 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
-2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
-3. 打开 AI Agent 并连接 AutoJs6, 输入目标, 选择默认预设后开始. 在任务卡片中回答询问或确认操作, 点击最近任务查看详情.
-4. 在启动器的 "脚本目录" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围.
-5. 最多 200 条任务 / 32 MiB. 优先清理最久未查看的已结束任务. 重跑会把原目标和预设填入任务台, 核对后点击开始任务再次执行. 清空历史会保留运行中的任务. 导出保留诊断计数, 工具名称和确认结果. 目标, 参数, 观察内容及脚本结果会移除. 请选择文件保存位置.
-6. 从任务台打开 "预设" 保存任务配置. 名称是脚本与记忆的固定标识, 换名请复制预设. 内置 default 可编辑但不能删除. 模型从宿主目录选择, 也可保留自动选择; 指定模型失效时失败, 不自动换目标. 任务选项只能进一步收紧预设限制. 固定上下文与任务上下文合计最多 8 KiB. 记忆范围可选全局及当前预设, 仅其中一种或关闭. 编辑或删除预设不改变已入队任务. 私有存储最多 32 个预设 / 1 MiB.
-7. 打开 "记忆" 查看, 编辑, 删除或备份偏好. 最多 500 条 / 256 KiB, 保留作用域, 来源任务和时间信息. memory_propose 与导入的每条记忆均须单独确认. 未知预设作用域须先创建对应预设. 自动注入允许范围内最新的完整条目, 最多 4 KiB; 当前预设的同名 key 覆盖全局值. memory: false 仅关闭自动注入; 同时禁止查询和提议请关闭 memory 工具组或选择无记忆作用域. 导出包含真实值及来源信息. 请勿保存凭据, 可识别的凭据键名和令牌格式会被拒绝.
-8. 前台在任务台回答, 后台从高优先级通知打开对应请求. 确认页显示工具, 参数, 风险及剩余时间. 同类授权只适用于本次任务内同一工具的同级风险操作; 支付和记忆提议始终逐次确认. "记住此答案" 在允许的记忆作用域内生成单独的 memory_propose 供审阅. 确认通常等待 120 秒, 询问最多 10 分钟, 均受任务预算限制. 超时返回 USER_TIMEOUT, 由模型决定再次询问或报告部分完成. 旧请求无法回答新请求. 后台提醒受通知权限和频道设置影响.
-9. 从任务台打开 "设置", 选择工具组, 预算, 审慎模式, 语音输入和默认预设. 修改对新任务生效. gesture/files/shell 初始关闭, OCR 还需宿主提供可用且授权的插件. 预算留空沿用初始默认值, 设置值受协议硬上限约束, 预设与单次参数只能继续收紧. 数据管理显示条数与字节占用, 按类别清除须确认且不能有运行中任务; 清除预设后恢复内置 default. 也可进入脚本目录, 许可证及源码链接.
-10. 发行历史与法律声明随应用离线提供. 检查更新由用户手动触发, 经 GitHub Releases 查询, 成功结果缓存 24 小时, 可取消或忽略版本. 更新对话框可打开应用内发行历史或浏览器发布页. 不自动检查, 不下载 APK.
-11. 在设置中开启悬浮球, 授权显示在其他应用上层后保存. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 AI Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
+### 常见问题
 
-> 开发预览: P6 任务界面, 设置, 悬浮球, 分享, 快捷方式和语音草稿已接通. ai.agent API 需要 AutoJs6 build 5293 或更高版本. P7/P8 健壮性与发布门禁尚未通过.
+**为什么需要 AutoJs6?**
+
+插件负责任务循环与界面, AutoJs6 负责模型访问, 无障碍操作和登记脚本执行. 未连接兼容宿主时可以查看历史, 无法启动新的设备任务. 宿主断开会阻塞活动任务, 重新连接不会自动重放任务.
+
+**为什么每次付款都要确认?**
+
+付款是独立的敏感操作. 批准下单, 脚本或同类操作不等于批准付款. 每次识别到的付款动作都需要单独确认, 超时视为拒绝. 批准前请核对商家, 商品, 地址和金额.
+
+**本地模型有哪些局限?**
+
+任务依赖模型遵循指令, 输出合法决策 JSON 及可用上下文. 小模型成功加载后仍可能无法完成任务; 已记录的 Gemma 4 E2B IT Wi-Fi 用例未通过决策校验. 建议从简短任务开始, 检查 partial/failed 结果. 1.0.0 使用文本节点/OCR 观察与 JSON 决策循环, 视觉输入, 原生工具调用和动态生成脚本仍属于 1.1.0 路线图.
 
 ******
 

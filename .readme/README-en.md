@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Development preview for 1.0.0. Task APIs and interface entry points are implemented, and P7 audit evidence is recorded. P8 release checks and publication are still pending. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for passed cases and known limitations.
 
 ******
 
@@ -60,16 +60,107 @@ Development preview: P6 task screens, settings, the floating ball, sharing, shor
 
 ******
 
-Release 1.0.0 is planned to provide the following capabilities:
+The current implementation provides these capabilities:
 
 - Script selection: scripts registered through `project.json` or an `@agent` header comment are listed to the model with their descriptions and parameter schemas; the agent picks one, completes the parameters, asks for confirmation when required, runs it inside AutoJs6 and reads its structured result.
 - Step-by-step screen operation: the agent observes the accessibility node tree in a compact text form (and screen text through an OCR plugin when one is installed), then clicks, types, scrolls and presses keys through the AutoJs6 capability broker until it can verify the goal.
 - Safety by design: read-only tools run automatically, sensitive actions (payment, sending, deletion, file writes, shell, coordinate gestures, scripts registered as sensitive) require confirmation, and every run has step, model-call, duration and token budgets.
 - Script API and user interface: `ai.agent.run(goal, options)` returns an `AgentRun` handle with events, responses and cancellation; the standalone app offers a task workbench with history, presets, preference memory, settings and release history.
 
+### Screenshots
+
+Actual English interface rendered on Android API 37.1 with synthetic tasks and a scripted demo model. These images illustrate the interface, not real-model task success. No private account data is included. [Capture procedure](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+
+| Task workbench | Task details |
+| --- | --- |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="Task workbench" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="Task details" width="288" /> |
+| Action confirmation | Floating task input |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="Action confirmation" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="Floating task input" width="288" /> |
+
+******
+
+### Installation
+
+******
+
+1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5293 or later.
+2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
+
+Install and enable [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), then configure an online model or import a supported local model there. The current host model broker selects 3-Stone AI; support for another Provider requires host integration. Select a target in AI Agent > Presets. Connected to AutoJs6 shows the host connection; it is not a model picker.
+
+### Compatibility
+
+Android 7.0+ (API 24). Host attachment requires AutoJs6 6.8.0 / build 5289+, while the complete task API and this quick start require build 5293+. Use a host build containing the Agent changes. Enable the host accessibility service for screen actions. OCR is optional and requires an installed, authorized OCR plugin reported as available by the host. The AI Agent plugin has no model credentials or accessibility service of its own.
+
+### Quick start from the interface
+
+Open AI Agent, connect to AutoJs6, enter a goal, select the default preset and start. Answer questions or confirm actions in the task card; open recent tasks to review their details.
+
+### Quick start from a script
+
+Run this JavaScript in AutoJs6 after connecting AI Agent and configuring a model. Questions and confirmations are handled by the plugin interface. To reuse a saved configuration, add `preset: "your-preset-name"` to the options.
+
+```javascript
+let run = ai.agent.run('Read the Android version and report the observed value.', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+Read `result.status`: a resolved result may be completed, partial, failed, blocked or cancelled. `run.cancel()` stops the task. See the [ai.agent API](https://docs.autojs6.com/#ai) for target selection, events, budgets and script-owned responses.
+
+### Register a script
+
+Save the following as `text-counter.js` in the AutoJs6 working directory or a host-approved Script directory. The leading `@agent` JSDoc opts the file into the catalog. Ask the agent to count the characters in a specified text; missing required parameters are requested before execution.
+
+```javascript
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through AI Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+Alternatively, put this `project.json` beside `main.js`, whose body reads `ai.agent.context().parameters` and calls `ai.agent.result(...)` as above. A project registration belongs in the `agent` object.
+
+```json
+{
+  "name": "Text counter",
+  "main": "main.js",
+  "agent": {
+    "id": "text-counter",
+    "description": "Count Unicode characters in the supplied text",
+    "parameters": {
+      "type": "object",
+      "properties": { "text": { "type": "string" } },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "risk": "readonly",
+    "confirm": "never",
+    "timeoutMs": 10000
+  }
+}
+```
+
+Parameter types are string, number, integer and boolean; nested objects and arrays are unsupported. Sensitive scripts always require confirmation before running. Register only scripts you have reviewed: a risk declaration does not sandbox JavaScript. [Complete manifest format](https://github.com/SuperMonster003/AutoJs6/blob/master/docs/dev/agent-script-manifest-v1.md).
+
 ### Tool catalog
 
-Development preview: registered scripts, screen actions and the ai.agent task API are connected. Task APIs require AutoJs6 build 5293 or later; the complete workbench follows in P6 and reliability acceptance continues in P7.
+This table is generated from the packaged ToolCatalog. Risk can be raised by the actual screen target; cautious mode also confirms non-read-only actions. Settings, presets, task options and host grants all constrain the available groups.
 
 | Tool | Group | Risk | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -104,25 +195,34 @@ Development preview: registered scripts, screen actions and the ai.agent task AP
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
-******
+### Presets and memory
+
+Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Choose a model from the host catalog, or keep automatic selection. A missing selected model fails without switching targets. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately.
+
+Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
 
 ### Usage
 
-******
+- Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
+- Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
+- Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery.
+- Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
+- Release history and legal notices are bundled for offline reading. Check updates manually through GitHub Releases, with a 24-hour success cache, cancellation and an ignored-version setting. The dialog opens release history inside the app or the release page in a browser. Checks never run automatically and APKs are not downloaded.
+- Enable the floating ball in Settings, allow display over other apps, then save. It is off by default, appears only while AutoJs6 is connected, hides on lock or disconnect, and has no idle foreground service. Drag to move; tap to enter a goal, choose a preset, review a question or confirmation, or stop a task. Collapsing the card restores background confirmation notifications. Share plain text to AI Agent, use the New task app shortcut, or pin a preset with an optional goal from Presets. All entries open editable drafts and require Start task. A deleted preset never falls back silently. Voice uses the system recognizer in the interface language, is hidden when unavailable and fills text without sending.
 
-1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) on a device with AutoJs6 build 5289 or later.
-2. Open the AutoJs6 plugin center, confirm that `AI Agent` is recognized, and enable it. Official release packages pass signature verification automatically.
-3. Open AI Agent, connect to AutoJs6, enter a goal, select the default preset and start. Answer questions or confirm actions in the task card; open recent tasks to review their details.
-4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
-5. Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
-6. Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Choose a model from the host catalog, or keep automatic selection. A missing selected model fails without switching targets. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately.
-7. Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
-8. Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery.
-9. Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
-10. Release history and legal notices are bundled for offline reading. Check updates manually through GitHub Releases, with a 24-hour success cache, cancellation and an ignored-version setting. The dialog opens release history inside the app or the release page in a browser. Checks never run automatically and APKs are not downloaded.
-11. Enable the floating ball in Settings, allow display over other apps, then save. It is off by default, appears only while AutoJs6 is connected, hides on lock or disconnect, and has no idle foreground service. Drag to move; tap to enter a goal, choose a preset, review a question or confirmation, or stop a task. Collapsing the card restores background confirmation notifications. Share plain text to AI Agent, use the New task app shortcut, or pin a preset with an optional goal from Presets. All entries open editable drafts and require Start task. A deleted preset never falls back silently. Voice uses the system recognizer in the interface language, is hidden when unavailable and fills text without sending.
+### Frequently asked questions
 
-> Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8.
+**Why is AutoJs6 required?**
+
+The plugin owns the task loop and interface. AutoJs6 owns model access, accessibility actions and registered-script execution. Without a connected compatible host, history can be read but new device tasks cannot run. Host loss blocks active tasks; reconnecting never automatically replays them.
+
+**Why must every payment be confirmed?**
+
+Payment is a separate sensitive action. Approval of an order, a script or similar actions does not approve payment. Each detected payment action requires its own confirmation, and a timeout is a refusal. Check the merchant, items, address and amount before approving.
+
+**What are the limits of local models?**
+
+Tasks depend on instruction following, valid decision JSON and the available context. Small models may fail even when loading succeeds; the Gemma 4 E2B IT Wi-Fi case did not pass the recorded decision-validation run. Start with small tasks and review partial/failed results. Version 1.0.0 uses text node/OCR observations and a JSON decision loop; visual input, native tool calling and generated scripts remain in the 1.1.0 roadmap.
 
 ******
 

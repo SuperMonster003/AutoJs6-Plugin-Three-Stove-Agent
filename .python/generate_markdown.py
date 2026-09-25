@@ -399,6 +399,13 @@ def build_readme_values(
     content["placeholder_ul_languages_all_supported"] = build_language_list(code, languages)
     content["placeholder_features"] = bullet_list(content["features"])
     content["placeholder_usage_steps"] = numbered_list(content["usage_steps"])
+    content["placeholder_installation_steps"] = numbered_list(content["usage_steps"][:2])
+    content["p_quickstart_ui"] = content["usage_steps"][2]
+    content["p_presets_usage"] = content["usage_steps"][5]
+    content["p_memory_usage"] = content["usage_steps"][6]
+    content["placeholder_usage_details"] = bullet_list([
+        value for index, value in enumerate(content["usage_steps"]) if index in (3, 4, 7, 8, 9, 10)
+    ])
     content["placeholder_security_points"] = bullet_list(content["security_points"])
     content["placeholder_latest_release_history"] = format_changelog_items(
         changelogs[code],

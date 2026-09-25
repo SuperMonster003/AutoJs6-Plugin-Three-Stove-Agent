@@ -47,7 +47,7 @@ class WorkbenchActivityTest {
     private val context = instrumentation.targetContext
     private fun bundle(key: String, json: String = "{}") = AgentWire.envelope(key, json)
     private val completed = """{"kind":"done","done":{"status":"completed","summary":"Workbench fixture complete","evidence":["Fixture answer received"]}}"""
-    private inner class Model(private val holdEveryCall: Boolean = false) : IAiAgentModelBroker.Stub() {
+    private inner class Model(private val holdEveryCall: Boolean = false, private val displayName: String = "Workbench fixture model") : IAiAgentModelBroker.Stub() {
         val calls = AtomicInteger()
         val requests = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
         @Volatile var held: Pair<String, IAiAgentModelCallback>? = null
@@ -61,7 +61,9 @@ class WorkbenchActivityTest {
         override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
             val id = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).getString("requestId")
             emit(callback, id, "started", 1)
-            emit(callback, id, "completed", 2, JSONObject().put("targets", JSONArray("""[{"targetId":"workbench:fixture","displayName":"Workbench fixture model","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")))
+            val targets = JSONArray("""[{"targetId":"workbench:fixture","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")
+            targets.getJSONObject(0).put("displayName", displayName)
+            emit(callback, id, "completed", 2, JSONObject().put("targets", targets))
         }
         override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
             val json = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
@@ -1389,6 +1391,68 @@ class WorkbenchActivityTest {
                 }
             }
             audit.finish()
+        }
+    }
+
+    @Test fun captureReadmeScreens() {
+        ReadmeCapture.requireOptIn()
+        check(listOf("runs", "agent-runs").all { java.io.File(context.filesDir, it).listFiles().isNullOrEmpty() }) {
+            "Use an empty disposable emulator, never a user's history"
+        }
+        withFixture(Model(true, "Demo model"), listOf("memory", "user")) { link, model ->
+            UiAccessibilityAudit().themed {
+                var id: String? = null
+                try {
+                    ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                        enter(scenario, "Ask which language to use for my reports.")
+                        waitFor("Demo model ready") { model.held != null }
+                        model.finish("""{"kind":"ask","ask":{"kind":"text","question":"Which language should I use for your reports?"}}""")
+                        waitUi(scenario, "Demo answer field") { it.findViewById<EditText>(R.id.workbench_answer)?.isLaidOut == true }
+                        scenario.onActivity { it.findViewById<EditText>(R.id.workbench_answer).setText("English") }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { ReadmeCapture.save(it.window.decorView, "workbench") }
+                        scenario.onActivity {
+                            val card = it.findViewById<LinearLayout>(R.id.workbench_pending)
+                            (0 until card.childCount).map(card::getChildAt).filterIsInstance<Button>().single().performClick()
+                        }
+                        waitFor("Demo answer received") { model.held != null }
+                        model.finish("""{"kind":"done","done":{"status":"completed","summary":"Reports should use English.","evidence":["You answered: English."]}}""")
+                        waitUi(scenario, "Demo completed") { it.findViewById<TextView>(R.id.workbench_step).text.toString() == "Reports should use English." }
+                        id = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")[0].asJsonObject.string("runId")!!
+                    }
+                    ActivityScenario.launch<RunDetailActivity>(Intent(context, RunDetailActivity::class.java).putExtra("runId", id)).use { scenario ->
+                        waitFor("Demo detail ready") { var ready = false; scenario.onActivity {
+                            ready = texts(it.findViewById(android.R.id.content)).contains("Reports should use English.")
+                        }; ready }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { ReadmeCapture.save(it.window.decorView, "detail") }
+                    }
+                    deleteAuditRun(checkNotNull(id)); id = null
+                    id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                        io.github.supermonster003.autojs6.plugin.ai.agent.service.RunLauncher.uiRequest("Remember my report language.", "default", "en")), null)).string("runId")!!
+                    fun run() = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+                    waitFor("Demo memory model ready") { model.held != null }
+                    model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"report_language","value":"English"}}""")
+                    waitFor("Demo confirmation ready") { run().getAsJsonObject("pending") != null }
+                    val request = run().getAsJsonObject("pending").string("requestId")!!
+                    ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, checkNotNull(id), request)).use { scenario ->
+                        waitFor("Demo card ready") { var ready = false; scenario.onActivity {
+                            val card = it.findViewById<ViewGroup>(R.id.workbench_pending)
+                            ready = card.childCount > 2 && card.getChildAt(card.childCount - 1).isLaidOut
+                        }; ready }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { ReadmeCapture.save(it.window.decorView, "confirmation") }
+                    }
+                } finally {
+                    id?.let { runId ->
+                        link.cancelRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$runId"}"""))
+                        waitFor("Demo task stopped") {
+                            !WorkbenchText.active(AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$runId"}"""))))
+                        }
+                        deleteAuditRun(runId)
+                    }
+                }
+            }
         }
     }
 
