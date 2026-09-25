@@ -1,6 +1,6 @@
 # P8 final release gate evidence
 
-Date: 2026-09-25. Candidate version: 1.0.0 / build 75.
+Date: 2026-09-25. Candidate version: 1.0.0 / build 76.
 Final device results and publication receipts are recorded below as they are
 verified. A generated APK alone does not close the original P8 gate.
 
@@ -30,15 +30,16 @@ instructions correctly.
 ## Build and artifact
 
 - Temurin 21: debug, androidTest, JVM, lint, signed R8 release and
-  `appendDigestToReleasedFiles` passed. The final combined build took 1m 35s.
+  `appendDigestToReleasedFiles` passed. Build 75 took 1m 35s; the final build 76
+  took 1m 52s after the test-only Android 7 compatibility correction.
 - JVM: 476 passed, 1 opt-in performance test skipped, 0 failures/errors.
 - Lint: 0 errors, 6 existing warnings.
 - All 10 languages / 36 generated Markdown artifacts match their sources.
 - Single APK, no native payload, Android API 24 minimum / target API 37.
   Actual manifest checked for production components and permissions.
-- Final APK: `autojs6-plugin-ai-agent-v1.0.0-34190ebf.apk`, 642082 bytes.
-- CRC32: `34190ebf`.
-- SHA-256: `fe5f43fa0090f4d6d17b01381db0d539e0b639faec4eead10305330dd822c0cb`.
+- Final APK: `autojs6-plugin-ai-agent-v1.0.0-6aa5a3d0.apk`, 642082 bytes.
+- CRC32: `6aa5a3d0`.
+- SHA-256: `2ab19c8e822e50427a3bddc6940aefbd57f7d6e705504f37630aa8b32617c257`.
 - Signer SHA-256:
   `31a681fcfffb3e428420cae280ded89292b12a3b0f59e19b7a73e32a8ae4c213`.
 
@@ -46,8 +47,15 @@ Preflight build 73 and the initial build 75 candidate are preserved only in
 ignored validation output. They are excluded from the release. The first
 new unit-test compile used `copy` on the non-data `RunContext` class and failed;
 it was corrected to construct a fresh context before the passing build.
+The verified build 75 package (`34190ebf`, SHA-256
+`fe5f43fa0090f4d6d17b01381db0d539e0b639faec4eead10305330dd822c0cb`) is also
+archived privately. Build 76 changes only instrumentation, evidence and the
+required commit-based version code; production task logic is identical.
 
 ## Device validation
+
+The following initial device checks and real-model cases used build 75. Final
+build 76 verification is recorded separately before closing the release gate.
 
 Final API 24 contract: 4/4, 0.207 s. Final XQ-DQ72 / API 33 production entry:
 5/5, 2.240 s, including the installed plugin's protected broadcast attaching
@@ -64,6 +72,13 @@ The final-source API 37.1 / x86_64 / 16 KB rerun passed 80 tests with only the
 2 opt-in README capture cases skipped (82 reported, 290.313 s). Its production
 entry suite then passed 5/5 in 2.574 s against the signed release, including
 protected broadcast attachment in 528 ms.
+
+After power was restored, the unchanged signed candidate was installed on the
+other three connected physical devices. Real-host production entry checks
+passed 5/5 on each: Xiaomi Pad / API 35 (2.384 s, attachment 429 ms), G8441 /
+API 28 (2.905 s, attachment 618 ms), and Redmi 12C / API 33 (4.887 s, attachment
+1029 ms). These checks start no model task and do not switch network state;
+their screen timeouts and notification permissions were restored.
 
 ## Real-model cases
 
@@ -129,6 +144,29 @@ prepares notification permission, and keeps the disposable screen awake and
 unlocked. Production package/version/signer checks and all test assertions
 remain enabled. The original four independent broker tests are unchanged.
 Final CI results are recorded after the new source commit has run remotely.
+
+The build 75 CI rerun passed JVM/build/lint, Markdown and the complete API 35
+suite (2 opt-in capture cases skipped). API 24 had one remaining failure:
+the confirmation test searched only system-type accessibility windows, while
+Android 7 reports its TYPE_PHONE overlay as an application window. It now
+matches the actual card title, as the other floating-window test already did.
+Local API 24 verification then reached the next assertion and exposed an
+additional test assumption: older dumpsys prints hexadecimal window flags.
+The test now checks the actual card's FLAG_SECURE bit in that format as well
+as symbolic flags, rather than searching all windows for a string. No
+production overlay or privacy setting changed.
+Final focused regressions passed both floating-window cases on API 24
+(2/2, 16.131 s) and API 37.1 (2/2, 19.626 s). The final test APK compiles,
+lint still has zero errors, and punctuation/Markdown checks pass. Build 76's
+signed entry check on Redmi also passed 5/5 (4.576 s, attachment 927 ms).
+
+The resumed local isolated conformance AVD passed the complete Agent suite:
+80 passed, 2 opt-in capture cases skipped, 318.756 s. The four independent
+fake-host broker tests then passed through the unchanged default runner mode.
+The disposable emulator was shut down without modifying any real host or
+deleting its data directory. A first operator command used the wrong test APK
+filename and stopped before instrumentation; it was corrected to the actual
+`app-debug-androidTest.apk` output before the complete passing run.
 
 ## Publication scope
 

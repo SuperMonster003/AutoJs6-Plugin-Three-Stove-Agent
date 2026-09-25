@@ -4,6 +4,7 @@ import android.content.*
 import android.os.*
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1139,10 +1140,13 @@ class WorkbenchActivityTest {
     }
     private fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command))
         .bufferedReader().use { it.readText() }
-    private fun floatingFrame(card: Boolean): android.graphics.Rect? {
+    private fun floatingWindowDump(card: Boolean): String {
         val title = if (card) "AI Agent floating card" else "AI Agent floating ball"
         val dump = shell("dumpsys window windows")
-        val lines = dump.lineSequence().dropWhile { !it.contains("Window #") || !it.contains(title) }.drop(1).takeWhile { !it.contains("Window #") }.joinToString("\n")
+        return dump.lineSequence().dropWhile { !it.contains("Window #") || !it.contains(title) }.drop(1).takeWhile { !it.contains("Window #") }.joinToString("\n")
+    }
+    private fun floatingFrame(card: Boolean): android.graphics.Rect? {
+        val lines = floatingWindowDump(card)
         val visible = lines.contains("isOnScreen=true") && lines.contains("isVisible=true") ||
             Build.VERSION.SDK_INT <= 25 && lines.contains("isReadyForDisplay()=true") && lines.contains("Surface: shown=true")
         if (!visible || !lines.contains("HAS_DRAWN")) return null
@@ -1256,9 +1260,18 @@ class WorkbenchActivityTest {
                 automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
                 try {
                     val labels = HostAppearance.read(context)?.wrap(context) ?: context
-                    fun root() = automation.windows.firstOrNull { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM && it.root?.packageName == context.packageName }?.root
+                    // API 24/25 expose TYPE_PHONE overlays as application windows.
+                    // Match the actual card title as the other floating-window test does.
+                    fun root() = automation.windows.firstOrNull {
+                        it.root?.packageName == context.packageName && (it.title == "AI Agent floating card" ||
+                            it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM)
+                    }?.root ?: automation.rootInActiveWindow?.takeIf { it.packageName == context.packageName }
                     waitFor("Real confirmation buttons in overlay") { root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.task_deny))?.any { it.isClickable } == true }
-                    assertTrue(shell("dumpsys window windows").contains("SECURE"))
+                    val window = floatingWindowDump(true)
+                    // Older dumpsys prints numeric flags instead of their symbolic names.
+                    val numericFlags = Regex("\\bfl=(?:#|0x)([0-9a-fA-F]+)\\b").find(window)?.groupValues?.get(1)?.toLong(16) ?: 0L
+                    assertTrue("Confirmation card uses FLAG_SECURE", window.contains("SECURE") ||
+                        numericFlags and WindowManager.LayoutParams.FLAG_SECURE.toLong() != 0L)
                     waitFor("Collapse actual confirmation card") {
                         root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.floating_collapse))?.firstOrNull { it.isClickable }
                             ?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
