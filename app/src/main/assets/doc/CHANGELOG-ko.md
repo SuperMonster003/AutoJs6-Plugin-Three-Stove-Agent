@@ -10,6 +10,7 @@
 
 * `힌트` 1.0.0은 자연어 작업, 등록된 스크립트 호출, 위험 수준에 따른 확인을 거치는 기기 조작을 제공합니다. 검증된 사례, 모델 제한 사항, 남은 기기 검증은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)를 참고하세요. 네이티브 도구 호출, 시각 입력, 동적 스크립트 생성은 1.1.0에서 지원할 예정입니다.
 * `힌트` Android 7+, 작업 API용 AutoJs6 6.8.0 / build 5293+, 모델을 설정하고 활성화한 3-Stone AI가 필요합니다. OCR은 선택 사항입니다. 연결 프로토콜만의 최소 호스트는 build 5289+입니다.
+* `힌트` 호환성 안내: AutoJs6 build 5297의 네이티브 도구용 호스트 확장은 이 버전과 호환됩니다. 이 버전은 계속 구조화된 JSON 결정을 사용합니다. Provider와 Agent의 네이티브 도구 지원 진행 상황은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에서 확인하세요.
 * `기능` 자연어 작업 화면의 질문, 진행, 중지 및 결과와 선택적 플로팅 입력, 텍스트 공유, 프리셋 바로가기 및 음성 초안
 * `기능` ai.agent API의 작업 생성, 이벤트, 조회, 응답 및 취소, detached 작업과 등록 스크립트 결과/문맥 접근
 * `기능` project.json / @agent 등록 스크립트 검색, 매개변수 검증 및 기본값, 누락 값 질문, 승인, 제한된 실행 및 구조화된 결과
