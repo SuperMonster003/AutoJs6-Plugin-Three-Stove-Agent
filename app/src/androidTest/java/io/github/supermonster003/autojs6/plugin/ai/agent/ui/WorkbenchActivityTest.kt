@@ -580,6 +580,7 @@ class WorkbenchActivityTest {
             flags = originalFlags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
         }
         var opened = false
+        var activity: ConfirmationActivity? = null
         var diagnostics = ""
         try {
             instrumentation.waitForIdleSync()
@@ -598,24 +599,30 @@ class WorkbenchActivityTest {
                 }
                 diagnostics = "roots=${roots.map { it.packageName.toString() + ":" + it.childCount }}, nodes=$inspected, matches=${nodes.size}, flags=${automation.serviceInfo.flags}, capabilities=${automation.serviceInfo.capabilities}"
                 nodes.any { candidate ->
+                    // MIUI's clickable ancestor may expand the notification group without opening
+                    // this row. A delivered action alone is not proof that the confirmation opened.
+                    activity = monitor.lastActivity as? ConfirmationActivity
+                    if (activity != null) return@any true
                     var clickable: android.view.accessibility.AccessibilityNodeInfo? = candidate
                     while (clickable != null && !clickable.isClickable) clickable = clickable.parent
-                    if (clickable?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true) return@any true
-                    // Notification rows need not expose an accessibility click action on every Android version.
+                    if (clickable?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true)
+                        activity = monitor.waitForActivityWithTimeout(3000) as? ConfirmationActivity
+                    if (activity != null) return@any true
                     val bounds = android.graphics.Rect().also(candidate::getBoundsInScreen)
                     if (!candidate.isVisibleToUser || bounds.isEmpty) false else {
                         val now = SystemClock.uptimeMillis()
                         val down = android.view.MotionEvent.obtain(now, now, android.view.MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY(), 0)
                         val up = android.view.MotionEvent.obtain(now, now + 80, android.view.MotionEvent.ACTION_UP, bounds.exactCenterX(), bounds.exactCenterY(), 0)
                         down.source = android.view.InputDevice.SOURCE_TOUCHSCREEN; up.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
-                        try { automation.injectInputEvent(down, true) && automation.injectInputEvent(up, true) }
+                        try { automation.injectInputEvent(down, true); automation.injectInputEvent(up, true) }
                         finally { down.recycle(); up.recycle() }
+                        activity = monitor.waitForActivityWithTimeout(5000) as? ConfirmationActivity
+                        activity != null
                     }
                 }
             }
-            val activity = monitor.waitForActivityWithTimeout(15000)
             assertNotNull("Notification tap opens its activity", activity)
-            return (activity as ConfirmationActivity).also { opened = true }
+            return checkNotNull(activity).also { opened = true }
         } catch (failure: AssertionError) {
             throw AssertionError("Notification route: $diagnostics", failure)
         } finally {
@@ -1122,7 +1129,9 @@ class WorkbenchActivityTest {
         val title = if (card) "AI Agent floating card" else "AI Agent floating ball"
         val dump = shell("dumpsys window windows")
         val lines = dump.lineSequence().dropWhile { !it.contains("Window #") || !it.contains(title) }.drop(1).takeWhile { !it.contains("Window #") }.joinToString("\n")
-        if (!lines.contains("isOnScreen=true") || !lines.contains("isVisible=true") || !lines.contains("HAS_DRAWN")) return null
+        val visible = lines.contains("isOnScreen=true") && lines.contains("isVisible=true") ||
+            Build.VERSION.SDK_INT <= 25 && lines.contains("isReadyForDisplay()=true") && lines.contains("Surface: shown=true")
+        if (!visible || !lines.contains("HAS_DRAWN")) return null
         val match = Regex("(?:mFrame|frame)=\\[(-?\\d+),(-?\\d+)\\]\\[(-?\\d+),(-?\\d+)\\]").find(lines) ?: return null
         val coordinates = match.groupValues.drop(1).map(String::toInt)
         return android.graphics.Rect(coordinates[0], coordinates[1], coordinates[2], coordinates[3]).takeIf { it.width() > 0 && it.height() > 0 }
@@ -1172,8 +1181,10 @@ class WorkbenchActivityTest {
             val flags = automation.serviceInfo.flags
             automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
             fun overlayRoot() = automation.windows.firstOrNull {
-                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM && it.root?.packageName == context.packageName
-            }?.root
+                // TYPE_PHONE windows are reported as application windows on API 24/25.
+                it.root?.packageName == context.packageName && (it.title == "AI Agent floating card" ||
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM)
+            }?.root ?: automation.rootInActiveWindow?.takeIf { it.packageName == context.packageName }
             try {
                 val fieldFrame = checkNotNull(floatingFrame(true))
                 SystemClock.sleep(300) // WindowManager animates the old compact surface to the new frame.

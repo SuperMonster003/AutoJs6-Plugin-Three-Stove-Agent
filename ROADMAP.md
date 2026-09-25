@@ -319,7 +319,7 @@ P0.2 验收状态 (2026-09-22): spike 数据落盘 (`docs/dev/p0-spike-evidence.
 - [x] (宿主) 抽出 `core/plugin/hostbroker/HostCapabilityBrokerCore` (grant 评估 -> JSON 解码 -> `AndroidNodeBridgeCapabilityProvider.dispatch` -> 响应编码 / PFD 负载 / 超时 / 并发上限) 与 `HostCapabilityGrant` (`McpCapabilityGrant` 的字段与 `evaluate` 原样泛化, 新增 `modelCallsPerMinute` / `maxTotalTokens` / `maxInputBytesPerRequest`), `HostCapabilityBrokerStub : IHostCapabilityBroker.Stub` (共享 AIDL 的唯一实现, D17); `McpHostCapabilityBroker` 改为 `IMcpHostCapabilityBroker.Stub` 薄适配 (MCP v1 会话), `McpCapabilityGrant` 改为 typealias 或薄子类, MCP 既有测试全部保持通过 (`McpCapabilityGrantTest` 等零改动或仅改导入); `McpServerPluginHost` 的 v2 路径下发 `HostCapabilityBrokerStub`. 证据 (E1 / E2, 2026-09-22): 宿主 2201068c9e; 共享 HostCapabilityBrokerCore / Stub / Grant 与有界 DispatchQueue, MCP v1 薄适配. HostCapabilityGrantTest, 原 MCP grant/config/UI 测试均通过; API 37 的 HostCapabilityBrokerStubTest 4/4, MCP 独立假插件 6/6. 保留既有错误分类: 方法/权限越界 capability-denied, 体积/并发 resource-limit, 超时 timeout.
 - [x] (宿主) `AiAgentLinkBrokers` (为一条链路组装 `AiAgentModelBroker` + `HostCapabilityBrokerStub(AiAgentGrant)` 并统一 destroy) 与 `AiAgentGrant.default()` (附录 C.4 方法全集; `shell.exec`, `files.write`, `accessibility.swipe / gesture` 与坐标点击在 grant 中允许但由插件工具组默认关闭, 与 MCP 一致; `rhino.run` / `java.*` / `websocket` / `fetch` / `ui.overlay` 一律不在 grant 内, 1.1.0 的动态脚本经 `engines.execScript` 而非 `rhino.run`). 证据 (E1 / E2, 2026-09-22): AiAgentLinkBrokers 统一销毁模型与能力代理, 能力 Stub 固定插件 UID; AiAgentGrantTest 2/2 验证附录 C.4 方法快照与越界, 链路设备测试验证撤销后拒绝.
 - [x] (宿主) `AiAgentPluginHost` (发现 / 探测 / 签名与版本校验 / 专用租约 / `linkToDeath` / 有界退避重绑 / `attach` 失败不重试), `AiAgentLinkController` (状态流, 附着广播接收器 `AiAgentAttachRequestReceiver` 受 `org.autojs.permission.PLUGIN` 保护且校验发送方为插件包, `key_$_ai_agent_normally_closed`), `AiAgentUiState` / `AiAgentPluginInspector` (六态: `NOT_INSTALLED / APPLICATION_DISABLED / ACTIVATION_REQUIRED / PLUGIN_DISABLED / AUTHORIZATION_REQUIRED / TRUST_CONFIRMATION_REQUIRED / INCOMPATIBLE / AVAILABLE / ATTACHED / HOST_UNAVAILABLE / FAILED`, MCP 同形). 证据 (E1 / E2, 2026-09-22): AiAgentPluginHost / LinkController / Inspector / UiPolicy / AttachRequestReceiver 已实现, AiAgentLinkPolicyTest 5/5, Android AiAgentLinkControllerTest 8/8. 接收器身份验证复用不可变 PendingIntent 的 creatorPackage/creatorUid, 不发送该令牌; 清单注册与引导仍在 P1.5. 设备生命周期用例使用注入的本地 Binder link, 不冒充 P7 独立假 Agent APK.
-- [ ] (测试) JVM: `HostCapabilityGrantTest` (含 MCP 既有用例迁移), `HostCapabilityBrokerStubTest` (请求解码, 超时, PFD, destroy 后拒绝), `AiAgentGrantTest` (默认集合快照, 越界拒绝), 链路状态机; Android: 假插件 (`test-apps:ai-agent-conformance`, 见 P7) 的 attach / detach / death / 附着广播 / 拒绝非插件包广播; MCP v2 往返 (`McpServerPluginRoundTripTest` 新增 `openServerV2` 用例, 用 `test-apps` 假 MCP 插件或宿主内假 Stub). 部分证据 (E1 / E2, 2026-09-22): 共享 grant/dispatch/Agent grant/状态机 JVM 通过, HostCapabilityBrokerStubTest 4/4 与 McpServerPluginRoundTripTest v2 分流通过. Bundle/PFD/UID 用例实际放在 androidTest, 超时/并发/销毁用纯 JVM DispatchQueue 测试. P7 补充 (2026-09-25): 独立 ai-agent-conformance APK 的真实跨进程 attach/detach/death 与非插件发送者拒绝矩阵已通过. 仅正向生产附着广播的独立验收待补, 本项仍未勾选, 详见 `docs/dev/p7-conformance-evidence-2026-09-25.md`.
+- [x] (测试) JVM: `HostCapabilityGrantTest` (含 MCP 既有用例迁移), `HostCapabilityBrokerStubTest` (请求解码, 超时, PFD, destroy 后拒绝), `AiAgentGrantTest` (默认集合快照, 越界拒绝), 链路状态机; Android: 假插件 (`test-apps:ai-agent-conformance`, 见 P7) 的 attach / detach / death / 附着广播 / 拒绝非插件包广播; MCP v2 往返 (`McpServerPluginRoundTripTest` 新增 `openServerV2` 用例, 用 `test-apps` 假 MCP 插件或宿主内假 Stub). 部分证据 (E1 / E2, 2026-09-22): 共享 grant/dispatch/Agent grant/状态机 JVM 通过, HostCapabilityBrokerStubTest 4/4 与 McpServerPluginRoundTripTest v2 分流通过. Bundle/PFD/UID 用例实际放在 androidTest, 超时/并发/销毁用纯 JVM DispatchQueue 测试. P7 补充 (2026-09-25): 独立 ai-agent-conformance APK 的真实跨进程 attach/detach/death 与非插件发送者拒绝矩阵已通过. 六台设备的正向生产附着广播与入口测试于同日补验 30/30, 关闭本项. 详见 `docs/dev/p7-conformance-evidence-2026-09-25.md` 与 `docs/dev/p7-compatibility-evidence-2026-09-25.md`.
 
 ### P1.4 bridge 新增方法, 脚本登记解析与结果通道
 
@@ -567,7 +567,7 @@ P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬
 - [x] (插件) 性能基线: 每步开销 (上下文编译 + 解析 + 校验) < 20 ms (JVM 基准), `ui_dump` 200 节点往返 < 300 ms (AVD), 单任务内存峰值记录; 历史与记忆 store 写放大控制 (按条目文件, 不整文件重写).
 - [x] (插件) 电量与常驻: 前台服务只在运行中存在; 悬浮球空闲不轮询; 无任务时插件进程可被回收且下次附着正常.
 - [x] (测试) `test-apps:ai-agent-conformance` (宿主仓库): 假 Agent 插件 (最小 `attach` + `startRun` 回显 + 敌意回调) 供宿主 instrumentation 使用; 本仓库假宿主测试 APK (P2.5) 覆盖 attach / grant 拒绝 / death.
-- [ ] (测试) 兼容矩阵: AVD API 24 (前台服务 / 通知兼容), Sony G8441 API 28, Redmi 12C API 33, Sony XQ-DQ72 / QV770340J7 API 33 (按用户补充纳入), Xiaomi Pad API 35 (HyperOS 悬浮窗与 a11y 重绑坑), AVD API 37; 每台记录: 安装 / 激活 / 附着 / 用例 (1) / 确认路径 / 悬浮球.
+- [x] (测试) 兼容矩阵: AVD API 24 (前台服务 / 通知兼容), Sony G8441 API 28, Redmi 12C API 33, Sony XQ-DQ72 / QV770340J7 API 33 (按用户补充纳入), Xiaomi Pad API 35 (HyperOS 悬浮窗与 a11y 重绑坑), AVD API 37; Sony XQ-AT72 / QV710AF65F API 31 (2026-09-25 用户补充, 离线, 预计 2026-09-27 20:00 UTC+8 前上线后补测); 每台记录: 安装 / 激活 / 附着 / 用例 (1) / 确认路径 / 悬浮球.
 - [ ] (插件) 安全审计清单 (本仓库 `docs/dev/security-checklist.md`): 权限最小化 (D28), 导出组件, 广播校验, 日志脱敏 (提示词 / 观察 / 记忆值不进普通日志), 记忆不存凭据, 导出文件脱敏, 确认门不可被预设绕过, 付款类无 "同类允许".
 - [ ] (插件) lint 0 错误; 无障碍标签 / 大字体 / 夜间 / RTL 检查覆盖所有新界面.
 
@@ -584,6 +584,8 @@ P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬
 电量与常驻证据 (2026-09-25): `docs/dev/p7-idle-evidence-2026-09-25.md`. 收起/展开悬浮球各静置 5 s, 刷新分发和模型调用均为 0, 进程 CPU 增量分别为 3/1 ms; 这不是整机耗电基准. 真实宿主 1 个运行中 + 2 个排队任务持续受前台服务保护, 最后完成/取消后服务退出. detach/unbind 后 Android am kill 可回收插件, 新 PID 附着加载历史且不重放, 显式新任务成功. 插件 build 66, JVM 472 通过 / 1 个性能用例按开关跳过, 全量 Android 74/74 (284.621 s), 宿主专项 3/3 (1.664 s), lint 0 错误 / 6 既有提示. 其余 P7/P8 gate 仍保留.
 
 独立 conformance 证据 (2026-09-25): `docs/dev/p7-conformance-evidence-2026-09-25.md`. 宿主通过独立 UID/进程的假 Agent 验证最小 attach/startRun 回显, 敌意事件/版本/大小/序列/旧连接回调, 实际 FD 关闭和进程 death 后不重放, 6/6 (5.551 s); 既有 grant/外来广播矩阵 9/9 (3.419 s). 本仓库 `test-apps:fake-host` 使用真实宿主包名/版本/签名校验, 仅在独立数据目录的一次性 AVD 中运行, attach/授权拒绝/真实代理进程 death 4/4 (1.288 s). 插件 build 67, 无生产身份绕过或公共 API/AAR 变更. 双方夹具与宿主测试源 lint 通过; 六台兼容矩阵, 安全/UI, 宿主整库 lint 与 P7/P8 gate 保持待办.
+
+兼容矩阵证据 (2026-09-25): `docs/dev/p7-compatibility-evidence-2026-09-25.md`. 六台在线设备安装/激活/真实广播附着/通知确认/悬浮球共 78 项通过; 四台在线 Wi-Fi 单轮 completed, Redmi/XQ/AVD 成功轮使用临时代理, 不冒充直连稳定性. Pad E2B 本地决策校验失败, 在线因独立网络缺席未执行; API 24 无 Wi-Fi 硬件未执行; 新增 XQ-AT72 离线待补. 记录完整不等于全部真实模型用例通过. 本项仅修正跨版本测试驱动, 插件 build 68, 宿主测试 7bab4c5510 / APK 5296; P1.3 正向广播待办关闭, 其余 P7/P8 gate 保留.
 
 ---
 
@@ -1403,3 +1405,10 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 插件 build 67 对齐提交数. 本轮插件全量 Android 74/74, JVM 472 通过 / 1 个性能开关跳过, 电量/常驻宿主专项 3/3; conformance 为宿主 6/6 + grant 9/9 + 假宿主 4/4. 两个测试 APK 的 lint 均 0 错误 / 2 个 manifest 提示, 宿主测试源 lint 通过, 整库宿主 lint 仍未完成. 没有新增运行时依赖, 未重复 Release/R8, 未推送或发布.
 - 下一起点为原六台兼容矩阵, 含 QV770340J7. 当前无需补充资料或手动操作, 本轮无需 Redmi SIM; 后续若重跑在线模型关闭 Wi-Fi 的用例, 临时需要独立网络, 可用 SIM/USB/以太网.
 - 原 AVD 设置已恢复并逐项核对, 两个模拟器均已关闭, 四台真机仍在线且未改动应用/模型配置. 一次性 AVD 目录清理被本地执行策略拒绝, 数据保留在忽略的 `build/p7-fake-host-avd-home`, 不影响原 AVD 或已通过验收.
+
+### 2026-09-25: P7 兼容矩阵
+
+- 按原 P7 完成六台兼容记录, 并按用户补充纳入 QV710AF65F / XQ-AT72 API 31 的离线待补行和预计上线时间. 不新增/拆分/丢弃阶段. 设备结果与所有失败/重试见兼容证据, 不把缺席或模型失败勾作通过.
+- 六台生产入口 30 项与插件确认/悬浮球 48 项通过. 测试驱动适配 API 24 窗口格式/活动根和 MIUI 通知点击, 宿主元数据测试改为校验安装声明与兼容范围. P1.3 正向生产附着广播闭合, 不改生产认证/权限或公共 API.
+- Redmi/G8441/XQ-DQ72/API 37 的 Model8 Wi-Fi 用例完成, Pad Gemma 4 E2B IT 决策校验失败. Redmi/XQ/API 37 临时代理成功不代表运营商直连稳定性, 失败轮独立保留. 真机及模拟器临时设置恢复, 没有购物/付款或 Rhino 改动, 无需继续保留测试 SIM.
+- 本轮按用户要求继续原安全审计条目, 本逻辑提交仅关闭兼容记录与 P1.3 待办. 插件 build 68 对齐提交数, 宿主仅测试提交 7bab4c5510, APK 保持 5296. P7/P8 gate 尚未通过, 未推送/发布.
