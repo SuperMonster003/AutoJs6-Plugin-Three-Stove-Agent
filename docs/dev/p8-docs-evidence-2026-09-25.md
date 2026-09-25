@@ -51,3 +51,30 @@ Android/host/3-Stone AI requirements are explicit. The existing 2026/09/25 date
 is unchanged; this is release-copy preparation, not a published release.
 The Markdown generator/check passes for ten languages and 36 artifacts, and the
 packaged punctuation test passes. The dedicated README emulator was closed.
+
+## Host documentation and index preparation
+
+Host commit `fc1a9423d8` marks the two protocols versioned V1, reconciles the
+compatibility floors and current API/entry behavior, and adds the exact Agent
+package to the optional Tools installation catalog. Existing P1/P5 changelog
+coverage was checked in all ten languages; the existing entry-management record
+now includes conditional installer availability. The existing renderer updated
+22 Markdown artifacts without refreshing dates or online metadata.
+
+Temurin host appDebug assembly and four wizard JVM suites pass: 18/18 in a
+combined 2m 44s build. Runtime version remains 5296; no new host APK was installed.
+The original host/index item stays unchecked because the separate official index
+requires published APK releases. Its inventory and generated download entry will
+be updated after final publication, without fabricated URLs or changing admission.
+
+The next original item covers Documentation, TypeScript declarations, Offline
+Docs and Ace versions/publication. Read-only inspection found Documentation and
+Offline Docs clean; the existing TypeScript package.json change and Ace releases/
+files were preserved. Public API signatures did not change in this turn.
+
+No physical device, network proxy, SIM configuration, real model or shopping
+flow was changed. XQ-AT72 / QV710AF65F remains an explicit offline follow-up.
+The capture emulator is closed. Removal of its private ignored avd-home directory
+was rejected by automatic execution review with only `blocked by policy`; the
+images remain locally in build/p8-docs-private/avd-home and were not committed.
+This cleanup failure does not invalidate the capture or source verification.
