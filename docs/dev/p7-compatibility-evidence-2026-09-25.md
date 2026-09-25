@@ -51,4 +51,6 @@ Redmi, XQ 和 API 37 的成功复测使用 PC loopback + adb reverse 的受限 C
 
 四台真机屏幕超时/原有无障碍服务及临时通知授权已恢复, G8441 未进行锁屏. Pad 本地失败后由操作者恢复 Wi-Fi, 不计作模型成功. 临时代理/adb reverse 已撤销, API 37 的计费网络选项与宿主文件访问 AppOp 恢复原值. 保存真实任务历史, 不读取/更换模型密钥. 本轮没有购物/付款.
 
+同日安全回归期间, 用户报告 XQ-DQ72 的 Wi-Fi 提示 Can't provide internet. 复核发现上述第一次恢复只还原了设置表: `http_proxy` 等为 null, 但 NetworkStack 仍向已停止的 `127.0.0.1:18879` 发起检测, 因而 Wi-Fi 未获 VALIDATED. 显式写入空代理 `:0` 清除运行状态, 等待系统应用后再恢复原设置表; Wi-Fi 重连后 HTTP/HTTPS 均为 204, 当前 Wi-Fi 网络获 VALIDATED. 同步核查 Redmi 和 API 37 的代理运行状态, 两台检测亦恢复 204/VALIDATED. 不改用户 VPN/DNS/联网检测配置. 恢复流程已补入 E4 README, 首次恢复遗漏保留在此记录, 不以清空设置表冒充实际联网恢复.
+
 构建: 插件 debug/androidTest 通过, lint 0 errors / 6 既有提示; 宿主 androidTest 构建与测试源 lint 通过. 原 P7 安全清单, 全部新界面的字体/RTL/夜间/a11y 检查及 P8 仍由各自条目验收. 本项不宣称 P7/P8 gate 通过或发布许可. 后续确定性安全/UI 检查不需要 Redmi 或其他设备保留 SIM; 再跑在线 Wi-Fi 用例时才临时需要独立网络.

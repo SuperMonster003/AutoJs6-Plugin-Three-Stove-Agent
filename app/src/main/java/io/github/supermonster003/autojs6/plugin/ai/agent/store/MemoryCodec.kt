@@ -18,8 +18,16 @@ internal object MemoryCodec {
     const val MAX_ROW_BYTES = 32 * 1024
     private val fields = setOf("key", "value", "scope", "sourceRunId", "createdAt", "updatedAt")
     private val credentials = listOf("password", "passwd", "passphrase", "apikey", "accesstoken", "refreshtoken", "authtoken", "authorization",
-        "credential", "privatekey", "secretkey", "clientsecret", "verificationcode", "pincode", "密码", "密碼", "口令", "密钥", "密鑰", "验证码", "驗證碼",
+        "credential", "privatekey", "secretkey", "clientsecret", "sessiontoken", "sessioncookie", "setcookie", "verificationcode", "pincode", "密码", "密碼", "口令", "密钥", "密鑰", "验证码", "驗證碼",
         "パスワード", "秘密鍵", "認証コード", "비밀번호", "인증코드", "пароль", "секретныйключ", "motdepasse", "contraseña", "contrasena", "كلمةالمرور", "رمزالتحقق")
+    private val credentialNames = setOf("pwd", "pin", "otp", "token", "secret", "cookie", "sessionid")
+    // Overlapping matches also inspect the credential name after an ordinary prose prefix.
+    private val assignments = Regex("(?=(?<![\\p{L}\\p{N}_.-])[\"']?([\\p{L}\\p{N}_.-]+(?:[\\p{Zs}\\t]+[\\p{L}\\p{N}_.-]+){0,5})[\"']?\\s*[:=])")
+    private val credentialValue = Regex("(?i)\\b(?:bearer\\s+|sk-(?:proj-)?|eyJ)[a-z0-9_./+=-]{12,}")
+    private fun credentialName(value: String): Boolean {
+        val normalized = Normalizer.normalize(value, Normalizer.Form.NFKC).lowercase(Locale.ROOT).filter { it.isLetterOrDigit() }
+        return normalized in credentialNames || credentials.any(normalized::contains)
+    }
     fun key(value: String) = text(value, 64).also { require(it == it.trim() && it.none(Character::isISOControl)) }
     fun scope(value: String) = if (value == "global") value else PresetCodec.name(value)
     private fun text(value: String, maximum: Int, blank: Boolean = false) = value.also {
@@ -27,13 +35,12 @@ internal object MemoryCodec {
     }
     fun preference(key: String, value: String) {
         key(key); text(value, 4096, true)
-        fun compact(text: String) = Normalizer.normalize(text, Normalizer.Form.NFKC).lowercase(Locale.ROOT).filter { it.isLetterOrDigit() }
-        val normalized = compact(key)
-        require(normalized !in setOf("pwd", "pin", "otp", "token", "secret", "cookie", "sessionid") && credentials.none(normalized::contains))
-        val lower = value.lowercase(Locale.ROOT)
-        require(!lower.contains("-----begin") && !Regex("(?i)\\b(?:bearer\\s+|sk-(?:proj-)?|eyJ)[a-z0-9_./+=-]{12,}").containsMatchIn(value))
+        require(!credentialName(key))
+        // Normalize only the inspection copy. Keep approved preference text byte-for-byte intact.
+        val inspected = Normalizer.normalize(value, Normalizer.Form.NFKC).filterNot { Character.getType(it) == Character.FORMAT.toInt() }
+        require(!inspected.lowercase(Locale.ROOT).contains("-----begin") && !credentialValue.containsMatchIn(inspected))
         // Recognizable credential assignments are rejected even under an innocent preference key.
-        require(!Regex("(?i)(?:password|passwd|api[_ -]?key|access[_ -]?token|secret|密码|密碼|口令)\\s*[:=]").containsMatchIn(value))
+        require(assignments.findAll(inspected).none { credentialName(it.groupValues[1]) })
     }
     fun decodeEntry(row: JsonObject): MemoryEntry {
         require(row.keySet() == fields)

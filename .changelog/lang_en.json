@@ -43,6 +43,7 @@
         "Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries"
       ],
       "fix": [
+        "Credential validation bypasses in preference memory involving fullwidth characters, zero-width characters and additional credential names",
         "The floating task ball could remain hidden after waking an unlocked device while screen state was still settling",
         "Interrupted tasks are recorded as failed after plugin process death; locked-screen observations stop actions until the device is unlocked",
         "File tools reject traversal, absolute paths and invalid workspace paths before confirmation or host dispatch; task history records bounded rejection categories without rejected model text",

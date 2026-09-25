@@ -37,6 +37,18 @@ class MemoryCodecTest {
         assertTrue(runCatching { MemoryCodec.preference("value", "😀".repeat(4097)) }.isFailure)
         assertTrue(runCatching { MemoryCodec.encode((1..30).map { row.copy(key = "key$it", value = "中".repeat(4096)) }) }.isFailure)
     }
+    @Test fun disguisedCredentialAssignmentsAreRejectedInValuesAndImports() {
+        for (value in listOf("ｐａｓｓｗｏｒｄ： synthetic", "api\u200b_key = synthetic", "Refresh Token: synthetic",
+            "session_cookie=synthetic", "OTP: 123456", "验证码：123456", "mot de passe: synthetic",
+            "{\"private_key\":\"synthetic\"}", "Ｂｅａｒｅｒ synthetic_fixture_123456", "(password=synthetic)",
+            "https://example.invalid/?api_key=synthetic", "api.key: synthetic", "Keep this secret: synthetic")) {
+            assertTrue("Recognized credentials must not become preferences", runCatching { MemoryCodec.preference("note", value) }.isFailure)
+            val raw = MemoryCodec.entry(row.copy(key = "note", value = value))
+            assertTrue("Imported entries use the same credential policy", runCatching { MemoryCodec.decodeEntry(raw) }.isFailure)
+        }
+        for (value in listOf("Drink: hot latte", "cookie flavour: chocolate", "Reminder: pin the shopping list", "主题：深色"))
+            MemoryCodec.preference("note", value)
+    }
     @Test fun invalidImportRowRejectsTheWholeFileBeforeReview() {
         val raw = AgentJson.objectOf(MemoryCodec.encode(listOf(row, row.copy(key = "other"))))
         raw.getAsJsonArray("entries")[1].asJsonObject.addProperty("key", "password")

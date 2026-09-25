@@ -95,3 +95,7 @@ Wi-Fi 在线验收须在切断 Wi-Fi 后仍有独立网络连接. 没有该条�
 P3 登记脚本测试可使用 `toolGroups: ["script", "user"]`, 将原始示例复制到当前工作目录下的独立临时项目. 清理示例必须显式限定本次创建的 Downloads 子目录; 在确认前核对目录和全部参数, 确认后独立验证旧安装包删除且新文件/其他类型/嵌套文件保留. 不以用户真实下载文件作为删除夹具. 实测方法和证据见 [P3 真机 E4](../p3-real-script-e4-2026-09-24.md).
 
 3-Stone AI 自身的移动/计费网络选项也必须允许测试所用网络, 否则即使系统有移动连接, 在线调用仍会被 Provider 拒绝. 临时修改时记录原值并在测试后恢复. API 37 设置页未暴露开关时可使用系统正常提供的快捷设置入口, 保留路径差异与测试指导信息, 不改服务身份或系统限制.
+
+临时全局 HTTP 代理需要同时恢复设置表和运行中的代理状态. 测试前记录 `http_proxy`, `global_http_proxy_host`, `global_http_proxy_port`, `global_http_proxy_exclusion_list`, `global_proxy_pac` 及实际默认代理. 若原来无代理, 清理时先用 `adb -s DEVICE shell settings put global http_proxy :0` 明确通知系统清除代理, 等待 host 为空且 port 为 0, 再恢复原设置表中各键的值或缺席状态. 仅删除 `http_proxy` 可能保留 ProxyTracker 的内存状态; 只检查 `settings get` 为 null 不足以证明恢复完成, 对应逻辑见 [AOSP ProxyTracker](https://android.googlesource.com/platform/packages/modules/Connectivity/+/refs/heads/main/service/src/com/android/server/connectivity/ProxyTracker.java). 原来已有代理时恢复其完整配置, 不套用无代理清除流程.
+
+最后撤销本轮的 adb reverse, 停止临时代理, 必要时重连 Wi-Fi 触发新检测. 核对当前 Wi-Fi 的 `VALIDATED` 和 NetworkStack 新一轮 HTTP/HTTPS 检测, 确认不再连接临时代理地址; 不关闭系统联网检测来掩盖失败. 保留用户 VPN, DNS, Wi-Fi 保存配置和其他 adb 转发. 2026-09-25 的 XQ-DQ72 恢复遗漏及修复见 [P7 兼容证据](../p7-compatibility-evidence-2026-09-25.md).

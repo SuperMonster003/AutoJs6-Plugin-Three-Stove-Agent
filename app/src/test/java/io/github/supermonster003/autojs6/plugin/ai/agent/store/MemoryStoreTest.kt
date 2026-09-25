@@ -35,6 +35,13 @@ class MemoryStoreTest {
         assertTrue(runCatching { store.put(row.copy(value = "Changed"), row) }.isFailure)
         assertArrayEquals(bytes, file(dir).readBytes()); assertEquals(listOf(row), store.snapshot())
     }
+    @Test fun rejectedCredentialEditKeepsApprovedMemoryAndDiskUnchanged() {
+        val dir = temp.newFolder(); val store = MemoryStore(dir); store.open(); store.put(row, null)
+        val previous = file(dir).readBytes()
+        assertTrue(runCatching { store.put(row.copy(value = "验证码：123456", updatedAt = 3), row) }.isFailure)
+        assertEquals(listOf(row), store.snapshot()); assertArrayEquals(previous, file(dir).readBytes())
+        assertEquals(listOf(row), MemoryStore(dir).open())
+    }
     @Test fun validBackupRecoversThePreviousConfirmedEntry() {
         val dir = temp.newFolder(); val original = file(dir)
         File(original.path + ".bak").writeText(MemoryCodec.encodeFile(row)); original.writeText("unfinished")

@@ -121,6 +121,20 @@ class ManifestContractTest {
         assertEquals(AiAgentPlugin.REQUIRED_HOST_VERSION.toString(), metaData["requiresHostVersion"])
     }
 
+    @Test
+    fun `only discovery activation and draft entry components are exported`() {
+        val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
+            ".ui.ShareTargetActivity" to null, ".AiAgentPluginInfoService" to PLUGIN_PERMISSION,
+            ".AiAgentPluginService" to PLUGIN_PERMISSION)
+        val components = listOf("activity", "activity-alias", "service", "receiver", "provider")
+            .flatMap { manifest.child("application").children(it) }
+        val exported = components.filter { it.androidAttribute("exported") == "true" }
+        assertEquals(expected, exported.associate { it.androidAttribute("name") to it.androidAttributeOrNull("permission") })
+        components.filterNot { it in exported }.forEach { assertEquals("false", it.androidAttribute("exported")) }
+        assertTrue(manifest.child("application").children("receiver").isEmpty())
+        assertTrue(manifest.child("application").children("provider").isEmpty())
+    }
+
     private fun Element.children(tag: String): List<Element> {
         val nodes = childNodes
         return (0 until nodes.length)

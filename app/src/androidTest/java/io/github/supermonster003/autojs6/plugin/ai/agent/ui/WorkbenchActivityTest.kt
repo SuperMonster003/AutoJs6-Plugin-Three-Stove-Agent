@@ -950,6 +950,18 @@ class WorkbenchActivityTest {
             } finally { client.rows().filter { it.key.startsWith(prefix) }.forEach { client.delete(it) } }
         }
     }
+    @Test fun credentialMemoryWritesAreRejectedAcrossPrivateBinder() {
+        MemoriesClient().use { memory ->
+            val key = "audit-${java.util.UUID.randomUUID()}"
+            val before = memory.rows()
+            for (value in listOf("ｐａｓｓｗｏｒｄ： synthetic", "api\u200b_key=synthetic", "验证码：123456", "(password=synthetic)")) {
+                val row = MemoryEntry(key, value, "global", java.util.UUID.randomUUID().toString(), 1, 1)
+                assertTrue("Private IPC must apply the same credential policy as imports", memory.save(row).isFailure)
+                assertEquals(before, memory.rows())
+            }
+        }
+    }
+
     @Test fun privateMemoryLargeBackupUsesDescriptorAndRejectsStaleManagementWrites() {
         MemoriesClient().use { client ->
             val prefix = "large-${java.util.UUID.randomUUID()}"

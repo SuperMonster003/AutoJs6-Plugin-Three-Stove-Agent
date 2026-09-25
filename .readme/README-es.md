@@ -213,6 +213,7 @@ _2026/09/25_
 - `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
 - `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
 - `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Corrección` Omisiones en la validación de credenciales de la memoria de preferencias con caracteres de ancho completo, caracteres de ancho cero y otros nombres de credenciales
 - `Corrección` La burbuja de tareas podía permanecer oculta al activar un dispositivo sin bloqueo seguro mientras se estabilizaba el estado de la pantalla
 - `Corrección` Las tareas interrumpidas al terminar el proceso del plugin se registran como fallidas al reiniciar; la pantalla bloqueada detiene las acciones posteriores
 - `Corrección` Las herramientas de archivos rechazan rutas con recorrido, absolutas o no válidas antes de la confirmación o el envío al anfitrión; el historial guarda categorías limitadas de rechazo sin el texto rechazado del modelo
