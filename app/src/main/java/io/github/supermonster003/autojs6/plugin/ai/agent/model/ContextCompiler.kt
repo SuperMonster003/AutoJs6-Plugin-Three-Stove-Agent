@@ -63,29 +63,42 @@ class ContextCompiler(
             "kind" to (record["kind"] ?: JsonNull.INSTANCE), "tool" to (record["tool"] ?: JsonNull.INSTANCE),
             "confirmation" to (record["confirmation"] ?: JsonNull.INSTANCE), "error" to (record["error"] ?: JsonNull.INSTANCE),
             "observation" to AgentJson.truncate(record.string("observation").orEmpty(), 120).json()).toString()
+        // Packing may discard many history entries before the mandatory context fits. Cache
+        // invariant fragments only for this compile call; never retain another task's data.
+        val summaries = history.map(::summary)
+        val recentMessages = history.takeLast(retained).map { record ->
+            val decision = record.getAsJsonObject("decision")?.deepCopy()
+            if (decision?.string("kind") in listOf("tool", "ask", "done") && record.flag("truncated") != true) {
+                decision!!.remove("parseMode"); decision.remove("repairs"); decision.remove("degraded"); decision.remove("rejections")
+                if (decision.string("kind") == "tool" && format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) {
+                    decision["arguments"]?.let { decision.addProperty("arguments", it.toString()) }
+                }
+                listOf(message("assistant", decision.toString()), message("user", prompts.context(language, "observation", jsonObject(
+                    "index" to (record["index"] ?: JsonNull.INSTANCE), "observation" to record.string("observation").orEmpty().json(),
+                    "confirmation" to (record["confirmation"] ?: JsonNull.INSTANCE)))))
+            } else listOf(message("user", prompts.context(language, "summary", summary(record).json())))
+        }
+        val systemMessages = mutableMapOf<List<Int>, JsonObject>()
+        val observations = mutableMapOf<Int, JsonObject>()
+        val goalMessage = message("user", goal)
+        val repairMessage = repair?.let { message("user", it) }
+        val budgetMessage = message("user", prompts.context(language, "budget", budget))
         fun build(): JsonArray {
-            val older = history.dropLast(retained).takeLast(summaryCount)
-            val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
-            val messages = jsonArray(message("system", prompts.system(language, policy, format,
-                AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
-                contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes)), message("user", goal))
-            if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach { add(summary(it)) } })))
-            for (record in history.takeLast(retained)) {
-                val decision = record.getAsJsonObject("decision")?.deepCopy()
-                if (decision?.string("kind") in listOf("tool", "ask", "done") && record.flag("truncated") != true) {
-                    decision!!.remove("parseMode"); decision.remove("repairs"); decision.remove("degraded"); decision.remove("rejections")
-                    if (decision.string("kind") == "tool" && format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) {
-                        decision["arguments"]?.let { decision.addProperty("arguments", it.toString()) }
-                    }
-                    messages.add(message("assistant", decision.toString()))
-                    messages.add(message("user", prompts.context(language, "observation", jsonObject(
-                        "index" to (record["index"] ?: JsonNull.INSTANCE), "observation" to record.string("observation").orEmpty().json(),
-                        "confirmation" to (record["confirmation"] ?: JsonNull.INSTANCE)))))
-                } else messages.add(message("user", prompts.context(language, "summary", summary(record).json())))
+            val older = summaries.dropLast(retained).takeLast(summaryCount)
+            val system = systemMessages.getOrPut(listOf(contextBytes, memoryCount, if (compact) 1 else 0, scriptCount)) {
+                val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
+                message("system", prompts.system(language, policy, format,
+                    AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
+                    contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes))
             }
-            messages.add(message("user", prompts.context(language, "observation", ObservationCompactor.compact(current, observationBytes, local))))
-            repair?.let { messages.add(message("user", it)) }
-            messages.add(message("user", prompts.context(language, "budget", budget)))
+            val messages = jsonArray(system, goalMessage)
+            if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach(::add) })))
+            recentMessages.takeLast(retained).forEach { pair -> pair.forEach(messages::add) }
+            messages.add(observations.getOrPut(observationBytes) {
+                message("user", prompts.context(language, "observation", ObservationCompactor.compact(current, observationBytes, local)))
+            })
+            repairMessage?.let(messages::add)
+            messages.add(budgetMessage)
             return messages
         }
         // Drop historical pairs first, then historical summaries. Keep recent pairs whole.

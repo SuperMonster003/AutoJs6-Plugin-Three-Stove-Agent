@@ -273,6 +273,11 @@ tasks.named("preBuild").configure { dependsOn(bundledLegalAssets) }
 
 nativeAlignment { expectNoNativeLibraries.set(true) }
 
+// Opting into timing assertions must invalidate a previously skipped/up-to-date JVM run.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    inputs.property("autojsAgentPerformance", providers.environmentVariable("AUTOJS_AGENT_PERFORMANCE").orElse("false"))
+}
+
 tasks.withType<VerifyNativePageAlignment>().configureEach {
     // The 1.8.0 plugin also finalizes assemble*UnitTest, which never produces an APK.
     // Keep verification on APK variants and let standalone checks build their inputs.

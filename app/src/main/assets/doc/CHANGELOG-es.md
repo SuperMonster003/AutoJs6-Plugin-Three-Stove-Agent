@@ -55,6 +55,7 @@
 * `Corrección` La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización
 * `Corrección` Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta
 * `Corrección` Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea
+* `Mejora` El ajuste de historiales largos reutiliza fragmentos de instrucciones y observaciones sin cambios para reducir el tiempo de procesamiento por paso
 * `Mejora` Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder
 * `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5289 para inspeccionar nodos de acción y vincular la confirmación a la ejecución
 * `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5289 (MPL 2.0), fijados con SHA-256

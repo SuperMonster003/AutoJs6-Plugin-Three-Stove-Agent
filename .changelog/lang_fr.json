@@ -61,6 +61,7 @@
         "Un service de premier plan en cours de fermeture ne rejette plus le démarrage de la tâche suivante"
       ],
       "improvement": [
+        "La réduction des longs historiques réutilise les fragments inchangés des instructions et observations pour réduire le temps de traitement par étape",
         "La taille des descriptions de confirmation tient compte des échappements JSON pour respecter la limite des événements Binder avec de grands tableaux",
         "L'hôte minimum est AutoJs6 6.8.0 / build 5289 pour inspecter les noeuds et lier la confirmation à l'exécution"
       ],

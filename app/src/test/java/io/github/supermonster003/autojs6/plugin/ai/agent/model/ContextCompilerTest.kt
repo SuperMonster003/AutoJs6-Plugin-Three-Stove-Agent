@@ -102,6 +102,25 @@ class ContextCompilerTest {
         assertThrows(ContextLimitExceeded::class.java) { compiler(local = true).compile(context(goal = "目".repeat(1300))) }
         assertThrows(IllegalArgumentException::class.java) { compiler().compile(context(goal = "x".repeat(4097))) }
     }
+    @Test fun packingFragmentsCannotLeakObservationGuidanceOrFormatIntoAnotherCompile() {
+        val compiler = compiler(local = true)
+        val history = List(32) { record(it + 1, "old".repeat(1000)) }
+        val first = compiler.compile(context("Read first", history, ToolObservation.success("first-observation".json()),
+            guidance = jsonObject("changeStrategy" to true.json())))
+        val before = first.messages.toString()
+        val fallback = DecisionSchema.degraded(ModelProtocol.LOCAL)
+        val second = compiler.compile(context("Read second", history, ToolObservation.success("second-observation".json()),
+            format = fallback, guidance = jsonObject("changeStrategy" to false.json())))
+        val secondText = contents(second).joinToString("\n")
+        assertFalse(secondText.contains("first-observation"))
+        assertTrue(secondText.contains("second-observation"))
+        assertTrue(contents(second).first().contains("\"changeStrategy\":false"))
+        assertTrue(contents(second).first().contains("Degraded=true"))
+        assertEquals(0, second.schemaBytes)
+        assertEquals(before, first.messages.toString())
+        assertEquals(before, compiler.compile(context("Read first", history, ToolObservation.success("first-observation".json()),
+            guidance = jsonObject("changeStrategy" to true.json()))).messages.toString())
+    }
     @Test fun unicodeJsonEscapesAndRepairAreAccountedInTheActualEncodedBudget() {
         val repair = (DecisionRepairSession(DecisionValidator(catalog), policy, DecisionSchema.degraded()).evaluate("bad") as DecisionAttempt.Repair).observation
         val observation = ToolObservation.success(jsonObject("text" to ("😀\"\n\\".repeat(1500)).json()))

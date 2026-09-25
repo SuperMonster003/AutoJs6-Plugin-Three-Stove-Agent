@@ -61,6 +61,7 @@
         "A retiring foreground service no longer rejects the next task while its replacement is starting"
       ],
       "improvement": [
+        "Task context packing reuses unchanged prompt and observation fragments while trimming long histories, reducing per-step processing time",
         "Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit",
         "Minimum host is AutoJs6 6.8.0 / build 5289 for action node inspection and confirmation bound to execution"
       ],

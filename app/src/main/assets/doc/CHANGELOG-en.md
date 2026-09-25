@@ -55,6 +55,7 @@
 * `Fix` Post-action screen reads that stop responding no longer exceed the stabilization deadline
 * `Fix` Console redaction now handles multiline parameter values and parameter text matching credential labels before splitting or clipping lines
 * `Fix` A retiring foreground service no longer rejects the next task while its replacement is starting
+* `Improvement` Task context packing reuses unchanged prompt and observation fragments while trimming long histories, reducing per-step processing time
 * `Improvement` Script confirmation descriptions account for JSON escaping so large parameter tables stay within the Binder event limit
 * `Improvement` Minimum host is AutoJs6 6.8.0 / build 5289 for action node inspection and confirmation bound to execution
 * `Dependency` Staged common-plugin-api, host-capability-api and ai-agent-api from one AutoJs6 6.8.0 / 5289 release build (MPL 2.0), with SHA-256 locks
