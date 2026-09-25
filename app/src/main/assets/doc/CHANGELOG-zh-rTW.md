@@ -10,6 +10,7 @@
 
 * `提示` 1.0.0 提供自然語言任務, 已登記指令碼呼叫與分級確認的裝置操作. 已通過案例, 模型限制與待補裝置驗收見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). 原生工具呼叫, 視覺輸入與動態指令碼產生預計於 1.1.0 支援.
 * `提示` 要求 Android 7+, AutoJs6 6.8.0 / build 5293+ 以使用任務 API, 並啟用已設定模型的 3-Stone AI 外掛. OCR 為選用項目. 僅附著協定的最低宿主為 build 5289+.
+* `提示` 相容性說明: AutoJs6 build 5297 的原生工具呼叫宿主擴充相容本版本. 本版本仍使用結構化 JSON 決策, 模型 Provider 與外掛的原生工具接入進度見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 * `新增` 自然語言任務台支援內嵌詢問, 進度, 停止及結果, 提供選用懸浮輸入, 文字分享, 預設捷徑與語音草稿
 * `新增` ai.agent 指令碼 API 支援建立任務, 事件, 查詢, 回應及取消, 包括 detached 任務與登記指令碼的結果/上下文存取
 * `新增` project.json / @agent 登記指令碼支援目錄搜尋, 參數驗證及預設值, 缺失值詢問, 執行確認, 有界執行及結構化結果
