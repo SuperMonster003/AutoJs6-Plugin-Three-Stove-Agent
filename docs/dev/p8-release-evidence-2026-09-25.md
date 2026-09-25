@@ -1,6 +1,7 @@
 # P8 final release gate evidence
 
-Date: 2026-09-25. Candidate version: 1.0.0 / build 76.
+Date: 2026-09-25. Last measured signed candidate: 1.0.0 / build 76.
+Build 77 adds test-only failure diagnostics; no release is published yet.
 Final device results and publication receipts are recorded below as they are
 verified. A generated APK alone does not close the original P8 gate.
 
@@ -117,8 +118,8 @@ restriction on that image's Internet settings page. The two System UI actions
 (open quick settings and click the observed Wi-Fi switch) were inspected and
 approved once. Both the model's checked-node observation and `wifi_on=1`
 confirmed completion. The duration includes waiting for manual confirmation;
-it is not an inference-speed measurement. These two successful cases complete
-the final package's required two-device case (1) smoke.
+it is not an inference-speed measurement. These two successful cases validate build 75. The final build 76 has its
+own two-device smoke below, and remote CI still keeps publication open.
 
 Before the power interruption, the temporary proxy, its ADB reverse mapping
 and helper process were removed. XQ's Wi-Fi connection was independently
@@ -127,6 +128,57 @@ were restored on both devices. API 37's temporary metered-network permission
 in 3-Stone AI and the host's external-storage app-op were restored to their
 original values. No network passwords, account settings or SIM configuration
 were changed.
+
+## Final build 76 device and real-model results
+
+The exact APK above was installed and verified through the real host's
+signed-release entry suite on four devices. Each passed 5/5, including the
+protected production broadcast and actual host-controller attachment:
+
+| Device | API | Suite seconds | Attachment ms |
+| --- | --- | --- | --- |
+| Redmi 12C | 33 | 4.576 | 927 |
+| XQ-DQ72 | 33 | 2.011 | 282 |
+| AVD API 24 | 24 | 3.920 | 1312 |
+| AVD API 37.1 / 16 KB | 37 | 4.075 | 1100 |
+
+The final-package real-model tasks are independent attempts, without changing
+production confirmations, budgets or completion decisions. Online cases use
+Model8 / Fable 5.1; the Redmi case uses local Gemma 4 E2B IT. `Result steps`
+includes a terminal error step where recorded; it is not an extra model
+decision. An independent Wi-Fi read was taken before restoring device state.
+
+| Case | Outcome | Result steps / model calls | Duration ms | Input / output tokens | Wi-Fi after task |
+| --- | --- | --- | --- | --- | --- |
+| p8-build76-redmi-local-wifi-01 | MODEL_FAILED / BINDER_DIED | 1 / 2 | 174178 | ~4045 / 74 | Off |
+| p8-build76-avd37-wifi-01 | MODEL_FAILED / PROVIDER_FAILED | 3 / 3 | 52490 | ~35167 / 121 | Off |
+| p8-build76-avd37-wifi-02 | completed | 6 / 6 | 143085 | 87275 / 800 | On, wifi_on=1 |
+| p8-build76-xq-wifi-01 | MODEL_FAILED / PROVIDER_FAILED | 10 / 11 | 85456 | ~172656 / 713 | On, not task completion |
+| p8-build76-xq-wifi-02 | completed | 10 / 11 | 62597 | 173938 / 1083 | On, wifi_on=1 |
+
+Android's process exit record identifies LOW_MEMORY as the Redmi Provider's
+termination reason (PSS about 2.3 GB / RSS about 1.8 GB), followed by the broker's
+BINDER_DIED. No successful local-model result is claimed. The online Provider
+failure callback does not establish a specific server or network root cause;
+the failed attempts remain failures, including XQ case 01 after the switch
+had already changed.
+
+Both final-package successes used the temporary loopback CONNECT proxy over
+ADB, restricted to model8.run:443 with end-to-end TLS. XQ case 02 ran alone
+after restarting its Provider. API 37 case 02 used the observed quick-settings
+Wi-Fi switch, with its two System UI actions separately inspected and approved.
+Both the model's checked-switch observation and independent wifi_on=1 confirmed
+completion. The AVD duration includes manual-confirmation wait time. These
+results complete the original two-device release smoke on the measured route;
+they are not certification of carrier-direct reliability or every model.
+
+All temporary proxy settings, ADB reverse mappings and the helper process
+were removed. Both network dumps report Wi-Fi VALIDATED after restoration.
+Original Wi-Fi state, screen timeout, accessibility service list/enabled flag
+and host storage app-op mode were compared with saved values on Redmi, XQ and
+the AVD. The AVD Provider's metered-network option was restored to false through
+its normal UI. No SIM, VPN, DNS, credentials, network passwords or account
+configuration was changed. No shopping or payment task ran in this gate.
 
 ## Fresh CI environment
 
@@ -184,3 +236,27 @@ Previously documented local-model failures, Ace's Redmi semantic timeout and
 the absent XQ-AT72 / Android 12 remain recorded limitations. Native tools,
 visual input and dynamic script generation remain the original P9 / 1.1.0
 work. No shopping or payment task is performed in this gate.
+
+## Build 76 remote failures and diagnostic follow-up
+
+Build 76 passed its full API 24 CI suite, JVM/build/lint and Markdown. Its
+[API 35 first attempt](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/actions/runs/36118973193/job/108020602509)
+failed one floating-ball drag assertion. A complete rerun with unchanged
+source and assertions also failed: the same drag check and both visible
+injection-fixture tests. These are failed attempts, not a passing release
+gate; the exact environment or implementation cause is not established.
+
+The unchanged build 76 passed another full local isolated API 37.1 / 16 KB
+suite with animations disabled as in CI: 80 passed, 2 opt-in captures skipped,
+253.491 s. A focused left-edge-position hypothesis did not reproduce the
+failure and is not claimed as its cause. The isolated AVD's animation settings
+were restored and the emulator shut down without deleting its data.
+
+Build 77 adds failure-time window/input/activity/power/accessibility dumps
+and a screenshot, enabled only by an explicit CI instrumentation argument
+on emulator hardware. Capture happens before fixture cleanup, stays in test
+artifacts, and never enters release code or ordinary content logs. CI pulls
+these artifacts before the emulator runner shuts down. Test selections,
+assertions, budgets and production behavior are unchanged. A fresh local
+API 35 / Google APIs / Pixel 7 AVD is being used to reproduce the CI condition.
+GitHub Release and official index admission remain pending.

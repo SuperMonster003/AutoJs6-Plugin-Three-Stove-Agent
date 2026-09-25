@@ -8,6 +8,7 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
+import io.github.supermonster003.autojs6.plugin.ai.agent.CiUiDiagnostics
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.AgentWire
@@ -115,6 +116,7 @@ class WorkbenchActivityTest {
     private fun waitFor(message: String, timeoutMs: Long = 20000, predicate: () -> Boolean) {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < deadline) { if (predicate()) return; SystemClock.sleep(80) }
+        CiUiDiagnostics.capture(message)
         fail(message)
     }
     private fun waitUi(scenario: ActivityScenario<LauncherActivity>, message: String, predicate: (LauncherActivity) -> Boolean) {
@@ -1189,7 +1191,7 @@ class WorkbenchActivityTest {
             waitFor("Floating ball frame") { floatingFrame(false) != null }
             val beforeDrag = checkNotNull(floatingFrame(false))
             shell("input swipe ${beforeDrag.centerX()} ${beforeDrag.centerY()} ${beforeDrag.centerX() - beforeDrag.width() * 2} ${beforeDrag.centerY() + beforeDrag.height()} 400")
-            waitFor("Drag changes frame within usable screen") { floatingFrame(false)?.left?.let { it < beforeDrag.left && it >= 0 } == true }
+            waitFor("Drag changes frame within usable screen from $beforeDrag") { floatingFrame(false)?.left?.let { it < beforeDrag.left && it >= 0 } == true }
             val ball = checkNotNull(floatingFrame(false))
             assertTrue(ball.top > 0)
             assertFalse(shell("dumpsys activity services ${context.packageName}").contains("isForeground=true"))

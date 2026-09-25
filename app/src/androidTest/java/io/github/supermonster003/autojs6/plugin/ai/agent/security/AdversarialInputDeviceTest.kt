@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.CiUiDiagnostics
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.*
@@ -162,6 +163,7 @@ class AdversarialInputDeviceTest {
             }
             SystemClock.sleep(50)
         }
+        CiUiDiagnostics.capture("injection-node-missing")
         error("Injection fixture node was not visible")
     }
     private fun withScreen(action: () -> Unit) {

@@ -106,13 +106,15 @@ jobs:
             chmod +x gradlew
             ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug --console=plain --stacktrace
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only
-            ./gradlew :app:connectedDebugAndroidTest --console=plain --stacktrace
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ai.agent.ciDiagnostics=true --console=plain --stacktrace || { adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.ai.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
 
       - name: Upload instrumentation reports after failure
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api${{ matrix.api-level }}
-          path: app/build/reports/androidTests/
+          path: |
+            app/build/reports/androidTests/
+            build/ci-ui-diagnostics/
           if-no-files-found: ignore
           retention-days: 7
