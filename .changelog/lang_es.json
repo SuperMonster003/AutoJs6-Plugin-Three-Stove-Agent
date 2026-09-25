@@ -10,7 +10,7 @@
       "hint": [
         "La versión 1.0.0 ofrece tareas en lenguaje natural, ejecución de scripts registrados y acciones del dispositivo con confirmación según el riesgo. Consulte [ROADMAP.md]({{ roadmap_url }}) para los casos verificados, las limitaciones de los modelos y las comprobaciones de dispositivos pendientes. Las llamadas nativas a herramientas, la entrada visual y la generación dinámica de scripts están previstas para 1.1.0.",
         "Requiere Android 7+, AutoJs6 6.8.0 / build 5293+ para las API de tareas y 3-Stone AI habilitado con un modelo configurado. OCR es opcional. El protocolo de conexión por sí solo requiere build 5289+.",
-        "Nota de compatibilidad: la extensión del anfitrión para herramientas nativas de AutoJs6 build 5297 es compatible con esta versión. Esta versión sigue usando decisiones JSON estructuradas; la integración nativa en Provider y Agent se sigue en [ROADMAP.md]({{ roadmap_url }})."
+        "Compatibilidad: la extensión nativa de herramientas de AutoJs6 build 5297 es compatible con esta versión. La versión candidata de desarrollo 3-Stone AI 1.2.0 implementa la continuación de herramientas en línea para tres protocolos. Este Agent sigue usando decisiones JSON estructuradas; la integración del bucle nativo y las comparaciones siguen en [ROADMAP.md]({{ roadmap_url }})."
       ],
       "feature": [
         "Panel de tareas en lenguaje natural con preguntas, progreso, parada y resultados; entrada flotante opcional, texto compartido, accesos a preajustes y borradores de voz",
