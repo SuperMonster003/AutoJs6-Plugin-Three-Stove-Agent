@@ -8,7 +8,7 @@
 
 ###### 2026/09/25
 
-* `Aviso` Vista previa de desarrollo de 1.0.0. Las API de tareas y las entradas de la interfaz están implementadas; las pruebas de auditoría P7 están documentadas. Las comprobaciones y la publicación de P8 siguen pendientes. Consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para los casos aprobados y las limitaciones.
+* `Aviso` La versión 1.0.0 ofrece tareas en lenguaje natural, ejecución de scripts registrados y acciones del dispositivo con confirmación según el riesgo. Consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para los casos verificados, las limitaciones de los modelos y las comprobaciones de dispositivos pendientes. Las llamadas nativas a herramientas, la entrada visual y la generación dinámica de scripts están previstas para 1.1.0.
 * `Aviso` Requiere Android 7+, AutoJs6 6.8.0 / build 5293+ para las API de tareas y 3-Stone AI habilitado con un modelo configurado. OCR es opcional. El protocolo de conexión por sí solo requiere build 5289+.
 * `Función` Panel de tareas en lenguaje natural con preguntas, progreso, parada y resultados; entrada flotante opcional, texto compartido, accesos a preajustes y borradores de voz
 * `Función` API ai.agent para crear tareas, eventos, consultas, respuestas y cancelación, incluidas tareas detached y resultados/contexto de scripts registrados
@@ -21,6 +21,7 @@
 * `Función` Detalles y cronologías, filtros, borradores de repetición y exportación JSON depurada, con historial privado de hasta 200 tareas / 32 MiB
 * `Función` Confirmación según riesgo en panel, notificaciones y tarjeta flotante; pagos y memoria siempre con aprobación individual; perder el anfitrión bloquea tareas y reiniciar no las reanuda
 * `Función` Ajustes, historial sin conexión y avisos legales en diez idiomas; consulta manual de GitHub con cancelación, caché diaria y versiones ignoradas, sin descarga automática de APK
+* `Corrección` Finalización prematura de tareas al interpretar el presupuesto restante como consumido
 * `Corrección` Áreas táctiles de formularios y filtros, ajuste de textos y columnas de parámetros, y controles flotantes con fuentes grandes y en Android 7
 * `Corrección` Omisiones en la validación de credenciales de la memoria de preferencias con caracteres de ancho completo, caracteres de ancho cero y otros nombres de credenciales
 * `Corrección` La burbuja de tareas podía permanecer oculta al activar un dispositivo sin bloqueo seguro mientras se estabilizaba el estado de la pantalla

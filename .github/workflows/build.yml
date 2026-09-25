@@ -94,15 +94,18 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run discovery, binding, and PluginInfo instrumentation tests
+      - name: Run the full instrumentation suite with an isolated fake host
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
           arch: ${{ matrix.arch }}
           profile: ${{ matrix.profile }}
+          avd-name: AI_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
             chmod +x gradlew
+            ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug --console=plain --stacktrace
+            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only
             ./gradlew :app:connectedDebugAndroidTest --console=plain --stacktrace
 
       - name: Upload instrumentation reports after failure

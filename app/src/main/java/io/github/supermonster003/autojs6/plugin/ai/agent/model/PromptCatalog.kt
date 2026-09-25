@@ -51,7 +51,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         val observation = AgentJson.objectOf(result, 24 * 1024)
         val budgetCopy = AgentJson.objectOf(budget.toString(), 4 * 1024)
         val data = jsonObject("step" to step.json(), "tool" to tool.json(), "elapsedMs" to elapsedMs.json(),
-            "observation" to observation, "budget" to budgetCopy)
+            "observation" to observation, "remaining_budget" to budgetCopy)
         return render(language, "observation", mapOf("observation_json" to data.toString()))
     }
 

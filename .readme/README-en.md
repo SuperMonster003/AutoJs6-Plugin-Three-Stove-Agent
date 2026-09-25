@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Development preview for 1.0.0. Task APIs and interface entry points are implemented, and P7 audit evidence is recorded. P8 release checks and publication are still pending. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for passed cases and known limitations.
+Version 1.0.0 provides natural-language tasks, registered-script invocation and device actions with risk-based confirmation. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for verified cases, model limitations and outstanding device checks. Native tool calling, visual input and dynamic script generation are planned for 1.1.0.
 
 ******
 
@@ -282,7 +282,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/25_
 
-- `Hint` Development preview for 1.0.0. Task APIs and interface entry points are implemented, and P7 audit evidence is recorded. P8 release checks and publication are still pending. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for passed cases and known limitations.
+- `Hint` Version 1.0.0 provides natural-language tasks, registered-script invocation and device actions with risk-based confirmation. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for verified cases, model limitations and outstanding device checks. Native tool calling, visual input and dynamic script generation are planned for 1.1.0.
 - `Hint` Requires Android 7+, AutoJs6 6.8.0 / build 5293+ for task APIs, and an enabled 3-Stone AI plugin with a configured model. OCR is optional. The attachment protocol alone requires host build 5289+.
 - `Feature` Natural-language task workbench with inline questions, progress, stop and results; optional floating input, text sharing, preset shortcuts and voice drafts
 - `Feature` ai.agent script API for task creation, events, queries, responses and cancellation, including detached tasks and registered-script result/context access
@@ -295,6 +295,7 @@ _2026/09/25_
 - `Feature` Task details and timelines, filters, rerun drafts and redacted JSON export, with private history capped at 200 tasks / 32 MiB
 - `Feature` Risk-based confirmation in the workbench, notifications and floating card; payments and memory always require individual approval; host loss blocks tasks and process restart never resumes them automatically
 - `Feature` Settings, offline release history and legal notices in ten languages; manual GitHub release checks with cancellation, daily caching and ignored versions, without automatic APK downloads
+- `Fix` Premature task completion when remaining budgets were interpreted as consumed budgets
 - `Fix` Form and filter touch targets, wrapped picker labels and script parameter columns, and floating control layout with large fonts and on Android 7
 - `Fix` Credential validation bypasses in preference memory involving fullwidth characters, zero-width characters and additional credential names
 - `Fix` The floating task ball could remain hidden after waking an unlocked device while screen state was still settling

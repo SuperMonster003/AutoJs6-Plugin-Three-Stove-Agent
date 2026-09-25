@@ -82,7 +82,7 @@ class ContextCompiler(
         val observations = mutableMapOf<Int, JsonObject>()
         val goalMessage = message("user", goal)
         val repairMessage = repair?.let { message("user", it) }
-        val budgetMessage = message("user", prompts.context(language, "budget", budget))
+        val budgetMessage = message("user", prompts.context(language, "remaining_budget", budget))
         fun build(): JsonArray {
             val older = summaries.dropLast(retained).takeLast(summaryCount)
             val system = systemMessages.getOrPut(listOf(contextBytes, memoryCount, if (compact) 1 else 0, scriptCount)) {

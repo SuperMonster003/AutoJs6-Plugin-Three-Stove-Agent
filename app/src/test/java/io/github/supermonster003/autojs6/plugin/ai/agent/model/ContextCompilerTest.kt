@@ -76,6 +76,43 @@ class ContextCompilerTest {
             assertEquals(StepJournal.bytes(input.messages) + input.schemaBytes, input.inputBytes)
         }
     }
+    @Test fun remainingAllowancesStayExplicitAndCurrentAcrossPackingAndReuse() {
+        var now = 0L
+        val budget = Budget(BudgetLimits(maxSteps = 30, maxModelCalls = 40), 0) { now }
+        repeat(3) {
+            budget.beginStep()
+            val reservation = budget.reserveModel(10, 20)
+            budget.settleModel(reservation, ModelUsage(100, 20, 120), 40)
+        }
+        now = 12_000
+        val before = budget.remainingJson()
+        budget.beginStep()
+        val reservation = budget.reserveModel(10, 20)
+        budget.settleModel(reservation, ModelUsage(100, 20, 120), 40)
+        now = 24_000
+        val after = budget.remainingJson()
+        for (local in listOf(false, true)) for (goal in listOf("Open Settings", "打开设置")) {
+            val compiler = compiler(local = local)
+            val context = context(goal, history = List(20) { record(it + 1, "old".repeat(1000)) })
+            fun remaining(input: ModelInput): JsonObject {
+                val data = AgentJson.objectOf(contents(input).last().lines().single { it.startsWith("{") })
+                assertEquals("remaining_budget", data.string("section"))
+                assertTrue(contents(input).first().contains(if (ContextCompiler.language(goal) == "en") "unused" else "尚未使用"))
+                return data.getAsJsonObject("data")
+            }
+            fun compile(remaining: JsonObject) = compiler.compile(RunContext(context.goal, context.history,
+                context.observation, context.repair, remaining, context.format, context.locale, context.guidance))
+            val first = compile(before)
+            val second = compile(after)
+            assertEquals(27, remaining(first)["steps"].asInt)
+            assertEquals(37, remaining(first)["modelCalls"].asInt)
+            assertEquals(588_000L, remaining(first)["durationMs"].asLong)
+            assertEquals(299_640L, remaining(first)["tokens"].asLong)
+            assertEquals(after, remaining(second))
+            assertEquals(before, remaining(first))
+            assertTrue(second.inputBytes <= if (local) 7500 else 64 * 1024)
+        }
+    }
     @Test fun longHistoryIsRemovedBeforeCurrentObservation() {
         val selected = ToolPolicy(ToolGroup.entries.associateWith { it == ToolGroup.USER })
         val compiler = compiler(limits = ContextLimits(maximumBytes = 12_000), selectedPolicy = selected)

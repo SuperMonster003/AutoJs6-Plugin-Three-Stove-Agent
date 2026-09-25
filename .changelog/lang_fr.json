@@ -8,7 +8,7 @@
     "v1.0.0": {
       "released_date": "2026/09/25",
       "hint": [
-        "Aperçu de développement de 1.0.0. Les API de tâches et les entrées de l'interface sont implémentées; les preuves d'audit P7 sont consignées. Les contrôles et la publication P8 restent à effectuer. Voir [ROADMAP.md]({{ roadmap_url }}) pour les cas validés et les limites connues.",
+        "La version 1.0.0 propose des tâches en langage naturel, des appels de scripts enregistrés et des actions sur le périphérique avec confirmation selon le risque. Consultez [ROADMAP.md]({{ roadmap_url }}) pour les cas vérifiés, les limites des modèles et les vérifications de périphériques restantes. Les appels natifs aux outils, les entrées visuelles et la génération dynamique de scripts sont prévus pour 1.1.0.",
         "Nécessite Android 7+, AutoJs6 6.8.0 / build 5293+ pour les API de tâches, et 3-Stone AI activé avec un modèle configuré. OCR est facultatif. Le seul protocole de connexion nécessite build 5289+."
       ],
       "feature": [
@@ -25,6 +25,7 @@
         "Paramètres, historique hors ligne et mentions légales en dix langues; recherche manuelle GitHub avec annulation, cache quotidien et versions ignorées, sans téléchargement automatique d'APK"
       ],
       "fix": [
+        "Fin prématurée des tâches lorsque le budget restant est interprété comme consommé",
         "Zones tactiles des formulaires et filtres, retour à la ligne des choix et colonnes de paramètres, et commandes flottantes avec les grandes polices et sur Android 7",
         "Contournements de la validation des identifiants dans la mémoire des préférences avec des caractères pleine chasse, sans chasse et certains noms supplémentaires",
         "La bulle de tâche pouvait rester masquée au réveil sans verrouillage sécurisé, avant la stabilisation de l'état de l'écran",

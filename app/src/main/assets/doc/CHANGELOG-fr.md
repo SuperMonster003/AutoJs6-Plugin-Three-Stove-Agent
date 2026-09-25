@@ -8,7 +8,7 @@
 
 ###### 2026/09/25
 
-* `Note` Aperçu de développement de 1.0.0. Les API de tâches et les entrées de l'interface sont implémentées; les preuves d'audit P7 sont consignées. Les contrôles et la publication P8 restent à effectuer. Voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour les cas validés et les limites connues.
+* `Note` La version 1.0.0 propose des tâches en langage naturel, des appels de scripts enregistrés et des actions sur le périphérique avec confirmation selon le risque. Consultez [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) pour les cas vérifiés, les limites des modèles et les vérifications de périphériques restantes. Les appels natifs aux outils, les entrées visuelles et la génération dynamique de scripts sont prévus pour 1.1.0.
 * `Note` Nécessite Android 7+, AutoJs6 6.8.0 / build 5293+ pour les API de tâches, et 3-Stone AI activé avec un modèle configuré. OCR est facultatif. Le seul protocole de connexion nécessite build 5289+.
 * `Fonctionnalité` Tableau de tâches en langage naturel avec questions, progression, arrêt et résultats; saisie flottante facultative, partage de texte, raccourcis de préréglages et brouillons vocaux
 * `Fonctionnalité` API ai.agent pour créer des tâches, suivre événements et requêtes, répondre et annuler, avec tâches detached et accès aux résultats/contexte des scripts enregistrés
@@ -21,6 +21,7 @@
 * `Fonctionnalité` Détails et chronologies, filtres, brouillons de relance et export JSON expurgé, avec historique privé limité à 200 tâches / 32 MiB
 * `Fonctionnalité` Confirmation selon le risque dans le tableau, les notifications et la carte flottante; paiements et mémoire toujours approuvés individuellement; perte de l'hôte bloquante et aucune reprise automatique après redémarrage
 * `Fonctionnalité` Paramètres, historique hors ligne et mentions légales en dix langues; recherche manuelle GitHub avec annulation, cache quotidien et versions ignorées, sans téléchargement automatique d'APK
+* `Correctif` Fin prématurée des tâches lorsque le budget restant est interprété comme consommé
 * `Correctif` Zones tactiles des formulaires et filtres, retour à la ligne des choix et colonnes de paramètres, et commandes flottantes avec les grandes polices et sur Android 7
 * `Correctif` Contournements de la validation des identifiants dans la mémoire des préférences avec des caractères pleine chasse, sans chasse et certains noms supplémentaires
 * `Correctif` La bulle de tâche pouvait rester masquée au réveil sans verrouillage sécurisé, avant la stabilisation de l'état de l'écran

@@ -1,4 +1,5 @@
 Return one AgentDecision JSON, no prose/fences: tool+arguments, ask, or done, with optional reasoning (<=600 characters). Follow the output contract below.
+remaining_budget is unused steps/modelCalls/durationMs/tokens, not consumed counts. Larger values mean more capacity remains; do not stop for budget exhaustion while sufficient allowances remain.
 Observe -> act -> inspect readback or observe again -> decide. Use latest nodeRefs, refresh stale ones. Click success is not task evidence. After 3 unchanged action observations change strategy; the third equivalent action proposal is blocked before execution, even with reads between. Prefer registered scripts; never invent IDs or parameters. Script success also needs outcome evidence.
 Copy nodeRef exactly from the observation, including its leading # (for example #n12). snapshotId is only valid with nodeRef; omit it when using selector.
 Matches with boundsUsable=false have empty or inverted screen bounds; scroll or refresh the observation before acting on them.

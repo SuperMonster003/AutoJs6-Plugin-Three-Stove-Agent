@@ -52,7 +52,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1.0.0 開發預覽. 任務 API 與各介面入口已實作, P7 稽核證據已記錄. P8 發布檢查與正式發布尚未完成. 已通過案例及已知限制見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.0.0 提供自然語言任務, 已登記指令碼呼叫與分級確認的裝置操作. 已通過案例, 模型限制與待補裝置驗收見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). 原生工具呼叫, 視覺輸入與動態指令碼產生預計於 1.1.0 支援.
 
 ******
 
@@ -282,7 +282,7 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/25_
 
-- `提示` 1.0.0 開發預覽. 任務 API 與各介面入口已實作, P7 稽核證據已記錄. P8 發布檢查與正式發布尚未完成. 已通過案例及已知限制見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+- `提示` 1.0.0 提供自然語言任務, 已登記指令碼呼叫與分級確認的裝置操作. 已通過案例, 模型限制與待補裝置驗收見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). 原生工具呼叫, 視覺輸入與動態指令碼產生預計於 1.1.0 支援.
 - `提示` 要求 Android 7+, AutoJs6 6.8.0 / build 5293+ 以使用任務 API, 並啟用已設定模型的 3-Stone AI 外掛. OCR 為選用項目. 僅附著協定的最低宿主為 build 5289+.
 - `新增` 自然語言任務台支援內嵌詢問, 進度, 停止及結果, 提供選用懸浮輸入, 文字分享, 預設捷徑與語音草稿
 - `新增` ai.agent 指令碼 API 支援建立任務, 事件, 查詢, 回應及取消, 包括 detached 任務與登記指令碼的結果/上下文存取
@@ -295,6 +295,7 @@ _2026/09/25_
 - `新增` 任務詳情及時間線, 篩選, 重跑草稿與去識別化 JSON 匯出, 私有歷史上限為 200 個任務 / 32 MiB
 - `新增` 任務台, 通知及懸浮卡按風險確認操作; 付款與記憶始終逐次批准; 宿主斷開會阻塞任務, 處理程序重啟不會自動繼續
 - `新增` 十語言設定, 離線發行歷史及法律聲明; 手動 GitHub 更新檢查支援取消, 每日快取與忽略版本, 不會自動下載 APK
+- `修復` 模型將剩餘預算誤判為已用預算而提前結束任務的問題
 - `修復` 表單與篩選控制項觸控區域不足, 選項與指令碼參數欄換行, 以及大字體和 Android 7 下懸浮控制項版面的問題
 - `修復` 偏好記憶內容中的全形, 零寬字元及部分憑證名稱可繞過憑證驗證的問題
 - `修復` 無安全鎖裝置喚醒時螢幕狀態尚未穩定, 導致任務懸浮球無法恢復顯示的問題
