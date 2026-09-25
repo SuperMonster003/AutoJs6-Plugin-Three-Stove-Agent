@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <permission android:name="org.autojs.permission.PLUGIN" android:protectionLevel="signature" />
+    <uses-permission android:name="org.autojs.permission.PLUGIN" />
+    <queries><package android:name="io.github.supermonster003.autojs6.plugin.ai.agent" /></queries>
+    <application android:allowBackup="false" android:testOnly="true" android:label="AI Agent Fake Host" android:supportsRtl="true">
+        <service android:name=".FakeHostService" android:exported="false" android:process=":broker" />
+    </application>
+</manifest>

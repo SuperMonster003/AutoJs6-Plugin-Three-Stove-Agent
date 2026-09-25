@@ -27,3 +27,4 @@ plugins {
 includeBuild("build-logic")
 
 include(":app")
+include(":test-apps:fake-host")

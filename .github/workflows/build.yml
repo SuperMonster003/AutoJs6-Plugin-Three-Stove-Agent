@@ -36,7 +36,9 @@ jobs:
           # The aggregate verifier must assemble its own debug and release inputs.
           ./gradlew :app:assembleDebugUnitTest \
             :app:verifyNativePageAlignment :app:testDebugUnitTest \
-            :app:assembleDebugAndroidTest :app:lintDebug --console=plain --stacktrace
+            :app:assembleDebugAndroidTest :app:lintDebug \
+            :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest \
+            :test-apps:fake-host:lintDebug --console=plain --stacktrace
 
       - name: Upload debug, release, and test APKs
         uses: actions/upload-artifact@v7
@@ -55,6 +57,7 @@ jobs:
           path: |
             app/build/reports/
             app/build/test-results/
+            test-apps/fake-host/build/reports/
           if-no-files-found: ignore
           retention-days: 7
 
