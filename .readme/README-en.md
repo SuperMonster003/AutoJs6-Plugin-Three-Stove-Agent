@@ -282,37 +282,19 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/25_
 
-- `Hint` Development preview: P6 task screens, settings, the floating ball, sharing, shortcuts and voice drafts are available. The ai.agent API requires AutoJs6 build 5293 or later. Reliability and release gates remain in P7/P8.
-- `Feature` Optional floating task input, progress, stop and confirmation cards; plain-text sharing, static and pinned preset shortcuts, and system speech recognition that fills a draft without sending
-- `Feature` Global settings, per-category data management, offline release history and legal notices, and cancellable manual update checks with daily caching and ignored versions
-- `Feature` Inline and notification confirmation with risk, countdown, task-scoped approval and separately confirmed answer memory
-- `Feature` Preference memory with per-proposal confirmation, scoped queries, conflict protection, per-entry persistence, editing, deletion and JSON backup with individual import approval
-- `Feature` Named presets with creation, editing, copying, deletion and default selection; host model catalog labels for locality and structured JSON, fixed context, narrower tool groups and budgets, confirmation policy, approved script folders and memory scope
-- `Feature` Full task timelines and results, status/preset/date filters, rerun drafts, deletion, redacted JSON export, and versioned private history with migration and LRU cleanup at 200 tasks / 32 MiB
-- `Feature` Task workbench with shared run admission, host appearance, inline interactions, budget progress and up to 20 recent tasks readable while disconnected
-- `Feature` Completion requires evidence, partial results list unfinished work, and order or payment tasks must report an observed order state
-- `Feature` Task verification tracks unchanged screens across context trimming and blocks the third equivalent action request before execution
-- `Feature` Actions wait for a bounded stable screen sample and include changes since the last action in subsequent observations
-- `Feature` Screen actions bind confirmation to inspected host nodes, support text append and bounded scrolling, and report action results and window changes
-- `Feature` Screen OCR is offered only when the host reports an available authorized OCR plugin; text is merged into bounded lines with coordinates
-- `Feature` Screen observations retain host snapshot references, bounded node and console output, and summaries of visible text and state changes
-- `Feature` Single-script tasks retain the script ID, path, execution ID and reported result after model completion, including explicit null and marked truncation for large results
-- `Feature` Registered script execution with confirmed manifest checks, structured observations, redacted console tails and owned-script stopping on timeout or task cancellation
-- `Feature` Scoped preference memory injection for script parameters, with a 4 KiB limit, explicit truncation and task-level opt-out
-- `Feature` Registered script parameter validation with defaults, missing-value questions, current-manifest risk checks and complete parameter tables for confirmation
-- `Feature` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
-- `Feature` README, plugin-center instructions, and changelog in 10 languages
-- `Feature` Agent core catalog with 30 tools, group admission, parameter schemas, bridge-call preparation, bounded observations and sensitive-risk escalation
-- `Feature` Agent decision core with protocol-specific schemas, strict and extracted JSON parsing, tool/branch validation, at most two repair retries and English/Chinese prompt templates
-- `Feature` Agent task budgets for steps, model calls, elapsed time and tokens, with bounded tool/wait deadlines, usage estimation and output-token admission
-- `Feature` Agent confirmation gate with default/cautious policies, task-local grants for the same tool and risk, mandatory per-action payment confirmation, and payment keywords in 10 languages
-- `Feature` Private Agent step journal capped at 200 steps and 1 MiB, with password-text redaction and bounded terminal results that retain status and counters
-- `Feature` Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically
-- `Feature` Deterministic Agent context packing with byte limits, complete recent step pairs, English/Chinese prompts and priority node selection; local models use a 3000-token input budget and compact tool signatures
-- `Feature` Host model client core with validated event order, usage accounting, cancellation, deadlines and bounded format fallback; each fallback counts as a model call and preserves the decision repair allowance
-- `Feature` Launcher connection requests with a 15-second timeout and guidance to enable and authorize AI Agent in AutoJs6
-- `Feature` Task-only foreground notifications with progress, Stop and View actions; input and per-action confirmation can be answered from the launcher
-- `Feature` Registered scripts refresh at task start, with a 60-second link cache, deterministic keyword ranking of up to 24 candidates, bounded parameter summaries and script_catalog queries
+- `Hint` Development preview for 1.0.0. Task APIs and interface entry points are implemented, and P7 audit evidence is recorded. P8 release checks and publication are still pending. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) for passed cases and known limitations.
+- `Hint` Requires Android 7+, AutoJs6 6.8.0 / build 5293+ for task APIs, and an enabled 3-Stone AI plugin with a configured model. OCR is optional. The attachment protocol alone requires host build 5289+.
+- `Feature` Natural-language task workbench with inline questions, progress, stop and results; optional floating input, text sharing, preset shortcuts and voice drafts
+- `Feature` ai.agent script API for task creation, events, queries, responses and cancellation, including detached tasks and registered-script result/context access
+- `Feature` Registered project.json / @agent scripts with catalog search, parameter validation and defaults, missing-value questions, confirmation, bounded execution and structured results
+- `Feature` Screen observation through text nodes and optional authorized OCR, reference-bound clicks, input, scrolling and keys, with screen-change checks and completion evidence
+- `Feature` Online and local model targets through the AutoJs6 host broker, without storing model credentials; a missing selected target fails without silently switching models
+- `Feature` Step, model-call, duration and token budgets, bounded tool deadlines, at most two decision-repair retries per step and protection against repeated ineffective actions
+- `Feature` Named presets and global settings for model selection, context, tool groups, budgets, cautious mode, script folders and memory scope; gesture/files/shell are off by default
+- `Feature` Scoped preference memory with individual proposal/import approval, editing, deletion and JSON backup, capped at 500 entries / 256 KiB; automatic injection is limited to 4 KiB
+- `Feature` Task details and timelines, filters, rerun drafts and redacted JSON export, with private history capped at 200 tasks / 32 MiB
+- `Feature` Risk-based confirmation in the workbench, notifications and floating card; payments and memory always require individual approval; host loss blocks tasks and process restart never resumes them automatically
+- `Feature` Settings, offline release history and legal notices in ten languages; manual GitHub release checks with cancellation, daily caching and ignored versions, without automatic APK downloads
 - `Fix` Form and filter touch targets, wrapped picker labels and script parameter columns, and floating control layout with large fonts and on Android 7
 - `Fix` Credential validation bypasses in preference memory involving fullwidth characters, zero-width characters and additional credential names
 - `Fix` The floating task ball could remain hidden after waking an unlocked device while screen state was still settling

@@ -41,3 +41,13 @@ own README. Legacy compatibility paths have scoped suppressions, described in
 the host's `tools/lint_audit/2026-09-25.md`. This closes the prior outstanding
 strict host lint evidence; it is not a claim that every warning was fixed or
 that all host variants/device behavior were retested here.
+
+## 1.0.0 changelog
+
+The second original P8 item consolidates 30 incremental feature entries into 11
+user-facing capabilities in all ten languages. It retains the observed fixes,
+performance/compatibility notes and dependency sources. The preview hint and
+Android/host/3-Stone AI requirements are explicit. The existing 2026/09/25 date
+is unchanged; this is release-copy preparation, not a published release.
+The Markdown generator/check passes for ten languages and 36 artifacts, and the
+packaged punctuation test passes. The dedicated README emulator was closed.

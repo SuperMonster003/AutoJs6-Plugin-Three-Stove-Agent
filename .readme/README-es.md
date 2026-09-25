@@ -282,37 +282,19 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/09/25_
 
-- `Aviso` Vista previa de desarrollo: están disponibles las pantallas P6, ajustes, burbuja flotante, compartir, accesos directos y borradores por voz. ai.agent requiere AutoJs6 build 5293 o posterior. Fiabilidad y publicación siguen pendientes en P7/P8.
-- `Función` Entrada flotante opcional, progreso, parada y confirmación, compartir texto, accesos estáticos y de preajustes, y reconocimiento de voz del sistema sin envío automático
-- `Función` Ajustes globales, gestión de categorías de datos, historial y avisos legales sin conexión, consulta manual cancelable con caché diario y versiones ignoradas
-- `Función` Confirmaciones en tareas y notificaciones con riesgo, cuenta atrás, permiso por tarea y memoria de respuestas confirmada por separado
-- `Función` Memoria de preferencias con confirmación de cada propuesta, consultas por ámbito, protección de conflictos, almacenamiento por entrada, edición, eliminación y copia JSON con aprobación individual al importar
-- `Función` Preajustes con nombre: creación, edición, copia, eliminación y selección predeterminada; catálogo de modelos con ubicación y compatibilidad con JSON estructurado, contexto fijo, límites de herramientas y presupuestos, confirmación, carpetas autorizadas y ámbito de memoria
-- `Función` Cronología completa y resultados, filtros por estado/preajuste/fecha, borradores para repetir tareas, eliminación, exportación JSON sin datos sensibles e historial privado versionado con migración y limpieza LRU (200 tareas / 32 MiB)
-- `Función` Panel con inicio común, apariencia del anfitrión, interacciones integradas, presupuestos y hasta 20 tareas recientes consultables sin conexión
-- `Función` La finalización exige pruebas, los resultados parciales enumeran el trabajo pendiente y las tareas de pedido o pago requieren un estado de pedido observado
-- `Función` La verificación conserva el recuento de pantallas sin cambios al recortar el contexto y bloquea la tercera solicitud de una acción equivalente antes de ejecutarla
-- `Función` Espera limitada de estabilidad tras cada acción y resumen de cambios desde la última acción en las observaciones siguientes
-- `Función` Acciones vinculadas a nodos inspeccionados por el anfitrión, con adición de texto, desplazamiento limitado y resultados con cambios de ventana
-- `Función` OCR de pantalla disponible solo cuando el anfitrión confirma un plugin OCR autorizado, con texto agrupado en líneas limitadas y coordenadas
-- `Función` Observaciones con referencias a capturas del anfitrión, salida limitada de nodos y consola, y resúmenes de cambios de texto y estado
-- `Función` Las tareas de un solo script conservan ID, ruta, ID de ejecución y resultado al concluir el modelo, con null explícito y truncamiento indicado de resultados grandes
-- `Función` Ejecución de scripts registrados con comprobación del manifiesto confirmado, observaciones estructuradas, cola de consola censurada y detención del script por tiempo agotado o cancelación
-- `Función` Preferencias en memoria por ámbito para los parámetros de scripts, con límite de 4 KiB, truncamiento explícito y desactivación por tarea
-- `Función` Validación de parámetros de scripts registrados con valores predeterminados, preguntas por datos faltantes, revisión del riesgo actual y tablas completas para confirmar
-- `Función` `ai-agent`: `AiAgentPluginInfoService`, `WakeActivity`, `AiAgentPluginService`, `ui.LauncherActivity`
-- `Función` README, instrucciones del centro de plugins y registro de cambios en 10 idiomas
-- `Función` Catálogo del núcleo Agent con 30 herramientas, control de grupos, esquemas de parámetros, preparación de llamadas bridge, observaciones limitadas y elevación de riesgos sensibles
-- `Función` Núcleo de decisiones Agent con esquemas por protocolo, análisis JSON estricto o por extracción, validación de herramientas/ramas, hasta dos reintentos de corrección y plantillas en inglés/chino
-- `Función` Presupuestos Agent de pasos, llamadas al modelo, duración y tokens, con plazos de herramientas/interacciones, estimación de uso y límites de tokens de salida
-- `Función` Confirmación Agent con políticas predeterminada/cautelosa, permisos por tarea para la misma herramienta y riesgo, confirmación de cada pago y palabras clave en 10 idiomas
-- `Función` Registro privado Agent limitado a 200 pasos y 1 MiB, con ocultación de contraseñas y resultados finales acotados que conservan estado y contadores
-- `Función` Conexión con identidad del anfitrión verificada, cola de tareas, respuestas, cancelación, consultas e historial privado; las tareas se bloquean al perder el anfitrión y no se reanudan al reiniciar el proceso
-- `Función` Contexto Agent determinista con límites de bytes, pares recientes completos, prompts en inglés/chino y prioridad de nodos; presupuesto local de 3000 tokens y firmas compactas de herramientas
-- `Función` Cliente de modelo del anfitrión con validación de eventos, uso, cancelación, plazos y cambio de formato acotado; cada cambio cuenta como llamada y conserva el límite de reparación
-- `Función` Solicitud de conexión desde el lanzador con espera de 15 segundos y guía para activar y autorizar AI Agent en AutoJs6
-- `Función` Notificaciones en primer plano solo mientras haya tareas, con progreso, Detener y Ver; respuestas y confirmaciones por acción desde el lanzador
-- `Función` Los scripts registrados se actualizan al iniciar la tarea, con caché de enlace de 60 segundos, clasificación determinista de hasta 24 candidatos, resúmenes acotados de parámetros y consultas script_catalog
+- `Aviso` Vista previa de desarrollo de 1.0.0. Las API de tareas y las entradas de la interfaz están implementadas; las pruebas de auditoría P7 están documentadas. Las comprobaciones y la publicación de P8 siguen pendientes. Consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) para los casos aprobados y las limitaciones.
+- `Aviso` Requiere Android 7+, AutoJs6 6.8.0 / build 5293+ para las API de tareas y 3-Stone AI habilitado con un modelo configurado. OCR es opcional. El protocolo de conexión por sí solo requiere build 5289+.
+- `Función` Panel de tareas en lenguaje natural con preguntas, progreso, parada y resultados; entrada flotante opcional, texto compartido, accesos a preajustes y borradores de voz
+- `Función` API ai.agent para crear tareas, eventos, consultas, respuestas y cancelación, incluidas tareas detached y resultados/contexto de scripts registrados
+- `Función` Scripts project.json / @agent con búsqueda, validación y valores predeterminados de parámetros, preguntas por valores ausentes, confirmación, ejecución limitada y resultados estructurados
+- `Función` Observación mediante nodos de texto y OCR autorizado opcional, clics por referencia, entrada, desplazamiento y teclas, con verificación de cambios y evidencia de finalización
+- `Función` Modelos en línea y locales mediante AutoJs6 sin guardar credenciales; un objetivo seleccionado ausente falla sin cambiar de modelo silenciosamente
+- `Función` Presupuestos de pasos, llamadas, duración y tokens, plazos de herramientas, hasta dos reintentos de reparación por paso y protección ante acciones repetidas sin efecto
+- `Función` Preajustes con nombre y ajustes globales de modelo, contexto, herramientas, presupuestos, cautela, carpetas y memoria; gesture/files/shell desactivados inicialmente
+- `Función` Memoria de preferencias por ámbito con aprobación individual de propuestas/importaciones, edición, borrado y copia JSON, hasta 500 entradas / 256 KiB; inyección automática hasta 4 KiB
+- `Función` Detalles y cronologías, filtros, borradores de repetición y exportación JSON depurada, con historial privado de hasta 200 tareas / 32 MiB
+- `Función` Confirmación según riesgo en panel, notificaciones y tarjeta flotante; pagos y memoria siempre con aprobación individual; perder el anfitrión bloquea tareas y reiniciar no las reanuda
+- `Función` Ajustes, historial sin conexión y avisos legales en diez idiomas; consulta manual de GitHub con cancelación, caché diaria y versiones ignoradas, sin descarga automática de APK
 - `Corrección` Áreas táctiles de formularios y filtros, ajuste de textos y columnas de parámetros, y controles flotantes con fuentes grandes y en Android 7
 - `Corrección` Omisiones en la validación de credenciales de la memoria de preferencias con caracteres de ancho completo, caracteres de ancho cero y otros nombres de credenciales
 - `Corrección` La burbuja de tareas podía permanecer oculta al activar un dispositivo sin bloqueo seguro mientras se estabilizaba el estado de la pantalla

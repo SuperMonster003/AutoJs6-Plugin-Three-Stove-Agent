@@ -596,7 +596,7 @@ P6.7 验收完成 (2026-09-25): Redmi 12C API 33 / Model8 Fable 5.1 从真实悬
 ## P8: 文档, changelog 与 1.0.0 发布 gate
 
 - [x] (插件) README 10 语言 (简介 / 功能 / 安装 / 快速开始 (界面与脚本两条路径) / 脚本登记格式 / 工具与风险等级表 (由 `ToolCatalog` 生成) / 预设与记忆 / 兼容性 (宿主最低版本, 需要 3-Stone AI 或其它 Provider 插件, 可选 OCR 插件) / 常见问题 (为什么需要宿主, 为什么付款总要确认, 本地模型的局限) / 发行历史 / 许可证); 截图 (任务台 / 详情 / 确认 / 悬浮球) 与当前实现一致.
-- [ ] (插件) `.changelog` 10 语言 1.0.0 条目; `py .python/generate_markdown.py` 与 `--check`.
+- [x] (插件) `.changelog` 10 语言 1.0.0 条目; `py .python/generate_markdown.py` 与 `--check`.
 - [ ] (宿主) `.changelog` 10 语言补齐 P1 / P5 未记录项; `docs/dev/ai-agent-protocol-v1.md` 与 `agent-script-manifest-v1.md` 状态改为 "versioned V1"; 宿主插件安装索引加入 `ai-agent`.
 - [ ] (文档) 文档 / d.ts / 离线文档 / Ace 四仓库版本与发布 (按各自 `AGENTS.md`).
 - [ ] (发布) Temurin 验收构建 (`assembleDebug` + `testDebugUnitTest`), `assembleDebugAndroidTest`, `lintDebug`, `appendDigestToReleasedFiles` (单 APK, CRC32 文件名), 安装 + 激活 + 附着 + 用例 (1) smoke 于两台设备; `VERSION_BUILD` 与提交数一致; `git status --short` 为空.
@@ -1441,3 +1441,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 四张实际界面截图使用独立空白 API 37.1 / 16 KiB 模拟器和示例任务, 无私人历史或真实模型调用. 截图 2/2, 既有交互/悬浮回归 2/2, JVM 12/12, debug/androidTest 与十语言 36 产物检查通过. 复现及证据见 docs/images/README.md 和 docs/dev/p8-docs-evidence-2026-09-25.md.
 - 核验并行宿主提交 433472897a 的成功日志, XML 和源码快照: 严格 lint 为 0 Error/Fatal, 2403 Warning, 3 Hint, 旧兼容路径压制单列. 闭合上一轮整库 lint 待证实状态, 不代替最终发布构建或所有宿主变体回归.
 - 插件 build 71 对齐提交数. 本轮继续原 P8 changelog 和宿主协议/安装索引条目, 不增加或拆分阶段. 真机未操作, 无需 SIM; 无订单/付款或 Rhino 改动, 尚未推送/发布.
+
+### 2026-09-25: P8 1.0.0 十语言更新日志
+
+- 完成原 P8 第二项, 将 30 条阶段性功能记录整合为 11 条最终用户能力, 保留已验证修复, 性能/兼容说明及依赖来源. 不新增功能或改写历史验收结果. 明确开发预览状态, Android/宿主/3-Stone AI 要求及 OCR 可选性.
+- 十语言 JSON 和 36 个生成产物一致; 日期保持 2026/09/25, 发布条目仍未勾选. 本次纯文案变更按范围验证, 不重复 Android 全量验收. 插件 build 72 对齐提交数.
+- README 专用空白模拟器已关闭, 四台真机未被本轮更改. 后续继续原宿主协议/安装索引及四仓库文档版本准备; XQ-AT72 离线待补记录保留, 当前不需要 SIM 或用户手动操作.
