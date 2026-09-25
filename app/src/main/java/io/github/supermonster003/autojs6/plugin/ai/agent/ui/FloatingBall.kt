@@ -137,6 +137,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         if (root == null) createWindow()
         val value = snapshot ?: return
         val run = value.run
+        statusLabel?.visibility = if (!expanded && run == null) View.GONE else View.VISIBLE
         statusLabel?.text = if (run == null) context.getString(R.string.app_name) else
             WorkbenchText.state(context, run) + " " + (run.string("progress") ?: run.string("goal").orEmpty())
         stopButton?.visibility = if (run != null) View.VISIBLE else View.GONE
@@ -145,7 +146,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             val names = (value.presets + requireNotNull(selectedPreset)).distinct()
             if (names != presetNames) {
                 presetNames = names
-                presetSpinner?.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, names)
+                presetSpinner?.adapter = ArrayAdapter(context, R.layout.item_spinner_choice, names)
                 presetSpinner?.setSelection(names.indexOf(selectedPreset).coerceAtLeast(0))
             }
             voiceButton?.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(context)) View.VISIBLE else View.GONE
@@ -155,7 +156,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             if (visibleRequest != request?.string("requestId")) { visibleRequest = request?.string("requestId"); cardScroll?.scrollTo(0, 0) }
             runtime.interactions.present(visibilityOwner, run?.string("runId").takeIf { request != null }, request?.string("requestId"))
         } else runtime.interactions.present(visibilityOwner, null, null)
-        root?.let { tintHost(it, appearance) }
+        root?.let { styleHostControls(it, appearance) }
         updateSend(); reposition()
     }
     private fun button(parent: LinearLayout, resource: Int, tag: String, action: () -> Unit): Button = Button(context).apply {
@@ -253,7 +254,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             val next = bounds.width() to bounds.height()
             if (dimensions != next) { dimensions = next; main.post { if (root === body) reposition() } }
         }
-        tintHost(body, appearance)
+        styleHostControls(body, appearance)
     }
     private fun updateSend() {
         sendButton?.isEnabled = !sending && draft.isNotBlank() && selectedPreset in snapshot?.presets.orEmpty() && permitted()
@@ -348,7 +349,12 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val bounds = usableBounds()
         val active = snapshot?.run != null
         params.width = (if (expanded) dp(360) else if (active) dp(280) else dp(64)).coerceAtMost(bounds.width())
-        params.height = if (expanded) (bounds.height() * 0.72f).toInt() else dp(64).coerceAtMost(bounds.height())
+        params.height = if (expanded) (bounds.height() * 0.72f).toInt() else {
+            // A fixed 64dp window clips the stop label when the system font is enlarged.
+            root?.measure(View.MeasureSpec.makeMeasureSpec(params.width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            maxOf(dp(64), root?.measuredHeight ?: 0).coerceAtMost(bounds.height())
+        }
         params.x = FloatingPosition.coordinate(xFraction, bounds.left, bounds.right, params.width)
         params.y = FloatingPosition.coordinate(yFraction, bounds.top, bounds.bottom, params.height)
     }

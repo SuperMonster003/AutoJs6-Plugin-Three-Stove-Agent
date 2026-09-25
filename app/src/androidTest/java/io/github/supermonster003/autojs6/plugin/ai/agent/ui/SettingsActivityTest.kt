@@ -195,6 +195,37 @@ class SettingsActivityTest {
             }
         } finally { HostAppearance.cached = original; release.countDown() }
     }
+    @Test fun settingsDocumentsAndDialogsHaveAccessibleControlsAndUnclippedText() = isolated { _, _, _ -> withUpdatePreferences {
+        val audit = UiAccessibilityAudit()
+        audit.themed {
+            ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+                ui(scenario, "Audit settings ready") { it.view<Button>("update")?.isLaidOut == true }
+                scenario.onActivity { audit.inspect(it, "settings"); it.view<Button>("clear-history")!!.performClick() }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "clear-dialog"); it.prompt!!.dismiss() }
+                scenario.onActivity { it.view<Button>("default")!!.performClick() }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "default-dialog"); it.prompt!!.dismiss() }
+                AppUpdateCoordinator.sourceOverride = UpdateSource { UpdateResult.Success(
+                    ReleaseInfo("v2.0.0", "${ReleaseInfoCodec.SOURCE}/releases/tag/v2.0.0", "Controlled update fixture")) }
+                scenario.onActivity { it.view<Button>("update")!!.performClick() }
+                ui(scenario, "Audit update dialog ready") { it.updates.dialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.isLaidOut == true }
+                scenario.onActivity { audit.inspect(it.updates.dialog!!.window!!.decorView, "update-dialog"); it.updates.dialog!!.dismiss() }
+            }
+            for (document in listOf("history", "license", "notices")) {
+                ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
+                    waitFor("Audit document ready") { var ready = false; scenario.onActivity {
+                        ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.let { text ->
+                            text.isLaidOut && text.text.length > 100 } == true
+                    }; ready }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { audit.inspect(it, "document-$document") }
+                }
+            }
+            audit.finish()
+        }
+    } }
+
     private fun withUpdatePreferences(action: (android.content.SharedPreferences) -> Unit) {
         val preferences = context.getSharedPreferences("updates", Context.MODE_PRIVATE); val saved = preferences.all.toMap()
         preferences.edit().clear().commit()

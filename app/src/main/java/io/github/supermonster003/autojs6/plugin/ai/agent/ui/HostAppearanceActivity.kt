@@ -84,11 +84,17 @@ abstract class HostAppearanceActivity : Activity() {
         }
     }
     override fun onStop() { appearanceGeneration++; super.onStop() }
-    internal fun tint(view: View) = tintHost(view, applied)
+    internal fun tint(view: View) = styleHostControls(view, applied)
 }
 
-internal fun tintHost(view: View, appearance: HostAppearance?) {
-        val colors = appearance ?: return
+/** Apply touch targets even when the host appearance provider is unavailable. */
+internal fun styleHostControls(view: View, appearance: HostAppearance?) {
+    if (view is Button || view is EditText || view is Spinner) {
+        val minimum = kotlin.math.ceil(48 * view.resources.displayMetrics.density).toInt()
+        view.minimumWidth = maxOf(view.minimumWidth, minimum)
+        view.minimumHeight = maxOf(view.minimumHeight, minimum)
+    }
+    appearance?.let { colors ->
         // Keep platform text contrast/disabled states; use host colors on accents only.
         val accent = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
             intArrayOf(colors.accent, (colors.accent and 0x00ffffff) or 0x61000000))
@@ -104,5 +110,6 @@ internal fun tintHost(view: View, appearance: HostAppearance?) {
             is ProgressBar -> { view.progressTintList = accent; view.indeterminateTintList = accent }
         }
         if (view.tag == "host-primary") view.backgroundTintList = ColorStateList.valueOf(colors.primary)
-        if (view is ViewGroup) for (index in 0 until view.childCount) tintHost(view.getChildAt(index), colors)
+    }
+    if (view is ViewGroup) for (index in 0 until view.childCount) styleHostControls(view.getChildAt(index), appearance)
 }

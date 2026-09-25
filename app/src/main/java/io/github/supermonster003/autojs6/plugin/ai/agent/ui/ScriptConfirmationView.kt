@@ -13,13 +13,16 @@ internal object ScriptConfirmationView {
         val padding = (16 * context.resources.displayMetrics.density).toInt()
         val content = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPadding(padding, padding, padding, padding) }
         content.addView(TextView(context).apply { text = pending["description"].asString; setTextIsSelectable(true) })
-        val table = TableLayout(context).apply { isShrinkAllColumns = true; isStretchAllColumns = true }
+        // Equal, bounded columns keep a long value from squeezing its parameter name
+        // down to a single character per line on narrow screens with large fonts.
+        val table = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         fun row(name: String, value: String, header: Boolean = false) {
-            table.addView(TableRow(context).apply {
+            table.addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
                 for (label in listOf(name, value)) addView(TextView(context).apply {
                     text = label; setPadding(padding / 2, padding / 2, padding / 2, padding / 2)
                     if (header) setTypeface(typeface, Typeface.BOLD) else setTextIsSelectable(true)
-                })
+                }, LinearLayout.LayoutParams(0, -2, 1f))
             })
         }
         row(context.getString(R.string.confirmation_parameter), context.getString(R.string.confirmation_value), true)

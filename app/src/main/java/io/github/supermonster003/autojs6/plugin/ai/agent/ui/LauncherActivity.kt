@@ -153,7 +153,7 @@ class LauncherActivity : HostAppearanceActivity() {
         val displayedPresets = (value.presets + selectedPreset).distinct()
         if (displayedPresets != presetIds || nextDefault) {
             presetIds = displayedPresets
-            preset.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item,
+            preset.adapter = ArrayAdapter(this, R.layout.item_spinner_choice,
                 presetIds.map { if (it == "default") getString(R.string.workbench_default_preset) else it })
             preset.setSelection(presetIds.indexOf(selectedPreset).coerceAtLeast(0))
         }

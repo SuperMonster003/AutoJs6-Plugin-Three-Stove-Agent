@@ -105,7 +105,7 @@ class MemoryActivity : HostAppearanceActivity() {
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val spinner = Spinner(this).apply {
             contentDescription = getString(R.string.memory_scope)
-            adapter = ArrayAdapter(this@MemoryActivity, android.R.layout.simple_spinner_dropdown_item, ids.map { it ?: getString(R.string.history_all) })
+            adapter = ArrayAdapter(this@MemoryActivity, R.layout.item_spinner_choice, ids.map { it ?: getString(R.string.history_all) })
             setSelection(ids.indexOf(filter).coerceAtLeast(0))
         }
         body.addView(spinner, LinearLayout.LayoutParams(-1, -2)); body.addView(list, LinearLayout.LayoutParams(-1, -2))

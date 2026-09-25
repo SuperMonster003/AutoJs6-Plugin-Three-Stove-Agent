@@ -1301,4 +1301,111 @@ class WorkbenchActivityTest {
         is ViewGroup -> (0 until view.childCount).flatMap { texts(view.getChildAt(it)) }
         else -> emptyList()
     }
+
+    @Test fun managementScreensHaveAccessibleControlsAndUnclippedText() = withFixture(Model(true)) { link, model ->
+        val audit = UiAccessibilityAudit()
+        val preset = "layout-${java.util.UUID.randomUUID()}"
+        var runId: String? = null
+        PresetsClient().use { presets -> MemoriesClient().use { memories ->
+            presets.save(Preset(preset)).getOrThrow()
+            try { audit.themed {
+                runId = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                    io.github.supermonster003.autojs6.plugin.ai.agent.service.RunLauncher.uiRequest("Layout inspection fixture", preset, audit.language)), null)).string("runId")!!
+                waitFor("Layout fixture model starts") { model.held != null }; model.finish(completed)
+                waitFor("Layout fixture completed") {
+                    AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$runId"}"""))).string("state") == "completed"
+                }
+                val memory = MemoryEntry("layout-drink", "Hot latte, medium cup", preset, runId, 1, 1)
+                memories.save(memory).getOrThrow()
+                fun page(type: Class<out android.app.Activity>, name: String, readyTag: String? = null,
+                         after: (ActivityScenario<android.app.Activity>) -> Unit = {}) {
+                    val intent = Intent(context, type).putExtra("runId", runId).putExtra("rerunPreset", preset).putExtra("rerunGoal", "Layout inspection fixture")
+                    ActivityScenario.launch<android.app.Activity>(intent).use { scenario ->
+                        waitFor("$name laid out") { var ready = false; scenario.onActivity {
+                            val root = it.findViewById<ViewGroup>(android.R.id.content)
+                            ready = root.width > 0 && (readyTag == null || root.findViewWithTag<View>(readyTag)?.isLaidOut == true) &&
+                                (type != HistoryActivity::class.java || texts(root).any { it.contains("Layout inspection fixture") }) &&
+                                (type != LauncherActivity::class.java || it.findViewById<Spinner>(R.id.workbench_preset)?.adapter?.count?.let { n -> n > 0 } == true)
+                        }; ready }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { audit.inspect(it, name) }
+                        after(scenario)
+                    }
+                }
+                page(LauncherActivity::class.java, "workbench")
+                page(HistoryActivity::class.java, "history", "clear")
+                page(RunDetailActivity::class.java, "detail", "rerun")
+                page(PresetsActivity::class.java, "presets", "preset-new") { scenario ->
+                    scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("preset-new").performClick() }
+                    waitFor("Preset editor laid out") { var ready = false; scenario.onActivity {
+                        ready = it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("preset-save")?.isLaidOut == true
+                    }; ready }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { audit.inspect(it, "preset-editor") }
+                }
+                page(MemoryActivity::class.java, "memory", "memory-import") { scenario ->
+                    scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("memory-entry-$preset:layout-drink").performClick() }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { audit.inspect(it, "memory-editor") }
+                    scenario.onActivity { (it as MemoryActivity).beginImport(listOf(memory.copy(key = "layout-import"))) }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { audit.inspect(it, "memory-review") }
+                }
+                page(ScriptRootsActivity::class.java, "script-roots")
+                audit.finish()
+            } } finally {
+                memories.rows().filter { it.scope == preset }.forEach { memories.delete(it).getOrThrow() }
+                presets.named("delete", preset).getOrThrow()
+                runId?.let(::deleteAuditRun)
+            }
+        } }
+    }
+
+    @Test fun confirmationQuestionsHaveAccessibleControlsAndUnclippedText() = withFixture(Model(true), listOf("memory")) { link, model ->
+        val audit = UiAccessibilityAudit()
+        audit.themed {
+            for (kind in listOf("text", "choice", "confirm", "memory")) {
+                val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
+                    io.github.supermonster003.autojs6.plugin.ai.agent.service.RunLauncher.uiRequest("Interaction layout fixture", "default", audit.language)), null)).string("runId")!!
+                fun run() = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+                try {
+                    waitFor("Interaction model ready") { model.held != null }
+                    model.finish(if (kind == "memory") """{"kind":"tool","tool":"memory_propose","arguments":{"key":"layout-preference","value":"Hot latte, medium cup"}}"""
+                        else """{"kind":"ask","ask":{"kind":"$kind","question":"Which preference should this task use?","memoryKey":"layout-preference"${if (kind == "choice") ",\"choices\":[\"A medium hot latte with regular milk\",\"A medium hot latte with oat milk\"]" else ""}}}""")
+                    waitFor("Interaction pending") { run().getAsJsonObject("pending") != null }
+                    val request = run().getAsJsonObject("pending").string("requestId")!!
+                    ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, request)).use { scenario ->
+                        waitFor("Interaction card laid out") { var ready = false; scenario.onActivity {
+                            val card = it.findViewById<ViewGroup>(R.id.workbench_pending)
+                            ready = card.childCount > 2 && card.height > 0 && card.getChildAt(card.childCount - 1).isLaidOut
+                        }; ready }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { audit.inspect(it, "confirmation-$kind") }
+                    }
+                } finally {
+                    link.cancelRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))
+                    waitFor("Interaction fixture stopped") { !WorkbenchText.active(run()) }
+                    deleteAuditRun(id)
+                }
+            }
+            audit.finish()
+        }
+    }
+
+    private fun deleteAuditRun(id: String) {
+        val ready = CountDownLatch(1); var endpoint: IRunHistory? = null
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) { endpoint = IRunHistory.Stub.asInterface(binder); ready.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        check(context.bindService(Intent(context, AgentLocalService::class.java).setAction(HistoryEndpoint.ACTION), connection, Context.BIND_AUTO_CREATE))
+        try {
+            assertTrue(ready.await(15, TimeUnit.SECONDS))
+            val done = CountDownLatch(1); var error: String? = null
+            endpoint!!.query(bundle(C.KEY_RUN_REQUEST_JSON, """{"operation":"delete","runId":"$id"}"""), object : IRunHistoryCallback.Stub() {
+                override fun onResult(response: Bundle?) { error = response?.getString(C.KEY_ERROR_CODE); AgentWire.closeDescriptors(response); done.countDown() }
+            })
+            assertTrue(done.await(15, TimeUnit.SECONDS)); assertNull(error)
+        } finally { context.unbindService(connection) }
+    }
 }

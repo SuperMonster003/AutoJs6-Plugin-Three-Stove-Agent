@@ -146,7 +146,7 @@ class PresetsActivity : HostAppearanceActivity() {
         HistoryViews.label(body, getString(label))
         return Spinner(this).apply {
             this.tag = tag; contentDescription = getString(label); minimumHeight = (48 * resources.displayMetrics.density).toInt()
-            adapter = ArrayAdapter(this@PresetsActivity, android.R.layout.simple_spinner_dropdown_item, labels)
+            adapter = ArrayAdapter(this@PresetsActivity, R.layout.item_spinner_choice, labels)
             setSelection(position.coerceAtLeast(0)); body.addView(this, LinearLayout.LayoutParams(-1, -2))
         }
     }
@@ -221,7 +221,7 @@ class PresetsActivity : HostAppearanceActivity() {
                 }
             }
         }
-        target.adapter = ArrayAdapter(this, R.layout.item_preset_model, labels)
+        target.adapter = ArrayAdapter(this, R.layout.item_spinner_choice, labels)
         target.dropDownWidth = ViewGroup.LayoutParams.MATCH_PARENT
         target.setSelection(targetIds.indexOf(selected).coerceAtLeast(0))
         targetStatus.text = if (catalogAvailable) "" else getString(R.string.presets_models_unavailable)

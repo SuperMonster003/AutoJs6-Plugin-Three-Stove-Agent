@@ -38,7 +38,7 @@ class HistoryActivity : HostAppearanceActivity() {
         val states = listOf<String?>(null) + RunHistoryCodec.states
         val stateSpinner = Spinner(this).apply { contentDescription = getString(R.string.history_state_filter) }
         HistoryViews.label(body, getString(R.string.history_state_filter)); body.addView(stateSpinner)
-        stateSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, states.map {
+        stateSpinner.adapter = ArrayAdapter(this, R.layout.item_spinner_choice, states.map {
             if (it == null) getString(R.string.history_all) else WorkbenchText.state(this, jsonObject("state" to it.json()))
         })
         stateSpinner.setSelection(states.indexOf(filter.state).coerceAtLeast(0))
@@ -76,7 +76,7 @@ class HistoryActivity : HostAppearanceActivity() {
                     val ids = listOf(null) + (rows.mapNotNull { it.string("preset") } + listOfNotNull(filter.preset)).distinct().sorted()
                     if (ids != presetIds || presets.adapter == null) {
                         presetIds = ids
-                        presets.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, ids.map { it ?: getString(R.string.history_all) })
+                        presets.adapter = ArrayAdapter(this, R.layout.item_spinner_choice, ids.map { it ?: getString(R.string.history_all) })
                         presets.setSelection(ids.indexOf(filter.preset).coerceAtLeast(0))
                     }
                     render()
