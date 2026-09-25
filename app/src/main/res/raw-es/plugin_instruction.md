@@ -4,6 +4,8 @@ La versión 1.1.0 está en desarrollo. Los destinos que anuncian tools usan llam
 
 La comparación actual con Model8 incluye respuestas vacías, fallos del Provider y paradas por límites de presupuesto. Los [resultados de comparación](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservan todos los ensayos; aún no demuestran una finalización fiable de ambas tareas.
 
+La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
+
 ### Uso
 
 1. Instale el APK del plugin desde [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) en un dispositivo con AutoJs6 build 5293 o posterior.

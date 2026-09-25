@@ -56,6 +56,8 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 現在の Model8 比較では空の応答, Provider の失敗, 予算上限による停止が発生しています. [比較の記録](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) に全試行を残しており, 両タスクの安定した完了はまだ確認できていません.
 
+画像入力には対応ホスト, observe グループ, 画像入力を明示的に有効にした視覚モデルが必要です. 実装と決定的テストは完了していますが, 実際のオンライン視覚モデルでの検証は保留中です. 旧システムとテキスト専用モデルは文字で観察します. ROADMAP.md を参照
+
 ******
 
 ### 機能
@@ -69,6 +71,7 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 - 設計段階からの安全性: 読み取り専用ツールは自動で実行され, 敏感な操作 (支払い, 送信, 削除, ファイル書き込み, shell, 座標ジェスチャー, 敏感として登録されたスクリプト) は確認を必要とし, 各実行にはステップ数, モデル呼び出し回数, 実行時間, トークンの予算があります.
 - スクリプト API とユーザーインターフェース: `ai.agent.run(goal, options)` はイベント, 応答, キャンセルを備えた `AgentRun` ハンドルを返します. 単独アプリは履歴, プリセット, 設定メモリ, 設定, リリース履歴を備えたタスク画面を提供します.
 - ホスト経由のネイティブツール呼び出し: カタログの Schema, バッチ全体の引数検証, 順次実行, 個別確認, 結果による継続とステップ記録で既存のタスク規則を共有
+- Android 11+ で AutoJs6 経由のスクリーンショット観察: screen_capture は最長辺 1280, JPEG 品質 70 に変換し, 視覚プロンプト, 画像 token の予算確認, ネイティブツール結果への画像添付に対応
 
 ### 画面例
 
@@ -187,6 +190,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
 | `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
 | `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
 | `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
@@ -239,6 +243,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - プラグインは API キーを保持せず, モデルプロバイダーに自ら接続せず, アクセシビリティ権限も要求しません. モデル呼び出しとデバイス操作は, AutoJs6 が接続中のリンク 1 本のために貸し出し, 切断時に取り消すブローカーを通じて行われ, それぞれ grant (許可メソッド, レート, サイズ, モデルの割り当て) で制限されます.
 - INTERNET は GitHub リリースの手動確認専用です. FOREGROUND_SERVICE と FOREGROUND_SERVICE_SPECIAL_USE は実行中のタスク, POST_NOTIFICATIONS は進行状況と確認に使用します. SYSTEM_ALERT_WINDOW は設定でフローティングボールを有効にするときだけ要求します. ユーザー補助, ストレージ, マイク権限は要求しません.
 - タスク履歴, プリセット, 設定メモリはプラグインの非公開ストレージにのみ保存されます. バックアップとデバイス間の転送は無効です.
+- スクリーンショットは AutoJs6 経由で選択したモデルへ送信されます. オンラインモデルの場合もあります. 画面が起動中でロック解除済みであることが必要です. 履歴には寸法やバイト数を保存し, 画像内容は保存しません. JSON 決定では別の観察や回答まで現在の画像を保持します. ネイティブ会話は各バッチとセッションの上限内で過去の画像を保持し, 各ラウンドで token を再予約します.
 
 プラグインは公式の [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) ページまたは AutoJs6 のプラグインセンターからのみ入手してください. 出所不明のパッケージは, バージョン番号が同じに見えてもホストの検証に失敗したり, リスクを伴う可能性があります.
 
@@ -286,9 +291,10 @@ minimum host build: 5289 (6.8.0)
 _2026/09/26_
 
 - `ヒント` ネイティブ呼び出しには AutoJs6 build 5297+ と tools 対応対象が必要です. 3-Stone AI 1.2.0 開発候補のオンライン対象が該当します. 旧ホストや非対応対象は JSON を維持します. 各会話の初期期限, コンテキスト/出力制限, 最大 16 ツールラウンドを維持し, 操作後の失敗では JSON で再開しません
-- `ヒント` ホストの画像転送と 3-Stone AI のオンライン画像変換を実装しました. 実際のオンラインモデルによる画像入力の検証は未完了です. スクリーンショットを使うタスクには, 本プラグインの撮影ツール, 視覚プロンプト, 画像の予算管理の実装が必要です. ROADMAP.md を参照してください
+- `ヒント` 画像入力には対応ホスト, observe グループ, 画像入力を明示的に有効にした視覚モデルが必要です. 実装と決定的テストは完了していますが, 実際のオンライン視覚モデルでの検証は保留中です. 旧システムとテキスト専用モデルは文字で観察します. ROADMAP.md を参照
 - `機能` ホスト経由のネイティブツール呼び出し: カタログの Schema, バッチ全体の引数検証, 順次実行, 個別確認, 結果による継続とステップ記録で既存のタスク規則を共有
-- `依存関係` ホスト API の release 成果物を AutoJs6 build 5297 と同期; 基本接続契約は build 5289+ と互換
+- `機能` Android 11+ で AutoJs6 経由のスクリーンショット観察: screen_capture は最長辺 1280, JPEG 品質 70 に変換し, 視覚プロンプト, 画像 token の予算確認, ネイティブツール結果への画像添付に対応
+- `依存関係` 3 個のホスト API release 成果物を AutoJs6 52ce694f92 / build 5297 に更新して画像入力を協議. build 5289+ の基本接続契約を維持
 
 #### v1.0.0
 

@@ -4,6 +4,8 @@ La version 1.1.0 est en développement. Les cibles annonçant tools utilisent le
 
 La comparaison actuelle avec Model8 comprend des réponses vides, des échecs du Provider et des arrêts sur limite de budget. Les [résultats de comparaison](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservent tous les essais; ils ne démontrent pas encore une exécution fiable des deux tâches.
 
+Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md
+
 ### Utilisation
 
 1. Installez l'APK du plugin depuis [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) sur un appareil disposant d'AutoJs6 build 5293 ou ultérieure.

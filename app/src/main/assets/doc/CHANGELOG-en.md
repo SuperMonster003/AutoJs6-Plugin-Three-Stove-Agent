@@ -9,9 +9,10 @@
 ###### 2026/09/26
 
 * `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
-* `Hint` Host image transport and 3-Stone AI online image mappings are implemented. Real online vision acceptance is still pending; this plugin's capture tools, visual prompts and image budgets need implementation before screenshot tasks are available. See ROADMAP.md
+* `Hint` Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
 * `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
-* `Dependency` Host API release artifacts synchronized with AutoJs6 build 5297; the base attachment contract remains compatible with build 5289+
+* `Feature` Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
+* `Dependency` Upgrade the three host API release artifacts to AutoJs6 52ce694f92 / build 5297 for negotiated image input; preserve the base build 5289+ attachment contract
 
 # v1.0.0
 

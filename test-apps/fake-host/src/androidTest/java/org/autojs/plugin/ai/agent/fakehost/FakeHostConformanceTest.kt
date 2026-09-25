@@ -71,6 +71,35 @@ class FakeHostConformanceTest {
         }
     }
     @Test fun disabledToolNeverReachesCapabilityBroker() = denial("disabled-tool", 0)
+    @Test fun jsonVisionTransportsSyntheticCaptureAcrossRealBinderUids() = visionRoundTrip("vision-json")
+    @Test fun nativeVisionTransportsCaptureAsTheMatchingToolResult() = visionRoundTrip("native-vision")
+    private fun visionRoundTrip(mode: String) {
+        org.junit.Assume.assumeTrue(Build.VERSION.SDK_INT >= 30)
+        Fixture(mode).use { fixture ->
+            val id = start(fixture.link)
+            try {
+                waitFor("Image round trip completed") { row(fixture.link, id).getString("state") in setOf("completed", "failed", "blocked") }
+            } catch (failure: AssertionError) {
+                val stats = fixture.driver.stats()
+                throw AssertionError("$mode: ${row(fixture.link, id)}, models=${stats.getInt("models")}, tools=${stats.getInt("tools")}, images=${stats.getInt("imagesReceived")}", failure)
+            }
+            val result = row(fixture.link, id)
+            assertEquals(result.toString(), "completed", result.getString("state"))
+            val stats = fixture.driver.stats()
+            assertEquals(1, stats.getInt("imagesReceived")); assertEquals(1, stats.getInt("tools"))
+            assertEquals(if (mode.startsWith("native")) 1 else 2, stats.getInt("models"))
+            assertEquals(if (mode.startsWith("native")) 1 else 0, stats.getInt("continuations"))
+        }
+    }
+    @Test fun oldAndroidKeepsTextModeEvenWhenHostAndTargetAdvertiseVision() {
+        org.junit.Assume.assumeTrue(Build.VERSION.SDK_INT < 30)
+        Fixture("vision-json").use { fixture ->
+            val id = start(fixture.link)
+            waitFor("Text round trip completed") { row(fixture.link, id).getString("state") in setOf("completed", "failed", "blocked") }
+            assertEquals("completed", row(fixture.link, id).getString("state"))
+            assertEquals(0, fixture.driver.stats().getInt("imagesReceived")); assertEquals(0, fixture.driver.stats().getInt("tools"))
+        }
+    }
     @Test fun nativeBatchUsesRealCrossUidContinuationAndCumulativeUsage() = nativeRoundTrip("native-denied", 2)
     @Test fun nativeInvalidBatchIsRepairedWithoutAnyDeviceOperation() = nativeRoundTrip("native-repair", 0)
     private fun nativeRoundTrip(mode: String, expectedTools: Int) {

@@ -56,6 +56,8 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 현재 Model8 비교에서는 빈 응답, Provider 실패와 예산 초과 중단이 발생합니다. [비교 기록](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md)에 모든 시도를 보존하며, 두 작업의 안정적인 완료는 아직 확인되지 않았습니다.
 
+이미지 입력에는 호환 호스트, observe 그룹 및 이미지 입력을 명시적으로 활성화한 시각 모델이 필요합니다. 구현과 결정적 테스트는 완료되었으며 실제 온라인 시각 모델 검증은 대기 중입니다. 이전 시스템과 텍스트 전용 모델은 텍스트 관찰을 유지합니다. ROADMAP.md 참조
+
 ******
 
 ### 기능
@@ -69,6 +71,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 - 설계 단계의 안전성: 읽기 전용 도구는 자동으로 실행되고, 민감한 동작 (결제, 전송, 삭제, 파일 쓰기, shell, 좌표 제스처, 민감으로 등록된 스크립트)은 확인이 필요하며, 모든 실행에는 단계 수, 모델 호출 수, 시간, 토큰 예산이 있습니다.
 - 스크립트 API와 사용자 인터페이스: `ai.agent.run(goal, options)`은 이벤트, 응답, 취소를 갖춘 `AgentRun` 핸들을 반환합니다. 독립 실행형 앱은 기록, 프리셋, 선호 메모리, 설정, 릴리스 기록이 있는 작업 화면을 제공합니다.
 - 호스트를 통한 네이티브 도구 호출: 카탈로그 Schema, 전체 배치 인수 검증, 순차 실행, 개별 확인, 결과 전달 및 단계 기록에 기존 작업 규칙 적용
+- Android 11+에서 AutoJs6를 통한 화면 캡처 관찰: screen_capture는 긴 변 1280, JPEG 품질 70으로 변환하며 시각 프롬프트, 이미지 token 예산 검사와 기본 도구 결과 이미지 첨부 지원
 
 ### 화면 예시
 
@@ -187,6 +190,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
+| `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
 | `screen_state` | `observe` | `READ_ONLY` | `on` | Read whether the screen is on. |
 | `ui_dump` | `observe` | `READ_ONLY` | `on` | Observe the current accessibility tree before choosing an action. |
 | `ui_find` | `observe` | `READ_ONLY` | `on` | Find nodes matching all selector conditions. |
@@ -239,6 +243,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 플러그인은 API 키를 보관하지 않고, 모델 제공자에 바인딩하지 않으며, 접근성 권한을 요청하지 않습니다. 모델 호출과 기기 동작은 AutoJs6가 연결된 링크 하나를 위해 빌려주고 분리 시 회수하는 브로커를 통해 이루어지며, 각 브로커는 grant (허용 메서드, 속도, 크기, 모델 할당량)로 제한됩니다.
 - INTERNET은 GitHub 릴리스 수동 확인에만 사용합니다. FOREGROUND_SERVICE와 FOREGROUND_SERVICE_SPECIAL_USE는 실행 중인 작업을, POST_NOTIFICATIONS는 진행 및 확인을 지원합니다. SYSTEM_ALERT_WINDOW는 설정에서 플로팅 볼을 켤 때만 요청합니다. 접근성, 저장소 또는 마이크 권한을 요청하지 않습니다.
 - 작업 기록, 프리셋, 선호 메모리는 플러그인의 비공개 저장소에만 보관됩니다. 백업과 기기 간 이전은 비활성화되어 있습니다.
+- 화면 캡처는 AutoJs6를 통해 선택한 모델로 전송되며 온라인 모델일 수 있습니다. 화면이 켜져 있고 잠금이 해제되어야 합니다. 단계 기록에는 크기와 바이트 수만 저장하고 이미지 내용은 저장하지 않습니다. JSON 결정은 다른 관찰이나 응답이 대체할 때까지 현재 이미지를 유지합니다. 기본 도구 대화는 배치 및 세션 한도 내에서 이전 이미지를 유지하며 매 라운드 token을 다시 예약합니다.
 
 플러그인은 공식 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 페이지 또는 AutoJs6 플러그인 센터에서만 받으세요. 출처를 알 수 없는 패키지는 버전 번호가 같아 보여도 호스트 검증에 실패하거나 위험을 동반할 수 있습니다.
 
@@ -286,9 +291,10 @@ minimum host build: 5289 (6.8.0)
 _2026/09/26_
 
 - `힌트` 네이티브 호출에는 AutoJs6 build 5297+ 및 tools 지원 대상이 필요하며, 3-Stone AI 1.2.0 개발 후보의 온라인 대상이 해당합니다. 이전 호스트와 미지원 대상은 JSON을 유지합니다. 각 대화는 초기 기한, 컨텍스트/출력 제한 및 최대 16 도구 라운드를 유지하며, 작업 후 오류가 나도 JSON으로 재시작하지 않습니다
-- `힌트` 호스트 이미지 전송과 3-Stone AI 온라인 이미지 매핑이 구현되었습니다. 실제 온라인 시각 모델 검증은 아직 완료되지 않았습니다. 스크린샷 작업을 사용하려면 이 플러그인의 캡처 도구, 시각 프롬프트 및 이미지 예산을 구현해야 합니다. ROADMAP.md를 참고하세요
+- `힌트` 이미지 입력에는 호환 호스트, observe 그룹 및 이미지 입력을 명시적으로 활성화한 시각 모델이 필요합니다. 구현과 결정적 테스트는 완료되었으며 실제 온라인 시각 모델 검증은 대기 중입니다. 이전 시스템과 텍스트 전용 모델은 텍스트 관찰을 유지합니다. ROADMAP.md 참조
 - `기능` 호스트를 통한 네이티브 도구 호출: 카탈로그 Schema, 전체 배치 인수 검증, 순차 실행, 개별 확인, 결과 전달 및 단계 기록에 기존 작업 규칙 적용
-- `의존성` 호스트 API release 산출물을 AutoJs6 build 5297과 동기화; 기본 연결 계약은 build 5289+와 호환
+- `기능` Android 11+에서 AutoJs6를 통한 화면 캡처 관찰: screen_capture는 긴 변 1280, JPEG 품질 70으로 변환하며 시각 프롬프트, 이미지 token 예산 검사와 기본 도구 결과 이미지 첨부 지원
+- `의존성` 이미지 입력 협상을 위해 호스트 API release 파일 3개를 AutoJs6 52ce694f92 / build 5297로 업그레이드. build 5289+ 기본 연결 계약 유지
 
 #### v1.0.0
 

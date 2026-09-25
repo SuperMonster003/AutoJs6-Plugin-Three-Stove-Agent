@@ -11,6 +11,7 @@ class ModelTarget(
     val maximumContextBytes: Int, val maximumOutputBytes: Int = AgentJson.MAX_MODEL_BYTES,
     val supportsStreaming: Boolean = false, val supportsOutputLimit: Boolean = true,
     val nativeTools: NativeToolLimits? = null,
+    val vision: VisionLimits? = null,
 ) {
     init {
         require(providerId.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}")))
@@ -24,7 +25,7 @@ class ModelTarget(
     companion object {
         /** Current V1 catalogs do not expose an online wire protocol. Never guess one from an ID or display name. */
         fun fromCatalog(providerId: String, value: JsonObject, maximumOutputBytes: Int = AgentJson.MAX_MODEL_BYTES,
-                        brokerTools: NativeToolLimits? = null): ModelTarget {
+                        brokerTools: NativeToolLimits? = null, brokerVision: VisionLimits? = null): ModelTarget {
             require(value.flag("configured") == true && value.flag("available") == true) { "TARGET_UNAVAILABLE" }
             val locality = when (value.number("locality")) {
                 1L -> ModelLocality.ON_DEVICE; 2L -> ModelLocality.REMOTE; 3L -> ModelLocality.HYBRID
@@ -42,7 +43,8 @@ class ModelTarget(
                 capabilities.any { it.asString == "structured-json" } && controls.any { it.asString == "response-json-schema" },
                 bytes.toInt(), maximumOutputBytes, capabilities.any { it.asString == "streaming" },
                 controls.any { it.asString == "maximum-output-tokens" },
-                brokerTools?.takeIf { capabilities.any { capability -> capability.asString == "tools" } })
+                brokerTools?.takeIf { capabilities.any { capability -> capability.asString == "tools" } },
+                brokerVision?.takeIf { capabilities.any { capability -> capability.asString == "vision" } })
         }
     }
 }

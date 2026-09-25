@@ -47,6 +47,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             "ui_wait_for" -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Poll(call("accessibility.findOne", selector, timeout = minOf(num("timeoutMs"), 5000)), str("state"), num("timeoutMs")) }
             "app_current" -> ToolPlan.Call(call("app.currentWindow"))
             "screen_state" -> ToolPlan.Call(call("device.isScreenOn"))
+            "screen_capture" -> ToolPlan.Call(call("accessibility.screenshot", jsonObject("format" to "png".json())))
             "device_info" -> ToolPlan.Call(call("device.info"))
             "console_tail" -> ToolPlan.Call(call("console.tail", jsonObject("lines" to num("lines").json())))
             "ocr_screen" -> {
@@ -109,6 +110,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
                 "accessibility" -> when (operation) {
                     "swipe", "gesture" -> listOf("accessibility", "accessibility.gesture")
                     "readScreenText" -> listOf("accessibility", "screen_capture", "ocr")
+                    "screenshot" -> listOf("accessibility", "screen_capture")
                     else -> listOf("accessibility")
                 }
                 "agent" -> if (operation == "execRegistered") listOf("agent", "agent.exec", "engines", "engines.exec") else listOf("agent")

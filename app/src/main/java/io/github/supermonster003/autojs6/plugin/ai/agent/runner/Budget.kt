@@ -67,12 +67,13 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
         if (steps >= limits.maxSteps) throw BudgetExceeded("steps")
         steps++
     }
-    fun reserveModel(inputBytes: Int, desiredOutputTokens: Int): ModelReservation {
+    fun reserveModel(inputBytes: Int, desiredOutputTokens: Int, imageTokens: Long = 0): ModelReservation {
         check()
-        require(inputBytes >= 0 && desiredOutputTokens > 0)
+        require(inputBytes >= 0 && desiredOutputTokens > 0 && imageTokens >= 0)
         check(reservation == null) { "Only one model call may be in flight" }
         if (modelCalls >= limits.maxModelCalls) throw BudgetExceeded("modelCalls")
-        val input = estimate(inputBytes)
+        val input = saturatedAdd(estimate(inputBytes), imageTokens)
+        if (input >= tokenLimit - totalTokens) throw BudgetExceeded("tokens")
         val remaining = tokenLimit - totalTokens - input
         if (remaining <= 0) throw BudgetExceeded("tokens")
         modelCalls++

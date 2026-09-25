@@ -56,6 +56,8 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 当前 Model8 对比中仍出现空响应, Provider 失败及预算中止. [对比证据](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部采样结果, 尚不能证明两类任务可稳定完成.
 
+图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
+
 ******
 
 ### 功能
@@ -69,6 +71,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 - 安全设计: 只读工具自动执行; 敏感操作 (支付, 发送, 删除, 写文件, shell, 坐标手势, 登记为敏感的脚本) 需要确认; 每次任务都有步数, 模型调用次数, 时长与 token 预算.
 - 脚本 API 与用户界面: `ai.agent.run(goal, options)` 返回带事件, 回应与取消的 `AgentRun` 句柄; 独立应用提供任务台, 历史, 预设, 偏好记忆, 设置与发行历史.
 - 经宿主进行原生工具调用: 目录 Schema, 整批参数校验, 顺序执行, 逐项确认, 工具结果续轮及步骤记录共用已有任务规则
+- Android 11+ 经 AutoJs6 截图观察: screen_capture 缩放到最长边 1280, JPEG 质量 70, 配套视觉提示词, 图片 token 准入与原生工具结果图片
 
 ### 界面截图
 
@@ -187,6 +190,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `app_current` | `observe` | `READ_ONLY` | `on` | 读取当前窗口与应用. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | 读取有界控制台尾部, 其中可能包含无关脚本. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | 读取设备信息. |
+| `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | 文本节点不足时为所选视觉模型捕获已解锁屏幕. 返回缩放后的 JPEG 观察, 不可直接作为设备坐标. |
 | `screen_state` | `observe` | `READ_ONLY` | `on` | 读取屏幕是否亮起. |
 | `ui_dump` | `observe` | `READ_ONLY` | `on` | 在选择动作前观察当前无障碍节点树. |
 | `ui_find` | `observe` | `READ_ONLY` | `on` | 查找满足全部选择器条件的节点. |
@@ -239,6 +243,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 插件不持有 API key, 不自行绑定模型提供方, 也不申请无障碍权限: 模型调用与设备操作经 AutoJs6 为单条附着链路借出并在断开时收回的代理执行, 每个代理都受 grant 约束 (允许的方法, 速率, 体积, 模型配额).
 - INTERNET 仅用于手动检查 GitHub 发行版本. FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE 支持运行中的任务, POST_NOTIFICATIONS 提供进度和确认. 仅在用户从设置开启悬浮球时请求 SYSTEM_ALERT_WINDOW. 不申请无障碍, 存储或麦克风权限.
 - 任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用.
+- 截图经 AutoJs6 发送到所选模型, 该模型可能在线运行. 截图要求屏幕已解锁且处于唤醒状态. 步骤历史只保存尺寸和字节数等元数据, 不保存图片内容. JSON 决策保留当前图片, 直到其他观察或用户回答替换它; 原生会话在每批和会话限额内保留已有图片, 每轮重新预留相应 token.
 
 请只从官方 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.
 
@@ -286,9 +291,10 @@ minimum host build: 5289 (6.8.0)
 _2026/09/26_
 
 - `提示` 原生调用需要 AutoJs6 build 5297+ 和具备 tools 能力的目标, 如 3-Stone AI 1.2.0 开发候选的在线目标. 旧宿主和不支持的目标保留 JSON 决策. 每个原生会话保留初始超时, 上下文/输出上限及最多 16 个工具轮次; 工具执行后发生错误不会改走 JSON 重启
-- `提示` 宿主图片传输与 3-Stone AI 在线图片映射已实现. 真实在线视觉验收仍待完成; 本插件还需实现截图工具, 视觉提示词与图片预算后才能使用截图任务. 详见 ROADMAP.md
+- `提示` 图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
 - `新增` 经宿主进行原生工具调用: 目录 Schema, 整批参数校验, 顺序执行, 逐项确认, 工具结果续轮及步骤记录共用已有任务规则
-- `依赖` 同步 AutoJs6 build 5297 的宿主 API release 产物; 基础附着契约仍兼容 build 5289+
+- `新增` Android 11+ 经 AutoJs6 截图观察: screen_capture 缩放到最长边 1280, JPEG 质量 70, 配套视觉提示词, 图片 token 准入与原生工具结果图片
+- `依赖` 升级三份宿主 API release 制品至 AutoJs6 52ce694f92 / build 5297, 支持协商图片输入, 保留 build 5289+ 的基础连接契约
 
 #### v1.0.0
 

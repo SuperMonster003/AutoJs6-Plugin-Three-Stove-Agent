@@ -41,6 +41,9 @@ class ContextCompiler(
 
     override fun compile(context: RunContext): ModelInput {
         val format = context.format ?: initialFormat
+        val vision = policy.visionAvailable && catalog["screen_capture"]?.let(policy::isEnabled) == true && target.vision != null
+        require(context.images.isEmpty() || vision)
+        target.vision?.validate(context.images)
         val schemaBytes = format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0
         val language = language(context.goal, context.locale)
         val tools = if (format.nativeTools) catalog.nativeDefinitions(policy, language) else JsonArray()
@@ -85,6 +88,7 @@ class ContextCompiler(
         val goalMessage = message("user", goal)
         val repairMessage = repair?.let { message("user", it) }
         val budgetMessage = message("user", prompts.context(language, "remaining_budget", budget))
+        var imageMessageIndex = 0
         fun build(): JsonArray {
             val older = summaries.dropLast(retained).takeLast(summaryCount)
             val system = systemMessages.getOrPut(listOf(contextBytes, memoryCount, if (compact) 1 else 0, scriptCount)) {
@@ -96,6 +100,7 @@ class ContextCompiler(
             val messages = jsonArray(system, goalMessage)
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach(::add) })))
             recentMessages.takeLast(retained).forEach { pair -> pair.forEach(messages::add) }
+            imageMessageIndex = messages.size()
             messages.add(observations.getOrPut(observationBytes) {
                 message("user", prompts.context(language, "observation", ObservationCompactor.compact(current, observationBytes, local)))
             })
@@ -106,10 +111,14 @@ class ContextCompiler(
         // Drop historical pairs first, then historical summaries. Keep recent pairs whole.
         while (true) {
             val messages = build()
-            val size = StepJournal.bytes(messages).toLong() + schemaBytes + toolBytes
+            val imageBytes = if (context.images.isEmpty()) 0 else StepJournal.bytes(imageReferences(context.images, messageIndex = imageMessageIndex))
+            val size = StepJournal.bytes(messages).toLong() + schemaBytes + toolBytes + imageBytes
             if (size <= maximumBytes) {
-                val outputLimit = if (local) (4096 - Budget.estimate(size.toInt())).toInt().coerceAtLeast(1) else null
-                return ModelInput(messages, schemaBytes, format, outputLimit, tools, maximumBytes)
+                val imageTokens = context.images.sumOf { it.estimatedTokens }
+                if (local && Budget.estimate(size.toInt()) + imageTokens >= 4096) throw ContextLimitExceeded()
+                val outputLimit = if (local) (4096 - Budget.estimate(size.toInt()) - imageTokens).toInt().coerceAtLeast(1) else null
+                return ModelInput(messages, schemaBytes, format, outputLimit, tools, maximumBytes,
+                    context.images, imageMessageIndex.takeIf { context.images.isNotEmpty() }, vision)
             }
             when {
                 retained > 0 -> { retained--; summaryCount = minOf(summaryCount + 1, 32) }

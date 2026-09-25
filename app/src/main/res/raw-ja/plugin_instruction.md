@@ -4,6 +4,8 @@ AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイ�
 
 現在の Model8 比較では空の応答, Provider の失敗, 予算上限による停止が発生しています. [比較の記録](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) に全試行を残しており, 両タスクの安定した完了はまだ確認できていません.
 
+画像入力には対応ホスト, observe グループ, 画像入力を明示的に有効にした視覚モデルが必要です. 実装と決定的テストは完了していますが, 実際のオンライン視覚モデルでの検証は保留中です. 旧システムとテキスト専用モデルは文字で観察します. ROADMAP.md を参照
+
 ### 使い方
 
 1. AutoJs6 ビルド 5293 以降を導入したデバイスに, [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) からプラグインの APK をインストールします.

@@ -71,6 +71,7 @@ class ToolPolicy(
     paymentKeywords: Set<String> = emptySet(),
     availableTools: Set<String>? = null,
     orderKeywords: Set<String> = emptySet(),
+    val visionAvailable: Boolean = false,
 ) {
     private val enabled = enabledGroups.toMap()
     private val overrides = riskOverrides.toMap()
@@ -80,13 +81,15 @@ class ToolPolicy(
     private val available = availableTools?.toSet()
     private val orderKeywords = orderKeywords.toSet()
     private val orderTerms = orderKeywords.map { GoalTerm(it.lowercase(Locale.ROOT)) }
-    fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords)
+    fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords, visionAvailable)
+    fun withVisionAvailability(value: Boolean) = ToolPolicy(enabled, ocrAvailable, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords, value)
     fun isOrderGoal(goal: String): Boolean = goal.lowercase(Locale.ROOT).let { value -> orderTerms.any { it.matches(value) } }
     fun isPayment(context: RiskContext): Boolean {
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
     }
-    fun isEnabled(spec: ToolSpec): Boolean = (available == null || spec.name in available) && (enabled[spec.group] ?: spec.defaultEnabled) && (spec.group != ToolGroup.OCR || ocrAvailable)
+    fun isEnabled(spec: ToolSpec): Boolean = (available == null || spec.name in available) && (enabled[spec.group] ?: spec.defaultEnabled) &&
+        (spec.group != ToolGroup.OCR || ocrAvailable) && (spec.name != "screen_capture" || visionAvailable)
     fun requireEnabled(catalog: ToolCatalog, name: String): ToolSpec {
         val spec = catalog[name] ?: throw ToolFailure("TOOL_UNKNOWN", "Choose a listed tool.")
         if (!isEnabled(spec)) throw ToolFailure("TOOL_DISABLED", "This tool group is disabled or unavailable.")

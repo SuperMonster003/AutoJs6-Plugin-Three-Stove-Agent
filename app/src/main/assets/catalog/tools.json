@@ -406,6 +406,28 @@
       "destructiveHint": false
     },
     {
+      "name": "screen_capture",
+      "group": "observe",
+      "risk": "READ_ONLY",
+      "description": {
+        "en": "Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates.",
+        "zh": "文本节点不足时为所选视觉模型捕获已解锁屏幕. 返回缩放后的 JPEG 观察, 不可直接作为设备坐标."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputHint": "JPEG image attachment plus width/height, original screenWidth/screenHeight and byteLength; no image bytes in history",
+      "bridgeMapping": [
+        "accessibility.screenshot"
+      ],
+      "defaultEnabled": true,
+      "readOnlyHint": true,
+      "destructiveHint": false
+    },
+    {
       "name": "device_info",
       "group": "observe",
       "risk": "READ_ONLY",

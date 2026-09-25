@@ -126,17 +126,18 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val effectiveMethods = methods.intersect(configuration.methods ?: methods)
                 val effectivePermissions = permissions.intersect(configuration.permissions ?: permissions)
                 val optional = grant.getStringArray(H.KEY_AVAILABLE_OPTIONAL_METHODS)?.also { values -> require(values.size <= 256 && values.all { it.length <= 128 }) }?.toSet().orEmpty()
-                val policy = basePolicy.withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
+                val observationPolicy = basePolicy.withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
                 val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, runtime.catalog,
-                    { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout)
+                    { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout,
+                    ScreenCaptureTransport(runtime.context, remoteTools, ownerUid, workers) { state == C.LINK_STATE_ATTACHED })
                 val catalogAllowed = "agent.listScripts" in methods && "agent" in permissions &&
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
-                    policy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
+                    observationPolicy.isEnabled(checkNotNull(runtime.catalog["script_catalog"]))
                 val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
                 val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered", "engines.stop").all {
                     it in methods && configuration.methods?.contains(it) != false
                 } && listOf("agent.exec", "engines", "engines.exec").all { it in permissions && configuration.permissions?.contains(it) != false } &&
-                    policy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
+                    observationPolicy.isEnabled(checkNotNull(runtime.catalog["script_run"]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
                 val executionTools = MemoryTools(runtime.memories, request.preset, request.memoryScope, runId, { state == C.LINK_STATE_ATTACHED },
@@ -149,12 +150,15 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                             val selected = outcome.value
                             modelName = selected.displayName
                             val original = selected.target
+                            val policy = observationPolicy.withVisionAvailability(original.vision != null && Build.VERSION.SDK_INT >= 30 &&
+                                "accessibility.screenshot" in effectiveMethods && effectivePermissions.containsAll(listOf("accessibility", "screen_capture")))
                             val schema = fallbacks.select(original.schemaTarget, policy)
                             val target = if ((schema.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0) <= selected.maximumSchemaBytes) original
                                 else ModelTarget(original.providerId, original.targetId, original.locality, original.protocol, false,
-                                    original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools)
+                                    original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools, original.vision)
                             val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
-                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, request.groups.sorted(), policy.ocrAvailable).toString()
+                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, target.vision,
+                                request.groups.sorted(), policy.ocrAvailable, policy.visionAvailable).toString()
                             val client = synchronized(clients) {
                                 clients.getOrPut(key) {
                                     if (clients.size >= 32) clients.remove(clients.keys.first())
