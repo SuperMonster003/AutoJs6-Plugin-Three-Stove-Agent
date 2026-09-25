@@ -85,6 +85,7 @@ class WorkbenchActivityTest {
         override fun dispatch(request: Bundle?, callback: IHostCapabilityCallback?) { error("Fixture must not operate the device") }
         override fun destroy(reason: Bundle?) = Unit
     }
+    private var fixtureApi: IAiAgentPlugin? = null
     private fun withFixture(model: Model = Model(), groups: List<String> = listOf("observe"), action: (IAiAgentLink, Model) -> Unit) {
         val connected = CountDownLatch(1); var plugin: IAiAgentPlugin? = null
         val connection = object : ServiceConnection {
@@ -97,10 +98,12 @@ class WorkbenchActivityTest {
         var link: IAiAgentLink? = null
         try {
             assertTrue(connected.await(15, TimeUnit.SECONDS))
+            fixtureApi = plugin
             link = plugin!!.attach(bundle(C.KEY_LINK_CONFIG_JSON, JSONObject().put("grantSummary", JSONObject().put("toolGroups", JSONArray(groups))).toString()), model, capabilities,
                 object : IAiAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
             action(link, model)
         } finally {
+            fixtureApi = null
             link?.detach(bundle(H.KEY_REASON_JSON, """{"reason":"workbench-test-finished"}"""))
             context.unbindService(connection)
             prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset).commit()
@@ -1127,6 +1130,31 @@ class WorkbenchActivityTest {
     private fun tap(x: Int, y: Int) {
         shell("input tap $x $y")
     }
+    @Test fun idleCollapsedAndExpandedFloatingWindowsDoNotPollOrStartForegroundWork() = withFixture { link, model ->
+        withFloatingSettings {
+            shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard"); shell("input keyevent KEYCODE_HOME")
+            waitFor("Idle floating ball") { floatingFrame(false) != null }
+            for (expanded in listOf(false, true)) {
+                if (expanded) {
+                    val ball = checkNotNull(floatingFrame(false)); tap(ball.centerX(), ball.centerY())
+                    waitFor("Idle expanded card") { floatingFrame(true) != null }
+                }
+                // Allow the bounded two-second wake reconciliation and window animation to finish.
+                SystemClock.sleep(3000)
+                val before = checkNotNull(fixtureApi).capabilities
+                assertTrue("Probe must have observed real window dispatches", before.getLong("fixture.floatingMessages") > 0)
+                SystemClock.sleep(5000)
+                val after = checkNotNull(fixtureApi).capabilities
+                assertEquals(before.getInt("fixture.pid"), after.getInt("fixture.pid"))
+                assertEquals("Idle window must not schedule periodic refreshes", before.getLong("fixture.floatingMessages"), after.getLong("fixture.floatingMessages"))
+                assertEquals(0, model.calls.get())
+                assertEquals(0, AgentConnection.decode(link.status, C.KEY_STATUS_JSON).number("queuedCount")!!.toInt())
+                assertFalse(shell("dumpsys activity services ${context.packageName}").contains("AiAgentTaskForegroundService"))
+                instrumentation.sendStatus(0, Bundle().apply { putString("stream", "P7_IDLE expanded=$expanded windowMs=5000 floatingDispatches=0 cpuMs=${after.getLong("fixture.cpuMs") - before.getLong("fixture.cpuMs")}\n") })
+            }
+        }
+    }
+
     @Test fun floatingWindowFramesExpandDraftSurvivesCollapseAndStopsTask() = withFixture { link, model ->
         withFloatingSettings {
             shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard"); shell("input keyevent KEYCODE_HOME")
