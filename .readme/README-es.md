@@ -44,7 +44,7 @@ El README.md actual admite los siguientes idiomas:
 
 AI Agent convierte un objetivo en lenguaje natural en acciones sobre un dispositivo Android que ejecuta AutoJs6. O bien elige un script que el usuario ha registrado para el agente, completa sus parámetros y lo ejecuta; o bien observa la pantalla a través del árbol de nodos de accesibilidad y actúa paso a paso (observar, decidir, actuar, verificar) hasta alcanzar el objetivo, necesitar una confirmación o agotar un presupuesto. Responde a la [discusión #577 de AutoJs6](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los scripts lo usan mediante la API `ai.agent` de AutoJs6; los usuarios lo usan desde su propio espacio de tareas, el cajón de AutoJs6, una burbuja flotante, el menú de compartir del sistema, los accesos directos de la aplicación y la entrada por voz. Las llamadas al modelo y las acciones en el dispositivo siempre pasan por AutoJs6 mediante Binder: el anfitrión presta al plugin un intermediario de modelo (los plugins AI Provider que el anfitrión ya conoce, como 3-Stone AI) y un intermediario de capacidades con una concesión acotada. El plugin nunca guarda credenciales, nunca se vincula por sí mismo a un proveedor de modelo y nunca solicita el permiso de accesibilidad.
+AI Agent ofrece una interfaz independiente y un plugin AutoJs6 accesible mediante ai.agent. Las acciones integradas y las llamadas al modelo pasan por AutoJs6. Las herramientas MCP opcionales solo conectan servidores configurados. No se enlaza directamente al proveedor ni se solicita accesibilidad.
 
 ******
 
@@ -52,11 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-La versión 1.1.0 está en desarrollo con llamadas nativas, capturas de pantalla y scripts generados opcionales. Los destinos no compatibles mantienen JSON. La comparación Wi-Fi real y la aceptación visual en línea siguen pendientes en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
-
-La comparación actual con Model8 incluye respuestas vacías, fallos del Provider y paradas por límites de presupuesto. Los [resultados de comparación](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservan todos los ensayos; aún no demuestran una finalización fiable de ambas tareas.
-
-La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
+La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales y conserva llamadas nativas, capturas y scripts generados. Las comparaciones Wi-Fi P9.1 y la aceptación visual real en línea P9.2 siguen pendientes en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,6 +69,7 @@ La implementación actual ofrece estas funciones:
 - Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 - Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
 - JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada exige revisar un resumen ampliable al código completo y dar aprobación individual. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
+- Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente
 
 ### Capturas de pantalla
 
@@ -242,8 +239,8 @@ Cargar un modelo no garantiza completar tareas. La prueba registrada de validaci
 El plugin sigue límites explícitos:
 
 - Las entradas Binder requieren el permiso de firma org.autojs.permission.PLUGIN. El lanzador (incluidos accesos directos) y el destino text/plain ACTION_SEND son públicos y solo reciben borradores limitados. Los Intent externos no pueden ejecutar tareas, confirmar ni cambiar permisos. Ajustes, resultados de voz y controles son privados.
-- El plugin no guarda claves de API, nunca se vincula a un proveedor de modelo ni solicita el permiso de accesibilidad: las llamadas al modelo y las acciones en el dispositivo pasan por intermediarios que AutoJs6 presta para un enlace adjunto y revoca al desvincularse, cada uno acotado por una concesión (métodos permitidos, tasas, tamaños, cuota de modelo).
-- INTERNET solo sirve para comprobaciones manuales en GitHub. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE mantienen tareas activas; POST_NOTIFICATIONS muestra progreso y confirmaciones. SYSTEM_ALERT_WINDOW se solicita solo al activar la burbuja en Ajustes. No se solicitan permisos de accesibilidad, almacenamiento ni micrófono.
+- AI Agent ofrece una interfaz independiente y un plugin AutoJs6 accesible mediante ai.agent. Las acciones integradas y las llamadas al modelo pasan por AutoJs6. Las herramientas MCP opcionales solo conectan servidores configurados. No se enlaza directamente al proveedor ni se solicita accesibilidad.
+- Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.
 - El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas.
 - Las capturas se envían mediante AutoJs6 al modelo elegido, que puede estar en línea. La pantalla debe estar activa y desbloqueada. El historial guarda dimensiones y bytes, sin el contenido de las imágenes. Las decisiones JSON conservan la imagen actual hasta otra observación o respuesta. Las conversaciones nativas conservan imágenes previas dentro de los límites del lote y de la sesión, reservando sus tokens en cada ronda.
 - Los scripts generados usan permisos de AutoJs6 sin aislamiento JavaScript y pueden actuar fuera de los grupos habilitados. El código completo permanece en pasos privados, sujeto a eliminación de contraseñas y retención del historial. Un código modificado por esa eliminación posterior no puede guardarse como original. Revise los .js antes de compartirlos.
@@ -288,6 +285,14 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 ### Historial de versiones
 
 ******
+
+#### v1.2.0
+
+_2026/09/26_
+
+- `Aviso` La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales y conserva llamadas nativas, capturas y scripts generados. Las comparaciones Wi-Fi P9.1 y la aceptación visual real en línea P9.2 siguen pendientes en ROADMAP.md.
+- `Función` Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente
+- `Mejora` Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.
 
 #### v1.1.0
 

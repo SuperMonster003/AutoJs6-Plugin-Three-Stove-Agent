@@ -33,12 +33,18 @@ class AgentLocalService : Service() {
     private val presets by lazy { PresetEndpoint(runtime, cacheDir) }
     private val memory by lazy { MemoryEndpoint(runtime, cacheDir) }
     private val settings by lazy { SettingsEndpoint(runtime) }
+    private val mcp = lazy { McpEndpoint(runtime) }
     override fun onBind(intent: Intent?): IBinder = when (intent?.action) {
         HistoryEndpoint.ACTION -> history
         PresetEndpoint.ACTION -> presets
         MemoryEndpoint.ACTION -> memory
         InteractionPresentation.ACTION -> runtime.interactions
         SettingsEndpoint.ACTION -> settings
+        McpEndpoint.ACTION -> mcp.value
         else -> binder
+    }
+    override fun onDestroy() {
+        if (mcp.isInitialized()) mcp.value.close()
+        super.onDestroy()
     }
 }

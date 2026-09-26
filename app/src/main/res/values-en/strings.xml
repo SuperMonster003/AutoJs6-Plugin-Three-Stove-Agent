@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">Waiting for AutoJs6 to connect (up to 15 seconds).</string>
     <string name="launcher_link_timeout">No connection within 15 seconds. Open AutoJs6, enable AI Agent in its plugin center and authorize the connection.</string>
     <string name="launcher_open_host">Open AutoJs6</string>
+    <string name="mcp_add">Add server</string>
+    <string name="mcp_auth_required">Authentication required. Check the saved token in the MCP server app.</string>
+    <string name="mcp_busy">Stop active or queued tasks before changing servers.</string>
+    <string name="mcp_clear_token">Clear saved token</string>
+    <string name="mcp_delete">Delete server</string>
+    <string name="mcp_delete_confirm">Delete this server and its saved token?</string>
+    <string name="mcp_empty">No MCP servers configured.</string>
+    <string name="mcp_enabled">Enable this server for new tasks</string>
+    <string name="mcp_endpoint">Endpoint URL</string>
+    <string name="mcp_endpoint_note">HTTPS required outside loopback. Changing the endpoint clears selected tools. The old token is removed unless you enter a replacement.</string>
+    <string name="mcp_error">Unable to read or save. Check the fields, limits and active tasks. Reopen the server if its settings changed.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">Server ID (1-12 lowercase letters, digits or underscores; start with a letter)</string>
+    <string name="mcp_local_permission">Allow local network access</string>
+    <string name="mcp_local_permission_note">Android requires this permission for local network connections. External HTTPS servers do not require this step.</string>
+    <string name="mcp_name">Server name</string>
+    <string name="mcp_no_tools">Save the server, then discover and select tools.</string>
+    <string name="mcp_pairing_denied">Pairing was denied. Review pairing in the MCP server app.</string>
+    <string name="mcp_pairing_required">Pairing required. Approve this client in the MCP server app, then discover again.</string>
+    <string name="mcp_probe">Discover tools from saved server</string>
+    <string name="mcp_probe_error">Discovery failed. Check the server, network, permission and directory limits.</string>
+    <string name="mcp_risk_note">Local risk policy applies to every selected tool. Sensitive is the default. Server descriptions and annotations never reduce this policy.</string>
+    <string name="mcp_save_before_probe">Save endpoint or token changes before discovery.</string>
+    <string name="mcp_selection_note">Select tools explicitly. At most 32 tools across all servers. Unsupported schemas cannot be selected.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">MCP servers</string>
+    <string name="mcp_setup_note">Servers and the MCP tool group are off by default. Configure tokens and pairing in the server app. Discovery only reads the saved server directory and does not call a model.</string>
+    <string name="mcp_token">Bearer token</string>
+    <string name="mcp_token_empty">No token saved</string>
+    <string name="mcp_token_note">Blank keeps the saved token. Use Clear to remove it. Tokens are never shown again and unsaved tokens are discarded when leaving this screen.</string>
+    <string name="mcp_token_saved">Token saved (hidden)</string>
+    <string name="mcp_unsupported">%1$s - Unsupported tool</string>
     <string name="memory_accept">Confirm this entry</string>
     <string name="memory_cancel_import">Cancel remaining import</string>
     <string name="memory_created">Created: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">Screen actions</string>
     <string name="presets_group_files">Files</string>
     <string name="presets_group_gesture">Coordinate gestures</string>
+    <string name="presets_group_mcp">MCP tools</string>
     <string name="presets_group_memory">Preference memory</string>
     <string name="presets_group_observe">Screen observation</string>
     <string name="presets_group_ocr">Text recognition (OCR)</string>

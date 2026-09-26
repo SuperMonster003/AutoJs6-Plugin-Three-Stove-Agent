@@ -147,7 +147,8 @@ class AiAgentPluginContractTest {
         assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION, AiAgentCapabilityKeys.CONTRACT_VERSION,
             AiAgentCapabilityKeys.TOOL_GROUPS, AiAgentCapabilityKeys.FEATURES), capabilities.keySet())
         assertEquals(AiAgentContract.CONTRACT_VERSION, capabilities.getInt(AiAgentCapabilityKeys.CONTRACT_VERSION))
-        assertArrayEquals(arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP), capabilities.getStringArray(AiAgentCapabilityKeys.FEATURES))
+        assertArrayEquals(arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP,
+            AiAgentCapabilityKeys.FEATURE_MCP_TOOLS), capabilities.getStringArray(AiAgentCapabilityKeys.FEATURES))
     }
 
     private fun discoverSingleService(action: String, expectedClassName: String): ServiceInfo {

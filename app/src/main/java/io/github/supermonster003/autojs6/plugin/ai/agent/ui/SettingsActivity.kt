@@ -73,6 +73,7 @@ class SettingsActivity : HostAppearanceActivity() {
         column.removeAllViews(); groups.clear(); budgets.clear()
         HistoryViews.label(column, getString(R.string.settings_title), true)
         button(R.string.workbench_back, "back") { finish() }
+        button(R.string.mcp_servers, "mcp-servers") { open(McpServersActivity::class.java) }
         message = HistoryViews.label(column, "").apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
         HistoryViews.label(column, getString(R.string.settings_policy_note))
         HistoryViews.label(column, getString(R.string.presets_tools), true)
@@ -163,7 +164,7 @@ class SettingsActivity : HostAppearanceActivity() {
             "maxDurationMs" to R.string.presets_duration, "maxTotalTokens" to R.string.presets_tokens)
         private val groupLabels = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.ACT to R.string.presets_group_act,
             ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.OCR to R.string.presets_group_ocr, ToolGroup.SCRIPT to R.string.presets_group_script,
-            ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic,
+            ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic, ToolGroup.MCP to R.string.presets_group_mcp,
             ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory,
             ToolGroup.USER to R.string.presets_group_user)
     }

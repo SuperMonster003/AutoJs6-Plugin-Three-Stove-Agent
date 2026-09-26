@@ -16,16 +16,22 @@ enum class RunError {
     QUOTA_EXCEEDED, RATE_LIMITED, LIMIT_EXCEEDED, TARGET_UNSUPPORTED, TARGET_UNAVAILABLE, MODEL_FAILED, MODEL_TIMEOUT,
     DECISION_UNPARSABLE, A11Y_SERVICE_NOT_RUNNING, NODE_REF_STALE, NODE_NOT_FOUND, SCREEN_LOCKED,
     SCRIPT_NOT_REGISTERED, SCRIPT_TIMEOUT, SCRIPT_FAILED, OCR_PLUGIN_REQUIRED, USER_DENIED, USER_TIMEOUT,
-    BUDGET_EXCEEDED, CANCELLED, INVALID_REQUEST;
+    BUDGET_EXCEEDED, CANCELLED, INVALID_REQUEST, TOOL_FAILED;
     val hostLost: Boolean get() = this == HOST_UNAVAILABLE || this == LINK_DETACHED
 }
 
 sealed interface PortResult<out T> {
     data class Success<T>(val value: T) : PortResult<T>
     data class Failure(val error: RunError, val reason: String? = null, val usage: ModelUsage? = null, val outputBytes: Int = 0,
-                       val scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null) : PortResult<Nothing> {
+                       val scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null,
+                       val mcpReason: String? = null) : PortResult<Nothing> {
         init { require(reason == null || reason == "REQUEST_REJECTED"); require(outputBytes >= 0)
-            require(scriptParameters == null || error == RunError.TOOL_ARGUMENTS_INVALID) }
+            require(scriptParameters == null || error == RunError.TOOL_ARGUMENTS_INVALID)
+            require(mcpReason == null || (error == RunError.TOOL_FAILED && mcpReason in MCP_REASONS)) }
+        companion object {
+            val MCP_REASONS = setOf("MCP_AUTH_REQUIRED", "MCP_PAIRING_REQUIRED", "MCP_PAIRING_DENIED", "MCP_PROTOCOL_ERROR",
+                "MCP_CATALOG_CHANGED", "MCP_TIMEOUT", "MCP_UNAVAILABLE", "MCP_LIMIT_EXCEEDED")
+        }
     }
 }
 
@@ -82,6 +88,9 @@ class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: Deci
 fun interface RunContextCompiler {
     fun compile(context: RunContext): ModelInput
     fun observe(tool: String, result: JsonElement): String = ToolObservation.success(result)
+    fun observeFailure(tool: String, result: JsonElement, error: RunError): String =
+        jsonObject("ok" to false.json(), "error" to error.name.json(), "result" to
+            ObservationCompactor.compact(result, ToolObservation.DEFAULT_MAX_BYTES - 256, false)).toString()
 }
 class ModelReply(val text: String, val usage: ModelUsage? = null, val nativeTurn: NativeToolTurn? = null,
                  val outputBytes: Int = text.toByteArray(Charsets.UTF_8).size) {
@@ -90,7 +99,8 @@ class ModelReply(val text: String, val usage: ModelUsage? = null, val nativeTurn
 }
 /** Captures already observed usage when the runner's own deadline or stop wins the callback race. */
 interface ModelCallCancellation : Cancellation { fun progress(): PortResult.Failure }
-class RunComponents(val compiler: RunContextCompiler, val model: RunModel, val tools: RunTools, val maximumTokens: Long? = null, val policy: ToolPolicy? = null)
+class RunComponents(val compiler: RunContextCompiler, val model: RunModel, val tools: RunTools, val maximumTokens: Long? = null, val policy: ToolPolicy? = null,
+                    val catalog: ToolCatalog? = null, val cleanup: Cancellation = Cancellation.NONE)
 /** The Binder layer resolves public model metadata on a worker before the first decision. */
 fun interface RunPreparation { fun prepare(callback: (PortResult<RunComponents>) -> Unit): Cancellation }
 interface RunModel {
@@ -115,13 +125,14 @@ class ToolInvocation(val name: String, arguments: JsonObject, plan: ToolPlan) {
         is ToolPlan.RegisteredScript -> plan.copy(manifest = copyCall(plan.manifest), execution = copyCall(plan.execution))
         is ToolPlan.DynamicScript -> plan.copy()
         is ToolPlan.Local -> plan.copy(arguments = plan.arguments.deepCopy())
+        is ToolPlan.External -> plan.copy(arguments = plan.arguments.deepCopy())
     }
 }
 class PreparedTool(val invocation: ToolInvocation, val metadata: ToolMetadata, val opaqueContext: Any? = null) {
     override fun toString() = "PreparedTool(name=${invocation.name})"
 }
 class ToolReply(result: JsonElement, val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutcome? = null,
-                images: List<ModelImage> = emptyList()) {
+                images: List<ModelImage> = emptyList(), val error: RunError? = null) {
     val images = images.toList().also { require(it.size <= 1) }
     private val data = AgentJson.parse(result.toString(), 512 * 1024)
     val result: JsonElement get() = data.deepCopy()

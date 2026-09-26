@@ -8,7 +8,7 @@
 - 用户在当前任务中的明确要求优先于本文件.
 - 本仓库不包含原生库, 模型, 上游源码快照或 ABI 拆分, 参考规范中对应的 CONDITIONAL 条款不适用 (见第 5.4 节的省略理由).
 - 本仓库会拥有运行在插件进程的 Agent 循环 (路线图 P2), 独立任务台与设置页 (P6), 悬浮球与系统入口 (P6.7), 这些条款以 CONDITIONAL 形式保留在第 9 节与第 14 节.
-- 插件仅在用户手动检查发行版本时访问固定的 GitHub Releases API (P6.6), 不申请无障碍, 不持有模型凭据: 模型调用与设备操作一律经宿主代理 (路线图 D3 / D4).
+- 插件在用户手动检查发行版本时访问固定的 GitHub Releases API (P6.6), P10 还连接用户明确配置的 MCP 服务器. 不申请无障碍, 不持有模型凭据: 模型调用与内置设备操作经宿主代理 (路线图 D3 / D4). MCP 令牌仅由插件私有加密存储保管, 不进入模型或诊断导出.
 
 ## 2. 仓库身份
 
@@ -140,7 +140,7 @@ AutoJs6-Plugin-AI-Agent/
 - `WakeActivity` MUST 为 `exported=true`, `Theme.NoDisplay`, `excludeFromRecents`, `finishOnTaskLaunch`, 受 PLUGIN 权限保护, 响应 `org.autojs.plugin.action.WAKE` + DEFAULT category, 启动后立即结束, 不做任何副作用.
 - `AiAgentPluginInfoService` 与 `AiAgentPluginService` MUST `exported=true`, 受 PLUGIN 权限保护, 声明 `requiresHostVersion` meta-data (与 `AiAgentPlugin.REQUIRED_HOST_VERSION` 一致); 后者固定运行在 `:agent` 进程, Agent 循环与任务前台服务都放在该进程.
 - `ui.LauncherActivity` 是唯一不受 PLUGIN 权限保护的导出组件 (launcher 入口); 所有其他对外组件逐项审查 `android:exported`, 除契约入口外不得导出. 分享目标与快捷方式 (P6.7) 若需导出, 使用显式 intent-filter 并在 README 安全章节说明.
-- 权限清单按路线图 D28 分阶段加入: P0 只有 PLUGIN; P2.5 加 FOREGROUND_SERVICE / FOREGROUND_SERVICE_SPECIAL_USE / POST_NOTIFICATIONS; P6.7 加 SYSTEM_ALERT_WINDOW (运行时请求); P6.6 的更新检查若落地才加 INTERNET. `ManifestContractTest` 断言当前阶段的精确权限集合; 新增权限必须在 README 安全章节与 changelog 说明理由. 不申请无障碍, 存储或麦克风权限.
+- 权限清单按路线图 D28 分阶段加入: P0 只有 PLUGIN; P2.5 加 FOREGROUND_SERVICE / FOREGROUND_SERVICE_SPECIAL_USE / POST_NOTIFICATIONS; P6.7 加 SYSTEM_ALERT_WINDOW (运行时请求); P6.6 更新检查加 INTERNET; P10 用户配置的 MCP 服务器复用 INTERNET, 并在 Android 17+ 从 MCP 设置主动请求 ACCESS_LOCAL_NETWORK. `ManifestContractTest` 断言当前阶段的精确权限集合; 新增权限必须在 README 安全章节与 changelog 说明理由. 不申请无障碍, 存储或麦克风权限.
 - 在 ColorOS 等会保持新装应用停止状态的设备上 SHOULD 做真实激活验收; 未执行时在路线图如实记录 `未执行真实设备激活验证`.
 
 ## 7. PluginInfo 与能力协商
@@ -158,12 +158,12 @@ AutoJs6-Plugin-AI-Agent/
 
 ## 9. Agent 专属约束 (CONDITIONAL, 随路线图 P2 起生效)
 
-- 工具只在 `catalog/ToolCatalog` 登记 (snake_case `<组>_<动作>`, 封闭 JSON Schema `additionalProperties: false`, 风险等级, 所属组, 默认开关, 映射的 bridge `module.method`); 快照测试 `app/src/test/resources/tool-catalog.snapshot.json` 变更时 MUST 一并更新并写入 changelog. 提示词工具清单与 README 工具表都从目录派生, 不手写.
+- 内置工具只在 `catalog/ToolCatalog` 登记 (snake_case `<组>_<动作>`, 封闭 JSON Schema `additionalProperties: false`, 风险等级, 所属组, 默认开关, 映射的 bridge `module.method`); 快照测试 `app/src/test/resources/tool-catalog.snapshot.json` 变更时 MUST 一并更新并写入 changelog. P10 的 MCP 工具由用户选择并在每次任务准备时冻结至同一目录; 外部 Schema 允许标准开放对象语义, 但不得丢弃不支持的约束后准入. 提示词工具清单与 README 内置工具表都从目录派生, 不手写.
 - JSON 路径只接受 `AgentDecision` 扁平 JSON (附录 D). P9.1 原生路径必须同时协商宿主工具扩展和目标 `tools` 能力, 从 `ToolCatalog` 派生定义, 将调用转为同一 `AgentDecision` 后经 `DecisionValidator` 校验整批工具名与参数 Schema, 逐项经过 `ConfirmationGate` 和 `StepJournal`; ask/done 仍使用扁平 JSON. 非法决策作为观察回送, 修复重试次数按 P0.2 结论固定为每步最多 2 次 (原生, 结构化与退化模式一致), MUST NOT 无限重试. 原生续轮重新准入预算, 保留原始截止时间, 不得在动作后发生错误时切换 JSON 重放.
 - 文件工具在插件侧先校验有界的工作目录相对路径, 宿主仍负责实际目录与符号链接边界. 解析/校验拒绝的决策只在既有 decision 元数据中记录固定分类, 每步最多 3 项; 无有效决策时以 `source=validator` 的错误步骤保留诊断, 不伪造模型决策, 不保留被拒正文.
 - 分级确认 (D8) MUST NOT 被工具组开关绕过: 敏感工具与登记为 `sensitive` 的脚本在执行前经 `ConfirmationGate`; 审慎模式让所有非只读操作都确认; 确认超时视为拒绝.
 - 预算 (步数, 模型调用次数, 时长, token) 在 `Budget` 中集中计数, 超限即以 `BUDGET_EXCEEDED` 终止并报告; 插件默认值不得超过附录 B.5 的契约上限.
-- 模型调用一律经 `model/ModelClient` -> `IAiAgentModelBroker`, 设备操作一律经 `catalog/ToolHandlers` -> `IHostCapabilityBroker`; MUST NOT 在插件内直接绑定 Provider, 读取宿主文件系统或复制宿主功能.
+- 模型调用一律经 `model/ModelClient` -> `IAiAgentModelBroker`, 内置设备操作经 `catalog/ToolHandlers` -> `IHostCapabilityBroker`; MUST NOT 在插件内直接绑定 Provider, 读取宿主文件系统或复制宿主功能. P10 的可选 MCP 来源执行用户配置的服务器工具, 沿用目录校验, 确认和预算; 不得自动重放工具调用. 若独立 MCP Client 能力代理落地, 优先替换内部来源适配层.
 - 宿主代理死亡时运行中的任务转入 `blocked` (D15), 不自动续跑; 插件进程重建后不恢复运行中任务, 只保留历史记录.
 - 普通日志不得含目标文本, 模型提示词 / 输出, 节点树, 屏幕文字, 脚本参数或结果; 只记录工具名, 错误分类, 大小与耗时.
 - 任务前台服务 (`AiAgentTaskForegroundService`) 只在有运行中或排队任务时存在, 通知显示当前步骤与 "停止"; 两侧都不做开机自启.

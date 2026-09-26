@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">正在等待 AutoJs6 连接 (最多 15 秒).</string>
     <string name="launcher_link_timeout">15 秒内未建立连接. 请打开 AutoJs6, 在插件中心启用 AI Agent 并授权连接.</string>
     <string name="launcher_open_host">打开 AutoJs6</string>
+    <string name="mcp_add">添加服务器</string>
+    <string name="mcp_auth_required">需要身份验证. 请在 MCP 服务器应用中检查已保存的令牌.</string>
+    <string name="mcp_busy">修改服务器前请停止运行中或排队中的任务.</string>
+    <string name="mcp_clear_token">清除已保存的令牌</string>
+    <string name="mcp_delete">删除服务器</string>
+    <string name="mcp_delete_confirm">删除此服务器及其已保存的令牌?</string>
+    <string name="mcp_empty">尚未配置 MCP 服务器.</string>
+    <string name="mcp_enabled">为新任务启用此服务器</string>
+    <string name="mcp_endpoint">端点 URL</string>
+    <string name="mcp_endpoint_note">非回环地址必须使用 HTTPS. 修改端点会清除工具选择. 未输入新令牌时也会清除旧令牌.</string>
+    <string name="mcp_error">无法读取或保存. 请检查字段, 限额和运行中的任务. 若设置已变更, 请重新打开服务器.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">服务器 ID (1-12 位小写字母, 数字或下划线, 以字母开头)</string>
+    <string name="mcp_local_permission">允许访问局域网</string>
+    <string name="mcp_local_permission_note">Android 要求本地网络连接取得此权限. 外部 HTTPS 服务器无需此步骤.</string>
+    <string name="mcp_name">服务器名称</string>
+    <string name="mcp_no_tools">请先保存服务器, 再发现并选择工具.</string>
+    <string name="mcp_pairing_denied">配对被拒绝. 请在 MCP 服务器应用中检查配对.</string>
+    <string name="mcp_pairing_required">需要配对. 请在 MCP 服务器应用中批准此客户端, 然后重新发现工具.</string>
+    <string name="mcp_probe">从已保存的服务器发现工具</string>
+    <string name="mcp_probe_error">工具发现失败. 请检查服务器, 网络, 权限和目录限额.</string>
+    <string name="mcp_risk_note">本地风险策略适用于每个选中的工具, 默认为敏感. 服务器描述和注解不能降低此策略.</string>
+    <string name="mcp_save_before_probe">发现工具前请保存端点或令牌的修改.</string>
+    <string name="mcp_selection_note">请逐项选择工具. 全部服务器最多选择 32 个工具. 不支持的输入结构无法选择.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">MCP 服务器</string>
+    <string name="mcp_setup_note">服务器和 MCP 工具组默认关闭. 请在服务器应用中配置令牌和配对. 工具发现仅读取已保存服务器的目录, 不调用模型.</string>
+    <string name="mcp_token">Bearer 令牌</string>
+    <string name="mcp_token_empty">未保存令牌</string>
+    <string name="mcp_token_note">留空保留已保存的令牌, 勾选清除可将其移除. 令牌不会回显, 离开此页面将丢弃未保存的令牌.</string>
+    <string name="mcp_token_saved">已保存令牌 (隐藏)</string>
+    <string name="mcp_unsupported">%1$s - 不支持的工具</string>
     <string name="memory_accept">确认此条目</string>
     <string name="memory_cancel_import">取消剩余导入</string>
     <string name="memory_created">创建时间: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">屏幕操作</string>
     <string name="presets_group_files">文件</string>
     <string name="presets_group_gesture">坐标手势</string>
+    <string name="presets_group_mcp">MCP 工具</string>
     <string name="presets_group_memory">偏好记忆</string>
     <string name="presets_group_observe">屏幕观察</string>
     <string name="presets_group_ocr">文字识别 (OCR)</string>

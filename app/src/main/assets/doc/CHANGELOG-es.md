@@ -4,6 +4,14 @@
 
 ******
 
+# v1.2.0
+
+###### 2026/09/26
+
+* `Aviso` La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales y conserva llamadas nativas, capturas y scripts generados. Las comparaciones Wi-Fi P9.1 y la aceptación visual real en línea P9.2 siguen pendientes en ROADMAP.md.
+* `Función` Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente
+* `Mejora` Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.
+
 # v1.1.0
 
 ###### 2026/09/26

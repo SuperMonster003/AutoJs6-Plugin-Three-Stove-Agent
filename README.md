@@ -44,7 +44,7 @@
 
 AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-插件既是 AutoJs6 插件, 也是独立应用. 脚本通过 AutoJs6 的 `ai.agent` API 使用它; 用户通过它自己的任务台, AutoJs6 抽屉项, 悬浮球, 系统分享面板, 应用快捷方式和语音输入使用它. 模型调用与设备操作始终经 Binder 交给 AutoJs6: 宿主借给插件一个模型代理 (宿主已知的 AI Provider 插件, 例如 3-Stone AI) 和一个带有限 grant 的能力代理. 插件从不持有凭据, 从不自行绑定模型提供方, 也不申请无障碍权限.
+AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
 
 ******
 
@@ -52,11 +52,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-1.1.0 正在开发, 已实现原生工具调用, 截图观察和可选的生成脚本. 不支持的目标保留 JSON 决策循环. 真实 Wi-Fi 对比及在线视觉验收仍见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) 待办.
-
-当前 Model8 对比中仍出现空响应, Provider 失败及预算中止. [对比证据](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部采样结果, 尚不能证明两类任务可稳定完成.
-
-图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
+1.2.0 开发版本提供可选 MCP 工具, 保留原生工具调用, 截图观察和动态脚本. P9.1 Wi-Fi 对比与 P9.2 在线视觉真实验收仍待完成, 见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,6 +69,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 - 经宿主进行原生工具调用: 目录 Schema, 整批参数校验, 顺序执行, 逐项确认, 工具结果续轮及步骤记录共用已有任务规则
 - Android 11+ 经 AutoJs6 截图观察: screen_capture 缩放到最长边 1280, JPEG 质量 70, 配套视觉提示词, 图片 token 准入与原生工具结果图片
 - 经 script_run_source 执行生成的 JavaScript: script_dynamic 工具组默认关闭, 每次均展示源码摘要及可展开的完整源码并逐次确认. 支持超时, 取消, 结构化结果及私有源码记录. UTF-8 源码和其 JSON 字符串编码均限 8 KiB.
+- 本机或外部 MCP 服务器的选定工具, 按服务器设置风险等级, mcp 工具组默认关闭
 
 ### 界面截图
 
@@ -242,8 +239,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 插件遵循明确的边界:
 
 - Binder 契约入口受 org.autojs.permission.PLUGIN 签名权限保护. 启动器 (也用于快捷方式) 和 text/plain ACTION_SEND 分享目标为公开入口, 只接受有界的目标/预设草稿. 外部 Intent 不能执行任务, 提交确认或改变授权. 设置, 语音结果与任务控制入口均不导出.
-- 插件不持有 API key, 不自行绑定模型提供方, 也不申请无障碍权限: 模型调用与设备操作经 AutoJs6 为单条附着链路借出并在断开时收回的代理执行, 每个代理都受 grant 约束 (允许的方法, 速率, 体积, 模型配额).
-- INTERNET 仅用于手动检查 GitHub 发行版本. FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE 支持运行中的任务, POST_NOTIFICATIONS 提供进度和确认. 仅在用户从设置开启悬浮球时请求 SYSTEM_ALERT_WINDOW. 不申请无障碍, 存储或麦克风权限.
+- AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
+- 模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.
 - 任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用.
 - 截图经 AutoJs6 发送到所选模型, 该模型可能在线运行. 截图要求屏幕已解锁且处于唤醒状态. 步骤历史只保存尺寸和字节数等元数据, 不保存图片内容. JSON 决策保留当前图片, 直到其他观察或用户回答替换它; 原生会话在每批和会话限额内保留已有图片, 每轮重新预留相应 token.
 - 生成的脚本以 AutoJs6 权限运行, 不受 JavaScript 沙箱隔离, 可执行已启用工具组之外的操作. 完整源码保存在私有步骤中, 仍遵守既有密码脱敏及历史保留规则. 后续密码脱敏改变的源码无法作为原始脚本保存. 分享 .js 前请检查内容.
@@ -288,6 +285,14 @@ minimum host build: 5289 (6.8.0)
 ### 发行历史
 
 ******
+
+#### v1.2.0
+
+_2026/09/26_
+
+- `提示` 1.2.0 开发版本提供可选 MCP 工具, 保留原生工具调用, 截图观察和动态脚本. P9.1 Wi-Fi 对比与 P9.2 在线视觉真实验收仍待完成, 见 ROADMAP.md.
+- `新增` 本机或外部 MCP 服务器的选定工具, 按服务器设置风险等级, mcp 工具组默认关闭
+- `优化` 模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.
 
 #### v1.1.0
 

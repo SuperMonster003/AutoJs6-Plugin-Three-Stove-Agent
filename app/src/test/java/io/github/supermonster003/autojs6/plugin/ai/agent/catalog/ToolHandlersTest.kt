@@ -20,6 +20,7 @@ class ToolHandlersTest(private val name: String, private val input: String, priv
             is ToolPlan.Local -> { assertEquals("local.$name", method); assertEquals(name, plan.name); return }
             is ToolPlan.DynamicScript -> { assertEquals("engines.execScript", method); assertEquals("ai.agent.result(42);", plan.source); return }
             is ToolPlan.AppendText -> error("Covered separately")
+            is ToolPlan.External -> error("Covered by external catalog tests")
         }
         assertEquals(method, "${request.module}.${request.method}")
         assertTrue(method in catalog[name]!!.bridgeMapping)

@@ -5,6 +5,18 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v1.2.0": {
+      "released_date": "2026/09/26",
+      "hint": [
+        "Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in ROADMAP.md."
+      ],
+      "feature": [
+        "MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default"
+      ],
+      "improvement": [
+        "Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically."
+      ]
+    },
     "v1.1.0": {
       "released_date": "2026/09/26",
       "hint": [

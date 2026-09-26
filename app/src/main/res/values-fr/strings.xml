@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">Connexion à AutoJs6 en attente (15 secondes maximum).</string>
     <string name="launcher_link_timeout">Aucune connexion après 15 secondes. Ouvrez AutoJs6, activez AI Agent dans le centre de plugins et autorisez la connexion.</string>
     <string name="launcher_open_host">Ouvrir AutoJs6</string>
+    <string name="mcp_add">Ajouter un serveur</string>
+    <string name="mcp_auth_required">Authentification requise. Vérifiez le jeton dans l\'application du serveur MCP.</string>
+    <string name="mcp_busy">Arrêtez les tâches actives ou en attente avant de modifier les serveurs.</string>
+    <string name="mcp_clear_token">Effacer le jeton enregistré</string>
+    <string name="mcp_delete">Supprimer le serveur</string>
+    <string name="mcp_delete_confirm">Supprimer ce serveur et son jeton enregistré?</string>
+    <string name="mcp_empty">Aucun serveur MCP configuré.</string>
+    <string name="mcp_enabled">Activer ce serveur pour les nouvelles tâches</string>
+    <string name="mcp_endpoint">URL du point de terminaison</string>
+    <string name="mcp_endpoint_note">HTTPS est requis hors boucle locale. Modifier l\'adresse efface l\'ancien jeton et la sélection des outils. Vous pouvez saisir un nouveau jeton.</string>
+    <string name="mcp_error">Lecture ou enregistrement impossible. Vérifiez les champs, limites et tâches actives. Rouvrez le serveur si ses paramètres ont changé.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">ID du serveur (1-12 minuscules, chiffres ou tirets bas, commençant par une lettre)</string>
+    <string name="mcp_local_permission">Autoriser l\'accès au réseau local</string>
+    <string name="mcp_local_permission_note">Android exige cette autorisation pour les connexions locales. Cette étape est inutile pour les serveurs HTTPS externes.</string>
+    <string name="mcp_name">Nom du serveur</string>
+    <string name="mcp_no_tools">Enregistrez le serveur, puis découvrez et sélectionnez les outils.</string>
+    <string name="mcp_pairing_denied">Association refusée. Vérifiez l\'association dans l\'application du serveur MCP.</string>
+    <string name="mcp_pairing_required">Association requise. Approuvez ce client dans l\'application du serveur MCP, puis relancez la découverte.</string>
+    <string name="mcp_probe">Découvrir les outils du serveur enregistré</string>
+    <string name="mcp_probe_error">Échec de la découverte. Vérifiez le serveur, le réseau, les autorisations et les limites du catalogue.</string>
+    <string name="mcp_risk_note">La politique de risque locale couvre tous les outils sélectionnés. Sensible par défaut. Les descriptions et annotations du serveur ne réduisent jamais cette politique.</string>
+    <string name="mcp_save_before_probe">Enregistrez les changements d\'adresse ou de jeton avant la découverte.</string>
+    <string name="mcp_selection_note">Sélectionnez les outils individuellement. Maximum de 32 outils pour tous les serveurs. Les schémas non pris en charge ne sont pas sélectionnables.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">Serveurs MCP</string>
+    <string name="mcp_setup_note">Les serveurs et le groupe MCP sont désactivés par défaut. Configurez les jetons et l\'association dans l\'application serveur. La découverte lit seulement le catalogue enregistré, sans appeler de modèle.</string>
+    <string name="mcp_token">Jeton Bearer</string>
+    <string name="mcp_token_empty">Aucun jeton enregistré</string>
+    <string name="mcp_token_note">Laissez vide pour conserver le jeton. Cochez Effacer pour le supprimer. Le jeton ne sera jamais réaffiché. Toute saisie non enregistrée est supprimée en quittant cet écran.</string>
+    <string name="mcp_token_saved">Jeton enregistré (masqué)</string>
+    <string name="mcp_unsupported">%1$s - Outil non pris en charge</string>
     <string name="memory_accept">Confirmer cette entrée</string>
     <string name="memory_cancel_import">Annuler le reste</string>
     <string name="memory_created">Création: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">Actions sur l\'écran</string>
     <string name="presets_group_files">Fichiers</string>
     <string name="presets_group_gesture">Gestes par coordonnées</string>
+    <string name="presets_group_mcp">Outils MCP</string>
     <string name="presets_group_memory">Mémoire des préférences</string>
     <string name="presets_group_observe">Observation de l\'écran</string>
     <string name="presets_group_ocr">Reconnaissance de texte (OCR)</string>

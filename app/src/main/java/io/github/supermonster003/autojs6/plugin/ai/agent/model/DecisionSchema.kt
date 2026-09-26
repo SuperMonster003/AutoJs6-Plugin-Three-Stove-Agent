@@ -64,7 +64,9 @@ class DecisionSchema(private val catalog: ToolCatalog) {
     }
 
     private fun closedObjects(schema: JsonObject): Boolean {
-        if (schema.string("type") == "object" && schema["additionalProperties"] != false.json()) return false
+        val type = schema["type"] ?: return false // An unconstrained external value cannot become a closed Provider object.
+        val objectPossible = if (type.isJsonArray) type.asJsonArray.any { it.asString == "object" } else type.asString == "object"
+        if (objectPossible && schema["additionalProperties"] != false.json()) return false
         return children(schema).all(::closedObjects)
     }
 

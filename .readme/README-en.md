@@ -44,7 +44,7 @@ The current README.md supports the following languages:
 
 AI Agent turns a natural-language goal into actions on an Android device running AutoJs6. It either picks a script that the user has registered for agent use, fills in its parameters and runs it, or observes the screen through the accessibility node tree and acts on it step by step (observe, decide, act, verify) until the goal is reached, a confirmation is needed, or a budget runs out. It answers [AutoJs6 discussion #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it through the `ai.agent` API of AutoJs6; users reach it through its own task workbench, the AutoJs6 drawer, a floating ball, the system share sheet, app shortcuts, and voice input. Model calls and device actions always go through AutoJs6 over Binder: the host lends the plugin a model broker (the AI Provider plugins the host already knows, such as 3-Stone AI) and a capability broker with a bounded grant. The plugin never holds credentials, never binds a model provider itself, and never requests the accessibility permission.
+AI Agent is a standalone task workbench and an AutoJs6 plugin reached through ai.agent. Built-in device actions and model calls use the host brokers. Optional MCP tools connect only to servers configured by the user. No direct model-provider binding or accessibility permission is used.
 
 ******
 
@@ -52,11 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Version 1.1.0 is in development with native tool calling, screenshot observations and opt-in generated scripts. Unsupported targets keep the JSON decision loop. Real Wi-Fi comparisons and online vision acceptance remain pending in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
-
-The current Model8 comparison includes empty responses, Provider failures and budget stops. The [comparison evidence](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) records every trial; it does not establish reliable completion of both tasks.
-
-Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
+Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,6 +69,7 @@ The current implementation provides these capabilities:
 - Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
 - Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
 - Generated JavaScript through script_run_source: the script_dynamic group is off by default. Every call requires review of a source summary with expandable full text and individual approval. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.
+- MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
 
 ### Screenshots
 
@@ -242,8 +239,8 @@ Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2
 The plugin follows explicit boundaries:
 
 - Binder contract entries require the org.autojs.permission.PLUGIN signature permission. The launcher (also used by shortcuts) and the text/plain ACTION_SEND share target are public; they accept bounded goal/preset drafts only. External intents cannot execute tasks, provide confirmations or change grants. Private settings, voice results and task controls are not exported.
-- The plugin holds no API keys, never binds a model provider and does not request the accessibility permission: model calls and device actions go through brokers that AutoJs6 lends for one attached link and revokes on detach, each bounded by a grant (allowed methods, rates, sizes, model quota).
-- INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and confirmations. SYSTEM_ALERT_WINDOW is requested only when the user enables the floating ball in Settings. No accessibility, storage or microphone permission is requested.
+- AI Agent is a standalone task workbench and an AutoJs6 plugin reached through ai.agent. Built-in device actions and model calls use the host brokers. Optional MCP tools connect only to servers configured by the user. No direct model-provider binding or accessibility permission is used.
+- Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
 - Screenshots are sent through AutoJs6 to the selected model, which may be online. Capture requires an unlocked, interactive screen. Step history stores dimensions and byte counts, not picture contents. JSON decisions retain the current image until another observation or answer replaces it; native conversations retain earlier images within per-call and session limits and reserve their tokens again for each round.
 - Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.
@@ -288,6 +285,14 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 ### Release History
 
 ******
+
+#### v1.2.0
+
+_2026/09/26_
+
+- `Hint` Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in ROADMAP.md.
+- `Feature` MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
+- `Improvement` Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 
 #### v1.1.0
 

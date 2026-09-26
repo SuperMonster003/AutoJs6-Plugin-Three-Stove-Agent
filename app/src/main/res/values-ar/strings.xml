@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">بانتظار اتصال AutoJs6 (حتى 15 ثانية).</string>
     <string name="launcher_link_timeout">لم يتم الاتصال خلال 15 ثانية. افتح AutoJs6 وفعل AI Agent في مركز الإضافات واسمح بالاتصال.</string>
     <string name="launcher_open_host">فتح AutoJs6</string>
+    <string name="mcp_add">إضافة خادم</string>
+    <string name="mcp_auth_required">المصادقة مطلوبة. تحقق من الرمز المحفوظ في تطبيق خادم MCP.</string>
+    <string name="mcp_busy">أوقف المهام النشطة أو المنتظرة قبل تعديل الخوادم.</string>
+    <string name="mcp_clear_token">مسح الرمز المحفوظ</string>
+    <string name="mcp_delete">حذف الخادم</string>
+    <string name="mcp_delete_confirm">حذف هذا الخادم ورمزه المحفوظ?</string>
+    <string name="mcp_empty">لم يتم إعداد خوادم MCP.</string>
+    <string name="mcp_enabled">تفعيل هذا الخادم للمهام الجديدة</string>
+    <string name="mcp_endpoint">عنوان URL للخادم</string>
+    <string name="mcp_endpoint_note">يلزم HTTPS خارج عنوان الاسترجاع المحلي. تغيير العنوان يمسح الرمز القديم واختيار الأدوات. يمكنك إدخال رمز جديد.</string>
+    <string name="mcp_error">تعذرت القراءة أو الحفظ. تحقق من الحقول والحدود والمهام النشطة. أعد فتح الخادم إذا تغيرت إعداداته.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">معرف الخادم (1-12 حرفا لاتينيا صغيرا أو رقما أو شرطة سفلية, يبدأ بحرف)</string>
+    <string name="mcp_local_permission">السماح بالوصول إلى الشبكة المحلية</string>
+    <string name="mcp_local_permission_note">يتطلب Android هذا الإذن للاتصالات المحلية. خوادم HTTPS الخارجية لا تحتاج هذه الخطوة.</string>
+    <string name="mcp_name">اسم الخادم</string>
+    <string name="mcp_no_tools">احفظ الخادم ثم اكتشف الأدوات واخترها.</string>
+    <string name="mcp_pairing_denied">تم رفض الاقتران. راجعه في تطبيق خادم MCP.</string>
+    <string name="mcp_pairing_required">الاقتران مطلوب. وافق على هذا العميل في تطبيق خادم MCP ثم أعد الاكتشاف.</string>
+    <string name="mcp_probe">اكتشاف أدوات الخادم المحفوظ</string>
+    <string name="mcp_probe_error">فشل الاكتشاف. تحقق من الخادم والشبكة والأذونات وحدود الدليل.</string>
+    <string name="mcp_risk_note">تسري سياسة المخاطر المحلية على كل الأدوات المختارة. الافتراضي حساس. أوصاف الخادم وتعليقاته لا تخفف هذه السياسة.</string>
+    <string name="mcp_save_before_probe">احفظ تغييرات العنوان أو الرمز قبل الاكتشاف.</string>
+    <string name="mcp_selection_note">اختر الأدوات بشكل صريح. الحد 32 أداة لجميع الخوادم. لا يمكن اختيار مخططات الإدخال غير المدعومة.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">خوادم MCP</string>
+    <string name="mcp_setup_note">الخوادم ومجموعة أدوات MCP معطلة افتراضيا. اضبط الرموز والاقتران في تطبيق الخادم. يقرأ الاكتشاف دليل الخادم المحفوظ فقط ولا يستدعي نموذجا.</string>
+    <string name="mcp_token">رمز Bearer</string>
+    <string name="mcp_token_empty">لا يوجد رمز محفوظ</string>
+    <string name="mcp_token_note">اتركه فارغا للاحتفاظ بالرمز. اختر المسح لحذفه. لا يعرض الرمز مجددا ويحذف الإدخال غير المحفوظ عند مغادرة الشاشة.</string>
+    <string name="mcp_token_saved">الرمز محفوظ (مخفي)</string>
+    <string name="mcp_unsupported">%1$s - أداة غير مدعومة</string>
     <string name="memory_accept">تأكيد هذا الإدخال</string>
     <string name="memory_cancel_import">إلغاء بقية الاستيراد</string>
     <string name="memory_created">الإنشاء: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">إجراءات الشاشة</string>
     <string name="presets_group_files">الملفات</string>
     <string name="presets_group_gesture">إيماءات الإحداثيات</string>
+    <string name="presets_group_mcp">أدوات MCP</string>
     <string name="presets_group_memory">ذاكرة التفضيلات</string>
     <string name="presets_group_observe">مراقبة الشاشة</string>
     <string name="presets_group_ocr">التعرف على النص (OCR)</string>
