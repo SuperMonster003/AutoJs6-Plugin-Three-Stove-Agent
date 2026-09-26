@@ -1,49 +1,59 @@
-# README interface captures
+# Interface captures
 
-Captured on 2026-09-25 from the production views in the P7 UI implementation
-(runtime build 70), with the P8 opt-in instrumentation fixtures. Android API 37.1,
-16 KiB emulator, 1080 x 2424, density 420, font scale 1.0, English, light theme.
-The theme colors are a supported host appearance snapshot. These are interface
-examples with synthetic tasks and scripted model replies, not E4 model results.
+Captured on 2026-09-26 from production views in the standalone UI redesign,
+version 1.2.0 / build 93. Android API 37.1, 16 KiB disposable emulator,
+1080 x 1920, density 420, font scale 1.0. These are interface examples with
+synthetic tasks and scripted replies, not real-model acceptance results.
 
-| File | View | Pixels | SHA-256 |
-| --- | --- | --- | --- |
-| workbench.png | LauncherActivity waiting for a report-language answer | 1080 x 2424 | 37670a980d8ddf8c29b4492cf6cc2505407eab844a6977143faffb6c3fa70323 |
-| detail.png | RunDetailActivity with the answer, outcome and timeline | 1080 x 2424 | a68d350378a27f1de866528fef44be29a6280ca0939b505bc684f1ff763b3b00 |
-| confirmation.png | ConfirmationActivity reviewing a memory proposal | 1024 x 856 | 80686358c6caa3d769df1c387de3fb2495510b73f2ce9267db28c38bdf269fa5 |
-| floating.png | Expanded FloatingBall with an editable task draft | 945 x 1597 | dd49f33ee8ca5b4c666815d1492f191af04699a1f92555116a62d68d5cb2aeec |
+The four README images use English and a supported host appearance snapshot.
+The app-* images use Simplified Chinese and the app's indigo theme, in light
+and dark mode. The model names explicitly identify fixture models. The home
+draft is never submitted. Settings-more captures the bottom of the settings
+page after scrolling has finished.
+
+| File | Pixels | SHA-256 |
+| --- | --- | --- |
+| app-home-dark.png | 1080 x 1920 | 0ff149edd99b0ec79ddde65c270cdcef6be3d271d413d6821c84596c00e7146a |
+| app-home-light.png | 1080 x 1920 | 090ae919bf8f83200c88474e694b2e49830a52c89bbc83c80c5cd60789dacb57 |
+| app-models-dark.png | 1024 x 1609 | c1791cb1767755ab4deaf07b0ba8575a866e38b3d33a0d7d049426d6f864ebab |
+| app-models-light.png | 1024 x 1609 | f8ba8fa9a15a3f1d663ff3de511e4244f303261efe3abb682c575006ffac6e61 |
+| app-settings-dark.png | 1080 x 1920 | f9ce24b655f480e6ff7c6a8d4519eb8c3cedddc3d53ce042d8300949cb8a6f35 |
+| app-settings-light.png | 1080 x 1920 | b6cc3ced7b456aa3ad52c1f35b806e526d8be1e90ed84b79a80c6b07b32edb1f |
+| app-settings-more-dark.png | 1080 x 1920 | 8243acdb5c123621c3d8bd6de18f0d8a680bdda6d90714b8bc4a3c46ec571d66 |
+| app-settings-more-light.png | 1080 x 1920 | 4a1a264ff85da570195b2cc8f542c5fce2358ada0f23dc5346f4bde4ed092154 |
+| confirmation.png | 1024 x 924 | c22123bd89ca5e979d0ac86dd423d9774d1ce386c1112224fda1d6a8bd365634 |
+| detail.png | 1080 x 1920 | 9d0d6918102a1b18b3625f737638938c8b200b3ec160b00d38a21318852be180 |
+| floating.png | 945 x 1234 | 40efa0f17986690cb257b49f05bf30103887fa3c1fde8ab01494fc398be2d29d |
+| workbench.png | 1080 x 1920 | 00417403073fd5cb90f7fb572f9c24e2ccdf5113c85db1e77d0d21ddbaa53421 |
 
 ## Reproduce
 
-1. Create a disposable empty emulator. Install a compatible real AutoJs6 APK,
-   this plugin's debug APK and its androidTest APK. Do not use a physical device
-   or an emulator containing personal tasks. The capture fixture requires an
-   emulator and refuses existing plugin history. It never calls device tools.
-2. Grant the plugin notification permission on API 33+. Use font scale 1.0,
-   an unlocked screen and the dimensions above. No Provider or model credentials
-   are needed. Overlay permission is temporarily granted and restored by the
-   floating-window fixture.
-3. Run the two explicit methods, replacing SERIAL with the disposable emulator:
+1. Create a fresh disposable AI_Agent_Conformance_* emulator without personal
+   history. Build Debug and androidTest, then use the guarded
+   test-apps/fake-host/run_conformance.py --prepare-only setup on that serial.
+   Install the matching app-debug-androidTest.apk. Never install this fake host
+   on a real device or an emulator containing real AutoJs6 data.
+2. Use font scale 1.0 and an unlocked screen. Grant notification permission on
+   API 33+. Overlay permission is temporarily granted and restored by the
+   floating-window fixture. No Provider or model credentials are required.
+3. Run the following methods with agent.readme.capture=true. The two original
+   README methods also take agent.ui.locale=en and agent.ui.dark=false:
 
-```powershell
-adb -s SERIAL shell am instrument -w -r `
-  -e agent.readme.capture true -e agent.ui.locale en `
-  -e agent.ui.dark false -e agent.ui.font 1.0 `
-  -e class 'io.github.supermonster003.autojs6.plugin.ai.agent.ui.WorkbenchActivityTest#captureReadmeScreens,io.github.supermonster003.autojs6.plugin.ai.agent.ui.FloatingAccessibilityTest#captureReadmeFloating' `
-  io.github.supermonster003.autojs6.plugin.ai.agent.test/androidx.test.runner.AndroidJUnitRunner
-```
+- WorkbenchActivityTest#captureReadmeScreens
+- FloatingAccessibilityTest#captureReadmeFloating
+- WorkbenchActivityTest#captureRedesignedScreens, once with agent.ui.dark=false
+  and once with agent.ui.dark=true
 
-4. Copy `cache/readme-captures/*.png` using `adb exec-out run-as` and a binary-safe
-   local writer. Activity decor includes the actual window background; the
-   floating capture is the actual overlay root. No pixel postprocessing, image
-   generation, security-flag changes or capture of another app is involved.
-5. Visually review each image, replace these four assets, update their hashes,
-   and run the Markdown generator and `--check`. The clock, task IDs and measured
-   durations can differ. Shut down the disposable emulator after capture.
+Use the io.github.supermonster003.autojs6.plugin.ai.agent.ui package prefix
+for each class and the package's androidx.test.runner.AndroidJUnitRunner
+instrumentation component. All capture methods are skipped without explicit
+opt-in. The original README capture rejects pre-existing task history.
 
-The two methods are skipped unless `agent.readme.capture=true` is explicitly set.
-The model is labeled Demo model. The language answer is supplied by the fixture;
-the memory proposal is cancelled without approval. The floating task is never
-sent. Test services remain debug-only and unexported, and FLAG_SECURE remains
-enabled on production windows. No real account, model response or user history
-is part of these images.
+4. Copy cache/readme-captures/*.png using adb exec-out run-as and a binary-safe
+   writer. Rename home/models/settings/settings-more false/true to the app-*
+   light/dark filenames above. No pixel postprocessing or image generation is
+   involved. Only the app's own views are rendered; production security flags
+   stay enabled and other applications are never captured.
+5. Visually inspect all images, update their hashes, and run the Markdown
+   generator and --check. Times and generated task IDs can differ. Stop the
+   disposable emulator after capture.

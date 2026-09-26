@@ -40,7 +40,9 @@ internal class PresetEndpoint(private val runtime: AgentRuntime, private val cac
                         check(runtime.current === link)
                         jsonObject("targets" to JsonArray().apply { result.value.forEach { model -> add(jsonObject(
                             "targetId" to model.target.targetId.json(), "displayName" to model.displayName.json(),
-                            "locality" to model.target.locality.name.json(), "structuredJson" to model.target.structuredJson.json())) } })
+                            "locality" to model.target.locality.name.json(), "structuredJson" to model.target.structuredJson.json(),
+                            "providerId" to model.target.providerId.json(), "nativeTools" to (model.target.nativeTools != null).json(),
+                            "vision" to (model.target.vision != null).json())) } })
                     })
                 }
             })

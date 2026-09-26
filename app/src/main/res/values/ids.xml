@@ -2,8 +2,34 @@
 <resources>
     <item name="interaction_countdown" type="id" />
     <item name="interaction_remember" type="id" />
+    <item name="launcher_connect" type="id" />
+    <item name="launcher_host_status" type="id" />
+    <item name="launcher_open_host" type="id" />
+    <item name="launcher_script_roots" type="id" />
     <item name="script_dynamic_expand" type="id" />
     <item name="script_dynamic_source" type="id" />
     <item name="script_roots_paths" type="id" />
+    <item name="ui_role" type="id" />
     <item name="workbench_answer" type="id" />
+    <item name="workbench_budget" type="id" />
+    <item name="workbench_current" type="id" />
+    <item name="workbench_current_goal" type="id" />
+    <item name="workbench_details" type="id" />
+    <item name="workbench_error" type="id" />
+    <item name="workbench_goal" type="id" />
+    <item name="workbench_history" type="id" />
+    <item name="workbench_memory" type="id" />
+    <item name="workbench_model" type="id" />
+    <item name="workbench_more" type="id" />
+    <item name="workbench_pending" type="id" />
+    <item name="workbench_preset" type="id" />
+    <item name="workbench_presets" type="id" />
+    <item name="workbench_progress" type="id" />
+    <item name="workbench_recent" type="id" />
+    <item name="workbench_send" type="id" />
+    <item name="workbench_settings" type="id" />
+    <item name="workbench_state" type="id" />
+    <item name="workbench_step" type="id" />
+    <item name="workbench_stop" type="id" />
+    <item name="workbench_voice" type="id" />
 </resources>

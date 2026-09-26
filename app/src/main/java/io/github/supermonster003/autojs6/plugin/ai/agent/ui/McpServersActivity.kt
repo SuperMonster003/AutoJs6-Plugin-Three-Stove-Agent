@@ -47,7 +47,7 @@ class McpServersActivity : HostAppearanceActivity() {
             choices = it.getString("choices")?.let { text -> runCatching { AgentJson.parse(text, McpEndpoint.MAX_RESPONSE_BYTES).asJsonArray }.getOrNull() } ?: JsonArray()
         }
         body = HistoryViews.column(this).apply { layoutDirection = resources.configuration.layoutDirection }
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(body) })
+        setContentView(AgentUi.screen(this, getString(R.string.mcp_servers), body, onBack = ::goBack))
         message = HistoryViews.label(body, getString(R.string.interaction_loading))
         connection = McpConnection(this, ::refresh)
     }
@@ -82,12 +82,13 @@ class McpServersActivity : HostAppearanceActivity() {
         if (editorVisible && draft != null) editor(draft!!) else list()
     }.onFailure { error(R.string.mcp_error) } }
     private fun button(label: Int, tag: String, action: () -> Unit) = HistoryViews.button(body, label, tag, action).apply { isAllCaps = false }
+    private fun goBack() {
+        if (!busy) { if (editorVisible) { draft = null; editing = null; editorVisible = false; choices = JsonArray(); refresh() } else finish() }
+    }
+    override fun navigateBack() { goBack() }
     private fun header() {
         frozen.clear(); body.removeAllViews(); fields.clear(); selections.clear()
-        HistoryViews.label(body, getString(R.string.mcp_servers), true)
-        button(R.string.workbench_back, "back") {
-            if (!busy) { if (editorVisible) { draft = null; editing = null; editorVisible = false; choices = JsonArray(); refresh() } else finish() }
-        }
+
         message = HistoryViews.label(body, "").apply { tag = "mcp-message"; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
         if (blocked) message.setText(R.string.mcp_busy)
         if (Build.VERSION.SDK_INT >= 37 && checkSelfPermission(LOCAL_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
@@ -171,7 +172,7 @@ class McpServersActivity : HostAppearanceActivity() {
         button(R.string.settings_save, "mcp-save", ::save).isEnabled = !blocked && !busy
         if (editing != null) button(R.string.mcp_delete, "mcp-delete") {
             prompt = AlertDialog.Builder(this).setMessage(R.string.mcp_delete_confirm).setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok) { _, _ -> mutate("delete", jsonObject("revision" to editingRevision.json(), "id" to editing!!.json())) }.show()
+                .setPositiveButton(android.R.string.ok) { _, _ -> mutate("delete", jsonObject("revision" to editingRevision.json(), "id" to editing!!.json())) }.showStyled()
         }.isEnabled = !blocked && !busy
         tint(body)
         if (busy) freeze()

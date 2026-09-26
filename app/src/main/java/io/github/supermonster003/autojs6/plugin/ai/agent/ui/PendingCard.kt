@@ -58,7 +58,7 @@ internal class PendingCard(private val container: LinearLayout, private val subm
         sourceExpanded = key == restoredKey && restoredSourceExpanded
         if (pending == null || pending.flag("submitted") == true) return
         val context = container.context
-        fun label(text: String) = TextView(context).apply { this.text = text; setTextIsSelectable(true); container.addView(this) }
+        fun label(text: String) = AgentUi.text(container, text, 14).apply { setTextIsSelectable(true) }
         if (run.string("interaction") != "plugin") { label(context.getString(R.string.workbench_script_interaction)); return }
         deadline = pending.number("deadlineMs")
         if (deadline != null) countdown = label("").apply { id = R.id.interaction_countdown; setTextIsSelectable(false) }
@@ -73,10 +73,10 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                 sending = false; buttons.forEach { it.isEnabled = !expired() }
             } }
         }
-        fun button(text: String, click: () -> Unit) { container.addView(Button(context).apply {
-            this.text = text; isAllCaps = false; minHeight = (48 * resources.displayMetrics.density).toInt()
+        fun button(text: String, role: String = "secondary", click: () -> Unit) { container.addView(Button(context).apply {
+            this.text = text; AgentUi.role(this, role)
             setOnClickListener { click() }; buttons += this
-        }) }
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = AgentUi.dp(context, 6); bottomMargin = AgentUi.dp(context, 6) }) }
         if (pending.string("type") == "confirmation") {
             val risk = when (pending.string("risk")) {
                 "read_only" -> R.string.interaction_risk_read_only
@@ -91,8 +91,8 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                     container.addView(ScriptConfirmationView.create(context, pending))
                 else -> { label(pending.string("description").orEmpty()); label(pending["arguments"]?.toString().orEmpty()) }
             }
-            button(context.getString(R.string.task_allow)) { send(allowed = true) }
-            button(context.getString(R.string.task_deny)) { send(allowed = false) }
+            button(context.getString(R.string.task_allow), "primary") { send(allowed = true) }
+            button(context.getString(R.string.task_deny), "danger") { send(allowed = false) }
             if (pending.flag("allowRunScope") == true && pending.string("tool") != "script_run_source")
                 button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
         } else {
@@ -119,7 +119,7 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                         if (key == restoredKey) setText(restoredAnswer)
                     }
                     container.addView(field)
-                    button(context.getString(R.string.task_reply)) {
+                    button(context.getString(R.string.task_reply), "primary") {
                         if (field.text.isNotBlank()) send(field.text.toString().json()) else field.error = context.getString(R.string.workbench_answer_required)
                     }
                 }

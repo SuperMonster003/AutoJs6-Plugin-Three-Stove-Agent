@@ -13,13 +13,8 @@ class ScriptRootsActivity : HostAppearanceActivity() {
         super.onCreate(savedInstanceState)
         setTitle(R.string.script_roots_title)
         val settings = ScriptRootSettings(this)
-        val padding = (20 * resources.displayMetrics.density).toInt()
-        val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(padding, padding, padding, padding) }
-        layout.addView(TextView(this).apply {
-            setText(R.string.script_roots_title)
-            setTextAppearance(android.R.style.TextAppearance_Material_Headline)
-            setPadding(0, 0, 0, padding / 2)
-        })
+        val page = AgentUi.column(this)
+        val layout = AgentUi.card(page)
         layout.addView(TextView(this).apply { setText(R.string.script_roots_instruction) })
         val field = EditText(this).apply {
             id = R.id.script_roots_paths
@@ -30,6 +25,7 @@ class ScriptRootsActivity : HostAppearanceActivity() {
         }
         layout.addView(field)
         layout.addView(Button(this).apply {
+            AgentUi.role(this, "primary")
             setText(R.string.script_roots_save)
             setOnClickListener {
                 val roots = runCatching { ScriptRoots.parseLines(field.text.toString()) }.getOrNull()
@@ -38,7 +34,7 @@ class ScriptRootsActivity : HostAppearanceActivity() {
             }
         })
         layout.addView(Button(this).apply { setText(android.R.string.cancel); setOnClickListener { finish() } })
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; layoutDirection = resources.configuration.layoutDirection; addView(layout) })
+        setContentView(AgentUi.screen(this, getString(R.string.script_roots_title), page))
         tint(layout)
     }
     override fun onSaveInstanceState(outState: Bundle) {

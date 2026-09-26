@@ -137,8 +137,7 @@ class McpServersActivityTest {
                 scenario.onActivity { activity ->
                     assertEquals("ar", activity.resources.configuration.locales[0].language)
                     val root = activity.findViewById<ViewGroup>(android.R.id.content)
-                    val scroll = root.getChildAt(0) as ScrollView
-                    val column = scroll.getChildAt(0) as LinearLayout
+                    val column = activity.view<View>("mcp-message")!!.parent as LinearLayout
                     assertEquals(View.LAYOUT_DIRECTION_RTL, column.layoutDirection)
                     val width = (280 * activity.resources.displayMetrics.density).toInt()
                     val touch = kotlin.math.ceil(48 * activity.resources.displayMetrics.density).toInt()

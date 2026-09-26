@@ -15,9 +15,12 @@ internal object RunLauncher {
         return admit(StartRequest.parse(json, config, presets, settings))
     }
 
-    fun uiRequest(goal: String, preset: String, locale: String): String {
+    fun uiRequest(goal: String, preset: String, locale: String, target: String? = null): String {
         require(goal.isNotBlank() && goal.toByteArray(Charsets.UTF_8).size <= 4096)
+        target?.let(io.github.supermonster003.autojs6.plugin.ai.agent.store.PresetCodec::target)
         return jsonObject("goal" to goal.json(), "origin" to "ui".json(), "options" to jsonObject(
-            "preset" to preset.json(), "locale" to locale.json(), "interaction" to "plugin".json())).toString()
+            "preset" to preset.json(), "locale" to locale.json(), "interaction" to "plugin".json()).apply {
+                target?.let { addProperty("target", it) }
+            }).toString()
     }
 }

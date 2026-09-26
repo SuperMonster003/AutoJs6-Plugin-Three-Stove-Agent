@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- The host snapshot wraps the resource context; unavailable settings follow the system. -->
-    <style name="Theme.AiAgent" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
-    <style name="Theme.AiAgent.Light" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
-    <style name="Theme.AiAgent.Dark" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
-    <style name="Theme.AiAgent.Dialog.Light" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+    <style name="Theme.AiAgent" parent="Theme.AiAgent.Light" />
+    <style name="Theme.AiAgent.Light" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">#4F46E5</item>
+    </style>
+    <style name="Theme.AiAgent.Dark" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorAccent">#B7B2FF</item>
+    </style>
+    <style name="Theme.AiAgent.Dialog.Light" parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
+        <item name="android:colorAccent">#4F46E5</item>
         <item name="android:windowMinWidthMajor">85%</item>
         <item name="android:windowMinWidthMinor">95%</item>
     </style>
-    <style name="Theme.AiAgent.Dialog.Dark" parent="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
+    <style name="Theme.AiAgent.Dialog.Dark" parent="@android:style/Theme.Material.Dialog.NoActionBar">
+        <item name="android:colorAccent">#B7B2FF</item>
         <item name="android:windowMinWidthMajor">85%</item>
         <item name="android:windowMinWidthMinor">95%</item>
     </style>

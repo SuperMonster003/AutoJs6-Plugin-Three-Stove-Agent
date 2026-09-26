@@ -43,7 +43,7 @@ class PresetsActivity : HostAppearanceActivity() {
         editing = savedInstanceState?.getString("editing")
         draft = savedInstanceState?.getString("draft")?.let { runCatching { AgentJson.objectOf(it, PresetCodec.MAX_ROW_BYTES) }.getOrNull() }
         body = HistoryViews.column(this).apply { layoutDirection = resources.configuration.layoutDirection }
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(body) })
+        setContentView(AgentUi.screen(this, getString(R.string.presets_title), body, onBack = ::goBack))
         connection = PresetConnection(this) { refresh() }
         error = HistoryViews.label(body, "")
     }
@@ -76,12 +76,14 @@ class PresetsActivity : HostAppearanceActivity() {
     }
     private fun header(title: Int) {
         body.removeAllViews()
-        HistoryViews.label(body, getString(title), true)
-        HistoryViews.button(body, R.string.workbench_back, "back") {
-            if (editorVisible) { draft = null; editing = null; refresh() } else finish()
-        }
+        if (title != R.string.presets_title) HistoryViews.label(body, getString(title), true)
         error = HistoryViews.label(body, "").apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
     }
+    private fun goBack() {
+        if (busy) return
+        if (editorVisible) { draft = null; editing = null; editorVisible = false; refresh() } else finish()
+    }
+    override fun navigateBack() { goBack() }
     private fun showList() {
         editorVisible = false; header(R.string.presets_title)
         HistoryViews.button(body, R.string.presets_new, "preset-new") {
@@ -112,10 +114,10 @@ class PresetsActivity : HostAppearanceActivity() {
                 R.string.presets_delete -> AlertDialog.Builder(this).setMessage(getString(R.string.presets_delete_confirm, key))
                     .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.presets_delete) { _, _ ->
                         request("delete", jsonObject("name" to key.json())) { refresh() }
-                    }.show()
+                    }.showStyled()
                 R.string.shortcut_pin -> pin(key)
             }
-        }.show()
+        }.showStyled()
     }
     private fun pin(key: String) {
         val goal = EditText(this).apply {
@@ -130,7 +132,7 @@ class PresetsActivity : HostAppearanceActivity() {
                 if (success) dialog.dismiss() else goal.error = getString(R.string.entry_invalid)
             }
         }
-        dialog.show()
+        dialog.showStyled()
     }
     private fun field(label: Int, tag: String, value: String, multiline: Boolean = false): EditText {
         val caption = HistoryViews.label(body, getString(label))
