@@ -1,6 +1,6 @@
 AI Agent は自然言語の目標を, AutoJs6 が動作する Android デバイス上の実際の操作に変えます. ユーザーがエージェント用に登録したスクリプトを選んでパラメーターを補い実行するか, アクセシビリティのノードツリーを通じて画面を観察し, 観察, 判断, 操作, 検証の循環で段階的に操作します. 目標を達成するか, 確認が必要になるか, 予算を使い切るまで続けます. [AutoJs6 ディスカッション #577](https://github.com/SuperMonster003/AutoJs6/discussions/577) への回答です.
 
-開発版 1.2.0 は任意の MCP ツール, ネイティブ呼び出し, スクリーンショット, 生成スクリプトを提供します. AiGoCode gpt-5.6-sol は P9.2 の初期画像とツール結果画像の検証に合格しました. P9.1 Wi-Fi 比較は未完了です. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
+開発版 1.2.0 は任意の MCP ツール, ネイティブ呼び出し, スクリーンショット, 生成スクリプトを提供します. AiGoCode gpt-5.6-sol は P9.2 の初期画像とツール結果画像の検証に合格しました. P9.1 の JSON/ネイティブ経路は, 現在のアクセスポイントへの自動接続を一時的に無効にし, モバイルデータと VPN 経由でモデルに接続する条件で, Wi-Fi の有効化と状態の再読み取りを完了しました. 既定の自動接続で VPN の接続先ネットワークが切り替わった後の失敗は未解決です. 証拠は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) を参照してください.
 
 ### 使い方
 

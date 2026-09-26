@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/26",
       "hint": [
-        "La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. Les comparaisons Wi-Fi P9.1 restent en attente; voir ROADMAP.md."
+        "La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. P9.1 a validé l'activation du Wi-Fi et la relecture de son état avec les parcours JSON et natif, en désactivant temporairement la connexion automatique au point d'accès actuel et en accédant au modèle via les données mobiles et le VPN. Les échecs après un changement de réseau du VPN avec la connexion automatique par défaut restent non résolus; voir ROADMAP.md."
       ],
       "feature": [
         "Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut"

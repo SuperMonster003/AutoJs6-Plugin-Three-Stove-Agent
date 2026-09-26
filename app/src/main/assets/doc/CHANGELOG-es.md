@@ -8,7 +8,7 @@
 
 ###### 2026/09/26
 
-* `Aviso` La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales, llamadas nativas, capturas y scripts generados. AiGoCode gpt-5.6-sol pasó las pruebas P9.2 de imagen inicial e imagen en resultados de herramientas. Las comparaciones Wi-Fi P9.1 siguen pendientes; consulte ROADMAP.md.
+* `Aviso` La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales, llamadas nativas, capturas y scripts generados. AiGoCode gpt-5.6-sol pasó las pruebas P9.2 de imagen inicial e imagen en resultados de herramientas. P9.1 completó la activación de Wi-Fi y la lectura posterior de su estado con las rutas JSON y nativa, desactivando temporalmente la conexión automática al punto de acceso actual y accediendo al modelo mediante datos móviles y VPN. Los fallos tras el cambio de red de la VPN con la conexión automática predeterminada siguen sin resolverse; consulte ROADMAP.md.
 * `Función` Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente
 * `Mejora` Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.
 

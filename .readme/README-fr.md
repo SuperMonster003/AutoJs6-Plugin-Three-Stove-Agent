@@ -52,7 +52,7 @@ AI Agent fournit une interface autonome et un plugin AutoJs6 accessible par ai.a
 
 ******
 
-La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. Les comparaisons Wi-Fi P9.1 restent en attente; voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. P9.1 a validé l'activation du Wi-Fi et la relecture de son état avec les parcours JSON et natif, en désactivant temporairement la connexion automatique au point d'accès actuel et en accédant au modèle via les données mobiles et le VPN. Les échecs après un changement de réseau du VPN avec la connexion automatique par défaut restent non résolus; voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -290,7 +290,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/26_
 
-- `Note` La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. Les comparaisons Wi-Fi P9.1 restent en attente; voir ROADMAP.md.
+- `Note` La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. P9.1 a validé l'activation du Wi-Fi et la relecture de son état avec les parcours JSON et natif, en désactivant temporairement la connexion automatique au point d'accès actuel et en accédant au modèle via les données mobiles et le VPN. Les échecs après un changement de réseau du VPN avec la connexion automatique par défaut restent non résolus; voir ROADMAP.md.
 - `Fonctionnalité` Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
 - `Amélioration` Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 
