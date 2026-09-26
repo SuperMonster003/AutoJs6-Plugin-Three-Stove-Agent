@@ -140,9 +140,9 @@ class ToolReply(result: JsonElement, val script: io.github.supermonster003.autoj
 }
 /** Both entry points return promptly; blocking bridge work belongs in the asynchronous adapter. */
 interface RunTools {
-    /** Read-only preparation: resolve node identity or script registration before risk admission.
+    /** Prepare host accessibility when needed, then resolve node identity or script registration before risk admission.
      * P3/P4 adapters must bind inspection and execution to the same target, or reject stale targets.
-     * No action, script start, memory write or other side effect is permitted here. */
+     * Apart from host accessibility startup, no action, script start or memory write is permitted here. */
     fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation
     /** Executes only the prepared invocation. P3 supplies script/local adapters; P4 supplies UI flows. */
     fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation

@@ -50,6 +50,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var root: LinearLayout? = null
     private var layout: WindowManager.LayoutParams? = null
     private var goalField: EditText? = null
+    private var fullAccessLabel: TextView? = null
     private var pending: PendingCard? = null
     private var pendingDraft = Bundle()
     private var statusLabel: TextView? = null
@@ -110,7 +111,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 val id = status.string("runningRunId") ?: active.firstOrNull()?.string("runId")
                 val run = id?.let { runtime.archive.get(it, 1, presentation = true) }
                 val presets = runtime.presets.snapshot()
-                status.addProperty("voiceEnabled", runtime.settings.snapshot().voice)
+                runtime.settings.snapshot().let { status.addProperty("voiceEnabled", it.voice); status.addProperty("fullAccessEnabled", it.fullAccess) }
                 WorkbenchSnapshot(status, active, run, presets.presets.map { it.name }, presets.defaultName)
             }.getOrNull()
             main.post {
@@ -150,6 +151,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 presetSpinner?.setSelection(names.indexOf(selectedPreset).coerceAtLeast(0))
             }
             voiceButton?.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(context)) View.VISIBLE else View.GONE
+            fullAccessLabel?.visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
             pending?.render(run)
             if (selectedPreset !in value.presets) message?.setText(R.string.history_preset_unavailable)
             val request = run?.getAsJsonObject("pending")?.takeIf { run.string("interaction") == "plugin" && it.flag("submitted") != true }
@@ -214,6 +216,9 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                     }
                 }
             }.apply { restore(pendingDraft) }
+            fullAccessLabel = HistoryViews.label(card, context.getString(R.string.settings_full_access)).apply {
+                tag = "floating-full-access"; visibility = View.GONE; setTextColor(AgentUi.palette(context, appearance).danger)
+            }
             HistoryViews.label(card, context.getString(R.string.workbench_goal_hint)).apply {
                 labelFor = R.id.workbench_goal
             }
@@ -370,7 +375,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private fun clearVisibility() { runtime.interactions.present(visibilityOwner, null, null) }
     private fun clearCard() {
         goalField = null; pending = null; statusLabel = null; stopButton = null; cardScroll = null; visibleRequest = null
-        sendButton = null; presetSpinner = null; voiceButton = null; message = null; presetNames = emptyList(); dimensions = null
+        sendButton = null; presetSpinner = null; voiceButton = null; fullAccessLabel = null; message = null; presetNames = emptyList(); dimensions = null
     }
     private fun rebuildWindow() {
         val body = root ?: return

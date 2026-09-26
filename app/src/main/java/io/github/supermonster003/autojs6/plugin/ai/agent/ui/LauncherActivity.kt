@@ -175,6 +175,7 @@ class LauncherActivity : HostAppearanceActivity() {
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
+        findViewById<View>(R.id.workbench_full_access).visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
         findViewById<Button>(R.id.workbench_voice).visibility = if (value.status.flag("voiceEnabled") == true &&
             SpeechInput.available(this)) View.VISIBLE else View.GONE
         availablePresets = value.presets
@@ -196,6 +197,8 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         val row = value.run
         currentId = row?.string("runId")
+        findViewById<View>(R.id.workbench_current_access).visibility = if (row?.flag("fullAccess") == true) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.workbench_accessibility).visibility = if (WorkbenchText.accessibilityBlocked(row)) View.VISIBLE else View.GONE
         findViewById<View>(R.id.workbench_current).visibility = if (row == null) View.GONE else View.VISIBLE
         if (row != null) {
             findViewById<TextView>(R.id.workbench_current_goal).text = row.string("goal")

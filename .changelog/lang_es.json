@@ -6,14 +6,20 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.2.0": {
-      "released_date": "2026/09/26",
+      "released_date": "2026/09/27",
       "hint": [
         "La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales, llamadas nativas, capturas y scripts generados. AiGoCode gpt-5.6-sol pasó las pruebas P9.2 de imagen inicial e imagen en resultados de herramientas. P9.1 completó la activación de Wi-Fi y la lectura posterior de su estado con las rutas JSON y nativa, desactivando temporalmente la conexión automática al punto de acceso actual y accediendo al modelo mediante datos móviles y VPN. Los fallos tras el cambio de red de la VPN con la conexión automática predeterminada siguen sin resolverse; consulte ROADMAP.md."
       ],
       "feature": [
         "Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente",
         "Abre AI Agent, conecta AutoJs6, elige un modelo local o en línea desde el inicio, introduce un objetivo y comienza. Busca modelos y consulta sus capacidades declaradas de herramientas e imágenes. La selección se recuerda para tareas nuevas sin editar preajustes ni cambiar la tarea en curso. Seguir preajuste / Automático restaura la selección heredada. El selector opcional de preajustes está en Opciones de tarea. Responde preguntas y sigue el progreso en la tarjeta de tarea.",
-        "Abre Ajustes desde el menú superior derecho. El idioma, modo oscuro y color pueden seguir AutoJs6 o configurarse por separado. El idioma y modo oscuro también pueden seguir Android. El historial y los avisos legales se incluyen sin conexión. Las comprobaciones manuales de GitHub guardan resultados correctos durante 24 horas. Las automáticas están desactivadas por defecto. Al activarlas se intentan durante el uso de la app, como máximo cada 12 horas, sin avisar de fallos ni versiones ignoradas y sin descargar APK. Gestionar actualizaciones ignoradas permite restaurar versiones individualmente."
+        "Abre Ajustes desde el menú superior derecho. El idioma, modo oscuro y color pueden seguir AutoJs6 o configurarse por separado. El idioma y modo oscuro también pueden seguir Android. El historial y los avisos legales se incluyen sin conexión. Las comprobaciones manuales de GitHub guardan resultados correctos durante 24 horas. Las automáticas están desactivadas por defecto. Al activarlas se intentan durante el uso de la app, como máximo cada 12 horas, sin avisar de fallos ni versiones ignoradas y sin descargar APK. Gestionar actualizaciones ignoradas permite restaurar versiones individualmente.",
+        "Las tareas de pantalla inician primero la accesibilidad con el método automático configurado en AutoJs6 (Root, ajustes seguros o Shizuku). Solo si falla o no hay ninguno configurado, la tarjeta de la tarea pide activarla y ofrece un acceso a los ajustes de accesibilidad.",
+        "Los permisos de operación de Ajustes incluyen Acceso completo: las herramientas activadas, incluidos pagos, borrados, scripts y escritura de memoria, se ejecutan sin aprobación. No activa grupos de herramientas adicionales ni relaja presupuestos o permisos del anfitrión. El panel, la burbuja flotante, la tarea actual y el detalle del historial muestran una etiqueta visible en lugar de un diálogo. Las tareas que piden explícitamente confirmación prudente la mantienen.",
+        "Las tarjetas de confirmación añaden Permitir siempre en esta sesión: hasta que termine la tarea, la misma herramienta con el mismo nivel de riesgo se ejecuta sin volver a preguntar, aunque cambien los argumentos. Los pagos requieren su propia aprobación; los scripts generados y las propuestas de memoria también pueden permitirse para la sesión."
+      ],
+      "fix": [
+        "Un servicio de accesibilidad de AutoJs6 detenido se comunica al modelo como A11Y_SERVICE_NOT_RUNNING en lugar de un error de argumentos"
       ],
       "improvement": [
         "Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.",

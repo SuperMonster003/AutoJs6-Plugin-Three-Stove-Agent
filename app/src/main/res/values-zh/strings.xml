@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">打开无障碍设置</string>
+    <string name="accessibility_start_failed">无障碍自动启动失败. 请在系统设置中开启 AutoJs6 无障碍服务, 然后继续任务.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">未完成项</string>
     <string name="history_until">截止日期</string>
     <string name="history_usage">用量: %1$s</string>
-    <string name="interaction_allow_run">本次任务内允许此工具的同级风险操作</string>
+    <string name="interaction_allow_run">当前会话始终允许</string>
+    <string name="interaction_allow_run_note">允许当前工具在同一风险等级下执行至本次任务结束, 包括参数变化后的调用. 付款操作需单独授权, 其他工具仍按所选策略确认.</string>
     <string name="interaction_channel">询问与确认</string>
     <string name="interaction_confirmation">操作需要确认</string>
     <string name="interaction_expired">此请求已结束. 请打开任务台查看当前任务.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">查看完整源码</string>
     <string name="script_dynamic_redacted">此源码中已移除后续识别的密码, 无法从该步骤保存原始脚本.</string>
     <string name="script_dynamic_save">保存生成的脚本</string>
-    <string name="script_dynamic_save_note">保存前请检查完整源码. 选择 AutoJs6 工作目录或已批准的脚本目录. 新文件会加入敏感级别的 @agent 登记, 每次执行都需确认. 若选择其他共享目录, 请在下次扫描前将其添加到脚本目录设置. 保存不会执行脚本.</string>
+    <string name="script_dynamic_save_note">保存前请检查完整源码. 选择 AutoJs6 工作目录或已批准的脚本目录. 新文件会加入敏感级别的 @agent 登记, 执行前按所选确认策略确认. 若选择其他共享目录, 请在下次扫描前将其添加到脚本目录设置. 保存不会执行脚本.</string>
     <string name="script_dynamic_saved">脚本已保存. 所在目录包含在下次扫描范围内时, 宿主才能发现它.</string>
     <string name="script_dynamic_source">生成的 JavaScript 源码</string>
     <string name="script_dynamic_source_summary">源码: %1$d 字节, %2$d 行</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">宿主尚未接受这些目录. 请检查路径是否存在于共享存储中, 且不是工作目录的上级.</string>
     <string name="script_roots_save">保存目录</string>
     <string name="script_roots_title">脚本目录</string>
+    <string name="settings_access_mode">操作权限</string>
     <string name="settings_budget_note">预算留空使用内置默认值: 40 步, 60 次模型调用, 10 分钟 (独立任务 30 分钟), 300000 token. 上限: 200 步, 300 次调用, 30 分钟 (独立任务 60 分钟), 1000000 token. 下方时长单位为毫秒.</string>
     <string name="settings_clear">清除数据</string>
     <string name="settings_clear_confirm">删除此类全部条目? 此操作无法撤销, 须在任务空闲时进行.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">数据管理</string>
     <string name="settings_error">无法读取或保存设置. 请检查限制后重试. 清除数据前请先停止运行中的任务.</string>
     <string name="settings_floating">启用悬浮球</string>
+    <string name="settings_full_access">完全访问</string>
+    <string name="settings_full_access_note">完全访问: 所有已启用工具均可免确认执行, 包括付款, 删除, 脚本及记忆写入. 对新任务覆盖预设的确认策略. 开始前请核对任务目标.</string>
     <string name="settings_license">许可证</string>
     <string name="settings_notices">第三方声明</string>
     <string name="settings_ocr_note">启用 OCR 组后, 宿主检测到已授权的识别插件时会自动提供 OCR.</string>

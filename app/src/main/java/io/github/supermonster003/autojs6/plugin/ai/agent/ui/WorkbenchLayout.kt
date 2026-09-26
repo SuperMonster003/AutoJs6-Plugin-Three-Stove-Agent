@@ -19,6 +19,9 @@ internal object WorkbenchLayout {
         AgentUi.action(connection, R.string.launcher_open_host, "host") {}.id = R.id.launcher_open_host
 
         val composer = AgentUi.card(body)
+        AgentUi.text(composer, activity.getString(R.string.settings_full_access_note), 13).apply {
+            id = R.id.workbench_full_access; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
+        }
         AgentUi.row(composer, activity.getString(R.string.ui_choose_model), activity.getString(R.string.ui_model_inherit), "model") {}.id = R.id.workbench_model
         AgentUi.text(composer, activity.getString(R.string.workbench_goal_label), 16, true).labelFor = R.id.workbench_goal
         composer.addView(EditText(activity).apply {
@@ -49,12 +52,22 @@ internal object WorkbenchLayout {
         }
         val current = AgentUi.card(body).apply { id = R.id.workbench_current; visibility = View.GONE }
         AgentUi.section(current, R.string.workbench_current)
+        AgentUi.text(current, activity.getString(R.string.settings_full_access), 14, true).apply {
+            id = R.id.workbench_current_access; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
+        }
         AgentUi.text(current, "", 19, true).apply { id = R.id.workbench_current_goal; setTextIsSelectable(true) }
         AgentUi.text(current, "", 14, true).apply { id = R.id.workbench_state; setTextColor(AgentUi.palette(activity).accent); accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
         AgentUi.text(current, "", 15).apply { id = R.id.workbench_step; setTextIsSelectable(true) }
         current.addView(ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply { id = R.id.workbench_progress }, LinearLayout.LayoutParams(-1, AgentUi.dp(activity, 8)))
         AgentUi.text(current, "", 12).apply { id = R.id.workbench_budget; setTextColor(AgentUi.palette(activity).muted) }
         current.addView(AgentUi.column(activity, 0).apply { id = R.id.workbench_pending })
+        AgentUi.column(activity, 0).apply {
+            id = R.id.workbench_accessibility; visibility = View.GONE; current.addView(this)
+            AgentUi.text(this, activity.getString(R.string.accessibility_start_failed), 14)
+            AgentUi.action(this, R.string.accessibility_open_settings, "accessibility-settings") {
+                activity.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+        }
         AgentUi.action(current, R.string.task_stop, "stop") {}.apply { id = R.id.workbench_stop; AgentUi.role(this, "danger") }
         AgentUi.action(current, R.string.workbench_details, "details") {}.id = R.id.workbench_details
         AgentUi.section(body, R.string.workbench_recent)

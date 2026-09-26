@@ -83,6 +83,9 @@ class RunDetailActivity : HostAppearanceActivity() {
         label(value.string("goal").orEmpty(), true)
         label(WorkbenchText.state(this, value)); label(HistoryViews.date(this, value.number("startedAt") ?: 0))
         label(getString(R.string.history_preset_value, value.string("preset").orEmpty()))
+        if (value.flag("fullAccess") == true) label(getString(R.string.settings_full_access)).apply {
+            tag = "full-access"; setTextColor(AgentUi.palette(this@RunDetailActivity).danger)
+        }
         label(WorkbenchText.budget(this, value))
         val actions = AgentUi.disclosure(body, R.string.ui_task_options)
         HistoryViews.button(actions, R.string.history_rerun, "rerun") {

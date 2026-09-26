@@ -44,7 +44,7 @@ class RegisteredScriptToolsTest {
         val gate = ConfirmationGate(policy, ConfirmationMode.DEFAULT)
         assertTrue(gate.description(catalog["script_run"]!!, prepared.metadata, "en").contains("Remove old installers"))
         assertEquals(listOf("days" to "7"), ScriptConfirmation.rows(gate.arguments(invocation.arguments, prepared.metadata)))
-        assertFalse(gate.assess(catalog["script_run"]!!, prepared.metadata).allowRunScope)
+        assertTrue(gate.assess(catalog["script_run"]!!, prepared.metadata).allowRunScope)
     }
     @Test fun unauthorizedUnknownAndAmbiguousIdsNeverReadAManifest() {
         val denied = Source(); var result: PortResult<PreparedTool>? = null

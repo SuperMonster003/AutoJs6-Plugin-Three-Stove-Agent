@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">ユーザー補助設定を開く</string>
+    <string name="accessibility_start_failed">ユーザー補助の自動起動に失敗しました. システム設定で AutoJs6 のユーザー補助サービスを有効にしてからタスクを続けてください.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">未完了の項目</string>
     <string name="history_until">終了日</string>
     <string name="history_usage">使用量: %1$s</string>
-    <string name="interaction_allow_run">このタスクで同じツールの同じリスクを許可</string>
+    <string name="interaction_allow_run">このセッションでは常に許可</string>
+    <string name="interaction_allow_run_note">現在のタスクが終了するまで, 引数が変わっても同じツールの同じリスクレベルの操作を許可します. 支払いは別途許可が必要で, 他のツールは選択した確認設定に従います.</string>
     <string name="interaction_channel">質問と確認</string>
     <string name="interaction_confirmation">操作の確認が必要です</string>
     <string name="interaction_expired">このリクエストは終了しました. タスク画面で現在のタスクを確認してください.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">ソース全文を表示</string>
     <string name="script_dynamic_redacted">後で検出されたパスワードをこのソースから除去しました. この手順から元のスクリプトは保存できません.</string>
     <string name="script_dynamic_save">生成スクリプトを保存</string>
-    <string name="script_dynamic_save_note">保存前にソース全文を確認してください. AutoJs6 の作業ディレクトリか承認済みのスクリプトディレクトリを選びます. 新しいファイルには sensitive の @agent 登録が付き, 毎回確認が必要です. 別の共有ディレクトリを選んだ場合は, 次のカタログ走査までにスクリプトディレクトリへ追加してください. 保存では実行しません.</string>
+    <string name="script_dynamic_save_note">保存前にソース全文を確認してください. AutoJs6 の作業ディレクトリか承認済みのスクリプトディレクトリを選びます. 新しいファイルには sensitive の @agent 登録が付き, 実行前は選択した確認設定に従います. 別の共有ディレクトリを選んだ場合は, 次のカタログ走査までにスクリプトディレクトリへ追加してください. 保存では実行しません.</string>
     <string name="script_dynamic_saved">スクリプトを保存しました. ディレクトリが次のカタログ走査に含まれるとホストが検出できます.</string>
     <string name="script_dynamic_source">生成された JavaScript ソース</string>
     <string name="script_dynamic_source_summary">ソース: %1$d バイト, %2$d 行</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">ホストがディレクトリを受け入れていません. 共有ストレージ内に存在し, 作業ディレクトリの親でないことを確認してください.</string>
     <string name="script_roots_save">ディレクトリを保存</string>
     <string name="script_roots_title">スクリプトディレクトリ</string>
+    <string name="settings_access_mode">操作の権限</string>
     <string name="settings_budget_note">空欄は既定値: 40 ステップ, モデル呼び出し 60 回, 10 分 (独立タスクは 30 分), 300000 トークン. 上限: 200 ステップ, 300 回, 30 分 (独立タスクは 60 分), 1000000 トークン. 下の時間はミリ秒です.</string>
     <string name="settings_clear">データを消去</string>
     <string name="settings_clear_confirm">この種類の全項目を削除しますか? 元に戻せません. タスクが停止している必要があります.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">データ管理</string>
     <string name="settings_error">設定を読み込みまたは保存できません. 制限を確認して再試行してください. データ消去前に実行中のタスクを停止してください.</string>
     <string name="settings_floating">フローティングボールを有効にする</string>
+    <string name="settings_full_access">フルアクセス</string>
+    <string name="settings_full_access_note">フルアクセス: 支払い, 削除, スクリプト, メモリの書き込みを含む有効なすべてのツールを承認なしで実行します. 新しいタスクではプリセットの確認設定より優先されます. 開始前に目標を確認してください.</string>
     <string name="settings_license">ライセンス</string>
     <string name="settings_notices">第三者に関する表示</string>
     <string name="settings_ocr_note">OCR グループが有効で, ホストが承認済みの認識プラグインを検出すると OCR が利用できます.</string>

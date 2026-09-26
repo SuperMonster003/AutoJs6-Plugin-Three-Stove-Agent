@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">فتح إعدادات تسهيل الاستخدام</string>
+    <string name="accessibility_start_failed">تعذر بدء خدمة تسهيل الاستخدام تلقائيا. فعل خدمة AutoJs6 من إعدادات النظام ثم تابع المهمة.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">العمل غير المكتمل</string>
     <string name="history_until">تاريخ النهاية</string>
     <string name="history_usage">الاستخدام: %1$s</string>
-    <string name="interaction_allow_run">السماح بهذه الأداة بهذا المستوى من المخاطر لهذه المهمة</string>
+    <string name="interaction_allow_run">السماح دائما في هذه الجلسة</string>
+    <string name="interaction_allow_run_note">يسمح لهذه الأداة بهذا المستوى من المخاطر حتى تنتهي المهمة الحالية, حتى إذا تغيرت المعلمات. يحتاج الدفع إلى موافقة منفصلة, وتتبع الأدوات الأخرى السياسة المحددة.</string>
     <string name="interaction_channel">الأسئلة والتأكيدات</string>
     <string name="interaction_confirmation">الإجراء يحتاج إلى تأكيد</string>
     <string name="interaction_expired">انتهى هذا الطلب. افتح لوحة المهام لعرض المهمة الحالية.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">عرض المصدر الكامل</string>
     <string name="script_dynamic_redacted">أزيلت كلمة مرور اكتشفت لاحقا من هذا المصدر. لا يمكن حفظ السكربت الأصلي من هذه الخطوة.</string>
     <string name="script_dynamic_save">حفظ السكربت المولد</string>
-    <string name="script_dynamic_save_note">راجع المصدر الكامل قبل الحفظ. اختر مجلد عمل AutoJs6 أو مجلد سكربتات معتمدا. يتضمن الملف الجديد تسجيلا حساسا @agent ويتطلب التأكيد دائما. إذا اخترت مجلدا مشتركا آخر, فأضفه في مجلدات السكربتات قبل فحص الفهرس التالي. الحفظ لا يشغل السكربت.</string>
+    <string name="script_dynamic_save_note">راجع المصدر الكامل قبل الحفظ. اختر مجلد عمل AutoJs6 أو مجلد سكربتات معتمدا. يتضمن الملف الجديد تسجيلا حساسا @agent ويخضع لسياسة التأكيد المحددة. إذا اخترت مجلدا مشتركا آخر, فأضفه في مجلدات السكربتات قبل فحص الفهرس التالي. الحفظ لا يشغل السكربت.</string>
     <string name="script_dynamic_saved">تم حفظ السكربت. يمكن للمضيف اكتشافه إذا كان مجلده مشمولا في فحص الفهرس التالي.</string>
     <string name="script_dynamic_source">مصدر JavaScript المولد</string>
     <string name="script_dynamic_source_summary">المصدر: %1$d بايت, %2$d أسطر</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">لم يقبل المضيف هذه المجلدات. تحقق من وجودها في التخزين المشترك وألا تحتوي على مجلد العمل.</string>
     <string name="script_roots_save">حفظ المجلدات</string>
     <string name="script_roots_title">مجلدات السكربتات</string>
+    <string name="settings_access_mode">أذونات العمليات</string>
     <string name="settings_budget_note">اترك الميزانية فارغة للقيم الافتراضية: 40 خطوة, 60 استدعاء للنموذج, 10 دقائق (30 للمهام المستقلة), 300000 رمز. الحدود القصوى: 200 خطوة, 300 استدعاء, 30 دقيقة (60 للمستقلة), 1000000 رمز. المدد أدناه بالمللي ثانية.</string>
     <string name="settings_clear">مسح البيانات</string>
     <string name="settings_clear_confirm">حذف جميع عناصر هذه الفئة? لا يمكن التراجع. يجب ألا تكون هناك مهام نشطة.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">إدارة البيانات</string>
     <string name="settings_error">تعذرت قراءة الإعدادات أو حفظها. تحقق من الحدود وأعد المحاولة. أوقف المهام النشطة قبل مسح البيانات.</string>
     <string name="settings_floating">تفعيل الكرة العائمة</string>
+    <string name="settings_full_access">وصول كامل</string>
+    <string name="settings_full_access_note">وصول كامل: تعمل جميع الأدوات المفعلة دون موافقة, بما فيها الدفع والحذف والبرامج النصية والكتابة في الذاكرة. يتجاوز هذا الخيار سياسة تأكيد الإعداد المسبق للمهام الجديدة. راجع الهدف قبل البدء.</string>
     <string name="settings_license">الترخيص</string>
     <string name="settings_notices">إشعارات الجهات الخارجية</string>
     <string name="settings_ocr_note">يتاح OCR تلقائيا عند تفعيل المجموعة واكتشاف المضيف إضافة تعرف مصرح بها.</string>

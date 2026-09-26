@@ -194,7 +194,7 @@ class AgentRunner internal constructor(
         if (!canContinue()) return
         val b = checkNotNull(budget)
         if (policy.isOrderGoal(options.goal)) doneRules.requireOrderStatus()
-        val guidance = loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) }
+        val guidance = verificationGuidance()
         val continuation = nativeTurn?.continuation
         val results = if (continuation == null) emptyList() else nativeResults.toList()
         val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance, observationImages))
@@ -274,6 +274,12 @@ class AgentRunner internal constructor(
         }
     }
 
+    // The default policy is implied, which keeps the compact local-model prompt inside its budget.
+    private fun verificationGuidance() = loopRules.guidance().apply {
+        addProperty("orderStatusRequired", doneRules.orderStatusRequired)
+        if (options.confirmationMode != ConfirmationMode.DEFAULT) addProperty("confirmationMode", options.confirmationMode.name.lowercase(Locale.ROOT))
+    }
+
     private fun prepareTool(value: AgentDecision.Tool) {
         if (!canContinue()) return
         val b = checkNotNull(budget)
@@ -351,6 +357,8 @@ class AgentRunner internal constructor(
         (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
         observation = scriptParameters?.observation() ?: jsonObject("error" to error.name.json()).apply {
+            if (error == RunError.A11Y_SERVICE_NOT_RUNNING) addProperty("hint",
+                "AutoJs6 accessibility is not running and automatic startup failed or is not configured. Ask the user to enable it, then observe again before acting.")
             mcpReason?.let { addProperty("reason", it) }
         }.toString()
         observationImages = emptyList()
@@ -529,7 +537,7 @@ class AgentRunner internal constructor(
         // string after escaping so even a 32-call batch stays inside the negotiated envelope limit.
         val result = AgentJson.objectOf(value, ToolObservation.DEFAULT_MAX_BYTES).apply {
             add("remaining_budget", checkNotNull(budget).remainingJson())
-            add("verification", loopRules.guidance().apply { addProperty("orderStatusRequired", doneRules.orderStatusRequired) })
+            add("verification", verificationGuidance())
         }
         val allowance = (limits.batchBytes - 256) / turn.calls.size
         var maximum = minOf(ToolObservation.DEFAULT_MAX_BYTES, limits.resultBytes, allowance - 256)

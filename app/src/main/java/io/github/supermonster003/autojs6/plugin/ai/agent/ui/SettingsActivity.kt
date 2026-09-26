@@ -29,7 +29,7 @@ class SettingsActivity : HostAppearanceActivity() {
     private var saving = false
     private val groups = linkedMapOf<String, CheckBox>()
     private val budgets = linkedMapOf<String, EditText>()
-    private lateinit var cautious: CheckBox
+    private lateinit var confirmation: Spinner
     private lateinit var voice: CheckBox
     private lateinit var floating: CheckBox
     private var awaitingOverlayPermission = false
@@ -99,7 +99,26 @@ class SettingsActivity : HostAppearanceActivity() {
             }
         }
         column = options
-        cautious = checkbox(R.string.presets_cautious, "cautious", form.flag("cautious") == true)
+        val confirmationLabel = HistoryViews.label(column, getString(R.string.settings_access_mode))
+        confirmation = Spinner(this).apply {
+            id = View.generateViewId(); tag = "confirmation-mode"; confirmationLabel.labelFor = id
+            contentDescription = getString(R.string.settings_access_mode)
+            adapter = ArrayAdapter(this@SettingsActivity, R.layout.item_spinner_choice,
+                listOf(R.string.presets_standard, R.string.presets_cautious, R.string.settings_full_access).map(::getString))
+            setSelection(when { form.flag("fullAccess") == true -> 2; form.flag("cautious") == true -> 1; else -> 0 })
+            column.addView(this, LinearLayout.LayoutParams(-1, -2))
+        }
+        val accessNote = HistoryViews.label(column, getString(R.string.settings_full_access_note)).apply {
+            tag = "full-access-note"; setTextColor(AgentUi.palette(this@SettingsActivity).danger)
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            visibility = if (confirmation.selectedItemPosition == 2) View.VISIBLE else View.GONE
+        }
+        confirmation.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                accessNote.visibility = if (position == 2) View.VISIBLE else View.GONE
+            }
+        }
         voice = checkbox(R.string.settings_voice, "voice", form.flag("voice") == true)
         floating = checkbox(R.string.settings_floating, "floating", form.flag("floating") == true && Settings.canDrawOverlays(this))
         HistoryViews.label(column, getString(R.string.floating_setting_note))
@@ -205,12 +224,13 @@ class SettingsActivity : HostAppearanceActivity() {
             .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.ui_discard) { _, _ -> finish() }.showStyled()
     }
     override fun navigateBack() { requestExit() }
-    private fun readDraft() = jsonObject("version" to 2.json(), "toolGroups" to JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) },
+    private fun readDraft() = jsonObject("version" to 3.json(), "toolGroups" to JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) },
         "budget" to JsonObject().apply { budgets.forEach { (key, field) ->
             val text = field.text.toString().trim(); if (text.isNotEmpty()) {
                 val number = text.toLongOrNull(); if (number == null) addProperty(key, text) else addProperty(key, number)
             }
-        } }, "cautious" to cautious.isChecked.json(), "voice" to voice.isChecked.json(), "floating" to floating.isChecked.json())
+        } }, "cautious" to (confirmation.selectedItemPosition == 1).json(), "fullAccess" to (confirmation.selectedItemPosition == 2).json(),
+        "voice" to voice.isChecked.json(), "floating" to floating.isChecked.json())
     companion object {
         internal val budgetLabels = linkedMapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             "maxDurationMs" to R.string.presets_duration, "maxTotalTokens" to R.string.presets_tokens)

@@ -20,8 +20,8 @@ class NativeRunnerTest {
         val tools = FakeTools()
         val events = mutableListOf<RunEvent>()
         val queue = RunQueue(scheduler, catalog, policy, compiler, client, tools) { RunnerText(F.asset("runner/texts.json"), it) }
-        fun start(limits: BudgetLimits = BudgetLimits(), timeout: Long = 3000) = queue.submit(
-            RunOptions("Verify the task", format, limits = limits, modelTimeoutMs = timeout), events::add).also { scheduler.drain() }
+        fun start(limits: BudgetLimits = BudgetLimits(), timeout: Long = 3000, mode: ConfirmationMode = ConfirmationMode.DEFAULT) = queue.submit(
+            RunOptions("Verify the task", format, limits = limits, modelTimeoutMs = timeout, confirmationMode = mode), events::add).also { scheduler.drain() }
         fun request() = events.last { it.type == "confirmation" }.payload.string("requestId")!!
         fun error(run: AgentRunner) = run.result!!.getAsJsonObject("error").string("code")
         fun batch(vararg calls: com.google.gson.JsonObject) { broker.start = {
@@ -66,23 +66,30 @@ class NativeRunnerTest {
         val f = Fixture(); f.batch(NativeTestBroker.call("one"), NativeTestBroker.call("two")); f.done()
         f.tools.metadata = { ToolMetadata(forceConfirmation = true) }
         val run = f.start()
-        run.confirm(f.request(), true, ConfirmationScope.RUN); f.scheduler.drain()
-        assertEquals(RunState.WAITING_CONFIRMATION, run.state); assertTrue(f.tools.executions.isEmpty())
         run.confirm(f.request(), true); f.scheduler.drain()
         assertEquals(1, f.tools.executions.size); assertTrue(f.broker.submissions.isEmpty())
         run.confirm(f.request(), true); f.scheduler.drain()
         assertEquals(RunState.COMPLETED, run.state); assertEquals(2, f.tools.executions.size)
     }
-    @Test fun paymentCannotReceiveRunScopeOrExecuteAfterDenial() {
+    @Test fun paymentCannotExecuteAfterDenial() {
         val f = Fixture(); f.batch(NativeTestBroker.call("one", "ui_click", "{\"selector\":{\"text\":\"Pay\"}}"))
         f.tools.metadata = { ToolMetadata(payment = true) }
         f.broker.resume = { call, _ -> call.usage(25, 9); call.done(RunnerFixture.done("blocked", "Denied", unfinished = listOf("Payment denied"), orderStatus = "none")) }
         val run = f.start(); assertEquals(RunState.WAITING_CONFIRMATION, run.state)
-        run.confirm(f.request(), true, ConfirmationScope.RUN); f.scheduler.drain()
-        assertEquals(RunState.WAITING_CONFIRMATION, run.state); assertTrue(f.tools.executions.isEmpty())
         run.confirm(f.request(), false); f.scheduler.drain()
         assertEquals(RunState.BLOCKED, run.state); assertTrue(f.tools.executions.isEmpty())
         assertTrue(f.broker.submissions.single().toString().contains("USER_DENIED"))
+    }
+    @Test fun sessionApprovalAndFullAccessBothContinueNativeBatchesWithoutRepeatedPrompts() {
+        for (fullAccess in listOf(false, true)) {
+            val f = Fixture(); f.batch(NativeTestBroker.call("one"), NativeTestBroker.call("two")); f.done()
+            f.tools.metadata = { ToolMetadata(forceConfirmation = true) }
+            val run = f.start(mode = if (fullAccess) ConfirmationMode.FULL_ACCESS else ConfirmationMode.DEFAULT)
+            if (!fullAccess) { run.confirm(f.request(), true, ConfirmationScope.RUN); f.scheduler.drain() }
+            assertEquals(RunState.COMPLETED, run.state); assertEquals(2, f.tools.executions.size)
+            assertEquals(if (fullAccess) 0 else 1, f.events.count { it.type == "confirmation" })
+            assertEquals(1, f.broker.submissions.size)
+        }
     }
     @Test fun maximumBatchCompactsEscapedOutputAndKeepsAllCallIds() {
         val f = Fixture(); f.batch(*(1..32).map { NativeTestBroker.call("call-$it") }.toTypedArray()); f.done()

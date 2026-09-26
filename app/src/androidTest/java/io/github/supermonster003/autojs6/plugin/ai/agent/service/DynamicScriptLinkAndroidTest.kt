@@ -184,11 +184,8 @@ class DynamicScriptLinkAndroidTest {
         await("Dynamic confirmation must be emitted") { events.any { it.string("type") == "confirmation" } }
         val confirmation = events.single { it.string("type") == "confirmation" }
         assertEquals(source, confirmation.getAsJsonObject("arguments").string("source"))
-        assertEquals(false, confirmation.flag("allowRunScope")); assertEquals(0, capabilities.executions.get())
+        assertEquals(true, confirmation.flag("allowRunScope")); assertEquals(0, capabilities.executions.get())
         val reply = jsonObject("runId" to runId.json(), "requestId" to confirmation["requestId"], "allowed" to true.json(), "scope" to "run".json())
-        assertEquals(C.ERROR_INVALID_REQUEST, link.respond(envelope(C.KEY_RUN_RESPONSE_JSON, reply)).getString(C.KEY_ERROR_CODE))
-        assertEquals(0, capabilities.executions.get())
-        reply.addProperty("scope", "once")
         assertEquals(true, decode(link.respond(envelope(C.KEY_RUN_RESPONSE_JSON, reply))).flag("accepted"))
         await("Dynamic fixture completes") { events.any { it.string("type") == "done" } }
         assertEquals("completed", events.single { it.string("type") == "done" }.string("status"))

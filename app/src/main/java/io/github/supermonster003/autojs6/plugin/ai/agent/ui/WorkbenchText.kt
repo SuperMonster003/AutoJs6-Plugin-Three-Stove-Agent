@@ -22,6 +22,10 @@ internal object WorkbenchText {
         else -> R.string.run_running
     })
     fun summary(row: JsonObject): String = row.getAsJsonObject("result")?.string("summary").orEmpty()
+    /** The latest tool attempt could not reach host accessibility even after unattended startup. A later ask step keeps it visible. */
+    fun accessibilityBlocked(row: JsonObject?): Boolean = row?.getAsJsonArray("steps")?.lastOrNull {
+        it.isJsonObject && it.asJsonObject.has("tool")
+    }?.asJsonObject?.string("error") == "A11Y_SERVICE_NOT_RUNNING"
     fun budget(context: Context, row: JsonObject): String {
         val limits = row.getAsJsonObject("budget") ?: return ""
         return context.getString(R.string.workbench_budget, row.number("step") ?: 0, limits.number("maxSteps") ?: 0,

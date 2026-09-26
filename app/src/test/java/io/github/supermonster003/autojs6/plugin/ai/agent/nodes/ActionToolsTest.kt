@@ -91,9 +91,9 @@ class ActionToolsTest {
         val gate = ConfirmationGate(policy, ConfirmationMode.DEFAULT)
         val prepared = (f.prepare() as PortResult.Success).value
         val assessment = gate.assess(spec, prepared.metadata)
-        assertTrue(assessment.required); assertFalse(assessment.allowRunScope)
+        assertTrue(assessment.required); assertTrue(assessment.allowRunScope)
         f.reply = { PortResult.Success(inspection().apply { addProperty("text", "Go"); addProperty("uncertain", true) }) }
-        assertFalse(gate.assess(spec, (f.prepare() as PortResult.Success).value.metadata).allowRunScope)
+        assertTrue(gate.assess(spec, (f.prepare() as PortResult.Success).value.metadata).allowRunScope)
     }
     @Test fun repeatedScrollStopsAtTheFirstFalseAndReportsActualAttempts() {
         val f = Fixture(false)

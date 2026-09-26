@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">Открыть специальные возможности</string>
+    <string name="accessibility_start_failed">Автоматический запуск специальных возможностей не удался. Включите службу AutoJs6 в настройках системы и продолжите задачу.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">Незавершенная работа</string>
     <string name="history_until">Конечная дата</string>
     <string name="history_usage">Использование: %1$s</string>
-    <string name="interaction_allow_run">Разрешить этот инструмент с этим риском для текущей задачи</string>
+    <string name="interaction_allow_run">Всегда разрешать в этом сеансе</string>
+    <string name="interaction_allow_run_note">Разрешает этот инструмент с этим уровнем риска до завершения задачи, даже при изменении аргументов. Оплата требует отдельного разрешения; остальные инструменты следуют выбранным правилам.</string>
     <string name="interaction_channel">Вопросы и подтверждения</string>
     <string name="interaction_confirmation">Действие требует подтверждения</string>
     <string name="interaction_expired">Этот запрос завершен. Откройте задачи для просмотра текущей задачи.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">Показать весь код</string>
     <string name="script_dynamic_redacted">Из этого кода удален пароль, обнаруженный позднее. Исходный скрипт нельзя сохранить из этого шага.</string>
     <string name="script_dynamic_save">Сохранить созданный скрипт</string>
-    <string name="script_dynamic_save_note">Проверьте весь код перед сохранением. Выберите рабочий каталог AutoJs6 или разрешенный каталог скриптов. Новый файл содержит регистрацию @agent с риском sensitive и всегда требует подтверждения. Другой общий каталог сначала добавьте в каталоги скриптов. Сохранение не запускает скрипт.</string>
+    <string name="script_dynamic_save_note">Проверьте весь код перед сохранением. Выберите рабочий каталог AutoJs6 или разрешенный каталог скриптов. Новый файл содержит регистрацию @agent с риском sensitive и подтверждается по выбранным правилам. Другой общий каталог сначала добавьте в каталоги скриптов. Сохранение не запускает скрипт.</string>
     <string name="script_dynamic_saved">Скрипт сохранен. Хост обнаружит его, если каталог включен в следующее сканирование.</string>
     <string name="script_dynamic_source">Созданный код JavaScript</string>
     <string name="script_dynamic_source_summary">Код: %1$d байт, %2$d строк</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">Хост не принял эти каталоги. Проверьте, что они существуют в общем хранилище и не содержат рабочий каталог.</string>
     <string name="script_roots_save">Сохранить каталоги</string>
     <string name="script_roots_title">Каталоги скриптов</string>
+    <string name="settings_access_mode">Разрешения операций</string>
     <string name="settings_budget_note">Пустые поля используют исходные значения: 40 шагов, 60 вызовов модели, 10 минут (30 для независимых задач), 300000 токенов. Максимумы: 200 шагов, 300 вызовов, 30 минут (60 независимых), 1000000 токенов. Время ниже задается в миллисекундах.</string>
     <string name="settings_clear">Очистить данные</string>
     <string name="settings_clear_confirm">Удалить все записи этой категории? Отмена невозможна. Активных задач быть не должно.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">Управление данными</string>
     <string name="settings_error">Не удалось прочитать или сохранить настройки. Проверьте ограничения и повторите. Перед очисткой данных остановите активные задачи.</string>
     <string name="settings_floating">Включить плавающую кнопку</string>
+    <string name="settings_full_access">Полный доступ</string>
+    <string name="settings_full_access_note">Полный доступ: все включенные инструменты, включая оплату, удаление, скрипты и запись в память, работают без подтверждения. Для новых задач этот режим заменяет правила подтверждения профиля. Проверьте цель перед запуском.</string>
     <string name="settings_license">Лицензия</string>
     <string name="settings_notices">Уведомления третьих сторон</string>
     <string name="settings_ocr_note">OCR доступно автоматически, если группа включена и хост обнаружил разрешенный плагин распознавания.</string>

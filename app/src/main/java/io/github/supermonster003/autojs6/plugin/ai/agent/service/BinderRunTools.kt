@@ -6,6 +6,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ObservationTools
 import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ActionTools
+import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.AccessibilityPreparation
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptCatalogSnapshot
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
@@ -25,7 +26,14 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
     private val actions = ActionTools(scheduler, observations, { request, callback ->
         dispatch(request.copy(timeoutMs = minOf(request.timeoutMs, maximumTimeoutMs)), callback)
     }, "accessibility.dump" in methods && "accessibility" in permissions)
+    private val accessibility = AccessibilityPreparation(scheduler, ::dispatch)
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
+        if (alive() && AccessibilityPreparation.required(invocation) && "accessibility.ensureEnabled" in methods && "accessibility" in permissions) {
+            return accessibility.prepare(minOf(timeoutMs, maximumTimeoutMs), callback) { remaining, complete -> inspect(invocation, remaining, complete) }
+        }
+        return inspect(invocation, timeoutMs, callback)
+    }
+    private fun inspect(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
         if (!alive()) callback(PortResult.Failure(RunError.HOST_UNAVAILABLE))
         else if (invocation.name in ActionTools.NAMES) return actions.prepare(invocation, timeoutMs, callback)
         else if (invocation.name !in IMPLEMENTED) callback(PortResult.Failure(RunError.TOOL_DISABLED))
@@ -183,6 +191,9 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
             val recognized = setOf("A11Y_SERVICE_NOT_RUNNING", "NODE_REF_STALE", "NODE_NOT_FOUND", "SCREEN_LOCKED", "OCR_PLUGIN_REQUIRED",
                 "SCRIPT_NOT_REGISTERED", "SCRIPT_TIMEOUT", "SCRIPT_FAILED", "CANCELLED", "CAPABILITY_DENIED", "QUOTA_EXCEEDED", "LIMIT_EXCEEDED", "RATE_LIMITED")
             if (stable in recognized) return RunError.valueOf(stable!!)
+            // The host reports a stopped accessibility service as an unavailable capability provider.
+            if (error?.string("category") == H.ERROR_UNAVAILABLE && error.string("module") in setOf("accessibility", "keys") &&
+                error.string("message")?.contains("accessibility capability provider") == true) return RunError.A11Y_SERVICE_NOT_RUNNING
             return when (error?.string("category")) {
                 H.ERROR_PROCESS_DEAD -> RunError.HOST_UNAVAILABLE
                 H.ERROR_PERMISSION_DENIED, H.ERROR_CAPABILITY_DENIED -> RunError.CAPABILITY_DENIED

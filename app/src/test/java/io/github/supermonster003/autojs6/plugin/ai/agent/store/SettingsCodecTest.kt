@@ -10,6 +10,26 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class SettingsCodecTest {
+    @Test fun fullAccessRequiresExplicitPrivateSettingsAndPreservesToolAndBudgetLimits() {
+        val chosen = AgentSettings(fullAccess = true, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
+        assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
+        val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply { addProperty("version", 2); remove("fullAccess") }
+        assertFalse(SettingsCodec.decode(legacy.toString()).fullAccess)
+        reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("cautious", true) }.toString()) }
+        reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("fullAccess", "true") }.toString()) }
+        val host = LinkConfiguration.parse("{}")
+        val preset = PresetSnapshot("default", listOf(Preset("default", confirmPolicy = "cautious")))
+        val request = StartRequest.parse("""{"goal":"fixture"}""", host, preset, chosen)
+        assertEquals(ConfirmationMode.FULL_ACCESS, request.options.confirmationMode)
+        assertEquals(setOf("observe"), request.groups); assertEquals(7, request.options.limits.maxSteps)
+        // A caller can still narrow its own run; it can never widen a run to full access.
+        assertEquals(ConfirmationMode.CAUTIOUS, StartRequest.parse("""{"goal":"fixture","options":{"confirm":"cautious"}}""", host, preset, chosen).options.confirmationMode)
+        assertEquals(ConfirmationMode.FULL_ACCESS, StartRequest.parse("""{"goal":"fixture","options":{"confirm":"default"}}""", host, preset, chosen).options.confirmationMode)
+        assertEquals(ConfirmationMode.CAUTIOUS, StartRequest.parse("""{"goal":"fixture"}""", host, preset, chosen.copy(fullAccess = false)).options.confirmationMode)
+        reject { StartRequest.parse("""{"goal":"fixture","options":{"confirm":"full_access"}}""", host) }
+        reject { StartRequest.parse("""{"goal":"fixture","options":{"fullAccess":true}}""", host) }
+        reject { StartRequest.parse("""{"goal":"fixture","options":{"tools":["shell"]}}""", host, settings = chosen) }
+    }
     @get:Rule val temp = TemporaryFolder()
     private fun reject(block: () -> Unit) { assertThrows(IllegalArgumentException::class.java, block) }
     @Test fun defaultsAndRoundTripPreserveExplicitAuthority() {
@@ -21,7 +41,7 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 3.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json()))
+        for ((key, value) in listOf("version" to 4.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json()))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add(key, value) }.toString()) }
         for (budget in listOf("""{"maxSteps":201}""", """{"maxSteps":1.5}""", """{"maxSteps":0}""", """{"unknown":1}"""))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add("budget", AgentJson.parse(budget)) }.toString()) }
@@ -30,7 +50,7 @@ class SettingsCodecTest {
     }
     @Test fun oldSettingsMigrateWithoutEnablingAnOverlayOrChangingAuthority() {
         val chosen = AgentSettings(cautious = true, voice = false, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
-        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating") }
+        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating"); remove("fullAccess") }
         assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
         assertFalse(SettingsCodec.decode(legacy.toString()).floating)
         val enabled = chosen.copy(floating = true)

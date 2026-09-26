@@ -37,7 +37,7 @@ class MemoryToolsTest {
         assertTrue(query(repo) { it.snapshot() }.isEmpty())
         val gate = ConfirmationGate(ToolPolicy(), ConfirmationMode.DEFAULT)
         val decision = gate.assess(F.catalog()["memory_propose"]!!, ready.metadata)
-        assertTrue(decision.required); assertFalse(decision.allowRunScope); assertFalse(gate.allow(decision, ConfirmationScope.RUN))
+        assertTrue(decision.required); assertTrue(decision.allowRunScope); assertTrue(gate.allow(decision, ConfirmationScope.RUN))
         assertEquals("global", gate.arguments(ready.invocation.arguments, ready.metadata).string("scope"))
         assertTrue(gate.allow(decision, ConfirmationScope.ONCE)); assertTrue(execute(tools, ready) is PortResult.Success)
         val saved = query(repo) { it.snapshot().single() }

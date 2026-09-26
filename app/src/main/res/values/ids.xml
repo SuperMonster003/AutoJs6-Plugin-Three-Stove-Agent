@@ -10,12 +10,15 @@
     <item name="script_dynamic_source" type="id" />
     <item name="script_roots_paths" type="id" />
     <item name="ui_role" type="id" />
+    <item name="workbench_accessibility" type="id" />
     <item name="workbench_answer" type="id" />
     <item name="workbench_budget" type="id" />
     <item name="workbench_current" type="id" />
+    <item name="workbench_current_access" type="id" />
     <item name="workbench_current_goal" type="id" />
     <item name="workbench_details" type="id" />
     <item name="workbench_error" type="id" />
+    <item name="workbench_full_access" type="id" />
     <item name="workbench_goal" type="id" />
     <item name="workbench_history" type="id" />
     <item name="workbench_memory" type="id" />

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">開啟無障礙設定</string>
+    <string name="accessibility_start_failed">無障礙自動啟動失敗. 請在系統設定中啟用 AutoJs6 無障礙服務, 然後繼續任務.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">未完成項</string>
     <string name="history_until">截止日期</string>
     <string name="history_usage">用量: %1$s</string>
-    <string name="interaction_allow_run">本次任務內允許此工具的同級風險操作</string>
+    <string name="interaction_allow_run">目前工作階段一律允許</string>
+    <string name="interaction_allow_run_note">允許目前工具在相同風險等級下執行至本次任務結束, 包括參數變更後的呼叫. 付款操作需另行授權, 其他工具仍依所選策略確認.</string>
     <string name="interaction_channel">詢問與確認</string>
     <string name="interaction_confirmation">操作需要確認</string>
     <string name="interaction_expired">此請求已結束. 請開啟任務台查看目前任務.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">查看完整原始碼</string>
     <string name="script_dynamic_redacted">此原始碼已移除後續識別的密碼, 無法從此步驟儲存原始指令碼.</string>
     <string name="script_dynamic_save">儲存生成的指令碼</string>
-    <string name="script_dynamic_save_note">儲存前請檢查完整原始碼. 選擇 AutoJs6 工作目錄或已批准的指令碼目錄. 新檔案會加入敏感級別的 @agent 登記, 每次執行都需確認. 若選擇其他共用目錄, 請在下次掃描前將其加入指令碼目錄設定. 儲存不會執行指令碼.</string>
+    <string name="script_dynamic_save_note">儲存前請檢查完整原始碼. 選擇 AutoJs6 工作目錄或已批准的指令碼目錄. 新檔案會加入敏感級別的 @agent 登記, 執行前依所選確認策略確認. 若選擇其他共用目錄, 請在下次掃描前將其加入指令碼目錄設定. 儲存不會執行指令碼.</string>
     <string name="script_dynamic_saved">指令碼已儲存. 所在目錄包含在下次掃描範圍內時, 宿主才能找到它.</string>
     <string name="script_dynamic_source">生成的 JavaScript 原始碼</string>
     <string name="script_dynamic_source_summary">原始碼: %1$d 位元組, %2$d 行</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">宿主尚未接受這些目錄. 請檢查路徑是否存在於共用儲存空間中, 且不是工作目錄的上級.</string>
     <string name="script_roots_save">儲存目錄</string>
     <string name="script_roots_title">腳本目錄</string>
+    <string name="settings_access_mode">操作權限</string>
     <string name="settings_budget_note">預算留空使用內置預設值: 40 步, 60 次模型呼叫, 10 分鐘 (獨立任務 30 分鐘), 300000 token. 上限: 200 步, 300 次呼叫, 30 分鐘 (獨立任務 60 分鐘), 1000000 token. 下方時長單位為毫秒.</string>
     <string name="settings_clear">清除資料</string>
     <string name="settings_clear_confirm">刪除此類全部項目? 此操作無法復原, 須在任務閒置時進行.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">資料管理</string>
     <string name="settings_error">無法讀取或儲存設定. 請檢查限制後重試. 清除資料前請先停止執行中的任務.</string>
     <string name="settings_floating">啟用懸浮球</string>
+    <string name="settings_full_access">完全存取</string>
+    <string name="settings_full_access_note">完全存取: 所有已啟用工具均可免確認執行, 包括付款, 刪除, 指令碼及記憶寫入. 對新任務覆蓋預設的確認策略. 開始前請核對任務目標.</string>
     <string name="settings_license">授權條款</string>
     <string name="settings_notices">第三方聲明</string>
     <string name="settings_ocr_note">啟用 OCR 組後, 宿主偵測到已授權的識別插件時會自動提供 OCR.</string>

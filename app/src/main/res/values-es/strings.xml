@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">Abrir ajustes de accesibilidad</string>
+    <string name="accessibility_start_failed">Falló el inicio automático de accesibilidad. Active el servicio de accesibilidad de AutoJs6 en los ajustes del sistema y continúe la tarea.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">Trabajo pendiente</string>
     <string name="history_until">Fecha final</string>
     <string name="history_usage">Uso: %1$s</string>
-    <string name="interaction_allow_run">Permitir esta herramienta con este riesgo durante la tarea</string>
+    <string name="interaction_allow_run">Permitir siempre en esta sesión</string>
+    <string name="interaction_allow_run_note">Permite esta herramienta con este nivel de riesgo hasta que termine la tarea, aunque cambien sus argumentos. Los pagos requieren su propia aprobación; las demás herramientas siguen la política seleccionada.</string>
     <string name="interaction_channel">Preguntas y confirmaciones</string>
     <string name="interaction_confirmation">La acción necesita confirmación</string>
     <string name="interaction_expired">Esta solicitud ha finalizado. Abra las tareas para ver la tarea actual.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">Mostrar código completo</string>
     <string name="script_dynamic_redacted">Se eliminó del código una contraseña detectada después. No se puede guardar el script original desde este paso.</string>
     <string name="script_dynamic_save">Guardar script generado</string>
-    <string name="script_dynamic_save_note">Revise el código completo antes de guardar. Elija el directorio de trabajo de AutoJs6 o un directorio de scripts aprobado. El archivo incluye un registro @agent sensible y siempre requiere confirmación. Si elige otro directorio compartido, añádalo en Directorios de scripts antes del siguiente análisis. Guardar no ejecuta el script.</string>
+    <string name="script_dynamic_save_note">Revise el código completo antes de guardar. Elija el directorio de trabajo de AutoJs6 o un directorio de scripts aprobado. El archivo incluye un registro @agent sensible y sigue la política de confirmación seleccionada. Si elige otro directorio compartido, añádalo en Directorios de scripts antes del siguiente análisis. Guardar no ejecuta el script.</string>
     <string name="script_dynamic_saved">Script guardado. El anfitrión puede detectarlo si su directorio se incluye en el siguiente análisis del catálogo.</string>
     <string name="script_dynamic_source">Código JavaScript generado</string>
     <string name="script_dynamic_source_summary">Código: %1$d bytes, %2$d líneas</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">El host no ha aceptado estos directorios. Compruebe que existan en el almacenamiento compartido y no contengan el directorio de trabajo.</string>
     <string name="script_roots_save">Guardar directorios</string>
     <string name="script_roots_title">Directorios de scripts</string>
+    <string name="settings_access_mode">Permisos de las operaciones</string>
     <string name="settings_budget_note">Deje los límites vacíos para usar: 40 pasos, 60 llamadas al modelo, 10 minutos (30 para tareas independientes), 300000 tokens. Máximos: 200 pasos, 300 llamadas, 30 minutos (60 independientes), 1000000 tokens. Las duraciones siguientes usan milisegundos.</string>
     <string name="settings_clear">Borrar datos</string>
     <string name="settings_clear_confirm">Borrar todos los elementos de esta categoría? No se puede deshacer. No debe haber tareas activas.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">Gestión de datos</string>
     <string name="settings_error">No se pueden leer o guardar los ajustes. Revise los límites y reintente. Detenga las tareas activas antes de borrar datos.</string>
     <string name="settings_floating">Activar burbuja flotante</string>
+    <string name="settings_full_access">Acceso completo</string>
+    <string name="settings_full_access_note">Acceso completo: todas las herramientas activadas, incluidos pagos, borrados, scripts y escritura de memoria, se ejecutan sin aprobación. Sustituye las políticas de confirmación del perfil en tareas nuevas. Revise el objetivo antes de empezar.</string>
     <string name="settings_license">Licencia</string>
     <string name="settings_notices">Avisos de terceros</string>
     <string name="settings_ocr_note">OCR está disponible automáticamente si este grupo está activo y el anfitrión detecta un complemento de reconocimiento autorizado.</string>

@@ -14,6 +14,7 @@ internal object RunHistoryExport {
         val result = jsonObject("version" to 1.json(), "redacted" to true.json(), "runId" to RunHistoryCodec.id(run.string("runId")!!).json(),
             "state" to run.string("state")!!.takeIf { it in RunHistoryCodec.states }!!.json(),
             "goal" to "[redacted]".json(), "preset" to "[redacted]".json(), "truncated" to (run.flag("truncated") == true).json())
+        if (run.flag("fullAccess") == true) result.addProperty("fullAccess", true)
         result.add("steps", JsonArray().apply { run.getAsJsonArray("steps").forEach { value ->
             val source = value.asJsonObject
             add(counters(source, listOf("index", "elapsedMs")).apply {
