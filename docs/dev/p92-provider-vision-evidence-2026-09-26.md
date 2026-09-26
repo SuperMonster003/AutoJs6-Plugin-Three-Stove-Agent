@@ -1,10 +1,13 @@
 # P9.2 Provider image-input implementation receipt
 
-Date: 2026-09-26. Provider source: `d0ad293`, 3-Stone AI 1.2.0 development
-candidate / build 216. Host source remains `52ce694f92` / build 5297. The
-original P9.2 model item is implemented at the Provider layer, but remains
-unchecked until a supported online model passes real image-input acceptance.
-No original roadmap item is added, split or removed.
+Date: 2026-09-26. The original P9.2 model item is now accepted for the
+explicitly selected AiGoCode / `gpt-5.6-sol` target: both real initial-image
+and native tool-result-image probes passed on Provider `7138fd0`, 3-Stone AI
+1.2.0 / build 218. The final section records the measurements and limits.
+
+The implementation and earlier failed attempts below are preserved as
+historical evidence from Provider `d0ad293` / build 216 and host `52ce694f92`
+/ build 5297. No original roadmap item is added, split or removed.
 
 ## What changed
 
@@ -70,9 +73,10 @@ the subsequent ADB pull did not retrieve the package path. No installed-byte
 hash equivalence is claimed for API 24. The two private AVDs were then shut
 down with their data retained.
 
-## Online vision remains unaccepted
+## Earlier Model8 attempts and the original pending gate
 
-Three deliberately enabled synthetic-image probes ran on XQ-DQ72 / API 35
+The original receipt recorded three deliberately enabled synthetic-image
+probes on XQ-DQ72 / API 35
 against the configured Model8 / `claude-fable-5-1` target. They used the real
 credential/network/HTTP layer and Provider session, with an in-memory image
 opt-in for that exact target. Saved settings were not changed. The image is
@@ -97,7 +101,7 @@ conversation; the configured services' actual image-input capabilities are
 still unverified. Future acceptance requires successful initial-image and
 tool-result-image probes against an explicitly selected supported target.
 
-## Candidate and remaining work
+## Initial candidate and historical remaining work
 
 | ABI | CRC32 | SHA-256 |
 | --- | --- | --- |
@@ -113,7 +117,8 @@ profile, credential, network or SIM changes. The other physical devices,
 host sources and concurrent Rhino work were untouched. No order or payment
 was made.
 
-Next is the original P9.2 Agent `screen_capture` item: host-owned capture,
+At the time of the initial receipt, the next item was the original P9.2
+Agent `screen_capture` item: host-owned capture,
 longest edge 1280, JPEG quality 70, visual prompting and image-token budgets.
 Its implementation and deterministic validation can continue while a real
 image-input target is unavailable. The P9.1 Wi-Fi two-path comparison remains
@@ -124,3 +129,79 @@ independent connectivity only for that test.
 QV710AF65F / XQ-AT72 / Android 12 remains absent, with the user's expected
 availability before 2026-09-27 20:00 UTC+8 retained. No additional architecture
 decision or manual device operation is required to continue implementation.
+
+## Accepted AiGoCode follow-up
+
+The maintainer explicitly authorized the newly configured AiGoCode /
+`gpt-5.6-sol` target for text comparison and an image-input trial. The public
+catalog confirmed that exact model before the probes. This device now
+reports serial QV770340J7, model XQ-DQ72, Android 13 / API 33. Earlier receipts
+labeled this device API 35; that historical value has not been reverified
+and is not evidence of an OS change. This follow-up uses the current API 33
+reading.
+
+Both probes used the matching officially signed Debug and androidTest
+builds of Provider `7138fd085660edfa0b8b7e918b5eb06c33982ffe` / 1.2.0 / 218.
+Each generated a 512 x 192 JPEG at quality 70 containing six random digits;
+the prompt did not contain the answer. The exact configured target was
+vision-enabled only in the test's in-memory profile. Saved profile data,
+credentials, default target and persistent image-input selection were not
+changed by the probes. No device screenshot or personal image was uploaded.
+
+| Probe | Result | Session time | Input / output tokens | Tool calls | Output |
+| --- | --- | --- | --- | --- | --- |
+| Initial image | Passed, instrumentation OK (1 test) | 17263 ms | 138 / 6 | 0 | Six characters, exact image match |
+| Native tool-result image | Passed, instrumentation OK (1 test) | 26480 ms | 308 / 39 | 1 | Six characters, exact image match |
+
+Both runs kept the 1024-token maximum and the existing bounded deadline.
+The second probe first requested `observe_image`, submitted the image as
+that call's result, then received the matching final answer. Its reported
+usage covers the native conversation; 39 output tokens are not claimed to
+be the length of the six-character final text. These are bounded real HTTP
+probes, not repeated samples selected for success.
+
+The probe uses the real credential repository, network policy, HTTP backend
+and Provider session, with a test-only same-UID owner verifier. It closes
+the existing P9.2 Provider model gate requiring both image paths. It is not
+a new real host-to-Agent cross-UID visual task, does not establish every
+protocol or every model's support, and does not turn on image input for
+future user tasks. The Agent integration and cross-UID deterministic tests
+were completed separately in the existing Agent implementation receipt.
+The original Model8 empty-response failures remain failures.
+
+The initial attempt to run the test against the previously installed R8
+build 216 crashed before a model probe. It is retained as an instrumentation
+setup failure, not counted as model acceptance or folded into the two
+successful 218 probe results.
+
+### Matched build and archive
+
+Debug, androidTest, R8 release and signed archive tasks completed successfully
+in 3m 3s, with 126 actionable tasks and 16 KiB native alignment verified for
+Debug and Release. The archive records the exact clean source above with
+`sourceDirty=false`. The tests and all app APKs use the official certificate
+SHA-256 `31a681fcfffb3e428420cae280ded89292b12a3b0f59e19b7a73e32a8ae4c213`.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Debug arm64 / 218 | `d44607b11f51eaf760397d03ed48fbf5be460f424bd7ac9d657263ad31e19cc7` |
+| Matching androidTest | `0261fcd30f98f562267e4272a5892f6f00b263f35954669949801301475fb927` |
+| R8 arm64 / 218, CRC32 A931BB09 | `cad1df45c6bcd79fc3de635a6eadada305689c809318484064e99a8dac071bc5` |
+
+An initial Windows command launch error, native filesystem-enumeration stall
+and resulting cache-lock failure are preserved in ignored build records.
+The successful build used a separate Gradle home and project cache with
+file watching and Gradle native services disabled; the native-service
+property was verified from the installed Gradle bytecode. No shared locks
+were deleted or unrelated build processes terminated. These setup failures
+are separate from the successful APK build and model probes.
+
+This Agent change updates documentation and the next commit count to 90,
+without a runtime/API change or a newly built Agent APK. The read-only
+Markdown generator check passed for all 10 languages and 36 artifacts, and
+Git whitespace checks passed. Ten-language current
+status text distinguishes this selected-model acceptance from the remaining
+P9.1 Wi-Fi comparison. Subsequent Provider error-classification changes and
+Wi-Fi tests are recorded separately and do not change the build identity of
+these vision results. No new test device, SIM, saved vision toggle or
+architecture decision is needed for this completed model gate.

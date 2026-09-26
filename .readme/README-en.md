@@ -52,7 +52,7 @@ AI Agent is a standalone task workbench and an AutoJs6 plugin reached through ai
 
 ******
 
-Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -228,7 +228,7 @@ Payment is a separate sensitive action. Approval of an order, a script or simila
 
 **What are the limits of local models?**
 
-Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. Image input requires a target that accepts images; real online vision acceptance remains pending. Generated scripts are available only when explicitly enabled and each source is approved.
+Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. Image input requires a target that accepts images; AiGoCode gpt-5.6-sol passed initial-image and tool-result-image probes, while other targets require separate verification. Generated scripts are available only when explicitly enabled and each source is approved.
 
 ******
 
@@ -290,7 +290,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/26_
 
-- `Hint` Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in ROADMAP.md.
+- `Hint` Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see ROADMAP.md.
 - `Feature` MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
 - `Improvement` Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 

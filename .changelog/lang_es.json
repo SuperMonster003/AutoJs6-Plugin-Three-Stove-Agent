@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/26",
       "hint": [
-        "La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales y conserva llamadas nativas, capturas y scripts generados. Las comparaciones Wi-Fi P9.1 y la aceptación visual real en línea P9.2 siguen pendientes en ROADMAP.md."
+        "La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales, llamadas nativas, capturas y scripts generados. AiGoCode gpt-5.6-sol pasó las pruebas P9.2 de imagen inicial e imagen en resultados de herramientas. Las comparaciones Wi-Fi P9.1 siguen pendientes; consulte ROADMAP.md."
       ],
       "feature": [
         "Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente"

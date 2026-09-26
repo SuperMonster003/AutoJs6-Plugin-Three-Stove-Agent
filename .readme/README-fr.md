@@ -52,7 +52,7 @@ AI Agent fournit une interface autonome et un plugin AutoJs6 accessible par ai.a
 
 ******
 
-La version 1.2.0 en développement propose les outils MCP facultatifs et conserve les appels natifs, captures et scripts générés. Les comparaisons Wi-Fi P9.1 et la validation réelle de vision en ligne P9.2 restent en attente dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. Les comparaisons Wi-Fi P9.1 restent en attente; voir [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -228,7 +228,7 @@ Le paiement est une action sensible distincte. Approuver une commande, un script
 
 **Quelles sont les limites des modèles locaux?**
 
-Un modèle chargé ne garantit pas la réussite. Le test enregistré de validation des décisions Wi-Fi avec Gemma 4 E2B IT a échoué; cette cible conserve JSON. Les appels natifs nécessitent un hôte et une cible compatibles, avec les mêmes validations, confirmations et budgets. Commencez par de petites tâches et examinez les résultats partial/failed. Les images exigent une cible compatible; la validation visuelle réelle en ligne reste en attente. Les scripts générés exigent une activation explicite et une approbation par code.
+Un modèle chargé ne garantit pas la réussite. Le test enregistré de validation des décisions Wi-Fi avec Gemma 4 E2B IT a échoué; cette cible conserve JSON. Les appels natifs nécessitent un hôte et une cible compatibles, avec les mêmes validations, confirmations et budgets. Commencez par de petites tâches et examinez les résultats partial/failed. Les images exigent une cible compatible; AiGoCode gpt-5.6-sol a réussi les tests avec image initiale et image dans un résultat d'outil, les autres cibles nécessitant une vérification distincte. Les scripts générés exigent une activation explicite et une approbation par code.
 
 ******
 
@@ -290,7 +290,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/26_
 
-- `Note` La version 1.2.0 en développement propose les outils MCP facultatifs et conserve les appels natifs, captures et scripts générés. Les comparaisons Wi-Fi P9.1 et la validation réelle de vision en ligne P9.2 restent en attente dans ROADMAP.md.
+- `Note` La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. Les comparaisons Wi-Fi P9.1 restent en attente; voir ROADMAP.md.
 - `Fonctionnalité` Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
 - `Amélioration` Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 

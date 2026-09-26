@@ -1,6 +1,6 @@
 AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제 동작으로 바꿉니다. 사용자가 에이전트용으로 등록한 스크립트를 골라 매개변수를 채우고 실행하거나, 접근성 노드 트리로 화면을 관찰하고 관찰, 결정, 실행, 검증의 순환으로 단계별로 조작합니다. 목표를 달성하거나 확인이 필요하거나 예산이 소진될 때까지 계속됩니다. [AutoJs6 토론 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577)에 대한 답입니다.
 
-개발 버전 1.2.0은 선택적 MCP 도구를 제공하며 기본 도구 호출, 스크린샷, 생성 스크립트를 유지합니다. P9.1 Wi-Fi 비교와 P9.2 온라인 시각 모델의 실제 검증은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에서 대기 중입니다.
+개발 버전 1.2.0은 선택적 MCP 도구, 네이티브 호출, 스크린샷, 생성 스크립트를 제공합니다. AiGoCode gpt-5.6-sol은 P9.2 초기 이미지와 도구 결과 이미지 검증을 통과했습니다. P9.1 Wi-Fi 비교는 대기 중입니다. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)를 참고하세요.
 
 ### 사용 방법
 

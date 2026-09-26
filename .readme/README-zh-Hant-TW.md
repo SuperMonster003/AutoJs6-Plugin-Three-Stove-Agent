@@ -52,7 +52,7 @@ AI Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 
 
 ******
 
-1.2.0 開發版本提供可選 MCP 工具, 保留原生工具呼叫, 截圖觀察及動態指令碼. P9.1 Wi-Fi 比較及 P9.2 線上視覺真實驗收仍待完成, 見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 Wi-Fi 比較仍待完成, 見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -228,7 +228,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 **本機模型有哪些限制?**
 
-模型能載入不代表任務能成功. 已記錄的 Gemma 4 E2B IT Wi-Fi 決策驗證案例未通過, 該目標保留 JSON 路徑. 原生工具呼叫也需要相容主程式及目標, 並保留參數, 確認和預算檢查. 請從小任務開始, 檢查 partial/failed 結果. 圖片輸入要求支援圖片的目標, 真實線上視覺驗收仍待補測. 生成指令碼須明確啟用, 每份原始碼均須單獨確認.
+模型能載入不代表任務能成功. 已記錄的 Gemma 4 E2B IT Wi-Fi 決策驗證案例未通過, 該目標保留 JSON 路徑. 原生工具呼叫也需要相容主程式及目標, 並保留參數, 確認和預算檢查. 請從小任務開始, 檢查 partial/failed 結果. 圖片輸入要求支援圖片的目標, AiGoCode gpt-5.6-sol 已通過初始圖片及工具結果圖片測試, 其他目標須個別驗證. 生成指令碼須明確啟用, 每份原始碼均須單獨確認.
 
 ******
 
@@ -290,7 +290,7 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/26_
 
-- `提示` 1.2.0 開發版本提供可選 MCP 工具, 保留原生工具呼叫, 截圖觀察及動態指令碼. P9.1 Wi-Fi 比較及 P9.2 線上視覺真實驗收仍待完成, 見 ROADMAP.md.
+- `提示` 1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 Wi-Fi 比較仍待完成, 見 ROADMAP.md.
 - `新增` 本機或外部 MCP 伺服器的所選工具, 按伺服器設定風險等級, mcp 工具群組預設關閉
 - `優化` 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
 
