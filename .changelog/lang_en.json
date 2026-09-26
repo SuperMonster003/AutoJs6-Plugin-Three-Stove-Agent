@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/26",
       "hint": [
-        "Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see ROADMAP.md."
+        "Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see ROADMAP.md."
       ],
       "feature": [
         "MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default"

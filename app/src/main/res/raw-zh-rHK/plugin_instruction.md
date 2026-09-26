@@ -1,6 +1,6 @@
 AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智能代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 按觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 Wi-Fi 比較仍待完成, 見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 JSON/原生路徑均已完成 Wi-Fi 開啟及狀態回讀: 測試時暫時關閉目前熱點的自動連線, 模型經流動網絡及 VPN 連線. 預設自動連線時 VPN 跨網絡切換後的失敗仍未解決. 證據見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 

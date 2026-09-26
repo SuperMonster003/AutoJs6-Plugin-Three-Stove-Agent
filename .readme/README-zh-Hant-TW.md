@@ -52,7 +52,7 @@ AI Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 
 
 ******
 
-1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 Wi-Fi 比較仍待完成, 見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 JSON/原生路徑均已完成 Wi-Fi 開啟及狀態回讀: 測試時暫時關閉目前熱點的自動連線, 模型經行動網路和 VPN 連線. 預設自動連線時 VPN 跨網路切換後的失敗仍未解決. 證據見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -290,7 +290,7 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/26_
 
-- `提示` 1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 Wi-Fi 比較仍待完成, 見 ROADMAP.md.
+- `提示` 1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 JSON/原生路徑均已完成 Wi-Fi 開啟及狀態回讀: 測試時暫時關閉目前熱點的自動連線, 模型經行動網路和 VPN 連線. 預設自動連線時 VPN 跨網路切換後的失敗仍未解決. 證據見 ROADMAP.md.
 - `新增` 本機或外部 MCP 伺服器的所選工具, 按伺服器設定風險等級, mcp 工具群組預設關閉
 - `優化` 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
 

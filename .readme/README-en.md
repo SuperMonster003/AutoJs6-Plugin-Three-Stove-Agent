@@ -52,7 +52,7 @@ AI Agent is a standalone task workbench and an AutoJs6 plugin reached through ai
 
 ******
 
-Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -290,7 +290,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/26_
 
-- `Hint` Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see ROADMAP.md.
+- `Hint` Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see ROADMAP.md.
 - `Feature` MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
 - `Improvement` Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 
