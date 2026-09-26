@@ -117,12 +117,10 @@ class AgentRunnerTest {
             f.reply(done()); uniqueTerminal(f, run)
         }
     }
-    @Test fun paymentRejectsRunScopeAndRequiresConfirmationOnEachExecution() {
+    @Test fun paymentOnceApprovalCannotAnswerTheNextRequestAndDenialPreventsExecution() {
         val f = RunnerFixture(); f.enqueue(tool("ui_click", """{"nodeRef":"#n1"}"""), tool("ui_click", """{"nodeRef":"#n1"}"""))
         f.tools.metadata = { ToolMetadata(RiskContext(nodeText = "Pay")) }
         val run = f.start(); var status: ReplyStatus? = null
-        run.confirm(f.request("confirmation"), true, ConfirmationScope.RUN) { status = it }; f.scheduler.drain()
-        assertEquals(ReplyStatus.INVALID, status); assertTrue(f.tools.executions.isEmpty())
         val old = f.request("confirmation")
         run.confirm(old, true); f.scheduler.drain()
         assertEquals(1, f.tools.executions.size); assertEquals(RunState.WAITING_CONFIRMATION, run.state)

@@ -55,8 +55,7 @@ class ScriptDecisionFlowTest {
         assertEquals(1L, event.getAsJsonObject("arguments").getAsJsonObject("parameters").number("count"))
         var status: ReplyStatus? = null
         s.run.confirm(s.request("confirmation"), true, ConfirmationScope.RUN) { status = it }; s.scheduler.drain()
-        assertEquals(ReplyStatus.INVALID, status); assertTrue(s.delegate.executions.isEmpty())
-        s.run.confirm(s.request("confirmation"), true); s.scheduler.drain()
+        assertEquals(ReplyStatus.ACCEPTED, status)
         assertEquals(1, s.delegate.executions.size)
         assertEquals("Office front desk", (s.delegate.executions.single().first.opaqueContext as PreparedScript).parameters.string("address"))
         s.reply(done())

@@ -20,8 +20,8 @@ class AgentRunnerDeviceTest {
         gate.allow(gate.assess(click, ToolMetadata()), ConfirmationScope.RUN)
         val decision = gate.assess(click, ToolMetadata(RiskContext(nodeText = "确认交易")))
         assertEquals(RiskLevel.SENSITIVE, decision.risk)
-        assertTrue(decision.required); assertFalse(decision.allowRunScope)
-        assertFalse(gate.allow(decision, ConfirmationScope.RUN))
+        assertTrue(decision.required); assertTrue(decision.allowRunScope)
+        assertTrue(gate.allow(decision, ConfirmationScope.RUN))
     }
     @Test fun settingsWifiScriptRunsToVerifiedResultOnAndroidScheduler() {
         val catalog = ToolCatalog(asset("catalog/tools.json")); val policy = ToolPolicy.fromAssets(::asset)

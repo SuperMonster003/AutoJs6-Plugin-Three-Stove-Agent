@@ -14,6 +14,13 @@ class RunHistoryCodecTest {
         val decoded = RunHistoryCodec.decode(RunHistoryCodec.encode(run, 55))
         assertEquals(run, decoded.run); assertEquals(55, decoded.accessedAt)
     }
+    @Test fun fullAccessMarkerIsAPrivateBooleanThatSurvivesStorageAndRedactedExport() {
+        val run = fixture(1).apply { addProperty("fullAccess", true) }
+        assertEquals(run, RunHistoryCodec.decode(RunHistoryCodec.encode(run, 1)).run)
+        assertEquals(true, RunHistoryExport.redact(run, emptySet()).flag("fullAccess"))
+        assertFalse(RunHistoryExport.redact(fixture(1), emptySet()).has("fullAccess"))
+        rejects { RunHistoryCodec.encode(fixture(1).apply { addProperty("fullAccess", "true") }, 1) }
+    }
     @Test fun unknownVersionAndDuplicateKeysFailClosed() {
         val encoded = RunHistoryCodec.encode(fixture(1), 1)
         rejects { RunHistoryCodec.decode(encoded.replace("\"version\":1", "\"version\":2")) }

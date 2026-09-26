@@ -70,7 +70,7 @@ class SettingsActivityTest {
                 assertFalse(it.view<CheckBox>("group-files")!!.isChecked)
                 assertFalse(it.view<CheckBox>("group-shell")!!.isChecked)
                 it.view<CheckBox>("group-shell")!!.isChecked = true
-                it.view<CheckBox>("cautious")!!.isChecked = true
+                it.view<Spinner>("confirmation-mode")!!.setSelection(1)
                 it.view<CheckBox>("voice")!!.isChecked = false
                 it.view<EditText>("maxSteps")!!.setText("7")
             }
@@ -81,7 +81,25 @@ class SettingsActivityTest {
             val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
             assertTrue(saved.cautious); assertFalse(saved.voice); assertTrue("shell" in saved.toolGroups)
             scenario.recreate()
-            ui(scenario, "Saved state retained") { it.view<CheckBox>("cautious")?.isChecked == true && it.view<CheckBox>("voice")?.isChecked == false }
+            ui(scenario, "Saved state retained") { it.view<Spinner>("confirmation-mode")?.selectedItemPosition == 1 && it.view<CheckBox>("voice")?.isChecked == false }
+        }
+    }
+    @Test fun fullAccessShowsInlineWarningAndPersists() = isolated { _, endpoint, directory ->
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Settings form") { it.view<Button>("save") != null }
+            // Selection callbacks need a laid-out spinner, as when a user opens Task options and picks the mode.
+            scenario.onActivity { assertEquals(View.GONE, it.view<TextView>("full-access-note")!!.visibility); UiAccessibilityAudit().expandSections(it) }
+            ui(scenario, "Task options expanded") { it.view<Spinner>("confirmation-mode")?.isLaidOut == true && it.view<Spinner>("confirmation-mode")!!.isShown }
+            scenario.onActivity { it.view<Spinner>("confirmation-mode")!!.setSelection(2) }
+            ui(scenario, "Inline full access warning") { it.view<TextView>("full-access-note")?.visibility == View.VISIBLE }
+            scenario.onActivity { it.view<Button>("save")!!.performClick() }
+            waitFor("Full access stored") { runCatching { SettingsStore(File(directory, "agent-settings.json")).open().fullAccess }.getOrDefault(false) }
+            val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
+            assertTrue(saved.fullAccess); assertFalse(saved.cautious)
+            scenario.recreate()
+            ui(scenario, "Full access retained") {
+                it.view<Spinner>("confirmation-mode")?.selectedItemPosition == 2 && it.view<TextView>("full-access-note")?.visibility == View.VISIBLE
+            }
         }
     }
     @Test fun appearanceChoicesPersistAndPreserveTheUnsavedTaskDraft() = isolated { _, _, _ ->

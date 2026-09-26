@@ -104,7 +104,8 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
                 maxModelCalls = limit("maxModelCalls", defaults.maxModelCalls.toLong()).toInt(),
                 maxDurationMs = limit("maxDurationMs", defaults.maxDurationMs),
                 maxTotalTokens = limit("maxTotalTokens", minOf(defaults.maxTotalTokens, config.maxTokens)))
-            val cautious = preset.confirmPolicy == "cautious" || settings?.cautious == true
+            val fullAccess = settings?.fullAccess == true
+            val cautious = !fullAccess && (preset.confirmPolicy == "cautious" || settings?.cautious == true)
             val confirm = text(opts, "confirm", if (cautious) "cautious" else "default", 16).also {
                 require(it in setOf("default", "cautious") && (!cautious || it == "cautious"))
             }
@@ -118,7 +119,13 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
             require(context.toByteArray(Charsets.UTF_8).size <= 8192)
             StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
-                if (confirm == "cautious") ConfirmationMode.CAUTIOUS else ConfirmationMode.DEFAULT, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root,
+                when {
+                    // Under full access "cautious" can only come from the caller, which may still narrow its own run.
+                    confirm == "cautious" -> ConfirmationMode.CAUTIOUS
+                    // Full access is granted only by the private user settings, never by model or public request fields.
+                    fullAccess -> ConfirmationMode.FULL_ACCESS
+                    else -> ConfirmationMode.DEFAULT
+                }, text(opts, "locale", config.locale, 64)!!), target, groups, context, interaction, root,
                 preset.name, memory && "memory" in groups && preset.memoryScope != "none", preset.memoryScope)
         }
     }

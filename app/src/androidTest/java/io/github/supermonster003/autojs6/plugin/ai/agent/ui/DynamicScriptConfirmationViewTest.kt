@@ -50,7 +50,7 @@ class DynamicScriptConfirmationViewTest {
         }
     }
 
-    @Test fun pendingCardRestoresExpansionButAlwaysSubmitsSingleApproval() {
+    @Test fun pendingCardRestoresExpansionAndOffersSessionApproval() {
         instrumentation.runOnMainSync {
             val context = instrumentation.targetContext
             fun pending(id: String) = jsonObject("runId" to "dynamic-ui".json(), "interaction" to "plugin".json(),
@@ -67,9 +67,9 @@ class DynamicScriptConfirmationViewTest {
             recreated.restore(state); recreated.render(pending("first"))
             assertEquals(source, recreatedContainer.findViewById<TextView>(R.id.script_dynamic_source).text.toString())
             val buttons = children(recreatedContainer).filterIsInstance<Button>()
-            assertFalse(buttons.any { it.text == context.getString(R.string.interaction_allow_run) })
-            buttons.single { it.text == context.getString(R.string.task_allow) }.performClick()
-            assertEquals(true, response!!.flag("allowed")); assertEquals("once", response!!.string("scope"))
+            assertTrue(buttons.any { it.text == context.getString(R.string.interaction_allow_run) })
+            buttons.single { it.text == context.getString(R.string.interaction_allow_run) }.performClick()
+            assertEquals(true, response!!.flag("allowed")); assertEquals("run", response!!.string("scope"))
             recreated.render(pending("next"))
             assertNotEquals(source, recreatedContainer.findViewById<TextView>(R.id.script_dynamic_source).text.toString())
         }

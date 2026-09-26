@@ -8,7 +8,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AgentRunnerInteractionTest {
-    @Test fun rememberingEachAnswerKindCreatesASeparateOnceOnlyBudgetedProposal() {
+    @Test fun rememberingEachAnswerKindCreatesASeparateBudgetedProposal() {
         for ((kind, value) in listOf("text" to "Office".json(), "choice" to "two".json(), "confirm" to true.json())) {
             val f = RunnerFixture(); f.enqueue(ask(kind, "destination")); val run = f.start()
             val request = f.request("input")
@@ -16,13 +16,13 @@ class AgentRunnerInteractionTest {
             assertEquals(RunState.WAITING_CONFIRMATION, run.state)
             assertEquals(1, f.model.calls.size); assertTrue(f.tools.executions.isEmpty())
             val proposal = f.events.last { it.type == "confirmation" }.payload
-            assertEquals("memory_propose", proposal.string("tool")); assertEquals(false, proposal.flag("allowRunScope"))
+            assertEquals("memory_propose", proposal.string("tool")); assertEquals(true, proposal.flag("allowRunScope"))
             assertEquals(value.asString, proposal.getAsJsonObject("arguments").string("value"))
             var status: ReplyStatus? = null
             run.respond(request, value, "global") { status = it }; f.scheduler.drain(); assertEquals(ReplyStatus.NOT_WAITING, status)
-            run.confirm(f.request("confirmation"), true, ConfirmationScope.RUN) { status = it }
-            f.scheduler.drain(); assertEquals(ReplyStatus.INVALID, status); assertTrue(f.tools.executions.isEmpty())
-            run.confirm(f.request("confirmation"), true); f.scheduler.drain(); assertEquals(1, f.tools.executions.size)
+            // Session approval is available for proposals too; each proposal still needs its own review first.
+            run.confirm(f.request("confirmation"), true, if (kind == "text") ConfirmationScope.RUN else ConfirmationScope.ONCE) { status = it }
+            f.scheduler.drain(); assertEquals(ReplyStatus.ACCEPTED, status); assertEquals(1, f.tools.executions.size)
             assertEquals(2, f.model.calls.size)
             val history = f.contexts.last().history
             assertEquals(2, history.size); assertTrue(history[0].string("observation")!!.contains(value.asString))

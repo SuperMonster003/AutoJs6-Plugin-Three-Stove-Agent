@@ -60,7 +60,7 @@ class AgentRunnerDoneRulesTest {
         val run = f.start()
         assertEquals(RunState.WAITING_CONFIRMATION, run.state)
         val request = f.events.last { it.type == "confirmation" }.payload
-        assertEquals("sensitive", request.string("risk")); assertEquals(false, request.flag("allowRunScope"))
+        assertEquals("sensitive", request.string("risk")); assertEquals(true, request.flag("allowRunScope"))
         run.confirm(f.request("confirmation"), false); f.scheduler.drain()
         assertEquals(RunState.PARTIAL, run.state); assertTrue(f.tools.executions.isEmpty())
         assertEquals("pending_payment", run.result!!.string("orderStatus"))

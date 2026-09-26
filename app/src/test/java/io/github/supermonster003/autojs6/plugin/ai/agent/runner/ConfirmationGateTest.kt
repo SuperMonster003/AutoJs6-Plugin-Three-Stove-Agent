@@ -16,7 +16,7 @@ class ConfirmationGateTest {
             val gate = gate(mode)
             assertFalse(assess(gate, "ui_dump").required)
             assertEquals(mode == ConfirmationMode.CAUTIOUS, assess(gate, "ui_click").required)
-            assertTrue(assess(gate, "files_write").required)
+            assertEquals(mode != ConfirmationMode.FULL_ACCESS, assess(gate, "files_write").required)
         }
     }
     @Test fun runPermissionIsScopedToOneToolRiskAndTask() {
@@ -31,27 +31,30 @@ class ConfirmationGateTest {
         assertTrue(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "Delete"))).required)
         assertTrue(assess(gate(ConfirmationMode.CAUTIOUS), "ui_click").required)
     }
-    @Test fun paymentCannotReuseEvenAnExistingSensitiveRunPermission() {
+    @Test fun paymentSessionPermissionIsSeparateFromOtherSensitiveActionsToolsAndTasks() {
         val gate = gate()
         gate.allow(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "Delete"))), ConfirmationScope.RUN)
+        assertFalse(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "Delete"))).required)
         val payment = assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "支付")))
-        assertTrue(payment.required); assertFalse(payment.allowRunScope)
-        assertFalse(gate.allow(payment, ConfirmationScope.RUN)); assertTrue(gate.allow(payment, ConfirmationScope.ONCE))
-        assertTrue(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "支付"))).required)
+        assertTrue(payment.required); assertTrue(payment.allowRunScope); assertTrue(payment.payment)
+        assertTrue(gate.allow(payment, ConfirmationScope.RUN))
+        assertFalse(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "支付"))).required)
+        assertTrue(assess(gate, "ui_long_click", ToolMetadata(RiskContext(nodeText = "支付"))).required)
+        assertTrue(assess(gate(), "ui_click", ToolMetadata(RiskContext(nodeText = "支付"))).required)
         assertFalse(assess(gate, "ui_dump", ToolMetadata(RiskContext(nodeText = "支付"), payment = true)).required)
     }
-    @Test fun transactionConfirmationAlwaysRequiresASeparatePaymentDecision() {
+    @Test fun transactionRiskRemainsSensitiveAndCanBeAuthorizedForTheSession() {
         for (mode in ConfirmationMode.entries) for (label in listOf("确认交易", "確認交易", "Confirm transaction")) {
             val gate = gate(mode)
             gate.allow(assess(gate, "ui_click"), ConfirmationScope.RUN)
-            gate.allow(assess(gate, "ui_click", ToolMetadata(RiskContext(nodeText = "Delete"))), ConfirmationScope.RUN)
             val metadata = ToolMetadata(RiskContext(nodeText = label, packageName = "com.sankuai.meituan.takeoutnew"))
             val transaction = assess(gate, "ui_click", metadata)
             assertEquals(RiskLevel.SENSITIVE, transaction.risk)
-            assertTrue(transaction.required); assertFalse(transaction.allowRunScope)
-            assertFalse(gate.allow(transaction, ConfirmationScope.RUN))
+            assertEquals(mode != ConfirmationMode.FULL_ACCESS, transaction.required); assertTrue(transaction.allowRunScope)
             assertTrue(gate.allow(transaction, ConfirmationScope.ONCE))
-            assertTrue(assess(gate, "ui_click", metadata).required)
+            assertEquals(mode != ConfirmationMode.FULL_ACCESS, assess(gate, "ui_click", metadata).required)
+            assertTrue(gate.allow(transaction, ConfirmationScope.RUN))
+            assertFalse(assess(gate, "ui_click", metadata).required)
         }
     }
     @Test fun tenLanguagePaymentCatalogPromotesActionsToSensitive() {
@@ -60,17 +63,25 @@ class ConfirmationGateTest {
         for ((_, entries) in words.entrySet()) for (word in entries.asJsonArray) {
             val result = assess(gate(), "ui_click", ToolMetadata(RiskContext(nodeDescription = word.asString)))
             assertEquals(word.asString, RiskLevel.SENSITIVE, result.risk)
-            assertTrue(result.required); assertFalse(result.allowRunScope)
+            assertTrue(result.required); assertTrue(result.allowRunScope)
         }
     }
-    @Test fun forcedScriptAndMemoryConfirmationCannotBecomeBlanketPermissions() {
+    @Test fun forcedScriptAndMemoryConfirmationCanBeRememberedForTheCurrentTool() {
         val gate = gate()
         for ((name, metadata) in listOf("script_run" to ToolMetadata(forceConfirmation = true), "memory_propose" to ToolMetadata())) {
             val decision = assess(gate, name, metadata)
-            assertTrue(decision.required); assertFalse(gate.allow(decision, ConfirmationScope.RUN))
+            assertTrue(decision.required); assertTrue(gate.allow(decision, ConfirmationScope.RUN))
+            assertFalse(assess(gate, name, metadata).required)
         }
         assertEquals(RiskLevel.READ_ONLY, assess(gate, "script_run", ToolMetadata(RiskContext(registeredScriptRisk = RiskLevel.READ_ONLY))).risk)
         assertTrue(assess(gate, "script_run", ToolMetadata(RiskContext(registeredScriptRisk = RiskLevel.SENSITIVE))).required)
+    }
+    @Test fun fullAccessBypassesEveryConfirmationIncludingForcedAndPaymentMetadata() {
+        val gate = gate(ConfirmationMode.FULL_ACCESS)
+        for (spec in catalog.tools) {
+            val decision = gate.assess(spec, ToolMetadata(payment = true, forceConfirmation = true))
+            assertFalse(spec.name, decision.required)
+        }
     }
     @Test fun policyCopiesMutableRiskInputsAndPreventsSensitiveDowngrades() {
         val packages = mutableSetOf("test.pay")

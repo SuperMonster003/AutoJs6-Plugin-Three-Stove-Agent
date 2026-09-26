@@ -56,6 +56,8 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
             "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray(),
             "budget" to request.options.limits.let { jsonObject("maxSteps" to it.maxSteps.json(), "maxModelCalls" to it.maxModelCalls.json(),
                 "maxDurationMs" to it.maxDurationMs.json(), "maxTotalTokens" to it.maxTotalTokens.json()) })
+            // Private audit marker for the plugin UI and history; the host/script projection omits it.
+            .apply { if (request.options.confirmationMode == ConfirmationMode.FULL_ACCESS) addProperty(FULL_ACCESS, true) }
         markDirty(run.id)
     }
     @Synchronized fun event(event: RunEvent) {
@@ -97,7 +99,7 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         return true
     }
     @Synchronized fun get(id: String, stepLimit: Int = 50, presentation: Boolean = false): JsonObject? = records[id]?.let { source ->
-        project(source, stepLimit).apply { if (presentation) pendingForUi(id)?.let { add("pending", it) } }
+        project(source, stepLimit).apply { if (presentation) pendingForUi(id)?.let { add("pending", it) } else remove(FULL_ACCESS) }
     }
     @Synchronized fun full(id: String): JsonObject? = records[id]?.deepCopy()
     /** All private history commands and file access run on the same worker as journal writes. */
@@ -147,6 +149,7 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
     }
     companion object {
         private const val MAX_RECORD_BYTES = RunHistoryCodec.MAX_BYTES
+        const val FULL_ACCESS = "fullAccess"
         private val TERMINAL = RunState.entries.filter { it.terminal }.map { it.wire }.toSet()
         internal fun recoverInterrupted(value: JsonObject) {
             val state = RunState.entries.firstOrNull { it.wire == value.string("state") } ?: error("Invalid state")

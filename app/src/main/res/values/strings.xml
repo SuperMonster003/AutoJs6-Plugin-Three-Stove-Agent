@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="accessibility_open_settings">Open accessibility settings</string>
+    <string name="accessibility_start_failed">Automatic accessibility startup failed. Enable the AutoJs6 accessibility service in system settings, then continue the task.</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -82,7 +84,8 @@
     <string name="history_unfinished">Unfinished work</string>
     <string name="history_until">Through date</string>
     <string name="history_usage">Usage: %1$s</string>
-    <string name="interaction_allow_run">Allow this tool at this risk level for this task</string>
+    <string name="interaction_allow_run">Always allow for this session</string>
+    <string name="interaction_allow_run_note">Allows this tool at this risk level until the current task ends, including changes to its arguments. Payments need their own approval; other tools still follow the selected policy.</string>
     <string name="interaction_channel">Questions and confirmations</string>
     <string name="interaction_confirmation">Action needs confirmation</string>
     <string name="interaction_expired">This request has ended. Open the workbench for the current task.</string>
@@ -227,7 +230,7 @@
     <string name="script_dynamic_expand">Show full source</string>
     <string name="script_dynamic_redacted">A password detected later was removed from this source. The original script cannot be saved from this step.</string>
     <string name="script_dynamic_save">Save generated script</string>
-    <string name="script_dynamic_save_note">Review the full source before saving. Choose the AutoJs6 working directory or an approved Script directory. The new file includes a sensitive @agent registration and always requires confirmation. If you choose another shared directory, add it under Script directories before the next catalog scan. Saving does not execute the script.</string>
+    <string name="script_dynamic_save_note">Review the full source before saving. Choose the AutoJs6 working directory or an approved Script directory. The new file includes a sensitive @agent registration and requires confirmation under the selected policy. If you choose another shared directory, add it under Script directories before the next catalog scan. Saving does not execute the script.</string>
     <string name="script_dynamic_saved">Script saved. The host can discover it when its directory is included in the next catalog scan.</string>
     <string name="script_dynamic_source">Generated JavaScript source</string>
     <string name="script_dynamic_source_summary">Source size (bytes): %1$d; lines: %2$d</string>
@@ -238,6 +241,7 @@
     <string name="script_roots_rejected">The host has not accepted these directories. Check that the paths exist in shared storage and do not contain the working directory.</string>
     <string name="script_roots_save">Save directories</string>
     <string name="script_roots_title">Script directories</string>
+    <string name="settings_access_mode">Operation permissions</string>
     <string name="settings_budget_note">Leave budgets blank for built-in defaults: 40 steps, 60 model calls, 10 minutes (30 for detached tasks), 300000 tokens. Maximums: 200 steps, 300 calls, 30 minutes (60 detached), 1000000 tokens. Durations below use milliseconds.</string>
     <string name="settings_clear">Clear data</string>
     <string name="settings_clear_confirm">Delete all entries in this category? This cannot be undone. Tasks must be idle.</string>
@@ -245,6 +249,8 @@
     <string name="settings_data">Data management</string>
     <string name="settings_error">Unable to read or save settings. Check the limits and try again. Stop active tasks before clearing data.</string>
     <string name="settings_floating">Enable floating ball</string>
+    <string name="settings_full_access">Full access</string>
+    <string name="settings_full_access_note">Full access: all enabled tools, including payments, deletion, scripts and memory writes, can run without approval. This overrides preset confirmation policies for new tasks. Review the goal before starting.</string>
     <string name="settings_license">License</string>
     <string name="settings_notices">Third-party notices</string>
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>

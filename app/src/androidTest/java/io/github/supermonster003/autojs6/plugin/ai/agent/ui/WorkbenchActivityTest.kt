@@ -436,6 +436,24 @@ class WorkbenchActivityTest {
             assertEquals(context.cacheDir.canonicalFile, directory.canonicalFile.parentFile); directory.deleteRecursively()
         }
     }
+    @Test fun fullAccessHistoryMarkerStaysInPluginViewsOnly() {
+        val directory = java.io.File(context.cacheDir, "full-access-history-${java.util.UUID.randomUUID()}").apply { check(mkdirs()) }
+        val id = java.util.UUID.randomUUID().toString()
+        val run = AgentJson.objectOf("""{"runId":"$id","goal":"Full access fixture","state":"completed","startedAt":1,"preset":"default","steps":[],"fullAccess":true}""")
+        java.io.File(directory, "$id.json").writeText(RunHistoryCodec.encode(run, 1))
+        val archive = RunArchive(directory)
+        val disk = RunArchive::class.java.getDeclaredField("disk").apply { isAccessible = true }.get(archive) as java.util.concurrent.ExecutorService
+        try {
+            waitFor("History loaded") { archive.ready }; disk.submit {}.get(10, TimeUnit.SECONDS)
+            assertEquals(true, archive.full(id)?.flag("fullAccess"))
+            assertEquals(true, archive.get(id, presentation = true)?.flag("fullAccess"))
+            // The host and script query projection never learns the private confirmation policy.
+            assertFalse(archive.get(id)!!.has("fullAccess"))
+        } finally {
+            disk.shutdown(); assertTrue(disk.awaitTermination(10, TimeUnit.SECONDS))
+            assertEquals(context.cacheDir.canonicalFile, directory.canonicalFile.parentFile); directory.deleteRecursively()
+        }
+    }
     @Test fun arabicNightLayoutKeepsLargeTextAndControlsWithinScrollableWidth() = withFixture { _, _ ->
         val audit = UiAccessibilityAudit()
         audit.themed {
@@ -735,7 +753,7 @@ class WorkbenchActivityTest {
                         it.findViewById<TextView>(R.id.interaction_countdown)?.text?.toString() != countdown
                 }
                 scenario.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).single().performClick() }
-                waitUi(scenario, "Separate memory confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 2 }
+                waitUi(scenario, "Separate memory confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 3 }
                 assertEquals(1, model.calls.get()); assertTrue(memory.rows().none { it.key == key })
                 assertNull(interactionNotification())
                 scenario.onActivity { cardButtons(it.findViewById(R.id.workbench_pending)).first().performClick() }
@@ -755,7 +773,7 @@ class WorkbenchActivityTest {
             enter(scenario, "P65 background confirmation")
             waitFor("Model starts") { model.held != null }
             model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"$key","value":"Denied fixture"}}""")
-            waitUi(scenario, "Inline confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 2 }
+            waitUi(scenario, "Inline confirmation") { cardButtons(it.findViewById(R.id.workbench_pending)).size == 3 }
             assertNull(interactionNotification())
             val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
             val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
@@ -767,7 +785,7 @@ class WorkbenchActivityTest {
             try {
                 assertNotEquals("Confirmation must not bring the workbench task over the target app", workbenchTask, activity.taskId)
                 waitFor("Notification destination renders pending confirmation") { var ready = false; instrumentation.runOnMainSync {
-                    ready = activity.findViewById<LinearLayout>(R.id.workbench_pending)?.let { cardButtons(it).size == 2 } == true
+                    ready = activity.findViewById<LinearLayout>(R.id.workbench_pending)?.let { cardButtons(it).size == 3 } == true
                 }; ready }
                 waitFor("Visible dialog suppresses notification") { interactionNotification() == null }
                 instrumentation.runOnMainSync {
@@ -872,7 +890,7 @@ class WorkbenchActivityTest {
             for (allowed in listOf(true, false)) {
                 card.render(AgentJson.objectOf("""{"runId":"fixture","interaction":"plugin","pending":{"requestId":"scope-$allowed","type":"confirmation","risk":"sensitive","description":"Fixture","arguments":{},"allowRunScope":$allowed}}"""))
                 assertEquals(if (allowed) 3 else 2, cardButtons(container).size)
-                if (allowed) { cardButtons(container).last().performClick(); assertEquals("run", response?.string("scope")) }
+                if (allowed) { cardButtons(container).single { it.text == context.getString(R.string.interaction_allow_run) }.performClick(); assertEquals("run", response?.string("scope")) }
             }
         }
     }
@@ -970,9 +988,9 @@ class WorkbenchActivityTest {
                         .first { it.asJsonObject.string("preset") == name }.asJsonObject.string("runId")!!
                     model.finish(proposal("Hot medium latte fixture"))
                     waitUi(scenario, "Memory confirmation shown") { it.findViewById<LinearLayout>(R.id.workbench_pending).let { card ->
-                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 2 } }
+                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 3 } }
                     val pending = run(id).getAsJsonObject("pending")
-                    assertEquals("memory_propose", pending.string("tool")); assertFalse(pending.flag("allowRunScope")!!)
+                    assertEquals("memory_propose", pending.string("tool")); assertTrue(pending.flag("allowRunScope")!!)
                     assertEquals(name, pending.getAsJsonObject("arguments").string("scope")); assertTrue(memory.rows().none { it.key == key })
                     scenario.onActivity { activity -> val card = activity.findViewById<LinearLayout>(R.id.workbench_pending)
                         (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().first().performClick() }
@@ -989,7 +1007,7 @@ class WorkbenchActivityTest {
                     waitFor("Full large memory confirmation") { run(second).getAsJsonObject("pending")?.string("tool") == "memory_propose" }
                     assertEquals(large, run(second).getAsJsonObject("pending").getAsJsonObject("arguments").string("value"))
                     waitUi(scenario, "Deny large memory") { it.findViewById<LinearLayout>(R.id.workbench_pending).let { card ->
-                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 2 } }
+                        (0 until card.childCount).map { index -> card.getChildAt(index) }.filterIsInstance<Button>().size == 3 } }
                     scenario.onActivity { activity -> val card = activity.findViewById<LinearLayout>(R.id.workbench_pending)
                         (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().last().performClick() }
                     waitFor("Denial returned to model") { model.calls.get() == 4 && model.held != null }

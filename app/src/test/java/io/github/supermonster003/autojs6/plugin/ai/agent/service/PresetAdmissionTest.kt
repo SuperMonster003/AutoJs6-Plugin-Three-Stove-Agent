@@ -57,8 +57,11 @@ class PresetAdmissionTest {
         for (mode in listOf("default", "cautious")) {
             val gate = ConfirmationGate(policy, request(preset = office.copy(confirmPolicy = mode)).options.confirmationMode)
             val payment = gate.assess(tool, ToolMetadata(payment = true))
-            assertEquals(RiskLevel.SENSITIVE, payment.risk); assertTrue(payment.required); assertFalse(payment.allowRunScope)
-            assertFalse(gate.allow(payment, ConfirmationScope.RUN)); assertTrue(gate.assess(tool, ToolMetadata(payment = true)).required)
+            assertEquals(RiskLevel.SENSITIVE, payment.risk); assertTrue(payment.required); assertTrue(payment.allowRunScope)
+            // A session approval for another sensitive action never covers a payment; only a payment approval does.
+            gate.allow(gate.assess(tool, ToolMetadata(context = RiskContext(nodeText = "Delete"))), ConfirmationScope.RUN)
+            assertTrue(gate.assess(tool, ToolMetadata(payment = true)).required)
+            assertTrue(gate.allow(payment, ConfirmationScope.RUN)); assertFalse(gate.assess(tool, ToolMetadata(payment = true)).required)
             assertTrue(gate.assess(catalog["script_run"]!!, ToolMetadata(context = RiskContext(registeredScriptRisk = RiskLevel.SENSITIVE))).required)
         }
     }

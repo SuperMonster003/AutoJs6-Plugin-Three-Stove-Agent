@@ -92,9 +92,10 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                 else -> { label(pending.string("description").orEmpty()); label(pending["arguments"]?.toString().orEmpty()) }
             }
             button(context.getString(R.string.task_allow), "primary") { send(allowed = true) }
+            val session = pending.flag("allowRunScope") == true
+            if (session) button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
             button(context.getString(R.string.task_deny), "danger") { send(allowed = false) }
-            if (pending.flag("allowRunScope") == true && pending.string("tool") != "script_run_source")
-                button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
+            if (session) label(context.getString(R.string.interaction_allow_run_note))
         } else {
             label(pending.string("question").orEmpty())
             if (pending.has("memoryKey")) {
