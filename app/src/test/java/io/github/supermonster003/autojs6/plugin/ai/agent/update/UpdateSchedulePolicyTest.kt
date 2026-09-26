@@ -11,7 +11,12 @@ class UpdateSchedulePolicyTest {
         assertTrue(UpdateSchedulePolicy.manualFetchDue(100, 100 + UpdateSchedulePolicy.INTERVAL_MS))
         assertTrue(UpdateSchedulePolicy.manualFetchDue(100, 99))
     }
-    @Test fun noNetworkConditionEnablesAutomaticChecks() {
-        for (metered in listOf(null, false, true)) assertFalse(UpdateSchedulePolicy.automaticCheckAllowed(metered))
+    @Test fun automaticChecksRequireOptInAndThrottleFailuresAsWellAsSuccesses() {
+        assertFalse(UpdateSchedulePolicy.automaticFetchDue(false, null, 100))
+        assertTrue(UpdateSchedulePolicy.automaticFetchDue(true, null, 100))
+        assertFalse(UpdateSchedulePolicy.automaticFetchDue(true, 100, 101))
+        assertFalse(UpdateSchedulePolicy.automaticFetchDue(true, 100, 100 + UpdateSchedulePolicy.AUTOMATIC_INTERVAL_MS - 1))
+        assertTrue(UpdateSchedulePolicy.automaticFetchDue(true, 100, 100 + UpdateSchedulePolicy.AUTOMATIC_INTERVAL_MS))
+        assertTrue(UpdateSchedulePolicy.automaticFetchDue(true, 100, 99))
     }
 }

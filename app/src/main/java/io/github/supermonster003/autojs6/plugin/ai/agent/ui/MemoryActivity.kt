@@ -48,21 +48,21 @@ class MemoryActivity : HostAppearanceActivity() {
         source = savedInstanceState?.getString("source")?.let(Uri::parse)
         destination = savedInstanceState?.getString("destination")?.let(Uri::parse)
         body = HistoryViews.column(this).apply { layoutDirection = resources.configuration.layoutDirection }
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(body) })
+        setContentView(AgentUi.screen(this, getString(R.string.memory_title), body, onBack = ::goBack))
         error = HistoryViews.label(body, "")
         connection = MemoryConnection(this) { refresh() }
     }
     override fun onStart() { super.onStart(); busy = false; connection.start() }
     override fun onStop() { editor?.let { draft = it.text.toString() }; connection.stop(); super.onStop() }
     override fun onDestroy() { connection.close(); files.shutdown(); super.onDestroy() }
-    override fun onSaveInstanceState(out: Bundle) {
-        selected?.let { out.putString("selected", MemoryCodec.entry(it).toString()) }
-        out.putString("draft", editor?.text?.toString() ?: draft)
+    override fun onSaveInstanceState(outState: Bundle) {
+        selected?.let { outState.putString("selected", MemoryCodec.entry(it).toString()) }
+        outState.putString("draft", editor?.text?.toString() ?: draft)
         // UTF-8 bytes keep even a full 256 KiB import below the saved-state Binder limit.
-        if (imports.isNotEmpty()) out.putByteArray("imports", MemoryCodec.encode(imports).toByteArray(Charsets.UTF_8))
-        out.putInt("importIndex", importIndex); out.putString("filter", filter)
-        out.putString("source", source?.toString()); out.putString("destination", destination?.toString())
-        super.onSaveInstanceState(out)
+        if (imports.isNotEmpty()) outState.putByteArray("imports", MemoryCodec.encode(imports).toByteArray(Charsets.UTF_8))
+        outState.putInt("importIndex", importIndex); outState.putString("filter", filter)
+        outState.putString("source", source?.toString()); outState.putString("destination", destination?.toString())
+        super.onSaveInstanceState(outState)
     }
     private fun query(operation: String, extra: JsonObject = JsonObject(), complete: (JsonObject) -> Unit) {
         extra.addProperty("operation", operation)
@@ -76,13 +76,14 @@ class MemoryActivity : HostAppearanceActivity() {
             if (source != null) readSource() else if (destination != null) writeDestination()
         }
     }
+    private fun goBack() {
+        if (busy) return
+        if (selected != null || imports.isNotEmpty()) { selected = null; draft = null; imports = emptyList(); importIndex = 0; refresh() } else finish()
+    }
+    override fun navigateBack() { goBack() }
     private fun header() {
         enable(true); editor = null; body.removeAllViews()
-        HistoryViews.label(body, getString(R.string.memory_title), true)
-        HistoryViews.button(body, R.string.workbench_back, "back") {
-            if (selected != null || imports.isNotEmpty()) { selected = null; draft = null; imports = emptyList(); importIndex = 0; refresh() }
-            else finish()
-        }
+
         error = HistoryViews.label(body, "").apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
         HistoryViews.label(body, getString(R.string.memory_note))
     }
@@ -94,7 +95,7 @@ class MemoryActivity : HostAppearanceActivity() {
                 .setPositiveButton(R.string.memory_export) { _, _ -> runCatching {
                     startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE)
                         .putExtra(Intent.EXTRA_TITLE, "ai-agent-memory.json"), EXPORT)
-                }.onFailure { showError() } }.show()
+                }.onFailure { showError() } }.showStyled()
         }
         HistoryViews.button(body, R.string.memory_import, "memory-import") {
             runCatching { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE), IMPORT) }
@@ -147,14 +148,14 @@ class MemoryActivity : HostAppearanceActivity() {
             val changed = row.copy(value = editor!!.text.toString())
             if (runCatching { MemoryCodec.preference(changed.key, changed.value) }.isFailure) { showError(); return@button }
             AlertDialog.Builder(this).setMessage(R.string.memory_save_confirm).setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(R.string.memory_save) { _, _ -> save(changed, row, false) { selected = null; draft = null; refresh() } }.show()
+                .setPositiveButton(R.string.memory_save) { _, _ -> save(changed, row, false) { selected = null; draft = null; refresh() } }.showStyled()
         }
         HistoryViews.button(body, R.string.memory_delete, "memory-delete") {
             AlertDialog.Builder(this).setMessage(R.string.memory_delete_confirm).setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.memory_delete) { _, _ ->
                     busy = true; enable(false)
                     query("delete", jsonObject("entry" to MemoryCodec.entry(row))) { busy = false; selected = null; draft = null; refresh() }
-                }.show()
+                }.showStyled()
         }
         tint(body)
     }

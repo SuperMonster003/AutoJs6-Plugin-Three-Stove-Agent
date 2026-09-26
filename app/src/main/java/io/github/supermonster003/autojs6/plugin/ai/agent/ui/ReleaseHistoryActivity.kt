@@ -18,10 +18,8 @@ class ReleaseHistoryActivity : HostAppearanceActivity() {
         val titleId = when (document) { "license" -> R.string.settings_license; "notices" -> R.string.settings_notices; else -> R.string.release_history_title }
         setTitle(titleId)
         val column = HistoryViews.column(this).apply { layoutDirection = resources.configuration.layoutDirection }
-        HistoryViews.label(column, getString(titleId), true)
-        HistoryViews.button(column, R.string.workbench_back, "back") { finish() }
         val content = HistoryViews.label(column, getString(R.string.interaction_loading)).apply { tag = "document" }
-        setContentView(ScrollView(this).apply { fitsSystemWindows = true; addView(column) }); tint(column)
+        setContentView(AgentUi.screen(this, getString(titleId), column)); tint(column)
         val locale = resources.configuration.locales[0]
         worker.execute {
             fun read(path: String): String = assets.open(path).use {

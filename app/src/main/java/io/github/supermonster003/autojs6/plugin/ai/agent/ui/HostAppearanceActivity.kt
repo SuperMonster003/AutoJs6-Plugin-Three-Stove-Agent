@@ -45,9 +45,13 @@ internal data class HostAppearance(val language: String, val dark: Boolean, val 
 abstract class HostAppearanceActivity : Activity() {
     protected open val dialogTheme = false
     private var applied: HostAppearance? = null
+    internal val appearance get() = applied
+    internal val sectionState = mutableMapOf<Int, Boolean>()
+    private lateinit var systemContext: Context
     private var appearanceGeneration = 0
     override fun attachBaseContext(newBase: Context) {
-        applied = HostAppearance.cached
+        systemContext = newBase
+        applied = AppearancePreferences.resolve(newBase)
         super.attachBaseContext(applied?.wrap(newBase) ?: newBase)
     }
     @Suppress("DEPRECATION")
@@ -57,11 +61,16 @@ abstract class HostAppearanceActivity : Activity() {
             if (dark) R.style.Theme_AiAgent_Dialog_Dark else R.style.Theme_AiAgent_Dialog_Light
         } else if (dark) R.style.Theme_AiAgent_Dark else R.style.Theme_AiAgent_Light)
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= 33) onBackInvokedDispatcher.registerOnBackInvokedCallback(
+            android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { navigateBack() }
+        savedInstanceState?.getBundle("sectionState")?.let { saved ->
+            saved.keySet().forEach { key -> key.toIntOrNull()?.let { sectionState[it] = saved.getBoolean(key) } }
+        }
         // PhoneWindow.getInsetsController() on Android 13 dereferences its decor directly.
         // Materialize it before querying the controller, even before setContentView().
         val decor = window.decorView
-        val attribute = android.util.TypedValue().also { theme.resolveAttribute(android.R.attr.colorBackground, it, true) }
-        val background = if (attribute.resourceId != 0) getColor(attribute.resourceId) else attribute.data
+        val background = AgentUi.palette(this, applied).background
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = background
         if (Build.VERSION.SDK_INT >= 26) window.navigationBarColor = background
@@ -77,39 +86,27 @@ abstract class HostAppearanceActivity : Activity() {
         HostAppearance.worker.execute {
             val next = HostAppearance.read(applicationContext)
             runOnUiThread {
-                if (expected == appearanceGeneration && !isFinishing && !isDestroyed && applied != next) {
-                    HostAppearance.cached = next; recreate()
+                if (expected == appearanceGeneration && !isFinishing && !isDestroyed) {
+                    HostAppearance.cached = next
+                    if (applied != AppearancePreferences.resolve(systemContext, next)) recreate()
                 }
             }
         }
     }
     override fun onStop() { appearanceGeneration++; super.onStop() }
+    protected open fun navigateBack() { finish() }
+    // API 24-32 use this callback; newer systems use the registered platform gesture callback above.
+    @android.annotation.SuppressLint("GestureBackNavigation")
+    @Deprecated("Legacy Android back callback")
+    override fun onBackPressed() { navigateBack() }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBundle("sectionState", Bundle().apply { sectionState.forEach { (key, value) -> putBoolean(key.toString(), value) } })
+        super.onSaveInstanceState(outState)
+    }
     internal fun tint(view: View) = styleHostControls(view, applied)
 }
 
 /** Apply touch targets even when the host appearance provider is unavailable. */
 internal fun styleHostControls(view: View, appearance: HostAppearance?) {
-    if (view is Button || view is EditText || view is Spinner) {
-        val minimum = kotlin.math.ceil(48 * view.resources.displayMetrics.density).toInt()
-        view.minimumWidth = maxOf(view.minimumWidth, minimum)
-        view.minimumHeight = maxOf(view.minimumHeight, minimum)
-    }
-    appearance?.let { colors ->
-        // Keep platform text contrast/disabled states; use host colors on accents only.
-        val accent = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
-            intArrayOf(colors.accent, (colors.accent and 0x00ffffff) or 0x61000000))
-        when (view) {
-            is CompoundButton -> view.buttonTintList = accent
-            is Button -> {
-                view.backgroundTintList = accent
-                val foreground = if (Color.luminance(colors.accent or (0xff shl 24)) > 0.179f) Color.BLACK else Color.WHITE
-                view.setTextColor(ColorStateList(arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
-                    intArrayOf(foreground, (foreground and 0xffffff) or 0x61000000)))
-            }
-            is EditText -> view.backgroundTintList = accent
-            is ProgressBar -> { view.progressTintList = accent; view.indeterminateTintList = accent }
-        }
-        if (view.tag == "host-primary") view.backgroundTintList = ColorStateList.valueOf(colors.primary)
-    }
-    if (view is ViewGroup) for (index in 0 until view.childCount) styleHostControls(view.getChildAt(index), appearance)
+    AgentUi.style(view, appearance)
 }

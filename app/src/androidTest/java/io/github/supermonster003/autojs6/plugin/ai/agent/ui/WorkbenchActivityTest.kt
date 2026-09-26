@@ -52,6 +52,7 @@ class WorkbenchActivityTest {
     private fun bundle(key: String, json: String = "{}") = AgentWire.envelope(key, json)
     private val completed = """{"kind":"done","done":{"status":"completed","summary":"Workbench fixture complete","evidence":["Fixture answer received"]}}"""
     private inner class Model(private val holdEveryCall: Boolean = false, private val displayName: String = "Workbench fixture model") : IAiAgentModelBroker.Stub() {
+        @Volatile var offerSecond = false
         val calls = AtomicInteger()
         val requests = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
         @Volatile var held: Pair<String, IAiAgentModelCallback>? = null
@@ -67,6 +68,8 @@ class WorkbenchActivityTest {
             emit(callback, id, "started", 1)
             val targets = JSONArray("""[{"targetId":"workbench:fixture","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")
             targets.getJSONObject(0).put("displayName", displayName)
+            if (offerSecond) targets.put(JSONObject(targets.getJSONObject(0).toString())
+                .put("targetId", "workbench:second").put("displayName", "Second online model"))
             emit(callback, id, "completed", 2, JSONObject().put("targets", targets))
         }
         override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
@@ -101,6 +104,8 @@ class WorkbenchActivityTest {
         }
         val prefs = context.getSharedPreferences("workbench", Context.MODE_PRIVATE)
         val oldGoal = prefs.getString("goal", null); val oldPreset = prefs.getString("preset", null)
+        val oldTarget = prefs.getString("target", null); val oldTargetName = prefs.getString("targetName", null)
+        prefs.edit().remove("target").remove("targetName").commit()
         check(context.bindService(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connection, Context.BIND_AUTO_CREATE))
         var link: IAiAgentLink? = null
         try {
@@ -113,7 +118,8 @@ class WorkbenchActivityTest {
             fixtureApi = null
             link?.detach(bundle(H.KEY_REASON_JSON, """{"reason":"workbench-test-finished"}"""))
             context.unbindService(connection)
-            prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset).commit()
+            prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset)
+                .putString("target", oldTarget).putString("targetName", oldTargetName).commit()
         }
     }
     private fun waitFor(message: String, timeoutMs: Long = 20000, predicate: () -> Boolean) {
@@ -130,13 +136,81 @@ class WorkbenchActivityTest {
         waitUi(scenario, "Send enabled after attachment") { it.findViewById<Button>(R.id.workbench_send).isEnabled }
         scenario.onActivity { it.findViewById<Button>(R.id.workbench_send).performClick() }
     }
+    @Test fun quickModelSwitchSurvivesRecreationAndAppliesOnlyToNewTasks() = withFixture(Model(true).apply { offerSecond = true }) { _, model ->
+        ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            waitUi(scenario, "Model selector enabled") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
+            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
+            waitUi(scenario, "Second public model listed") {
+                it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second") != null
+            }
+            scenario.onActivity {
+                it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick()
+            }
+            scenario.recreate()
+            waitUi(scenario, "Model selection retained") { it.modelPicker.selectedId == "workbench:second" }
+            enter(scenario, "Quick model fixture")
+            waitFor("Selected model used") { model.requests.size == 1 }
+            assertEquals("workbench:second", model.requests.single().getString("targetId"))
+            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
+            waitUi(scenario, "Default model option") {
+                it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-inherit") != null
+            }
+            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-inherit").performClick() }
+            assertEquals("Running request remains unchanged", "workbench:second", model.requests.single().getString("targetId"))
+            scenario.onActivity { it.findViewById<Button>(R.id.workbench_stop).performClick() }
+            waitUi(scenario, "Fixture cancelled") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_cancelled) }
+        }
+    }
+    @Test fun removedQuickModelBlocksNewTasksUntilTheUserChoosesAnotherModel() = withFixture(Model(true).apply { offerSecond = true }) { _, model ->
+        ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            waitUi(scenario, "Model selector ready") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
+            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
+            waitUi(scenario, "Second model loaded") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second") != null }
+            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick() }
+            model.offerSecond = false
+            scenario.recreate()
+            waitUi(scenario, "Removed model identified") { !it.modelPicker.selectionAvailable }
+            scenario.onActivity {
+                it.findViewById<EditText>(R.id.workbench_goal).setText("Do not silently change this model")
+                assertFalse(it.findViewById<Button>(R.id.workbench_send).isEnabled)
+                assertEquals("workbench:second", it.modelPicker.selectedId)
+                it.findViewById<Button>(R.id.workbench_model).performClick()
+            }
+            waitUi(scenario, "Replacement model loaded") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:fixture") != null }
+            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:fixture").performClick() }
+            waitUi(scenario, "New model enables sending") { it.findViewById<Button>(R.id.workbench_send).isEnabled }
+            assertEquals(0, model.calls.get())
+        }
+    }
+    @Test fun overflowSettingsEntryNavigatesWithoutDiscardingTheTaskDraft() = withFixture { _, _ ->
+        val monitor = instrumentation.addMonitor(SettingsActivity::class.java.name, null, false)
+        try {
+            ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                scenario.onActivity {
+                    it.findViewById<EditText>(R.id.workbench_goal).setText("Keep this draft")
+                    it.findViewById<View>(R.id.workbench_more).performClick()
+                    assertNotNull(it.overflowMenu!!.menu.findItem(R.id.workbench_settings))
+                    it.overflowMenu!!.menu.performIdentifierAction(R.id.workbench_settings, 0)
+                }
+                val settings = monitor.waitForActivityWithTimeout(10000)
+                assertNotNull(settings)
+                instrumentation.runOnMainSync { settings.finish() }
+                waitUi(scenario, "Draft remains after settings") { it.findViewById<EditText>(R.id.workbench_goal).text.toString() == "Keep this draft" }
+            }
+        } finally { instrumentation.removeMonitor(monitor) }
+    }
     @Test fun inputRunningInlineReplyRecreationCompletionAndOfflineDetails() = withFixture { link, model ->
         ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
             enter(scenario)
             waitFor("Model started") { model.calls.get() == 1 }
             waitUi(scenario, "Running card") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_running) }
+            waitUi(scenario, "New task is visible without manual scrolling") {
+                it.findViewById<View>(R.id.workbench_current_goal).getGlobalVisibleRect(android.graphics.Rect())
+            }
             model.finish("""{"kind":"ask","ask":{"kind":"text","question":"Fixture answer?"}}""")
-            waitUi(scenario, "Inline answer") { it.findViewById<EditText>(R.id.workbench_answer) != null }
+            waitUi(scenario, "Inline answer") {
+                it.findViewById<EditText>(R.id.workbench_answer)?.getGlobalVisibleRect(android.graphics.Rect()) == true
+            }
             scenario.onActivity { it.findViewById<EditText>(R.id.workbench_answer).setText("Fixture answer") }
             scenario.recreate()
             waitUi(scenario, "Answer draft survives recreation") { it.findViewById<EditText>(R.id.workbench_answer)?.text?.toString() == "Fixture answer" }
@@ -362,25 +436,26 @@ class WorkbenchActivityTest {
             assertEquals(context.cacheDir.canonicalFile, directory.canonicalFile.parentFile); directory.deleteRecursively()
         }
     }
-    @Test fun arabicNightLayoutKeepsLargeTextAndControlsWithinScrollableWidth() {
-        instrumentation.runOnMainSync {
-            val wrapped = HostAppearance("ar", true, 0xff334455.toInt(), 0xffeeddcc.toInt()).wrap(context)
-            val large = wrapped.createConfigurationContext(android.content.res.Configuration(wrapped.resources.configuration).apply { fontScale = 2f })
-            val themed = android.view.ContextThemeWrapper(large, R.style.Theme_AiAgent_Dark)
-            // Match the activity's content root: direction follows the host context, not the process locale.
-            val parent = FrameLayout(themed).apply { layoutDirection = large.resources.configuration.layoutDirection }
-            val view = android.view.LayoutInflater.from(themed).inflate(R.layout.activity_launcher, parent, false)
-            parent.addView(view)
-            val width = (360 * context.resources.displayMetrics.density).toInt()
-            parent.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(640, View.MeasureSpec.EXACTLY))
-            parent.layout(0, 0, width, 640)
-            assertEquals(View.LAYOUT_DIRECTION_RTL, view.layoutDirection)
-            assertTrue(view.findViewById<EditText>(R.id.workbench_goal).textSize >= 30 * context.resources.displayMetrics.density)
-            for (id in listOf(R.id.workbench_goal, R.id.workbench_send, R.id.workbench_voice, R.id.launcher_connect)) {
-                val field = view.findViewById<View>(id)
-                assertTrue(field.width in 1..width); assertTrue(field.height > 0)
+    @Test fun arabicNightLayoutKeepsLargeTextAndControlsWithinScrollableWidth() = withFixture { _, _ ->
+        val audit = UiAccessibilityAudit()
+        audit.themed {
+            ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                waitUi(scenario, "Real workbench laid out") { it.findViewById<View>(R.id.workbench_send).isLaidOut }
+                scenario.onActivity { activity ->
+                    val root = activity.findViewById<ViewGroup>(android.R.id.content)
+                    fun enlarge(view: View) {
+                        if (view is TextView) view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, view.textSize * 2)
+                        if (view is ViewGroup) for (index in 0 until view.childCount) enlarge(view.getChildAt(index))
+                    }
+                    enlarge(root)
+                    val width = AgentUi.dp(activity, 360)
+                    val height = AgentUi.dp(activity, 640)
+                    root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                    root.layout(0, 0, width, height)
+                    audit.inspect(activity, "workbench-large")
+                }
             }
-            assertTrue((view as ScrollView).getChildAt(0).height > view.height)
+            audit.finish()
         }
     }
     private inner class PresetsClient : AutoCloseable {
@@ -1040,7 +1115,7 @@ class WorkbenchActivityTest {
                     val root = activity.findViewById<ViewGroup>(android.R.id.content)
                     assertEquals("ar", activity.resources.configuration.locales[0].language)
                     assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_YES, activity.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-                    assertEquals(View.LAYOUT_DIRECTION_RTL, (root.getChildAt(0) as ScrollView).getChildAt(0).layoutDirection)
+                    assertEquals(View.LAYOUT_DIRECTION_RTL, root.getChildAt(0).layoutDirection)
                     for (tag in listOf("memory-refresh", "memory-export", "memory-import")) {
                         val view = root.findViewWithTag<Button>(tag)
                         assertTrue(view.width in 1..root.width); assertTrue(view.height > 0)
@@ -1056,7 +1131,8 @@ class WorkbenchActivityTest {
             }
         } finally { HostAppearance.cached = original; release.countDown() }
     }
-    @Test fun shareAndShortcutOpenDraftsAndEachStartExactlyOneTask() = withFixture { link, model ->
+    @Test fun shareAndShortcutOpenDraftsAndEachStartExactlyOneTask() = withFixture(Model().apply { offerSecond = true }) { link, model ->
+        context.getSharedPreferences("workbench", Context.MODE_PRIVATE).edit().putString("target", "workbench:second").commit()
         val automation = instrumentation.uiAutomation
         val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
         try {
@@ -1072,7 +1148,9 @@ class WorkbenchActivityTest {
                     launcher?.findViewById<Button>(R.id.workbench_send)?.isEnabled == true
             }; ready }
             instrumentation.runOnMainSync { launcher!!.findViewById<Button>(R.id.workbench_send).performClick() }
-            waitFor("Share model call") { model.calls.get() == 1 && model.held != null }; model.finish(completed)
+            waitFor("Share model call") { model.calls.get() == 1 && model.held != null }
+            assertEquals("Sharing text preserves the quick model", "workbench:second", model.requests[0].getString("targetId"))
+            model.finish(completed)
             waitFor("Share completes") { AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId") == null }
             instrumentation.runOnMainSync { launcher!!.finish() }
             val entry = TaskEntry("Shortcut acceptance fixture", "default")
@@ -1083,6 +1161,7 @@ class WorkbenchActivityTest {
                 assertEquals(1, model.calls.get())
                 scenario.onActivity { it.findViewById<Button>(R.id.workbench_send).performClick() }
                 waitFor("Shortcut model call") { model.calls.get() == 2 }
+                assertEquals("Preset shortcut uses its own model", "workbench:fixture", model.requests[1].getString("targetId"))
                 waitUi(scenario, "Shortcut completed") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_completed) }
             }
         } finally { instrumentation.removeMonitor(monitor) }
@@ -1368,12 +1447,15 @@ class WorkbenchActivityTest {
                          after: (ActivityScenario<android.app.Activity>) -> Unit = {}) {
                     val intent = Intent(context, type).putExtra("runId", runId).putExtra("rerunPreset", preset).putExtra("rerunGoal", "Layout inspection fixture")
                     ActivityScenario.launch<android.app.Activity>(intent).use { scenario ->
+                        scenario.onActivity { audit.expandSections(it) }
                         waitFor("$name laid out") { var ready = false; scenario.onActivity {
                             val root = it.findViewById<ViewGroup>(android.R.id.content)
                             ready = root.width > 0 && (readyTag == null || root.findViewWithTag<View>(readyTag)?.isLaidOut == true) &&
                                 (type != HistoryActivity::class.java || texts(root).any { it.contains("Layout inspection fixture") }) &&
                                 (type != LauncherActivity::class.java || it.findViewById<Spinner>(R.id.workbench_preset)?.adapter?.count?.let { n -> n > 0 } == true)
                         }; ready }
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { audit.expandSections(it) }
                         instrumentation.waitForIdleSync()
                         scenario.onActivity { audit.inspect(it, name) }
                         after(scenario)
@@ -1499,6 +1581,50 @@ class WorkbenchActivityTest {
                 }
             }
         }
+    }
+
+    @Test fun captureRedesignedScreens() {
+        ReadmeCapture.requireOptIn()
+        val original = AppearancePreferences.read(context)
+        val dark = InstrumentationRegistry.getArguments().getString("agent.ui.dark", "false").toBoolean()
+        AppearancePreferences("zh-Hans", if (dark) "dark" else "light", AppearancePreferences.DEFAULT_COLOR).save(context)
+        try {
+            withFixture(Model(true, "Example online model").apply { offerSecond = true }) { _, _ ->
+                ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+                    waitUi(scenario, "Redesign home ready") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
+                    waitUi(scenario, "Redesign picker ready") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second")?.isLaidOut == true }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity {
+                        ReadmeCapture.save(it.modelPicker.dialog!!.window!!.decorView, "models-$dark")
+                        it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick()
+                        it.findViewById<EditText>(R.id.workbench_goal).setText("帮我整理今天的待办, 并按优先级安排执行顺序.")
+                    }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { ReadmeCapture.save(it.window.decorView, "home-$dark") }
+                }
+                ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+                    waitFor("Redesign settings ready") { var ready = false; scenario.onActivity {
+                        ready = it.findViewById<View>(android.R.id.content).findViewWithTag<View>("appearance-color")?.isLaidOut == true &&
+                            it.findViewById<View>(android.R.id.content).findViewWithTag<View>("maxSteps") != null
+                    }; ready }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity {
+                        ReadmeCapture.save(it.window.decorView, "settings-$dark")
+                        val shell = it.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ViewGroup
+                        (shell.getChildAt(1) as ScrollView).apply { isSmoothScrollingEnabled = false; fullScroll(View.FOCUS_DOWN) }
+                    }
+                    waitFor("Settings bottom visible") { var ready = false; scenario.onActivity {
+                        val shell = it.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ViewGroup
+                        val scroll = shell.getChildAt(1) as ScrollView
+                        ready = scroll.scrollY >= scroll.getChildAt(0).height - scroll.height - 1
+                    }; ready }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { ReadmeCapture.save(it.window.decorView, "settings-more-$dark") }
+                }
+            }
+        } finally { original.save(context) }
     }
 
     private fun deleteAuditRun(id: String) {

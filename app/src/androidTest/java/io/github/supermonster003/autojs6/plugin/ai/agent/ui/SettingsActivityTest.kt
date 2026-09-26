@@ -84,6 +84,53 @@ class SettingsActivityTest {
             ui(scenario, "Saved state retained") { it.view<CheckBox>("cautious")?.isChecked == true && it.view<CheckBox>("voice")?.isChecked == false }
         }
     }
+    @Test fun appearanceChoicesPersistAndPreserveTheUnsavedTaskDraft() = isolated { _, _, _ ->
+        val original = AppearancePreferences.read(context)
+        AppearancePreferences(language = "en", darkMode = "light").save(context)
+        try {
+            ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+                ui(scenario, "Appearance and task settings ready") { it.view<EditText>("maxSteps") != null }
+                scenario.onActivity {
+                    it.view<EditText>("maxSteps")!!.setText("9")
+                    it.view<Button>("appearance-language")!!.performClick()
+                    val list = it.appearanceSettings.dialog!!.listView
+                    list.performItemClick(null, 2, list.adapter.getItemId(2))
+                }
+                ui(scenario, "Chinese applied without losing draft") {
+                    it.resources.configuration.locales[0].language == "zh" && it.view<EditText>("maxSteps")?.text?.toString() == "9"
+                }
+                scenario.onActivity {
+                    it.view<Button>("appearance-dark")!!.performClick()
+                    val list = it.appearanceSettings.dialog!!.listView
+                    list.performItemClick(null, 3, list.adapter.getItemId(3))
+                }
+                ui(scenario, "Independent dark preference applied") {
+                    it.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES &&
+                        it.view<EditText>("maxSteps")?.text?.toString() == "9"
+                }
+                scenario.onActivity {
+                    it.view<Button>("appearance-color")!!.performClick()
+                    val list = it.appearanceSettings.dialog!!.listView
+                    list.performItemClick(null, 2, list.adapter.getItemId(2))
+                }
+                ui(scenario, "Theme color applied") { it.appearance?.primary == 0xff007c8a.toInt() && it.view<EditText>("maxSteps")?.text?.toString() == "9" }
+                assertEquals(AppearancePreferences("zh-Hans", "dark", 0xff007c8a.toInt()), AppearancePreferences.read(context))
+            }
+        } finally { original.save(context) }
+    }
+    @Test fun ignoredVersionsMigrateAndCanBeRestoredIndividually() = withUpdatePreferences { preferences ->
+        preferences.edit().putString("ignored", "v2.0.0").commit()
+        val settings = AppUpdateSettings(context)
+        assertFalse(settings.automatic)
+        settings.automatic = true
+        settings.ignore("v3.0.0")
+        assertEquals(setOf("v2.0.0", "v3.0.0"), AppUpdateSettings(context).ignored)
+        settings.unignore(listOf("2.0.0"))
+        assertEquals(setOf("v3.0.0"), settings.ignored)
+        assertTrue(AppUpdateSettings(context).automatic)
+        settings.unignore(listOf("v3.0.0"))
+        assertTrue(settings.ignored.isEmpty())
+    }
     @Test fun defaultSelectionAndConfirmedCategoryClearsReachRealStores() = isolated { _, endpoint, directory ->
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
             ui(scenario, "Data rows") { it.view<Button>("clear-memory") != null }
@@ -170,9 +217,10 @@ class SettingsActivityTest {
             assertEquals("ar", activity.resources.configuration.locales[0].language)
             assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_YES,
                 activity.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-            assertEquals(View.LAYOUT_DIRECTION_RTL, (root.getChildAt(0) as ScrollView).getChildAt(0).layoutDirection)
+            assertEquals(View.LAYOUT_DIRECTION_RTL, root.getChildAt(0).layoutDirection)
             fun widths(view: View) {
-                if (view.visibility != View.GONE) assertTrue("${view.tag} fits", view.width in 1..root.width)
+                if (view.visibility == View.GONE) return
+                assertTrue("${view.tag} fits", view.width in 1..root.width)
                 if (view is ViewGroup) for (index in 0 until view.childCount) widths(view.getChildAt(index))
             }
             widths(root)
@@ -184,6 +232,8 @@ class SettingsActivityTest {
         try {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
                 ui(scenario, "RTL settings layout") { it.view<Button>("update")?.isLaidOut == true }
+                scenario.onActivity { UiAccessibilityAudit().expandSections(it) }
+                instrumentation.waitForIdleSync()
                 scenario.onActivity { inspect(it, "settings") }
             }
             ActivityScenario.launch(ReleaseHistoryActivity::class.java).use { scenario ->
@@ -200,6 +250,8 @@ class SettingsActivityTest {
         audit.themed {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
                 ui(scenario, "Audit settings ready") { it.view<Button>("update")?.isLaidOut == true }
+                scenario.onActivity { audit.expandSections(it) }
+                instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it, "settings"); it.view<Button>("clear-history")!!.performClick() }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "clear-dialog"); it.prompt!!.dismiss() }
@@ -232,10 +284,32 @@ class SettingsActivityTest {
         try { action(preferences) } finally {
             AppUpdateCoordinator.sourceOverride = null
             preferences.edit().clear().apply {
-                saved.forEach { (key, value) -> when (value) { is String -> putString(key, value); is Long -> putLong(key, value); is Boolean -> putBoolean(key, value) } }
+                saved.forEach { (key, value) -> when (value) { is String -> putString(key, value); is Long -> putLong(key, value); is Boolean -> putBoolean(key, value)
+                    is Set<*> -> putStringSet(key, value.filterIsInstance<String>().toSet()) } }
             }.commit()
         }
     }
+    @Test fun automaticUpdatesRequireOptInRespectIgnoredVersionsAndThrottleRequests() = isolated { _, _, _ -> withUpdatePreferences { preferences ->
+        val calls = AtomicInteger()
+        val release = ReleaseInfo("v2.0.0", ReleaseInfoCodec.SOURCE + "/releases/tag/v2.0.0", "Controlled automatic update fixture")
+        AppUpdateCoordinator.sourceOverride = UpdateSource { calls.incrementAndGet(); UpdateResult.Success(release) }
+        AppUpdateSettings(context).ignore("v2.0.0")
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Update controls ready") { it.view<Button>("update") != null }
+            scenario.onActivity { it.updates.checkAutomatically() }
+            assertEquals(0, calls.get())
+            AppUpdateSettings(context).automatic = true
+            scenario.onActivity { it.updates.checkAutomatically() }
+            waitFor("Automatic result cached") { preferences.contains("checked") }
+            assertEquals(1, calls.get())
+            scenario.onActivity {
+                assertNull("Ignored automatic release stays silent", it.updates.dialog)
+                it.updates.checkAutomatically()
+                assertNull(it.updates.dialog)
+            }
+            assertEquals("Same foreground session is throttled", 1, calls.get())
+        }
+    } }
     @Test fun manualUpdateCacheIgnoreAndBothNavigationButtonsWork() = isolated { _, _, _ -> withUpdatePreferences { preferences ->
         val calls = AtomicInteger(); val release = ReleaseInfo("v2.0.0", "${ReleaseInfoCodec.SOURCE}/releases/tag/v2.0.0", "Controlled update fixture")
         AppUpdateCoordinator.sourceOverride = UpdateSource { calls.incrementAndGet(); UpdateResult.Success(release) }

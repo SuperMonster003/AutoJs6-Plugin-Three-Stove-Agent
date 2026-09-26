@@ -13,6 +13,8 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.RunLauncher
+import io.github.supermonster003.autojs6.plugin.ai.agent.aiAgentPluginRuntimeInfo
+import io.github.supermonster003.autojs6.plugin.ai.agent.update.AppUpdateCoordinator
 import org.autojs.plugin.ai.agent.api.AiAgentActions
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import java.util.UUID
@@ -24,6 +26,9 @@ class LauncherActivity : HostAppearanceActivity() {
     private val visibility by lazy { InteractionVisibility(this, followsRun = true) }
     private lateinit var goal: EditText
     private lateinit var preset: Spinner
+    internal lateinit var modelPicker: ModelPicker; private set
+    internal var overflowMenu: PopupMenu? = null; private set
+    private lateinit var updates: AppUpdateCoordinator
     private val scriptRoots by lazy { ScriptRootSettings(this) }
     private val drafts by lazy { getSharedPreferences("workbench", MODE_PRIVATE) }
     private var currentId: String? = null
@@ -37,15 +42,23 @@ class LauncherActivity : HostAppearanceActivity() {
     private var selectedPreset = "default"
     private var followDefault = true
     private var recentKey = ""
+    private var revealCurrent = false
+    private var lastPendingId: String? = null
     internal var hostReader: () -> HostPackageSnapshot? = { readHostPackage() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_launcher)
+        setContentView(WorkbenchLayout.create(this))
+        updates = AppUpdateCoordinator(this, aiAgentPluginRuntimeInfo().versionName)
+        modelPicker = ModelPicker(this, findViewById(R.id.workbench_model), ::updateSend)
         findViewById<View>(android.R.id.content).layoutDirection = resources.configuration.layoutDirection
         agent = AgentConnection(this, ::render)
         agent.selectedId = savedInstanceState?.getString("selectedId")
         val entry = TaskEntries.read(intent)
+        // Explicit preset shortcuts and history reruns keep their own model inheritance.
+        modelPicker.selectedId = if (savedInstanceState != null) savedInstanceState.getString("target") else if (entry?.preset != null) null else drafts.getString("target", null)
+        modelPicker.selectedName = savedInstanceState?.getString("targetName") ?: drafts.getString("targetName", null)
+        modelPicker.renderButton()
         if (savedInstanceState == null && intent.action == TaskEntries.PRESET_TASK && entry != null) TaskEntries.opened(this, entry)
         selectedPreset = savedInstanceState?.getString("preset") ?: entry?.preset ?: drafts.getString("preset", "default")!!
         goal = findViewById(R.id.workbench_goal)
@@ -79,10 +92,23 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         findViewById<Button>(R.id.workbench_details).setOnClickListener { currentId?.let(::openDetail) }
         findViewById<Button>(R.id.workbench_history).setOnClickListener { startActivity(Intent(this, HistoryActivity::class.java)) }
-        findViewById<Button>(R.id.workbench_presets).setOnClickListener { startActivity(Intent(this, PresetsActivity::class.java)) }
-        findViewById<Button>(R.id.workbench_memory).setOnClickListener { startActivity(Intent(this, MemoryActivity::class.java)) }
-        findViewById<Button>(R.id.workbench_settings).setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        findViewById<Button>(R.id.launcher_script_roots).setOnClickListener { startActivity(Intent(this, ScriptRootsActivity::class.java)) }
+        findViewById<View>(R.id.workbench_more).setOnClickListener { anchor ->
+            overflowMenu = PopupMenu(this, anchor).apply {
+                menu.add(0, R.id.workbench_settings, 0, R.string.settings_title)
+                menu.add(0, R.id.workbench_presets, 1, R.string.presets_title)
+                menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)
+                menu.add(0, R.id.launcher_script_roots, 3, R.string.script_roots_title)
+                setOnMenuItemClickListener { item ->
+                    val screen = when (item.itemId) {
+                        R.id.workbench_settings -> SettingsActivity::class.java
+                        R.id.workbench_presets -> PresetsActivity::class.java
+                        R.id.workbench_memory -> MemoryActivity::class.java
+                        else -> ScriptRootsActivity::class.java
+                    }
+                    startActivity(Intent(this@LauncherActivity, screen)); true
+                }; show()
+            }
+        }
         findViewById<Button>(R.id.launcher_connect).setOnClickListener { requested = false; requestAttachment() }
         findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
             packageManager.getLaunchIntentForPackage(AiAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
@@ -96,18 +122,21 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         updateSend(); tint(findViewById(android.R.id.content))
     }
-    override fun onStart() { super.onStart(); requested = false; sending = false; agent.start() }
+    override fun onStart() { super.onStart(); requested = false; sending = false; modelPicker.start(); agent.start(); updates.checkAutomatically() }
     override fun onResume() { super.onResume(); visibility.start() }
     override fun onPause() { visibility.stop(); super.onPause() }
     override fun onStop() {
-        drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
-        agent.stop(); super.onStop()
+        drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset)
+            .putString("target", modelPicker.selectedId).putString("targetName", modelPicker.selectedName).apply()
+        overflowMenu?.dismiss(); overflowMenu = null
+        modelPicker.stop(); updates.cancel(); agent.stop(); super.onStop()
     }
-    override fun onDestroy() { agent.close(); super.onDestroy() }
+    override fun onDestroy() { modelPicker.close(); updates.close(); agent.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("goal", goal.text.toString()); outState.putString("preset", selectedPreset)
         outState.putString("selectedId", agent.selectedId)
         outState.putBoolean("followDefault", followDefault)
+        outState.putString("target", modelPicker.selectedId); outState.putString("targetName", modelPicker.selectedName)
         pending.save(outState)
         super.onSaveInstanceState(outState)
     }
@@ -119,9 +148,9 @@ class LauncherActivity : HostAppearanceActivity() {
     }
 
     private fun launchRun() {
-        if (!attached || sending || selectedPreset !in availablePresets) return
+        if (!attached || sending || selectedPreset !in availablePresets || !modelPicker.selectionAvailable) return
         val text = goal.text.toString().trim()
-        val request = runCatching { RunLauncher.uiRequest(text, selectedPreset, resources.configuration.locales[0].toLanguageTag()) }.getOrNull()
+        val request = runCatching { RunLauncher.uiRequest(text, selectedPreset, resources.configuration.locales[0].toLanguageTag(), modelPicker.selectedId) }.getOrNull()
         if (request == null) { goal.error = getString(R.string.workbench_goal_invalid); return }
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
@@ -131,7 +160,9 @@ class LauncherActivity : HostAppearanceActivity() {
         }, null) }) { result ->
             sending = false
             result.onSuccess {
-                agent.selectedId = it.string("runId")
+                agent.selectedId = it.string("runId"); revealCurrent = true
+                goal.clearFocus()
+                (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(goal.windowToken, 0)
                 if (goal.text.toString().trim() == text) goal.setText("")
                 drafts.edit().putString("goal", goal.text.toString()).apply()
                 findViewById<TextView>(R.id.workbench_error).visibility = View.GONE
@@ -140,7 +171,7 @@ class LauncherActivity : HostAppearanceActivity() {
         }
     }
     private fun updateSend() {
-        findViewById<Button>(R.id.workbench_send).isEnabled = attached && !sending && goal.text.isNotBlank() && selectedPreset in availablePresets
+        findViewById<Button>(R.id.workbench_send).isEnabled = attached && !sending && goal.text.isNotBlank() && selectedPreset in availablePresets && modelPicker.selectionAvailable
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
@@ -183,16 +214,30 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         pending.render(row)
         visibility.render(row)
+        val request = row?.getAsJsonObject("pending")?.string("requestId")
+        val revealQuestion = request != null && request != lastPendingId
+        lastPendingId = request
+        if (row != null && (revealCurrent || revealQuestion)) {
+            revealCurrent = false
+            val target = findViewById<View>(if (revealQuestion) R.id.workbench_pending else R.id.workbench_current)
+            target.post {
+                target.requestRectangleOnScreen(android.graphics.Rect(0, 0, target.width, minOf(target.height, AgentUi.dp(this, 220))), false)
+            }
+        }
         val key = value.runs.toString()
         if (key != recentKey) {
             recentKey = key
             findViewById<LinearLayout>(R.id.workbench_recent).apply {
                 removeAllViews()
-                if (value.runs.isEmpty()) addView(TextView(context).apply { setText(R.string.workbench_no_runs) })
-                else value.runs.take(20).forEach { recent -> addView(Button(context).apply {
-                    isAllCaps = false; text = getString(R.string.workbench_recent_item, recent.string("goal"), WorkbenchText.state(context, recent))
-                    setOnClickListener { recent.string("runId")?.let(::openDetail) }
-                }) }
+                if (value.runs.isEmpty()) {
+                    AgentUi.text(this, getString(R.string.ui_empty_title), 18, true)
+                    AgentUi.text(this, getString(R.string.workbench_no_runs), 14).setTextColor(AgentUi.palette(context).muted)
+                } else value.runs.take(5).forEach { recent ->
+                    AgentUi.row(this, recent.string("goal").orEmpty(), WorkbenchText.state(context, recent) + " / " +
+                        HistoryViews.date(context, recent.number("startedAt") ?: 0), "recent-${recent.string("runId")}") {
+                        recent.string("runId")?.let(::openDetail)
+                    }
+                }
             }
             tint(findViewById(R.id.workbench_recent))
         }
@@ -205,18 +250,28 @@ class LauncherActivity : HostAppearanceActivity() {
             status.getAsJsonArray("scriptRoots").map { it.asString }.toSet() == scriptRoots.read()
         }.getOrDefault(false)
         attached = presence == HostPresence.READY && status.string("state") == C.LINK_STATE_ATTACHED && rootsAccepted
+        modelPicker.attached(attached)
         val label = when (presence) {
             HostPresence.MISSING -> getString(R.string.launcher_host_missing, AiAgentPlugin.REQUIRED_HOST_VERSION)
             HostPresence.DISABLED -> getString(R.string.launcher_host_disabled)
             HostPresence.INCOMPATIBLE -> getString(R.string.launcher_host_incompatible, host!!.versionCode, AiAgentPlugin.REQUIRED_HOST_VERSION)
             HostPresence.READY -> when {
-                attached -> { deadline = 0; getString(R.string.workbench_connected, status.string("modelName") ?: getString(R.string.workbench_auto_model)) }
+                attached -> { deadline = 0; getString(R.string.ui_connected) }
                 deadline > SystemClock.elapsedRealtime() -> getString(R.string.launcher_link_connecting)
                 requested -> getString(if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) R.string.script_roots_rejected else R.string.launcher_link_timeout)
                 else -> getString(R.string.launcher_host_ready, host!!.versionName, host.versionCode)
             }
         }
-        findViewById<TextView>(R.id.launcher_host_status).text = label
+        findViewById<TextView>(R.id.launcher_host_status).apply {
+            text = label; setTextColor(AgentUi.palette(this@LauncherActivity).muted)
+            val dot = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.OVAL
+                setColor(if (attached) AgentUi.palette(this@LauncherActivity).accent else AgentUi.palette(this@LauncherActivity).muted)
+                setBounds(0, 0, AgentUi.dp(this@LauncherActivity, 7), AgentUi.dp(this@LauncherActivity, 7))
+            }
+            compoundDrawablePadding = AgentUi.dp(this@LauncherActivity, 8)
+            setCompoundDrawablesRelative(dot, null, null, null)
+        }
         findViewById<Button>(R.id.launcher_connect).apply { isEnabled = presence == HostPresence.READY; visibility = if (attached) View.GONE else View.VISIBLE }
         findViewById<Button>(R.id.launcher_open_host).apply { isEnabled = presence == HostPresence.READY; visibility = if (attached) View.GONE else View.VISIBLE }
         if (presence == HostPresence.READY && !attached && !requested) requestAttachment()

@@ -32,6 +32,14 @@ internal class UiAccessibilityAudit {
         try { action() } finally { HostAppearance.cached = previous; release.countDown() }
     }
 
+    fun expandSections(activity: Activity) {
+        fun visit(view: View) {
+            if (view is Button && (view.tag as? String)?.startsWith("section-") == true && !view.isActivated) view.performClick()
+            if (view is ViewGroup) for (index in 0 until view.childCount) visit(view.getChildAt(index))
+        }
+        visit(activity.findViewById(android.R.id.content))
+    }
+
     fun inspect(activity: Activity, name: String) {
         val configuration = activity.resources.configuration
         assertEquals(language, configuration.locales[0].language)
@@ -56,7 +64,7 @@ internal class UiAccessibilityAudit {
             (runCatching { view.resources.getResourceEntryName(view.id) }.getOrNull() ?: "generated")
         fun check(ok: Boolean, view: View, issue: String) { if (!ok) failures += "$name/${identity(view)}: $issue" }
         for (view in views) {
-            val control = view is Button || view is EditText || view is Spinner
+            val control = view is Button || view is ImageButton || view is EditText || view is Spinner
             if (control) {
                 controls++
                 val caption = views.filterIsInstance<TextView>().any {

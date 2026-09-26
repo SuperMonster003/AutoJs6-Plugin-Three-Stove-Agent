@@ -102,7 +102,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val refreshAppearance = readAppearance; readAppearance = false
         worker.execute {
             // No idle timer, model call or provider binding. Archive access stays off the UI thread.
-            val nextAppearance = if (refreshAppearance) HostAppearance.read(app) else appearance
+            val nextAppearance = if (refreshAppearance) AppearancePreferences.resolve(app, HostAppearance.read(app)) else appearance
             val value = runCatching {
                 val link = runtime.current
                 val status = link?.let { AgentConnection.decode(it.status(), C.KEY_STATUS_JSON) } ?: JsonObject()
@@ -161,7 +161,11 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     }
     private fun button(parent: LinearLayout, resource: Int, tag: String, action: () -> Unit): Button = Button(context).apply {
         text = context.getString(resource); contentDescription = text; this.tag = tag; isAllCaps = false
-        minimumHeight = dp(48); setOnClickListener { action() }; parent.addView(this)
+        AgentUi.role(this, when (tag) { "floating-send", "floating-toggle" -> "primary"; "floating-stop" -> "danger"; else -> "secondary" })
+        minimumHeight = dp(48); setOnClickListener { action() }
+        parent.addView(this, LinearLayout.LayoutParams(if (parent.orientation == LinearLayout.VERTICAL) -1 else -2, -2).apply {
+            if (parent.orientation == LinearLayout.VERTICAL) { topMargin = dp(6); bottomMargin = dp(6) }
+        })
     }
     @android.annotation.SuppressLint("RtlHardcoded") // x/y are physical display coordinates; content still follows RTL.
     @Suppress("DEPRECATION")
@@ -172,7 +176,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             val background = android.util.TypedValue().also { context.theme.resolveAttribute(android.R.attr.colorBackground, it, true) }
             this.background = android.graphics.drawable.GradientDrawable().apply {
                 setColor(if (background.resourceId != 0) context.getColor(background.resourceId) else background.data)
-                cornerRadius = dp(if (!expanded && snapshot?.run == null) 32 else 8).toFloat()
+                cornerRadius = dp(if (!expanded && snapshot?.run == null) 32 else 22).toFloat()
             }
             clipToOutline = true
             elevation = dp(8).toFloat(); setPadding(dp(4), dp(4), dp(4), dp(4))
@@ -181,7 +185,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; body.addView(this) }
         val handle = button(header, if (expanded) R.string.floating_collapse else R.string.floating_open, "floating-toggle") { toggle() }
         handle.setText(R.string.floating_monogram)
-        handle.background = android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(appearance?.accent ?: 0xff607d8b.toInt()) }
+        handle.background = android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(AgentUi.palette(context, appearance).accent) }
         handle.minWidth = dp(48); handle.minimumWidth = dp(48)
         handle.layoutParams = LinearLayout.LayoutParams(dp(56), -2)
         drag(handle)

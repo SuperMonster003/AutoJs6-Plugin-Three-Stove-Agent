@@ -44,13 +44,12 @@ class RunDetailActivity : HostAppearanceActivity() {
         destination = savedInstanceState?.getString("destination")?.let(Uri::parse)
         scriptDestination = savedInstanceState?.getString("scriptDestination")?.let(Uri::parse)
         scriptStep = savedInstanceState?.getInt("scriptStep", -1)?.takeIf { it >= 0 }
-        val root = HistoryViews.column(this).apply { fitsSystemWindows = true; layoutDirection = resources.configuration.layoutDirection }
-        HistoryViews.button(root, R.string.workbench_back, "back") { finish() }
+        val root = AgentUi.column(this, 0).apply { setPadding(0, 0, 0, 0); layoutDirection = resources.configuration.layoutDirection }
         error = HistoryViews.label(root, "")
         body = HistoryViews.column(this)
         scroll = ScrollView(this).apply { addView(body) }
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        setContentView(root)
+        setContentView(AgentUi.screen(this, getString(R.string.workbench_details), root, scroll = false))
         history = HistoryConnection(this) { refresh() }
         if (id.isEmpty()) finish()
         tint(root)
@@ -79,28 +78,31 @@ class RunDetailActivity : HostAppearanceActivity() {
         previous = key
         val position = maxOf(savedScroll, scroll.scrollY); savedScroll = 0
         body.removeAllViews(); saveScriptButtons.clear()
-        fun label(text: String, title: Boolean = false) = HistoryViews.label(body, text, title)
+        var section = AgentUi.card(body)
+        fun label(text: String, title: Boolean = false) = HistoryViews.label(section, text, title)
         label(value.string("goal").orEmpty(), true)
         label(WorkbenchText.state(this, value)); label(HistoryViews.date(this, value.number("startedAt") ?: 0))
         label(getString(R.string.history_preset_value, value.string("preset").orEmpty()))
         label(WorkbenchText.budget(this, value))
-        HistoryViews.button(body, R.string.history_rerun, "rerun") {
+        val actions = AgentUi.disclosure(body, R.string.ui_task_options)
+        HistoryViews.button(actions, R.string.history_rerun, "rerun") {
             startActivity(Intent(this, LauncherActivity::class.java).putExtra("rerunGoal", value.string("goal")).putExtra("rerunPreset", value.string("preset")))
         }.isEnabled = !WorkbenchText.active(value)
-        export = HistoryViews.button(body, R.string.history_export, "export") {
+        export = HistoryViews.button(actions, R.string.history_export, "export") {
             AlertDialog.Builder(this).setMessage(R.string.history_export_note).setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.history_export) { _, _ ->
                     runCatching { startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
                         .setType("application/json").putExtra(Intent.EXTRA_TITLE, "agent-$id.json"), EXPORT) }.onFailure { showError() }
-                }.show()
+                }.showStyled()
         }.apply { isEnabled = !writing }
-        HistoryViews.button(body, R.string.history_delete, "delete") {
+        HistoryViews.button(actions, R.string.history_delete, "delete") {
             AlertDialog.Builder(this).setMessage(R.string.history_delete_confirm).setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.history_delete) { _, _ ->
                     history.query("delete", id) { it.onSuccess { finish() }.onFailure { showError() } }
-                }.show()
+                }.showStyled()
         }.isEnabled = !WorkbenchText.active(value)
         value.getAsJsonObject("result")?.let { result ->
+            section = AgentUi.card(body)
             label(getString(R.string.history_result), true)
             label(WorkbenchText.state(this, jsonObject("state" to result["status"])))
             label(result.string("summary").orEmpty())
@@ -118,8 +120,9 @@ class RunDetailActivity : HostAppearanceActivity() {
             result.number("durationMs")?.let { label(getString(R.string.history_elapsed, it)) }
             result["usage"]?.let { label(getString(R.string.history_usage, HistoryViews.pretty(it))) }
         }
-        label(getString(R.string.history_timeline), true)
+        AgentUi.section(body, R.string.history_timeline)
         value.getAsJsonArray("steps").forEach { item ->
+            section = AgentUi.card(body)
             val step = item.asJsonObject
             val index = step.number("index")!!.toInt()
             label(getString(R.string.task_running, index) + " - " + (step.string("tool") ?: step.string("kind").orEmpty()), true)
@@ -131,15 +134,15 @@ class RunDetailActivity : HostAppearanceActivity() {
             decision.getAsJsonArray("rejections")?.let { codes -> label(getString(R.string.history_rejections, codes.joinToString { it.asString })) }
             val registration = DynamicScriptRegistration.fromStep(step)
             if (registration != null) {
-                body.addView(DynamicScriptConfirmationView.create(this, step.getAsJsonObject("arguments"),
+                section.addView(DynamicScriptConfirmationView.create(this, step.getAsJsonObject("arguments"),
                     index in expandedSources, confirmation = false) { if (it) expandedSources.add(index) else expandedSources.remove(index) })
-                saveScriptButtons += HistoryViews.button(body, R.string.script_dynamic_save, "save-script-$index") {
+                saveScriptButtons += HistoryViews.button(section, R.string.script_dynamic_save, "save-script-$index") {
                     AlertDialog.Builder(this).setMessage(R.string.script_dynamic_save_note).setNegativeButton(android.R.string.cancel, null)
                         .setPositiveButton(R.string.script_dynamic_save) { _, _ ->
                             scriptStep = index
                             runCatching { startActivityForResult(scriptDocumentIntent(registration.fileName), SAVE_SCRIPT) }
                                 .onFailure { scriptStep = null; showError() }
-                        }.show()
+                        }.showStyled()
                 }.apply { isEnabled = !writing }
             } else {
                 if (step.flag("sourceRedacted") == true) label(getString(R.string.script_dynamic_redacted))
@@ -153,7 +156,7 @@ class RunDetailActivity : HostAppearanceActivity() {
             step.string("error")?.let { label(getString(R.string.history_error) + ": " + it) }
             step.string("observation")?.let { observation ->
                 val text = label(if (index in expanded) observation else AgentJson.truncate(observation, 240))
-                if (observation.toByteArray(Charsets.UTF_8).size > 240) HistoryViews.button(body,
+                if (observation.toByteArray(Charsets.UTF_8).size > 240) HistoryViews.button(section,
                     if (index in expanded) R.string.history_collapse else R.string.history_expand, "observation-$index") {
                     if (!expanded.add(index)) expanded.remove(index)
                     text.text = if (index in expanded) observation else AgentJson.truncate(observation, 240)

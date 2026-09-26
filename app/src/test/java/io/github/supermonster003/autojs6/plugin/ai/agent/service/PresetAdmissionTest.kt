@@ -77,4 +77,21 @@ class PresetAdmissionTest {
         val script = request()
         assertEquals(script.options.limits, ui.options.limits); assertEquals(script.context, ui.context); assertEquals(script.groups, ui.groups)
     }
+    @Test fun quickModelChoiceOverridesOnlyTheTargetAndNeverMutatesThePreset() {
+        val snapshot = PresetSnapshot("office", listOf(Preset("default"), office))
+        fun launch(target: String?) = RunLauncher.start(C.LINK_STATE_ATTACHED, config,
+            RunLauncher.uiRequest("test", "office", "en", target), snapshot) { it }
+        val original = launch(null)
+        val switched = launch("profile:second")
+        assertEquals("profile:second", switched.target)
+        assertEquals(original.options.limits, switched.options.limits)
+        assertEquals(original.options.confirmationMode, switched.options.confirmationMode)
+        assertEquals(original.groups, switched.groups)
+        assertEquals(original.context, switched.context)
+        assertEquals(original.scriptRoots, switched.scriptRoots)
+        assertEquals(original.memoryScope, switched.memoryScope)
+        assertEquals("profile:online", snapshot.resolve("office").targetId)
+        assertEquals("profile:online", launch(null).target)
+        assertThrows(IllegalArgumentException::class.java) { launch("malformed target") }
+    }
 }
