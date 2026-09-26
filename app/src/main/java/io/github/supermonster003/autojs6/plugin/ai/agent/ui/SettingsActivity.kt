@@ -163,6 +163,7 @@ class SettingsActivity : HostAppearanceActivity() {
             "maxDurationMs" to R.string.presets_duration, "maxTotalTokens" to R.string.presets_tokens)
         private val groupLabels = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.ACT to R.string.presets_group_act,
             ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.OCR to R.string.presets_group_ocr, ToolGroup.SCRIPT to R.string.presets_group_script,
+            ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic,
             ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory,
             ToolGroup.USER to R.string.presets_group_user)
     }

@@ -52,7 +52,7 @@ El plugin es a la vez un plugin de AutoJs6 y una aplicación independiente. Los 
 
 ******
 
-La versión 1.1.0 está en desarrollo. Los destinos que anuncian tools usan llamadas nativas mediante un host AutoJs6 compatible; los demás conservan el ciclo JSON. Las comparaciones reales Wi-Fi/calculadora, visión y scripts dinámicos siguen en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+La versión 1.1.0 está en desarrollo con llamadas nativas, capturas de pantalla y scripts generados opcionales. Los destinos no compatibles mantienen JSON. La comparación Wi-Fi real y la aceptación visual en línea siguen pendientes en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 La comparación actual con Model8 incluye respuestas vacías, fallos del Provider y paradas por límites de presupuesto. Los [resultados de comparación](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservan todos los ensayos; aún no demuestran una finalización fiable de ambas tareas.
 
@@ -72,6 +72,7 @@ La implementación actual ofrece estas funciones:
 - API de script e interfaz de usuario: `ai.agent.run(goal, options)` devuelve un manejador `AgentRun` con eventos, respuestas y cancelación; la aplicación independiente ofrece un espacio de tareas con historial, preajustes, memoria de preferencias, ajustes e historial de versiones.
 - Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 - Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
+- JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada exige revisar un resumen ampliable al código completo y dar aprobación individual. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
 
 ### Capturas de pantalla
 
@@ -199,6 +200,7 @@ La tabla se genera desde el ToolCatalog incluido. El objetivo real de pantalla p
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
@@ -213,7 +215,7 @@ Abra Memoria para consultar, editar, eliminar o respaldar preferencias. Hasta 50
 - Configure carpetas adicionales en "Directorios de scripts" del lanzador, una ruta absoluta por línea. El anfitrión valida y aplica las rutas guardadas; las tareas solo pueden reducir las carpetas aprobadas.
 - Hasta 200 tareas / 32 MiB. Se eliminan primero las tareas terminadas consultadas hace más tiempo. Repetir rellena el objetivo y preajuste originales en el panel. Revísalos y pulsa Iniciar tarea para ejecutarla. Vaciar el historial conserva las tareas en curso. Se conservan contadores, nombres de herramientas y confirmaciones. Se eliminan objetivos, parámetros, observaciones y resultados de scripts. Elige dónde guardar el archivo.
 - Responda en las tareas en primer plano o abra la notificación prioritaria en segundo plano. La confirmación muestra herramienta, parámetros, riesgo y tiempo restante. Permitir acciones similares se limita a esta herramienta y riesgo en esta tarea; los pagos y la memoria siempre requieren aprobación individual. Recordar una respuesta crea una propuesta memory_propose separada en el ámbito permitido. Las confirmaciones esperan normalmente 120 segundos y las preguntas hasta 10 minutos, dentro del presupuesto de la tarea. Al expirar se devuelve USER_TIMEOUT; el modelo decide si pregunta de nuevo o informa un resultado parcial. Las solicitudes antiguas no responden a las nuevas. Los permisos y canales afectan a las notificaciones.
-- Abra Ajustes desde tareas para elegir grupos, presupuestos, modo prudente, voz y perfil predeterminado. Los cambios afectan a tareas nuevas. gesture/files/shell empiezan desactivados; OCR requiere un complemento autorizado y disponible en el anfitrión. Los presupuestos vacíos heredan los valores iniciales y respetan los límites del protocolo. Perfiles y opciones solo pueden reducirlos. La gestión muestra cantidades y bytes; borrar una categoría exige confirmación y ninguna tarea activa. Borrar perfiles restaura default. También hay carpetas de scripts, licencias y fuente.
+- Abra Ajustes desde tareas para elegir grupos, presupuestos, modo prudente, voz y perfil predeterminado. Los cambios afectan a tareas nuevas. gesture/files/shell/script_dynamic empiezan desactivados; OCR requiere un complemento autorizado y disponible en el anfitrión. Los presupuestos vacíos heredan los valores iniciales y respetan los límites del protocolo. Perfiles y opciones solo pueden reducirlos. La gestión muestra cantidades y bytes; borrar una categoría exige confirmación y ninguna tarea activa. Borrar perfiles restaura default. También hay carpetas de scripts, licencias y fuente.
 - Historial y avisos legales se incluyen sin conexión. La consulta a GitHub Releases es manual, con caché de éxitos de 24 horas, cancelación y versiones ignoradas. El diálogo abre el historial interno o la página de publicación en el navegador. Sin consultas automáticas ni descargas APK.
 - Activa la burbuja en Ajustes, permite la superposición y guarda. Está desactivada por defecto y solo aparece con AutoJs6 conectado; se oculta al bloquear o desconectar, sin servicio en primer plano en reposo. Arrastra para moverla y pulsa para introducir un objetivo, elegir un preajuste, responder o detener. Contraer la tarjeta restaura las notificaciones de confirmación. Comparte texto sin formato, usa Nueva tarea o fija un preajuste con objetivo opcional. Cada entrada abre un borrador editable y requiere iniciar explícitamente. Los preajustes eliminados no se sustituyen en silencio. La voz usa el idioma de la interfaz, se oculta si no está disponible y rellena sin enviar.
 
@@ -229,7 +231,7 @@ Pagar es una acción sensible independiente. Aprobar un pedido, script o accione
 
 **Qué limitaciones tienen los modelos locales?**
 
-Cargar un modelo no garantiza completar tareas. La prueba registrada de validación de decisiones Wi-Fi con Gemma 4 E2B IT no pasó; este destino mantiene JSON. Las llamadas nativas requieren host y destino compatibles y conservan validación, confirmaciones y presupuestos. Empiece con tareas pequeñas y revise partial/failed. Visión y scripts dinámicos siguen previstos.
+Cargar un modelo no garantiza completar tareas. La prueba registrada de validación de decisiones Wi-Fi con Gemma 4 E2B IT no pasó; este destino mantiene JSON. Las llamadas nativas requieren host y destino compatibles y conservan validación, confirmaciones y presupuestos. Empiece con tareas pequeñas y revise partial/failed. La entrada de imágenes requiere un destino que las acepte; la aceptación visual real en línea sigue pendiente. Los scripts generados requieren activación expresa y aprobación de cada código.
 
 ******
 
@@ -244,6 +246,7 @@ El plugin sigue límites explícitos:
 - INTERNET solo sirve para comprobaciones manuales en GitHub. FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE mantienen tareas activas; POST_NOTIFICATIONS muestra progreso y confirmaciones. SYSTEM_ALERT_WINDOW se solicita solo al activar la burbuja en Ajustes. No se solicitan permisos de accesibilidad, almacenamiento ni micrófono.
 - El historial de tareas, los preajustes y la memoria de preferencias permanecen en el almacenamiento privado del plugin; las copias de seguridad y las transferencias entre dispositivos están desactivadas.
 - Las capturas se envían mediante AutoJs6 al modelo elegido, que puede estar en línea. La pantalla debe estar activa y desbloqueada. El historial guarda dimensiones y bytes, sin el contenido de las imágenes. Las decisiones JSON conservan la imagen actual hasta otra observación o respuesta. Las conversaciones nativas conservan imágenes previas dentro de los límites del lote y de la sesión, reservando sus tokens en cada ronda.
+- Los scripts generados usan permisos de AutoJs6 sin aislamiento JavaScript y pueden actuar fuera de los grupos habilitados. El código completo permanece en pasos privados, sujeto a eliminación de contraseñas y retención del historial. Un código modificado por esa eliminación posterior no puede guardarse como original. Revise los .js antes de compartirlos.
 
 Obtenga el plugin únicamente desde la página oficial de [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) o el centro de plugins de AutoJs6. Los paquetes de origen desconocido pueden fallar la verificación del anfitrión o conllevar riesgos aunque el número de versión parezca idéntico.
 
@@ -292,8 +295,10 @@ _2026/09/26_
 
 - `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
 - `Aviso` La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
+- `Aviso` Los scripts generados usan permisos de AutoJs6 sin aislamiento JavaScript y pueden actuar fuera de los grupos habilitados. El código completo permanece en pasos privados, sujeto a eliminación de contraseñas y retención del historial. Un código modificado por esa eliminación posterior no puede guardarse como original. Revise los .js antes de compartirlos.
 - `Función` Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 - `Función` Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
+- `Función` JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada exige revisar un resumen ampliable al código completo y dar aprobación individual. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
 - `Dependencia` Actualización de los tres artefactos API del host release a AutoJs6 52ce694f92 / build 5297 para imágenes negociadas, manteniendo el contrato de conexión build 5289+
 
 #### v1.0.0

@@ -247,3 +247,32 @@ No manual action remains pending from this session. The test SIM is no longer
 needed for the completed sampling; ordinary protocol/vision development needs
 normal Internet only. A subsequent online Wi-Fi transition test will again need
 an independent connection during that case, not a permanently assigned Redmi SIM.
+
+## 2026-09-26 XQ-AT72 follow-up
+
+The previously absent QV710AF65F / XQ-AT72 / Android 12 became available with
+the user's test SIM. With official-signed host `cdf1b6a564` / 5297, final R8
+Agent 1.1.0 / 87 / `ee852c93`, and Provider 1.2.0 / 216, the user configured
+Model8 / `claude-fable-5-1` and enabled host accessibility. These are additional
+samples; earlier device versions, failures and counts above remain unchanged.
+
+| Case | Result | Steps / tools / model calls | Total tokens | Duration ms |
+| --- | --- | --- | --- | --- |
+| `p93-qv710-native-calc-01` | partial / BUDGET_EXCEEDED; HiPER did not show 408 | 12 / 10 / 14 | 302616 | 99993 |
+| Native Wi-Fi | completed; independent UI and system switch verified on | 8 / 7 / 10 | 157231 | 50879 |
+| JSON Wi-Fi | failed / DECISION_UNPARSABLE; zero tool calls | 1 / 0 / 3 | 34219 input, 0 output | 19178 |
+
+The JSON sample again received no parsable text. Its start followed an overly
+short five-second cellular validation check before that check had succeeded;
+the serial driver did not stop at that failed precondition. A subsequent sample,
+while Wi-Fi was still off and before tool execution, confirmed INTERNET and
+VALIDATED on the same cellular network. The original timing is retained rather
+than represented as a successful pre-run check. This sequence does not establish
+the cause of the empty responses. No duplicate retry replaced the sample.
+
+The original Wi-Fi comparison item therefore remains open. The native success
+is evidence of one complete task on this device, not a general reliability or
+performance ranking. HiPER's partial calculator result does not erase the
+earlier G8441 calculator successes. Exact case IDs, artifacts, observations,
+usage and setting restoration are in the
+[XQ-AT72 follow-up](p7-xqat72-followup-2026-09-26.md).

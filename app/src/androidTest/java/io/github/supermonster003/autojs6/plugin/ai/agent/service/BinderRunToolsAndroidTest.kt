@@ -14,6 +14,56 @@ import org.junit.Test
 import java.util.concurrent.*
 
 class BinderRunToolsAndroidTest {
+    private fun dispatchError(call: BridgeCall, message: String, category: String = H.ERROR_TIMEOUT): RunError {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val catalog = ToolCatalog(context.assets.open("catalog/tools.json").bufferedReader().use { it.readText() })
+        val broker = object : IHostCapabilityBroker.Stub() {
+            override fun getBrokerInfo() = Bundle()
+            override fun destroy(reason: Bundle?) = Unit
+            override fun dispatch(request: Bundle, callback: IHostCapabilityCallback) {
+                val envelope = AgentJson.objectOf(request.getString(H.KEY_BRIDGE_REQUEST_JSON)!!)
+                callback.onResponse(Bundle().apply {
+                    putBoolean(H.KEY_BRIDGE_RESPONSE_OK, false)
+                    putString(H.KEY_BRIDGE_RESPONSE_JSON, jsonObject("id" to checkNotNull(envelope.string("id")).json(), "ok" to false.json(),
+                        "error" to jsonObject("category" to category.json(), "message" to message.json())).toString())
+                })
+            }
+        }
+        LinkWorkers().use { workers -> SerialRunScheduler().use { scheduler ->
+            val tools = BinderRunTools(broker, Process.myUid(), workers, scheduler, catalog, { true },
+                setOf("${call.module}.${call.method}"), call.permissions.toSet(), 131072, 30000)
+            val latch = CountDownLatch(1); var result: PortResult<JsonElement>? = null
+            tools.dispatch(call) { result = it; latch.countDown() }
+            assertTrue("Broker error callback did not complete", latch.await(5, TimeUnit.SECONDS))
+            assertTrue(result is PortResult.Failure)
+            return (result as PortResult.Failure).error
+        } }
+    }
+
+    private fun scriptCalls(): List<BridgeCall> = listOf(
+        ToolHandlers.bridge("engines.execScript", jsonArray("agent-generated.js".json(), "sleep(1000);".json(),
+            jsonObject("agentInvocationId" to "01234567-89ab-cdef-0123-456789abcdef".json(), "timeoutMs" to 1000.json())), 1000),
+        ToolHandlers.bridge("agent.execRegistered", jsonArray("/sdcard/script.js".json(), jsonObject(),
+            jsonObject("timeoutMs" to 1000.json())), 1000),
+    )
+
+    @Test fun brokerTimeoutUsesScriptSemanticsOnlyForOwnedExecutions() {
+        for (call in scriptCalls()) assertEquals(RunError.SCRIPT_TIMEOUT, dispatchError(call, "Bridge request timed out"))
+        assertEquals(RunError.NODE_NOT_FOUND,
+            dispatchError(ToolHandlers.bridge("device.info", JsonArray(), 1000), "Bridge request timed out"))
+        val ordinaryLaunch = ToolHandlers.bridge("engines.execScript", jsonArray("ordinary.js".json(), "1;".json(),
+            jsonObject("timeoutMs" to 1000.json())), 1000)
+        assertEquals(RunError.NODE_NOT_FOUND, dispatchError(ordinaryLaunch, "Bridge request timed out"))
+    }
+
+    @Test fun stableScriptFailureCodesTakePrecedenceOverTimeoutCategory() {
+        for (call in scriptCalls()) {
+            assertEquals(RunError.NODE_NOT_FOUND, dispatchError(call, "NODE_NOT_FOUND: script-specific result"))
+            assertEquals(RunError.SCRIPT_FAILED, dispatchError(call, "SCRIPT_FAILED: script-specific result"))
+            assertEquals(RunError.CANCELLED, dispatchError(call, "CANCELLED: script-specific result"))
+        }
+    }
+
     private fun call(method: String = "device.info", reply: (String) -> Bundle): PortResult<ToolReply> {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val catalog = ToolCatalog(context.assets.open("catalog/tools.json").bufferedReader().use { it.readText() })

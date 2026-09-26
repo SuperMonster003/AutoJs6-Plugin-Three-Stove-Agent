@@ -302,7 +302,7 @@ class AgentRunner internal constructor(
         if (prepared.invocation.name == "screen_capture" && nativeResults.sumOf { it.images.size } >= 4) throw ContextLimitExceeded()
         val b = checkNotNull(budget)
         // An inspection cannot smuggle a longer non-script operation through script metadata.
-        val scriptTimeout = if (prepared.invocation.name == "script_run") prepared.metadata.scriptTimeoutMs else null
+        val scriptTimeout = if (prepared.invocation.name in setOf("script_run", "script_run_source")) prepared.metadata.scriptTimeoutMs else null
         val timeout = b.toolTimeout(scriptTimeout)
         if (prepared.invocation.name == "report_progress") {
             emit("progress", jsonObject("step" to b.steps.json(), "message" to (prepared.invocation.arguments["message"] ?: "".json()), "budget" to b.remainingJson()))
@@ -311,11 +311,11 @@ class AgentRunner internal constructor(
         loopRules.started(checkNotNull(catalog[prepared.invocation.name]))
         b.beginTool()
         when (prepared.invocation.name) {
-            "script_run" -> { scriptCalls++; scriptResult = null }
+            "script_run", "script_run_source" -> { scriptCalls++; scriptResult = null }
             "script_catalog", "report_progress" -> Unit
             else -> otherActions++
         }
-        beginOperation(timeout, if (prepared.invocation.name == "script_run") RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
+        beginOperation(timeout, if (prepared.invocation.name in setOf("script_run", "script_run_source")) RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
             RunError.HOST_UNAVAILABLE, { callback -> tools.execute(prepared, timeout, callback) }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> toolFailed(outcome.error)
@@ -356,12 +356,17 @@ class AgentRunner internal constructor(
     }
     private fun waitForConfirmation(prepared: PreparedTool, spec: ToolSpec, assessment: ConfirmationAssessment) {
         if (!canContinue()) return
+        val proposed = gate.arguments(prepared.invocation.arguments, prepared.metadata)
+        val arguments = journal.redact(proposed)
+        // Never ask users to approve a redacted preview while executing different source bytes.
+        if (spec.name == "script_run_source" && proposed != arguments) {
+            toolFailed(RunError.TOOL_ARGUMENTS_INVALID); return
+        }
         val timeout = minOf(options.limits.confirmationTimeoutMs, checkNotNull(budget).remainingMs)
         val waiting = installInteraction(timeout, tool = prepared, assessment = assessment)
         transition(RunState.WAITING_CONFIRMATION)
-        val arguments = journal.redact(gate.arguments(prepared.invocation.arguments, prepared.metadata))
         // Script parameters and memory values are bounded. Approval must display the full proposed change.
-        val summary = if (prepared.metadata.script != null || prepared.metadata.memoryScope != null) arguments else StepJournal.clipped(arguments, 4096)
+        val summary = if (prepared.metadata.script != null || prepared.metadata.memoryScope != null || spec.name == "script_run_source") arguments else StepJournal.clipped(arguments, 4096)
         emit("confirmation", jsonObject("requestId" to waiting.id.json(), "tool" to spec.name.json(),
             "description" to gate.description(spec, prepared.metadata, options.locale).json(), "risk" to assessment.risk.name.lowercase(Locale.ROOT).json(),
             "arguments" to summary, "allowRunScope" to assessment.allowRunScope.json(), "timeoutMs" to timeout.json()))

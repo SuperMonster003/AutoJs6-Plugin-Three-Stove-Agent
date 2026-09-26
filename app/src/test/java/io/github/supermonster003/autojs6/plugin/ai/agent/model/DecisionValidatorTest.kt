@@ -42,7 +42,7 @@ class DecisionValidatorTest {
 
     @Test fun disabledAndUnknownToolsNeverPassValidation() {
         fails("""{"kind":"tool","tool":"files_read","arguments":{"path":"x"}}""", "TOOL_DISABLED", policy = ToolPolicy())
-        fails("""{"kind":"tool","tool":"script_run_source","arguments":{}}""", "TOOL_UNKNOWN")
+        fails("""{"kind":"tool","tool":"unknown_tool","arguments":{}}""", "TOOL_UNKNOWN")
         fails("""{"kind":"tool","tool":"ocr_screen","arguments":{}}""", "TOOL_DISABLED", policy = ToolPolicy())
     }
 

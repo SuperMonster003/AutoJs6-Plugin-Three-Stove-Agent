@@ -13,9 +13,9 @@ class ToolCatalogTest {
     @Test fun catalogAndKeywordSnapshotsFreezeTheApprovedSurface() {
         val snapshot = JsonArray().apply { catalog.tools.forEach { add(it.snapshot()) } }
         assertEquals(AgentJson.parse(F.snapshot("tool-catalog.snapshot.json"), 256 * 1024), snapshot)
-        assertEquals(31, catalog.tools.size)
+        assertEquals(32, catalog.tools.size)
         assertNull(catalog["ask_user"])
-        assertNull(catalog["script_run_source"])
+        assertNotNull(catalog["script_run_source"])
         assertNotNull(catalog["screen_capture"])
         assertEquals(AgentJson.parse(F.snapshot("sensitive-keywords.snapshot.json")), AgentJson.parse(F.asset("catalog/sensitive-keywords.json")))
         assertEquals(10, AgentJson.objectOf(F.asset("catalog/sensitive-keywords.json")).size())
@@ -24,12 +24,12 @@ class ToolCatalogTest {
     @Test fun disabledGroupsAreHiddenAndRejectedBeforeArgumentValidation() {
         val policy = ToolPolicy()
         val visible = AgentJson.parse(catalog.render(policy)).asJsonArray.map { it.asJsonObject.string("name") }
-        for (name in listOf("files_read", "files_write", "shell_exec", "ui_gesture", "ui_click_xy", "ocr_screen")) {
+        for (name in listOf("files_read", "files_write", "shell_exec", "ui_gesture", "ui_click_xy", "ocr_screen", "script_run_source")) {
             assertFalse(name, name in visible)
             F.fails("TOOL_DISABLED") { handler.prepare(name, JsonObject(), policy) }
         }
-        F.fails("TOOL_UNKNOWN") { handler.prepare("script_run_source", JsonObject(), F.policy()) }
-        assertTrue(AgentJson.parse(catalog.render(F.policy())).asJsonArray.size() == 30)
+        F.fails("TOOL_UNKNOWN") { handler.prepare("unknown_tool", JsonObject(), F.policy()) }
+        assertTrue(AgentJson.parse(catalog.render(F.policy())).asJsonArray.size() == 31)
     }
 
     @Test fun riskOverridesCannotLowerSensitiveToolsOrRegisteredScriptRisk() {

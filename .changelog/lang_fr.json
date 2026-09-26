@@ -9,11 +9,13 @@
       "released_date": "2026/09/26",
       "hint": [
         "Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action",
-        "Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md"
+        "Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md",
+        "Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager."
       ],
       "feature": [
         "Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun",
-        "Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs"
+        "Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs",
+        "JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel exige un résumé du code extensible au texte complet et une approbation individuelle. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB."
       ],
       "dependency": [
         "Mise à niveau des trois artefacts API hôte release vers AutoJs6 52ce694f92 / build 5297 pour les images négociées, en conservant le contrat de connexion build 5289+"

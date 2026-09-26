@@ -62,7 +62,7 @@ class ScriptOutcome private constructor(observation: JsonObject, val error: RunE
     val scriptResult: JsonObject? get() = summary?.deepCopy()
     override fun toString() = "ScriptOutcome(error=$error, finished=$finished)"
     companion object {
-        fun parse(script: PreparedScript, raw: JsonElement): ScriptOutcome {
+        fun parse(script: PreparedScript?, raw: JsonElement): ScriptOutcome {
             val value = AgentJson.objectOf(raw.toString(), 256 * 1024)
             val outcome = value.string("outcome")
             require(outcome in setOf("success", "exception", "stopped", "timeout"))
@@ -76,7 +76,7 @@ class ScriptOutcome private constructor(observation: JsonObject, val error: RunE
             val error = when (outcome) { "timeout" -> RunError.SCRIPT_TIMEOUT; "stopped" -> RunError.CANCELLED; "exception" -> RunError.SCRIPT_FAILED; else -> null }
             val tail = requireNotNull(value["consoleTail"]?.takeIf { it.isJsonArray }?.asJsonArray)
             require(tail.all { it.isJsonPrimitive && it.asJsonPrimitive.isString })
-            val secrets = script.parameters.entrySet().mapNotNull { (_, v) -> v.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString?.takeIf { it.isNotEmpty() } }
+            val secrets = script?.parameters?.entrySet()?.mapNotNull { (_, v) -> v.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString?.takeIf { it.isNotEmpty() } }.orEmpty()
             val console = JsonArray()
             val lines = ArrayDeque<String>()
             tail.forEach { entry -> ScriptOutputRedactor.text(entry.asString, secrets).lineSequence().forEach { line ->
@@ -98,7 +98,7 @@ class ScriptOutcome private constructor(observation: JsonObject, val error: RunE
                 add("executionId", executionId?.json() ?: JsonNull.INSTANCE)
                 value.string("consoleCaptureMode")?.takeIf { it == "global-window" }?.let { addProperty("consoleCaptureMode", it) }
             }
-            val summary = if (reported && executionId != null) jsonObject("id" to script.registration.id.json(), "path" to script.registration.path.json(),
+            val summary = if (script != null && reported && executionId != null) jsonObject("id" to script.registration.id.json(), "path" to script.registration.path.json(),
                 "executionId" to executionId.json(), "result" to ScriptOutputRedactor.redact(result)) else null
             return ScriptOutcome(observation, error, finished, summary)
         }

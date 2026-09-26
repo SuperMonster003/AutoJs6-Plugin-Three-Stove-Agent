@@ -63,6 +63,18 @@ class RunHistoryCodecTest {
         assertFalse(filter.matches(fixture(10).apply { addProperty("state", "failed") }))
         assertFalse(filter.matches(fixture(10).apply { addProperty("preset", "other") }))
     }
+    @Test fun fullDynamicSourceSurvivesPrivateStorageButNotDiagnosticExport() {
+        val source = "// " + "private-code-".repeat(550) + "\nai.agent.result(42);"
+        val run = fixture(1).apply { add("steps", jsonArray(step(1).apply {
+            addProperty("tool", "script_run_source")
+            add("arguments", jsonObject("source" to source.json()))
+        })) }
+        val decoded = RunHistoryCodec.decode(RunHistoryCodec.encode(run, 1)).run
+        assertEquals(source, decoded.getAsJsonArray("steps")[0].asJsonObject.getAsJsonObject("arguments").string("source"))
+        val exported = RunHistoryExport.redact(decoded, setOf("script_run_source"))
+        assertFalse(exported.toString().contains("private-code-"))
+        assertEquals("[redacted]", exported.getAsJsonArray("steps")[0].asJsonObject.string("arguments"))
+    }
     @Test fun decisionRejectionsSurviveStorageAndExportButArbitraryTextIsNeverExported() {
         val codes = jsonArray("TOOL_DISABLED".json(), "TOOL_ARGUMENTS_INVALID".json(), "LIMIT_EXCEEDED".json())
         val run = fixture(1).apply { add("steps", jsonArray(step(1).apply { getAsJsonObject("decision").add("rejections", codes) })) }

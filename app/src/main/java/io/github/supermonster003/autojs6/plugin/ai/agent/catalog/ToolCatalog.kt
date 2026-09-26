@@ -7,7 +7,7 @@ import java.util.Locale
 enum class RiskLevel { READ_ONLY, NORMAL, SENSITIVE }
 enum class ToolGroup(val id: String, val defaultEnabled: Boolean) {
     OBSERVE("observe", true), OCR("ocr", true), ACT("act", true), GESTURE("gesture", false),
-    SCRIPT("script", true), FILES("files", false), SHELL("shell", false), MEMORY("memory", true), USER("user", true);
+    SCRIPT("script", true), SCRIPT_DYNAMIC("script_dynamic", false), FILES("files", false), SHELL("shell", false), MEMORY("memory", true), USER("user", true);
     companion object { fun fromId(id: String) = entries.single { it.id == id } }
 }
 
@@ -81,6 +81,8 @@ class ToolPolicy(
     private val available = availableTools?.toSet()
     private val orderKeywords = orderKeywords.toSet()
     private val orderTerms = orderKeywords.map { GoalTerm(it.lowercase(Locale.ROOT)) }
+    fun withAvailableTools(value: Set<String>) = ToolPolicy(enabled, ocrAvailable, overrides, keywords, paymentPackages, paymentKeywords,
+        available?.intersect(value) ?: value, orderKeywords, visionAvailable)
     fun withOcrAvailability(value: Boolean) = ToolPolicy(enabled, value, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords, visionAvailable)
     fun withVisionAvailability(value: Boolean) = ToolPolicy(enabled, ocrAvailable, overrides, keywords, paymentPackages, paymentKeywords, available, orderKeywords, value)
     fun isOrderGoal(goal: String): Boolean = goal.lowercase(Locale.ROOT).let { value -> orderTerms.any { it.matches(value) } }

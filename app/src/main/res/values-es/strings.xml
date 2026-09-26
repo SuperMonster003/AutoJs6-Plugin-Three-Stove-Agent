@@ -117,6 +117,7 @@
     <string name="presets_group_observe">Observación de pantalla</string>
     <string name="presets_group_ocr">Reconocimiento de texto (OCR)</string>
     <string name="presets_group_script">Scripts registrados</string>
+    <string name="presets_group_script_dynamic">Scripts generados</string>
     <string name="presets_group_shell">Comandos de shell</string>
     <string name="presets_group_user">Interacción con el usuario</string>
     <string name="presets_hybrid">Híbrido</string>
@@ -156,6 +157,16 @@
     <string name="run_running">En curso</string>
     <string name="run_waiting_confirmation">Esperando confirmación</string>
     <string name="run_waiting_input">Esperando respuesta</string>
+    <string name="script_dynamic_collapse">Contraer código</string>
+    <string name="script_dynamic_expand">Mostrar código completo</string>
+    <string name="script_dynamic_redacted">Se eliminó del código una contraseña detectada después. No se puede guardar el script original desde este paso.</string>
+    <string name="script_dynamic_save">Guardar script generado</string>
+    <string name="script_dynamic_save_note">Revise el código completo antes de guardar. Elija el directorio de trabajo de AutoJs6 o un directorio de scripts aprobado. El archivo incluye un registro @agent sensible y siempre requiere confirmación. Si elige otro directorio compartido, añádalo en Directorios de scripts antes del siguiente análisis. Guardar no ejecuta el script.</string>
+    <string name="script_dynamic_saved">Script guardado. El anfitrión puede detectarlo si su directorio se incluye en el siguiente análisis del catálogo.</string>
+    <string name="script_dynamic_source">Código JavaScript generado</string>
+    <string name="script_dynamic_source_summary">Código: %1$d bytes, %2$d líneas</string>
+    <string name="script_dynamic_timeout">Tiempo límite de ejecución: %1$d ms</string>
+    <string name="script_dynamic_warning">Revise este JavaScript generado antes de autorizarlo una vez. Se ejecuta con los permisos de AutoJs6 y puede realizar acciones fuera de los grupos de herramientas habilitados. No está aislado.</string>
     <string name="script_roots_instruction">Introduzca una ruta absoluta por línea. El host comprueba que cada directorio exista en el almacenamiento compartido y no contenga su directorio de trabajo. Aplicar cambios cancela las tareas actuales.</string>
     <string name="script_roots_invalid">Introduzca hasta 32 rutas absolutas distintas, sin referencias al directorio superior, dentro de 8 KiB.</string>
     <string name="script_roots_rejected">El host no ha aceptado estos directorios. Compruebe que existan en el almacenamiento compartido y no contengan el directorio de trabajo.</string>

@@ -15,6 +15,9 @@ sealed interface ToolPlan {
     data class Repeat(val request: BridgeCall, val times: Int) : ToolPlan
     data class AppendText(val target: JsonObject, val text: String) : ToolPlan
     data class RegisteredScript(val manifest: BridgeCall, val execution: BridgeCall) : ToolPlan
+    data class DynamicScript(val source: String, val timeoutMs: Long) : ToolPlan {
+        override fun toString() = "DynamicScript(sourceBytes=${source.toByteArray(Charsets.UTF_8).size}, timeoutMs=$timeoutMs)"
+    }
     data class Local(val name: String, val arguments: JsonObject) : ToolPlan
 }
 
@@ -80,6 +83,11 @@ class ToolHandlers(private val catalog: ToolCatalog) {
                 if (args["parameters"].toString().toByteArray(Charsets.UTF_8).size > 16 * 1024) invalid("Script parameters exceed the byte limit.")
                 ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = 300_000))
             }
+            "script_run_source" -> {
+                try { io.github.supermonster003.autojs6.plugin.ai.agent.scripts.DynamicScriptSource.validate(str("source")) }
+                catch (_: IllegalArgumentException) { invalid("Use nonempty JavaScript, no NUL, at most 8192 UTF-8 bytes including JSON escaping.") }
+                ToolPlan.DynamicScript(str("source"), num("timeoutMs"))
+            }
             "script_stop" -> ToolPlan.Call(call("engines.stop", num("executionId").json()))
             "files_list" -> ToolPlan.Call(call("files.list", str("path").json()))
             "files_stat" -> ToolPlan.Call(call("files.stat", str("path").json()))
@@ -117,6 +125,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
                 "app" -> if (operation == "currentWindow") listOf("app.query", "accessibility") else listOf("app.launch")
                 "files" -> if (operation == "write") listOf("files", "files.write") else listOf("files")
                 "shell" -> listOf("shell")
+                "engines" -> if (operation == "execScript") listOf("engines", "engines.exec", "agent", "agent.exec") else listOf("engines")
                 else -> listOf(module)
             }
             return BridgeCall(module, operation, args.deepCopy(), permissions, timeoutMs)

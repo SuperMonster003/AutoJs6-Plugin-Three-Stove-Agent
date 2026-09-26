@@ -117,6 +117,7 @@
     <string name="presets_group_observe">屏幕观察</string>
     <string name="presets_group_ocr">文字识别 (OCR)</string>
     <string name="presets_group_script">已登记脚本</string>
+    <string name="presets_group_script_dynamic">生成脚本</string>
     <string name="presets_group_shell">Shell 命令</string>
     <string name="presets_group_user">用户交互</string>
     <string name="presets_hybrid">混合</string>
@@ -156,6 +157,16 @@
     <string name="run_running">运行中</string>
     <string name="run_waiting_confirmation">等待确认</string>
     <string name="run_waiting_input">等待回答</string>
+    <string name="script_dynamic_collapse">收起源码</string>
+    <string name="script_dynamic_expand">查看完整源码</string>
+    <string name="script_dynamic_redacted">此源码中已移除后续识别的密码, 无法从该步骤保存原始脚本.</string>
+    <string name="script_dynamic_save">保存生成的脚本</string>
+    <string name="script_dynamic_save_note">保存前请检查完整源码. 选择 AutoJs6 工作目录或已批准的脚本目录. 新文件会加入敏感级别的 @agent 登记, 每次执行都需确认. 若选择其他共享目录, 请在下次扫描前将其添加到脚本目录设置. 保存不会执行脚本.</string>
+    <string name="script_dynamic_saved">脚本已保存. 所在目录包含在下次扫描范围内时, 宿主才能发现它.</string>
+    <string name="script_dynamic_source">生成的 JavaScript 源码</string>
+    <string name="script_dynamic_source_summary">源码: %1$d 字节, %2$d 行</string>
+    <string name="script_dynamic_timeout">执行超时: %1$d ms</string>
+    <string name="script_dynamic_warning">请检查生成的 JavaScript, 然后决定是否允许本次执行. 它使用 AutoJs6 的权限运行, 可执行已启用工具组之外的操作, 不受沙箱隔离.</string>
     <string name="script_roots_instruction">每行输入一个绝对目录路径. 宿主会检查目录是否存在, 是否位于共享存储中, 以及是否为工作目录的上级. 配置生效时会取消当前任务.</string>
     <string name="script_roots_invalid">请输入最多 32 个不重复的绝对路径, 不含上级目录跳转, 总大小不超过 8 KiB.</string>
     <string name="script_roots_rejected">宿主尚未接受这些目录. 请检查路径是否存在于共享存储中, 且不是工作目录的上级.</string>

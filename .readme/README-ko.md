@@ -52,7 +52,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 
 ******
 
-1.1.0은 개발 중입니다. tools 기능을 선언한 대상은 호환 AutoJs6 호스트를 통해 네이티브 도구를 호출하고, 나머지는 JSON 결정 루프를 유지합니다. 실제 Wi-Fi/계산기 비교, 시각 입력과 동적 스크립트는 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에 남아 있습니다.
+1.1.0은 네이티브 도구 호출, 화면 캡처 관찰, 선택적 생성 스크립트를 포함해 개발 중입니다. 미지원 대상은 JSON을 유지합니다. 실제 Wi-Fi 비교와 온라인 시각 검증은 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)에 대기 중입니다.
 
 현재 Model8 비교에서는 빈 응답, Provider 실패와 예산 초과 중단이 발생합니다. [비교 기록](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md)에 모든 시도를 보존하며, 두 작업의 안정적인 완료는 아직 확인되지 않았습니다.
 
@@ -72,6 +72,7 @@ AI Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제
 - 스크립트 API와 사용자 인터페이스: `ai.agent.run(goal, options)`은 이벤트, 응답, 취소를 갖춘 `AgentRun` 핸들을 반환합니다. 독립 실행형 앱은 기록, 프리셋, 선호 메모리, 설정, 릴리스 기록이 있는 작업 화면을 제공합니다.
 - 호스트를 통한 네이티브 도구 호출: 카탈로그 Schema, 전체 배치 인수 검증, 순차 실행, 개별 확인, 결과 전달 및 단계 기록에 기존 작업 규칙 적용
 - Android 11+에서 AutoJs6를 통한 화면 캡처 관찰: screen_capture는 긴 변 1280, JPEG 품질 70으로 변환하며 시각 프롬프트, 이미지 token 예산 검사와 기본 도구 결과 이미지 첨부 지원
+- script_run_source로 생성된 JavaScript 실행: script_dynamic 그룹은 기본으로 꺼져 있습니다. 매번 요약과 펼칠 수 있는 전체 소스를 검토하고 개별 승인합니다. 제한 시간, 취소, 구조화된 결과와 비공개 소스 기록을 제공합니다. UTF-8 소스와 JSON 문자열 인코딩은 각각 8 KiB로 제한됩니다.
 
 ### 화면 예시
 
@@ -199,6 +200,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
@@ -213,7 +215,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 런처의 "스크립트 디렉터리"에서 추가 폴더를 설정하고 줄마다 절대 경로를 하나씩 입력하세요. 저장한 경로는 호스트가 검증하여 적용하며 작업은 승인된 폴더 범위만 좁힐 수 있습니다.
 - 최대 200개 작업 / 32 MiB. 종료된 작업 중 가장 오래 조회하지 않은 항목부터 제거합니다. 재실행은 원래 목표와 프리셋을 작업 화면에 채웁니다. 확인 후 시작 버튼을 눌러 실행하세요. 기록을 비워도 실행 중인 작업은 유지됩니다. 진단 횟수, 도구 이름과 확인 결과를 보존합니다. 목표, 매개변수, 관찰 내용과 스크립트 결과는 제거됩니다. 저장 위치를 선택하세요.
 - 앱이 열려 있으면 작업 화면에서 답변하고, 백그라운드에서는 높은 우선순위 알림으로 해당 요청을 엽니다. 확인 화면에 도구, 인수, 위험과 남은 시간이 표시됩니다. 작업 내 허용은 같은 도구의 같은 위험 수준에만 적용되며 결제와 기억 제안은 매번 확인합니다. 답변 기억은 허용된 범위에서 별도 memory_propose를 생성합니다. 확인은 보통 120초, 질문은 최대 10분이며 작업 예산도 적용됩니다. 시간이 지나면 USER_TIMEOUT을 반환하고 모델이 재질문 또는 부분 완료를 결정합니다. 이전 요청으로 새 요청에 답할 수 없습니다. 백그라운드 알림은 권한과 채널 설정의 영향을 받습니다.
-- 작업 화면의 설정에서 도구 그룹, 예산, 신중 모드, 음성 입력과 기본 프리셋을 선택합니다. 변경 사항은 새 작업에 적용됩니다. gesture/files/shell은 기본으로 꺼져 있으며 OCR에는 호스트가 허용한 사용 가능한 플러그인이 필요합니다. 비어 있는 예산은 초기 기본값을 따르고 설정값은 프로토콜 상한 이내여야 합니다. 프리셋과 개별 옵션은 범위를 줄일 수만 있습니다. 데이터 관리에서 항목 수와 바이트를 확인하고 실행 중인 작업이 없을 때 확인 후 범주별로 지웁니다. 프리셋 삭제는 내장 default로 복원합니다. 스크립트 폴더, 라이선스와 소스 링크도 제공합니다.
+- 작업 화면의 설정에서 도구 그룹, 예산, 신중 모드, 음성 입력과 기본 프리셋을 선택합니다. 변경 사항은 새 작업에 적용됩니다. gesture/files/shell/script_dynamic은 기본으로 꺼져 있으며 OCR에는 호스트가 허용한 사용 가능한 플러그인이 필요합니다. 비어 있는 예산은 초기 기본값을 따르고 설정값은 프로토콜 상한 이내여야 합니다. 프리셋과 개별 옵션은 범위를 줄일 수만 있습니다. 데이터 관리에서 항목 수와 바이트를 확인하고 실행 중인 작업이 없을 때 확인 후 범주별로 지웁니다. 프리셋 삭제는 내장 default로 복원합니다. 스크립트 폴더, 라이선스와 소스 링크도 제공합니다.
 - 릴리스 기록과 법적 고지는 오프라인으로 읽습니다. GitHub Releases 업데이트 확인은 수동으로 실행하며 성공 결과를 24시간 저장합니다. 취소와 버전 무시가 가능하고 앱 내 기록이나 브라우저 릴리스 페이지를 열 수 있습니다. 자동 확인이나 APK 다운로드는 하지 않습니다.
 - 설정에서 플로팅 볼을 켜고 다른 앱 위에 표시를 허용한 후 저장하세요. 기본적으로 꺼져 있으며 AutoJs6 연결 중에만 표시되고 잠금이나 연결 해제 시 숨겨집니다. 대기 중 포그라운드 서비스는 없습니다. 드래그로 이동하고 눌러 목표 및 프리셋 입력, 질문 및 확인 응답, 작업 중지를 할 수 있습니다. 카드를 접으면 백그라운드 확인 알림이 복원됩니다. 일반 텍스트 공유, 새 작업 바로가기, 프리셋 화면의 고정 목표 바로가기를 사용할 수 있습니다. 모든 진입점은 편집 가능한 초안을 열며 시작 버튼을 눌러야 실행됩니다. 삭제된 프리셋을 자동 대체하지 않습니다. 음성 인식은 화면 언어를 사용하고 지원되지 않으면 숨겨집니다. 결과는 입력란에만 채우고 전송하지 않습니다.
 
@@ -229,7 +231,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 **로컬 모델의 한계는 무엇인가요?**
 
-모델 로딩 성공이 작업 성공을 보장하지 않습니다. 기록된 Gemma 4 E2B IT Wi-Fi 결정 검증은 통과하지 못했으며 이 대상은 JSON을 유지합니다. 네이티브 호출도 호환 호스트와 대상이 필요하고 인수 검증, 확인, 예산을 적용합니다. 작은 작업부터 시작하고 partial/failed 결과를 확인하세요. 시각 입력과 동적 스크립트는 계획 단계입니다.
+모델 로딩 성공이 작업 성공을 보장하지 않습니다. 기록된 Gemma 4 E2B IT Wi-Fi 결정 검증은 통과하지 못했으며 이 대상은 JSON을 유지합니다. 네이티브 호출도 호환 호스트와 대상이 필요하고 인수 검증, 확인, 예산을 적용합니다. 작은 작업부터 시작하고 partial/failed 결과를 확인하세요. 이미지 입력에는 이를 지원하는 대상이 필요하며 실제 온라인 시각 검증은 대기 중입니다. 생성된 스크립트는 명시적 활성화와 소스별 승인이 필요합니다.
 
 ******
 
@@ -244,6 +246,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - INTERNET은 GitHub 릴리스 수동 확인에만 사용합니다. FOREGROUND_SERVICE와 FOREGROUND_SERVICE_SPECIAL_USE는 실행 중인 작업을, POST_NOTIFICATIONS는 진행 및 확인을 지원합니다. SYSTEM_ALERT_WINDOW는 설정에서 플로팅 볼을 켤 때만 요청합니다. 접근성, 저장소 또는 마이크 권한을 요청하지 않습니다.
 - 작업 기록, 프리셋, 선호 메모리는 플러그인의 비공개 저장소에만 보관됩니다. 백업과 기기 간 이전은 비활성화되어 있습니다.
 - 화면 캡처는 AutoJs6를 통해 선택한 모델로 전송되며 온라인 모델일 수 있습니다. 화면이 켜져 있고 잠금이 해제되어야 합니다. 단계 기록에는 크기와 바이트 수만 저장하고 이미지 내용은 저장하지 않습니다. JSON 결정은 다른 관찰이나 응답이 대체할 때까지 현재 이미지를 유지합니다. 기본 도구 대화는 배치 및 세션 한도 내에서 이전 이미지를 유지하며 매 라운드 token을 다시 예약합니다.
+- 생성된 스크립트는 JavaScript 샌드박스 없이 AutoJs6 권한으로 실행되며 활성 도구 그룹 밖의 작업도 가능합니다. 전체 소스는 기존 비밀번호 제거 및 보존 규칙에 따라 비공개 단계에 저장됩니다. 나중에 비밀번호가 제거된 소스는 원본으로 저장할 수 없습니다. .js 공유 전에 검토하세요.
 
 플러그인은 공식 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 페이지 또는 AutoJs6 플러그인 센터에서만 받으세요. 출처를 알 수 없는 패키지는 버전 번호가 같아 보여도 호스트 검증에 실패하거나 위험을 동반할 수 있습니다.
 
@@ -292,8 +295,10 @@ _2026/09/26_
 
 - `힌트` 네이티브 호출에는 AutoJs6 build 5297+ 및 tools 지원 대상이 필요하며, 3-Stone AI 1.2.0 개발 후보의 온라인 대상이 해당합니다. 이전 호스트와 미지원 대상은 JSON을 유지합니다. 각 대화는 초기 기한, 컨텍스트/출력 제한 및 최대 16 도구 라운드를 유지하며, 작업 후 오류가 나도 JSON으로 재시작하지 않습니다
 - `힌트` 이미지 입력에는 호환 호스트, observe 그룹 및 이미지 입력을 명시적으로 활성화한 시각 모델이 필요합니다. 구현과 결정적 테스트는 완료되었으며 실제 온라인 시각 모델 검증은 대기 중입니다. 이전 시스템과 텍스트 전용 모델은 텍스트 관찰을 유지합니다. ROADMAP.md 참조
+- `힌트` 생성된 스크립트는 JavaScript 샌드박스 없이 AutoJs6 권한으로 실행되며 활성 도구 그룹 밖의 작업도 가능합니다. 전체 소스는 기존 비밀번호 제거 및 보존 규칙에 따라 비공개 단계에 저장됩니다. 나중에 비밀번호가 제거된 소스는 원본으로 저장할 수 없습니다. .js 공유 전에 검토하세요.
 - `기능` 호스트를 통한 네이티브 도구 호출: 카탈로그 Schema, 전체 배치 인수 검증, 순차 실행, 개별 확인, 결과 전달 및 단계 기록에 기존 작업 규칙 적용
 - `기능` Android 11+에서 AutoJs6를 통한 화면 캡처 관찰: screen_capture는 긴 변 1280, JPEG 품질 70으로 변환하며 시각 프롬프트, 이미지 token 예산 검사와 기본 도구 결과 이미지 첨부 지원
+- `기능` script_run_source로 생성된 JavaScript 실행: script_dynamic 그룹은 기본으로 꺼져 있습니다. 매번 요약과 펼칠 수 있는 전체 소스를 검토하고 개별 승인합니다. 제한 시간, 취소, 구조화된 결과와 비공개 소스 기록을 제공합니다. UTF-8 소스와 JSON 문자열 인코딩은 각각 8 KiB로 제한됩니다.
 - `의존성` 이미지 입력 협상을 위해 호스트 API release 파일 3개를 AutoJs6 52ce694f92 / build 5297로 업그레이드. build 5289+ 기본 연결 계약 유지
 
 #### v1.0.0

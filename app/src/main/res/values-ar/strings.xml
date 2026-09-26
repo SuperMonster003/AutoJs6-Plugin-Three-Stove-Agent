@@ -117,6 +117,7 @@
     <string name="presets_group_observe">مراقبة الشاشة</string>
     <string name="presets_group_ocr">التعرف على النص (OCR)</string>
     <string name="presets_group_script">السكربتات المسجلة</string>
+    <string name="presets_group_script_dynamic">السكربتات المولدة</string>
     <string name="presets_group_shell">أوامر Shell</string>
     <string name="presets_group_user">تفاعل المستخدم</string>
     <string name="presets_hybrid">هجين</string>
@@ -156,6 +157,16 @@
     <string name="run_running">قيد التنفيذ</string>
     <string name="run_waiting_confirmation">بانتظار التأكيد</string>
     <string name="run_waiting_input">بانتظار الإجابة</string>
+    <string name="script_dynamic_collapse">طي المصدر</string>
+    <string name="script_dynamic_expand">عرض المصدر الكامل</string>
+    <string name="script_dynamic_redacted">أزيلت كلمة مرور اكتشفت لاحقا من هذا المصدر. لا يمكن حفظ السكربت الأصلي من هذه الخطوة.</string>
+    <string name="script_dynamic_save">حفظ السكربت المولد</string>
+    <string name="script_dynamic_save_note">راجع المصدر الكامل قبل الحفظ. اختر مجلد عمل AutoJs6 أو مجلد سكربتات معتمدا. يتضمن الملف الجديد تسجيلا حساسا @agent ويتطلب التأكيد دائما. إذا اخترت مجلدا مشتركا آخر, فأضفه في مجلدات السكربتات قبل فحص الفهرس التالي. الحفظ لا يشغل السكربت.</string>
+    <string name="script_dynamic_saved">تم حفظ السكربت. يمكن للمضيف اكتشافه إذا كان مجلده مشمولا في فحص الفهرس التالي.</string>
+    <string name="script_dynamic_source">مصدر JavaScript المولد</string>
+    <string name="script_dynamic_source_summary">المصدر: %1$d بايت, %2$d أسطر</string>
+    <string name="script_dynamic_timeout">مهلة التنفيذ: %1$d مللي ثانية</string>
+    <string name="script_dynamic_warning">راجع JavaScript المولد قبل السماح له مرة واحدة. يعمل بصلاحيات AutoJs6 ويمكنه تنفيذ إجراءات تتجاوز مجموعات الأدوات المفعلة. لا يعمل في بيئة معزولة.</string>
     <string name="script_roots_instruction">أدخل مسار مجلد مطلقا واحدا في كل سطر. يتحقق المضيف من وجود المجلد في التخزين المشترك وألا يحتوي على مجلد العمل. يؤدي تطبيق التغييرات إلى إلغاء المهام الحالية.</string>
     <string name="script_roots_invalid">أدخل حتى 32 مسارا مطلقا مختلفا دون انتقال إلى المجلد الأب, بحجم إجمالي لا يتجاوز 8 KiB.</string>
     <string name="script_roots_rejected">لم يقبل المضيف هذه المجلدات. تحقق من وجودها في التخزين المشترك وألا تحتوي على مجلد العمل.</string>
