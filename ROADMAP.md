@@ -256,6 +256,8 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P9 (1.1.0) | 原生 Tool Calling, 视觉输入, 动态脚本生成 | 宿主 + 模型 + 插件 | P8 |
 | P10 (1.2.0) | MCP 工具扩展 | 插件 + 文档 | P8 |
 
+当前验收状态 (2026-09-26): P9.2 三个原条目已完成, 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 原路线图剩余 P9.1 Wi-Fi 双路径对比待验收; 旧模型失败和历史会话记录保留.
+
 建议会话切分: P0 一次; P1 两到三次 (契约 + 代理 + 共享核心为一次, bridge 新方法 + 脚本登记解析为一次, 抽屉 / 注册 / 文档为一次); P2 两到三次 (目录 + 协议 + 解析; 状态机 + 预算 + 确认; 上下文 + 链路 + 前台服务); P3 一次; P4 两次 (工具面; 用例与校验); P5 一到两次; P6 三次 (任务台 + 详情 + 历史; 预设 + 记忆 + 确认; 设置 + 悬浮球 + 其它入口); P7 一到两次; P8 一次.
 
 ---
@@ -628,8 +630,8 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 ### P9.2 视觉输入
 
 - [x] (宿主) AI Provider 协议演进 (维护者已确认在 V2 家族内协商 2.1 图片输入, 旧组件保留 2.0); 模型代理 generate 接受 imageRefs (PFD), 原生工具结果也支持图片; 宿主 accessibility.screenshot 已有. 2026-09-26 宿主提交 52ce694f92, 完成协议, 独立图片限额, 预算及描述符生命周期, 相关 JVM 351/351, API 24 / 37.1 模型代理各 20/20, 旧 Provider 与现有 R8 Agent 兼容回归通过. [宿主实现证据](docs/dev/p92-host-vision-evidence-2026-09-26.md).
-- [ ] (模型) 3-Stone AI 在线视觉模型支持. 进展 (2026-09-26): Provider d0ad293 / 1.2.0 开发候选 / build 216 已实现三协议初始图片和工具结果图片映射, 精确模型显式启用, 2.0 文本兼容及 FD 取消/可靠管道错误校验. JVM 379/379, API 24 / 37.1 Android 各 22/22; debug/androidTest/R8/签名归档与 lint 通过. XQ-DQ72 的 Model8 / Fable 5.1 三次合成图片相关调用均返回空文本, 最近一次输入 8395 / 输出 0 tokens, 不判断根因或记作成功. 用户告知当前没有适合继续验收的在线视觉模型后暂停调用, 未调用 PoloAPI; 此项保留待真实图片输入模型验收. [Provider 实现与待验收边界](docs/dev/p92-provider-vision-evidence-2026-09-26.md).
-- [x] (插件) 工具 `screen_capture` (缩放到最长边 1280, JPEG 70) 作为观察输入; 视觉模式下的提示词与预算 (图片 token 估算). 2026-09-26 Agent 1.1.0 开发候选 / build 86, 要求 API 30+, 宿主与精确模型共同声明视觉能力, 并满足 observe 开关及截图 grant. JSON 当前观察和原生工具结果均可附图, 任务历史仅存元数据; 每轮预算包含原生会话保留图片. JVM 517 项通过 + 1 项原性能开关跳过, debug/R8 在 API 37.1 通过真实跨 UID 的两条图片路径, API 24 保持文本兼容; lint 0 错误. 修正跨 UID 私有文件不能通过 /proc/self/fd 重新打开的问题, 保留取消/超时/关闭边界. [Agent 实现与验收证据](docs/dev/p92-agent-vision-evidence-2026-09-26.md). 原模型条目仍待真实在线视觉验收, 不因本项完成而勾选.
+- [x] (模型) 3-Stone AI 在线视觉模型支持. 2026-09-26 Provider 7138fd0 / 1.2.0 / build 218 在 QV770340J7 / XQ-DQ72 / Android 13 / API 33 使用用户授权的 AiGoCode / gpt-5.6-sol, 初始图片与原生工具结果图片两条真实合成 JPEG 探针均通过: 初始 17263 ms / input 138 / output 6 tokens / 0 工具; 续轮 26480 ms / input 308 / output 39 tokens / 1 次 observe_image, 两轮均准确输出图片中的 6 位随机数字, 输出上限均为 1024 tokens. 三协议映射与 FD/旧 2.0 兼容的原确定性验证保留; 本轮仅证明所选精确目标的真实 ProviderSession/HTTP 两条路径, 不外推全部协议/模型或跨 UID Agent 全任务. 精确 vision 仅测试内存启用, 不修改保存的 profile/默认目标. 原 Model8 三次空文本失败保留, 不改写为成功. [实现, 历史失败与真实验收](docs/dev/p92-provider-vision-evidence-2026-09-26.md).
+- [x] (插件) 工具 `screen_capture` (缩放到最长边 1280, JPEG 70) 作为观察输入; 视觉模式下的提示词与预算 (图片 token 估算). 2026-09-26 Agent 1.1.0 开发候选 / build 86, 要求 API 30+, 宿主与精确模型共同声明视觉能力, 并满足 observe 开关及截图 grant. JSON 当前观察和原生工具结果均可附图, 任务历史仅存元数据; 每轮预算包含原生会话保留图片. JVM 517 项通过 + 1 项原性能开关跳过, debug/R8 在 API 37.1 通过真实跨 UID 的两条图片路径, API 24 保持文本兼容; lint 0 错误. 修正跨 UID 私有文件不能通过 /proc/self/fd 重新打开的问题, 保留取消/超时/关闭边界. [Agent 实现与验收证据](docs/dev/p92-agent-vision-evidence-2026-09-26.md). 该插件实现的确定性证据与本轮 Provider 真实模型验收分开记录, 不宣称本轮完成了跨 UID Agent 真实视觉任务.
 
 ### P9.3 动态脚本生成
 
@@ -1591,3 +1593,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - Wi-Fi 已恢复并确认 INTERNET/VALIDATED/NOT_METERED, Provider 计费网络恢复 false, 字体 1.0 / 超时 600000 / mobile_data=1 及无障碍组件集合与初值一致. instrumentation 结束后服务又被系统标为 crashed, 最终重绑定并确认 bound=true / crashed=false. 本轮没有代理/APN/DNS/VPN/订单/付款变更. 测试 SIM 当前可以移走; 下一次在线 Wi-Fi 用例期间才需独立网络, 不要求 Redmi 保留 SIM.
 - Agent 本轮仅 E4 说明, 脱敏证据, 路线图与 build 89 提交计数更新. 不改变阶段和验收标准, 不发布/推送. [完整复测与恢复证据](docs/dev/p91-wifi-followup-2026-09-26.md).
 - 原路线图仍余 P9.1 Wi-Fi 双路径和 P9.2 真实在线图片输入验收. 现阶段无需新的手机或手动无障碍操作; P9.1 需要继续定位现有 Model8 的模型调用/响应兼容链路, 或维护者确认其他可用文本目标作对照. 小型普通文本也能复现空回复, 不能归因于设备动作或仅归因于 JSON schema; 现有 finishReason 与错误细分不足以确定上游根因. P9.2 继续等待实际图片输入目标, 不拿本轮文本诊断替代.
+
+### 2026-09-26: P9.2 AiGoCode 真实图片输入验收
+
+- 用户在 QV770340J7 添加 AiGoCode / gpt-5.6-sol 并明确允许文本对照及尝试图片输入. 本轮读取设备确认 XQ-DQ72 / Android 13 / API 33; 旧视觉记录中的 API 35 与本轮不一致, 保留为未重新核实的历史值, 不据此推断系统变更.
+- 使用 Provider 7138fd0 / 1.2.0 / build 218 的匹配正式签名 Debug 与 androidTest. 初始 512 x 192 / JPEG 70 随机数字图像通过: 17263 ms, input 138 / output 6 tokens, 0 工具. 原生工具结果图像通过: 26480 ms, input 308 / output 39 tokens, observe_image 恰 1 次; 两次均匹配完整 6 位数字, 最大输出 1024 tokens, instrumentation 各 OK (1 test). 答案不在提示词中, 图片不含用户屏幕或个人数据.
+- 探针使用真实已配置凭据, 网络策略, ProviderSession 与 HTTP, 仅在测试内存为精确模型启用 vision. 不修改保存的 profile, 默认目标或图片输入开关. 测试 owner verifier 为同 UID, 不是一次跨 UID 宿主/Agent 真实视觉任务, 也不证明所有协议或其他模型支持图片. 原 Model8 三次失败及先前无可用图片模型的记录保留为历史. 据既定两条真实图片路径门禁勾选原 P9.2 模型项, 不增加/拆分/丢弃路线图条目.
+- Provider 218 Debug/androidTest/R8/签名归档通过, 16 KiB 对齐通过; 独立归档 sourceRevision=7138fd0 / sourceDirty=false. 本次 Agent 仅更新验收回执, 路线图和十语言当前状态, 预备 build 90 文档提交, 不重建 Agent APK 或改公开 API. 十语言 36 生成产物校验与 git diff --check 通过. 后续 Provider 错误分类修正与 P9.1 设备用例另行记录, 不混为本轮视觉成功的构建版本.
+- 原路线图仅余 P9.1 Wi-Fi 双路径对比待验收. 本轮视觉验收不需要新增设备, SIM 或开启持久模型图片开关. [真实模型结果与证据边界](docs/dev/p92-provider-vision-evidence-2026-09-26.md).

@@ -1,6 +1,6 @@
 AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-1.2.0 开发版本提供可选 MCP 工具, 保留原生工具调用, 截图观察和动态脚本. P9.1 Wi-Fi 对比与 P9.2 在线视觉真实验收仍待完成, 见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 Wi-Fi 对比仍待完成, 见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 

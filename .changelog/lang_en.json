@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/26",
       "hint": [
-        "Version 1.2.0 is in development with optional MCP tools. Native calling, screenshots and generated scripts remain available. P9.1 Wi-Fi comparisons and P9.2 real online vision acceptance remain pending in ROADMAP.md."
+        "Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 Wi-Fi comparisons remain pending; see ROADMAP.md."
       ],
       "feature": [
         "MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default"
