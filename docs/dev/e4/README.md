@@ -21,6 +21,20 @@ py docs/dev/e4/device_case.py --serial DEVICE --output build/e4-private catalog
 
 目录来自宿主 `AiAgentModelBroker.listTargets`, 保存为本地 `catalog.json`. 只包含公开目标信息, 不读取或复制 Provider 的账号存储. 将所需模型的完整 `targetId` 写入配置; 多模型配置不能只凭 profile 名称选择默认模型.
 
+## 模型格式诊断 (不执行设备动作)
+
+宿主 `AiAgentRealModelE4Test#modelFormatProbe` 是显式启用的文本诊断入口, 用于区分最小普通文本与结构化 JSON 请求的返回差异. 需要安装包含此方法的同签名宿主 androidTest APK, target 使用公开目录中已配置的在线目标. 普通 connected 测试不传这些参数时跳过, 不调用真实模型.
+
+```powershell
+adb -s DEVICE shell am instrument -w -r -e autojs.agent.e4 true -e autojs.agent.e4.probeTarget profile:REPLACE_WITH_PUBLIC_TARGET_ID -e autojs.agent.e4.probeCase p91-format-unique -e class org.autojs.autojs.core.plugin.agent.AiAgentRealModelE4Test#modelFormatProbe org.autojs.autojs6.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+caseId 必须以小写字母或数字开头, 其余仅允许小写字母, 数字, 下划线和连字符, 总长不超过 64, 且不能覆盖已有设备证据目录. 两个模式使用同一目标, 固定合成文本, stream=true, 2048 输出 token 上限和每轮 60 秒期限, 各调用一次且不重试; 仅 structuredJson 和 responseSchema 不同. 没有 Agent 任务, 工具定义或能力代理连接, 不读取屏幕或凭据, 不更改保存的模型设置. 此探针不是 Wi-Fi 或工具调用验收.
+
+私有结果位于宿主 `files/agent-e4/<caseId>/probe.json`, 可以通过 debug run-as 收集到忽略目录. 其中记录每轮 terminal, usage, 输出字节数, 完成原因, 输出文本和固定预期匹配; 终端状态只输出枚举, 计数与匹配布尔值. expectedMatched 使用去除外层空白后的固定 JSON 文本精确匹配. harness_timeout 或 harness_error 会令 collectionComplete=false 并使采集测试失败. 原始结果不提交或输出到普通日志. `OK (1 test)` 只表示采集测试正常结束, 必须另看每轮结果, 不能把空 completed, failed 或超时记为模型通过.
+
+模型代理可能把大于内联限额的事件放入文件描述符; 探针按字节上限读取并关闭. 结束, 失败或超时均取消自己的请求并关闭 broker. instrumentation 会重启宿主进程; 若系统将原来启用的 AutoJs6 无障碍标为异常, 在实际设备验收结束后恢复该服务, 保留其他无障碍组件.
+
 ## 运行
 
 先在 `build/e4-private/config-calculator.json` 写入配置, 替换公开目录中的 targetId. 每次必须使用新的 caseId, 驱动拒绝覆盖已有本地 case 目录或 instrumentation 日志.
