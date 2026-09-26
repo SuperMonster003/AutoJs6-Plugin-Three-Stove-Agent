@@ -8,7 +8,7 @@ import java.util.Locale
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
         listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts",
-            "json_response", "json_compact_response", "json_response_details", "native_response", "vision").associateWith { name ->
+            "json_response", "json_compact_response", "json_response_details", "native_response", "vision", "mcp").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
         }
@@ -39,6 +39,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
             else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) })
         if (catalog["screen_capture"]?.let(policy::isEnabled) == true) system += "\n" + templates.getValue(language(language)).getValue("vision").trimEnd()
+        if (catalog.tools.any { it.external != null && policy.isEnabled(it) }) system += "\n" + templates.getValue(language(language)).getValue("mcp").trimEnd()
         return if (registeredScripts == null) system else {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
             system + "\n" + render(language, "scripts", mapOf("scripts_json" to data))

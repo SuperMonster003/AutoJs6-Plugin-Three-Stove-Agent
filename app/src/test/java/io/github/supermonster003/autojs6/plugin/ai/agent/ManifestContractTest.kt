@@ -27,7 +27,7 @@ class ManifestContractTest {
         val permissions = manifest.children("uses-permission").map { it.androidAttribute("name") }
         assertEquals(listOf(PLUGIN_PERMISSION, "android.permission.FOREGROUND_SERVICE",
             "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS", "android.permission.INTERNET",
-            "android.permission.SYSTEM_ALERT_WINDOW"), permissions)
+            "android.permission.ACCESS_LOCAL_NETWORK", "android.permission.SYSTEM_ALERT_WINDOW"), permissions)
 
         val queried = manifest.child("queries").children("package").map { it.androidAttribute("name") }
         assertEquals(listOf(AiAgentPlugin.HOST_PACKAGE_NAME), queried)
@@ -42,6 +42,7 @@ class ManifestContractTest {
         assertEquals("@style/Theme.AiAgent", application.androidAttribute("theme"))
         assertEquals("@xml/data_extraction_rules", application.androidAttribute("dataExtractionRules"))
         assertEquals("@xml/locales_config", application.androidAttribute("localeConfig"))
+        assertEquals("@xml/network_security_config", application.androidAttribute("networkSecurityConfig"))
 
         val metaData = application.children("meta-data").associate { it.androidAttribute("name") to it.androidAttribute("value") }
         assertEquals(".WakeActivity", metaData["org.autojs.plugin.WAKE_ACTIVITY"])
@@ -52,7 +53,7 @@ class ManifestContractTest {
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.ReleaseHistoryActivity", ".ui.ConfirmationActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.McpServersActivity", ".ui.ReleaseHistoryActivity", ".ui.ConfirmationActivity"), activities.map { it.androidAttribute("name") })
         assertEquals("true", activities.last().androidAttribute("excludeFromRecents"))
         assertEquals("@style/Theme.AiAgent.Dialog.Light", activities.last().androidAttribute("theme"))
 

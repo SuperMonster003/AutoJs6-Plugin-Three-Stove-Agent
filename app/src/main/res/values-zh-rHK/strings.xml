@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">正在等待 AutoJs6 連接 (最多 15 秒).</string>
     <string name="launcher_link_timeout">15 秒內未建立連接. 請開啟 AutoJs6, 在插件中心啟用 AI Agent 並授權連接.</string>
     <string name="launcher_open_host">開啟 AutoJs6</string>
+    <string name="mcp_add">新增伺服器</string>
+    <string name="mcp_auth_required">需要身份驗證. 請在 MCP 伺服器應用程式中檢查已儲存的權杖.</string>
+    <string name="mcp_busy">修改伺服器前請停止執行中或排隊中的工作.</string>
+    <string name="mcp_clear_token">清除已儲存的權杖</string>
+    <string name="mcp_delete">刪除伺服器</string>
+    <string name="mcp_delete_confirm">刪除此伺服器及其已儲存的權杖?</string>
+    <string name="mcp_empty">尚未設定 MCP 伺服器.</string>
+    <string name="mcp_enabled">為新工作啟用此伺服器</string>
+    <string name="mcp_endpoint">端點 URL</string>
+    <string name="mcp_endpoint_note">非迴路位址必須使用 HTTPS. 修改端點會清除工具選擇. 未輸入新權杖時也會清除舊權杖.</string>
+    <string name="mcp_error">無法讀取或儲存. 請檢查欄位, 限額和執行中的工作. 若設定已變更, 請重新開啟伺服器.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">伺服器 ID (1-12 位小寫字母, 數字或底線, 以字母開頭)</string>
+    <string name="mcp_local_permission">允許存取區域網絡</string>
+    <string name="mcp_local_permission_note">Android 要求本機網絡連線取得此權限. 外部 HTTPS 伺服器毋須此步驟.</string>
+    <string name="mcp_name">伺服器名稱</string>
+    <string name="mcp_no_tools">請先儲存伺服器, 再探索並選擇工具.</string>
+    <string name="mcp_pairing_denied">配對遭拒. 請在 MCP 伺服器應用程式中檢查配對.</string>
+    <string name="mcp_pairing_required">需要配對. 請在 MCP 伺服器應用程式中批准此用戶端, 然後重新探索工具.</string>
+    <string name="mcp_probe">從已儲存的伺服器探索工具</string>
+    <string name="mcp_probe_error">工具探索失敗. 請檢查伺服器, 網絡, 權限和目錄限額.</string>
+    <string name="mcp_risk_note">本機風險原則適用於每個選取的工具, 預設為敏感. 伺服器描述和註解不能降低此原則.</string>
+    <string name="mcp_save_before_probe">探索工具前請儲存端點或權杖的修改.</string>
+    <string name="mcp_selection_note">請逐項選擇工具. 所有伺服器最多選擇 32 個工具. 不支援的輸入結構無法選擇.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">MCP 伺服器</string>
+    <string name="mcp_setup_note">伺服器和 MCP 工具群組預設關閉. 請在伺服器應用程式中設定權杖和配對. 工具探索僅讀取已儲存伺服器的目錄, 不呼叫模型.</string>
+    <string name="mcp_token">Bearer 權杖</string>
+    <string name="mcp_token_empty">未儲存權杖</string>
+    <string name="mcp_token_note">留空保留已儲存的權杖, 勾選清除可將其移除. 權杖不會再次顯示, 離開此頁面將捨棄未儲存的權杖.</string>
+    <string name="mcp_token_saved">已儲存權杖 (隱藏)</string>
+    <string name="mcp_unsupported">%1$s - 不支援的工具</string>
     <string name="memory_accept">確認此項目</string>
     <string name="memory_cancel_import">取消其餘匯入</string>
     <string name="memory_created">建立時間: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">螢幕操作</string>
     <string name="presets_group_files">檔案</string>
     <string name="presets_group_gesture">座標手勢</string>
+    <string name="presets_group_mcp">MCP 工具</string>
     <string name="presets_group_memory">偏好記憶</string>
     <string name="presets_group_observe">螢幕觀察</string>
     <string name="presets_group_ocr">文字識別 (OCR)</string>

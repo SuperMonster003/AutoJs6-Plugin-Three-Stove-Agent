@@ -17,7 +17,7 @@ class RunnerPortsTest {
         val call = BridgeCall("a", "b", jsonArray("original".json()), mutableListOf("test"))
         val objectValue = jsonObject("text" to "original".json())
         val plans = listOf(ToolPlan.Call(call), ToolPlan.Poll(call, "appear", 10), ToolPlan.Repeat(call, 2),
-            ToolPlan.AppendText(objectValue, "original"), ToolPlan.RegisteredScript(call, call), ToolPlan.Local("test", objectValue))
+            ToolPlan.AppendText(objectValue, "original"), ToolPlan.RegisteredScript(call, call), ToolPlan.Local("test", objectValue), ToolPlan.External("server", "tool", objectValue))
         for (plan in plans) {
             val invocation = ToolInvocation("sample", objectValue, plan)
             fun mutate(value: ToolPlan) { when (value) {
@@ -28,6 +28,7 @@ class RunnerPortsTest {
                 is ToolPlan.RegisteredScript -> value.execution.args.add("changed")
                 is ToolPlan.Local -> value.arguments.addProperty("text", "changed")
                 is ToolPlan.DynamicScript -> Unit
+                is ToolPlan.External -> value.arguments.addProperty("text", "changed")
             } }
             mutate(invocation.plan)
             assertFalse(invocation.plan.toString().contains("changed"))

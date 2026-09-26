@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">Esperando la conexión de AutoJs6 (hasta 15 segundos).</string>
     <string name="launcher_link_timeout">Sin conexión tras 15 segundos. Abra AutoJs6, active AI Agent en su centro de plugins y autorice la conexión.</string>
     <string name="launcher_open_host">Abrir AutoJs6</string>
+    <string name="mcp_add">Añadir servidor</string>
+    <string name="mcp_auth_required">Se requiere autenticación. Comprueba el token en la aplicación del servidor MCP.</string>
+    <string name="mcp_busy">Detén las tareas activas o en cola antes de cambiar servidores.</string>
+    <string name="mcp_clear_token">Borrar el token guardado</string>
+    <string name="mcp_delete">Eliminar servidor</string>
+    <string name="mcp_delete_confirm">Eliminar este servidor y su token guardado?</string>
+    <string name="mcp_empty">No hay servidores MCP configurados.</string>
+    <string name="mcp_enabled">Activar este servidor para tareas nuevas</string>
+    <string name="mcp_endpoint">URL del servidor</string>
+    <string name="mcp_endpoint_note">Se requiere HTTPS fuera de loopback. Cambiar la URL borra el token anterior y la selección de herramientas. Puedes introducir un token nuevo.</string>
+    <string name="mcp_error">No se pudo leer o guardar. Revisa los campos, límites y tareas activas. Vuelve a abrir el servidor si cambió su configuración.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">ID del servidor (1-12 minúsculas, dígitos o guiones bajos; empieza por una letra)</string>
+    <string name="mcp_local_permission">Permitir acceso a la red local</string>
+    <string name="mcp_local_permission_note">Android requiere este permiso para conexiones locales. Los servidores HTTPS externos no necesitan este paso.</string>
+    <string name="mcp_name">Nombre del servidor</string>
+    <string name="mcp_no_tools">Guarda el servidor y luego descubre y selecciona herramientas.</string>
+    <string name="mcp_pairing_denied">Emparejamiento denegado. Revísalo en la aplicación del servidor MCP.</string>
+    <string name="mcp_pairing_required">Se requiere emparejamiento. Autoriza este cliente en la aplicación del servidor MCP y vuelve a descubrir herramientas.</string>
+    <string name="mcp_probe">Descubrir herramientas del servidor guardado</string>
+    <string name="mcp_probe_error">Falló el descubrimiento. Revisa el servidor, red, permisos y límites del catálogo.</string>
+    <string name="mcp_risk_note">La política local de riesgo se aplica a todas las herramientas seleccionadas. Sensible de forma predeterminada. Las descripciones y anotaciones del servidor nunca reducen esta política.</string>
+    <string name="mcp_save_before_probe">Guarda los cambios de URL o token antes del descubrimiento.</string>
+    <string name="mcp_selection_note">Selecciona las herramientas individualmente. Máximo 32 entre todos los servidores. Los esquemas no compatibles no se pueden seleccionar.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">Servidores MCP</string>
+    <string name="mcp_setup_note">Los servidores y el grupo MCP están desactivados inicialmente. Configura tokens y emparejamiento en la aplicación del servidor. El descubrimiento solo lee su catálogo, sin llamar a un modelo.</string>
+    <string name="mcp_token">Token Bearer</string>
+    <string name="mcp_token_empty">No hay token guardado</string>
+    <string name="mcp_token_note">Déjalo vacío para conservar el token. Marca Borrar para eliminarlo. Los tokens no vuelven a mostrarse y los no guardados se descartan al salir de esta pantalla.</string>
+    <string name="mcp_token_saved">Token guardado (oculto)</string>
+    <string name="mcp_unsupported">%1$s - Herramienta no compatible</string>
     <string name="memory_accept">Confirmar esta entrada</string>
     <string name="memory_cancel_import">Cancelar el resto</string>
     <string name="memory_created">Creación: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">Acciones en pantalla</string>
     <string name="presets_group_files">Archivos</string>
     <string name="presets_group_gesture">Gestos por coordenadas</string>
+    <string name="presets_group_mcp">Herramientas MCP</string>
     <string name="presets_group_memory">Memoria de preferencias</string>
     <string name="presets_group_observe">Observación de pantalla</string>
     <string name="presets_group_ocr">Reconocimiento de texto (OCR)</string>

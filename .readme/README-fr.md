@@ -44,7 +44,7 @@ Le README.md actuel prend en charge les langues suivantes:
 
 AI Agent transforme un objectif en langage naturel en actions sur un appareil Android exécutant AutoJs6. Soit il choisit un script que l'utilisateur a enregistré pour l'agent, complète ses paramètres et l'exécute ; soit il observe l'écran à travers l'arbre de noeuds d'accessibilité et agit étape par étape (observer, décider, agir, vérifier) jusqu'à ce que l'objectif soit atteint, qu'une confirmation soit nécessaire ou qu'un budget soit épuisé. Il répond à la [discussion AutoJs6 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scripts l'utilisent via l'API `ai.agent` d'AutoJs6 ; les utilisateurs y accèdent par son propre espace de tâches, le tiroir d'AutoJs6, une bulle flottante, le partage système, les raccourcis d'application et la saisie vocale. Les appels de modèle et les actions sur l'appareil passent toujours par AutoJs6 via Binder : l'hôte prête au plugin un courtier de modèle (les plugins AI Provider que l'hôte connaît déjà, comme 3-Stone AI) et un courtier de capacités avec une autorisation bornée. Le plugin ne détient jamais d'identifiants, ne se lie jamais lui-même à un fournisseur de modèle et ne demande jamais la permission d'accessibilité.
+AI Agent fournit une interface autonome et un plugin AutoJs6 accessible par ai.agent. Les actions intégrées et les appels de modèle passent par AutoJs6. Les outils MCP facultatifs utilisent uniquement les serveurs configurés. Aucun accès direct au fournisseur de modèle ni permission d'accessibilité.
 
 ******
 
@@ -52,11 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-La version 1.1.0 est en développement avec appels natifs, captures et scripts générés facultatifs. Les cibles incompatibles conservent JSON. La comparaison Wi-Fi réelle et la validation visuelle en ligne restent à effectuer dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
-
-La comparaison actuelle avec Model8 comprend des réponses vides, des échecs du Provider et des arrêts sur limite de budget. Les [résultats de comparaison](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservent tous les essais; ils ne démontrent pas encore une exécution fiable des deux tâches.
-
-Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md
+La version 1.2.0 en développement propose les outils MCP facultatifs et conserve les appels natifs, captures et scripts générés. Les comparaisons Wi-Fi P9.1 et la validation réelle de vision en ligne P9.2 restent en attente dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,6 +69,7 @@ L'implémentation actuelle propose les fonctions suivantes:
 - Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
 - Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs
 - JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel exige un résumé du code extensible au texte complet et une approbation individuelle. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB.
+- Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
 
 ### Captures
 
@@ -242,8 +239,8 @@ Un modèle chargé ne garantit pas la réussite. Le test enregistré de validati
 Le plugin respecte des limites explicites :
 
 - Les entrées Binder exigent la permission de signature org.autojs.permission.PLUGIN. Le lanceur (raccourcis inclus) et la cible de partage text/plain ACTION_SEND sont publics et acceptent seulement des brouillons bornés. Un Intent externe ne peut exécuter une tâche, confirmer une action ou modifier les autorisations. Les paramètres, résultats vocaux et commandes restent privés.
-- Le plugin ne détient aucune clé d'API, ne se lie jamais à un fournisseur de modèle et ne demande pas la permission d'accessibilité : les appels de modèle et les actions sur l'appareil passent par des courtiers qu'AutoJs6 prête pour un lien attaché et révoque au détachement, chacun borné par une autorisation (méthodes permises, débits, tailles, quota de modèle).
-- INTERNET sert uniquement aux vérifications manuelles sur GitHub. FOREGROUND_SERVICE et FOREGROUND_SERVICE_SPECIAL_USE servent aux tâches actives; POST_NOTIFICATIONS à leur progression et aux confirmations. SYSTEM_ALERT_WINDOW est demandé seulement à l'activation de la bulle dans les paramètres. Aucune permission d'accessibilité, de stockage ou de microphone.
+- AI Agent fournit une interface autonome et un plugin AutoJs6 accessible par ai.agent. Les actions intégrées et les appels de modèle passent par AutoJs6. Les outils MCP facultatifs utilisent uniquement les serveurs configurés. Aucun accès direct au fournisseur de modèle ni permission d'accessibilité.
+- Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 - L'historique des tâches, les préréglages et la mémoire de préférences restent dans le stockage privé du plugin ; les sauvegardes et les transferts d'appareil sont désactivés.
 - Les captures sont envoyées via AutoJs6 au modèle choisi, éventuellement en ligne. L'écran doit être actif et déverrouillé. L'historique conserve les dimensions et le nombre d'octets, sans contenu image. Les décisions JSON gardent l'image courante jusqu'à une autre observation ou réponse. Les conversations natives conservent les images précédentes dans les limites du lot et de la session, avec une nouvelle réservation de tokens à chaque tour.
 - Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
@@ -288,6 +285,14 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 ### Historique des versions
 
 ******
+
+#### v1.2.0
+
+_2026/09/26_
+
+- `Note` La version 1.2.0 en développement propose les outils MCP facultatifs et conserve les appels natifs, captures et scripts générés. Les comparaisons Wi-Fi P9.1 et la validation réelle de vision en ligne P9.2 restent en attente dans ROADMAP.md.
+- `Fonctionnalité` Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
+- `Amélioration` Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 
 #### v1.1.0
 

@@ -5,6 +5,18 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v1.2.0": {
+      "released_date": "2026/09/26",
+      "hint": [
+        "개발 버전 1.2.0은 선택적 MCP 도구를 제공하며 기본 도구 호출, 스크린샷, 생성 스크립트를 유지합니다. P9.1 Wi-Fi 비교와 P9.2 온라인 시각 모델의 실제 검증은 ROADMAP.md에서 대기 중입니다."
+      ],
+      "feature": [
+        "선택한 로컬 또는 외부 MCP 서버 도구와 서버별 위험 설정, 기본적으로 꺼진 mcp 그룹"
+      ],
+      "improvement": [
+        "모델 자격 증명은 Provider가 보관하고 모델 호출은 AutoJs6를 거칩니다. MCP Bearer 토큰은 Android Keystore로 암호화하여 비공개 저장소에 보관하며 프롬프트나 기록 내보내기에 포함하지 않습니다. INTERNET은 설정된 MCP 서버 연결에도 사용합니다. Android 17+ 로컬 네트워크 권한은 MCP 설정에서 요청합니다. 서버별 위험의 초기값은 SENSITIVE입니다. 취소는 원격 작업을 되돌리지 않으며 실패한 호출은 자동 재실행하지 않습니다."
+      ]
+    },
     "v1.1.0": {
       "released_date": "2026/09/26",
       "hint": [

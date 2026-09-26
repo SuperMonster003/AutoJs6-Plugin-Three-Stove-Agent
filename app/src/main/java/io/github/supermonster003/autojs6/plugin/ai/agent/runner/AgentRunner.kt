@@ -11,7 +11,7 @@ import java.util.Locale
  * Observers must return promptly; the P2.5 adapter forwards events through the oneway callback. */
 class AgentRunner internal constructor(
     val id: String, private val options: RunOptions, private val scheduler: RunScheduler,
-    private val catalog: ToolCatalog, private var policy: ToolPolicy, private var compiler: RunContextCompiler,
+    private var catalog: ToolCatalog, private var policy: ToolPolicy, private var compiler: RunContextCompiler,
     private var model: RunModel, private var tools: RunTools, private val text: RunnerText,
     private val listener: (RunEvent) -> Unit, private val onTerminal: (AgentRunner) -> Unit,
     private val preparation: RunPreparation? = null,
@@ -23,8 +23,10 @@ class AgentRunner internal constructor(
     private var terminalClaimed = false // Protected by stopping's monitor, shared with requestStop.
     private val journal = StepJournal()
     private var gate = ConfirmationGate(policy, options.confirmationMode)
-    private val handlers = ToolHandlers(catalog)
-    private val validator = DecisionValidator(catalog)
+    private var handlers = ToolHandlers(catalog)
+    private var validator = DecisionValidator(catalog)
+    private var cleanup = Cancellation.NONE
+    private var acceptedComponents: RunComponents? = null
     private val loopRules = LoopRules()
     private val doneRules = DoneRules(text)
     private var budget: Budget? = null
@@ -74,10 +76,15 @@ class AgentRunner internal constructor(
             transition(RunState.RUNNING)
             if (preparation == null) { format = model.initialFormat(options.format); nextStep() }
             else beginOperation(minOf(15_000, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
-                { callback -> preparation.prepare(callback) }) { outcome ->
+                { callback -> preparation.prepare(callback) }, onDiscard = { outcome ->
+                    if (outcome is PortResult.Success && outcome.value !== acceptedComponents) safely(outcome.value.cleanup::cancel)
+                }) { outcome ->
                 when (outcome) {
-                    is PortResult.Failure -> finishError(outcome.error)
+                    is PortResult.Failure -> finishError(outcome.error, mcpReason = outcome.mcpReason)
                     is PortResult.Success -> {
+                        acceptedComponents = outcome.value
+                        cleanup = outcome.value.cleanup
+                        outcome.value.catalog?.let { catalog = it; handlers = ToolHandlers(it); validator = DecisionValidator(it) }
                         compiler = outcome.value.compiler; model = outcome.value.model; tools = outcome.value.tools
                         outcome.value.policy?.let { policy = it; gate = ConfirmationGate(it, options.confirmationMode) }
                         outcome.value.maximumTokens?.let { checkNotNull(budget).narrowTokens(it) }
@@ -274,7 +281,7 @@ class AgentRunner internal constructor(
         beginOperation(b.toolTimeout(), RunError.BUDGET_EXCEEDED, RunError.HOST_UNAVAILABLE,
             { callback -> tools.prepare(invocation, b.toolTimeout(), callback) }) { outcome ->
             when (outcome) {
-                is PortResult.Failure -> toolFailed(outcome.error, unknownPassword = true, scriptParameters = outcome.scriptParameters)
+                is PortResult.Failure -> toolFailed(outcome.error, unknownPassword = true, scriptParameters = outcome.scriptParameters, mcpReason = outcome.mcpReason)
                 is PortResult.Success -> {
                     val prepared = outcome.value
                     if (prepared.invocation !== invocation) { finishError(RunError.INVALID_REQUEST); return@beginOperation }
@@ -318,16 +325,20 @@ class AgentRunner internal constructor(
         beginOperation(timeout, if (prepared.invocation.name in setOf("script_run", "script_run_source")) RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
             RunError.HOST_UNAVAILABLE, { callback -> tools.execute(prepared, timeout, callback) }) { outcome ->
             when (outcome) {
-                is PortResult.Failure -> toolFailed(outcome.error)
+                is PortResult.Failure -> toolFailed(outcome.error, mcpReason = outcome.mcpReason)
                 is PortResult.Success -> {
                     require(outcome.value.images.isEmpty() || (prepared.invocation.name == "screen_capture" && policy.visionAvailable))
                     require(prepared.invocation.name != "screen_capture" || outcome.value.images.size == 1)
                     observationImages = outcome.value.images
-                    if (outcome.value.script?.error == null) successfulTools++
+                    val toolError = outcome.value.error ?: outcome.value.script?.error
+                    if (toolError == null) successfulTools++
                     if (prepared.invocation.name == "script_run") scriptResult = outcome.value.script?.scriptResult
-                    loopRules.succeeded(checkNotNull(catalog[prepared.invocation.name]), outcome.value.result)
-                    observation = compiler.observe(prepared.invocation.name, journal.redact(outcome.value.result))
-                    record(observation, outcome.value.script?.error, outcome.value.images)
+                    if (toolError == null) loopRules.succeeded(checkNotNull(catalog[prepared.invocation.name]), outcome.value.result)
+                    else loopRules.failed(checkNotNull(catalog[prepared.invocation.name]))
+                    val redacted = journal.redact(outcome.value.result)
+                    observation = if (toolError == null) compiler.observe(prepared.invocation.name, redacted)
+                        else compiler.observeFailure(prepared.invocation.name, redacted, toolError)
+                    record(observation, toolError, outcome.value.images)
                     nextStep()
                 }
             }
@@ -335,11 +346,13 @@ class AgentRunner internal constructor(
     }
 
     private fun toolFailed(error: RunError, unknownPassword: Boolean = false,
-                           scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null) {
+                           scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null, mcpReason: String? = null) {
         if (unknownPassword) protectText()
         (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
-        observation = scriptParameters?.observation() ?: errorObservation(error)
+        observation = scriptParameters?.observation() ?: jsonObject("error" to error.name.json()).apply {
+            mcpReason?.let { addProperty("reason", it) }
+        }.toString()
         observationImages = emptyList()
         record(observation, error)
         nextStep()
@@ -409,6 +422,7 @@ class AgentRunner internal constructor(
 
     private fun <T> beginOperation(timeout: Long, timeoutError: RunError, exceptionError: RunError,
                                    invoke: ((PortResult<T>) -> Unit) -> Cancellation, onCancelled: (Cancellation) -> Unit = {},
+                                   onDiscard: (PortResult<T>) -> Unit = {},
                                    accept: (PortResult<T>) -> Unit) {
         if (!canContinue()) return
         check(operation == null && interaction == null)
@@ -424,14 +438,23 @@ class AgentRunner internal constructor(
         }
         try {
             val cancellation = invoke { outcome ->
-                enqueueCallback {
-                    guarded {
-                        if (operation === pending && pending.active) {
-                            clearOperation(cancel = false)
-                            accept(outcome)
+                if (state.terminal) safely { onDiscard(outcome) }
+                else try {
+                    scheduler.execute {
+                        var consumed = false
+                        try {
+                            guarded {
+                                if (operation === pending && pending.active) {
+                                    clearOperation(cancel = false)
+                                    consumed = true
+                                    accept(outcome)
+                                }
+                            }
+                        } finally {
+                            if (!consumed) safely { onDiscard(outcome) }
                         }
                     }
-                }
+                } catch (error: RejectedExecutionException) { safely { onDiscard(outcome) }; if (!state.terminal) throw error }
             }
             pending.cancellation = cancellation
             if (!pending.active || stopping.get() != null) {
@@ -535,7 +558,7 @@ class AgentRunner internal constructor(
         if (error == RunError.CANCELLED && state != RunState.QUEUED) transition(RunState.CANCELLING)
         finishError(error)
     }
-    private fun finishError(error: RunError, budgetDimension: String? = null) {
+    private fun finishError(error: RunError, budgetDimension: String? = null, mcpReason: String? = null) {
         if (state.terminal) return
         clearOperation(cancel = true); clearInteraction()
         closeNative()
@@ -549,7 +572,8 @@ class AgentRunner internal constructor(
             error == RunError.BUDGET_EXCEEDED && successfulTools > 0 -> RunState.PARTIAL
             else -> RunState.FAILED
         }
-        finish(terminal, text.terminal(error, budgetDimension), error = error)
+        val detail = mcpReason?.takeIf { error == RunError.TOOL_FAILED && it in PortResult.Failure.MCP_REASONS }
+        finish(terminal, text.terminal(error, budgetDimension) + (detail?.let { " [$it]" } ?: ""), error = error)
     }
     private fun finish(terminal: RunState, summary: String, evidence: List<String> = emptyList(), unfinished: List<String> = emptyList(),
                        orderStatus: String? = null, error: RunError? = null) {
@@ -563,6 +587,7 @@ class AgentRunner internal constructor(
         check(terminal.terminal)
         clearOperation(cancel = true); clearInteraction(); safely(durationTimer::cancel)
         closeNative()
+        val resources = cleanup; cleanup = Cancellation.NONE; safely(resources::cancel)
         observationImages = emptyList()
         val b = budget
         val value = jsonObject("id" to id.json(), "status" to terminal.wire.json(), "summary" to summary.json(),

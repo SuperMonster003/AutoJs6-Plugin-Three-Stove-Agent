@@ -19,6 +19,7 @@ sealed interface ToolPlan {
         override fun toString() = "DynamicScript(sourceBytes=${source.toByteArray(Charsets.UTF_8).size}, timeoutMs=$timeoutMs)"
     }
     data class Local(val name: String, val arguments: JsonObject) : ToolPlan
+    data class External(val serverId: String, val toolName: String, val arguments: JsonObject) : ToolPlan
 }
 
 class ToolHandlers(private val catalog: ToolCatalog) {
@@ -28,6 +29,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
         val args = try { spec.validator.validate(arguments).asJsonObject } catch (_: IllegalArgumentException) {
             throw ToolFailure("TOOL_ARGUMENTS_INVALID", "Arguments must match the tool input schema.")
         }
+        spec.external?.let { return ToolPlan.External(it.serverId, it.toolName, args) }
         fun str(key: String) = checkNotNull(args.string(key))
         fun num(key: String) = checkNotNull(args.number(key))
         if (spec.group == ToolGroup.FILES) WorkspacePath.requireValid(str("path"))

@@ -28,6 +28,7 @@ internal class AgentRuntime internal constructor(val context: Context) {
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json"), ::presentationChanged) }
     val settings = SettingsRepository(File(context.filesDir, "agent-settings.json"), ::presentationChanged)
+    val mcp = McpRepository(context, ::presentationChanged)
     val admissionLock = Any()
     @Volatile var maintenance = false; private set
     fun beginMaintenance(): Boolean = synchronized(admissionLock) {

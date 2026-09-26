@@ -71,6 +71,21 @@ class FakeHostConformanceTest {
         }
     }
     @Test fun disabledToolNeverReachesCapabilityBroker() = denial("disabled-tool", 0)
+    @Test fun trustedHostCannotBindPrivateMcpCredentialsOrSettings() {
+        assertTrue("Disposable AVD only", Build.FINGERPRINT.contains("generic") || Build.MODEL.contains("sdk"))
+        assertEquals("conformance", context.packageManager.getPackageInfo(context.packageName, 0).versionName)
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { fail("Private MCP endpoint was exposed") }
+            override fun onServiceDisconnected(name: ComponentName?) = Unit
+        }
+        val intent = Intent("io.github.supermonster003.autojs6.plugin.ai.agent.MCP_SETTINGS")
+            .setComponent(ComponentName(FakeHostService.PLUGIN, "${FakeHostService.PLUGIN}.service.AgentLocalService"))
+        var bound = false
+        try {
+            val failure = runCatching { bound = context.bindService(intent, connection, Context.BIND_AUTO_CREATE) }.exceptionOrNull()
+            assertTrue("Even the trusted host UID must not access MCP settings", failure is SecurityException || !bound)
+        } finally { if (bound) context.unbindService(connection) }
+    }
     @Test fun jsonVisionTransportsSyntheticCaptureAcrossRealBinderUids() = visionRoundTrip("vision-json")
     @Test fun nativeVisionTransportsCaptureAsTheMatchingToolResult() = visionRoundTrip("native-vision")
     private fun visionRoundTrip(mode: String) {

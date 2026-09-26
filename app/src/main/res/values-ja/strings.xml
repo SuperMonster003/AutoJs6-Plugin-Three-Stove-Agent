@@ -71,6 +71,38 @@
     <string name="launcher_link_connecting">AutoJs6 の接続を待っています (最大 15 秒).</string>
     <string name="launcher_link_timeout">15 秒以内に接続できませんでした. AutoJs6 のプラグインセンターで AI Agent を有効にして接続を許可してください.</string>
     <string name="launcher_open_host">AutoJs6 を開く</string>
+    <string name="mcp_add">サーバーを追加</string>
+    <string name="mcp_auth_required">認証が必要です. MCP サーバーアプリで保存済みトークンを確認してください.</string>
+    <string name="mcp_busy">サーバーを変更する前に実行中または待機中のタスクを停止してください.</string>
+    <string name="mcp_clear_token">保存済みトークンを消去</string>
+    <string name="mcp_delete">サーバーを削除</string>
+    <string name="mcp_delete_confirm">このサーバーと保存済みトークンを削除しますか?</string>
+    <string name="mcp_empty">MCP サーバーは未設定です.</string>
+    <string name="mcp_enabled">新しいタスクでこのサーバーを有効にする</string>
+    <string name="mcp_endpoint">エンドポイント URL</string>
+    <string name="mcp_endpoint_note">ループバック以外は HTTPS が必要です. エンドポイントの変更で以前のトークンとツール選択を消去します. 新しいトークンは入力できます.</string>
+    <string name="mcp_error">読み込みまたは保存に失敗しました. 項目, 上限, 実行中タスクを確認してください. 設定が変わった場合は開き直してください.</string>
+    <!-- ASCII range punctuation follows the repository resource contract. -->
+    <string name="mcp_id" tools:ignore="TypographyDashes">サーバー ID (小文字で始まる1-12文字の小文字英数字または下線)</string>
+    <string name="mcp_local_permission">ローカルネットワークへのアクセスを許可</string>
+    <string name="mcp_local_permission_note">Android ではローカル接続にこの権限が必要です. 外部 HTTPS サーバーでは不要です.</string>
+    <string name="mcp_name">サーバー名</string>
+    <string name="mcp_no_tools">サーバーを保存してからツールを検出し選択してください.</string>
+    <string name="mcp_pairing_denied">ペアリングが拒否されました. MCP サーバーアプリで確認してください.</string>
+    <string name="mcp_pairing_required">ペアリングが必要です. MCP サーバーアプリでこのクライアントを承認してから再検出してください.</string>
+    <string name="mcp_probe">保存済みサーバーからツールを検出</string>
+    <string name="mcp_probe_error">検出に失敗しました. サーバー, ネットワーク, 権限, 一覧の上限を確認してください.</string>
+    <string name="mcp_risk_note">選択した全ツールにローカルのリスク方針を適用します. 既定は機密です. サーバーの説明や注釈はこの方針を緩和しません.</string>
+    <string name="mcp_save_before_probe">検出の前にエンドポイントやトークンの変更を保存してください.</string>
+    <string name="mcp_selection_note">ツールを個別に選択してください. 全サーバー合計32個までです. 未対応の入力スキーマは選択できません.</string>
+    <string name="mcp_server_label">%1$s [%2$s]</string>
+    <string name="mcp_servers">MCP サーバー</string>
+    <string name="mcp_setup_note">サーバーと MCP ツール群は既定で無効です. サーバーアプリでトークンとペアリングを設定してください. 検出は保存済みサーバーの一覧を読み取るだけでモデルを呼びません.</string>
+    <string name="mcp_token">Bearer トークン</string>
+    <string name="mcp_token_empty">トークン未保存</string>
+    <string name="mcp_token_note">空欄で保存済みトークンを保持します. 消去を選ぶと削除します. トークンは再表示せず, 未保存の入力は画面を離れると破棄します.</string>
+    <string name="mcp_token_saved">トークン保存済み (非表示)</string>
+    <string name="mcp_unsupported">%1$s - 未対応のツール</string>
     <string name="memory_accept">この項目を確認</string>
     <string name="memory_cancel_import">残りのインポートを中止</string>
     <string name="memory_created">作成日時: %1$s</string>
@@ -113,6 +145,7 @@
     <string name="presets_group_act">画面操作</string>
     <string name="presets_group_files">ファイル</string>
     <string name="presets_group_gesture">座標ジェスチャー</string>
+    <string name="presets_group_mcp">MCP ツール</string>
     <string name="presets_group_memory">設定の記憶</string>
     <string name="presets_group_observe">画面の観察</string>
     <string name="presets_group_ocr">文字認識 (OCR)</string>

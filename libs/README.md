@@ -10,7 +10,7 @@ Before any Gradle configuration, stage the audited **release** artifacts named e
 - `ai-agent-api.aar` (host module `plugin-api/ai-agent-api`, AI Agent control plane and model broker contract V1)
 
 Current provenance: all three release AARs were assembled together from AutoJs6 6.8.0 / 5297,
-host commit `52ce694f92`, on 2026-09-26. License and individual hashes are in
+host commit `3cdf7de13c`, on 2026-09-26. License and individual hashes are in
 `../THIRD_PARTY_NOTICES.md` and `../locks/host-api-aars.lock`.
 
 Record the lowercase SHA-256 of every staged artifact in `../locks/host-api-aars.lock`.

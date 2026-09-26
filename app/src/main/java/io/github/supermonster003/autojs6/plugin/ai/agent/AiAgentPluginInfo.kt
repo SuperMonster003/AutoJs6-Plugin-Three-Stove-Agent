@@ -49,10 +49,12 @@ internal fun AiAgentPluginRuntimeInfo.toPluginInfo(): PluginInfo {
     }
 }
 
-/** Advertise only the installed V1 loop; future native tools, vision and MCP are not capabilities. */
+/** Available group names do not enable default-off tools or bypass target capability checks. */
 internal fun AiAgentPluginRuntimeInfo.capabilitiesBundle(): Bundle = Bundle().apply {
     putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, requiresHostVersion)
     putInt(AiAgentCapabilityKeys.CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
-    putStringArray(AiAgentCapabilityKeys.TOOL_GROUPS, arrayOf("observe", "act", "script", "user", "gesture", "files", "shell"))
-    putStringArray(AiAgentCapabilityKeys.FEATURES, arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP))
+    putStringArray(AiAgentCapabilityKeys.TOOL_GROUPS,
+        io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolGroup.entries.map { it.id }.toTypedArray())
+    putStringArray(AiAgentCapabilityKeys.FEATURES, arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP,
+        AiAgentCapabilityKeys.FEATURE_MCP_TOOLS))
 }

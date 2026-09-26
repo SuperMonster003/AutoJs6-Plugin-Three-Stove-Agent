@@ -1,10 +1,6 @@
 AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-1.1.0 正在开发, 已实现原生工具调用, 截图观察和可选的生成脚本. 不支持的目标保留 JSON 决策循环. 真实 Wi-Fi 对比及在线视觉验收仍见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) 待办.
-
-当前 Model8 对比中仍出现空响应, Provider 失败及预算中止. [对比证据](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部采样结果, 尚不能证明两类任务可稳定完成.
-
-图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
+1.2.0 开发版本提供可选 MCP 工具, 保留原生工具调用, 截图观察和动态脚本. P9.1 Wi-Fi 对比与 P9.2 在线视觉真实验收仍待完成, 见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 
@@ -20,6 +16,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 10. 发行历史与法律声明随应用离线提供. 检查更新由用户手动触发, 经 GitHub Releases 查询, 成功结果缓存 24 小时, 可取消或忽略版本. 更新对话框可打开应用内发行历史或浏览器发布页. 不自动检查, 不下载 APK.
 11. 在设置中开启悬浮球, 授权显示在其他应用上层后保存. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 AI Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
 12. 使用兼容宿主, 在设置和选定预设中启用生成脚本. 每次核对完整源码后再允许本次执行. 从任务详情的对应步骤选择保存生成的脚本, 通过系统文件选择器创建新的 .js, 自动加入敏感级别及强制确认的 @agent 头. 请选择 AutoJs6 工作目录或已批准的脚本目录; 其他共享目录须在下次扫描前添加至脚本目录设置. 保存不会执行脚本.
+13. 在设置中配置 MCP 服务器, 发现工具并明确选择允许使用的工具. 在设置和所选预设中启用 MCP 工具. 默认本机地址为 http://127.0.0.1:9637/mcp, 其他服务器要求 HTTPS. 按需填写 Bearer 令牌, 并在 MCP Server 侧完成配对. 不支持的 Schema 会显示原因且不可选择.
 
 安装并启用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中配置在线模型或导入受支持的本地模型. 当前宿主模型代理选择 3-Stone AI, 其他 Provider 需要宿主完成接入后才能使用. 在 AI Agent > 预设 中选择模型目标. Connected to AutoJs6 表示宿主连接状态, 模型选择位于预设中.
 

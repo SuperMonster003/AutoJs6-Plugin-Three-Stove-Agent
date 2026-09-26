@@ -44,7 +44,7 @@
 
 AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智慧代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 依觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-外掛既是 AutoJs6 外掛, 也是獨立應用程式. 指令碼透過 AutoJs6 的 `ai.agent` API 使用它; 使用者透過它自己的任務台, AutoJs6 抽屜項目, 懸浮球, 系統分享面板, 應用程式捷徑和語音輸入使用它. 模型呼叫與裝置操作始終經 Binder 交給 AutoJs6: 主程式借給外掛一個模型代理 (主程式已知的 AI Provider 外掛, 例如 3-Stone AI) 和一個帶有限 grant 的能力代理. 外掛從不持有憑證, 從不自行繫結模型提供方, 也不申請無障礙權限.
+AI Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
 
 ******
 
@@ -52,11 +52,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 
 ******
 
-1.1.0 正在開發, 已實作原生工具呼叫, 截圖觀察和可選的生成指令碼. 不支援的目標保留 JSON 決策循環. 真實 Wi-Fi 比較及線上視覺驗收仍見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) 待辦.
-
-目前 Model8 對比中仍出現空回應, Provider 失敗及預算中止. [對比證據](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部取樣結果, 尚不能證明兩類任務可穩定完成.
-
-圖片輸入要求相容宿主, observe 工具群組和明確啟用圖片輸入的視覺模型. 實作與確定性測試已完成, 真實線上視覺驗收仍待補測. 舊系統和純文字目標繼續使用文字觀察. 見 ROADMAP.md
+1.2.0 開發版本提供可選 MCP 工具, 保留原生工具呼叫, 截圖觀察及動態指令碼. P9.1 Wi-Fi 比較及 P9.2 線上視覺真實驗收仍待完成, 見 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -73,6 +69,7 @@ AI Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上�
 - 經主程式進行原生工具呼叫: 目錄 Schema, 整批參數驗證, 依序執行, 逐項確認, 工具結果接續及步驟記錄共用既有任務規則
 - Android 11+ 經 AutoJs6 截圖觀察: screen_capture 縮放到最長邊 1280, JPEG 品質 70, 搭配視覺提示詞, 圖片 token 准入與原生工具結果圖片
 - 經 script_run_source 執行生成的 JavaScript: script_dynamic 工具群組預設關閉, 每次均展示原始碼摘要及可展開的完整原始碼並逐次確認. 支援逾時, 取消, 結構化結果及私有原始碼記錄. UTF-8 原始碼和其 JSON 字串編碼均限 8 KiB.
+- 本機或外部 MCP 伺服器的所選工具, 按伺服器設定風險等級, mcp 工具群組預設關閉
 
 ### 介面截圖
 
@@ -242,8 +239,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 外掛遵循明確的邊界:
 
 - Binder 契約入口受 org.autojs.permission.PLUGIN 簽章權限保護. 啟動器 (也用於捷徑) 和 text/plain ACTION_SEND 分享目標為公開入口, 只接受有大小限制的目標/預設草稿. 外部 Intent 不能執行任務, 提交確認或改變授權. 設定, 語音結果與任務控制入口均不匯出.
-- 外掛不持有 API key, 不自行繫結模型提供方, 也不申請無障礙權限: 模型呼叫與裝置操作經 AutoJs6 為單條附著連結借出並在中斷時收回的代理執行, 每個代理都受 grant 約束 (允許的方法, 速率, 體積, 模型配額).
-- INTERNET 僅用於手動檢查 GitHub 發行版本. FOREGROUND_SERVICE 與 FOREGROUND_SERVICE_SPECIAL_USE 支援執行中的任務, POST_NOTIFICATIONS 提供進度和確認. 僅在使用者從設定開啟懸浮球時請求 SYSTEM_ALERT_WINDOW. 不申請無障礙, 儲存或麥克風權限.
+- AI Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
+- 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
 - 任務歷史, 預設與偏好記憶只儲存在外掛私有儲存空間; 備份與裝置轉移已停用.
 - 截圖經 AutoJs6 傳送至所選模型, 該模型可能在線上執行. 截圖要求螢幕已解鎖且處於喚醒狀態. 步驟歷史只儲存尺寸和位元組數等中繼資料, 不儲存圖片內容. JSON 決策保留目前圖片, 直到其他觀察或使用者回答取代它; 原生工作階段在每批和工作階段限額內保留已有圖片, 每輪重新預留相應 token.
 - 生成的指令碼以 AutoJs6 權限執行, 不受 JavaScript 沙箱隔離, 可執行已啟用工具群組以外的操作. 完整原始碼保存在私有步驟中, 仍遵守既有密碼遮蔽及歷史保留規則. 後續密碼遮蔽改變的原始碼無法作為原始指令碼儲存. 分享 .js 前請檢查內容.
@@ -288,6 +285,14 @@ minimum host build: 5289 (6.8.0)
 ### 發行歷史
 
 ******
+
+#### v1.2.0
+
+_2026/09/26_
+
+- `提示` 1.2.0 開發版本提供可選 MCP 工具, 保留原生工具呼叫, 截圖觀察及動態指令碼. P9.1 Wi-Fi 比較及 P9.2 線上視覺真實驗收仍待完成, 見 ROADMAP.md.
+- `新增` 本機或外部 MCP 伺服器的所選工具, 按伺服器設定風險等級, mcp 工具群組預設關閉
+- `優化` 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
 
 #### v1.1.0
 
