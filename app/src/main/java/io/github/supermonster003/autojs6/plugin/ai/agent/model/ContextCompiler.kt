@@ -50,7 +50,7 @@ class ContextCompiler(
         val toolBytes = if (tools.isEmpty) 0 else StepJournal.bytes(tools)
         val goal = prompts.goal(language, context.goal)
         require(context.history.size <= RunLimits.STEPS)
-        val history = context.history.map { AgentJson.objectOf(it.toString(), 12 * 1024) }
+        val history = context.history.map { AgentJson.objectOf(it.toString(), 24 * 1024) }
         val current = context.observation?.let { AgentJson.parse(it, ToolObservation.DEFAULT_MAX_BYTES) }
             ?: jsonObject("initial" to true.json())
         val repair = context.repair?.let { prompts.repair(language, it) }
@@ -73,7 +73,7 @@ class ContextCompiler(
         val summaries = history.map(::summary)
         val recentMessages = history.takeLast(retained).map { record ->
             val decision = record.getAsJsonObject("decision")?.deepCopy()
-            if (decision?.string("kind") in listOf("tool", "ask", "done") && record.flag("truncated") != true) {
+            if (decision?.string("kind") in listOf("tool", "ask", "done") && record.flag("truncated") != true && decision?.flag("truncated") != true) {
                 decision!!.remove("parseMode"); decision.remove("repairs"); decision.remove("degraded"); decision.remove("rejections")
                 if (decision.string("kind") == "tool" && format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) {
                     decision["arguments"]?.let { decision.addProperty("arguments", it.toString()) }

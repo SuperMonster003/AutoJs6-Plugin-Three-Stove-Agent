@@ -113,6 +113,7 @@ class ToolInvocation(val name: String, arguments: JsonObject, plan: ToolPlan) {
         is ToolPlan.Repeat -> plan.copy(request = copyCall(plan.request))
         is ToolPlan.AppendText -> plan.copy(target = plan.target.deepCopy())
         is ToolPlan.RegisteredScript -> plan.copy(manifest = copyCall(plan.manifest), execution = copyCall(plan.execution))
+        is ToolPlan.DynamicScript -> plan.copy()
         is ToolPlan.Local -> plan.copy(arguments = plan.arguments.deepCopy())
     }
 }

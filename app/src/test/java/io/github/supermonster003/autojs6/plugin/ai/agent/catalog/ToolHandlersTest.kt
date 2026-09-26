@@ -18,6 +18,7 @@ class ToolHandlersTest(private val name: String, private val input: String, priv
             is ToolPlan.Repeat -> plan.request.also { assertEquals(2, plan.times) }
             is ToolPlan.RegisteredScript -> plan.execution.also { assertEquals("readManifest", plan.manifest.method) }
             is ToolPlan.Local -> { assertEquals("local.$name", method); assertEquals(name, plan.name); return }
+            is ToolPlan.DynamicScript -> { assertEquals("engines.execScript", method); assertEquals("ai.agent.result(42);", plan.source); return }
             is ToolPlan.AppendText -> error("Covered separately")
         }
         assertEquals(method, "${request.module}.${request.method}")
@@ -51,6 +52,7 @@ class ToolHandlersTest(private val name: String, private val input: String, priv
             arrayOf("ui_gesture", "{\"durationMs\":500,\"points\":[[1,2],[3,4]]}", "accessibility.gesture"),
             arrayOf("script_catalog", "{}", "agent.listScripts"), arrayOf("script_run", "{\"id\":\"example\",\"parameters\":{\"count\":1}}", "agent.execRegistered"),
             arrayOf("script_stop", "{\"executionId\":42}", "engines.stop"), arrayOf("files_list", "{\"path\":\".\"}", "files.list"),
+            arrayOf("script_run_source", "{\"source\":\"ai.agent.result(42);\"}", "engines.execScript"),
             arrayOf("files_stat", "{\"path\":\"a.txt\"}", "files.stat"), arrayOf("files_read", "{\"path\":\"a.txt\"}", "files.read"),
             arrayOf("files_write", "{\"path\":\"a.txt\",\"content\":\"hello\"}", "files.write"), arrayOf("shell_exec", "{\"cmd\":\"pwd\"}", "shell.exec"),
             arrayOf("memory_get", "{}", "local.memory_get"), arrayOf("memory_propose", "{\"key\":\"drink\",\"value\":\"latte\"}", "local.memory_propose"),

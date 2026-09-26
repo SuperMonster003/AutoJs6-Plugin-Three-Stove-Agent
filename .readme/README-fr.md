@@ -52,7 +52,7 @@ Le plugin est à la fois un plugin AutoJs6 et une application autonome. Les scri
 
 ******
 
-La version 1.1.0 est en développement. Les cibles annonçant tools utilisent les appels natifs via un hôte AutoJs6 compatible; les autres conservent la boucle JSON. Les comparaisons réelles Wi-Fi/calculatrice, la vision et les scripts dynamiques restent dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+La version 1.1.0 est en développement avec appels natifs, captures et scripts générés facultatifs. Les cibles incompatibles conservent JSON. La comparaison Wi-Fi réelle et la validation visuelle en ligne restent à effectuer dans [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 La comparaison actuelle avec Model8 comprend des réponses vides, des échecs du Provider et des arrêts sur limite de budget. Les [résultats de comparaison](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) conservent tous les essais; ils ne démontrent pas encore une exécution fiable des deux tâches.
 
@@ -72,6 +72,7 @@ L'implémentation actuelle propose les fonctions suivantes:
 - API de script et interface utilisateur : `ai.agent.run(goal, options)` renvoie un handle `AgentRun` avec événements, réponses et annulation ; l'application autonome offre un espace de tâches avec historique, préréglages, mémoire de préférences, paramètres et historique des versions.
 - Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
 - Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs
+- JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel exige un résumé du code extensible au texte complet et une approbation individuelle. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB.
 
 ### Captures
 
@@ -199,6 +200,7 @@ Ce tableau provient du ToolCatalog embarqué. La cible réelle à l'écran peut 
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
@@ -213,7 +215,7 @@ Ouvrez Mémoire pour consulter, modifier, supprimer ou sauvegarder les préfére
 - Configurez les dossiers supplémentaires dans "Dossiers de scripts" du lanceur, un chemin absolu par ligne. L'hôte valide et applique les chemins enregistrés; les tâches peuvent seulement restreindre ces dossiers.
 - 200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier. Relancer remplit l'objectif et le préréglage d'origine dans le tableau de tâches. Vérifiez-les puis appuyez sur Démarrer. Vider l'historique conserve les tâches en cours. L'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.
 - Répondez dans les tâches au premier plan, ou ouvrez la notification prioritaire en arrière-plan. La confirmation affiche outil, paramètres, risque et temps restant. Une autorisation répétée reste limitée à cet outil et ce risque dans cette tâche; paiements et mémoire demandent toujours une confirmation individuelle. Mémoriser une réponse crée une proposition memory_propose séparée dans la portée autorisée. Une confirmation attend normalement 120 secondes, une question jusqu'à 10 minutes, dans le budget de la tâche. Un délai expiré renvoie USER_TIMEOUT; le modèle choisit de redemander ou de signaler un résultat partiel. Les anciens liens ne répondent pas aux nouvelles demandes. Les permissions et canaux contrôlent les notifications.
-- Ouvrez les paramètres depuis les tâches pour choisir groupes, budgets, mode prudent, saisie vocale et profil par défaut. Les changements concernent les nouvelles tâches. gesture/files/shell sont désactivés initialement; OCR exige un plugin autorisé et disponible sur le service hôte. Un budget vide reprend les valeurs initiales, dans les limites du protocole. Profils et options ne peuvent que les réduire. La gestion affiche nombres et octets; effacer une catégorie exige confirmation et aucune tâche active. Effacer les profils restaure default. Dossiers de scripts, licences et source sont accessibles.
+- Ouvrez les paramètres depuis les tâches pour choisir groupes, budgets, mode prudent, saisie vocale et profil par défaut. Les changements concernent les nouvelles tâches. gesture/files/shell/script_dynamic sont désactivés initialement; OCR exige un plugin autorisé et disponible sur le service hôte. Un budget vide reprend les valeurs initiales, dans les limites du protocole. Profils et options ne peuvent que les réduire. La gestion affiche nombres et octets; effacer une catégorie exige confirmation et aucune tâche active. Effacer les profils restaure default. Dossiers de scripts, licences et source sont accessibles.
 - Historique et mentions légales sont disponibles hors ligne. La vérification GitHub Releases est manuelle, avec cache de succès de 24 heures, annulation et version ignorée. La boîte ouvre les notes internes ou la page de publication dans le navigateur. Aucune vérification automatique ni téléchargement APK.
 - Activez la bulle dans les paramètres, autorisez la superposition et enregistrez. Désactivée par défaut, elle apparaît seulement avec AutoJs6 connecté et se masque au verrouillage ou à la déconnexion, sans service de premier plan au repos. Déplacez-la par glissement et touchez-la pour saisir un objectif, choisir un préréglage, répondre ou arrêter. Réduire la carte rétablit les notifications de confirmation. Partagez du texte brut, utilisez Nouvelle tâche ou épinglez un préréglage avec un objectif facultatif. Chaque entrée ouvre un brouillon modifiable et exige de démarrer explicitement. Aucun remplacement silencieux des préréglages supprimés. La reconnaissance vocale suit la langue de l'interface, se masque si indisponible et remplit le texte sans envoyer.
 
@@ -229,7 +231,7 @@ Le paiement est une action sensible distincte. Approuver une commande, un script
 
 **Quelles sont les limites des modèles locaux?**
 
-Un modèle chargé ne garantit pas la réussite. Le test enregistré de validation des décisions Wi-Fi avec Gemma 4 E2B IT a échoué; cette cible conserve JSON. Les appels natifs nécessitent un hôte et une cible compatibles, avec les mêmes validations, confirmations et budgets. Commencez par de petites tâches et examinez les résultats partial/failed. La vision et les scripts dynamiques restent prévus.
+Un modèle chargé ne garantit pas la réussite. Le test enregistré de validation des décisions Wi-Fi avec Gemma 4 E2B IT a échoué; cette cible conserve JSON. Les appels natifs nécessitent un hôte et une cible compatibles, avec les mêmes validations, confirmations et budgets. Commencez par de petites tâches et examinez les résultats partial/failed. Les images exigent une cible compatible; la validation visuelle réelle en ligne reste en attente. Les scripts générés exigent une activation explicite et une approbation par code.
 
 ******
 
@@ -244,6 +246,7 @@ Le plugin respecte des limites explicites :
 - INTERNET sert uniquement aux vérifications manuelles sur GitHub. FOREGROUND_SERVICE et FOREGROUND_SERVICE_SPECIAL_USE servent aux tâches actives; POST_NOTIFICATIONS à leur progression et aux confirmations. SYSTEM_ALERT_WINDOW est demandé seulement à l'activation de la bulle dans les paramètres. Aucune permission d'accessibilité, de stockage ou de microphone.
 - L'historique des tâches, les préréglages et la mémoire de préférences restent dans le stockage privé du plugin ; les sauvegardes et les transferts d'appareil sont désactivés.
 - Les captures sont envoyées via AutoJs6 au modèle choisi, éventuellement en ligne. L'écran doit être actif et déverrouillé. L'historique conserve les dimensions et le nombre d'octets, sans contenu image. Les décisions JSON gardent l'image courante jusqu'à une autre observation ou réponse. Les conversations natives conservent les images précédentes dans les limites du lot et de la session, avec une nouvelle réservation de tokens à chaque tour.
+- Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
 
 N'obtenez le plugin que depuis la page officielle [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) ou le centre de plugins d'AutoJs6. Les paquets de sources inconnues peuvent échouer à la vérification de l'hôte ou présenter des risques même lorsque le numéro de version semble identique.
 
@@ -292,8 +295,10 @@ _2026/09/26_
 
 - `Note` Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action
 - `Note` Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md
+- `Note` Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
 - `Fonctionnalité` Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
 - `Fonctionnalité` Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs
+- `Fonctionnalité` JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel exige un résumé du code extensible au texte complet et une approbation individuelle. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB.
 - `Dépendance` Mise à niveau des trois artefacts API hôte release vers AutoJs6 52ce694f92 / build 5297 pour les images négociées, en conservant le contrat de connexion build 5289+
 
 #### v1.0.0

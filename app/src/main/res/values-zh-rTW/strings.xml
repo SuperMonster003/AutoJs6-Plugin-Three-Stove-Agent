@@ -117,6 +117,7 @@
     <string name="presets_group_observe">螢幕觀察</string>
     <string name="presets_group_ocr">文字辨識 (OCR)</string>
     <string name="presets_group_script">已登記腳本</string>
+    <string name="presets_group_script_dynamic">生成指令碼</string>
     <string name="presets_group_shell">Shell 命令</string>
     <string name="presets_group_user">使用者互動</string>
     <string name="presets_hybrid">混合</string>
@@ -156,6 +157,16 @@
     <string name="run_running">執行中</string>
     <string name="run_waiting_confirmation">等待確認</string>
     <string name="run_waiting_input">等待回答</string>
+    <string name="script_dynamic_collapse">收起原始碼</string>
+    <string name="script_dynamic_expand">查看完整原始碼</string>
+    <string name="script_dynamic_redacted">此原始碼已移除後續辨識的密碼, 無法從此步驟儲存原始指令碼.</string>
+    <string name="script_dynamic_save">儲存生成的指令碼</string>
+    <string name="script_dynamic_save_note">儲存前請檢查完整原始碼. 選擇 AutoJs6 工作目錄或已核准的指令碼目錄. 新檔案會加入敏感級別的 @agent 登記, 每次執行都需確認. 若選擇其他共用目錄, 請在下次掃描前將其加入指令碼目錄設定. 儲存不會執行指令碼.</string>
+    <string name="script_dynamic_saved">指令碼已儲存. 所在目錄包含在下次掃描範圍內時, 宿主才能找到它.</string>
+    <string name="script_dynamic_source">生成的 JavaScript 原始碼</string>
+    <string name="script_dynamic_source_summary">原始碼: %1$d 位元組, %2$d 行</string>
+    <string name="script_dynamic_timeout">執行逾時: %1$d ms</string>
+    <string name="script_dynamic_warning">請檢查生成的 JavaScript, 然後決定是否允許本次執行. 它使用 AutoJs6 的權限執行, 可執行已啟用工具群組以外的操作, 不受沙箱隔離.</string>
     <string name="script_roots_instruction">每行輸入一個絕對目錄路徑. 宿主會檢查目錄是否存在, 是否位於共用儲存空間中, 以及是否為工作目錄的上層. 設定生效時會取消目前的工作.</string>
     <string name="script_roots_invalid">請輸入最多 32 個不重複的絕對路徑, 不含上層目錄跳轉, 總大小不超過 8 KiB.</string>
     <string name="script_roots_rejected">宿主尚未接受這些目錄. 請檢查路徑是否存在於共用儲存空間中, 且不是工作目錄的上層.</string>

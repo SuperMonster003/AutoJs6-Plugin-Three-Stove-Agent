@@ -27,6 +27,7 @@ class RunnerPortsTest {
                 is ToolPlan.AppendText -> value.target.addProperty("text", "changed")
                 is ToolPlan.RegisteredScript -> value.execution.args.add("changed")
                 is ToolPlan.Local -> value.arguments.addProperty("text", "changed")
+                is ToolPlan.DynamicScript -> Unit
             } }
             mutate(invocation.plan)
             assertFalse(invocation.plan.toString().contains("changed"))

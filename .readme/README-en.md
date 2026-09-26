@@ -52,7 +52,7 @@ The plugin is both an AutoJs6 plugin and a standalone app. Scripts reach it thro
 
 ******
 
-Version 1.1.0 is in development. Targets that advertise tools use native tool calling through a compatible AutoJs6 host; other targets keep the JSON decision loop. Real Wi-Fi/calculator comparisons, visual input and dynamic scripts remain in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Version 1.1.0 is in development with native tool calling, screenshot observations and opt-in generated scripts. Unsupported targets keep the JSON decision loop. Real Wi-Fi comparisons and online vision acceptance remain pending in [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
 
 The current Model8 comparison includes empty responses, Provider failures and budget stops. The [comparison evidence](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) records every trial; it does not establish reliable completion of both tasks.
 
@@ -72,6 +72,7 @@ The current implementation provides these capabilities:
 - Script API and user interface: `ai.agent.run(goal, options)` returns an `AgentRun` handle with events, responses and cancellation; the standalone app offers a task workbench with history, presets, preference memory, settings and release history.
 - Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
 - Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
+- Generated JavaScript through script_run_source: the script_dynamic group is off by default. Every call requires review of a source summary with expandable full text and individual approval. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.
 
 ### Screenshots
 
@@ -199,6 +200,7 @@ This table is generated from the packaged ToolCatalog. Risk can be raised by the
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
+| `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | Execute a bounded non-root shell command after confirmation. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | Report bounded progress without declaring task completion. |
 
@@ -213,7 +215,7 @@ Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 
 - Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
 - Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.
 - Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Allowing similar actions applies only to this tool at this risk level in this task; payments and memory proposals always require individual approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery.
-- Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
+- Open Settings from the workbench to choose tool groups, budgets, cautious mode, voice input and the default preset. Changes apply to new tasks. gesture/files/shell/script_dynamic are initially off; OCR requires an available authorized host plugin. Budgets inherit stock defaults when blank and remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Script folders, licenses and source links are also available.
 - Release history and legal notices are bundled for offline reading. Check updates manually through GitHub Releases, with a 24-hour success cache, cancellation and an ignored-version setting. The dialog opens release history inside the app or the release page in a browser. Checks never run automatically and APKs are not downloaded.
 - Enable the floating ball in Settings, allow display over other apps, then save. It is off by default, appears only while AutoJs6 is connected, hides on lock or disconnect, and has no idle foreground service. Drag to move; tap to enter a goal, choose a preset, review a question or confirmation, or stop a task. Collapsing the card restores background confirmation notifications. Share plain text to AI Agent, use the New task app shortcut, or pin a preset with an optional goal from Presets. All entries open editable drafts and require Start task. A deleted preset never falls back silently. Voice uses the system recognizer in the interface language, is hidden when unavailable and fills text without sending.
 
@@ -229,7 +231,7 @@ Payment is a separate sensitive action. Approval of an order, a script or simila
 
 **What are the limits of local models?**
 
-Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. Visual input and dynamic scripts remain planned.
+Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. Image input requires a target that accepts images; real online vision acceptance remains pending. Generated scripts are available only when explicitly enabled and each source is approved.
 
 ******
 
@@ -244,6 +246,7 @@ The plugin follows explicit boundaries:
 - INTERNET is used only for manual GitHub release checks. FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE support active tasks; POST_NOTIFICATIONS provides progress and confirmations. SYSTEM_ALERT_WINDOW is requested only when the user enables the floating ball in Settings. No accessibility, storage or microphone permission is requested.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
 - Screenshots are sent through AutoJs6 to the selected model, which may be online. Capture requires an unlocked, interactive screen. Step history stores dimensions and byte counts, not picture contents. JSON decisions retain the current image until another observation or answer replaces it; native conversations retain earlier images within per-call and session limits and reserve their tokens again for each round.
+- Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.
 
 Only obtain the plugin from the official [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.
 
@@ -292,8 +295,10 @@ _2026/09/26_
 
 - `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
 - `Hint` Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
+- `Hint` Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.
 - `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
 - `Feature` Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
+- `Feature` Generated JavaScript through script_run_source: the script_dynamic group is off by default. Every call requires review of a source summary with expandable full text and individual approval. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.
 - `Dependency` Upgrade the three host API release artifacts to AutoJs6 52ce694f92 / build 5297 for negotiated image input; preserve the base build 5289+ attachment contract
 
 #### v1.0.0

@@ -27,6 +27,19 @@ class ContextCompilerTest {
         "observation" to observation.json(), "confirmation" to "auto".json())
     private fun contents(input: ModelInput) = input.messages.map { it.asJsonObject.string("content")!! }
 
+    @Test fun fullSourceHistoryDoesNotBreakTheNextModelTurn() {
+        val source = "// " + "s".repeat(7600)
+        val args = jsonObject("source" to source.json(), "timeoutMs" to 60000.json())
+        val journal = StepJournal()
+        val step = journal.append(StepRecord(1, "tool", jsonObject("kind" to "tool".json(), "tool" to "script_run_source".json(), "arguments" to args),
+            tool = "script_run_source", arguments = args, observation = "\u0001".repeat(1900)))
+        assertTrue(StepJournal.bytes(step) > 12 * 1024)
+        val input = compiler(selectedPolicy = F.policy()).compile(context(history = journal.history()))
+        assertTrue(input.inputBytes <= 64 * 1024)
+        assertTrue(input.messages.none { it.asJsonObject.string("role") == "assistant" })
+        assertEquals(source, journal.history().single().getAsJsonObject("arguments").string("source"))
+    }
+
     @Test fun localDefaultsFitBothLanguagesAndReserveOutputInside4096Tokens() {
         for (goal in listOf("Open Android settings and enable Wi-Fi", "打开设置并开启无线网络")) {
             val input = compiler(local = true).compile(context(goal))

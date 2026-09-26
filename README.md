@@ -52,7 +52,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 
 ******
 
-1.1.0 正在开发. 声明 tools 能力的目标通过兼容 AutoJs6 宿主使用原生工具调用, 其他目标保留 JSON 决策循环. 真实 Wi-Fi/计算器对比, 视觉输入及动态脚本仍见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.1.0 正在开发, 已实现原生工具调用, 截图观察和可选的生成脚本. 不支持的目标保留 JSON 决策循环. 真实 Wi-Fi 对比及在线视觉验收仍见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) 待办.
 
 当前 Model8 对比中仍出现空响应, Provider 失败及预算中止. [对比证据](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/dev/p91-comparison-evidence-2026-09-25.md) 保留全部采样结果, 尚不能证明两类任务可稳定完成.
 
@@ -72,6 +72,7 @@ AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上�
 - 脚本 API 与用户界面: `ai.agent.run(goal, options)` 返回带事件, 回应与取消的 `AgentRun` 句柄; 独立应用提供任务台, 历史, 预设, 偏好记忆, 设置与发行历史.
 - 经宿主进行原生工具调用: 目录 Schema, 整批参数校验, 顺序执行, 逐项确认, 工具结果续轮及步骤记录共用已有任务规则
 - Android 11+ 经 AutoJs6 截图观察: screen_capture 缩放到最长边 1280, JPEG 质量 70, 配套视觉提示词, 图片 token 准入与原生工具结果图片
+- 经 script_run_source 执行生成的 JavaScript: script_dynamic 工具组默认关闭, 每次均展示源码摘要及可展开的完整源码并逐次确认. 支持超时, 取消, 结构化结果及私有源码记录. UTF-8 源码和其 JSON 字符串编码均限 8 KiB.
 
 ### 界面截图
 
@@ -199,6 +200,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `script_catalog` | `script` | `READ_ONLY` | `on` | 查找明确登记供智能体使用的脚本. |
 | `script_run` | `script` | `NORMAL` | `on` | 按 ID 执行登记脚本, 校验参数并采用登记风险. |
 | `script_stop` | `script` | `NORMAL` | `on` | 停止所属脚本执行. |
+| `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | 逐次确认源码后以宿主脚本权限运行生成的 Rhino JavaScript. 无沙箱隔离. 源码含 JSON 转义最多 8192 UTF-8 字节. 使用 ai.agent.result(value) 返回结果. |
 | `shell_exec` | `shell` | `SENSITIVE` | `off` | 确认后执行有时限的非 Root shell 命令. |
 | `report_progress` | `user` | `READ_ONLY` | `on` | 报告有界进度, 不声明任务已完成. |
 
@@ -213,7 +215,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 在启动器的 "脚本目录" 中配置附加目录, 每行一个绝对路径. 保存后由宿主校验并应用; 任务只能缩小已批准的目录范围.
 - 最多 200 条任务 / 32 MiB. 优先清理最久未查看的已结束任务. 重跑会把原目标和预设填入任务台, 核对后点击开始任务再次执行. 清空历史会保留运行中的任务. 导出保留诊断计数, 工具名称和确认结果. 目标, 参数, 观察内容及脚本结果会移除. 请选择文件保存位置.
 - 前台在任务台回答, 后台从高优先级通知打开对应请求. 确认页显示工具, 参数, 风险及剩余时间. 同类授权只适用于本次任务内同一工具的同级风险操作; 支付和记忆提议始终逐次确认. "记住此答案" 在允许的记忆作用域内生成单独的 memory_propose 供审阅. 确认通常等待 120 秒, 询问最多 10 分钟, 均受任务预算限制. 超时返回 USER_TIMEOUT, 由模型决定再次询问或报告部分完成. 旧请求无法回答新请求. 后台提醒受通知权限和频道设置影响.
-- 从任务台打开 "设置", 选择工具组, 预算, 审慎模式, 语音输入和默认预设. 修改对新任务生效. gesture/files/shell 初始关闭, OCR 还需宿主提供可用且授权的插件. 预算留空沿用初始默认值, 设置值受协议硬上限约束, 预设与单次参数只能继续收紧. 数据管理显示条数与字节占用, 按类别清除须确认且不能有运行中任务; 清除预设后恢复内置 default. 也可进入脚本目录, 许可证及源码链接.
+- 从任务台打开 "设置", 选择工具组, 预算, 审慎模式, 语音输入和默认预设. 修改对新任务生效. gesture/files/shell/script_dynamic 初始关闭, OCR 还需宿主提供可用且授权的插件. 预算留空沿用初始默认值, 设置值受协议硬上限约束, 预设与单次参数只能继续收紧. 数据管理显示条数与字节占用, 按类别清除须确认且不能有运行中任务; 清除预设后恢复内置 default. 也可进入脚本目录, 许可证及源码链接.
 - 发行历史与法律声明随应用离线提供. 检查更新由用户手动触发, 经 GitHub Releases 查询, 成功结果缓存 24 小时, 可取消或忽略版本. 更新对话框可打开应用内发行历史或浏览器发布页. 不自动检查, 不下载 APK.
 - 在设置中开启悬浮球, 授权显示在其他应用上层后保存. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 AI Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
 
@@ -229,7 +231,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 **本地模型有哪些局限?**
 
-模型能加载不代表任务能成功. 已记录的 Gemma 4 E2B IT Wi-Fi 决策校验用例未通过, 该目标保留 JSON 路径. 原生工具调用也需要兼容宿主及目标, 并保留参数, 确认和预算检查. 请从小任务开始, 检查 partial/failed 结果. 视觉输入和动态脚本仍在计划中.
+模型能加载不代表任务能成功. 已记录的 Gemma 4 E2B IT Wi-Fi 决策校验用例未通过, 该目标保留 JSON 路径. 原生工具调用也需要兼容宿主及目标, 并保留参数, 确认和预算检查. 请从小任务开始, 检查 partial/failed 结果. 图片输入要求支持图片的目标, 真实在线视觉验收仍待补测. 生成脚本须显式启用, 每份源码均须单独确认.
 
 ******
 
@@ -244,6 +246,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - INTERNET 仅用于手动检查 GitHub 发行版本. FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE 支持运行中的任务, POST_NOTIFICATIONS 提供进度和确认. 仅在用户从设置开启悬浮球时请求 SYSTEM_ALERT_WINDOW. 不申请无障碍, 存储或麦克风权限.
 - 任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用.
 - 截图经 AutoJs6 发送到所选模型, 该模型可能在线运行. 截图要求屏幕已解锁且处于唤醒状态. 步骤历史只保存尺寸和字节数等元数据, 不保存图片内容. JSON 决策保留当前图片, 直到其他观察或用户回答替换它; 原生会话在每批和会话限额内保留已有图片, 每轮重新预留相应 token.
+- 生成的脚本以 AutoJs6 权限运行, 不受 JavaScript 沙箱隔离, 可执行已启用工具组之外的操作. 完整源码保存在私有步骤中, 仍遵守既有密码脱敏及历史保留规则. 后续密码脱敏改变的源码无法作为原始脚本保存. 分享 .js 前请检查内容.
 
 请只从官方 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.
 
@@ -292,8 +295,10 @@ _2026/09/26_
 
 - `提示` 原生调用需要 AutoJs6 build 5297+ 和具备 tools 能力的目标, 如 3-Stone AI 1.2.0 开发候选的在线目标. 旧宿主和不支持的目标保留 JSON 决策. 每个原生会话保留初始超时, 上下文/输出上限及最多 16 个工具轮次; 工具执行后发生错误不会改走 JSON 重启
 - `提示` 图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
+- `提示` 生成的脚本以 AutoJs6 权限运行, 不受 JavaScript 沙箱隔离, 可执行已启用工具组之外的操作. 完整源码保存在私有步骤中, 仍遵守既有密码脱敏及历史保留规则. 后续密码脱敏改变的源码无法作为原始脚本保存. 分享 .js 前请检查内容.
 - `新增` 经宿主进行原生工具调用: 目录 Schema, 整批参数校验, 顺序执行, 逐项确认, 工具结果续轮及步骤记录共用已有任务规则
 - `新增` Android 11+ 经 AutoJs6 截图观察: screen_capture 缩放到最长边 1280, JPEG 质量 70, 配套视觉提示词, 图片 token 准入与原生工具结果图片
+- `新增` 经 script_run_source 执行生成的 JavaScript: script_dynamic 工具组默认关闭, 每次均展示源码摘要及可展开的完整源码并逐次确认. 支持超时, 取消, 结构化结果及私有源码记录. UTF-8 源码和其 JSON 字符串编码均限 8 KiB.
 - `依赖` 升级三份宿主 API release 制品至 AutoJs6 52ce694f92 / build 5297, 支持协商图片输入, 保留 build 5289+ 的基础连接契约
 
 #### v1.0.0

@@ -126,7 +126,9 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val effectiveMethods = methods.intersect(configuration.methods ?: methods)
                 val effectivePermissions = permissions.intersect(configuration.permissions ?: permissions)
                 val optional = grant.getStringArray(H.KEY_AVAILABLE_OPTIONAL_METHODS)?.also { values -> require(values.size <= 256 && values.all { it.length <= 128 }) }?.toSet().orEmpty()
+                val dynamicAvailable = DynamicScriptSource.available(optional, effectiveMethods, effectivePermissions)
                 val observationPolicy = basePolicy.withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
+                    .withAvailableTools(runtime.catalog.tools.filter { it.name != "script_run_source" || dynamicAvailable }.map { it.name }.toSet())
                 val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, runtime.catalog,
                     { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout,
                     ScreenCaptureTransport(runtime.context, remoteTools, ownerUid, workers) { state == C.LINK_STATE_ATTACHED })
@@ -141,7 +143,9 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(runtime.catalog), scriptRunAllowed, scheduler::nowMs)
                 val executionTools = MemoryTools(runtime.memories, request.preset, request.memoryScope, runId, { state == C.LINK_STATE_ATTACHED },
-                    ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset)))
+                    DynamicScriptTools(ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset)),
+                        ScriptCatalogSource(toolAdapter::dispatch), dynamicAvailable && observationPolicy.isEnabled(checkNotNull(runtime.catalog["script_run_source"])),
+                        runId, request.preset, maxTimeout))
                 if (stopped.get()) return@execute
                 val handle = model.select(request.target) { outcome ->
                     when (outcome) {
@@ -158,7 +162,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                     original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools, original.vision)
                             val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
                                 target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, target.vision,
-                                request.groups.sorted(), policy.ocrAvailable, policy.visionAvailable).toString()
+                                request.groups.sorted(), policy.ocrAvailable, policy.visionAvailable, dynamicAvailable).toString()
                             val client = synchronized(clients) {
                                 clients.getOrPut(key) {
                                     if (clients.size >= 32) clients.remove(clients.keys.first())

@@ -633,8 +633,8 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 ### P9.3 动态脚本生成
 
-- [ ] (插件) 工具组 `script_dynamic` (默认关, `SENSITIVE`): `script_run_source(source, timeoutMs)` 经 `engines.execScript` 执行模型生成的 JS; 执行前显示源码摘要供用户确认 (可展开全文), 记录完整源码到步骤日志; 可选 "生成后保存为已登记脚本" 流程 (写入用户指定目录并生成 `@agent` 头).
-- [ ] (宿主) grant 加入 `engines.execScript` (已在 MCP 全集内) 与可选的写入路径限制.
+- [x] (插件) 工具组 `script_dynamic` (默认关, `SENSITIVE`): `script_run_source(source, timeoutMs)` 经 `engines.execScript` 执行模型生成的 JS; 执行前显示源码摘要供用户确认 (可展开全文), 记录完整源码到步骤日志; 可选 "生成后保存为已登记脚本" 流程 (写入用户指定目录并生成 `@agent` 头). 2026-09-26 Agent 1.1.0 / build 87 实现能力协商, 源码 UTF-8/JSON 编码各 8 KiB 上限, 逐次确认, 所属调用取消/超时, 完整私有源码与 SAF 保存. 已知保护值改变待确认源码时拒绝执行, 后续脱敏的源码不能作为原始脚本保存; 保留既有总历史容量限制. 全量 JVM 536 通过 + 1 既有跳过, API 24 / 37.1 完整 Android 分别 90/96 通过 + 各 2 既有截图跳过; 两台 Debug/R8 外部 Binder 回归, lint 与正式签名归档通过. [源码, 保存和验收边界](docs/dev/p93-dynamic-script-evidence-2026-09-26.md).
+- [x] (宿主) grant 加入 `engines.execScript` (已在 MCP 全集内) 与可选的写入路径限制. 2026-09-26 宿主 cdf1b6a564: 原 C.4 grant 已包含执行与 files.write, 本次补齐按调用令牌归属的源码执行, 取消, 截止时间和可选能力声明. 已有 workspace/symlink 文件边界保持有效, 不把它描述为 JavaScript 沙箱. 41 项相关 JVM 与 API 24 / 37.1 各 26 项真实引擎/代理测试通过, 包含原登记脚本回归. 未修改 Rhino 上游同步文件, AIDL 或 SDK AAR. [实现与验证边界](docs/dev/p93-dynamic-script-evidence-2026-09-26.md).
 
 ---
 
@@ -1556,3 +1556,16 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 跨 UID 验收发现 /proc/self/fd 重开宿主私有文件会失败, 改为复制 Binder 已授予的描述符, 独立管理读取生命周期并设置非阻塞模式. 原 JSON/native 两个失败用例修正后在 debug 和 R8 均通过, 夹具显式验证 0600 私有文件, 未放宽生产权限或身份检查. 取消, 截止时间, 可靠管道错误, 错误 UID/重复/迟到响应均有回归. 全量 JVM 517 通过 + 1 原性能跳过, 两种 APK 构建和 lint/签名归档通过; 最终 Android 结果, 失败经过与产物摘要见 docs/dev/p92-agent-vision-evidence-2026-09-26.md.
 - 本轮仅使用合成图片和独立 AVD, 未调用 Model8/PoloAPI 或更改真机. P9.2 在线模型真实验收和 P9.1 Wi-Fi 对比继续保留待办, 不覆盖原失败记录. 十语言说明/变更记录与 36 份生成产物同步; 宿主, Provider 和 Rhino 源码未改动, 无订单, 付款, 推送, 标签或发布操作.
 - 下一起点为原 P9.3 动态脚本生成. 本轮及该开发阶段无需 Redmi SIM, 新架构决定或人工操作; 真实视觉补测等待用户准备好支持图片输入及文字/工具输出的目标, 在线 Wi-Fi 补测时再临时提供独立网络. QV710AF65F / XQ-AT72 Android 12 仍离线待补, 保留用户预计 2026-09-27 20:00 UTC+8 前上线的记录.
+
+### 2026-09-26: P9.3 动态脚本与 XQ-AT72 补测
+
+- 完成原 P9.3 的插件与宿主两条, 不增加/分拆/丢弃阶段. script_dynamic 默认关闭, script_run_source 必须逐次确认完整源码, 通过宿主执行并保留结构化结果, 所属调用取消和截止时间. 原宿主 grant 已有 engines.execScript, 新宿主补齐可选能力声明和真实执行生命周期; 旧宿主不向模型提供此工具. 不新增 AIDL/SDK 或直接 Provider 接入, 未触碰 Rhino 上游同步范围.
+- 确认页提供摘要及可展开全文, 私有日志保留合规源码, 历史详情可经系统文档选择器保存带敏感登记头的 .js. 原始 UTF-8 与 JSON 编码各限 8 KiB. 已知保护值改变确认文本则拒绝源码执行, 后续脱敏则禁用原始源码保存; 动态步骤 24 KiB, 总历史仍受既有 1 MiB 限制. 脚本拥有宿主权限, 工具组及 broker 文件目录约束不是 JavaScript 沙箱; 取消不回滚副作用或停止另起的子引擎.
+- Agent build 87 完整 JVM 536 通过 / 1 原性能跳过, API 24 与 API 37.1 全量 Android 分别 90/96 通过 + 各 2 原截图开关跳过, 最终定向各 10/10. 两台 Debug/R8 的外部 Binder 回归均通过, lint 0 错误 / 6 既有警告, 正式签名归档及十语言 36 生成产物校验通过. 首轮资源未就绪编译失败和两个 TextView/Spannable 文本比较断言失败保留; 最终修正未降低布局或源码断言. 日志裁剪元数据, 脱敏膨胀及动态执行超时错误映射也有回归.
+- 宿主 cdf1b6a564, 41 项相关 JVM 与两台各 26 项真实引擎/代理 Android 用例通过. 类型声明 3404bdc / 4.22.0, 在线文档 f9ed7af, Ace dd44432 / 1.14.0 build 114, 离线文档 24b17b4 / 6.8.4 build 61 按逻辑分别提交并验证. 原 Types package.json 发布配置和 Ace releases/ 用户文件保留. 未发布 npm, APK, 标签或推送远程.
+- 最终 Agent R8 候选为 1.1.0 / 87 / CRC32 ee852c93, SHA-256 835227c3743400fe881cba2451d51e98d88d6d69481f68adac80fefd6ecea2b8. 私有 AVD 测试使用仅重新签名的相同负载, 全部非签名 ZIP 条目一致; 原正式签名包已安装于 QV710AF65F, 未清除数据. 两台私有 AVD 已按名称核验关闭并保留证据. [P9.3 实现与验证](docs/dev/p93-dynamic-script-evidence-2026-09-26.md).
+- 用户本轮提前连接 QV710AF65F / XQ-AT72 Android 12 并提供测试 SIM. 入口 5/5, 插件交互 8/8, Arabic RTL / dark / font 2.0 布局 4/4, 共 28 个状态无布局问题. 用户完成无障碍与 Model8 Fable 5.1 配置后补测真实任务, Gemma 4 E2B IT 下载/导入完成后才继续 Wi-Fi 切换. 旧设备缺席记录和原六台设备构建记录保留, 本设备当前状态与清理边界见 [补测回执](docs/dev/p7-xqat72-followup-2026-09-26.md).
+- XQ-AT72 的 HiPER 原生计算器为 partial / BUDGET_EXCEEDED, 12 步 / 10 工具 / 14 模型调用 / 302616 tokens / 99993 ms, 独立界面未得到 408. 原生 Wi-Fi completed, 8 步 / 7 工具 / 10 模型调用 / 157231 tokens / 50879 ms, UI 与系统开关双核验通过. JSON Wi-Fi 为 failed / DECISION_UNPARSABLE, 1 步 / 0 工具 / 3 模型调用 / 34219 输入及 0 输出 tokens / 19178 ms. 不追加预算或重复采样替代失败, 原 P9.1 双路径条目继续待验收; 真实视觉模型仍缺席, P9.2 模型条目不勾选.
+- P9.3 另有真实模型完整链路通过: Model8 生成 ai.agent.result(12 * 34);, 操作员逐字审阅完整源码后 ONCE 确认, 实际宿主 Rhino 仅执行一次并返回结构化 408, 任务 completed. 共 2 步 / 1 工具 / 2 模型调用 / 16160 tokens / 29473 ms, usage 非估算. 全局组关闭时的前置 INVALID_REQUEST 无模型调用, 保留为准入记录. 未保存脚本文件或永久开启组.
+- 本轮 online baseline 的 Wi-Fi 已恢复并确认 INTERNET/VALIDATED/NOT_METERED, Provider 在线计费选项和 Generated scripts 均恢复 false, 全部 10 组一致, 字体 1.0 与当前 600000 ms 超时及无障碍服务集合保持原值. 初期兼容批次 120000 -> 1800000 之后观察到外部改成 600000 的归属不明记录保留, 未擅自覆盖. JSON Wi-Fi 启动前 5 秒预检尚未 VALIDATED 却继续启动的编排疏漏也保留; 运行中补验通过不冒充启动前通过, 不据此诊断空响应原因. 无代理/APN/DNS/VPN/下载配置改动, 无订单或付款.
+- 下一起点为原 P10 的 MCP 工具扩展, 并继续保留 P9.1 JSON Wi-Fi 与 P9.2 在线视觉验收待办. 当前无需新增手动操作, 测试 SIM 可移走, 不要求 Redmi 或 XQ-AT72 长期保留 SIM; 后续在线 Wi-Fi 用例期间再提供独立网络. Gemma 已下载导入, 本轮未把该准备状态计作 XQ-AT72 本地推理通过.

@@ -2,6 +2,8 @@
 <resources>
     <item name="interaction_countdown" type="id" />
     <item name="interaction_remember" type="id" />
+    <item name="script_dynamic_expand" type="id" />
+    <item name="script_dynamic_source" type="id" />
     <item name="script_roots_paths" type="id" />
     <item name="workbench_answer" type="id" />
 </resources>

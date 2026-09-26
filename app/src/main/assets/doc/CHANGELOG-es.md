@@ -10,8 +10,10 @@
 
 * `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
 * `Aviso` La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
+* `Aviso` Los scripts generados usan permisos de AutoJs6 sin aislamiento JavaScript y pueden actuar fuera de los grupos habilitados. El código completo permanece en pasos privados, sujeto a eliminación de contraseñas y retención del historial. Un código modificado por esa eliminación posterior no puede guardarse como original. Revise los .js antes de compartirlos.
 * `Función` Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 * `Función` Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
+* `Función` JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada exige revisar un resumen ampliable al código completo y dar aprobación individual. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
 * `Dependencia` Actualización de los tres artefactos API del host release a AutoJs6 52ce694f92 / build 5297 para imágenes negociadas, manteniendo el contrato de conexión build 5289+
 
 # v1.0.0

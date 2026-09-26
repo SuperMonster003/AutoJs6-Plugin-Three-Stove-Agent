@@ -35,21 +35,35 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         require(record.index in 1..RunLimits.STEPS && record.elapsedMs >= 0)
         require(record.rejections.size <= DecisionRepairSession.MAX_REPAIRS + 1)
         fun decision(limit: Int) = clipped(redactDecision(record.decision), limit).asJsonObject.apply {
-            // Runtime diagnostics use the existing decision metadata object, including after clipping.
+            // Keep bounded runtime attribution even when a long source or observation is clipped.
+            for ((key, choices) in mapOf("kind" to setOf("tool", "ask", "done", "error", "repair"),
+                "source" to setOf("user", "validator"), "parseMode" to ParseMode.entries.map { it.name }.toSet())) {
+                record.decision.string(key)?.takeIf { it in choices }?.let { addProperty(key, it) }
+            }
+            record.decision.string("tool")?.takeIf { it.matches(Regex("[a-z][a-z0-9_]{1,63}")) }?.let { addProperty("tool", it) }
+            record.decision.number("repairs")?.takeIf { it in 0..DecisionRepairSession.MAX_REPAIRS.toLong() }?.let { addProperty("repairs", it) }
+            record.decision.flag("degraded")?.let { addProperty("degraded", it) }
             if (record.rejections.isNotEmpty()) add("rejections", JsonArray().apply { record.rejections.forEach { add(it.name) } })
         }
         val entry = jsonObject("index" to record.index.json(), "kind" to record.kind.json(),
             "decision" to decision(2048), "elapsedMs" to record.elapsedMs.json())
         record.tool?.let { entry.addProperty("tool", it) }
-        record.arguments?.let { entry.add("arguments", clipped(redact(it), 2048)) }
+        val dynamic = record.tool == "script_run_source" && record.arguments?.string("source")?.let {
+            runCatching { io.github.supermonster003.autojs6.plugin.ai.agent.scripts.DynamicScriptSource.validate(it) }.isSuccess
+        } == true
+        val redactedArguments = record.arguments?.let(::redact)
+        val sourceRedacted = dynamic && redactedArguments!!.asJsonObject.string("source") != record.arguments.string("source")
+        val fullSource = dynamic && !sourceRedacted
+        redactedArguments?.let { entry.add("arguments", if (fullSource) it else clipped(it, 2048)) }
+        if (sourceRedacted) entry.addProperty("sourceRedacted", true)
         record.confirmation?.let { entry.addProperty("confirmation", it) }
         record.observation?.let { entry.addProperty("observation", AgentJson.truncate(redactText(it), 4096)) }
         record.usage?.let { entry.add("usage", it.deepCopy()) }
         record.error?.let { entry.addProperty("error", it) }
-        val limit = minOf(12 * 1024, maxBytes / 2)
+        val limit = minOf((if (dynamic) 24 else 12) * 1024, maxBytes / 2)
         if (bytes(entry) > limit) {
             entry.add("decision", decision(256))
-            entry["arguments"]?.let { entry.add("arguments", clipped(it, 256)) }
+            if (!fullSource) entry["arguments"]?.let { entry.add("arguments", clipped(it, 256)) }
             entry.string("observation")?.let { entry.addProperty("observation", AgentJson.truncate(it, 32)) }
             entry.addProperty("truncated", true)
             truncated = true
@@ -90,9 +104,14 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
     private fun redactRecord(value: JsonObject) = value.deepCopy().apply {
         getAsJsonObject("decision")?.let { add("decision", redactDecision(it)) }
         for (key in listOf("arguments", "observation", "preview")) get(key)?.let { add(key, redact(it)) }
+        if (value.string("tool") == "script_run_source" && getAsJsonObject("arguments")?.string("source") !=
+            value.getAsJsonObject("arguments")?.string("source")) {
+            addProperty("sourceRedacted", true)
+            getAsJsonObject("arguments")?.let { add("arguments", clipped(it, 2048)) }
+        }
     }
     private fun redactDecision(value: JsonObject) = redact(value).asJsonObject.apply {
-        for (key in listOf("kind", "tool", "rejections")) value[key]?.let { add(key, it.deepCopy()) }
+        for (key in listOf("kind", "tool", "source", "parseMode", "repairs", "degraded", "rejections")) value[key]?.let { add(key, it.deepCopy()) }
         for ((branch, keys) in listOf("ask" to listOf("kind"), "done" to listOf("status", "orderStatus"))) {
             value.getAsJsonObject(branch)?.let { original -> keys.forEach { key -> original[key]?.let { getAsJsonObject(branch).add(key, it.deepCopy()) } } }
         }

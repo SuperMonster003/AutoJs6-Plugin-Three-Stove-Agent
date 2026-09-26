@@ -8,6 +8,7 @@ import android.widget.*
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.DynamicScriptRegistration
 import io.github.supermonster003.autojs6.plugin.ai.agent.store.RunHistoryCodec
 import java.io.OutputStream
 import java.util.concurrent.Executors
@@ -21,12 +22,16 @@ class RunDetailActivity : HostAppearanceActivity() {
     private val main = Handler(Looper.getMainLooper())
     private val files = Executors.newSingleThreadExecutor()
     private val expanded = linkedSetOf<Int>()
+    private val expandedSources = linkedSetOf<Int>()
+    private val saveScriptButtons = mutableListOf<Button>()
     private var previous = ""
     private var row: JsonObject? = null
     private var visible = false
     private var touch = true
     private var writing = false
     private var destination: Uri? = null
+    private var scriptDestination: Uri? = null
+    private var scriptStep: Int? = null
     private var savedScroll = 0
     private var id = ""
     private val poll = Runnable { refresh() }
@@ -34,8 +39,11 @@ class RunDetailActivity : HostAppearanceActivity() {
         super.onCreate(savedInstanceState)
         id = runCatching { RunHistoryCodec.id(requireNotNull(intent.getStringExtra("runId"))) }.getOrDefault("")
         expanded.addAll(savedInstanceState?.getIntArray("expanded")?.toList().orEmpty())
+        expandedSources.addAll(savedInstanceState?.getIntArray("expandedSources")?.toList().orEmpty())
         savedScroll = savedInstanceState?.getInt("scroll") ?: 0
         destination = savedInstanceState?.getString("destination")?.let(Uri::parse)
+        scriptDestination = savedInstanceState?.getString("scriptDestination")?.let(Uri::parse)
+        scriptStep = savedInstanceState?.getInt("scriptStep", -1)?.takeIf { it >= 0 }
         val root = HistoryViews.column(this).apply { fitsSystemWindows = true; layoutDirection = resources.configuration.layoutDirection }
         HistoryViews.button(root, R.string.workbench_back, "back") { finish() }
         error = HistoryViews.label(root, "")
@@ -52,12 +60,15 @@ class RunDetailActivity : HostAppearanceActivity() {
     override fun onDestroy() { history.close(); files.shutdown(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putIntArray("expanded", expanded.toIntArray()); outState.putInt("scroll", scroll.scrollY)
+        outState.putIntArray("expandedSources", expandedSources.toIntArray())
+        scriptDestination?.let { outState.putString("scriptDestination", it.toString()) }
+        scriptStep?.let { outState.putInt("scriptStep", it) }
         destination?.let { outState.putString("destination", it.toString()) }; super.onSaveInstanceState(outState)
     }
     private fun refresh() {
         if (!visible || id.isEmpty()) return
         history.query("get", id, touch) { result ->
-            result.onSuccess { value -> touch = false; render(value); saveDestination() }.onFailure { showError() }
+            result.onSuccess { value -> touch = false; render(value); saveDestination(); saveScriptDestination() }.onFailure { showError() }
             if (visible) main.postDelayed(poll, if (row?.let(WorkbenchText::active) == true) 500 else 2000)
         }
     }
@@ -67,7 +78,7 @@ class RunDetailActivity : HostAppearanceActivity() {
         if (key == previous) return
         previous = key
         val position = maxOf(savedScroll, scroll.scrollY); savedScroll = 0
-        body.removeAllViews()
+        body.removeAllViews(); saveScriptButtons.clear()
         fun label(text: String, title: Boolean = false) = HistoryViews.label(body, text, title)
         label(value.string("goal").orEmpty(), true)
         label(WorkbenchText.state(this, value)); label(HistoryViews.date(this, value.number("startedAt") ?: 0))
@@ -118,7 +129,22 @@ class RunDetailActivity : HostAppearanceActivity() {
             label(getString(R.string.history_decision, summary))
             if (decision.flag("degraded") == true) label(getString(R.string.history_degraded))
             decision.getAsJsonArray("rejections")?.let { codes -> label(getString(R.string.history_rejections, codes.joinToString { it.asString })) }
-            step["arguments"]?.let { label(getString(R.string.history_arguments, HistoryViews.pretty(it))) }
+            val registration = DynamicScriptRegistration.fromStep(step)
+            if (registration != null) {
+                body.addView(DynamicScriptConfirmationView.create(this, step.getAsJsonObject("arguments"),
+                    index in expandedSources, confirmation = false) { if (it) expandedSources.add(index) else expandedSources.remove(index) })
+                saveScriptButtons += HistoryViews.button(body, R.string.script_dynamic_save, "save-script-$index") {
+                    AlertDialog.Builder(this).setMessage(R.string.script_dynamic_save_note).setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.script_dynamic_save) { _, _ ->
+                            scriptStep = index
+                            runCatching { startActivityForResult(scriptDocumentIntent(registration.fileName), SAVE_SCRIPT) }
+                                .onFailure { scriptStep = null; showError() }
+                        }.show()
+                }.apply { isEnabled = !writing }
+            } else {
+                if (step.flag("sourceRedacted") == true) label(getString(R.string.script_dynamic_redacted))
+                step["arguments"]?.let { label(getString(R.string.history_arguments, HistoryViews.pretty(it))) }
+            }
             step.string("confirmation")?.let { confirmation -> label(getString(R.string.history_confirmation, getString(when (confirmation) {
                 "allowed" -> R.string.history_allowed; "denied" -> R.string.history_denied; else -> R.string.history_auto
             }))) }
@@ -142,6 +168,10 @@ class RunDetailActivity : HostAppearanceActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == EXPORT && resultCode == RESULT_OK) destination = data?.data?.takeIf { it.scheme == "content" }
+        if (requestCode == SAVE_SCRIPT) {
+            scriptDestination = if (resultCode == RESULT_OK) data?.data?.takeIf { it.scheme == "content" } else null
+            if (scriptDestination == null) scriptStep = null
+        }
     }
     private fun saveDestination() {
         val uri = destination ?: return
@@ -160,9 +190,35 @@ class RunDetailActivity : HostAppearanceActivity() {
             }
         }
     }
+    private fun saveScriptDestination() {
+        val uri = scriptDestination ?: return
+        if (writing) return
+        val step = row?.getAsJsonArray("steps")?.firstOrNull { it.asJsonObject.number("index") == scriptStep?.toLong() }?.asJsonObject
+        val registration = step?.let(DynamicScriptRegistration::fromStep)
+        scriptDestination = null; scriptStep = null
+        if (registration == null) { showError(); return }
+        writing = true; export.isEnabled = false; saveScriptButtons.forEach { it.isEnabled = false }
+        files.execute {
+            val success = runCatching {
+                requireNotNull(contentResolver.openOutputStream(uri, "w")).use {
+                    it.write(registration.text.toByteArray(Charsets.UTF_8)); it.flush()
+                }
+            }.isSuccess
+            main.post {
+                writing = false
+                if (!isDestroyed) {
+                    export.isEnabled = true; saveScriptButtons.forEach { it.isEnabled = true }
+                    error.setText(if (success) R.string.script_dynamic_saved else R.string.workbench_request_failed)
+                }
+            }
+        }
+    }
     private fun showError() { error.setText(R.string.history_unavailable) }
     companion object {
         private const val EXPORT = 20
+        private const val SAVE_SCRIPT = 21
+        internal fun scriptDocumentIntent(fileName: String) = Intent(Intent.ACTION_CREATE_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE).setType("text/javascript").putExtra(Intent.EXTRA_TITLE, fileName)
         internal fun writeExport(output: OutputStream, redacted: JsonObject) {
             require(redacted.flag("redacted") == true)
             output.write(HistoryViews.pretty(redacted).toByteArray(Charsets.UTF_8)); output.flush()

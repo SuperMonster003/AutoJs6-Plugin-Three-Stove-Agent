@@ -24,7 +24,7 @@ class AdversarialInputTest {
         for (format in formats) for ((attack, code) in listOf(
             tool("shell_exec", """{"cmd":"rm $marker"}""") to "TOOL_DISABLED",
             tool("files_write", """{"path":"../$marker","content":"overwrite"}""") to "TOOL_ARGUMENTS_INVALID",
-            tool("script_run_source", """{"source":"$marker"}""") to "TOOL_UNKNOWN",
+            tool("script_run_source", """{"source":"$marker"}""") to "TOOL_DISABLED",
         )) {
             val f = RunnerFixture(policy)
             val response = encoded(attack, format)

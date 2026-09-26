@@ -117,6 +117,7 @@
     <string name="presets_group_observe">Наблюдение за экраном</string>
     <string name="presets_group_ocr">Распознавание текста (OCR)</string>
     <string name="presets_group_script">Зарегистрированные скрипты</string>
+    <string name="presets_group_script_dynamic">Созданные скрипты</string>
     <string name="presets_group_shell">Команды оболочки</string>
     <string name="presets_group_user">Взаимодействие с пользователем</string>
     <string name="presets_hybrid">Гибридная</string>
@@ -156,6 +157,16 @@
     <string name="run_running">Выполняется</string>
     <string name="run_waiting_confirmation">Ожидание подтверждения</string>
     <string name="run_waiting_input">Ожидание ответа</string>
+    <string name="script_dynamic_collapse">Свернуть исходный код</string>
+    <string name="script_dynamic_expand">Показать весь код</string>
+    <string name="script_dynamic_redacted">Из этого кода удален пароль, обнаруженный позднее. Исходный скрипт нельзя сохранить из этого шага.</string>
+    <string name="script_dynamic_save">Сохранить созданный скрипт</string>
+    <string name="script_dynamic_save_note">Проверьте весь код перед сохранением. Выберите рабочий каталог AutoJs6 или разрешенный каталог скриптов. Новый файл содержит регистрацию @agent с риском sensitive и всегда требует подтверждения. Другой общий каталог сначала добавьте в каталоги скриптов. Сохранение не запускает скрипт.</string>
+    <string name="script_dynamic_saved">Скрипт сохранен. Хост обнаружит его, если каталог включен в следующее сканирование.</string>
+    <string name="script_dynamic_source">Созданный код JavaScript</string>
+    <string name="script_dynamic_source_summary">Код: %1$d байт, %2$d строк</string>
+    <string name="script_dynamic_timeout">Лимит времени: %1$d мс</string>
+    <string name="script_dynamic_warning">Проверьте созданный JavaScript перед разрешением одного запуска. Он работает с разрешениями AutoJs6 и может выполнять действия вне включенных групп инструментов. Песочница не используется.</string>
     <string name="script_roots_instruction">Введите по одному абсолютному пути в строке. Хост проверит наличие каталогов в общем хранилище и отсутствие в них рабочего каталога. Применение изменений отменяет текущие задачи.</string>
     <string name="script_roots_invalid">Введите до 32 различных абсолютных путей без переходов к родительскому каталогу, общим размером до 8 KiB.</string>
     <string name="script_roots_rejected">Хост не принял эти каталоги. Проверьте, что они существуют в общем хранилище и не содержат рабочий каталог.</string>

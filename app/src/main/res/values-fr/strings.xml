@@ -117,6 +117,7 @@
     <string name="presets_group_observe">Observation de l\'écran</string>
     <string name="presets_group_ocr">Reconnaissance de texte (OCR)</string>
     <string name="presets_group_script">Scripts enregistrés</string>
+    <string name="presets_group_script_dynamic">Scripts générés</string>
     <string name="presets_group_shell">Commandes shell</string>
     <string name="presets_group_user">Interaction utilisateur</string>
     <string name="presets_hybrid">Hybride</string>
@@ -156,6 +157,16 @@
     <string name="run_running">En cours</string>
     <string name="run_waiting_confirmation">En attente de confirmation</string>
     <string name="run_waiting_input">En attente de réponse</string>
+    <string name="script_dynamic_collapse">Réduire le code</string>
+    <string name="script_dynamic_expand">Afficher tout le code</string>
+    <string name="script_dynamic_redacted">Un mot de passe détecté plus tard a été retiré du code. Le script original ne peut plus être enregistré depuis cette étape.</string>
+    <string name="script_dynamic_save">Enregistrer le script généré</string>
+    <string name="script_dynamic_save_note">Vérifiez tout le code avant de sauvegarder. Choisissez le répertoire de travail AutoJs6 ou un dossier de scripts approuvé. Le fichier contient une déclaration @agent sensible et demande toujours confirmation. Pour un autre dossier partagé, ajoutez-le aux répertoires de scripts avant la prochaine analyse. La sauvegarde ne lance pas le script.</string>
+    <string name="script_dynamic_saved">Script enregistré. Le système hôte peut le découvrir si son dossier figure dans la prochaine analyse du catalogue.</string>
+    <string name="script_dynamic_source">Code JavaScript généré</string>
+    <string name="script_dynamic_source_summary">Code : %1$d octets, %2$d lignes</string>
+    <string name="script_dynamic_timeout">Délai maximal : %1$d ms</string>
+    <string name="script_dynamic_warning">Vérifiez ce JavaScript généré avant de permettre une exécution. Il utilise les autorisations AutoJs6 et peut effectuer des actions hors des groupes activés. Il ne fonctionne pas dans un bac à sable.</string>
     <string name="script_roots_instruction">Saisissez un chemin absolu par ligne. L\'hôte vérifie que chaque dossier existe dans le stockage partagé et ne contient pas son dossier de travail. Appliquer les changements annule les tâches en cours.</string>
     <string name="script_roots_invalid">Saisissez au plus 32 chemins absolus distincts, sans remontée de dossier, dans une limite de 8 KiB.</string>
     <string name="script_roots_rejected">L\'hôte n\'a pas accepté ces dossiers. Vérifiez leur présence dans le stockage partagé et qu\'ils ne contiennent pas le dossier de travail.</string>

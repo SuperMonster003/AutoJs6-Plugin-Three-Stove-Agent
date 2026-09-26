@@ -117,6 +117,7 @@
     <string name="presets_group_observe">화면 관찰</string>
     <string name="presets_group_ocr">문자 인식 (OCR)</string>
     <string name="presets_group_script">등록된 스크립트</string>
+    <string name="presets_group_script_dynamic">생성된 스크립트</string>
     <string name="presets_group_shell">셸 명령</string>
     <string name="presets_group_user">사용자 상호작용</string>
     <string name="presets_hybrid">혼합</string>
@@ -156,6 +157,16 @@
     <string name="run_running">실행 중</string>
     <string name="run_waiting_confirmation">확인 대기 중</string>
     <string name="run_waiting_input">답변 대기 중</string>
+    <string name="script_dynamic_collapse">소스 접기</string>
+    <string name="script_dynamic_expand">전체 소스 보기</string>
+    <string name="script_dynamic_redacted">나중에 감지된 비밀번호를 이 소스에서 제거했습니다. 이 단계에서 원본 스크립트를 저장할 수 없습니다.</string>
+    <string name="script_dynamic_save">생성된 스크립트 저장</string>
+    <string name="script_dynamic_save_note">저장 전에 전체 소스를 검토하세요. AutoJs6 작업 폴더나 승인된 스크립트 폴더를 선택하세요. 새 파일에는 민감한 @agent 등록이 포함되며 항상 확인이 필요합니다. 다른 공유 폴더를 선택했다면 다음 목록 검색 전에 스크립트 폴더에 추가하세요. 저장 시 스크립트가 실행되지는 않습니다.</string>
+    <string name="script_dynamic_saved">스크립트를 저장했습니다. 다음 목록 검색에 폴더가 포함되면 호스트가 발견할 수 있습니다.</string>
+    <string name="script_dynamic_source">생성된 JavaScript 소스</string>
+    <string name="script_dynamic_source_summary">소스: %1$d 바이트, %2$d 줄</string>
+    <string name="script_dynamic_timeout">실행 제한 시간: %1$d ms</string>
+    <string name="script_dynamic_warning">이번 실행을 허용하기 전에 생성된 JavaScript를 검토하세요. AutoJs6 권한으로 실행되며 활성화된 도구 그룹을 벗어난 작업도 수행할 수 있습니다. 샌드박스에서 실행되지 않습니다.</string>
     <string name="script_roots_instruction">한 줄에 절대 디렉터리 경로를 하나씩 입력하세요. 호스트는 경로가 공유 저장소에 존재하며 작업 디렉터리의 상위 경로가 아닌지 확인합니다. 변경 사항이 적용되면 현재 작업이 취소됩니다.</string>
     <string name="script_roots_invalid">상위 디렉터리 이동 없이 중복되지 않는 절대 경로를 최대 32개, 총 8 KiB 이내로 입력하세요.</string>
     <string name="script_roots_rejected">호스트가 디렉터리를 승인하지 않았습니다. 공유 저장소에 존재하며 작업 디렉터리의 상위 경로가 아닌지 확인하세요.</string>

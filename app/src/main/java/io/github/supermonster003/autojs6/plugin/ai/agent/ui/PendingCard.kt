@@ -16,6 +16,8 @@ internal class PendingCard(private val container: LinearLayout, private val subm
     private var restoredKey: String? = null
     private var restoredAnswer: String? = null
     private var restoredRemember = false
+    private var sourceExpanded = false
+    private var restoredSourceExpanded = false
     private var deadline: Long? = null
     private var countdown: TextView? = null
     private var sending = false
@@ -39,11 +41,13 @@ internal class PendingCard(private val container: LinearLayout, private val subm
     fun restore(state: Bundle?) {
         restoredKey = state?.getString("answerKey"); restoredAnswer = state?.getString("answerDraft")
         restoredRemember = state?.getBoolean("answerRemember") == true
+        restoredSourceExpanded = state?.getBoolean("sourceExpanded") == true
     }
     fun save(state: Bundle) {
         state.putString("answerKey", shown)
         container.findViewById<EditText>(R.id.workbench_answer)?.let { state.putString("answerDraft", it.text.toString()) }
         state.putBoolean("answerRemember", container.findViewById<CheckBox>(R.id.interaction_remember)?.isChecked == true)
+        state.putBoolean("sourceExpanded", sourceExpanded)
     }
     fun render(run: JsonObject?) {
         val pending = run?.getAsJsonObject("pending")
@@ -51,6 +55,7 @@ internal class PendingCard(private val container: LinearLayout, private val subm
         if (shown == key) return
         shown = key; container.removeCallbacks(tick); countdown = null; deadline = null; sending = false
         buttons.clear(); container.removeAllViews()
+        sourceExpanded = key == restoredKey && restoredSourceExpanded
         if (pending == null || pending.flag("submitted") == true) return
         val context = container.context
         fun label(text: String) = TextView(context).apply { this.text = text; setTextIsSelectable(true); container.addView(this) }
@@ -79,12 +84,17 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                 else -> R.string.interaction_risk_sensitive
             }
             label(context.getString(R.string.interaction_risk, context.getString(risk)))
-            if (pending.string("tool") == "script_run" && pending.getAsJsonObject("arguments")?.has("parameters") == true)
-                container.addView(ScriptConfirmationView.create(context, pending))
-            else { label(pending.string("description").orEmpty()); label(pending["arguments"]?.toString().orEmpty()) }
+            when {
+                pending.string("tool") == "script_run_source" -> container.addView(DynamicScriptConfirmationView.create(context,
+                    pending.getAsJsonObject("arguments"), sourceExpanded) { sourceExpanded = it })
+                pending.string("tool") == "script_run" && pending.getAsJsonObject("arguments")?.has("parameters") == true ->
+                    container.addView(ScriptConfirmationView.create(context, pending))
+                else -> { label(pending.string("description").orEmpty()); label(pending["arguments"]?.toString().orEmpty()) }
+            }
             button(context.getString(R.string.task_allow)) { send(allowed = true) }
             button(context.getString(R.string.task_deny)) { send(allowed = false) }
-            if (pending.flag("allowRunScope") == true) button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
+            if (pending.flag("allowRunScope") == true && pending.string("tool") != "script_run_source")
+                button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
         } else {
             label(pending.string("question").orEmpty())
             if (pending.has("memoryKey")) {

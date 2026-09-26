@@ -110,6 +110,9 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
     internal fun dispatch(call: BridgeCall, callback: (PortResult<JsonElement>) -> Unit): Cancellation {
         val id = "tool-${UUID.randomUUID()}"
         val isScriptCatalog = call.module == "agent" && call.method == "listScripts"
+        val isOwnedScript = call.module == "agent" && call.method == "execRegistered" ||
+            call.module == "engines" && call.method == "execScript" && call.args.size() > 2 &&
+                call.args[2].isJsonObject && call.args[2].asJsonObject.string("agentInvocationId") != null
         val maximumPayloadBytes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_BYTES else 512 * 1024
         val maximumNodes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_NODES else 16_384
         val closed = AtomicBoolean()
@@ -147,9 +150,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                             if (closed.get()) return@execute
                             val envelope = AgentJson.objectOf(text, H.MAX_BRIDGE_INLINE_JSON_BYTES, maximumNodes)
                             require(envelope.string("id") == id && envelope.flag("ok") == ok)
-                            if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error")).let {
-                                if (call.module == "agent" && call.method == "execRegistered" && it == RunError.NODE_NOT_FOUND) RunError.SCRIPT_TIMEOUT else it
-                            }))
+                            if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error"), isOwnedScript)))
                             else if (data == null) result(PortResult.Success(envelope["result"] ?: JsonNull.INSTANCE))
                             else {
                                 val marker = envelope.getAsJsonObject("result")?.getAsJsonObject("payload")
@@ -177,7 +178,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         val IMPLEMENTED = setOf("ui_dump", "ui_find", "ui_wait_for", "app_current", "screen_state", "screen_capture", "device_info", "console_tail", "ocr_screen",
             "ui_click", "ui_long_click", "ui_set_text", "ui_scroll", "ui_press_key", "app_launch", "clipboard_get", "clipboard_set",
             "ui_click_xy", "ui_swipe", "ui_gesture", "script_catalog", "script_stop", "files_list", "files_stat", "files_read", "files_write", "shell_exec", "report_progress")
-        fun bridgeError(error: JsonObject?): RunError {
+        fun bridgeError(error: JsonObject?, scriptExecution: Boolean = false): RunError {
             val stable = error?.string("message")?.substringBefore(':')?.trim()
             val recognized = setOf("A11Y_SERVICE_NOT_RUNNING", "NODE_REF_STALE", "NODE_NOT_FOUND", "SCREEN_LOCKED", "OCR_PLUGIN_REQUIRED",
                 "SCRIPT_NOT_REGISTERED", "SCRIPT_TIMEOUT", "SCRIPT_FAILED", "CANCELLED", "CAPABILITY_DENIED", "QUOTA_EXCEEDED", "LIMIT_EXCEEDED", "RATE_LIMITED")
@@ -187,7 +188,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                 H.ERROR_PERMISSION_DENIED, H.ERROR_CAPABILITY_DENIED -> RunError.CAPABILITY_DENIED
                 H.ERROR_RATE_LIMITED -> RunError.RATE_LIMITED
                 H.ERROR_RESOURCE_LIMIT -> RunError.LIMIT_EXCEEDED
-                H.ERROR_TIMEOUT -> RunError.NODE_NOT_FOUND
+                H.ERROR_TIMEOUT -> if (scriptExecution) RunError.SCRIPT_TIMEOUT else RunError.NODE_NOT_FOUND
                 else -> RunError.TOOL_ARGUMENTS_INVALID
             }
         }

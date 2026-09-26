@@ -269,6 +269,7 @@ class PresetsActivity : HostAppearanceActivity() {
         val SCOPE_LABELS = listOf(R.string.presets_memory_both, R.string.presets_memory_global, R.string.presets_memory_preset, R.string.presets_memory_none)
         val GROUP_LABELS = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.OCR to R.string.presets_group_ocr,
             ToolGroup.ACT to R.string.presets_group_act, ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.SCRIPT to R.string.presets_group_script,
+            ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic,
             ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory, ToolGroup.USER to R.string.presets_group_user)
     }
 }

@@ -117,6 +117,7 @@
     <string name="presets_group_observe">Screen observation</string>
     <string name="presets_group_ocr">Text recognition (OCR)</string>
     <string name="presets_group_script">Registered scripts</string>
+    <string name="presets_group_script_dynamic">Generated scripts</string>
     <string name="presets_group_shell">Shell commands</string>
     <string name="presets_group_user">User interaction</string>
     <string name="presets_hybrid">Hybrid</string>
@@ -156,6 +157,16 @@
     <string name="run_running">Running</string>
     <string name="run_waiting_confirmation">Waiting for confirmation</string>
     <string name="run_waiting_input">Waiting for an answer</string>
+    <string name="script_dynamic_collapse">Collapse source</string>
+    <string name="script_dynamic_expand">Show full source</string>
+    <string name="script_dynamic_redacted">A password detected later was removed from this source. The original script cannot be saved from this step.</string>
+    <string name="script_dynamic_save">Save generated script</string>
+    <string name="script_dynamic_save_note">Review the full source before saving. Choose the AutoJs6 working directory or an approved Script directory. The new file includes a sensitive @agent registration and always requires confirmation. If you choose another shared directory, add it under Script directories before the next catalog scan. Saving does not execute the script.</string>
+    <string name="script_dynamic_saved">Script saved. The host can discover it when its directory is included in the next catalog scan.</string>
+    <string name="script_dynamic_source">Generated JavaScript source</string>
+    <string name="script_dynamic_source_summary">Source size (bytes): %1$d; lines: %2$d</string>
+    <string name="script_dynamic_timeout">Execution timeout: %1$d ms</string>
+    <string name="script_dynamic_warning">Review this generated JavaScript before allowing it once. It runs with AutoJs6 permissions and can perform actions beyond the enabled tool groups. It is not sandboxed.</string>
     <string name="script_roots_instruction">Enter one absolute directory path per line. The host checks that each directory exists in shared storage and is not an ancestor of its working directory. Applying changes cancels current tasks.</string>
     <string name="script_roots_invalid">Use at most 32 distinct absolute paths, without parent traversal, within 8 KiB.</string>
     <string name="script_roots_rejected">The host has not accepted these directories. Check that the paths exist in shared storage and do not contain the working directory.</string>
