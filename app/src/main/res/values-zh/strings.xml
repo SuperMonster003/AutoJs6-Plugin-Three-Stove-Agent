@@ -195,12 +195,13 @@
     <string name="model_unpin">取消置顶 %1$s</string>
     <string name="plugin_description">按自然语言目标选择已登记脚本并逐步操作界面完成任务</string>
     <string name="presets_actions">%1$s 的操作</string>
-    <string name="presets_budget_note">留空沿用任务限制, 填写值只能收紧. 默认: 40 步, 60 次模型调用, 600000 毫秒 (托管任务 1800000 毫秒), 300000 token, 同时受宿主限制.</string>
+    <string name="presets_budget_note">留空沿用任务限制, 填写值只能收紧. 默认: 60 步, 90 次模型调用, 15 分钟 (托管任务 30 分钟), 500000 token, 同时受宿主限制.</string>
     <string name="presets_calls">最大模型调用次数</string>
     <string name="presets_cautious">审慎 (所有改变状态的操作均需确认)</string>
     <string name="presets_confirmation">确认策略</string>
     <string name="presets_confirmation_note">预设只能在设置页 \"操作权限\" 的基础上收紧为审慎. 完全访问只能在设置页开启, 不会随预设保存或分发.</string>
     <string name="presets_context">固定上下文 (与任务上下文合计最多 8 KiB)</string>
+    <string name="presets_context_section">上下文</string>
     <string name="presets_copy">复制预设</string>
     <string name="presets_default_badge">默认</string>
     <string name="presets_delete">删除预设</string>

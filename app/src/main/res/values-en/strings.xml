@@ -195,12 +195,13 @@
     <string name="model_unpin">Unpin %1$s</string>
     <string name="plugin_description">Runs natural-language tasks by choosing registered scripts and operating the screen step by step</string>
     <string name="presets_actions">Actions for %1$s</string>
-    <string name="presets_budget_note">Leave blank to inherit the task limits. Values can only reduce them. Defaults: 40 steps, 60 model calls, 600000 ms (1800000 ms for detached tasks), 300000 tokens, subject to host limits.</string>
+    <string name="presets_budget_note">Leave blank to inherit the task limits. Values can only reduce them. Defaults: 60 steps, 90 model calls, 15 minutes (30 minutes for detached tasks), 500000 tokens, subject to host limits.</string>
     <string name="presets_calls">Maximum model calls</string>
     <string name="presets_cautious">Cautious (confirm all actions that change state)</string>
     <string name="presets_confirmation">Confirmation policy</string>
     <string name="presets_confirmation_note">A preset can only tighten the access mode chosen in Settings to Cautious. Full access is enabled only in Settings and is never stored in or shared with a preset.</string>
     <string name="presets_context">Fixed context (up to 8 KiB together with task context)</string>
+    <string name="presets_context_section">Context</string>
     <string name="presets_copy">Copy preset</string>
     <string name="presets_default_badge">Default</string>
     <string name="presets_delete">Delete preset</string>

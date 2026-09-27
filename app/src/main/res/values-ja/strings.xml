@@ -195,12 +195,13 @@
     <string name="model_unpin">%1$s の固定を解除</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
     <string name="presets_actions">%1$s の操作</string>
-    <string name="presets_budget_note">空欄はタスクの制限を継承します. 値は制限を縮小する場合のみ指定できます. 既定: 40 ステップ, 60 回, 600000 ms (切り離したタスクは 1800000 ms), 300000 トークン. ホストの制限も適用されます.</string>
+    <string name="presets_budget_note">空欄はタスクの制限を継承します. 値は制限を縮小する場合のみ指定できます. 既定: 60 ステップ, 90 回, 15 分 (切り離したタスクは 30 分), 500000 トークン. ホストの制限も適用されます.</string>
     <string name="presets_calls">最大モデル呼び出し数</string>
     <string name="presets_cautious">慎重 (状態を変更する操作をすべて確認)</string>
     <string name="presets_confirmation">確認方針</string>
     <string name="presets_confirmation_note">プリセットは設定で選んだ操作権限を慎重に絞ることしかできません. フルアクセスは設定でのみ有効化でき, プリセットには保存も配布もされません.</string>
     <string name="presets_context">固定コンテキスト (タスク分と合わせて最大 8 KiB)</string>
+    <string name="presets_context_section">コンテキスト</string>
     <string name="presets_copy">プリセットを複製</string>
     <string name="presets_default_badge">既定</string>
     <string name="presets_delete">プリセットを削除</string>

@@ -215,6 +215,8 @@ class PresetsActivity : HostAppearanceActivity() {
             if (row.string("confirmPolicy") == "cautious") 1 else 0, R.drawable.ic_shield, "preset-confirm") {}
         page.addView(confirmation.view.apply { setPaddingRelative(0, paddingTop, 0, paddingBottom) }, LinearLayout.LayoutParams(-1, -2))
         kit.caption(page, getString(R.string.presets_confirmation_note))
+
+        kit.formSection(page, getString(R.string.presets_context_section))
         fixedContext = kit.formField(page, getString(R.string.presets_context), row.string("context").orEmpty(), "preset-context", maxLength = 8192, multiline = true)
 
         kit.formSection(page, getString(R.string.script_roots_title))

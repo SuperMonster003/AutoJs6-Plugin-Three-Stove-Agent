@@ -195,12 +195,13 @@
     <string name="model_unpin">Désépingler %1$s</string>
     <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
     <string name="presets_actions">Actions pour %1$s</string>
-    <string name="presets_budget_note">Laisser vide pour hériter des limites. Les valeurs ne peuvent que les réduire. Par défaut: 40 étapes, 60 appels, 600000 ms (1800000 ms pour les tâches détachées), 300000 jetons, sous réserve des limites de l\'hôte.</string>
+    <string name="presets_budget_note">Laisser vide pour hériter des limites. Les valeurs ne peuvent que les réduire. Par défaut: 60 étapes, 90 appels, 15 minutes (30 minutes pour les tâches détachées), 500000 jetons, sous réserve des limites de l\'hôte.</string>
     <string name="presets_calls">Nombre maximal d\'appels au modèle</string>
     <string name="presets_cautious">Prudente (confirmer toute modification)</string>
     <string name="presets_confirmation">Politique de confirmation</string>
     <string name="presets_confirmation_note">Une preselection ne peut que durcir en Prudent le mode choisi dans les Reglages. L\'acces complet ne s\'active que dans les Reglages et n\'est jamais enregistre ni partage avec une preselection.</string>
     <string name="presets_context">Contexte fixe (8 KiB maximum avec le contexte de la tâche)</string>
+    <string name="presets_context_section">Contexte</string>
     <string name="presets_copy">Dupliquer le préréglage</string>
     <string name="presets_default_badge">Par défaut</string>
     <string name="presets_delete">Supprimer le préréglage</string>

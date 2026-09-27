@@ -195,12 +195,13 @@
     <string name="model_unpin">Открепить %1$s</string>
     <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
     <string name="presets_actions">Действия для %1$s</string>
-    <string name="presets_budget_note">Пустое поле наследует лимит задачи. Значения могут только уменьшать его. По умолчанию: 40 шагов, 60 вызовов, 600000 мс (1800000 мс для автономных задач), 300000 токенов, с учетом ограничений хоста.</string>
+    <string name="presets_budget_note">Пустое поле наследует лимит задачи. Значения могут только уменьшать его. По умолчанию: 60 шагов, 90 вызовов, 15 минут (30 минут для автономных задач), 500000 токенов, с учетом ограничений хоста.</string>
     <string name="presets_calls">Максимум вызовов модели</string>
     <string name="presets_cautious">Осторожные (подтверждать все изменения)</string>
     <string name="presets_confirmation">Правила подтверждения</string>
     <string name="presets_confirmation_note">Пресет может только ужесточить выбранный в настройках режим до осторожного. Полный доступ включается только в настройках и никогда не сохраняется в пресете.</string>
     <string name="presets_context">Постоянный контекст (до 8 KiB вместе с контекстом задачи)</string>
+    <string name="presets_context_section">Контекст</string>
     <string name="presets_copy">Копировать предустановку</string>
     <string name="presets_default_badge">По умолчанию</string>
     <string name="presets_delete">Удалить предустановку</string>

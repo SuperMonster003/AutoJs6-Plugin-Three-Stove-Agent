@@ -74,9 +74,7 @@ class HistoryActivity : HostAppearanceActivity() {
             setOnCloseIconClickListener { filter = filter.copy(from = null, until = null); render() }
             closeIconContentDescription = getString(R.string.history_reset_dates)
         }.also { chips.addView(it) }
-        page.addView(kit.text(getString(R.string.history_retention), Ui.TEXT_CAPTION, palette.muted).apply {
-            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
+        kit.caption(page, getString(R.string.history_retention))
         message = kit.text("", Ui.TEXT_BODY, palette.danger).apply { visibility = View.GONE; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
         page.addView(message, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
         list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; tag = "history-list" }

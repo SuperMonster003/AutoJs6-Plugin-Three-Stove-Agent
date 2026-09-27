@@ -16,6 +16,10 @@ internal object ReadmeCapture {
         }
     }
 
+    /** True when captures were requested on a disposable emulator; audits use it to save screens without skipping. */
+    fun optedIn(): Boolean = InstrumentationRegistry.getArguments().getString("agent.readme.capture") == "true" &&
+        (android.os.Build.FINGERPRINT.contains("generic") || android.os.Build.MODEL.contains("sdk"))
+
     fun save(root: View, name: String) {
         check(root.isLaidOut && root.width > 0 && root.height > 0 && !root.isLayoutRequested)
         val directory = File(root.context.cacheDir, "readme-captures").apply { mkdirs() }

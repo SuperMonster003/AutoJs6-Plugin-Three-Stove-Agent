@@ -240,7 +240,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             cardScroll = scroll
             val card = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
-                setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD))
+                setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD))
             }
             scroll.addView(card); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
             morePanel = LinearLayout(context).apply {

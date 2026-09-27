@@ -195,12 +195,13 @@
     <string name="model_unpin">إلغاء تثبيت %1$s</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
     <string name="presets_actions">إجراءات %1$s</string>
-    <string name="presets_budget_note">اترك الحقول فارغة لوراثة حدود المهمة. يمكن تقليلها فقط. القيم الافتراضية: 40 خطوة, 60 استدعاء, 600000 مللي ثانية (1800000 للمهام المستقلة), 300000 رمز, مع مراعاة حدود المضيف.</string>
+    <string name="presets_budget_note">اترك الحقول فارغة لوراثة حدود المهمة. يمكن تقليلها فقط. القيم الافتراضية: 60 خطوة, 90 استدعاء, 15 دقيقة (30 دقيقة للمهام المستقلة), 500000 رمز, مع مراعاة حدود المضيف.</string>
     <string name="presets_calls">الحد الأقصى لاستدعاءات النموذج</string>
     <string name="presets_cautious">حذرة (تأكيد كل إجراء يغير الحالة)</string>
     <string name="presets_confirmation">سياسة التأكيد</string>
     <string name="presets_confirmation_note">لا يمكن للإعداد المسبق إلا تشديد وضع الوصول المختار في الإعدادات إلى حذر. لا يفعل الوصول الكامل إلا من الإعدادات ولا يحفظ أو يشارك مع الإعداد المسبق أبدا.</string>
     <string name="presets_context">السياق الثابت (حتى 8 KiB مع سياق المهمة)</string>
+    <string name="presets_context_section">السياق</string>
     <string name="presets_copy">نسخ الإعداد المسبق</string>
     <string name="presets_default_badge">افتراضي</string>
     <string name="presets_delete">حذف الإعداد المسبق</string>

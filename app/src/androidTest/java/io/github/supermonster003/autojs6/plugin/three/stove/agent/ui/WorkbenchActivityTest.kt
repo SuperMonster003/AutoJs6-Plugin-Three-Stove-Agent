@@ -1509,6 +1509,10 @@ class WorkbenchActivityTest {
                 }
                 val memory = MemoryEntry("layout-drink", "Hot latte, medium cup", preset, runId, 1, 1)
                 memories.save(memory).getOrThrow()
+                // With agent.readme.capture=true on a disposable emulator, each audited screen is also saved for the docs.
+                fun capture(activity: android.app.Activity, name: String) {
+                    if (ReadmeCapture.optedIn()) ReadmeCapture.save(activity.window.decorView, "screen-$name")
+                }
                 fun page(type: Class<out android.app.Activity>, name: String, readyTag: String? = null,
                          after: (ActivityScenario<android.app.Activity>) -> Unit = {}) {
                     val intent = Intent(context, type).putExtra("runId", runId).putExtra("rerunPreset", preset).putExtra("rerunGoal", "Layout inspection fixture")
@@ -1521,7 +1525,7 @@ class WorkbenchActivityTest {
                         }; ready }
                         instrumentation.waitForIdleSync()
                         instrumentation.waitForIdleSync()
-                        scenario.onActivity { audit.inspect(it, name) }
+                        scenario.onActivity { audit.inspect(it, name); capture(it, name) }
                         after(scenario)
                     }
                 }
@@ -1534,15 +1538,15 @@ class WorkbenchActivityTest {
                         ready = it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("preset-save")?.isLaidOut == true
                     }; ready }
                     instrumentation.waitForIdleSync()
-                    scenario.onActivity { audit.inspect(it, "preset-editor") }
+                    scenario.onActivity { audit.inspect(it, "preset-editor"); capture(it, "preset-editor") }
                 }
                 page(MemoryActivity::class.java, "memory", "memory-import") { scenario ->
                     scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<View>("memory-entry-$preset:layout-drink").performClick() }
                     instrumentation.waitForIdleSync()
-                    scenario.onActivity { audit.inspect(it, "memory-editor") }
+                    scenario.onActivity { audit.inspect(it, "memory-editor"); capture(it, "memory-editor") }
                     scenario.onActivity { (it as MemoryActivity).beginImport(listOf(memory.copy(key = "layout-import"))) }
                     instrumentation.waitForIdleSync()
-                    scenario.onActivity { audit.inspect(it, "memory-review") }
+                    scenario.onActivity { audit.inspect(it, "memory-review"); capture(it, "memory-review") }
                 }
                 page(ScriptRootsActivity::class.java, "script-roots")
                 audit.finish()
