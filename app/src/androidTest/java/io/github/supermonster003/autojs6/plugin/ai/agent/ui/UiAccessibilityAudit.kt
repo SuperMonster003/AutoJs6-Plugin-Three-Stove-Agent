@@ -82,7 +82,8 @@ internal class UiAccessibilityAudit {
                 check(view.width + 1 >= minimum && view.height + 1 >= minimum, view,
                     "touch target ${view.width}x${view.height}, minimum ${minimum.toInt()}")
             }
-            if (view.width > 0 && view.parent is ViewGroup && view !== root) {
+            // Content of a horizontal scroller (a filter chip row) is reached by scrolling, not wrapping.
+            if (view.width > 0 && view.parent is ViewGroup && view.parent !is HorizontalScrollView && view !== root) {
                 val parent = view.parent as ViewGroup
                 check(view.left >= -1 && view.right <= parent.width + 1, view, "outside parent horizontal bounds")
             }
