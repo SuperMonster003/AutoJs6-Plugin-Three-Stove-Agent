@@ -14,7 +14,7 @@ plugins {
     id("com.android.application")
 }
 
-val globalApplicationId = "io.github.supermonster003.autojs6.plugin.ai.agent"
+val globalApplicationId = "io.github.supermonster003.autojs6.plugin.three.stove.agent"
 val buildTypeDebug = "debug"
 val buildTypeRelease = "release"
 
@@ -227,7 +227,7 @@ tasks {
     }
 
     register<Copy>("appendDigestToReleasedFiles") {
-        description = "Appends CRC32 digest to the released AI Agent APK file"
+        description = "Appends CRC32 digest to the released Three Stove Agent APK file"
         dependsOn("assembleRelease")
 
         val ext = utils.FILE_EXTENSION_APK

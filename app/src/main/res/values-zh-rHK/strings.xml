@@ -109,10 +109,10 @@
     <string name="launcher_connect">連接 AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 已安裝但已被停用. 請在系統應用程式設定中啟用它, 然後返回此頁面.</string>
     <string name="launcher_host_incompatible">已安裝 AutoJs6 組建 %1$d, 但此外掛需要組建 %2$d 或更高版本. 請先更新 AutoJs6.</string>
-    <string name="launcher_host_missing">尚未安裝 AutoJs6. 請安裝 AutoJs6 組建 %1$d 或更高版本, 然後在其外掛中心啟用 AI Agent.</string>
-    <string name="launcher_host_ready">已安裝 AutoJs6 %1$s (組建 %2$d). 請在 AutoJs6 外掛中心啟用 AI Agent.</string>
+    <string name="launcher_host_missing">尚未安裝 AutoJs6. 請安裝 AutoJs6 組建 %1$d 或更高版本, 然後在其外掛中心啟用 Three Stove Agent.</string>
+    <string name="launcher_host_ready">已安裝 AutoJs6 %1$s (組建 %2$d). 請在 AutoJs6 外掛中心啟用 Three Stove Agent.</string>
     <string name="launcher_link_connecting">正在等待 AutoJs6 連接 (最多 15 秒).</string>
-    <string name="launcher_link_timeout">15 秒內未建立連接. 請開啟 AutoJs6, 在插件中心啟用 AI Agent 並授權連接.</string>
+    <string name="launcher_link_timeout">15 秒內未建立連接. 請開啟 AutoJs6, 在插件中心啟用 Three Stove Agent 並授權連接.</string>
     <string name="launcher_open_host">開啟 AutoJs6</string>
     <string name="mcp_add">新增伺服器</string>
     <string name="mcp_auth_required">需要身份驗證. 請在 MCP 伺服器應用程式中檢查已儲存的權杖.</string>
@@ -290,7 +290,7 @@
     <string name="shortcut_goal">固定目標 (可選)</string>
     <string name="shortcut_new_task">新增任務</string>
     <string name="shortcut_pin">固定至主畫面</string>
-    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_preset">Three Stove Agent: %1$s</string>
     <string name="shortcut_review">捷徑開啟此預設與可選的目標草稿供核對. 點擊開始任務後才執行.</string>
     <string name="step_ask">提出了問題</string>
     <string name="step_done">已完成</string>

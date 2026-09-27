@@ -3,17 +3,17 @@
 <div align="center">
   <p>
     <picture>
-      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
-      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-ai-agent-ic-launcher" border="0" width="128" />
+      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
+      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-three-stove-agent-ic-launcher" border="0" width="128" />
     </picture>
   </p>
 
   <p>ينفذ مهاما بلغة طبيعية في AutoJs6 عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-AI-Agent?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=534BAE&label=License"/></a>
   </p>
 </div>
 
@@ -25,15 +25,15 @@
 
 يدعم README.md الحالي اللغات التالية:
 
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hans.md)
-- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-HK.md)
-- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ru.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hans.md)
+- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-HK.md)
+- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ru.md)
 - العربية [ar] # الحالي
 
 ******
@@ -42,9 +42,9 @@
 
 ******
 
-يحول AI Agent هدفا بلغة طبيعية إلى إجراءات على جهاز Android يعمل عليه AutoJs6. فإما أن يختار سكربتا سجله المستخدم لاستخدام الوكيل, ويكمل معاملاته ويشغله; وإما أن يراقب الشاشة عبر شجرة عقد إمكانية الوصول ويتصرف خطوة بخطوة (مراقبة, قرار, تنفيذ, تحقق) حتى يتحقق الهدف, أو يلزم تأكيد, أو تنفد الميزانية. وهو يجيب على [نقاش AutoJs6 رقم 577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+يحول Three Stove Agent هدفا بلغة طبيعية إلى إجراءات على جهاز Android يعمل عليه AutoJs6. فإما أن يختار سكربتا سجله المستخدم لاستخدام الوكيل, ويكمل معاملاته ويشغله; وإما أن يراقب الشاشة عبر شجرة عقد إمكانية الوصول ويتصرف خطوة بخطوة (مراقبة, قرار, تنفيذ, تحقق) حتى يتحقق الهدف, أو يلزم تأكيد, أو تنفد الميزانية. وهو يجيب على [نقاش AutoJs6 رقم 577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-يوفر AI Agent لوحة مهام مستقلة وإضافة AutoJs6 عبر ai.agent. تمر إجراءات الجهاز المدمجة واستدعاءات النموذج عبر المضيف. تتصل أدوات MCP الاختيارية بالخوادم التي يحددها المستخدم فقط. لا يوجد ربط مباشر بموفر النموذج ولا طلب لإذن إمكانية الوصول.
+يوفر Three Stove Agent لوحة مهام مستقلة وإضافة AutoJs6 عبر ai.agent. تمر إجراءات الجهاز المدمجة واستدعاءات النموذج عبر المضيف. تتصل أدوات MCP الاختيارية بالخوادم التي يحددها المستخدم فقط. لا يوجد ربط مباشر بموفر النموذج ولا طلب لإذن إمكانية الوصول.
 
 ******
 
@@ -52,7 +52,7 @@
 
 ******
 
-الإصدار 1.2.0 قيد التطوير يوفر أدوات MCP اختيارية والاستدعاءات الأصلية ولقطات الشاشة والنصوص المولدة. اجتاز AiGoCode gpt-5.6-sol اختباري الصورة الأولية والصورة في نتيجة الأداة ضمن P9.2. P9.1 أكمل تشغيل Wi-Fi وقراءة حالته مجددا عبر مساري JSON والاستدعاءات الأصلية, مع تعطيل الاتصال التلقائي بنقطة الوصول الحالية مؤقتا والوصول إلى النموذج عبر بيانات الهاتف وVPN. لا تزال حالات الفشل بعد تبديل شبكة VPN عند الاتصال التلقائي الافتراضي دون حل; راجع [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+الإصدار 1.2.0 قيد التطوير يوفر أدوات MCP اختيارية والاستدعاءات الأصلية ولقطات الشاشة والنصوص المولدة. اجتاز AiGoCode gpt-5.6-sol اختباري الصورة الأولية والصورة في نتيجة الأداة ضمن P9.2. P9.1 أكمل تشغيل Wi-Fi وقراءة حالته مجددا عبر مساري JSON والاستدعاءات الأصلية, مع تعطيل الاتصال التلقائي بنقطة الوصول الحالية مؤقتا والوصول إلى النموذج عبر بيانات الهاتف وVPN. لا تزال حالات الفشل بعد تبديل شبكة VPN عند الاتصال التلقائي الافتراضي دون حل; راجع [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -74,13 +74,13 @@
 
 ### لقطات الواجهة
 
-واجهة إنجليزية فعلية على Android API 37.1 بمهام تجريبية ونموذج ذي ردود محددة مسبقا. الصور توضح الواجهة ولا تثبت نجاح مهام بنموذج حقيقي. لا تتضمن بيانات حسابات خاصة. [طريقة الالتقاط](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+واجهة إنجليزية فعلية على Android API 37.1 بمهام تجريبية ونموذج ذي ردود محددة مسبقا. الصور توضح الواجهة ولا تثبت نجاح مهام بنموذج حقيقي. لا تتضمن بيانات حسابات خاصة. [طريقة الالتقاط](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/README.md).
 
 | لوحة المهام | تفاصيل المهمة |
 | --- | --- |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="لوحة المهام" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="تفاصيل المهمة" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/workbench.png?raw=true" alt="لوحة المهام" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/detail.png?raw=true" alt="تفاصيل المهمة" width="288" /> |
 | تأكيد الإجراء | إدخال المهمة العائم |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="تأكيد الإجراء" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="إدخال المهمة العائم" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="تأكيد الإجراء" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/floating.png?raw=true" alt="إدخال المهمة العائم" width="288" /> |
 
 ******
 
@@ -88,22 +88,22 @@
 
 ******
 
-1. ثبت ملف APK للمكون الإضافي من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) على جهاز به AutoJs6 بالبناء 5293 أو أحدث.
-2. افتح مركز المكونات الإضافية في AutoJs6, وتأكد من التعرف على `AI Agent`, ثم فعله. تجتاز حزم الإصدار الرسمية التحقق من التوقيع تلقائيا.
+1. ثبت ملف APK للمكون الإضافي من [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) على جهاز به AutoJs6 بالبناء 5293 أو أحدث.
+2. افتح مركز المكونات الإضافية في AutoJs6, وتأكد من التعرف على `Three Stove Agent`, ثم فعله. تجتاز حزم الإصدار الرسمية التحقق من التوقيع تلقائيا.
 
-ثبت وفعل [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI) ثم اضبط نموذجا عبر الإنترنت أو استورد نموذجا محليا مدعوما فيه. يختار وسيط المضيف الحالي 3-Stone AI; يحتاج أي Provider آخر إلى تكامل في المضيف. اختر النموذج من كبسولة النموذج في الشاشة الرئيسية لـ AI Agent. يظهر هناك شريط تنبيه فقط ما دام AutoJs6 غير متصل.
+ثبت وفعل [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI) ثم اضبط نموذجا عبر الإنترنت أو استورد نموذجا محليا مدعوما فيه. يختار وسيط المضيف الحالي 3-Stone AI; يحتاج أي Provider آخر إلى تكامل في المضيف. اختر النموذج من كبسولة النموذج في الشاشة الرئيسية لـ Three Stove Agent. يظهر هناك شريط تنبيه فقط ما دام AutoJs6 غير متصل.
 
 ### التوافق
 
-Android 7.0+ (API 24). يتطلب الاتصال AutoJs6 6.8.0 / build 5289+; تتطلب واجهة المهام الكاملة وهذا المثال build 5293+. استخدم بناء للمضيف يتضمن تغييرات Agent. تتطلب عمليات الشاشة خدمة تسهيل الاستخدام في المضيف, ويبدأها Agent أولا بالطريقة التلقائية المضبوطة في AutoJs6 (Root أو الإعدادات الآمنة أو Shizuku) ولا يطلب تفعيلها يدويا إلا عند الفشل. OCR اختياري ويتطلب إضافة مثبتة ومصرحا بها يبلغ المضيف بتوفرها. لا يحتفظ AI Agent ببيانات اعتماد النموذج ولا يملك خدمة تسهيل استخدام مستقلة.
+Android 7.0+ (API 24). يتطلب الاتصال AutoJs6 6.8.0 / build 5289+; تتطلب واجهة المهام الكاملة وهذا المثال build 5293+. استخدم بناء للمضيف يتضمن تغييرات Agent. تتطلب عمليات الشاشة خدمة تسهيل الاستخدام في المضيف, ويبدأها Agent أولا بالطريقة التلقائية المضبوطة في AutoJs6 (Root أو الإعدادات الآمنة أو Shizuku) ولا يطلب تفعيلها يدويا إلا عند الفشل. OCR اختياري ويتطلب إضافة مثبتة ومصرحا بها يبلغ المضيف بتوفرها. لا يحتفظ Three Stove Agent ببيانات اعتماد النموذج ولا يملك خدمة تسهيل استخدام مستقلة.
 
 ### البدء من الواجهة
 
-افتح AI Agent واتصل بـ AutoJs6, ثم أدخل الهدف وابدأ. تختار كبسولة النموذج في الشاشة الرئيسية نموذجا محليا أو عبر الإنترنت أو الوضع التلقائي (نموذج على الجهاز أولا, وإلا فأول نموذج متاح). ابحث في النماذج وثبت المفضلة وأعد استخدام الأخيرة, وتعرض الشارات دعم استدعاء الأدوات وإدخال الصور المعلن. تشترك لوحة المهام والكرة العائمة في هذا الاختيار للمهام الجديدة دون تعديل الإعدادات المسبقة أو المهمة الجارية, ولم تعد الإعدادات المسبقة تتضمن نموذجا. تختار شريحة الإعداد المسبق في منطقة الكتابة إعدادا مسبقا اختياريا. أجب عن الأسئلة وتابع التقدم في بطاقة المهمة.
+افتح Three Stove Agent واتصل بـ AutoJs6, ثم أدخل الهدف وابدأ. تختار كبسولة النموذج في الشاشة الرئيسية نموذجا محليا أو عبر الإنترنت أو الوضع التلقائي (نموذج على الجهاز أولا, وإلا فأول نموذج متاح). ابحث في النماذج وثبت المفضلة وأعد استخدام الأخيرة, وتعرض الشارات دعم استدعاء الأدوات وإدخال الصور المعلن. تشترك لوحة المهام والكرة العائمة في هذا الاختيار للمهام الجديدة دون تعديل الإعدادات المسبقة أو المهمة الجارية, ولم تعد الإعدادات المسبقة تتضمن نموذجا. تختار شريحة الإعداد المسبق في منطقة الكتابة إعدادا مسبقا اختياريا. أجب عن الأسئلة وتابع التقدم في بطاقة المهمة.
 
 ### البدء من سكربت
 
-شغل JavaScript التالي في AutoJs6 بعد اتصال AI Agent وإعداد نموذج. تتولى واجهة الإضافة الأسئلة والتأكيدات. لاستخدام إعداد محفوظ أضف `preset: "your-preset-name"` إلى الخيارات.
+شغل JavaScript التالي في AutoJs6 بعد اتصال Three Stove Agent وإعداد نموذج. تتولى واجهة الإضافة الأسئلة والتأكيدات. لاستخدام إعداد محفوظ أضف `preset: "your-preset-name"` إلى الخيارات.
 
 ```javascript
 let run = ai.agent.run('اقرأ إصدار Android وأبلغ بالقيمة المرصودة.', {
@@ -134,7 +134,7 @@ run.result.then(
  * @timeout 10000
  */
 let context = ai.agent.context();
-if (!context) throw Error('Start this registered script through AI Agent');
+if (!context) throw Error('Start this registered script through Three Stove Agent');
 let text = new java.lang.String(context.parameters.text);
 ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 ```
@@ -241,14 +241,14 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 - قائمة الأذونات: org.autojs.permission.PLUGIN (مداخل عقد المضيف), FOREGROUND_SERVICE و FOREGROUND_SERVICE_SPECIAL_USE (خدمة المقدمة أثناء تشغيل مهمة), POST_NOTIFICATIONS (إشعارات التأكيد والتقدم في الخلفية), INTERNET (التحقق اليدوي أو التلقائي من إصدارات GitHub والاتصال بخوادم MCP التي يضبطها المستخدم), ACCESS_LOCAL_NETWORK (يطلب فقط من إعدادات MCP على Android 17+), SYSTEM_ALERT_WINDOW (يطلب فقط عند تفعيل الكرة العائمة في الإعدادات). لا تطلب أذونات إمكانية الوصول أو التخزين أو الميكروفون, ولا يمر تدفق النموذج عبر الإضافة أبدا.
 - تحمي صلاحية التوقيع org.autojs.permission.PLUGIN مداخل عقد Binder. المشغل (بما فيه الاختصارات) وهدف المشاركة text/plain ACTION_SEND عامان ويقبلان مسودات هدف وإعداد مسبق محدودة فقط. لا يمكن لـ Intent خارجي تنفيذ المهام أو تأكيدها أو تغيير الصلاحيات. تبقى الإعدادات والنتائج الصوتية والتحكم خاصة.
-- يوفر AI Agent لوحة مهام مستقلة وإضافة AutoJs6 عبر ai.agent. تمر إجراءات الجهاز المدمجة واستدعاءات النموذج عبر المضيف. تتصل أدوات MCP الاختيارية بالخوادم التي يحددها المستخدم فقط. لا يوجد ربط مباشر بموفر النموذج ولا طلب لإذن إمكانية الوصول.
+- يوفر Three Stove Agent لوحة مهام مستقلة وإضافة AutoJs6 عبر ai.agent. تمر إجراءات الجهاز المدمجة واستدعاءات النموذج عبر المضيف. تتصل أدوات MCP الاختيارية بالخوادم التي يحددها المستخدم فقط. لا يوجد ربط مباشر بموفر النموذج ولا طلب لإذن إمكانية الوصول.
 - تبقى بيانات اعتماد النموذج لدى Provider وتمر استدعاءاته عبر AutoJs6. تشفر رموز MCP Bearer باستخدام Android Keystore في التخزين الخاص ولا تدرج في مطالبات النموذج أو تصدير السجل. يستخدم INTERNET أيضا للخوادم المكونة. يطلب إذن الشبكة المحلية في Android 17+ من إعدادات MCP. مستوى الخطر الأولي لكل خادم هو SENSITIVE. الإلغاء لا يتراجع عن الإجراءات البعيدة ولا تعاد الاستدعاءات الفاشلة تلقائيا.
 - يبقى سجل المهام والإعدادات المسبقة وذاكرة التفضيلات في التخزين الخاص بالمكون الإضافي; والنسخ الاحتياطي ونقل الجهاز معطلان.
 - ترسل اللقطات عبر AutoJs6 إلى النموذج المختار الذي قد يعمل عبر الإنترنت. يجب أن تكون الشاشة نشطة وغير مقفلة. يحتفظ السجل بالأبعاد وعدد البايتات دون محتوى الصور. تحتفظ قرارات JSON بالصورة الحالية حتى تحل محلها ملاحظة أو إجابة أخرى. تحتفظ المحادثات الأصلية بالصور السابقة ضمن حدود الدفعة والجلسة مع حجز رموزها مجددا في كل جولة.
 - تعمل السكربتات المولدة بصلاحيات AutoJs6 دون بيئة JavaScript معزولة, وقد تتجاوز مجموعات الأدوات المفعلة. يحفظ المصدر الكامل في الخطوات الخاصة وفق قواعد حذف كلمات المرور والاحتفاظ بالسجل. لا يمكن حفظ المصدر المعدل بعد اكتشاف كلمة مرور على أنه السكربت الأصلي. راجع ملفات .js قبل مشاركتها.
 - لا يفعل الوصول الكامل إلا من الإعدادات الخاصة بالإضافة, ولا يمكن لمخرجات النموذج أو محتوى الشاشة أو طلبات السكربتات أو Intent خارجي تفعيله أو توسيعه. يتخطى تأكيدات الأدوات المفعلة بما فيها الدفع, لكنه لا يفعل مجموعات إضافية ولا يخفف الميزانيات أو منح المضيف. يبدأ المضيف خدمة تسهيل الاستخدام بالطريقة المضبوطة في AutoJs6, ولا تطلب الإضافة نفسها أي إذن لتسهيل الاستخدام.
 
-احصل على المكون الإضافي فقط من صفحة [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) الرسمية أو من مركز المكونات الإضافية في AutoJs6. قد تفشل الحزم من مصادر غير معروفة في التحقق من المضيف أو تحمل مخاطر حتى لو بدا رقم الإصدار متطابقا.
+احصل على المكون الإضافي فقط من صفحة [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) الرسمية أو من مركز المكونات الإضافية في AutoJs6. قد تفشل الحزم من مصادر غير معروفة في التحقق من المضيف أو تحمل مخاطر حتى لو بدا رقم الإصدار متطابقا.
 
 ******
 
@@ -259,7 +259,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 المعلومات التالية موجهة لمطوري مضيف AutoJs6 والمكونات الإضافية; يستخدم المضيف هذه المعرفات لاكتشاف المكون الإضافي والتفاوض على التوافق:
 
 ```text
-application id: io.github.supermonster003.autojs6.plugin.ai.agent
+application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
 plugin id: ai-agent
 engine: ai-agent
 variant: default
@@ -271,7 +271,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5289 (6.8.0)
 ```
 
-`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: اتصال يتحقق من هوية المضيف مع طابور المهام والرد والإلغاء والاستعلام وسجل خطوات خاص; تتوقف المهام عند فقد المضيف ولا تستأنف تلقائيا بعد إعادة تشغيل العملية.
+`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: اتصال يتحقق من هوية المضيف مع طابور المهام والرد والإلغاء والاستعلام وسجل خطوات خاص; تتوقف المهام عند فقد المضيف ولا تستأنف تلقائيا بعد إعادة تشغيل العملية.
 
 ******
 
@@ -281,7 +281,7 @@ minimum host build: 5289 (6.8.0)
 
 تدار خطط المكون الإضافي وتقدمه كقائمة قابلة للتحقق في ROADMAP.md, منظمة حسب المرحلة مع معايير القبول ومستويات الأدلة. تعبر البنود غير المحددة عن النية لا عن القدرات الحالية; والنقاش عبر Issues موضع ترحيب.
 
-- [عرض ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)
+- [عرض ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)
 
 ******
 
@@ -293,9 +293,10 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/27_
 
+- `تلميح` تمت إعادة تسمية التطبيق إلى Three Stove Agent: معرف التطبيق الآن io.github.supermonster003.autojs6.plugin.three.stove.agent والمستودع AutoJs6-Plugin-Three-Stove-Agent. الاسم القديم غير مدعوم: أزل AI Agent القديم قبل التثبيت; لا يتم ترحيل السجل والإعدادات المسبقة والذاكرة. معرف الإضافة ai-agent وإجراء الخدمة وحزمة AIDL تأتي من ملفات AAR لعقد AutoJs6 وسيتم استبدالها مع إعادة تسمية المضيف وإعادة قفل ملفات AAR.
 - `تلميح` الإصدار 1.2.0 قيد التطوير يوفر أدوات MCP اختيارية والاستدعاءات الأصلية ولقطات الشاشة والنصوص المولدة. اجتاز AiGoCode gpt-5.6-sol اختباري الصورة الأولية والصورة في نتيجة الأداة ضمن P9.2. P9.1 أكمل تشغيل Wi-Fi وقراءة حالته مجددا عبر مساري JSON والاستدعاءات الأصلية, مع تعطيل الاتصال التلقائي بنقطة الوصول الحالية مؤقتا والوصول إلى النموذج عبر بيانات الهاتف وVPN. لا تزال حالات الفشل بعد تبديل شبكة VPN عند الاتصال التلقائي الافتراضي دون حل; راجع ROADMAP.md.
 - `ميزة` أدوات MCP المختارة من خوادم محلية أو خارجية مع مستوى خطر لكل خادم ومجموعة mcp معطلة افتراضيا
-- `ميزة` افتح AI Agent واتصل بـ AutoJs6, ثم أدخل الهدف وابدأ. تختار كبسولة النموذج في الشاشة الرئيسية نموذجا محليا أو عبر الإنترنت أو الوضع التلقائي (نموذج على الجهاز أولا, وإلا فأول نموذج متاح). ابحث في النماذج وثبت المفضلة وأعد استخدام الأخيرة, وتعرض الشارات دعم استدعاء الأدوات وإدخال الصور المعلن. تشترك لوحة المهام والكرة العائمة في هذا الاختيار للمهام الجديدة دون تعديل الإعدادات المسبقة أو المهمة الجارية, ولم تعد الإعدادات المسبقة تتضمن نموذجا. تختار شريحة الإعداد المسبق في منطقة الكتابة إعدادا مسبقا اختياريا. أجب عن الأسئلة وتابع التقدم في بطاقة المهمة.
+- `ميزة` افتح Three Stove Agent واتصل بـ AutoJs6, ثم أدخل الهدف وابدأ. تختار كبسولة النموذج في الشاشة الرئيسية نموذجا محليا أو عبر الإنترنت أو الوضع التلقائي (نموذج على الجهاز أولا, وإلا فأول نموذج متاح). ابحث في النماذج وثبت المفضلة وأعد استخدام الأخيرة, وتعرض الشارات دعم استدعاء الأدوات وإدخال الصور المعلن. تشترك لوحة المهام والكرة العائمة في هذا الاختيار للمهام الجديدة دون تعديل الإعدادات المسبقة أو المهمة الجارية, ولم تعد الإعدادات المسبقة تتضمن نموذجا. تختار شريحة الإعداد المسبق في منطقة الكتابة إعدادا مسبقا اختياريا. أجب عن الأسئلة وتابع التقدم في بطاقة المهمة.
 - `ميزة` افتح الإعدادات من قائمة أعلى الشاشة الرئيسية. يطبق كل تغيير فورا دون زر حفظ: المظهر وأذونات التشغيل ومجموعات الأدوات وحدود المهمة (المدة بالدقائق) والإدخال الصوتي والكرة العائمة ومسح البيانات. يمكن للغة والوضع الداكن ولون السمة اتباع AutoJs6 أو استخدام تفضيلات مستقلة. يمكن للغة والوضع الداكن اتباع Android أيضا. سجل الإصدارات والإشعارات القانونية متاحان دون اتصال. يخزن الفحص اليدوي نتائج GitHub الناجحة لمدة 24 ساعة. الفحص التلقائي معطل افتراضيا. عند تمكينه يجري أثناء استخدام التطبيق فقط, مرة كل 12 ساعة كحد أقصى, دون تنبيه عند الفشل أو للإصدارات المتجاهلة ودون تنزيل APK. يمكن استعادة التنبيهات لكل إصدار من إدارة التحديثات المتجاهلة. تعرض صفحة حول الإصدار والمطور والشفرة المصدرية والترخيص وإشعارات الجهات الخارجية.
 - `ميزة` تبدأ مهام الشاشة أولا خدمة إمكانية الوصول بالطريقة التلقائية المضبوطة في AutoJs6 (Root أو الإعدادات الآمنة أو Shizuku). ولا تطلب بطاقة المهمة تفعيلها يدويا مع اختصار إلى إعدادات إمكانية الوصول إلا عند فشل ذلك أو عدم ضبطه.
 - `ميزة` أضيف الوصول الكامل إلى أذونات العمليات في الإعدادات: تعمل الأدوات المفعلة دون موافقة, بما فيها الدفع والحذف والبرامج النصية والكتابة في الذاكرة. لا يفعل مجموعات أدوات إضافية ولا يخفف الميزانيات أو صلاحيات المضيف. تعرض لوحة المهام والكرة العائمة والمهمة الحالية وتفاصيل السجل علامة واضحة بدلا من مربع حوار مزعج. تحتفظ المهام التي تطلب التأكيد الحذر صراحة بذلك.
@@ -330,9 +331,9 @@ _2026/09/26_
 
 _2026/09/25_
 
-- `تلميح` يوفر الإصدار 1.0.0 مهام باللغة الطبيعية واستدعاء البرامج النصية المسجلة وإجراءات الجهاز مع تأكيد حسب مستوى المخاطر. راجع [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md) للحالات التي تم التحقق منها وقيود النماذج واختبارات الأجهزة المتبقية. استدعاء الأدوات الأصلي والإدخال المرئي وتوليد البرامج النصية ديناميكيا مخطط لها في 1.1.0.
+- `تلميح` يوفر الإصدار 1.0.0 مهام باللغة الطبيعية واستدعاء البرامج النصية المسجلة وإجراءات الجهاز مع تأكيد حسب مستوى المخاطر. راجع [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) للحالات التي تم التحقق منها وقيود النماذج واختبارات الأجهزة المتبقية. استدعاء الأدوات الأصلي والإدخال المرئي وتوليد البرامج النصية ديناميكيا مخطط لها في 1.1.0.
 - `تلميح` يتطلب Android 7+ وAutoJs6 6.8.0 / build 5293+ لواجهة المهام, مع تفعيل 3-Stone AI وإعداد نموذج. OCR اختياري. بروتوكول الاتصال وحده يتطلب build 5289+ من المضيف.
-- `تلميح` ملاحظة توافق: امتداد أدوات المضيف الأصلي في AutoJs6 build 5297 متوافق مع هذا الإصدار. ينفذ مرشح التطوير 3-Stone AI 1.2.0 متابعة الأدوات المتصلة لثلاثة بروتوكولات. ما زال إصدار Agent هذا يستخدم قرارات JSON المنظمة; وتبقى حلقة الأدوات الأصلية ومقارنات المهام في [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+- `تلميح` ملاحظة توافق: امتداد أدوات المضيف الأصلي في AutoJs6 build 5297 متوافق مع هذا الإصدار. ينفذ مرشح التطوير 3-Stone AI 1.2.0 متابعة الأدوات المتصلة لثلاثة بروتوكولات. ما زال إصدار Agent هذا يستخدم قرارات JSON المنظمة; وتبقى حلقة الأدوات الأصلية ومقارنات المهام في [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 - `ميزة` لوحة مهام باللغة الطبيعية مع أسئلة وتقدم وإيقاف ونتائج; إدخال عائم اختياري ومشاركة نص واختصارات إعدادات مسبقة ومسودات صوتية
 - `ميزة` واجهة ai.agent لإنشاء المهام وأحداثها واستعلاماتها وردودها وإلغائها, بما يشمل المهام detached ونتائج وسياق السكربتات المسجلة
 - `ميزة` تسجيل سكربتات project.json / @agent مع بحث الفهرس والتحقق من المعاملات وقيمها الافتراضية وطلب الناقص والتأكيد والتنفيذ المحدود والنتائج المنظمة
@@ -371,7 +372,7 @@ _2026/09/25_
 
 ##### لمزيد من سجل الإصدارات
 
-* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-ar.md)
+* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-ar.md)
 
 ******
 
@@ -439,7 +440,7 @@ app/src/main/res/raw-*/plugin_instruction.md
 
 ******
 
-كود المشروع مرخص بموجب [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE). المكونات الخارجية وتراخيصها مدرجة في [إشعارات الجهات الخارجية](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md).
+كود المشروع مرخص بموجب [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE). المكونات الخارجية وتراخيصها مدرجة في [إشعارات الجهات الخارجية](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md).
 
 ******
 
@@ -450,4 +451,4 @@ app/src/main/res/raw-*/plugin_instruction.md
 - مشروع AutoJs6: https://github.com/SuperMonster003/AutoJs6
 - توثيق AutoJs6: https://docs.autojs6.com
 - نقاش AutoJs6 رقم 577: https://github.com/SuperMonster003/AutoJs6/discussions/577
-- إشعارات الجهات الخارجية: https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md
+- إشعارات الجهات الخارجية: https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md

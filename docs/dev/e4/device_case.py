@@ -75,7 +75,7 @@ def main():
             data = json.loads(snapshot.read_text(encoding="utf-8"))
             run_id = data.get("runId", "")
             if re.fullmatch(r"[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", run_id):
-                private = adb("exec-out", "run-as", "io.github.supermonster003.autojs6.plugin.ai.agent", "cat",
+                private = adb("exec-out", "run-as", "io.github.supermonster003.autojs6.plugin.three.stove.agent", "cat",
                               f"files/agent-runs/{run_id}.json", check=False)
                 try:
                     archive = json.loads(private.stdout)

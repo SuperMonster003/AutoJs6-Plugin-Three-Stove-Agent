@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Render the AI Agent launcher icons.
+"""Render the Three Stove Agent launcher icons.
 
 Outputs (all RGBA PNG, regenerated deterministically from this script):
   app/src/main/res/mipmap/ic_launcher.png              432 x 432 legacy icon (rounded square)

@@ -3,17 +3,17 @@
 <div align="center">
   <p>
     <picture>
-      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
-      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-ai-agent-ic-launcher" border="0" width="128" />
+      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
+      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-three-stove-agent-ic-launcher" border="0" width="128" />
     </picture>
   </p>
 
   <p>按自然语言目标在 AutoJs6 中选择已登记脚本并逐步操作界面完成任务</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-AI-Agent?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=534BAE&label=License"/></a>
   </p>
 </div>
 
@@ -26,15 +26,15 @@
 当前 README.md 支持以下语言:
 
 - 简体中文 [zh-Hans] # 当前
-- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-HK.md)
-- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ar.md)
+- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-HK.md)
+- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ar.md)
 
 ******
 
@@ -42,9 +42,9 @@
 
 ******
 
-AI Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+Three Stove Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
+Three Stove Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
 
 ******
 
@@ -52,7 +52,7 @@ AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 
 
 ******
 
-1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 JSON/原生路径均已完成 Wi-Fi 开启与状态回读: 测试时临时关闭当前热点的自动连接, 模型经蜂窝网络和 VPN 联网. 默认自动连接时 VPN 跨网络切换后的失败仍未解决. 证据见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 JSON/原生路径均已完成 Wi-Fi 开启与状态回读: 测试时临时关闭当前热点的自动连接, 模型经蜂窝网络和 VPN 联网. 默认自动连接时 VPN 跨网络切换后的失败仍未解决. 证据见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -74,13 +74,13 @@ AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 
 
 ### 界面截图
 
-以下为 Android API 37.1 上的真实英文界面, 使用专门的示例任务和预设响应的演示模型. 图片用于展示界面, 不作为真实模型任务成功的证据, 不含私人账户数据. [截图复现说明](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+以下为 Android API 37.1 上的真实英文界面, 使用专门的示例任务和预设响应的演示模型. 图片用于展示界面, 不作为真实模型任务成功的证据, 不含私人账户数据. [截图复现说明](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/README.md).
 
 | 任务台 | 任务详情 |
 | --- | --- |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="任务台" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="任务详情" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/workbench.png?raw=true" alt="任务台" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/detail.png?raw=true" alt="任务详情" width="288" /> |
 | 操作确认 | 悬浮任务输入 |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="操作确认" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="悬浮任务输入" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="操作确认" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/floating.png?raw=true" alt="悬浮任务输入" width="288" /> |
 
 ******
 
@@ -88,22 +88,22 @@ AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 
 
 ******
 
-1. 在安装了 AutoJs6 构建 5293 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 安装插件 APK.
-2. 打开 AutoJs6 插件中心, 确认 `AI Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
+1. 在安装了 AutoJs6 构建 5293 或更高版本的设备上, 从 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) 安装插件 APK.
+2. 打开 AutoJs6 插件中心, 确认 `Three Stove Agent` 已被识别并启用它. 官方发布包会自动通过签名校验.
 
-安装并启用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中配置在线模型或导入受支持的本地模型. 当前宿主模型代理选择 3-Stone AI, 其他 Provider 需要宿主完成接入后才能使用. 在 AI Agent 主页点击模型胶囊选择模型. 仅在未连接 AutoJs6 时, 主页才会显示连接提示.
+安装并启用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中配置在线模型或导入受支持的本地模型. 当前宿主模型代理选择 3-Stone AI, 其他 Provider 需要宿主完成接入后才能使用. 在 Three Stove Agent 主页点击模型胶囊选择模型. 仅在未连接 AutoJs6 时, 主页才会显示连接提示.
 
 ### 兼容性
 
-支持 Android 7.0+ (API 24). 宿主附着要求 AutoJs6 6.8.0 / build 5289+, 完整任务 API 与本快速开始要求 build 5293+. 请使用包含 Agent 改动的宿主构建. 屏幕操作需要宿主的无障碍服务; Agent 会先通过 AutoJs6 已配置的免打扰方式 (Root, 安全设置或 Shizuku) 自动启动, 仅在失败时提示手动开启. OCR 为可选能力, 需要安装并授权 OCR 插件, 且宿主报告其可用. AI Agent 本身不保存模型凭据, 不提供独立无障碍服务.
+支持 Android 7.0+ (API 24). 宿主附着要求 AutoJs6 6.8.0 / build 5289+, 完整任务 API 与本快速开始要求 build 5293+. 请使用包含 Agent 改动的宿主构建. 屏幕操作需要宿主的无障碍服务; Agent 会先通过 AutoJs6 已配置的免打扰方式 (Root, 安全设置或 Shizuku) 自动启动, 仅在失败时提示手动开启. OCR 为可选能力, 需要安装并授权 OCR 插件, 且宿主报告其可用. Three Stove Agent 本身不保存模型凭据, 不提供独立无障碍服务.
 
 ### 界面快速开始
 
-打开 AI Agent 并连接 AutoJs6, 输入目标并开始任务. 主页的模型胶囊可选择在线或本地模型, 或选择自动 (优先本地模型, 否则使用第一个可用模型). 模型列表支持搜索, 置顶常用模型和复用最近使用的模型, 标签显示已声明的工具调用与图片输入能力. 任务台与悬浮球的新任务共用这一选择, 不修改预设或正在运行的任务, 预设也不再包含模型. 输入栏中的预设标签用于选择可选的预设. 在任务卡片中回答问题并查看进展.
+打开 Three Stove Agent 并连接 AutoJs6, 输入目标并开始任务. 主页的模型胶囊可选择在线或本地模型, 或选择自动 (优先本地模型, 否则使用第一个可用模型). 模型列表支持搜索, 置顶常用模型和复用最近使用的模型, 标签显示已声明的工具调用与图片输入能力. 任务台与悬浮球的新任务共用这一选择, 不修改预设或正在运行的任务, 预设也不再包含模型. 输入栏中的预设标签用于选择可选的预设. 在任务卡片中回答问题并查看进展.
 
 ### 脚本快速开始
 
-连接 AI Agent 并配置模型后, 在 AutoJs6 中运行以下 JavaScript. 询问与确认由插件界面承接. 如需使用已保存的配置, 在选项中加入 `preset: "your-preset-name"`.
+连接 Three Stove Agent 并配置模型后, 在 AutoJs6 中运行以下 JavaScript. 询问与确认由插件界面承接. 如需使用已保存的配置, 在选项中加入 `preset: "your-preset-name"`.
 
 ```javascript
 let run = ai.agent.run('读取 Android 版本, 根据实际观察结果报告.', {
@@ -134,7 +134,7 @@ run.result.then(
  * @timeout 10000
  */
 let context = ai.agent.context();
-if (!context) throw Error('Start this registered script through AI Agent');
+if (!context) throw Error('Start this registered script through Three Stove Agent');
 let text = new java.lang.String(context.parameters.text);
 ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 ```
@@ -215,7 +215,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 前台在任务台回答, 后台从高优先级通知打开对应请求. 确认页显示工具, 参数, 风险及剩余时间. 当前会话始终允许在本次任务结束前放行同一工具的同级风险操作, 也适用于后续记忆提议或生成源码; 付款需单独授权. "记住此答案" 在允许的记忆作用域内生成单独的 memory_propose 供审阅. 确认通常等待 120 秒, 询问最多 10 分钟, 均受任务预算限制. 超时返回 USER_TIMEOUT, 由模型决定再次询问或报告部分完成. 旧请求无法回答新请求. 后台提醒受通知权限和频道设置影响.
 - 从任务台打开 "设置", 选择工具组, 预算, 操作权限 (标准, 审慎或完全访问), 语音输入和默认预设. 每项修改即时保存, 对新任务生效. 完全访问让已启用的工具 (含付款) 免确认执行, 开启期间任务台, 悬浮球和历史详情会显示警示标注. gesture/files/shell/script_dynamic 初始关闭, OCR 还需宿主提供可用且授权的插件. 任务限制设为自动时沿用初始默认值, 时长以分钟填写, 设置值受协议硬上限约束, 预设与单次参数只能继续收紧. 数据管理显示条数与字节占用, 按类别清除须确认且不能有运行中任务; 清除预设后恢复内置 default. 预设, 记忆, 脚本目录与 MCP 服务器也可从设置进入.
 - 从主页右上角菜单打开设置. 语言, 暗色模式与主题色可跟随 AutoJs6 或独立配置, 语言与暗色模式也可跟随系统. 版本历史和法律声明内置, 可离线阅读. 手动 GitHub 更新检查缓存成功结果 24 小时. 自动检查默认关闭, 开启后仅在应用使用期间每 12 小时最多尝试一次, 失败或遇到已忽略版本时保持安静, 不自动下载 APK. 管理已忽略更新可逐项恢复版本提醒. 关于页面展示版本, 开发者, 源代码, 许可证与第三方声明.
-- 在设置中开启悬浮球, 并授权显示在其他应用上层. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 AI Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
+- 在设置中开启悬浮球, 并授权显示在其他应用上层. 默认关闭, 仅在 AutoJs6 已连接时显示, 锁屏或断开时隐藏, 空闲时不维持前台服务. 可拖动调整位置, 点击输入目标并选择预设, 查看询问或确认, 停止任务. 收起卡片后恢复后台确认通知. 可将纯文本分享到 Three Stove Agent, 使用新建任务快捷方式, 或在预设页将预设及可选固定目标固定到桌面. 所有入口先显示可编辑草稿, 点击开始任务才执行. 预设已删除时不静默回退. 语音使用跟随界面语言的系统识别器, 不可用时隐藏, 结果只回填不自动发送.
 
 ### 常见问题
 
@@ -241,14 +241,14 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 - 权限清单: org.autojs.permission.PLUGIN (宿主契约入口), FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE (任务运行期间的前台服务), POST_NOTIFICATIONS (后台确认与进度通知), INTERNET (手动或自动检查 GitHub 发行版本, 以及连接用户配置的 MCP 服务器), ACCESS_LOCAL_NETWORK (Android 17+ 仅从 MCP 设置主动申请), SYSTEM_ALERT_WINDOW (仅在设置中开启悬浮球时申请). 不申请无障碍, 存储或麦克风权限, 模型流量不经过插件.
 - Binder 契约入口受 org.autojs.permission.PLUGIN 签名权限保护. 启动器 (也用于快捷方式) 和 text/plain ACTION_SEND 分享目标为公开入口, 只接受有界的目标/预设草稿. 外部 Intent 不能执行任务, 提交确认或改变授权. 设置, 语音结果与任务控制入口均不导出.
-- AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
+- Three Stove Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
 - 模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.
 - 任务历史, 预设与偏好记忆只保存在插件私有存储; 备份与设备迁移已禁用.
 - 截图经 AutoJs6 发送到所选模型, 该模型可能在线运行. 截图要求屏幕已解锁且处于唤醒状态. 步骤历史只保存尺寸和字节数等元数据, 不保存图片内容. JSON 决策保留当前图片, 直到其他观察或用户回答替换它; 原生会话在每批和会话限额内保留已有图片, 每轮重新预留相应 token.
 - 生成的脚本以 AutoJs6 权限运行, 不受 JavaScript 沙箱隔离, 可执行已启用工具组之外的操作. 完整源码保存在私有步骤中, 仍遵守既有密码脱敏及历史保留规则. 后续密码脱敏改变的源码无法作为原始脚本保存. 分享 .js 前请检查内容.
 - 完全访问只能在插件私有设置中开启, 模型输出, 屏幕内容, 脚本请求与外部 Intent 都无法开启或扩大它. 它对已启用的工具 (含付款) 免确认, 但不开启额外工具组, 也不放宽预算与宿主授权. 无障碍由宿主按 AutoJs6 已配置的方式启动, 插件本身仍不申请无障碍权限.
 
-请只从官方 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.
+请只从官方 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) 页面或 AutoJs6 插件中心获取插件. 来源不明的安装包即使版本号相同, 也可能无法通过宿主校验或带来风险.
 
 ******
 
@@ -259,7 +259,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 以下信息面向 AutoJs6 宿主与插件开发者; 宿主使用这些标识发现插件并协商兼容性:
 
 ```text
-application id: io.github.supermonster003.autojs6.plugin.ai.agent
+application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
 plugin id: ai-agent
 engine: ai-agent
 variant: default
@@ -271,7 +271,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5289 (6.8.0)
 ```
 
-`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.
+`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 经身份校验的宿主连接, 支持任务排队, 应答, 取消, 查询与私有步骤记录; 宿主断开时任务阻塞, 进程重建后不会自动续跑.
 
 ******
 
@@ -281,7 +281,7 @@ minimum host build: 5289 (6.8.0)
 
 插件的规划与进度以可勾选清单的形式维护在 ROADMAP.md 中, 按阶段组织并附有验收条件与证据等级. 未勾选条目表达的是意图而非当前能力; 欢迎通过 Issues 讨论.
 
-- [查看 ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)
+- [查看 ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)
 
 ******
 
@@ -293,9 +293,10 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/27_
 
+- `提示` 应用已更名为 Three Stove Agent: 应用 ID 改为 io.github.supermonster003.autojs6.plugin.three.stove.agent, 仓库改为 AutoJs6-Plugin-Three-Stove-Agent. 不兼容旧名称: 请先卸载旧的 AI Agent 再安装, 历史, 预设与记忆不会迁移. 插件 ID ai-agent, 服务 action 与 AIDL 包名由 AutoJs6 契约 AAR 决定, 将随宿主更名并换锁后一并替换.
 - `提示` 1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 JSON/原生路径均已完成 Wi-Fi 开启与状态回读: 测试时临时关闭当前热点的自动连接, 模型经蜂窝网络和 VPN 联网. 默认自动连接时 VPN 跨网络切换后的失败仍未解决. 证据见 ROADMAP.md.
 - `新增` 本机或外部 MCP 服务器的选定工具, 按服务器设置风险等级, mcp 工具组默认关闭
-- `新增` 打开 AI Agent 并连接 AutoJs6, 输入目标并开始任务. 主页的模型胶囊可选择在线或本地模型, 或选择自动 (优先本地模型, 否则使用第一个可用模型). 模型列表支持搜索, 置顶常用模型和复用最近使用的模型, 标签显示已声明的工具调用与图片输入能力. 任务台与悬浮球的新任务共用这一选择, 不修改预设或正在运行的任务, 预设也不再包含模型. 输入栏中的预设标签用于选择可选的预设. 在任务卡片中回答问题并查看进展.
+- `新增` 打开 Three Stove Agent 并连接 AutoJs6, 输入目标并开始任务. 主页的模型胶囊可选择在线或本地模型, 或选择自动 (优先本地模型, 否则使用第一个可用模型). 模型列表支持搜索, 置顶常用模型和复用最近使用的模型, 标签显示已声明的工具调用与图片输入能力. 任务台与悬浮球的新任务共用这一选择, 不修改预设或正在运行的任务, 预设也不再包含模型. 输入栏中的预设标签用于选择可选的预设. 在任务卡片中回答问题并查看进展.
 - `新增` 从主页右上角菜单打开设置. 外观, 操作权限, 工具组, 任务限制 (时长以分钟计), 语音输入, 悬浮球与数据清理均即时生效, 无需保存按钮. 语言, 暗色模式与主题色可跟随 AutoJs6 或独立配置, 语言与暗色模式也可跟随系统. 版本历史和法律声明内置, 可离线阅读. 手动 GitHub 更新检查缓存成功结果 24 小时. 自动检查默认关闭, 开启后仅在应用使用期间每 12 小时最多尝试一次, 失败或遇到已忽略版本时保持安静, 不自动下载 APK. 管理已忽略更新可逐项恢复版本提醒. 关于页面展示版本, 开发者, 源代码, 许可证与第三方声明.
 - `新增` 界面任务需要无障碍时, 先使用 AutoJs6 中已配置的免打扰启动方式 (Root, 安全设置或 Shizuku). 仅在自动启动失败或未配置时, 任务卡片才提示手动开启并提供无障碍设置入口.
 - `新增` 设置中的操作权限新增完全访问: 已启用的工具 (含付款, 删除, 脚本与记忆写入) 免确认执行. 它不会开启额外工具组, 也不放宽预算或宿主权限. 任务台, 悬浮球, 当前任务与历史详情以醒目文字标注, 不弹出打扰对话框. 显式要求审慎确认的任务仍按审慎模式运行.
@@ -330,9 +331,9 @@ _2026/09/26_
 
 _2026/09/25_
 
-- `提示` 1.0.0 提供自然语言任务, 已登记脚本调用与分级确认的设备操作. 已通过用例, 模型限制与待补设备验收见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). 原生工具调用, 视觉输入与动态脚本生成计划于 1.1.0 支持.
+- `提示` 1.0.0 提供自然语言任务, 已登记脚本调用与分级确认的设备操作. 已通过用例, 模型限制与待补设备验收见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md). 原生工具调用, 视觉输入与动态脚本生成计划于 1.1.0 支持.
 - `提示` 要求 Android 7+, AutoJs6 6.8.0 / build 5293+ 以使用任务 API, 并启用已配置模型的 3-Stone AI 插件. OCR 为可选项. 仅附着协议的最低宿主为 build 5289+.
-- `提示` 兼容提示: AutoJs6 build 5297 的原生工具代理扩展与本版本兼容. 3-Stone AI 1.2.0 开发候选版已实现在线三协议工具续轮; 本 Agent 版本仍使用结构化 JSON 决策, 原生循环接入与实测对比见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+- `提示` 兼容提示: AutoJs6 build 5297 的原生工具代理扩展与本版本兼容. 3-Stone AI 1.2.0 开发候选版已实现在线三协议工具续轮; 本 Agent 版本仍使用结构化 JSON 决策, 原生循环接入与实测对比见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 - `新增` 自然语言任务台支持内联询问, 进度, 停止和结果, 提供可选悬浮输入, 文本分享, 预设快捷方式与语音草稿
 - `新增` ai.agent 脚本 API 支持创建任务, 事件, 查询, 回应与取消, 包括 detached 任务及登记脚本的结果/上下文访问
 - `新增` project.json / @agent 登记脚本支持目录搜索, 参数校验与默认值, 缺失值询问, 执行确认, 有界执行及结构化结果
@@ -371,7 +372,7 @@ _2026/09/25_
 
 ##### 更多发行历史
 
-* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hans.md)
+* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hans.md)
 
 ******
 
@@ -439,7 +440,7 @@ app/src/main/res/raw-*/plugin_instruction.md
 
 ******
 
-项目代码基于 [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE) 授权. 第三方组件及其许可证列于 [第三方声明](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md).
+项目代码基于 [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE) 授权. 第三方组件及其许可证列于 [第三方声明](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md).
 
 ******
 
@@ -450,4 +451,4 @@ app/src/main/res/raw-*/plugin_instruction.md
 - AutoJs6 项目: https://github.com/SuperMonster003/AutoJs6
 - AutoJs6 文档: https://docs.autojs6.com
 - AutoJs6 讨论 #577: https://github.com/SuperMonster003/AutoJs6/discussions/577
-- 第三方声明: https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md
+- 第三方声明: https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md

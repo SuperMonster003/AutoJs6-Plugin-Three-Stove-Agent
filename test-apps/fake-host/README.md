@@ -2,7 +2,7 @@
 
 This debug-only, `testOnly` module is a minimal host with the **real host application ID** `org.autojs.autojs6`, version 5289 and the same optional local signer as the Agent. It exercises the production installed-package/version/signer verifier without a debug bypass or any production API change. It has no network, accessibility, storage or device-action permission. The test control service is unexported and runs in `:broker`, separately from instrumentation.
 
-Install only in a new disposable AVD named `AI_Agent_Conformance_*` with a separate data directory. Do not install over AutoJs6 or on a physical device. `run_conformance.py` checks the emulator identity, AVD name and installed host version before any install, and refuses a real host. The runner does not uninstall or clear applications. The module disables release variants and is not part of plugin distribution.
+Install only in a new disposable AVD named `Three_Stove_Agent_Conformance_*` with a separate data directory. Do not install over AutoJs6 or on a physical device. `run_conformance.py` checks the emulator identity, AVD name and installed host version before any install, and refuses a real host. The runner does not uninstall or clear applications. The module disables release variants and is not part of plugin distribution.
 
 Build using the repository JDK and vendor flags:
 
@@ -15,7 +15,7 @@ The twelve tests cover real attach/start/cancel/detach, refusal to widen an atta
 
 For R8 validation, assemble the release Agent and use `run_conformance.py --release-plugin` with the same AVD checks. Build both APKs in an isolated checkout using the standard Android test key, never the production signer for the fake host. The external instrumentation targets the fake-host APK and drives the release Agent through Binder; it does not load debug tests into an R8 application. The APK version is read from `version.properties`. This mode leaves all production package, version and signer checks enabled.
 
-GitHub Actions also uses a fresh `AI_Agent_Conformance_CI_*` AVD for the full
+GitHub Actions also uses a fresh `Three_Stove_Agent_Conformance_CI_*` AVD for the full
 Agent instrumentation suite. After assembling the fake host and Agent debug
 APKs, `run_conformance.py --prepare-only` applies the same installation guards,
 installs the two APKs, keeps the disposable device awake and unlocked, and

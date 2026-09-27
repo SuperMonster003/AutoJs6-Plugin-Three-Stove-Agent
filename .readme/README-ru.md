@@ -3,17 +3,17 @@
 <div align="center">
   <p>
     <picture>
-      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
-      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-ai-agent-ic-launcher" border="0" width="128" />
+      <source srcset="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap-night/ic_launcher.png?raw=true" media="(prefers-color-scheme: dark)" />
+      <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-three-stove-agent-ic-launcher" border="0" width="128" />
     </picture>
   </p>
 
   <p>Выполняет задачи на естественном языке в AutoJs6, выбирая зарегистрированные скрипты и пошагово управляя экраном</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-AI-Agent?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-AI-Agent?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent?color=534BAE&label=License"/></a>
   </p>
 </div>
 
@@ -25,16 +25,16 @@
 
 Текущий README.md поддерживает следующие языки:
 
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hans.md)
-- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-HK.md)
-- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ko.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hans.md)
+- [繁體中文 (香港) [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-HK.md)
+- [繁體中文 (台灣) [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ko.md)
 - Русский [ru] # текущий
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/.readme/README-ar.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/.readme/README-ar.md)
 
 ******
 
@@ -42,9 +42,9 @@
 
 ******
 
-AI Agent превращает цель на естественном языке в действия на Android-устройстве с AutoJs6. Он либо выбирает скрипт, который пользователь зарегистрировал для агента, заполняет его параметры и запускает; либо наблюдает экран через дерево узлов специальных возможностей и действует шаг за шагом (наблюдать, решать, действовать, проверять), пока цель не достигнута, не потребуется подтверждение или не исчерпан бюджет. Это ответ на [обсуждение AutoJs6 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+Three Stove Agent превращает цель на естественном языке в действия на Android-устройстве с AutoJs6. Он либо выбирает скрипт, который пользователь зарегистрировал для агента, заполняет его параметры и запускает; либо наблюдает экран через дерево узлов специальных возможностей и действует шаг за шагом (наблюдать, решать, действовать, проверять), пока цель не достигнута, не потребуется подтверждение или не исчерпан бюджет. Это ответ на [обсуждение AutoJs6 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-AI Agent предлагает отдельную панель задач и плагин AutoJs6 через ai.agent. Встроенные действия и вызовы модели проходят через хост. MCP использует только серверы, настроенные пользователем. Прямого подключения к Provider и разрешения специальных возможностей нет.
+Three Stove Agent предлагает отдельную панель задач и плагин AutoJs6 через ai.agent. Встроенные действия и вызовы модели проходят через хост. MCP использует только серверы, настроенные пользователем. Прямого подключения к Provider и разрешения специальных возможностей нет.
 
 ******
 
@@ -52,7 +52,7 @@ AI Agent предлагает отдельную панель задач и пл
 
 ******
 
-Разрабатываемая версия 1.2.0 предлагает необязательные инструменты MCP, нативные вызовы, снимки и генерируемые скрипты. AiGoCode gpt-5.6-sol прошел проверки P9.2 с исходным изображением и изображением в результате инструмента. P9.1 завершил включение Wi-Fi и повторное чтение его состояния по путям JSON и нативных вызовов при временно отключенном автоподключении к текущей точке доступа и обращении к модели через мобильную сеть и VPN. Сбои после переключения сети VPN при стандартном автоподключении остаются нерешенными; см. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+Разрабатываемая версия 1.2.0 предлагает необязательные инструменты MCP, нативные вызовы, снимки и генерируемые скрипты. AiGoCode gpt-5.6-sol прошел проверки P9.2 с исходным изображением и изображением в результате инструмента. P9.1 завершил включение Wi-Fi и повторное чтение его состояния по путям JSON и нативных вызовов при временно отключенном автоподключении к текущей точке доступа и обращении к модели через мобильную сеть и VPN. Сбои после переключения сети VPN при стандартном автоподключении остаются нерешенными; см. [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 
 ******
 
@@ -74,13 +74,13 @@ AI Agent предлагает отдельную панель задач и пл
 
 ### Снимки экрана
 
-Реальный английский интерфейс на Android API 37.1 с демонстрационными задачами и заранее заданными ответами модели. Изображения показывают интерфейс, а не успешность реальной модели. Личных данных учетных записей нет. [Процедура съемки](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/README.md).
+Реальный английский интерфейс на Android API 37.1 с демонстрационными задачами и заранее заданными ответами модели. Изображения показывают интерфейс, а не успешность реальной модели. Личных данных учетных записей нет. [Процедура съемки](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/README.md).
 
 | Панель задач | Подробности задачи |
 | --- | --- |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/workbench.png?raw=true" alt="Панель задач" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/detail.png?raw=true" alt="Подробности задачи" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/workbench.png?raw=true" alt="Панель задач" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/detail.png?raw=true" alt="Подробности задачи" width="288" /> |
 | Подтверждение действия | Плавающий ввод |
-| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="Подтверждение действия" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/docs/images/floating.png?raw=true" alt="Плавающий ввод" width="288" /> |
+| <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/confirmation.png?raw=true" alt="Подтверждение действия" width="288" /> | <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/docs/images/floating.png?raw=true" alt="Плавающий ввод" width="288" /> |
 
 ******
 
@@ -88,22 +88,22 @@ AI Agent предлагает отдельную панель задач и пл
 
 ******
 
-1. Установите APK плагина со страницы [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) на устройство с AutoJs6 сборки 5293 или новее.
-2. Откройте центр плагинов AutoJs6, убедитесь, что `AI Agent` распознан, и включите его. Официальные пакеты автоматически проходят проверку подписи.
+1. Установите APK плагина со страницы [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) на устройство с AutoJs6 сборки 5293 или новее.
+2. Откройте центр плагинов AutoJs6, убедитесь, что `Three Stove Agent` распознан, и включите его. Официальные пакеты автоматически проходят проверку подписи.
 
-Установите и включите [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), затем настройте в нем сетевую модель или импортируйте поддерживаемую локальную. Текущий посредник хоста выбирает 3-Stone AI; другой Provider требует интеграции в хост. Модель выбирается капсулой модели на главном экране AI Agent. Баннер там появляется, только пока AutoJs6 не подключен.
+Установите и включите [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), затем настройте в нем сетевую модель или импортируйте поддерживаемую локальную. Текущий посредник хоста выбирает 3-Stone AI; другой Provider требует интеграции в хост. Модель выбирается капсулой модели на главном экране Three Stove Agent. Баннер там появляется, только пока AutoJs6 не подключен.
 
 ### Совместимость
 
-Android 7.0+ (API 24). Подключение требует AutoJs6 6.8.0 / build 5289+; полный API задач и этот пример требуют build 5293+. Используйте сборку с изменениями Agent. Для действий на экране нужна служба специальных возможностей хоста; Agent сначала запускает ее способом, настроенным в AutoJs6 (Root, защищенные настройки или Shizuku), и просит включить ее вручную только при неудаче. OCR необязателен и требует установленного, разрешенного и доступного по данным хоста плагина. AI Agent не хранит учетные данные моделей и не имеет собственной службы специальных возможностей.
+Android 7.0+ (API 24). Подключение требует AutoJs6 6.8.0 / build 5289+; полный API задач и этот пример требуют build 5293+. Используйте сборку с изменениями Agent. Для действий на экране нужна служба специальных возможностей хоста; Agent сначала запускает ее способом, настроенным в AutoJs6 (Root, защищенные настройки или Shizuku), и просит включить ее вручную только при неудаче. OCR необязателен и требует установленного, разрешенного и доступного по данным хоста плагина. Three Stove Agent не хранит учетные данные моделей и не имеет собственной службы специальных возможностей.
 
 ### Запуск из интерфейса
 
-Откройте AI Agent, подключите AutoJs6, введите цель и запустите задачу. Капсула модели на главном экране выбирает сетевую или локальную модель либо режим Автоматически (сначала модель на устройстве, иначе первая доступная). Ищите модели, закрепляйте избранные и используйте недавние; значки показывают заявленную поддержку инструментов и изображений. Экран задач и плавающая кнопка используют этот выбор для новых задач, не меняя профили и текущую задачу; профили больше не содержат модель. Необязательный профиль выбирается кнопкой профиля в поле ввода. Отвечайте на вопросы и следите за ходом работы в карточке задачи.
+Откройте Three Stove Agent, подключите AutoJs6, введите цель и запустите задачу. Капсула модели на главном экране выбирает сетевую или локальную модель либо режим Автоматически (сначала модель на устройстве, иначе первая доступная). Ищите модели, закрепляйте избранные и используйте недавние; значки показывают заявленную поддержку инструментов и изображений. Экран задач и плавающая кнопка используют этот выбор для новых задач, не меняя профили и текущую задачу; профили больше не содержат модель. Необязательный профиль выбирается кнопкой профиля в поле ввода. Отвечайте на вопросы и следите за ходом работы в карточке задачи.
 
 ### Запуск из скрипта
 
-Выполните этот JavaScript в AutoJs6 после подключения AI Agent и настройки модели. Вопросы и подтверждения обрабатывает интерфейс плагина. Для сохраненной конфигурации добавьте `preset: "your-preset-name"` в параметры.
+Выполните этот JavaScript в AutoJs6 после подключения Three Stove Agent и настройки модели. Вопросы и подтверждения обрабатывает интерфейс плагина. Для сохраненной конфигурации добавьте `preset: "your-preset-name"` в параметры.
 
 ```javascript
 let run = ai.agent.run('Прочитай версию Android и сообщи наблюдаемое значение.', {
@@ -134,7 +134,7 @@ run.result.then(
  * @timeout 10000
  */
 let context = ai.agent.context();
-if (!context) throw Error('Start this registered script through AI Agent');
+if (!context) throw Error('Start this registered script through Three Stove Agent');
 let text = new java.lang.String(context.parameters.text);
 ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 ```
@@ -241,14 +241,14 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 - Список разрешений: org.autojs.permission.PLUGIN (точки входа контракта хоста), FOREGROUND_SERVICE и FOREGROUND_SERVICE_SPECIAL_USE (служба переднего плана во время задачи), POST_NOTIFICATIONS (фоновые подтверждения и уведомления о ходе), INTERNET (ручная или автоматическая проверка выпусков GitHub и подключение к настроенным пользователем серверам MCP), ACCESS_LOCAL_NETWORK (запрашивается только из настроек MCP на Android 17+), SYSTEM_ALERT_WINDOW (запрашивается только при включении плавающего шарика в настройках). Разрешения специальных возможностей, хранилища и микрофона не запрашиваются, а трафик модели никогда не проходит через плагин.
 - Контрактные входы Binder защищены разрешением подписи org.autojs.permission.PLUGIN. Лаунчер (включая ярлыки) и приемник text/plain ACTION_SEND публичны и принимают только ограниченные черновики цели/пресета. Внешний Intent не запускает задачи, не подтверждает действия и не меняет разрешения. Настройки, голосовые результаты и управление приватны.
-- AI Agent предлагает отдельную панель задач и плагин AutoJs6 через ai.agent. Встроенные действия и вызовы модели проходят через хост. MCP использует только серверы, настроенные пользователем. Прямого подключения к Provider и разрешения специальных возможностей нет.
+- Three Stove Agent предлагает отдельную панель задач и плагин AutoJs6 через ai.agent. Встроенные действия и вызовы модели проходят через хост. MCP использует только серверы, настроенные пользователем. Прямого подключения к Provider и разрешения специальных возможностей нет.
 - Учетные данные модели остаются у Provider, вызовы идут через AutoJs6. Токены MCP Bearer шифруются Android Keystore в закрытом хранилище и не входят в запросы модели или экспорт истории. INTERNET также нужен настроенным серверам MCP; Android 17+ запрашивает доступ к локальной сети из настроек MCP. Исходный риск сервера: SENSITIVE. Отмена не откатывает удаленные действия; ошибочные вызовы автоматически не повторяются.
 - История задач, пресеты и память предпочтений остаются в закрытом хранилище плагина; резервное копирование и перенос между устройствами отключены.
 - Снимки передаются через AutoJs6 выбранной модели, которая может работать в сети. Экран должен быть включен и разблокирован. История хранит размеры и число байтов, без содержимого изображений. JSON сохраняет текущее изображение до нового наблюдения или ответа. Нативный диалог хранит прежние изображения в пределах лимитов пакета и сеанса, повторно резервируя токены для каждого раунда.
 - Созданные скрипты работают с разрешениями AutoJs6 без песочницы JavaScript и могут действовать вне включенных групп. Полный код хранится в закрытых шагах с обычными правилами удаления паролей и хранения истории. Код, измененный после обнаружения пароля, нельзя сохранить как исходный. Проверяйте .js перед передачей другим.
 - Полный доступ включается только в закрытых настройках плагина; вывод модели, содержимое экрана, запросы скриптов и внешние Intent не могут включить или расширить его. Он пропускает подтверждения включенных инструментов, включая оплату, но не включает дополнительные группы и сохраняет бюджеты и разрешения хоста. Специальные возможности запускает хост способом, настроенным в AutoJs6; сам плагин по-прежнему не запрашивает разрешение специальных возможностей.
 
-Получайте плагин только со страницы официальных [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/releases) или из центра плагинов AutoJs6. Пакеты из неизвестных источников могут не пройти проверку хоста или нести риски, даже если номер версии выглядит одинаково.
+Получайте плагин только со страницы официальных [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) или из центра плагинов AutoJs6. Пакеты из неизвестных источников могут не пройти проверку хоста или нести риски, даже если номер версии выглядит одинаково.
 
 ******
 
@@ -259,7 +259,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 Следующая информация предназначена разработчикам хоста AutoJs6 и плагинов; хост использует эти идентификаторы для обнаружения плагина и согласования совместимости:
 
 ```text
-application id: io.github.supermonster003.autojs6.plugin.ai.agent
+application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
 plugin id: ai-agent
 engine: ai-agent
 variant: default
@@ -271,7 +271,7 @@ aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
 minimum host build: 5289 (6.8.0)
 ```
 
-`AiAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Проверка хоста при подключении, очередь задач, ответы, отмена, запросы и закрытая история шагов; задачи блокируются при потере хоста и не возобновляются после перезапуска процесса.
+`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Проверка хоста при подключении, очередь задач, ответы, отмена, запросы и закрытая история шагов; задачи блокируются при потере хоста и не возобновляются после перезапуска процесса.
 
 ******
 
@@ -281,7 +281,7 @@ minimum host build: 5289 (6.8.0)
 
 Планы и прогресс плагина ведутся в виде списка с отметками в ROADMAP.md, организованного по этапам с критериями приемки и уровнями доказательств. Неотмеченные пункты выражают намерение, а не текущие возможности; обсуждение через Issues приветствуется.
 
-- [Открыть ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md)
+- [Открыть ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)
 
 ******
 
@@ -293,9 +293,10 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/27_
 
+- `Подсказка` Приложение переименовано в Three Stove Agent: идентификатор приложения теперь io.github.supermonster003.autojs6.plugin.three.stove.agent, репозиторий AutoJs6-Plugin-Three-Stove-Agent. Старое имя не поддерживается: удалите старый AI Agent перед установкой; история, пресеты и память не переносятся. Идентификатор плагина ai-agent, action службы и пакет AIDL берутся из AAR контракта AutoJs6 и будут заменены вместе с переименованием хоста и повторной фиксацией AAR.
 - `Подсказка` Разрабатываемая версия 1.2.0 предлагает необязательные инструменты MCP, нативные вызовы, снимки и генерируемые скрипты. AiGoCode gpt-5.6-sol прошел проверки P9.2 с исходным изображением и изображением в результате инструмента. P9.1 завершил включение Wi-Fi и повторное чтение его состояния по путям JSON и нативных вызовов при временно отключенном автоподключении к текущей точке доступа и обращении к модели через мобильную сеть и VPN. Сбои после переключения сети VPN при стандартном автоподключении остаются нерешенными; см. ROADMAP.md.
 - `Функция` Выбранные инструменты локальных или внешних серверов MCP с отдельным уровнем риска; группа mcp изначально выключена
-- `Функция` Откройте AI Agent, подключите AutoJs6, введите цель и запустите задачу. Капсула модели на главном экране выбирает сетевую или локальную модель либо режим Автоматически (сначала модель на устройстве, иначе первая доступная). Ищите модели, закрепляйте избранные и используйте недавние; значки показывают заявленную поддержку инструментов и изображений. Экран задач и плавающая кнопка используют этот выбор для новых задач, не меняя профили и текущую задачу; профили больше не содержат модель. Необязательный профиль выбирается кнопкой профиля в поле ввода. Отвечайте на вопросы и следите за ходом работы в карточке задачи.
+- `Функция` Откройте Three Stove Agent, подключите AutoJs6, введите цель и запустите задачу. Капсула модели на главном экране выбирает сетевую или локальную модель либо режим Автоматически (сначала модель на устройстве, иначе первая доступная). Ищите модели, закрепляйте избранные и используйте недавние; значки показывают заявленную поддержку инструментов и изображений. Экран задач и плавающая кнопка используют этот выбор для новых задач, не меняя профили и текущую задачу; профили больше не содержат модель. Необязательный профиль выбирается кнопкой профиля в поле ввода. Отвечайте на вопросы и следите за ходом работы в карточке задачи.
 - `Функция` Откройте настройки через меню справа вверху. Любое изменение применяется сразу, без кнопки сохранения: внешний вид, разрешения, группы инструментов, лимиты (длительность в минутах), голосовой ввод, плавающая кнопка и очистка данных. Язык, темная тема и цвет могут следовать AutoJs6 или задаваться отдельно. Язык и тема также могут следовать Android. История версий и правовые сведения доступны без сети. Успешные ручные проверки GitHub кешируются на 24 часа. Автопроверка по умолчанию выключена. После включения она выполняется только при использовании приложения, не чаще раза в 12 часов, без уведомлений об ошибках и игнорируемых версиях и без загрузки APK. Управление игнорируемыми обновлениями позволяет вернуть уведомления по отдельным версиям. Экран О приложении показывает версию, разработчика, исходный код, лицензию и сторонние уведомления.
 - `Функция` Экранные задачи сначала запускают специальные возможности способом, настроенным в AutoJs6 (Root, защищенные настройки или Shizuku). Только если запуск не удался или способ не настроен, карточка задачи просит включить службу вручную и открывает настройки специальных возможностей.
 - `Функция` В разрешениях операций появился Полный доступ: включенные инструменты, включая оплату, удаление, скрипты и запись в память, выполняются без подтверждения. Режим не включает дополнительные группы инструментов и не ослабляет бюджеты или разрешения хоста. Рабочий экран, плавающая кнопка, текущая задача и история показывают заметную метку вместо мешающего диалога. Задачи, явно запросившие осторожное подтверждение, сохраняют его.
@@ -330,9 +331,9 @@ _2026/09/26_
 
 _2026/09/25_
 
-- `Подсказка` Версия 1.0.0 предоставляет задачи на естественном языке, вызов зарегистрированных скриптов и действия на устройстве с подтверждением по уровню риска. Проверенные сценарии, ограничения моделей и оставшиеся проверки устройств описаны в [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md). Нативные вызовы инструментов, визуальный ввод и динамическая генерация скриптов запланированы для 1.1.0.
+- `Подсказка` Версия 1.0.0 предоставляет задачи на естественном языке, вызов зарегистрированных скриптов и действия на устройстве с подтверждением по уровню риска. Проверенные сценарии, ограничения моделей и оставшиеся проверки устройств описаны в [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md). Нативные вызовы инструментов, визуальный ввод и динамическая генерация скриптов запланированы для 1.1.0.
 - `Подсказка` Требуются Android 7+, AutoJs6 6.8.0 / build 5293+ для API задач и включенный 3-Stone AI с настроенной моделью. OCR необязателен. Сам протокол подключения требует хост build 5289+.
-- `Подсказка` Совместимость: расширение нативных инструментов AutoJs6 build 5297 совместимо с этой версией. Кандидат разработки 3-Stone AI 1.2.0 реализует продолжение онлайн-инструментов для трёх протоколов. Эта версия Agent по-прежнему использует структурированные решения JSON; интеграция нативного цикла и сравнение задач остаются в [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/ROADMAP.md).
+- `Подсказка` Совместимость: расширение нативных инструментов AutoJs6 build 5297 совместимо с этой версией. Кандидат разработки 3-Stone AI 1.2.0 реализует продолжение онлайн-инструментов для трёх протоколов. Эта версия Agent по-прежнему использует структурированные решения JSON; интеграция нативного цикла и сравнение задач остаются в [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 - `Функция` Панель задач на естественном языке с вопросами, прогрессом, остановкой и результатами; необязательный плавающий ввод, обмен текстом, ярлыки пресетов и голосовые черновики
 - `Функция` API ai.agent для создания задач, событий, запросов, ответов и отмены, включая detached и доступ к результатам/контексту зарегистрированных скриптов
 - `Функция` Скрипты project.json / @agent с поиском, проверкой и значениями параметров по умолчанию, запросом недостающих значений, подтверждением, ограниченным выполнением и структурированными результатами
@@ -371,7 +372,7 @@ _2026/09/25_
 
 ##### Полная история выпусков
 
-* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-ru.md)
+* [CHANGELOG.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/app/src/main/assets/doc/CHANGELOG-ru.md)
 
 ******
 
@@ -439,7 +440,7 @@ app/src/main/res/raw-*/plugin_instruction.md
 
 ******
 
-Код проекта распространяется по лицензии [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/LICENSE). Сторонние компоненты и их лицензии перечислены в [уведомлениях о сторонних компонентах](https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md).
+Код проекта распространяется по лицензии [Mozilla Public License 2.0](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/LICENSE). Сторонние компоненты и их лицензии перечислены в [уведомлениях о сторонних компонентах](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md).
 
 ******
 
@@ -450,4 +451,4 @@ app/src/main/res/raw-*/plugin_instruction.md
 - Проект AutoJs6: https://github.com/SuperMonster003/AutoJs6
 - Документация AutoJs6: https://docs.autojs6.com
 - Обсуждение AutoJs6 #577: https://github.com/SuperMonster003/AutoJs6/discussions/577
-- Уведомления о сторонних компонентах: https://github.com/SuperMonster003/AutoJs6-Plugin-AI-Agent/blob/master/THIRD_PARTY_NOTICES.md
+- Уведомления о сторонних компонентах: https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/THIRD_PARTY_NOTICES.md

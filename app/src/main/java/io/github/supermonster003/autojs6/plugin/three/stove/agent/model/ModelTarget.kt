@@ -1,0 +1,50 @@
+package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
+
+import com.google.gson.JsonObject
+
+enum class ModelLocality { ON_DEVICE, REMOTE, HYBRID }
+
+/** Public catalog metadata only; never contains credentials, Provider components or profile configuration. */
+class ModelTarget(
+    val providerId: String, val targetId: String, val locality: ModelLocality,
+    val protocol: ModelProtocol, val structuredJson: Boolean,
+    val maximumContextBytes: Int, val maximumOutputBytes: Int = AgentJson.MAX_MODEL_BYTES,
+    val supportsStreaming: Boolean = false, val supportsOutputLimit: Boolean = true,
+    val nativeTools: NativeToolLimits? = null,
+    val vision: VisionLimits? = null,
+) {
+    init {
+        require(providerId.matches(Regex("[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}")))
+        require(targetId.length <= 256 && targetId.matches(Regex("[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}")))
+        require(maximumContextBytes > 0 && maximumOutputBytes in 1..AgentJson.MAX_MODEL_BYTES)
+        require((locality == ModelLocality.ON_DEVICE) == (protocol == ModelProtocol.LOCAL) || protocol == ModelProtocol.UNKNOWN)
+    }
+    val schemaTarget get() = SchemaTarget(providerId, targetId, protocol, structuredJson)
+    override fun toString() = "ModelTarget(locality=$locality, protocol=$protocol, maximumContextBytes=$maximumContextBytes)"
+
+    companion object {
+        /** Current V1 catalogs do not expose an online wire protocol. Never guess one from an ID or display name. */
+        fun fromCatalog(providerId: String, value: JsonObject, maximumOutputBytes: Int = AgentJson.MAX_MODEL_BYTES,
+                        brokerTools: NativeToolLimits? = null, brokerVision: VisionLimits? = null): ModelTarget {
+            require(value.flag("configured") == true && value.flag("available") == true) { "TARGET_UNAVAILABLE" }
+            val locality = when (value.number("locality")) {
+                1L -> ModelLocality.ON_DEVICE; 2L -> ModelLocality.REMOTE; 3L -> ModelLocality.HYBRID
+                else -> throw IllegalArgumentException("Invalid target locality")
+            }
+            val bytes = requireNotNull(value.number("maximumContextBytes"))
+            require(bytes in 1..Int.MAX_VALUE)
+            val capabilities = requireNotNull(value.getAsJsonArray("capabilityIds"))
+            val controls = requireNotNull(value.getAsJsonArray("supportedControls"))
+            for (entries in listOf(capabilities, controls)) require(entries.size() <= 64 && entries.all {
+                it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString.length in 1..128
+            })
+            return ModelTarget(providerId, requireNotNull(value.string("targetId")), locality,
+                if (locality == ModelLocality.ON_DEVICE) ModelProtocol.LOCAL else ModelProtocol.UNKNOWN,
+                capabilities.any { it.asString == "structured-json" } && controls.any { it.asString == "response-json-schema" },
+                bytes.toInt(), maximumOutputBytes, capabilities.any { it.asString == "streaming" },
+                controls.any { it.asString == "maximum-output-tokens" },
+                brokerTools?.takeIf { capabilities.any { capability -> capability.asString == "tools" } },
+                brokerVision?.takeIf { capabilities.any { capability -> capability.asString == "vision" } })
+        }
+    }
+}

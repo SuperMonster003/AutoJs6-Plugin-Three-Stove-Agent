@@ -109,10 +109,10 @@
     <string name="launcher_connect">Connect to AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 is installed but disabled. Enable it in the system app settings, then return here.</string>
     <string name="launcher_host_incompatible">AutoJs6 build %1$d is installed, but this plugin needs build %2$d or later. Update AutoJs6 first.</string>
-    <string name="launcher_host_missing">AutoJs6 is not installed. Install AutoJs6 build %1$d or later, then enable AI Agent in its plugin center.</string>
-    <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) is installed. Enable AI Agent in the AutoJs6 plugin center.</string>
+    <string name="launcher_host_missing">AutoJs6 is not installed. Install AutoJs6 build %1$d or later, then enable Three Stove Agent in its plugin center.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) is installed. Enable Three Stove Agent in the AutoJs6 plugin center.</string>
     <string name="launcher_link_connecting">Waiting for AutoJs6 to connect (up to 15 seconds).</string>
-    <string name="launcher_link_timeout">No connection within 15 seconds. Open AutoJs6, enable AI Agent in its plugin center and authorize the connection.</string>
+    <string name="launcher_link_timeout">No connection within 15 seconds. Open AutoJs6, enable Three Stove Agent in its plugin center and authorize the connection.</string>
     <string name="launcher_open_host">Open AutoJs6</string>
     <string name="mcp_add">Add server</string>
     <string name="mcp_auth_required">Authentication required. Check the saved token in the MCP server app.</string>
@@ -290,7 +290,7 @@
     <string name="shortcut_goal">Fixed goal (optional)</string>
     <string name="shortcut_new_task">New task</string>
     <string name="shortcut_pin">Pin to home screen</string>
-    <string name="shortcut_preset">AI Agent: %1$s</string>
+    <string name="shortcut_preset">Three Stove Agent: %1$s</string>
     <string name="shortcut_review">The shortcut opens this preset and an optional goal for review. Press Start task to run.</string>
     <string name="step_ask">Asked a question</string>
     <string name="step_done">Finished</string>

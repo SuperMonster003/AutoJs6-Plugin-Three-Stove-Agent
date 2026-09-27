@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "org.autojs.plugin.ai.agent.fakehost"
+    namespace = "org.autojs.plugin.three.stove.agent.fakehost"
     compileSdk = versions.sdkVersionCompile
     defaultConfig {
         // Exercise the real installed-host verifier. Install ONLY in a disposable AVD.
@@ -15,7 +15,7 @@ android {
         targetSdk = versions.sdkVersionTarget
         versionCode = 5289
         versionName = "conformance"
-        testApplicationId = "org.autojs.plugin.ai.agent.fakehost.test"
+        testApplicationId = "org.autojs.plugin.three.stove.agent.fakehost.test"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { aidl = true; buildConfig = false }
