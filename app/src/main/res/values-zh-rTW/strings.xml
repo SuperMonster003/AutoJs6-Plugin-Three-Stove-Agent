@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">刪除此記錄? 已執行的操作不會撤銷.</string>
     <string name="history_denied">已拒絕</string>
     <string name="history_elapsed">耗時: %1$d ms</string>
+    <string name="history_elapsed_label">耗時</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">沒有符合篩選條件的任務.</string>
     <string name="history_error">錯誤</string>
     <string name="history_evidence">完成證據</string>

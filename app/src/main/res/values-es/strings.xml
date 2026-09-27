@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">Eliminar este registro? Las acciones realizadas no se deshacen.</string>
     <string name="history_denied">Denegado</string>
     <string name="history_elapsed">Duración: %1$d ms</string>
+    <string name="history_elapsed_label">Duración</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">No hay tareas que coincidan con los filtros.</string>
     <string name="history_error">Error</string>
     <string name="history_evidence">Evidencias</string>

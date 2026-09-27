@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">이 기록을 삭제할까요? 이미 수행된 동작은 취소되지 않습니다.</string>
     <string name="history_denied">거부됨</string>
     <string name="history_elapsed">소요 시간: %1$d ms</string>
+    <string name="history_elapsed_label">소요 시간</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">필터에 맞는 작업이 없습니다.</string>
     <string name="history_error">오류</string>
     <string name="history_evidence">완료 근거</string>

@@ -31,6 +31,7 @@
         "A stopped AutoJs6 accessibility service is reported to the model as A11Y_SERVICE_NOT_RUNNING instead of an argument error"
       ],
       "improvement": [
+        "Task details show the model, preset, elapsed time and task limits as two aligned key / value columns, with long values wrapping beside the label column, in the same style as the confirmation parameter table",
         "The home task card has a single status row: the state in its tone colour (running accent, completed green, failed red, partial amber) with the model and preset on the same line, and the budget caption is a compact \"Step n/m · calls · minutes · tokens\" line; on task details \"Run again\" is the full-width primary action and \"Retry with another model\" sits on its own line so it never wraps",
         "The automatic task budget is relaxed: steps 40 -> 60, model calls 60 -> 90, duration 10 -> 15 minutes, tokens 300k -> 500k; settings, presets and single tasks can still only narrow it",
         "The launcher icon is the maintainer-provided Three Stove artwork: a dark glyph on light grey in light mode, a light glyph on dark grey in dark mode, with the round and adaptive icons composed from the same source image",
