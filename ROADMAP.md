@@ -1,6 +1,6 @@
-# AutoJs6 AI Agent 插件 Roadmap
+# AutoJs6 Three Stove Agent 插件 Roadmap
 
-本文是 `AutoJs6-Plugin-AI-Agent` (自然语言驱动的任务执行 Agent: 用户一句话描述目标, Agent 借助 AI 模型选择并调用已登记脚本, 或基于无障碍界面逐步观察 / 操作 / 校验, 直到目标达成或需要用户补充信息; 既作为 AutoJs6 插件为脚本提供 `ai.agent` API, 也作为带独立界面的应用供用户直接使用) 的可执行状态表.
+本文是 `AutoJs6-Plugin-AI-Agent` (2026-09-27 起仓库与应用更名为 `AutoJs6-Plugin-Three-Stove-Agent` / Three Stove Agent, 见 D50; 下文历史记录保留旧名) (自然语言驱动的任务执行 Agent: 用户一句话描述目标, Agent 借助 AI 模型选择并调用已登记脚本, 或基于无障碍界面逐步观察 / 操作 / 校验, 直到目标达成或需要用户补充信息; 既作为 AutoJs6 插件为脚本提供 `ai.agent` API, 也作为带独立界面的应用供用户直接使用) 的可执行状态表.
 以 2026-09-22 的宿主本地代码快照 (`AutoJs6 master@9734471336`, `VERSION_NAME=6.8.0`, `VERSION_BUILD=5282`),
 AI Provider Protocol V2 (宿主 `docs/dev/ai-provider-protocol-v2.md`), 官方模型插件 `AutoJs6-Plugin-Three-Stone-AI` 1.1.4,
 MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8.3` 为起点, 每个条目均可独立 Check 并落地, 后续会话按阶段逐步推进.
@@ -20,7 +20,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 
 ## 1. 固定决策
 
-以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策; D47-D49 来自 2026-09-27 的路线图审查 (P11). 全部视同固定, 推翻需在会话记录中写明理由.
+以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策; D47-D49 来自 2026-09-27 的路线图审查 (P11); D50 为同日维护者要求的整体改名. 全部视同固定, 推翻需在会话记录中写明理由.
 
 | 编号 | 决策 | 含义 |
 | --- | --- | --- |
@@ -73,6 +73,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D47 | 插件侧节点重定位移除 | 2026-09-27 审查: `NodeRefRegistry.relocate` 与 `CompactNodeText.Bounds.permits` 自 P4.2 起无生产调用者 (动作目标由宿主 `inspectNode` 绑定校验), 连同只覆盖重定位几何的测试一并删除, 指纹不变量改为直接断言; 插件只保留快照记录, 引用解析与变化摘要, 不再自行重定位. |
 | D48 | `confirmAlways` 为目录属性 | 记忆提议与生成脚本的强制确认由 `assets/catalog/tools.json` 的 `confirmAlways` 声明 (仅内置 SENSITIVE 工具可设, 只有完全访问可跳过), `ConfirmationGate` 不再持有工具名字面量; 内置工具名统一经 `catalog/ToolNames` 引用, `ToolCatalogTest` 断言常量集合与目录一致. |
 | D49 | 1.1.0 不单独发布 | 1.1.0 (P9) 从未打标签或发布, changelog 条目保留并注明随 1.2.0 一并发布; 下一个公开版本为 1.2.0, 发布 gate 见 P12. |
+| D50 | 整体改名为 Three Stove Agent | 维护者 2026-09-27 要求名称 / 包名 / 别名 / 标识全部改为 Three Stove Agent, 即使与旧版本不兼容: 仓库与目录 `AutoJs6-Plugin-Three-Stove-Agent`, `rootProject.name` `autojs6-plugin-three-stove-agent`, 应用标题 `Three Stove Agent`, applicationId / 包 `io.github.supermonster003.autojs6.plugin.three.stove.agent`, 类 `ThreeStoveAgentPlugin*` / `ThreeStoveAgentTaskForegroundService`, 主题 `Theme.ThreeStoveAgent`, 一次性 AVD 前缀 `Three_Stove_Agent_Conformance_`, 线程 / 私有文件前缀 `three-stove-agent-`; 旧应用需卸载, 历史 / 预设 / 记忆不迁移. 由宿主 `ai-agent-api` AAR 钉住的契约标识 (插件 ID / engine / category `ai-agent`, action `org.autojs.plugin.AI_AGENT`, AIDL 包 `org.autojs.plugin.ai.agent.api`, 契约类名, `test-apps:ai-agent-conformance`) 与脚本 API `ai.agent` 随宿主改名并换锁后再替换. 启动器图标改为维护者提供的 Three Stove 源图 (亮 `#D8D8D8` / 暗 `#272727` 背景, 合成规则见 AGENTS 11.1). `docs/dev/**` 与 `docs/images/**` 的历史文本保留旧名. |
 
 由 D3 / D4 / D14 / D17 派生的硬约束:
 
@@ -1727,3 +1728,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 新增 D47-D49, 阶段 P11 (审查修正, 大部分已勾选) / P12 (1.2.0 发布 gate) / P13 (1.3.0 能力扩展), 附录 G 的 Q10-Q12 (默认值已给). 4.2 节的包结构与 FEATURES 说明按现状更新; P4.1 回填重定位移除.
 - 会话期间, 本会话的一个 fork 子代理按用户另行提出的 "AI Agent 改名为 Three Stove Agent 并更换图标" 请求在同一工作树执行了整仓改名 (285 个文件移动, 86 个改写, 图标资源与 AGENTS / ROADMAP 局部改动). 用户拍板 "先审查后改名": 该结果已完整保存在 git stash `three-stove-rename (fork, paused; re-apply after review commits)`, fork 已暂停, 本轮提交不含任何改名内容. 改名需作为独立会话处理: 在新 HEAD 上重跑 fork 的脚本 (或弹出 stash 后解决与本轮提交的冲突), 更新 `VERSION_BUILD`, 同步 AGENTS 第 2 节身份表, 并在宿主仓库同步契约常量与 AAR 换锁, 再改 GitHub 仓库名; 未采纳 fork 随后提出的放宽权限建议, 仓库内由其生成的未跟踪 `.claude/settings.json` 保持未跟踪, 由用户决定去留.
 - 下一起点: P11 余下条目 (推送后记录远程 CI, 厂商 ROM 与 D42 真机复验), 然后 P12 发布 gate; 改名按用户安排另开会话. 当前无需用户补充资料; 若要在本机验证 UI 提交, 需要一台一次性 `AI_Agent_Conformance_*` AVD 跑 `:app:connectedDebugAndroidTest`.
+
+### 2026-09-27: 整体改名为 Three Stove Agent (D50)
+
+- 按维护者要求执行整体改名. 未弹出 fork 子代理在 build 102 上生成的 stash `three-stove-rename` (与本日 9 个审查提交冲突), 而是在当前 HEAD 用同一套规则重做: `git mv` 移动四个源集与 AIDL 及 fake-host 的包目录 (293 个重命名), 改写 88 个跟踪文本文件 (包名 / 路径 / `ThreeStoveAgentPlugin*` / 主题 / 仓库与制品名 / AVD 前缀 / CI 参数 / `three-stove-agent-` 前缀 / 显示文本), 契约标识出现次数改写前后完全一致; 排除 `ROADMAP.md` 正文, `docs/dev/**` (除活的 `e4/device_case.py` 与 `security-checklist.md`), `docs/images/**` 与生成产物 (改源后重新生成). 十语言 changelog 首条提示写明不兼容旧名称与契约标识随宿主替换; AGENTS 第 2 节增加 "宿主契约标识 (不随本仓库改名)" 一行.
+- 提交: `d3cca24` 忽略本地 `.claude/` (build 112), `3b93d0a` 修正 P13 条目中的一个非 ASCII 破折号 (build 113; 该字符来自 `9e831e5`, 当时的最终验证复用了缓存的测试结果而未真正重跑, 本次改名验证暴露了它), `71b1d99` 改名 (build 114), `25f2bcd` 图标 (build 115): 源图 `.python/icons/three-stove-ic-launcher-{light,dark}.png` 入库, `generate_launcher_icons.py` 改为从源图合成 (传统 / 圆形 432 px, 自适应前景与单色层, 亮暗两套), `mipmap*-anydpi-v26` 直接引用 mipmap 图层, 删除 inset drawable 与 `fractions.xml`, AGENTS 11.1 同步.
+- 验证: JVM 618 项通过 (含 `ManifestContractTest` / `ThreeStoveAgentPluginRuntimeInfoTest` / `ApplicationTextPunctuationTest`), 1 项性能开关跳过; debug / androidTest / release 与 fake-host debug / androidTest 构建通过, release 产物为 `autojs6-plugin-three-stove-agent-v1.2.0.apk`; lint 0 错误 / 6 警告 (改名前 7, IconDuplicatesConfig 由自适应图层直接引用 mipmap 后减少 1 条); 十语言 36 产物 `--check` 通过. 未安装真机, 未运行设备 instrumentation, 未调用真实模型.
+- GitHub 仓库已改名为 `SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent`, 本地 `origin` 指向 `https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent.git`; 旧地址由 GitHub 跳转. 本地目录仍为 `AutoJs6-Plugin-AI-Agent`, 由维护者在会话外改名. 未推送.
+- 未做 (需宿主会话): 宿主 `ai-agent-api` 模块 / `AiAgentIds.DEFAULT_PACKAGE_NAME` / 抽屉与插件中心文案 / 官方索引与安装向导仍指向旧包名与旧仓库; 在宿主改名并换锁前, 真实宿主可能把新包名视为未知来源 (需 `USER_GRANTED` 确认), 插件中心会同时看到旧 AI Agent 与新应用. P11 余下条目 (推送后的远程 CI, 厂商 ROM 与 D42 真机复验) 因此顺延到宿主侧改名之后. fork 的 stash 保留供核对, 可由维护者 `git stash drop`.
