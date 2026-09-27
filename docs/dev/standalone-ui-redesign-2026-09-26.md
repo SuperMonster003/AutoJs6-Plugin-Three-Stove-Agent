@@ -1,5 +1,7 @@
 # Standalone UI redesign, 2026-09-26
 
+> Superseded on 2026-09-27 by the Material 3 redesign ([standalone-ui-material3-2026-09-27.md](standalone-ui-material3-2026-09-27.md), decisions D45 / D46). The settings-draft workflow and the OnBackInvokedDispatcher handling described below no longer exist: settings apply immediately and screens use the AndroidX OnBackPressedCallback. Kept as history only.
+
 ## Scope and decisions
 
 This is the user's explicit request to redesign the standalone app after the original roadmap completed. It does not introduce a new roadmap stage or change previous real-model acceptance results.

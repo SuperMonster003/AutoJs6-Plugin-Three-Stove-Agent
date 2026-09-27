@@ -20,7 +20,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 
 ## 1. 固定决策
 
-以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策. 全部视同固定, 推翻需在会话记录中写明理由.
+以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策; D47-D49 来自 2026-09-27 的路线图审查 (P11). 全部视同固定, 推翻需在会话记录中写明理由.
 
 | 编号 | 决策 | 含义 |
 | --- | --- | --- |
@@ -70,6 +70,9 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D44 | 当前会话始终允许 | 每个确认都提供 "当前会话始终允许" (RUN 范围, 确认事件 `allowRunScope` 恒为 true), 授权键为 (工具, 风险等级, 是否付款), 只在本次任务内有效, 覆盖参数变化; 其他敏感操作的会话授权不覆盖付款, 付款须在付款确认上单独选择. 取代旧规则 "付款, 记忆提议与动态脚本不可按任务授权". 公开步骤记录的 `confirmation` 取值不变 (`auto` / `allowed` / `denied`). |
 | D45 | 独立应用采用 AppCompat + Material 3 | 维护者 2026-09-27 选择与 3-Stone AI 对齐: 引入 `androidx.appcompat:appcompat:1.7.1` 与 `com.google.android.material:material:1.13.0` (Apache-2.0, 哈希与传递依赖记入 `THIRD_PARTY_NOTICES.md`), 所有界面仍由 Kotlin 代码构建, 经 `ui/kit` (令牌, `AgentPalette` WCAG 配色, 行, 按钮, 卡片, 对话框, 底部面板, 反馈) 统一样式, 不引入 XML 布局或 Compose. 运行时主题色显式着色控件, 宿主或自定义颜色优先于静态主题属性; `localeFilters` 只保留应用的 10 种语言. 该选择推翻上一轮重设计 "不增加运行时依赖" 的约束. |
 | D46 | 模型选择独立于预设 | 维护者 2026-09-27 选择 "模型独立, 预设不含模型": 任务台与悬浮球共用插件私有的 `model-selection.json` (当前选择, 最近 8 个, 置顶 16 个; 封闭格式, 无法读取时回退为自动), 自动选择规则为 "第一个本地模型, 否则第一个目标" (`AutomaticTarget`, 代理与界面预览共用). 由私有端点接收的插件界面任务从不继承预设的 `targetId`, 未选择即自动; 宿主与脚本请求保持原有继承. 预设编辑器不再显示模型字段, 旧预设的 `targetId` 原样保留, 仅供脚本使用. 私有历史记录请求的目标与代理解析出的模型 (`targetId`, 名称, 位置), 宿主/脚本查询的投影剔除这两项及完全访问标记, 诊断导出只含 `targetId`. |
+| D47 | 插件侧节点重定位移除 | 2026-09-27 审查: `NodeRefRegistry.relocate` 与 `CompactNodeText.Bounds.permits` 自 P4.2 起无生产调用者 (动作目标由宿主 `inspectNode` 绑定校验), 连同只覆盖重定位几何的测试一并删除, 指纹不变量改为直接断言; 插件只保留快照记录, 引用解析与变化摘要, 不再自行重定位. |
+| D48 | `confirmAlways` 为目录属性 | 记忆提议与生成脚本的强制确认由 `assets/catalog/tools.json` 的 `confirmAlways` 声明 (仅内置 SENSITIVE 工具可设, 只有完全访问可跳过), `ConfirmationGate` 不再持有工具名字面量; 内置工具名统一经 `catalog/ToolNames` 引用, `ToolCatalogTest` 断言常量集合与目录一致. |
+| D49 | 1.1.0 不单独发布 | 1.1.0 (P9) 从未打标签或发布, changelog 条目保留并注明随 1.2.0 一并发布; 下一个公开版本为 1.2.0, 发布 gate 见 P12. |
 
 由 D3 / D4 / D14 / D17 派生的硬约束:
 
@@ -189,7 +192,7 @@ catalog/    ToolCatalog (数据表), ToolSpec, ToolGroup, RiskLevel, ToolHandler
 nodes/      CompactNodeText 解析 (消费宿主 compact 格式), NodeRefRegistry (快照与指纹重定位)
 scripts/    ScriptCatalogClient (agent.listScripts 缓存), ScriptRanker (向模型呈现的候选裁剪), ScriptInvoker
 store/      RunHistoryStore, PresetStore, MemoryStore, SettingsStore (全部插件私有, 有上限与导出)
-ui/         LauncherActivity (任务台), RunDetailActivity, HistoryActivity, PresetsActivity, MemoryActivity, SettingsActivity, ReleaseHistoryActivity, ConfirmationActivity (对话框主题), ShareTargetActivity, FloatingBall (overlay), VoiceInput (RecognizerIntent)
+ui/         LauncherActivity (任务台), RunDetailActivity, HistoryActivity, PresetsActivity, MemoryActivity, SettingsActivity, McpServersActivity, ScriptRootsActivity, ReleaseHistoryActivity, AboutActivity, ConfirmationActivity (对话框主题), ShareTargetActivity, FloatingBall (overlay), SpeechInput / VoiceInputActivity (RecognizerIntent); ui/kit (令牌, AgentPalette, Rows, Buttons, Cards, Dialogs, Forms, Feedback, Scaffold)
 update/     AppUpdateRepository / AppVersionPolicy / UpdateSchedulePolicy (Readium 形态)
 ```
 
@@ -232,7 +235,7 @@ IAiAgentModelCallback.aidl        oneway: void onEvent(in Bundle event);
 AiAgentContract.kt                CONTRACT_VERSION / MIN / MAX, KEY_* 常量 (bridge / grant / reason 键复用 HostCapabilityContract), 状态与错误词汇, 上限常量 (附录 B.5)
 AiAgentActions.kt                 SERVICE_ACTION = "org.autojs.plugin.AI_AGENT", SERVICE_CATEGORY = "ai-agent", ACTION_ATTACH_REQUEST = "org.autojs.autojs6.action.AI_AGENT_ATTACH"
 AiAgentIds.kt                     PLUGIN_ID = "ai-agent", ENGINE = "ai-agent", VARIANT = "default", DEFAULT_PACKAGE_NAME, REQUIRED_HOST_VERSION_CODE
-AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_GROUPS, FEATURES (structured-json-loop, native-tools (预留), vision (预留), mcp-tools (预留))
+AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_GROUPS, FEATURES (structured-json-loop, native-tools, vision, mcp-tools; 2026-09-27 起插件全部声明, 宿主当前只消费 CONTRACT_VERSION)
 ```
 
 设计原则:
@@ -260,8 +263,11 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P8 | 文档, changelog, 1.0.0 发布 gate, 官方索引 | 文档 + 发布 | P7 |
 | P9 (1.1.0) | 原生 Tool Calling, 视觉输入, 动态脚本生成 | 宿主 + 模型 + 插件 | P8 |
 | P10 (1.2.0) | MCP 工具扩展 | 插件 + 文档 | P8 |
+| P11 | 审查修正: 能力声明与上限绑定, 工具名常量, 诊断, 去重, 死代码, UI 收敛, 文档对齐, CI 补全 | 插件 | P10 |
+| P12 | 1.2.0 发布 gate (沿用 P8 形态) | 插件 + 发布 | P11 |
+| P13 (1.3.0) | 能力扩展: 风险识别配置, 预设导入导出, 观察工具补齐, 计划模式, 协议与视觉验收 | 插件 + 模型 | P12 |
 
-当前验收状态 (2026-09-26): 原路线图全部条目已有完成证据. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
+当前验收状态 (2026-09-27): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). 1.1.0 与 1.2.0 均为未发布的开发候选 (GitHub 最新 release 仍为 v1.0.0), 1.2.0 的发布 gate 见 P12, 后续能力见 P13. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
 建议会话切分: P0 一次; P1 两到三次 (契约 + 代理 + 共享核心为一次, bridge 新方法 + 脚本登记解析为一次, 抽屉 / 注册 / 文档为一次); P2 两到三次 (目录 + 协议 + 解析; 状态机 + 预算 + 确认; 上下文 + 链路 + 前台服务); P3 一次; P4 两次 (工具面; 用例与校验); P5 一到两次; P6 三次 (任务台 + 详情 + 历史; 预设 + 记忆 + 确认; 设置 + 悬浮球 + 其它入口); P7 一到两次; P8 一次.
 
@@ -446,7 +452,7 @@ P2.5 证据 (E1/E2, 2026-09-23): 插件 JVM 216/216, API 24 与 API 37 / 16 KiB 
 
 ### P4.1 观察工具
 
-- [x] (插件) `ui_dump` (compact, `maxNodes` 默认 200 / `maxDepth` 32 / `visibleOnly` true; 返回 `snapshotId`, 记录 `NodeRefRegistry`), `ui_find` (`BridgeSelector` JSON, `limit` 10), `ui_wait_for` (`appear / disappear`, 默认 10 s), `app_current` (`app.currentWindow`), `screen_state`, `device_info`, `console_tail`; 观察文本裁剪与 "变化摘要" (与上一快照比对, 列出新增 / 消失的文本节点, 帮助模型校验). 证据 (E0 / E1, 2026-09-23): 插件 `6efc062`, 每任务有界快照与保守显示指纹重定位, 保留宿主 snapshotId; 20 KiB 观察预算, 文本多重集差异与状态变化, 不完整摘要标记 partial. API 24/37 的真实宿主设置页面往返验证 dump/find/wait/app/screen/device/console; screen_state 仅表示屏幕亮灭, console 为宿主全局窗口.
+- [x] (插件) `ui_dump` (compact, `maxNodes` 默认 200 / `maxDepth` 32 / `visibleOnly` true; 返回 `snapshotId`, 记录 `NodeRefRegistry`), `ui_find` (`BridgeSelector` JSON, `limit` 10), `ui_wait_for` (`appear / disappear`, 默认 10 s), `app_current` (`app.currentWindow`), `screen_state`, `device_info`, `console_tail`; 观察文本裁剪与 "变化摘要" (与上一快照比对, 列出新增 / 消失的文本节点, 帮助模型校验). 证据 (E0 / E1, 2026-09-23): 插件 `6efc062`, 每任务有界快照与保守显示指纹重定位, 保留宿主 snapshotId; 20 KiB 观察预算, 文本多重集差异与状态变化, 不完整摘要标记 partial. API 24/37 的真实宿主设置页面往返验证 dump/find/wait/app/screen/device/console; screen_state 仅表示屏幕亮灭, console 为宿主全局窗口. 审查回填 (2026-09-27, D47): 插件侧重定位 `NodeRefRegistry.relocate` 已移除, 动作目标由宿主 `inspectNode` 绑定校验; 指纹不变量测试保留.
 - [x] (插件) `ocr_screen` (映射 `accessibility.readScreenText`, 仅 OCR 插件可用时出现在工具清单; 结果按行合并, 带边界; WebView / Canvas 类界面的主要观察手段). 证据 (E0 / E1, 2026-09-23): 插件 `c338321`, 宿主 `0a472f7fee`; 按宿主可用性与方法/权限授权交集呈现工具, 不覆盖用户关闭的工具组. 有界文字行带屏幕坐标, 多行块标注共享边界, 不传图片. 两台 AVD 验证实际模型提示与运行器准入, OCR 返回为受控数据; 未验收真实识别效果或截图权限弹窗.
 - [x] (测试) JVM: compact 解析与 `NodeRefRegistry` 指纹 / 重定位 / 失效; 变化摘要. 证据 (E0 / E1, 2026-09-23): 新增 23 个 JVM 用例, 总计 311/311; 新增 4 个真实调度器等待/取消 Android 用例, API 24/37 各 27/27; 宿主能力代理各 5/5, 实际插件往返各 15 通过/1 既有可选 Wi-Fi 跳过. 详见 `docs/dev/p41-observation-tools-evidence.md`.
 
@@ -650,6 +656,53 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (插件) `McpToolSource`: 连接本机 MCP Server 插件 (`http://127.0.0.1:9637/mcp`, 令牌与配对由用户在 MCP 插件侧完成) 或用户配置的外部 MCP 服务器, 把 `tools/list` 结果以 `mcp_<server>_<tool>` 命名并入 `ToolCatalog` (风险等级由用户在设置中逐服务器指定, 默认 `SENSITIVE`); 结果作为观察回送. 2026-09-26 Agent 1.2.0 开发候选 / build 88: Streamable HTTP, 私有加密配置, 显式工具选择, 冻结目录, JSON/native 共用确认及错误观察; 关闭组不联网, 动作失败不重放. JVM 577 通过 / 1 原跳过, API 24 / 37.1 完整 Android 102/108 通过 + 各 3 开关跳过; 最后生命周期修正后的 MCP 专项各 14/14, Debug/R8 外部 Binder 回归通过. 真实 MCP Server 两台均发现 33 工具, 31 项 Schema 可准入, device_info 正确被未配对状态拦截; 不冒充真实宿主工具执行或模型任务验收. [P10 实现与验证](docs/dev/p10-mcp-evidence-2026-09-26.md).
 - [x] (插件) 与 MCP Client 插件 (MCP 路线图附录 E) 的关系: 若该插件落地, 本插件优先经其能力代理接入, 不自建第二套 MCP 客户端. 2026-09-26 核验本地仓库及公开契约, 该 Android 插件/能力代理尚未落地, PC MCP Bridge 不属于此接口. 当前仅实现可替换的 Agent 内部工具来源, 保留未来优先接入其代理的边界, 不声明已对接不存在的组件. [所有权与协议边界](docs/dev/p10-mcp-tool-protocol.md).
 - [x] (文档) README 与协议文档更新. 2026-09-26 十语言 README/插件说明/1.2.0 changelog 及 36 生成产物校验通过; 同步宿主协议, mcp 公共组选项与 TOOL_FAILED, d.ts 4.23.0, 在线文档, Ace 1.15.0 / 115 和离线文档 6.8.5 / 62, 分仓提交并验证. 未推送或发布候选包, 原 P9.1 / P9.2 待验收条目保留.
+
+---
+
+## P11: 路线图审查修正 (2026-09-27)
+
+目标: 在 P0-P10 全部勾选后, 逐项核对路线图声明与代码, 修正契约声明, 常量绑定, 诊断信息, 重复实现与仅测试使用的生产代码, 对齐文档与 CI. 审查方法: 通读路线图, 第一手阅读核心循环与宿主链路, 三次只读全仓扫描 (核心 / UI / 文档与基础设施), 宿主仓库只读核对. 结论: 核心约束 (完全访问只来自私有设置, 修复重试 2 次, 预算集中, 零日志正文, 目录单一来源) 与路线图一致; 以下为发现的漂移及其修正.
+
+- [x] (插件) 能力声明与上限绑定: `FEATURES` 补齐 native-tools / vision; `RunLimits` 直接引用 `AiAgentContract` 并有等值测试; `HostLink`, `ModelClient`, `PromptCatalog`, `ToolHandlers`, `RunnerPorts`, `ScriptCatalogClient`, `AgentWire`, `HttpMcpSession`, `BinderRunTools` 的超时与体积字面量改引契约常量; MCP 客户端版本取自安装包信息. 证据 (E0/E1, 2026-09-27): 插件 `76877e8`, JVM 618/618 (新增 `BudgetTest.runLimitsMirrorTheHostContract`, `McpTransportTest` 版本断言); `AiAgentPluginContractTest` 期望已更新, 设备复验待 P11 CI.
+- [x] (插件) 工具名常量与 `confirmAlways` (D48): 新增 `catalog/ToolNames`, `tools.json` 与快照为 memory_propose / script_run_source 声明 `confirmAlways`, `ConfirmationGate` 无字面量; 生产代码中的工具名字面量只剩 4 处 `screen_capture` 权限令牌. 证据 (E0/E1): `b4a6d67`, JVM 619/619 (新增 `ToolCatalogTest.toolNameConstantsAndConfirmAlwaysMatchThePackagedCatalog`), AGENTS 第 9 节同步.
+- [x] (插件) 诊断与准备窗口: `guarded` 捕获的内部异常以 `decision.failure` (异常类名, 不含消息, `source=runtime`) 进入步骤记录, 时间线徽标与脱敏导出保留; 工具适配器回送 `BUDGET_EXCEEDED` 时终态带 `toolTimeout` 维度; `RunLimits.PREPARATION_MS` = 15 s, `MCP_PREPARATION_MS` = 8 s. 证据 (E0/E1): `5044a23`, JVM 622/622 (新增 3 例).
+- [x] (插件) 去重: `Digests.sha256Hex` 取代 8 处手写摘要, `String.utf8Size` 取代 77 处字节长度表达式, `Redaction` 统一三份脱敏与秘密替换, MCP 原因码与目录加载各只剩一处, `ObservationCompactor.fitText` 统一字节装箱二分. 证据 (E0/E1): `8f1805b`, JVM 622/622; `MessageDigest` 只出现在 `Digests.kt`.
+- [x] (插件) 删除仅测试使用的生产路径 (D47): `NodeRefRegistry.relocate`, `Bounds.permits`, `Node.relocatable`, `SchemaFallbacks.clear`, `PromptCatalog.repair(Repair)` 重载, `ToolObservation.failure` (与生产映射不一致的错误表); `ModelClient.await` 与 `RunQueue.submit` 保留为已注明的测试接缝. 证据 (E0/E1): `48eb25c`, JVM 618/618 (重定位几何测试删除, 指纹不变量改为直接断言, 错误映射测试改为覆盖 `BinderRunTools.bridgeError`).
+- [x] (插件) UI 收敛: kit 删除 `formLabel`, `boundedRipple`, 底部面板动作行与未用参数, `PendingCard` / `RunDetailActivity` 共用 `Kit.paragraph` / `Kit.note`, 悬浮球改用 `Kit.dp`, 步骤标签经 `Ui.truncatable` 提供完整描述并移除审计豁免, 置顶已满提示改为 snackbar, Manifest 声明 `roundIcon`. 证据 (E0/E1/E2): `c55e94e`, JVM 618/618, `assembleDebugAndroidTest` 编译通过, lint 0 错误 / 7 警告 (原 8); 设备全量 instrumentation 未在本次执行, 待 P11 CI 或下次设备会话.
+- [x] (文档) 权限说明 10 语言 (含 ACCESS_LOCAL_NETWORK 与 INTERNET 双用途), notices 补齐 Kotlin / 协程 / 测试依赖版本, v1.1.0 未单独发布注记, v1.2.0 AAR 换锁记录, 安全清单 P10 小节, `ManifestContractTest` 用例名与 `RECOGNIZE_SPEECH` / `roundIcon` 断言, fake-host README 计数, `.gitignore` 明示证据补丁, `.gitattributes` 固定捆绑文本 LF. 证据 (E0/E1): `c427412`, `generate_markdown.py --check` 10 语言 36 产物, JVM 618/618.
+- [x] (测试) CI: `verify-build` 显式 `assembleRelease`; `verify-contract` 构建 fake-host instrumentation 并先运行 12 项 conformance (脚本断言 `OK (12 tests)`) 再准备主套件. 证据 (E0): `ab1ef17`; 远程运行待推送后记录 run id.
+- [ ] (测试) 推送后记录远程 CI (API 24 / 35) 的 conformance 与主套件结果, 以及 `AiAgentPluginContractTest` 的 FEATURES 断言. 证据 E2: 远程 run id.
+- [ ] (插件) 厂商 ROM 复验: 五台真机安装 build >= 110, 检查输入法停靠, 2 倍字号与 Arabic RTL (2026-09-27 重设计与本次 UI 收敛只在 AVD / 编译层验证). 证据 E3.
+- [ ] (插件) D42 真机复验: 在已配置 Root 或 Shizuku 的设备上验证 `accessibility.ensureEnabled` 自动启动与失败引导 (当前仅确定性测试). 证据 E3.
+- [ ] (插件, 可选) `WorkbenchLayout` 与 `ConfirmationActivity` 改用 kit `Scaffold`; 7 个大于 15 KB 的 Activity 按 "视图构建 / 事件处理" 拆分; `ModelClient.await` 改为测试侧夹具. 证据 E2: 全量 instrumentation 与 12 张截图无像素回归.
+
+审查中确认无需改动的事项 (记录以免重复审查): 更新检查的 `X-GitHub-Api-Version: 2026-03-10` 已被 GitHub 实际接受; `Theme.AiAgent.Light/Dark` 为 setTheme 别名, 夜间值经 AppCompat delegate 生效; 三个兄弟官方插件仓库均无源码许可证头, AGENTS 第 18 节已改为按此约定; `LauncherActivity` 与 `Workbench*` 辅助命名不统一但类名由 AGENTS 第 2 节固定, 不改.
+
+## P12: 1.2.0 发布 gate
+
+沿用 P8 六项形态; 1.1.0 不单独发布 (D49).
+
+- [ ] (插件) README `p_status` / `p_usage_note` 与 `plugin_instruction.md` 改为发布措辞 (去掉 "开发版本"), 12 张截图与最终 build 一致; 兼容性段补 "原生工具调用与图片输入需宿主 build 5297+".
+- [ ] (插件) `.changelog` v1.2.0 `released_date` 定稿, v1.1.0 保留 "随 1.2.0 一并发布" 注记; `py .python/generate_markdown.py` 与 `--check`.
+- [ ] (发布) Temurin 验收 (`assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug assembleRelease`), `appendDigestToReleasedFiles` 单 APK 且 CRC32 与内容一致, 两台设备安装 + 激活 + 附着 + D32 用例 (1) smoke, `VERSION_BUILD` 与提交数一致, `git status --short` 为空.
+- [ ] (发布) GitHub Release v1.2.0 (说明: 最低宿主 5289 附着 / 5293 任务 API / 5297 原生工具与图片; 3-Stone AI >= 1.2.0; 已知限制: 本地小模型决策质量, 默认自动连网后的 VPN 跨网络切换, 视觉跨 UID 全任务未验收).
+- [ ] (宿主 + 文档) 官方索引加入 1.2.0 资产哈希; 宿主 changelog 核对 P9 / P10 条目; 四仓库 (文档, d.ts, 离线文档, Ace) 已在 P10 同步, 只需核对无漂移.
+- [ ] (测试) CI 矩阵加 API 37 x86_64 与 `lintRelease`; API 24 保留.
+
+## P13 (1.3.0): 能力扩展
+
+每项独立可发布; 顺序按附录 G 的 Q12 默认值.
+
+- [ ] (插件) 支付应用与敏感关键词可配置 (附录 C.3 未落地部分): 设置页 "风险识别" 管理支付包名列表与附加关键词, 经 `ToolPolicy.paymentPackages / keywords` 生效, 只能增加不能删除内置项; 是否随预设分发见 Q11. 证据 E1: `ToolCatalogTest`; E2: 设置持久化.
+- [ ] (插件) 预设导入 / 导出 (附录 I.3): JSON, 不含模型与凭据, 导入逐项确认, 与记忆导入同形. 证据 E1: `PresetCodecTest`; E2: SAF 往返.
+- [ ] (插件) 观察工具补齐宿主 grant 已允许但目录未用的方法: `app_list` (`package_manager.listApps`, 有界 200 条), `app_installed` (`app.isInstalled`), `script_list` (`engines.list`); 均 READ_ONLY, 归 observe / script 组, 快照与 README 工具表同步. 证据 E1: 快照更新; E2: API 24/37 往返.
+- [ ] (插件) 计划模式 (附录 H.2 的两段式作为可选能力, 非退路): 任务开始先让模型输出 3-8 步计划并在任务台展示, 用户可编辑后执行, 偏离时重规划; 默认关闭 (Q10). 证据 E1: 计划 Schema 与 `DecisionValidator`; E4: 本地 Gemma 4 E2B 用例 (1) 至少一次 completed (允许失败但记录).
+- [ ] (插件 + 模型) 在线协议变体真实验证: Anthropic 与 Gemini profile 各 20 轮 `AgentDecision` Schema 合规率 (P0.2 只测了 OpenAI 兼容). 证据 E4.
+- [ ] (插件) 视觉跨 UID 真实任务: `screen_capture` 参与的 D32 用例 (2) 在真机 + 图片模型 completed 一次 (P9.2 只验了 Provider 探针). 证据 E4.
+- [ ] (插件) 任务结果分享: 详情页 "分享摘要" 经系统分享面板输出脱敏文本 (status / summary / evidence, 不含观察正文). 证据 E2.
+- [ ] (插件) MCP: `notifications/tools/list_changed` 后提示重新冻结目录而非直接以 `MCP_CATALOG_CHANGED` 失败; OAuth 与旧 HTTP+SSE 保持不支持并在设置页说明. 证据 E1 + 真实 MCP Server.
+- [ ] (插件) 移除首轮重设计遗留的 `"workbench"` SharedPreferences 迁移 (`ModelSelection`, `LauncherActivity` 草稿) — 1.2.0 发布并经过一个版本后执行. 证据 E1.
+- [ ] (插件) 语音识别准确率与 ColorOS 激活: 各一次真机记录 (缺席设备写 "未执行"). 证据 E3.
 
 ---
 
@@ -1076,6 +1129,23 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 
 - 默认: 受 PLUGIN 权限保护的显式广播 (D16).
 - 备选: 宿主导出一个受权限保护的无界面 Activity (`AiAgentAttachActivity`), 插件以 `startActivity` 请求; 优点是 ColorOS 类系统对后台广播的限制更少, 缺点是会短暂前台切换.
+
+2026-09-27 审查追加以下待决事项 (P13 前拍板, 未拍板时按默认值实施):
+
+### Q10 (P13 前): 计划模式是否默认对本地目标开启 (默认: 否)
+
+- 默认: 计划模式默认关闭, 用户在预设或任务选项中开启; 本地目标只在文档中建议开启.
+- 备选: 目标 locality 为本地时自动开启, 以两段式弥补小模型的多步规划能力.
+
+### Q11 (P13 前): 支付包名列表是否随预设分发 (默认: 仅全局设置)
+
+- 默认: 只在全局设置维护, 预设不携带, 避免分享预设时携带风险策略.
+- 备选: 预设可附加只增不减的包名与关键词.
+
+### Q12 (P13 前): P13 条目顺序 (默认: 风险识别配置 -> 预设导入导出 -> 观察工具补齐 -> 计划模式 -> 验收类条目)
+
+- 默认: 先做零契约变更的设置与工具项, 再做提示词 / Schema 有变化的计划模式, 最后集中真机与真实模型验收.
+- 备选: 验收类条目 (在线协议变体, 视觉跨 UID) 优先, 以尽早暴露 Provider 侧问题.
 
 ---
 
@@ -1649,3 +1719,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 任务台与悬浮球共用私有模型选择 (最近 8 个, 置顶 16 个, 自动 = 第一个本地模型否则第一个目标), 插件界面任务不继承预设旧模型, 宿主与脚本请求保持继承. 确认卡片以参数表代替原始 JSON, 悬浮球只用内联面板; 历史支持搜索, 状态/预设/日期筛选, 详情显示模型与步骤时间线; 预设, 记忆, MCP 与脚本目录统一样式并在离开前确认未保存修改. 旧 `AgentUi` 等辅助类已删除, AGENTS 第 14 节补充界面工具约定.
 - 验证: JVM 617 项, 616 通过 + 1 既有性能开关跳过; Temurin 模拟下 debug/androidTest/lint/R8 release 同次通过, lint 0 错误 / 8 既有警告, 单一版本横幅; 十语言 36 个生成产物与 353 个字符串键校验通过. 私有 AVD 最终源码全量: API 37.1 共 128 项 (124 通过 / 4 显式跳过, 463 s), API 24 共 122 项 (118 通过 / 4 显式跳过, 335 s). API 37.1 双倍字号 (含 Arabic 暗色) 5 项审计 32 个命名状态无问题; 两台输入法检查输入栏与开始按钮均在键盘上方. 新测试发现并修复了色调填充对比度, 大字号溢出, 空历史标题与欢迎页 "跳到最新" 按钮等问题, 未放宽阈值或安全检查.
 - 12 张界面截图全部重拍并记录哈希; release APK 由 build 94 的 846324 字节增至 2327936 字节 (Material 依赖, 仅保留 10 种语言资源). 仅使用两台一次性 AVD 与合成模型回复, 连接中的五台真机未安装或更改, 无真实模型调用; 1.2.0 开发候选 / build 102, 不推送/发布/改标签. 厂商 ROM 上的输入法与大字号表现尚未实测. 详见 [设计与验证记录](docs/dev/standalone-ui-material3-2026-09-27.md).
+
+### 2026-09-27: 路线图审查, 代码修正与 P11-P13
+
+- 按用户要求核对 P0-P10 的完成情况: 通读路线图, 第一手阅读 `AgentRunner` / `ConfirmationGate` / `Budget` / `DecisionValidator` / `StepJournal` / `HostLink` / `AgentRuntime` / `ControlRequests` / `ModelClient` / `HttpMcpSession` / `AppUpdateRepository` / `HostCallerVerifier` / `AndroidMcpEncryption` / `SettingsStore`, 三次只读全仓扫描 (核心, UI, 文档与基础设施), 只读核对宿主 `AiAgentGrant` 与 FEATURES 消费点, 并向 GitHub 发行接口发出一次真实请求核实更新检查的 API 版本头. 核心约束与路线图一致; 漂移集中在能力声明, 常量复制, 重复实现, 仅测试使用的生产代码, UI 死代码与文档 (详见 P11).
+- 落地 8 个提交 (build 103-110): `76877e8` 契约声明与上限绑定, `b4a6d67` 工具名常量与 `confirmAlways` (D48), `5044a23` 内部异常分类 / 预算维度 / MCP 准备窗口, `8f1805b` 摘要 / 字节长度 / 脱敏助手去重, `48eb25c` 删除仅测试使用的生产路径 (D47), `c55e94e` UI 收敛与可截断标签, `c427412` 权限 / notices / changelog / 安全清单 / `.gitattributes`, `ab1ef17` CI 显式 release 与 fake-host conformance. 每笔提交前 JVM 全量通过 (最终 618 通过 + 1 性能开关跳过), UI 提交另经 `assembleDebugAndroidTest` 与 `lintDebug` (0 错误 / 7 警告); 十语言 36 产物 `--check` 通过; 本轮未安装真机, 未运行设备 instrumentation, 未调用真实模型.
+- 新增 D47-D49, 阶段 P11 (审查修正, 大部分已勾选) / P12 (1.2.0 发布 gate) / P13 (1.3.0 能力扩展), 附录 G 的 Q10-Q12 (默认值已给). 4.2 节的包结构与 FEATURES 说明按现状更新; P4.1 回填重定位移除.
+- 会话期间, 本会话的一个 fork 子代理按用户另行提出的 "AI Agent 改名为 Three Stove Agent 并更换图标" 请求在同一工作树执行了整仓改名 (285 个文件移动, 86 个改写, 图标资源与 AGENTS / ROADMAP 局部改动). 用户拍板 "先审查后改名": 该结果已完整保存在 git stash `three-stove-rename (fork, paused; re-apply after review commits)`, fork 已暂停, 本轮提交不含任何改名内容. 改名需作为独立会话处理: 在新 HEAD 上重跑 fork 的脚本 (或弹出 stash 后解决与本轮提交的冲突), 更新 `VERSION_BUILD`, 同步 AGENTS 第 2 节身份表, 并在宿主仓库同步契约常量与 AAR 换锁, 再改 GitHub 仓库名; 未采纳 fork 随后提出的放宽权限建议, 仓库内由其生成的未跟踪 `.claude/settings.json` 保持未跟踪, 由用户决定去留.
+- 下一起点: P11 余下条目 (推送后记录远程 CI, 厂商 ROM 与 D42 真机复验), 然后 P12 发布 gate; 改名按用户安排另开会话. 当前无需用户补充资料; 若要在本机验证 UI 提交, 需要一台一次性 `AI_Agent_Conformance_*` AVD 跑 `:app:connectedDebugAndroidTest`.
