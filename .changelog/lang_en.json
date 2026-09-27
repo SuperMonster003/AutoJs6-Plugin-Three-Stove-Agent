@@ -23,6 +23,7 @@
         "Confirmation cards add Always allow for this session: until the task ends, the same tool at the same risk level runs without asking again, even with different arguments. Payments need their own approval; generated scripts and memory proposals can also be allowed for the session."
       ],
       "fix": [
+        "The workbench access mode chip had no accessible name until the first status arrived, so a screen reader met an unnamed button (found by the CI layout audit at API 35); it is now named \"Operation permissions\" until the status supplies the mode",
         "Task stop reasons are specific: the terminal summary carries a bracketed cause with the budget dimension and used/limit (steps 60/60, task time 900 s/900 s), which limit was exceeded (model response size, task context beyond the model input limit, tool result batch), or the error code with the host's fixed failure reason (MODEL_FAILED: ONLINE_NETWORK_UNAVAILABLE); host reasons other than REQUEST_REJECTED were dropped before",
         "A long scope name in the memory list no longer pushes the entry key out of its row: the scope badge ellipsizes on one line and keeps the full name in its accessibility description (found by the CI layout audit at API 24 / 360 dp)",
         "When an internal exception fails a task, the step record keeps the exception class (never its message) for diagnosis; a tool timeout now names the tool time limit dimension in the result; MCP tool discovery is capped at 8 seconds so it cannot consume the 15 second preparation window",
