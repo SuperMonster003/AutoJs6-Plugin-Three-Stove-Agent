@@ -64,6 +64,7 @@ internal object RunHistoryCodec {
                 require(step["decision"].isJsonObject)
                 val decision = step.getAsJsonObject("decision")
                 if (decision.has("reasoning")) require(decision.string("reasoning") != null)
+                if (decision.has("failure")) require(decision.string("failure")?.matches(StepJournal.FAILURE_CLASS) == true)
                 for ((branch, field) in listOf("ask" to "question", "done" to "summary")) decision[branch]?.let { child ->
                     require(child.isJsonObject)
                     if (child.asJsonObject.has(field)) require(child.asJsonObject.string(field) != null)

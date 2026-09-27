@@ -234,7 +234,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             if (ToolGroup.MCP.id !in request.groups) prepared(null)
             else runtime.mcp.query { profiles ->
                 if (!stopped.get()) profiles.fold({ configured ->
-                    val handle = mcp.prepare(runtime.catalog, configured, 15_000) { outcome ->
+                    val handle = mcp.prepare(runtime.catalog, configured, RunLimits.MCP_PREPARATION_MS) { outcome ->
                         when (outcome) {
                             is PortResult.Success -> prepared(outcome.value)
                             is PortResult.Failure -> finish(outcome)

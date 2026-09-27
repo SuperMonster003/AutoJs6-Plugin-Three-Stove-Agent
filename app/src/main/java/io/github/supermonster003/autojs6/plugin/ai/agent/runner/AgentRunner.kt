@@ -39,6 +39,7 @@ class AgentRunner internal constructor(
     private var parseMode: ParseMode? = null
     private var repairSession: DecisionRepairSession? = null
     private var responseLimitExceeded = false
+    private var internalFailure: String? = null // Exception class only; never its message.
     private var observation: String? = null
     private var observationImages = emptyList<ModelImage>()
     private var confirmation: String? = null
@@ -75,7 +76,7 @@ class AgentRunner internal constructor(
             durationTimer = scheduler.schedule(options.limits.maxDurationMs) { guarded { throw BudgetExceeded("duration") } }
             transition(RunState.RUNNING)
             if (preparation == null) { format = model.initialFormat(options.format); nextStep() }
-            else beginOperation(minOf(15_000, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
+            else beginOperation(minOf(RunLimits.PREPARATION_MS, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
                 { callback -> preparation.prepare(callback) }, onDiscard = { outcome ->
                     if (outcome is PortResult.Success && outcome.value !== acceptedComponents) safely(outcome.value.cleanup::cancel)
                 }) { outcome ->
@@ -355,7 +356,9 @@ class AgentRunner internal constructor(
                            scriptParameters: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptParameterProblem? = null, mcpReason: String? = null) {
         if (unknownPassword) protectText()
         (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
-        if (error.hostLost || error == RunError.BUDGET_EXCEEDED) { finishError(error); return }
+        if (error.hostLost || error == RunError.BUDGET_EXCEEDED) {
+            finishError(error, budgetDimension = "toolTimeout".takeIf { error == RunError.BUDGET_EXCEEDED }); return
+        }
         observation = scriptParameters?.observation() ?: jsonObject("error" to error.name.json()).apply {
             if (error == RunError.A11Y_SERVICE_NOT_RUNNING) addProperty("hint",
                 "AutoJs6 accessibility is not running and automatic startup failed or is not configured. Ask the user to enable it, then observe again before acting.")
@@ -500,26 +503,33 @@ class AgentRunner internal constructor(
         try { if (canContinue()) action() }
         catch (error: BudgetExceeded) { finishError(RunError.BUDGET_EXCEEDED, error.dimension) }
         catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED) }
-        catch (_: Exception) { finishError(RunError.INVALID_REQUEST) }
+        catch (error: Exception) {
+            // A programming error is indistinguishable from a bad request on the public surface; keep the class for diagnosis.
+            internalFailure = error.javaClass.simpleName.ifBlank { "Exception" }
+            finishError(RunError.INVALID_REQUEST)
+        }
     }
     private fun record(value: String?, error: RunError? = null, images: List<ModelImage> = emptyList()) {
         if (recorded) return
         val current = decision
         val rejections = repairSession?.rejections.orEmpty() +
             if (responseLimitExceeded) listOf(DecisionRejection.LIMIT_EXCEEDED) else emptyList()
-        if (current == null && rejections.isEmpty()) return
+        if (current == null && rejections.isEmpty() && internalFailure == null) return
         val b = checkNotNull(budget)
+        if (b.steps < 1) return // Failed before the first step: the result carries the error code.
         recorded = true
         val usage = b.usageJson().apply {
             for (key in listOf("modelCalls", "inputTokens", "outputTokens", "totalTokens")) addProperty(key, number(key)!! - (stepUsageStart.number(key) ?: 0))
             addProperty("estimated", stepEstimated)
         }
         // An error record contains validator metadata, never a fabricated or rejected model decision.
-        val data = (current?.let(StepJournal::decision) ?: jsonObject("kind" to "error".json(), "source" to "validator".json())).apply {
+        val data = (current?.let(StepJournal::decision) ?: jsonObject("kind" to "error".json(),
+            "source" to (if (internalFailure != null && rejections.isEmpty()) "runtime" else "validator").json())).apply {
             if (userRequestedStep) addProperty("source", "user")
             parseMode?.let { addProperty("parseMode", it.name) }
             addProperty("repairs", repairSession?.repairsUsed ?: 0)
             addProperty("degraded", format.degraded)
+            internalFailure?.let { addProperty("failure", it) }
         }
         val entry = journal.append(StepRecord(b.steps, data.string("kind")!!, data,
             (current as? AgentDecision.Tool)?.name, (current as? AgentDecision.Tool)?.arguments,

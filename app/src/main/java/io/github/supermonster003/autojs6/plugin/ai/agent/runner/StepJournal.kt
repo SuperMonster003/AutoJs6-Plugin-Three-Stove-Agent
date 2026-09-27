@@ -38,12 +38,13 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         fun decision(limit: Int) = clipped(redactDecision(record.decision), limit).asJsonObject.apply {
             // Keep bounded runtime attribution even when a long source or observation is clipped.
             for ((key, choices) in mapOf("kind" to setOf("tool", "ask", "done", "error", "repair"),
-                "source" to setOf("user", "validator"), "parseMode" to ParseMode.entries.map { it.name }.toSet())) {
+                "source" to setOf("user", "validator", "runtime"), "parseMode" to ParseMode.entries.map { it.name }.toSet())) {
                 record.decision.string(key)?.takeIf { it in choices }?.let { addProperty(key, it) }
             }
             record.decision.string("tool")?.takeIf { it.matches(Regex("[a-z][a-z0-9_]{1,63}")) }?.let { addProperty("tool", it) }
             record.decision.number("repairs")?.takeIf { it in 0..DecisionRepairSession.MAX_REPAIRS.toLong() }?.let { addProperty("repairs", it) }
             record.decision.flag("degraded")?.let { addProperty("degraded", it) }
+            record.decision.string("failure")?.takeIf { it.matches(FAILURE_CLASS) }?.let { addProperty("failure", it) }
             if (record.rejections.isNotEmpty()) add("rejections", JsonArray().apply { record.rejections.forEach { add(it.name) } })
         }
         val entry = jsonObject("index" to record.index.json(), "kind" to record.kind.json(),
@@ -112,7 +113,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         }
     }
     private fun redactDecision(value: JsonObject) = redact(value).asJsonObject.apply {
-        for (key in listOf("kind", "tool", "source", "parseMode", "repairs", "degraded", "rejections")) value[key]?.let { add(key, it.deepCopy()) }
+        for (key in listOf("kind", "tool", "source", "parseMode", "repairs", "degraded", "rejections", "failure")) value[key]?.let { add(key, it.deepCopy()) }
         for ((branch, keys) in listOf("ask" to listOf("kind"), "done" to listOf("status", "orderStatus"))) {
             value.getAsJsonObject(branch)?.let { original -> keys.forEach { key -> original[key]?.let { getAsJsonObject(branch).add(key, it.deepCopy()) } } }
         }
@@ -148,6 +149,8 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         }
     }
     companion object {
+        /** A Java/Kotlin simple class name recorded for internal failures; never an exception message. */
+        val FAILURE_CLASS = Regex("[A-Za-z0-9_$.]{1,128}")
         fun bytes(value: JsonElement) = value.toString().toByteArray(Charsets.UTF_8).size
         fun clipped(value: JsonElement, maxBytes: Int): JsonElement {
             require(maxBytes >= 256)

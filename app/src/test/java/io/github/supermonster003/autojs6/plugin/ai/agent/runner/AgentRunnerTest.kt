@@ -43,6 +43,15 @@ class AgentRunnerTest {
         assertEquals(6, f.journal(run).getAsJsonArray("steps").size()); assertTrue(f.queue.runs().isEmpty())
         uniqueTerminal(f, run)
     }
+    @Test fun toolAdapterBudgetFailuresReportTheToolTimeoutDimension() {
+        val f = RunnerFixture(); f.tools.autoPrepare = false
+        f.enqueue(tool("ui_dump"))
+        val run = f.start()
+        f.tools.inspections.single().second.fail(RunError.BUDGET_EXCEEDED); f.scheduler.drain()
+        assertEquals(RunState.FAILED, run.state); assertEquals("BUDGET_EXCEEDED", error(run))
+        assertTrue(run.result!!.string("summary")!!.endsWith("[Tool time limit]"))
+        uniqueTerminal(f, run)
+    }
     @Test fun allModelDoneStatusesAreTerminalAndImmutable() {
         for (status in listOf("completed", "partial", "failed")) {
             val f = RunnerFixture(); f.enqueue(done(status)); val run = f.start()

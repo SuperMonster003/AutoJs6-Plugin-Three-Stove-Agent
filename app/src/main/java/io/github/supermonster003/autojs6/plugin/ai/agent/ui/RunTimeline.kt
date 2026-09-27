@@ -97,7 +97,7 @@ internal class RunTimeline(
         row.detail.text = detail.orEmpty()
         row.detail.visibility = if (detail.isNullOrBlank()) View.GONE else View.VISIBLE
         val badge = when {
-            error != null -> error to Tone.DANGER
+            error != null -> (decision?.string("failure")?.let { "$error ($it)" } ?: error) to Tone.DANGER
             confirmation == "allowed" -> context.getString(R.string.history_allowed) to Tone.SUCCESS
             confirmation == "denied" -> context.getString(R.string.history_denied) to Tone.WARNING
             else -> null

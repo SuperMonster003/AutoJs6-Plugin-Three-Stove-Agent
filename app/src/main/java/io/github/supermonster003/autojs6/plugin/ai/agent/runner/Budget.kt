@@ -17,6 +17,10 @@ object RunLimits {
     /** Plugin defaults from P2.3; settings, presets and requests can only narrow them. */
     const val DEFAULT_DURATION_MS = 10 * 60_000L
     const val DEFAULT_DETACHED_DURATION_MS = 30 * 60_000L
+    /** Whole preparation window (model selection, catalog, memory, MCP) before the first decision. */
+    const val PREPARATION_MS = 15_000L
+    /** MCP discovery gets a strict share of the window so a slow server cannot starve the rest. */
+    const val MCP_PREPARATION_MS = 8_000L
 }
 
 data class BudgetLimits(
