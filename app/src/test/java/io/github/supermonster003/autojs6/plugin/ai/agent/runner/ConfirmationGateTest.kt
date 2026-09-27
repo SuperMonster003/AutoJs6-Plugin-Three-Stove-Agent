@@ -68,7 +68,7 @@ class ConfirmationGateTest {
     }
     @Test fun forcedScriptAndMemoryConfirmationCanBeRememberedForTheCurrentTool() {
         val gate = gate()
-        for ((name, metadata) in listOf("script_run" to ToolMetadata(forceConfirmation = true), "memory_propose" to ToolMetadata())) {
+        for ((name, metadata) in listOf("script_run" to ToolMetadata(forceConfirmation = true), "memory_propose" to ToolMetadata(), "script_run_source" to ToolMetadata())) {
             val decision = assess(gate, name, metadata)
             assertTrue(decision.required); assertTrue(gate.allow(decision, ConfirmationScope.RUN))
             assertFalse(assess(gate, name, metadata).required)

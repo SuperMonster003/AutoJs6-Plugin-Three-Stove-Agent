@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference
 class ScriptExecutionTools(private val delegate: RunTools, private val invoker: ScriptInvoker) : RunTools {
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit) = delegate.prepare(invocation, timeoutMs, callback)
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit) =
-        if (prepared.invocation.name == "script_run") invoker.execute(prepared, timeoutMs, callback) else delegate.execute(prepared, timeoutMs, callback)
+        if (prepared.invocation.name == ToolNames.SCRIPT_RUN) invoker.execute(prepared, timeoutMs, callback) else delegate.execute(prepared, timeoutMs, callback)
 }
 
 /** Stop addresses this invocation even before the host has assigned an execution ID. */

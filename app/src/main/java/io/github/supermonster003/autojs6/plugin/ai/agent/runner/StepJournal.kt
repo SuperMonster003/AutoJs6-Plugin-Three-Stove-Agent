@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.runner
 
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 data class StepRecord(
     val index: Int, val kind: String, val decision: JsonObject,
@@ -48,7 +49,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         val entry = jsonObject("index" to record.index.json(), "kind" to record.kind.json(),
             "decision" to decision(2048), "elapsedMs" to record.elapsedMs.json())
         record.tool?.let { entry.addProperty("tool", it) }
-        val dynamic = record.tool == "script_run_source" && record.arguments?.string("source")?.let {
+        val dynamic = record.tool == ToolNames.SCRIPT_RUN_SOURCE && record.arguments?.string("source")?.let {
             runCatching { io.github.supermonster003.autojs6.plugin.ai.agent.scripts.DynamicScriptSource.validate(it) }.isSuccess
         } == true
         val redactedArguments = record.arguments?.let(::redact)
@@ -104,7 +105,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
     private fun redactRecord(value: JsonObject) = value.deepCopy().apply {
         getAsJsonObject("decision")?.let { add("decision", redactDecision(it)) }
         for (key in listOf("arguments", "observation", "preview")) get(key)?.let { add(key, redact(it)) }
-        if (value.string("tool") == "script_run_source" && getAsJsonObject("arguments")?.string("source") !=
+        if (value.string("tool") == ToolNames.SCRIPT_RUN_SOURCE && getAsJsonObject("arguments")?.string("source") !=
             value.getAsJsonObject("arguments")?.string("source")) {
             addProperty("sourceRedacted", true)
             getAsJsonObject("arguments")?.let { add("arguments", clipped(it, 2048)) }

@@ -19,7 +19,7 @@ internal class MemoryTools(private val repository: MemoryRepository, private val
         return repository.query({ store ->
             check(alive())
             val args = (invocation.plan as ToolPlan.Local).arguments
-            if (invocation.name == "memory_get") {
+            if (invocation.name == ToolNames.MEMORY_GET) {
                 args.getAsJsonArray("keys")?.forEach { MemoryCodec.key(it.asString) }
                 PreparedTool(invocation, ToolMetadata())
             } else {
@@ -35,7 +35,7 @@ internal class MemoryTools(private val repository: MemoryRepository, private val
         if (prepared.invocation.name !in NAMES) return delegate.execute(prepared, timeoutMs, callback)
         return repository.query({ store ->
             check(alive())
-            if (prepared.invocation.name == "memory_get") {
+            if (prepared.invocation.name == ToolNames.MEMORY_GET) {
                 val args = (prepared.invocation.plan as ToolPlan.Local).arguments
                 val keys = args.getAsJsonArray("keys")?.map { MemoryCodec.key(it.asString) }?.toSet()
                 val selected = MemoryContext.select(store.snapshot(), preset, allowed("global"), allowed(preset), keys, 24 * 1024)
@@ -50,5 +50,5 @@ internal class MemoryTools(private val repository: MemoryRepository, private val
             }
         }) { result -> callback(result.fold({ PortResult.Success(it) }, { PortResult.Failure(RunError.INVALID_REQUEST) })) }
     }
-    companion object { val NAMES = setOf("memory_get", "memory_propose") }
+    companion object { val NAMES = ToolNames.MEMORY }
 }

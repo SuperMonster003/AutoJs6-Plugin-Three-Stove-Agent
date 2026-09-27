@@ -48,56 +48,56 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             return jsonObject("nodeRef" to ref.json()).apply { args["snapshotId"]?.let { add("snapshotId", it) } }
         }
         return when (name) {
-            "ui_dump" -> ToolPlan.Call(call("accessibility.dump", args.apply { addProperty("format", "compact") }))
-            "ui_find" -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Call(call("accessibility.findAll", selector), num("limit").toInt()) }
-            "ui_wait_for" -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Poll(call("accessibility.findOne", selector, timeout = minOf(num("timeoutMs"), 5000)), str("state"), num("timeoutMs")) }
-            "app_current" -> ToolPlan.Call(call("app.currentWindow"))
-            "screen_state" -> ToolPlan.Call(call("device.isScreenOn"))
-            "screen_capture" -> ToolPlan.Call(call("accessibility.screenshot", jsonObject("format" to "png".json())))
-            "device_info" -> ToolPlan.Call(call("device.info"))
-            "console_tail" -> ToolPlan.Call(call("console.tail", jsonObject("lines" to num("lines").json())))
-            "ocr_screen" -> {
+            ToolNames.UI_DUMP -> ToolPlan.Call(call("accessibility.dump", args.apply { addProperty("format", "compact") }))
+            ToolNames.UI_FIND -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Call(call("accessibility.findAll", selector), num("limit").toInt()) }
+            ToolNames.UI_WAIT_FOR -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Poll(call("accessibility.findOne", selector, timeout = minOf(num("timeoutMs"), 5000)), str("state"), num("timeoutMs")) }
+            ToolNames.APP_CURRENT -> ToolPlan.Call(call("app.currentWindow"))
+            ToolNames.SCREEN_STATE -> ToolPlan.Call(call("device.isScreenOn"))
+            ToolNames.SCREEN_CAPTURE -> ToolPlan.Call(call("accessibility.screenshot", jsonObject("format" to "png".json())))
+            ToolNames.DEVICE_INFO -> ToolPlan.Call(call("device.info"))
+            ToolNames.CONSOLE_TAIL -> ToolPlan.Call(call("console.tail", jsonObject("lines" to num("lines").json())))
+            ToolNames.OCR_SCREEN -> {
                 args.getAsJsonArray("region")?.let { if (it[2].asLong <= 0 || it[3].asLong <= 0) invalid("Region width and height must be positive.") }
                 ToolPlan.Call(call("accessibility.readScreenText", args))
             }
-            "ui_click", "ui_long_click" -> ToolPlan.Call(call(if (name == "ui_click") "accessibility.click" else "accessibility.longClick", target()))
-            "ui_set_text" -> {
+            ToolNames.UI_CLICK, ToolNames.UI_LONG_CLICK -> ToolPlan.Call(call(if (name == ToolNames.UI_CLICK) "accessibility.click" else "accessibility.longClick", target()))
+            ToolNames.UI_SET_TEXT -> {
                 val target = target()
                 if (args.flag("append") == true) ToolPlan.AppendText(target, str("text"))
                 else ToolPlan.Call(call("accessibility.setText", target, str("text").json()))
             }
-            "ui_scroll" -> ToolPlan.Repeat(call(if (str("direction") == "forward") "accessibility.scrollForward" else "accessibility.scrollBackward", target()), num("times").toInt())
-            "ui_press_key" -> ToolPlan.Call(call(when (str("key")) {
+            ToolNames.UI_SCROLL -> ToolPlan.Repeat(call(if (str("direction") == "forward") "accessibility.scrollForward" else "accessibility.scrollBackward", target()), num("times").toInt())
+            ToolNames.UI_PRESS_KEY -> ToolPlan.Call(call(when (str("key")) {
                 "back" -> "accessibility.back"; "home" -> "accessibility.home"; "recents" -> "accessibility.recentApps"
                 "notifications" -> "keys.notifications"; else -> "keys.quickSettings"
             }))
-            "app_launch" -> {
+            ToolNames.APP_LAUNCH -> {
                 if (args.has("packageName") == args.has("appName")) invalid("Choose packageName or appName.")
                 if (args.has("packageName")) ToolPlan.Call(call("app.launchPackage", str("packageName").json()))
                 else ToolPlan.Call(call("app.launchApp", str("appName").json()))
             }
-            "clipboard_get" -> ToolPlan.Call(call("clipboard.getText"))
-            "clipboard_set" -> ToolPlan.Call(call("clipboard.setText", str("text").json()))
-            "ui_click_xy" -> ToolPlan.Call(call("accessibility.swipe", num("x").json(), num("y").json(), num("x").json(), num("y").json(), 100.json()))
-            "ui_swipe" -> ToolPlan.Call(call("accessibility.swipe", num("x1").json(), num("y1").json(), num("x2").json(), num("y2").json(), num("durationMs").json(), timeout = num("durationMs") + 5000))
-            "ui_gesture" -> ToolPlan.Call(call("accessibility.gesture", num("durationMs").json(), args["points"], timeout = num("durationMs") + 5000))
-            "script_catalog" -> ToolPlan.Call(call("agent.listScripts", args))
-            "script_run" -> {
+            ToolNames.CLIPBOARD_GET -> ToolPlan.Call(call("clipboard.getText"))
+            ToolNames.CLIPBOARD_SET -> ToolPlan.Call(call("clipboard.setText", str("text").json()))
+            ToolNames.UI_CLICK_XY -> ToolPlan.Call(call("accessibility.swipe", num("x").json(), num("y").json(), num("x").json(), num("y").json(), 100.json()))
+            ToolNames.UI_SWIPE -> ToolPlan.Call(call("accessibility.swipe", num("x1").json(), num("y1").json(), num("x2").json(), num("y2").json(), num("durationMs").json(), timeout = num("durationMs") + 5000))
+            ToolNames.UI_GESTURE -> ToolPlan.Call(call("accessibility.gesture", num("durationMs").json(), args["points"], timeout = num("durationMs") + 5000))
+            ToolNames.SCRIPT_CATALOG -> ToolPlan.Call(call("agent.listScripts", args))
+            ToolNames.SCRIPT_RUN -> {
                 if (args["parameters"].toString().toByteArray(Charsets.UTF_8).size > 16 * 1024) invalid("Script parameters exceed the byte limit.")
                 ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = AiAgentContract.MAX_TOOL_TIMEOUT_MS))
             }
-            "script_run_source" -> {
+            ToolNames.SCRIPT_RUN_SOURCE -> {
                 try { io.github.supermonster003.autojs6.plugin.ai.agent.scripts.DynamicScriptSource.validate(str("source")) }
                 catch (_: IllegalArgumentException) { invalid("Use nonempty JavaScript, no NUL, at most 8192 UTF-8 bytes including JSON escaping.") }
                 ToolPlan.DynamicScript(str("source"), num("timeoutMs"))
             }
-            "script_stop" -> ToolPlan.Call(call("engines.stop", num("executionId").json()))
-            "files_list" -> ToolPlan.Call(call("files.list", str("path").json()))
-            "files_stat" -> ToolPlan.Call(call("files.stat", str("path").json()))
-            "files_read" -> ToolPlan.Call(call("files.read", str("path").json(), jsonObject("maxBytes" to num("maxBytes").json())))
-            "files_write" -> ToolPlan.Call(call("files.write", str("path").json(), str("content").json(), jsonObject("overwrite" to checkNotNull(args.flag("overwrite")).json())))
-            "shell_exec" -> ToolPlan.Call(call("shell.exec", str("cmd").json(), jsonObject("root" to false.json(), "timeoutMs" to num("timeoutMs").json()), timeout = num("timeoutMs")))
-            "memory_get", "memory_propose", "report_progress" -> ToolPlan.Local(name, args)
+            ToolNames.SCRIPT_STOP -> ToolPlan.Call(call("engines.stop", num("executionId").json()))
+            ToolNames.FILES_LIST -> ToolPlan.Call(call("files.list", str("path").json()))
+            ToolNames.FILES_STAT -> ToolPlan.Call(call("files.stat", str("path").json()))
+            ToolNames.FILES_READ -> ToolPlan.Call(call("files.read", str("path").json(), jsonObject("maxBytes" to num("maxBytes").json())))
+            ToolNames.FILES_WRITE -> ToolPlan.Call(call("files.write", str("path").json(), str("content").json(), jsonObject("overwrite" to checkNotNull(args.flag("overwrite")).json())))
+            ToolNames.SHELL_EXEC -> ToolPlan.Call(call("shell.exec", str("cmd").json(), jsonObject("root" to false.json(), "timeoutMs" to num("timeoutMs").json()), timeout = num("timeoutMs")))
+            ToolNames.MEMORY_GET, ToolNames.MEMORY_PROPOSE, ToolNames.REPORT_PROGRESS -> ToolPlan.Local(name, args)
             else -> throw ToolFailure("TOOL_UNKNOWN", "No handler for this tool.")
         }
     }

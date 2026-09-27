@@ -148,23 +148,23 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val dynamicAvailable = DynamicScriptSource.available(optional, effectiveMethods, effectivePermissions)
                 val observationPolicy = basePolicy.withExternalTools(catalog.tools.filter { it.external != null })
                     .withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
-                    .withAvailableTools(catalog.tools.filter { it.name != "script_run_source" || dynamicAvailable }.map { it.name }.toSet())
+                    .withAvailableTools(catalog.tools.filter { it.name != ToolNames.SCRIPT_RUN_SOURCE || dynamicAvailable }.map { it.name }.toSet())
                 val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, catalog,
                     { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout,
                     ScreenCaptureTransport(runtime.context, remoteTools, ownerUid, workers) { state == C.LINK_STATE_ATTACHED })
                 val catalogAllowed = "agent.listScripts" in methods && "agent" in permissions &&
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
-                    observationPolicy.isEnabled(checkNotNull(catalog["script_catalog"]))
+                    observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_CATALOG]))
                 val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
                 val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered", "engines.stop").all {
                     it in methods && configuration.methods?.contains(it) != false
                 } && listOf("agent.exec", "engines", "engines.exec").all { it in permissions && configuration.permissions?.contains(it) != false } &&
-                    observationPolicy.isEnabled(checkNotNull(catalog["script_run"]))
+                    observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_RUN]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
                     scriptTools, DecisionValidator(catalog), scriptRunAllowed, scheduler::nowMs)
                 val builtInTools = MemoryTools(runtime.memories, request.preset, request.memoryScope, runId, { state == C.LINK_STATE_ATTACHED },
                     DynamicScriptTools(ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset)),
-                        ScriptCatalogSource(toolAdapter::dispatch), dynamicAvailable && observationPolicy.isEnabled(checkNotNull(catalog["script_run_source"])),
+                        ScriptCatalogSource(toolAdapter::dispatch), dynamicAvailable && observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_RUN_SOURCE])),
                         runId, request.preset, maxTimeout))
                 val executionTools = snapshot?.wrap(builtInTools) ?: builtInTools
                 if (stopped.get()) return@execute
@@ -210,7 +210,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                                 }
                                 memoryLoading.set(memoryCall); if (stopped.get()) memoryCall.cancel()
                             }
-                            if (!policy.isEnabled(checkNotNull(catalog["script_catalog"]))) compiled(null)
+                            if (!policy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_CATALOG]))) compiled(null)
                             else {
                                 val catalogCall = scriptTools.present(request.options.goal, false, true, minOf(5000, maxTimeout)) { result ->
                                     when (result) {

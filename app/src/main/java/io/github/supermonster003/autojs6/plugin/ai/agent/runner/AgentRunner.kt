@@ -114,7 +114,7 @@ class AgentRunner internal constructor(
             val status = when {
                 ask == null -> ReplyStatus.NOT_WAITING
                 copy == null || !validAnswer(ask, copy) -> ReplyStatus.INVALID
-                rememberScope != null && (ask.memoryKey == null || !policy.isEnabled(checkNotNull(catalog["memory_propose"]))) -> ReplyStatus.INVALID
+                rememberScope != null && (ask.memoryKey == null || !policy.isEnabled(checkNotNull(catalog[ToolNames.MEMORY_PROPOSE]))) -> ReplyStatus.INVALID
                 else -> {
                     clearInteraction()
                     transition(RunState.RUNNING)
@@ -125,7 +125,7 @@ class AgentRunner internal constructor(
                     record(observation)
                     guarded {
                         if (rememberScope == null) nextStep()
-                        else nextStep(AgentDecision.Tool("memory_propose", jsonObject("key" to checkNotNull(ask.memoryKey).json(),
+                        else nextStep(AgentDecision.Tool(ToolNames.MEMORY_PROPOSE, jsonObject("key" to checkNotNull(ask.memoryKey).json(),
                             "value" to copy.asString.json(), "scope" to rememberScope.json()), null))
                     }
                     ReplyStatus.ACCEPTED
@@ -312,33 +312,33 @@ class AgentRunner internal constructor(
     private fun executeTool(prepared: PreparedTool) {
         if (!canContinue()) return
         if (!checkNotNull(catalog[prepared.invocation.name]).readOnlyHint) observationImages = emptyList()
-        if (prepared.invocation.name == "screen_capture" && nativeResults.sumOf { it.images.size } >= 4) throw ContextLimitExceeded()
+        if (prepared.invocation.name == ToolNames.SCREEN_CAPTURE && nativeResults.sumOf { it.images.size } >= 4) throw ContextLimitExceeded()
         val b = checkNotNull(budget)
         // An inspection cannot smuggle a longer non-script operation through script metadata.
-        val scriptTimeout = if (prepared.invocation.name in setOf("script_run", "script_run_source")) prepared.metadata.scriptTimeoutMs else null
+        val scriptTimeout = if (prepared.invocation.name in setOf(ToolNames.SCRIPT_RUN, ToolNames.SCRIPT_RUN_SOURCE)) prepared.metadata.scriptTimeoutMs else null
         val timeout = b.toolTimeout(scriptTimeout)
-        if (prepared.invocation.name == "report_progress") {
+        if (prepared.invocation.name == ToolNames.REPORT_PROGRESS) {
             emit("progress", jsonObject("step" to b.steps.json(), "message" to (prepared.invocation.arguments["message"] ?: "".json()), "budget" to b.remainingJson()))
         }
         if (!canContinue()) return
         loopRules.started(checkNotNull(catalog[prepared.invocation.name]))
         b.beginTool()
         when (prepared.invocation.name) {
-            "script_run", "script_run_source" -> { scriptCalls++; scriptResult = null }
-            "script_catalog", "report_progress" -> Unit
+            ToolNames.SCRIPT_RUN, ToolNames.SCRIPT_RUN_SOURCE -> { scriptCalls++; scriptResult = null }
+            ToolNames.SCRIPT_CATALOG, ToolNames.REPORT_PROGRESS -> Unit
             else -> otherActions++
         }
-        beginOperation(timeout, if (prepared.invocation.name in setOf("script_run", "script_run_source")) RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
+        beginOperation(timeout, if (prepared.invocation.name in setOf(ToolNames.SCRIPT_RUN, ToolNames.SCRIPT_RUN_SOURCE)) RunError.SCRIPT_TIMEOUT else RunError.BUDGET_EXCEEDED,
             RunError.HOST_UNAVAILABLE, { callback -> tools.execute(prepared, timeout, callback) }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> toolFailed(outcome.error, mcpReason = outcome.mcpReason)
                 is PortResult.Success -> {
-                    require(outcome.value.images.isEmpty() || (prepared.invocation.name == "screen_capture" && policy.visionAvailable))
-                    require(prepared.invocation.name != "screen_capture" || outcome.value.images.size == 1)
+                    require(outcome.value.images.isEmpty() || (prepared.invocation.name == ToolNames.SCREEN_CAPTURE && policy.visionAvailable))
+                    require(prepared.invocation.name != ToolNames.SCREEN_CAPTURE || outcome.value.images.size == 1)
                     observationImages = outcome.value.images
                     val toolError = outcome.value.error ?: outcome.value.script?.error
                     if (toolError == null) successfulTools++
-                    if (prepared.invocation.name == "script_run") scriptResult = outcome.value.script?.scriptResult
+                    if (prepared.invocation.name == ToolNames.SCRIPT_RUN) scriptResult = outcome.value.script?.scriptResult
                     if (toolError == null) loopRules.succeeded(checkNotNull(catalog[prepared.invocation.name]), outcome.value.result)
                     else loopRules.failed(checkNotNull(catalog[prepared.invocation.name]))
                     val redacted = journal.redact(outcome.value.result)
@@ -380,14 +380,14 @@ class AgentRunner internal constructor(
         val proposed = gate.arguments(prepared.invocation.arguments, prepared.metadata)
         val arguments = journal.redact(proposed)
         // Never ask users to approve a redacted preview while executing different source bytes.
-        if (spec.name == "script_run_source" && proposed != arguments) {
+        if (spec.name == ToolNames.SCRIPT_RUN_SOURCE && proposed != arguments) {
             toolFailed(RunError.TOOL_ARGUMENTS_INVALID); return
         }
         val timeout = minOf(options.limits.confirmationTimeoutMs, checkNotNull(budget).remainingMs)
         val waiting = installInteraction(timeout, tool = prepared, assessment = assessment)
         transition(RunState.WAITING_CONFIRMATION)
         // Script parameters and memory values are bounded. Approval must display the full proposed change.
-        val summary = if (prepared.metadata.script != null || prepared.metadata.memoryScope != null || spec.name == "script_run_source") arguments else StepJournal.clipped(arguments, 4096)
+        val summary = if (prepared.metadata.script != null || prepared.metadata.memoryScope != null || spec.name == ToolNames.SCRIPT_RUN_SOURCE) arguments else StepJournal.clipped(arguments, 4096)
         emit("confirmation", jsonObject("requestId" to waiting.id.json(), "tool" to spec.name.json(),
             "description" to gate.description(spec, prepared.metadata, options.locale).json(), "risk" to assessment.risk.name.lowercase(Locale.ROOT).json(),
             "arguments" to summary, "allowRunScope" to assessment.allowRunScope.json(), "timeoutMs" to timeout.json()))
@@ -559,7 +559,7 @@ class AgentRunner internal constructor(
         }
     }
     private fun protectText() {
-        (decision as? AgentDecision.Tool)?.takeIf { it.name == "ui_set_text" }?.arguments?.string("text")?.let(journal::protectText)
+        (decision as? AgentDecision.Tool)?.takeIf { it.name == ToolNames.UI_SET_TEXT }?.arguments?.string("text")?.let(journal::protectText)
     }
     private fun finishStop(error: RunError) {
         if (state.terminal) return

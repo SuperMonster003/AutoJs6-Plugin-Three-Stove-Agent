@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract
 import java.security.MessageDigest
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 /** User-initiated export adds only a reviewed registration; it never runs or grants a script. */
 internal class DynamicScriptRegistration private constructor(val fileName: String, val text: String) {
@@ -11,7 +12,7 @@ internal class DynamicScriptRegistration private constructor(val fileName: Strin
 
     companion object {
         fun fromStep(step: JsonObject): DynamicScriptRegistration? = runCatching {
-            require(step.string("tool") == "script_run_source")
+            require(step.string("tool") == ToolNames.SCRIPT_RUN_SOURCE)
             require(step.flag("sourceRedacted") != true)
             val arguments = requireNotNull(step.getAsJsonObject("arguments"))
             val source = DynamicScriptSource.validate(requireNotNull(arguments.string("source")))

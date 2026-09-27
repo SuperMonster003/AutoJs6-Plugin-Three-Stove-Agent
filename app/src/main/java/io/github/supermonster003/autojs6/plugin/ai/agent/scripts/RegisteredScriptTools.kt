@@ -19,7 +19,7 @@ class RegisteredScriptTools(private val client: ScriptCatalogClient, roots: Set<
                             private val allowed: Boolean, private val nowMs: () -> Long) : RunTools {
     private val roots = roots.toSet()
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
-        if (invocation.name != "script_run") return delegate.prepare(invocation, timeoutMs, callback)
+        if (invocation.name != ToolNames.SCRIPT_RUN) return delegate.prepare(invocation, timeoutMs, callback)
         if (!allowed) { callback(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE }
         val operation = Admission(callback)
         val deadline = nowMs() + timeoutMs

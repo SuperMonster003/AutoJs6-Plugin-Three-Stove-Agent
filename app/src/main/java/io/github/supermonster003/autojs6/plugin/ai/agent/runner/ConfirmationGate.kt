@@ -32,7 +32,7 @@ class ConfirmationGate(private val policy: ToolPolicy, private val mode: Confirm
     fun assess(spec: ToolSpec, metadata: ToolMetadata): ConfirmationAssessment {
         val payment = !spec.readOnlyHint && (metadata.payment || policy.isPayment(metadata.context))
         val risk = maxOf(policy.risk(spec, metadata.context), if (payment) RiskLevel.SENSITIVE else RiskLevel.READ_ONLY)
-        val explicitConfirmation = payment || metadata.forceConfirmation || spec.name in setOf("memory_propose", "script_run_source")
+        val explicitConfirmation = payment || metadata.forceConfirmation || spec.confirmAlways
         val needsConfirmation = mode != ConfirmationMode.FULL_ACCESS &&
             (explicitConfirmation || risk == RiskLevel.SENSITIVE || (mode == ConfirmationMode.CAUTIOUS && risk != RiskLevel.READ_ONLY))
         return ConfirmationAssessment(spec.name, risk, needsConfirmation && Grant(spec.name, risk, payment) !in allowed, true, payment)

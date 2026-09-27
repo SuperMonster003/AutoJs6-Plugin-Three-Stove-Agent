@@ -13,6 +13,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import java.util.concurrent.TimeUnit
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 /**
  * Inline question or confirmation, rebuilt only for a new request so polling cannot erase an answer
@@ -99,8 +100,8 @@ internal class PendingCard(
             pending.string("tool")?.let { tool -> add(caption(ToolPresentation.label(context, tool))) }
             val tool = pending.string("tool")
             when {
-                tool == "script_run_source" -> add(DynamicScriptConfirmationView.create(context, pending.getAsJsonObject("arguments"), sourceExpanded) { sourceExpanded = it })
-                tool == "script_run" && pending.getAsJsonObject("arguments")?.has("parameters") == true -> add(ScriptConfirmationView.create(context, pending))
+                tool == ToolNames.SCRIPT_RUN_SOURCE -> add(DynamicScriptConfirmationView.create(context, pending.getAsJsonObject("arguments"), sourceExpanded) { sourceExpanded = it })
+                tool == ToolNames.SCRIPT_RUN && pending.getAsJsonObject("arguments")?.has("parameters") == true -> add(ScriptConfirmationView.create(context, pending))
                 else -> {
                     pending.string("description")?.takeIf { it.isNotBlank() }?.let { add(body(it)) }
                     add(kit.parameterTable(ArgumentRows.rows(pending["arguments"])), top = Ui.SPACE_SM)

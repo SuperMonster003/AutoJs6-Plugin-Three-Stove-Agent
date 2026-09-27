@@ -4,6 +4,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutputRedactor
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 /** Normalizes only successful observation replies, before they enter journals or model context. */
 class ObservationTools {
@@ -15,14 +16,14 @@ class ObservationTools {
         NodeRefRegistry().use { registry -> registry.record(baseline); registry.record(snapshot) }
     }
     fun transform(invocation: ToolInvocation, value: JsonElement): JsonElement = when (invocation.name) {
-        "ui_dump" -> {
+        ToolNames.UI_DUMP -> {
             val snapshot = CompactNodeText.parse(value)
             val result = value.asJsonObject.deepCopy()
             result.add("changes", nodes.record(snapshot))
             sinceAction(snapshot)?.let { result.add("sinceLastAction", it) }
             ObservationCompactor.compact(result, MAX_BYTES, false)
         }
-        "ui_find" -> {
+        ToolNames.UI_FIND -> {
             require(value.isJsonArray)
             val limit = invocation.arguments.number("limit")?.toInt() ?: 10
             val items = JsonArray()
@@ -35,15 +36,15 @@ class ObservationTools {
             }
             jsonObject("nodes" to items, "total" to value.asJsonArray.size().json(), "truncated" to (items.size() < value.asJsonArray.size()).json())
         }
-        "ui_wait_for" -> value.asJsonObject.deepCopy().apply {
+        ToolNames.UI_WAIT_FOR -> value.asJsonObject.deepCopy().apply {
             require(flag("matched") == true && string("state") in setOf("appear", "disappear"))
             val entry = get("node") ?: JsonNull.INSTANCE
             if (!entry.isJsonNull && entry != false.json()) add("node", node(entry))
         }
-        "console_tail" -> console(value, invocation.arguments.number("lines")?.toInt() ?: 40)
-        "ocr_screen" -> OcrScreenObservation.normalize(value)
-        "app_current", "device_info" -> ObservationCompactor.compact(ScriptOutputRedactor.redact(value), MAX_BYTES, false)
-        "screen_state" -> { require(value.isJsonPrimitive && value.asJsonPrimitive.isBoolean); jsonObject("screenOn" to value) }
+        ToolNames.CONSOLE_TAIL -> console(value, invocation.arguments.number("lines")?.toInt() ?: 40)
+        ToolNames.OCR_SCREEN -> OcrScreenObservation.normalize(value)
+        ToolNames.APP_CURRENT, ToolNames.DEVICE_INFO -> ObservationCompactor.compact(ScriptOutputRedactor.redact(value), MAX_BYTES, false)
+        ToolNames.SCREEN_STATE -> { require(value.isJsonPrimitive && value.asJsonPrimitive.isBoolean); jsonObject("screenOn" to value) }
         else -> value
     }
     private fun node(value: JsonElement): JsonObject = JsonObject().apply {
