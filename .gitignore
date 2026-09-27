@@ -57,3 +57,6 @@ build-logic/*/build/
 
 *.keystore
 *.pre-platform-versions.bak
+
+# Local Claude Code session settings.
+.claude/
