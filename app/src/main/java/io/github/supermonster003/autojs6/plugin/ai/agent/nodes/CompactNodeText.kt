@@ -2,7 +2,6 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.nodes
 
 import com.google.gson.JsonElement
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
-import java.security.MessageDigest
 
 /** Values parsed from the host's compact format. These are display identities, not live nodes. */
 object CompactNodeText {
@@ -18,10 +17,8 @@ object CompactNodeText {
     data class Node(val ref: String, val depth: Int, val className: String, val id: String, val text: String,
                     val description: String, val flags: Set<String>, val bounds: Bounds) {
         val relocatable get() = text != "[password]" && !text.endsWith("...") && !description.endsWith("...")
-        fun fingerprint(window: String): String = MessageDigest.getInstance("SHA-256")
-            .digest(jsonArray(window.json(), className.json(), id.json(), text.json(), description.json(),
-                flags.intersect(IDENTITY_FLAGS).sorted().joinToString(",").json()).toString().toByteArray(Charsets.UTF_8))
-            .let { bytes -> buildString(64) { bytes.forEach { byte -> val n = byte.toInt() and 255; append("0123456789abcdef"[n ushr 4]); append("0123456789abcdef"[n and 15]) } } }
+        fun fingerprint(window: String): String = Digests.sha256Hex(jsonArray(window.json(), className.json(), id.json(), text.json(), description.json(),
+            flags.intersect(IDENTITY_FLAGS).sorted().joinToString(",").json()).toString())
     }
     data class Snapshot(val id: String, val window: String, val nodes: List<Node>, val truncated: Boolean)
     private val row = Regex("^#n([1-9][0-9]{0,3}) ( *)([^ ]+)(.*)$")
@@ -34,7 +31,7 @@ object CompactNodeText {
         val data = AgentJson.parse(value.toString(), 300 * 1024).asJsonObject
         require(data.string("format") == "compact")
         val id = requireNotNull(data.string("snapshotId")).also { require(it.isNotBlank() && it.length <= 128) }
-        val text = requireNotNull(data.string("text")).also { require(it.toByteArray(Charsets.UTF_8).size <= 256 * 1024) }
+        val text = requireNotNull(data.string("text")).also { require(it.utf8Size() <= 256 * 1024) }
         val lines = text.lines()
         require(lines.first().startsWith("window: ") && lines.size <= 402)
         val nodes = mutableListOf<Node>()

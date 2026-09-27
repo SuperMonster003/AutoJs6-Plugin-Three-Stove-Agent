@@ -163,7 +163,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
         } finally { descriptors.forEach { runCatching { it.close() } } }
     }
     private fun sendJsonPayload(id: String, json: String, send: (Bundle) -> Unit) {
-        if (json.toByteArray(Charsets.UTF_8).size <= C.MAX_MODEL_REQUEST_INLINE_BYTES) {
+        if (json.utf8Size() <= C.MAX_MODEL_REQUEST_INLINE_BYTES) {
             send(AgentWire.envelope(C.KEY_MODEL_REQUEST_JSON, json)); return
         }
         val file = File.createTempFile("agent-model-", ".json", context.cacheDir)

@@ -17,7 +17,7 @@ sealed interface ToolPlan {
     data class AppendText(val target: JsonObject, val text: String) : ToolPlan
     data class RegisteredScript(val manifest: BridgeCall, val execution: BridgeCall) : ToolPlan
     data class DynamicScript(val source: String, val timeoutMs: Long) : ToolPlan {
-        override fun toString() = "DynamicScript(sourceBytes=${source.toByteArray(Charsets.UTF_8).size}, timeoutMs=$timeoutMs)"
+        override fun toString() = "DynamicScript(sourceBytes=${source.utf8Size()}, timeoutMs=$timeoutMs)"
     }
     data class Local(val name: String, val arguments: JsonObject) : ToolPlan
     data class External(val serverId: String, val toolName: String, val arguments: JsonObject) : ToolPlan
@@ -26,7 +26,7 @@ sealed interface ToolPlan {
 class ToolHandlers(private val catalog: ToolCatalog) {
     fun prepare(name: String, arguments: JsonObject, policy: ToolPolicy): ToolPlan {
         val spec = policy.requireEnabled(catalog, name)
-        if (arguments.toString().toByteArray(Charsets.UTF_8).size > 64 * 1024) invalid("Tool arguments exceed the byte limit.")
+        if (arguments.toString().utf8Size() > 64 * 1024) invalid("Tool arguments exceed the byte limit.")
         val args = try { spec.validator.validate(arguments).asJsonObject } catch (_: IllegalArgumentException) {
             throw ToolFailure("TOOL_ARGUMENTS_INVALID", "Arguments must match the tool input schema.")
         }
@@ -83,7 +83,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             ToolNames.UI_GESTURE -> ToolPlan.Call(call("accessibility.gesture", num("durationMs").json(), args["points"], timeout = num("durationMs") + 5000))
             ToolNames.SCRIPT_CATALOG -> ToolPlan.Call(call("agent.listScripts", args))
             ToolNames.SCRIPT_RUN -> {
-                if (args["parameters"].toString().toByteArray(Charsets.UTF_8).size > 16 * 1024) invalid("Script parameters exceed the byte limit.")
+                if (args["parameters"].toString().utf8Size() > 16 * 1024) invalid("Script parameters exceed the byte limit.")
                 ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = AiAgentContract.MAX_TOOL_TIMEOUT_MS))
             }
             ToolNames.SCRIPT_RUN_SOURCE -> {

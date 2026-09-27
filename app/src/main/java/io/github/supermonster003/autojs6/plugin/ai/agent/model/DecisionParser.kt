@@ -10,7 +10,7 @@ class DecisionFailure(val code: String, val hint: String) : IllegalArgumentExcep
 
 object DecisionParser {
     fun parse(text: String, degraded: Boolean = false): ParsedDecision {
-        if (text.length > AgentJson.MAX_MODEL_BYTES || text.toByteArray(Charsets.UTF_8).size > AgentJson.MAX_MODEL_BYTES) {
+        if (text.length > AgentJson.MAX_MODEL_BYTES || text.utf8Size() > AgentJson.MAX_MODEL_BYTES) {
             fail("Decision exceeds the response byte limit.")
         }
         try { AgentJson.checkUnicode(text) } catch (_: IllegalArgumentException) { fail("Decision contains invalid Unicode.") }

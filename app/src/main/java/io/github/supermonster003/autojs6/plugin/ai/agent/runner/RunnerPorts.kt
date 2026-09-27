@@ -47,12 +47,12 @@ class RunOptions(
     val maximumOutputTokens: Int = 2048,
 ) {
     init {
-        require(goal.isNotBlank() && goal.length <= 4096 && goal.toByteArray(Charsets.UTF_8).size <= 4096)
+        require(goal.isNotBlank() && goal.length <= 4096 && goal.utf8Size() <= 4096)
         AgentJson.checkUnicode(goal)
         limits.validateOwnership(detached)
         require(modelTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS && maximumOutputTokens in 1..65_536)
     }
-    override fun toString() = "RunOptions(goalBytes=${goal.toByteArray(Charsets.UTF_8).size}, detached=$detached)"
+    override fun toString() = "RunOptions(goalBytes=${goal.utf8Size()}, detached=$detached)"
 }
 
 class RunContext(val goal: String, val history: List<JsonObject>, val observation: String?, val repair: JsonObject?, val remainingBudget: JsonObject,
@@ -82,7 +82,7 @@ class ModelInput(messages: JsonArray, val schemaBytes: Int = 0, val format: Deci
     }
     val messages: JsonArray get() = data.deepCopy()
     val tools: JsonArray get() = definitions.deepCopy()
-    val inputBytes: Int get() = data.toString().toByteArray(Charsets.UTF_8).size + schemaBytes +
+    val inputBytes: Int get() = data.toString().utf8Size() + schemaBytes +
         (if (definitions.isEmpty) 0 else StepJournal.bytes(definitions)) + (if (images.isEmpty()) 0 else StepJournal.bytes(imageRefs))
     override fun toString() = "ModelInput(bytes=$inputBytes)"
 }
@@ -94,9 +94,9 @@ fun interface RunContextCompiler {
             ObservationCompactor.compact(result, ToolObservation.DEFAULT_MAX_BYTES - 256, false)).toString()
 }
 class ModelReply(val text: String, val usage: ModelUsage? = null, val nativeTurn: NativeToolTurn? = null,
-                 val outputBytes: Int = text.toByteArray(Charsets.UTF_8).size) {
+                 val outputBytes: Int = text.utf8Size()) {
     init { require(outputBytes >= 0) }
-    override fun toString() = "ModelReply(bytes=${text.toByteArray(Charsets.UTF_8).size})"
+    override fun toString() = "ModelReply(bytes=${text.utf8Size()})"
 }
 /** Captures already observed usage when the runner's own deadline or stop wins the callback race. */
 interface ModelCallCancellation : Cancellation { fun progress(): PortResult.Failure }

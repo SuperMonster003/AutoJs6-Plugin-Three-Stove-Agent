@@ -36,7 +36,7 @@ class DecisionSchema(private val catalog: ToolCatalog) {
                 else -> jsonObject("anyOf" to JsonArray().apply { alternatives.forEach(::add) })
             }
             val candidate = online(envelope(arguments, enabled), protocol)
-            if (candidate.toString().toByteArray(Charsets.UTF_8).size <= MAX_SCHEMA_BYTES &&
+            if (candidate.toString().utf8Size() <= MAX_SCHEMA_BYTES &&
                 (protocol != ModelProtocol.ANTHROPIC || withinAnthropicComplexity(candidate))) {
                 return encoded(protocol, ArgumentsEncoding.OBJECT, candidate, "ONLINE_OBJECT")
             }
@@ -48,7 +48,7 @@ class DecisionSchema(private val catalog: ToolCatalog) {
 
     private fun encoded(protocol: ModelProtocol, encoding: ArgumentsEncoding, schema: JsonObject, reason: String): DecisionFormat {
         val text = schema.toString()
-        check(text.toByteArray(Charsets.UTF_8).size <= MAX_SCHEMA_BYTES)
+        check(text.utf8Size() <= MAX_SCHEMA_BYTES)
         return DecisionFormat(protocol, encoding, text, reason)
     }
 

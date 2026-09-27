@@ -366,7 +366,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         fun send(event: RunEvent) {
             if (dead.get()) return
             val json = event.payload.apply { addProperty("runId", event.runId); addProperty("sequence", event.sequence); addProperty("type", event.type) }.toString()
-            if (json.toByteArray(Charsets.UTF_8).size > C.MAX_EVENT_JSON_BYTES) { close(); return }
+            if (json.utf8Size() > C.MAX_EVENT_JSON_BYTES) { close(); return }
             runCatching { workers.callbacks.execute {
                 if (!dead.get()) runCatching { remote?.onRunEvent(AgentWire.envelope(C.KEY_RUN_EVENT_JSON, json)) }.onFailure { close() }
             } }.onFailure { close() }

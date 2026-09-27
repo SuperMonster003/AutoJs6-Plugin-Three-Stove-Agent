@@ -22,7 +22,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
 
     fun protectText(text: String) {
         if (text.isEmpty() || text in secrets) return
-        require(secrets.size < RunLimits.STEPS && text.toByteArray(Charsets.UTF_8).size <= 64 * 1024)
+        require(secrets.size < RunLimits.STEPS && text.utf8Size() <= 64 * 1024)
         secrets += text
         // A value may have appeared in an earlier question or observation before field metadata was known.
         val old = records.map(::redactRecord)
@@ -123,18 +123,10 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         getAsJsonObject("script")?.let { script -> script["result"]?.let { script.add("result", redact(it)) } }
         getAsJsonObject("error")?.get("message")?.let { getAsJsonObject("error").add("message", redact(it)) }
     }
-    fun redact(value: JsonElement): JsonElement = when {
-        value.isJsonObject -> JsonObject().apply { value.asJsonObject.entrySet().forEach { (key, child) -> add(key, redact(child)) } }
-        value.isJsonArray -> JsonArray().apply { value.asJsonArray.forEach { add(redact(it)) } }
-        value.isJsonPrimitive && value.asJsonPrimitive.isString -> redactText(value.asString).json()
-        else -> value.deepCopy()
-    }
+    fun redact(value: JsonElement): JsonElement = Redaction.mapStrings(value, transform = ::redactText)
     private fun redactText(value: String): String {
         var result = value
-        secrets.sortedByDescending { it.length }.forEach { secret ->
-            val escaped = secret.json().toString().drop(1).dropLast(1)
-            result = result.replace(escaped, "***").replace(secret, "***")
-        }
+        secrets.sortedByDescending { it.length }.forEach { secret -> result = Redaction.replaceSecret(result, secret, "***") }
         return result
     }
     private fun shorten(value: JsonElement, limit: Int): JsonElement = when {
@@ -151,7 +143,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
     companion object {
         /** A Java/Kotlin simple class name recorded for internal failures; never an exception message. */
         val FAILURE_CLASS = Regex("[A-Za-z0-9_$.]{1,128}")
-        fun bytes(value: JsonElement) = value.toString().toByteArray(Charsets.UTF_8).size
+        fun bytes(value: JsonElement) = value.toString().utf8Size()
         fun clipped(value: JsonElement, maxBytes: Int): JsonElement {
             require(maxBytes >= 256)
             if (bytes(value) <= maxBytes) return value.deepCopy()

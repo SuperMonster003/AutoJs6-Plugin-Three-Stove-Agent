@@ -115,7 +115,7 @@ class ScriptParameterProblem internal constructor(errors: List<Pair<String?, Str
         val missing = errors.any { it.second == "REQUIRED" }
         val fields = JsonArray()
         for ((name, reason) in errors.take(16)) {
-            if (name != null && name.toByteArray(Charsets.UTF_8).size > 128) continue
+            if (name != null && name.utf8Size() > 128) continue
             fields.add(jsonObject("reason" to reason.json()).apply { name?.let { addProperty("parameter", it) } })
         }
         return jsonObject("error" to "TOOL_ARGUMENTS_INVALID".json(),

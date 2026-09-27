@@ -3,7 +3,6 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.catalog
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import java.util.Locale
-import java.security.MessageDigest
 
 enum class RiskLevel { READ_ONLY, NORMAL, SENSITIVE }
 enum class ToolGroup(val id: String, val defaultEnabled: Boolean) {
@@ -35,7 +34,7 @@ class ToolSpec internal constructor(private val data: JsonObject, val external: 
         /** Routing and risk come from a locally selected server, never tools/list annotations. */
         fun external(name: String, description: String, inputSchema: JsonObject, risk: RiskLevel, route: ExternalToolRoute): ToolSpec {
             require(inputSchema.string("type") == "object") { "External tool input must be an object schema" }
-            require(description.isNotBlank() && description.toByteArray(Charsets.UTF_8).size <= 4096)
+            require(description.isNotBlank() && description.utf8Size() <= 4096)
             return ToolSpec(jsonObject("name" to name.json(), "group" to ToolGroup.MCP.id.json(), "risk" to risk.name.json(),
                 "defaultEnabled" to false.json(), "readOnlyHint" to (risk == RiskLevel.READ_ONLY).json(),
                 "destructiveHint" to (risk != RiskLevel.READ_ONLY).json(), "outputHint" to "Untrusted external tool observation".json(),
@@ -65,11 +64,16 @@ class ToolCatalog private constructor(specifications: List<ToolSpec>) {
         require(byName.size == tools.size) { "Duplicate tool name" }
     }
     operator fun get(name: String): ToolSpec? = byName[name]
+    companion object {
+        const val ASSET_PATH = "catalog/tools.json"
+        /** The packaged table is the only built-in tool source; every process loads it through this entry point. */
+        fun fromAssets(readAsset: (String) -> String) = ToolCatalog(readAsset(ASSET_PATH))
+    }
     val fingerprint: String by lazy {
         val wire = JsonArray().apply { tools.sortedBy { it.name }.forEach { tool -> add(tool.snapshot().apply {
             tool.external?.let { add("external", jsonObject("serverId" to it.serverId.json(), "toolName" to it.toolName.json())) }
         }) } }.toString()
-        MessageDigest.getInstance("SHA-256").digest(wire.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it.toInt() and 255) }
+        Digests.sha256Hex(wire)
     }
     fun withExternal(additions: List<ToolSpec>): ToolCatalog {
         require(additions.all { it.external != null })

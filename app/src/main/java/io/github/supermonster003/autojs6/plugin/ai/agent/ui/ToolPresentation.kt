@@ -19,7 +19,7 @@ internal object ToolPresentation {
     @Volatile private var catalog: ToolCatalog? = null
 
     private fun catalog(context: Context): ToolCatalog? = catalog ?: runCatching {
-        ToolCatalog(context.assets.open("catalog/tools.json").use { it.readBytes().toString(Charsets.UTF_8) })
+        ToolCatalog.fromAssets { path -> context.assets.open(path).use { it.readBytes().toString(Charsets.UTF_8) } }
     }.getOrNull()?.also { catalog = it }
 
     fun group(context: Context, tool: String): ToolGroup? =

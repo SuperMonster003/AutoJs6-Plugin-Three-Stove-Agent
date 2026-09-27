@@ -11,7 +11,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts",
             "json_response", "json_compact_response", "json_response_details", "native_response", "vision", "mcp").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
-                .also { require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024) }
+                .also { require(it.utf8Size() <= 16 * 1024) }
         }
     }
 
@@ -83,7 +83,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     }
 
     private fun bounded(text: String, maxBytes: Int) {
-        require(text.length <= maxBytes && text.toByteArray(Charsets.UTF_8).size <= maxBytes) { "Prompt field exceeds byte limit" }
+        require(text.length <= maxBytes && text.utf8Size() <= maxBytes) { "Prompt field exceeds byte limit" }
         AgentJson.checkUnicode(text)
     }
 

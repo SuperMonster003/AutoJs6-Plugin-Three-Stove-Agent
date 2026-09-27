@@ -41,7 +41,7 @@ internal class NativeModelEvents(private val id: String, private val target: Str
                 fields(event, "chunkSequence", "text")
                 require(!pending && event.number("chunkSequence") == ++chunkSequence)
                 val text = requireNotNull(event.string("text"))
-                textBytes += text.toByteArray(Charsets.UTF_8).size
+                textBytes += text.utf8Size()
                 if (retainedBytes > maximumBytes) returnTerminal(RunError.LIMIT_EXCEEDED)
                 else { transcript.append(text); Event.More }
             }
@@ -70,7 +70,7 @@ internal class NativeModelEvents(private val id: String, private val target: Str
                 require(!pending && event.string("targetId") == target && event.number("finishReason") in 0..Int.MAX_VALUE.toLong())
                 val text = requireNotNull(event.string("text"))
                 require(chunkSequence == 0L || text == transcript.toString())
-                textBytes = text.toByteArray(Charsets.UTF_8).size
+                textBytes = text.utf8Size()
                 if (retainedBytes > maximumBytes) returnTerminal(RunError.LIMIT_EXCEEDED) else {
                     ended = true
                     val progress = takeProgress()

@@ -4,7 +4,6 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.nodes.ActionTools
-import java.security.MessageDigest
 
 /** Per-run loop evidence. Read-only turns cannot erase an action repetition streak. */
 class LoopRules {
@@ -64,7 +63,6 @@ class LoopRules {
             value.isJsonPrimitive && value.asJsonPrimitive.isNumber -> JsonPrimitive(value.asBigDecimal.stripTrailingZeros())
             else -> value.deepCopy()
         }
-        private fun digest(value: JsonElement) = MessageDigest.getInstance("SHA-256").digest(value.toString().toByteArray(Charsets.UTF_8))
-            .joinToString("") { "%02x".format(it.toInt() and 255) }
+        private fun digest(value: JsonElement) = Digests.sha256Hex(value.toString())
     }
 }

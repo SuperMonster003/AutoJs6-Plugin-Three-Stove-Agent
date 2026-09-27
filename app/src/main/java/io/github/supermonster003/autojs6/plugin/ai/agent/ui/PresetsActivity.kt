@@ -239,7 +239,7 @@ class PresetsActivity : HostAppearanceActivity() {
             val parsed = PresetCodec.decodePreset(value)
             require(parsed.toolGroups?.all { it in configuration.getAsJsonArray("toolGroups").map { value -> value.asString } } != false)
             require(parsed.scriptRoots?.all { it in configuration.getAsJsonArray("scriptRoots").map { value -> value.asString } } != false)
-            require(PresetCodec.encodePreset(parsed).toString().toByteArray(Charsets.UTF_8).size <= PresetCodec.MAX_ROW_BYTES)
+            require(PresetCodec.encodePreset(parsed).toString().utf8Size() <= PresetCodec.MAX_ROW_BYTES)
             value
         }.getOrElse { showError(); return }
         busy = true

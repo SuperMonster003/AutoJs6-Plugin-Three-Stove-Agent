@@ -56,7 +56,7 @@ internal class RunHistoryStore(
         val access = entries[id]?.accessed ?: (run.number("startedAt") ?: clock())
         val text = RunHistoryCodec.encode(run, access)
         write(File(directory, "$id.json"), text)
-        entries[id] = Entry(run.string("state")!!, run.number("startedAt")!!, access, text.toByteArray(Charsets.UTF_8).size.toLong())
+        entries[id] = Entry(run.string("state")!!, run.number("startedAt")!!, access, text.utf8Size().toLong())
         return trim().also { writeIndex() }
     }
     fun touch(id: String): Set<String> {
@@ -66,7 +66,7 @@ internal class RunHistoryStore(
         val run = RunHistoryCodec.decode(read(File(directory, "$id.json"), RunHistoryCodec.MAX_BYTES)).run
         val text = RunHistoryCodec.encode(run, access)
         write(File(directory, "$id.json"), text)
-        entries[id] = entry.copy(accessed = access, bytes = text.toByteArray(Charsets.UTF_8).size.toLong())
+        entries[id] = entry.copy(accessed = access, bytes = text.utf8Size().toLong())
         return trim().also { writeIndex() }
     }
     fun delete(ids: Set<String>) {

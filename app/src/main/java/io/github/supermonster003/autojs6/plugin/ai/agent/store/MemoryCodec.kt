@@ -8,7 +8,7 @@ import java.util.Locale
 internal data class MemoryEntry(val key: String, val value: String, val scope: String, val sourceRunId: String,
                                 val createdAt: Long, val updatedAt: Long) {
     val identity get() = scope to key
-    override fun toString() = "MemoryEntry(valueBytes=${value.toByteArray(Charsets.UTF_8).size})"
+    override fun toString() = "MemoryEntry(valueBytes=${value.utf8Size()})"
 }
 
 /** Shared validation for private storage, import, tool proposals and prompt injection. */

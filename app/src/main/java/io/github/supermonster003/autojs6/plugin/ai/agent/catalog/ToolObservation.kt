@@ -9,19 +9,11 @@ object ToolObservation {
     fun success(result: JsonElement, maxBytes: Int = DEFAULT_MAX_BYTES): String {
         require(maxBytes in 256..256 * 1024)
         val full = jsonObject("ok" to true.json(), "result" to result).toString()
-        if (full.toByteArray(Charsets.UTF_8).size <= maxBytes) return full
+        if (full.utf8Size() <= maxBytes) return full
         val source = if (result.isJsonObject && result.asJsonObject.string("text") != null) result.asJsonObject.string("text")!! else result.toString()
         val record = jsonObject("ok" to true.json(), "truncated" to true.json(), "text" to "".json())
         // Include envelope and escaping in the actual byte budget; never split a surrogate pair.
-        var lower = 0
-        var upper = minOf(source.toByteArray(Charsets.UTF_8).size, maxBytes)
-        while (lower < upper) {
-            val middle = (lower + upper + 1) / 2
-            record.addProperty("text", AgentJson.truncate(source, middle))
-            if (record.toString().toByteArray(Charsets.UTF_8).size <= maxBytes) lower = middle else upper = middle - 1
-        }
-        record.addProperty("text", AgentJson.truncate(source, lower))
-        return record.toString()
+        return ObservationCompactor.fitText(record, "text", source, maxBytes).toString()
     }
 
     fun failure(category: String, stableDetail: String? = null, module: String? = null): String {

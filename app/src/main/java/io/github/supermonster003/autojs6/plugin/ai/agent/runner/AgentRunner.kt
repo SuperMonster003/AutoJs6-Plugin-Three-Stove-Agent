@@ -230,7 +230,7 @@ class AgentRunner internal constructor(
                     val reply = outcome.value
                     nativeTurn = reply.nativeTurn; nativeResults.clear(); activeNativeCall = null
                     nativeTurn?.continuation?.claim()
-                    val outputBytes = maxOf(reply.outputBytes, if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.toByteArray(Charsets.UTF_8).size else AgentJson.MAX_MODEL_BYTES + 1)
+                    val outputBytes = maxOf(reply.outputBytes, if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.utf8Size() else AgentJson.MAX_MODEL_BYTES + 1)
                     responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
                     settle(reply.usage, outputBytes)
                     b.check()

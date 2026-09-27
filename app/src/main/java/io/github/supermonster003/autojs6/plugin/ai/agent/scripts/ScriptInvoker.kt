@@ -111,7 +111,7 @@ internal object ScriptOutputRedactor {
     fun text(value: String, secrets: List<String> = emptyList()): String {
         var result = assignment.replace(value) { it.groupValues[1] + it.groupValues[2] + "***" }
             .replace(Regex("(?i)Bearer\\s+[A-Za-z0-9._~+/-]+=*"), "Bearer ***")
-        for (secret in secrets.sortedByDescending { it.length }) result = result.replace(secret, "***").replace(secret.json().toString().drop(1).dropLast(1), "***")
+        for (secret in secrets.sortedByDescending { it.length }) result = Redaction.replaceSecret(result, secret, "***")
         return result
     }
     fun redact(value: JsonElement): JsonElement = when {

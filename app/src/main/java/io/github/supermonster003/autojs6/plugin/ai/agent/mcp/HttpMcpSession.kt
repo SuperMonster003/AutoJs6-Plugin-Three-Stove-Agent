@@ -93,20 +93,20 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
             val params = jsonObject().apply { cursor?.let { addProperty("cursor", it) } }
             val result = request("tools/list", params, operation)
             if (changed.get()) mcpFail("MCP_CATALOG_CHANGED")
-            bytes += result.toString().toByteArray(Charsets.UTF_8).size
+            bytes += result.toString().utf8Size()
             if (bytes > MAX_RESPONSE_BYTES) mcpFail("MCP_LIMIT_EXCEEDED")
             val tools = result["tools"]?.takeIf { it.isJsonArray }?.asJsonArray ?: mcpFail()
             for (item in tools) {
                 if (!item.isJsonObject || values.size >= MAX_DISCOVERED_TOOLS) mcpFail("MCP_LIMIT_EXCEEDED")
                 val tool = item.asJsonObject
                 val name = tool.string("name") ?: mcpFail()
-                if (name.isBlank() || name.toByteArray(Charsets.UTF_8).size > 128 || !names.add(name)) mcpFail()
+                if (name.isBlank() || name.utf8Size() > 128 || !names.add(name)) mcpFail()
                 if (containsSecret(tool.toString())) mcpFail()
                 values += tool.deepCopy()
             }
             cursor = result["nextCursor"]?.takeUnless { it.isJsonNull }?.let {
                 if (!it.isJsonPrimitive || !it.asJsonPrimitive.isString) mcpFail()
-                it.asString.also { value -> if (value.isBlank() || value.toByteArray(Charsets.UTF_8).size > 1024 || !cursors.add(value)) mcpFail() }
+                it.asString.also { value -> if (value.isBlank() || value.utf8Size() > 1024 || !cursors.add(value)) mcpFail() }
             }
             if (cursor == null) return values
         }
@@ -149,11 +149,8 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
     fun discard() { closed.set(true); token = null; sessionId = null }
     fun catalogChanged() = changed.get()
 
-    fun redact(text: String): String {
-        val secret = redactionSecret ?: return text
-        return text.replace(secret.json().toString().drop(1).dropLast(1), "[credential redacted]").replace(secret, "[credential redacted]")
-    }
-    private fun containsSecret(text: String): Boolean = token?.let { text.contains(it) || text.contains(it.json().toString().drop(1).dropLast(1)) } == true
+    fun redact(text: String): String = redactionSecret?.let { Redaction.replaceSecret(text, it, "[credential redacted]") } ?: text
+    private fun containsSecret(text: String): Boolean = token?.let { Redaction.containsSecret(text, it) } == true
 
     private fun request(method: String, params: JsonObject, operation: McpOperation): JsonObject {
         if (closed.get()) mcpFail("MCP_UNAVAILABLE")

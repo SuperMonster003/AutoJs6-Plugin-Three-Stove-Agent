@@ -23,7 +23,7 @@ internal class SettingsEndpoint(private val runtime: AgentRuntime) : IAgentSetti
             if (clearing) runtime.endMaintenance()
             try {
                 callback.onResult(if (result.isSuccess) AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON,
-                    result.getOrThrow().toString().also { require(it.toByteArray(Charsets.UTF_8).size <= MAX_RESPONSE_BYTES) })
+                    result.getOrThrow().toString().also { require(it.utf8Size() <= MAX_RESPONSE_BYTES) })
                     else AgentWire.error(C.ERROR_INVALID_REQUEST))
             } catch (_: Exception) { /* The caller may close the screen. */ } finally { queued.decrementAndGet() }
         }

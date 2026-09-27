@@ -24,7 +24,7 @@ internal object RunHistoryCodec {
     fun encode(run: JsonObject, accessedAt: Long): String {
         require(accessedAt >= 0)
         val text = jsonObject("version" to VERSION.json(), "accessedAt" to accessedAt.json(), "run" to validate(run)).toString()
-        require(text.toByteArray(Charsets.UTF_8).size <= MAX_BYTES)
+        require(text.utf8Size() <= MAX_BYTES)
         // Apply the same structural limit in both directions; never persist an unreadable record.
         AgentJson.objectOf(text, MAX_BYTES, 131_072)
         return text
@@ -34,7 +34,7 @@ internal object RunHistoryCodec {
             id(requireNotNull(run.string("runId")))
             require(run.string("state") in states)
             require(requireNotNull(run.number("startedAt")) >= 0)
-            require(requireNotNull(run.string("goal")).toByteArray(Charsets.UTF_8).size <= 4096)
+            require(requireNotNull(run.string("goal")).utf8Size() <= 4096)
             require(run.string("preset")?.let { it.isNotBlank() && it.length <= 128 } == true)
             for (key in listOf("detached", "truncated", "fullAccess")) if (run.has(key)) require(run.flag(key) != null)
             for (key in listOf("step", "sequence")) if (run.has(key)) require((run.number(key) ?: -1) >= 0)

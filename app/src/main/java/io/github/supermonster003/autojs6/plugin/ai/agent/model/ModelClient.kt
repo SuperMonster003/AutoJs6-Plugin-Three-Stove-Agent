@@ -87,7 +87,7 @@ class ModelClient(
                 if (!input.tools.isEmpty) {
                     add("tools", input.tools); addProperty("maximumToolRounds", checkNotNull(target.nativeTools).rounds)
                 }
-            }.toString().also { require(it.toByteArray(Charsets.UTF_8).size <= 2 * 1024 * 1024) }
+            }.toString().also { require(it.utf8Size() <= 2 * 1024 * 1024) }
         } catch (_: ContextLimitExceeded) { callback(PortResult.Failure(RunError.LIMIT_EXCEEDED)); return Cancellation.NONE }
         catch (_: Exception) { callback(PortResult.Failure(RunError.INVALID_REQUEST)); return Cancellation.NONE }
         return if (input.tools.isEmpty) Invocation(id, callback).apply { dispatch(request, timeoutMs, input.images) }

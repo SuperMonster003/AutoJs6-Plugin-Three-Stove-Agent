@@ -4,13 +4,12 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import java.io.OutputStream
-import java.security.MessageDigest
 
 /** Task-local encoded observations. Never serialize the bytes into a journal or diagnostic. */
 class ModelImage(bytes: ByteArray, val width: Int, val height: Int, val mimeType: String = "image/jpeg") {
     private val encoded = bytes.copyOf()
     val byteCount = encoded.size.toLong()
-    private val digest = MessageDigest.getInstance("SHA-256").digest(encoded).joinToString("") { "%02x".format(it.toInt() and 255) }
+    private val digest = Digests.sha256Hex(encoded)
     val estimatedTokens: Long get() = 1024L + 4L * ((width + 31) / 32) * ((height + 31) / 32)
     init {
         require(width in 1..4096 && height in 1..4096 && byteCount in 1..C.MAX_MODEL_IMAGE_BYTES)

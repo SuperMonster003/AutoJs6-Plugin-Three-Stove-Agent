@@ -11,7 +11,7 @@ object AgentJson {
     const val MAX_MODEL_BYTES = 64 * 1024
     fun parse(text: String, maxBytes: Int = MAX_MODEL_BYTES, maxNodes: Int = 16_384): JsonElement {
         require(maxNodes in 1..131_072)
-        require(text.length <= maxBytes && text.toByteArray(Charsets.UTF_8).size <= maxBytes) { "JSON exceeds byte limit" }
+        require(text.length <= maxBytes && text.utf8Size() <= maxBytes) { "JSON exceeds byte limit" }
         var nodes = 0
         JsonReader(StringReader(text)).use { reader ->
             reader.strictness = Strictness.STRICT
@@ -65,7 +65,7 @@ object AgentJson {
 
     fun truncate(text: String, maxBytes: Int): String {
         require(maxBytes >= 0)
-        if (text.toByteArray(Charsets.UTF_8).size <= maxBytes) return text
+        if (text.utf8Size() <= maxBytes) return text
         var end = 0
         var bytes = 0
         while (end < text.length) {
@@ -84,6 +84,8 @@ fun jsonArray(vararg items: JsonElement) = JsonArray().apply { items.forEach(::a
 fun String.json() = JsonPrimitive(this)
 fun Number.json() = JsonPrimitive(this)
 fun Boolean.json() = JsonPrimitive(this)
+/** UTF-8 encoded length; the codebase budgets bytes on the wire, not UTF-16 units. */
+fun String.utf8Size(): Int = toByteArray(Charsets.UTF_8).size
 
 fun JsonObject.string(key: String): String? = get(key)?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
 fun JsonObject.number(key: String): Long? = get(key)?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asBigDecimal?.longValueExact()

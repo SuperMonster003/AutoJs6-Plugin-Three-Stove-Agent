@@ -12,7 +12,7 @@ internal object ControlRequests {
     fun closed(value: JsonObject, fields: Set<String>) { require(value.keySet().all { it in fields }) }
     fun text(value: JsonObject, key: String, default: String? = null, maximum: Int = 256): String? {
         if (!value.has(key)) return default
-        return requireNotNull(value.string(key)).also { require(it.isNotBlank() && it.toByteArray(Charsets.UTF_8).size <= maximum) }
+        return requireNotNull(value.string(key)).also { require(it.isNotBlank() && it.utf8Size() <= maximum) }
     }
     fun flag(value: JsonObject, key: String, default: Boolean) = if (value.has(key)) requireNotNull(value.flag(key)) else default
     fun number(value: JsonObject, key: String, default: Long, ceiling: Long): Long = try {
@@ -22,7 +22,7 @@ internal object ControlRequests {
         if (!value.has(key)) return default
         val items = requireNotNull(value[key]?.takeIf { it.isJsonArray }?.asJsonArray)
         require(items.size() <= max)
-        return items.map { require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString.also { s -> require(s.isNotBlank() && s.toByteArray(Charsets.UTF_8).size <= 1024) } }.toSet()
+        return items.map { require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString.also { s -> require(s.isNotBlank() && s.utf8Size() <= 1024) } }.toSet()
             .also { require(it.size == items.size()) }
     }
     fun obj(value: JsonObject, key: String) = if (!value.has(key)) JsonObject() else requireNotNull(value[key]?.takeIf { it.isJsonObject }?.asJsonObject)
@@ -117,11 +117,11 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             val target = text(opts, "target", if (pluginUi) null else preset.targetId)?.let(PresetCodec::target)
             val additional = if (opts.has("context")) requireNotNull(opts.string("context")) else ""
             val fixed = listOf(preset.context, additional).filter { it.isNotEmpty() }.joinToString("\n\n")
-            require(fixed.toByteArray(Charsets.UTF_8).size <= 8192)
+            require(fixed.utf8Size() <= 8192)
             val parameters = obj(opts, "parameters")
-            require(parameters.toString().toByteArray(Charsets.UTF_8).size <= 16 * 1024)
+            require(parameters.toString().utf8Size() <= 16 * 1024)
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
-            require(context.toByteArray(Charsets.UTF_8).size <= 8192)
+            require(context.utf8Size() <= 8192)
             StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
                 when {
                     // Under full access "cautious" can only come from the caller, which may still narrow its own run.

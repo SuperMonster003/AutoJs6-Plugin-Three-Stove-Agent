@@ -83,6 +83,6 @@ internal object ModelSelectionCodec {
             "recents" to JsonArray().apply { state.recents.forEach { add(ref(it)) } },
             "pinned" to JsonArray().apply { state.pinned.forEach { add(ref(it)) } })
             .apply { state.current?.let { add("current", ref(it)) } }
-            .also { require(it.toString().toByteArray(Charsets.UTF_8).size <= MAX_BYTES) }
+            .also { require(it.toString().utf8Size() <= MAX_BYTES) }
     }
 }

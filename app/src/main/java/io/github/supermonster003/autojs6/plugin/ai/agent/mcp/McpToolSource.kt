@@ -7,7 +7,6 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
-import java.security.MessageDigest
 import java.util.Locale
 
 class McpToolPreview(val name: String, val description: String, schema: JsonObject?, val supported: Boolean, val reason: String?) {
@@ -69,7 +68,7 @@ class McpToolSource(private val executor: Executor, private val clientVersion: S
                             val preview = available[name] ?: mcpFail("MCP_CATALOG_CHANGED")
                             if (!preview.supported) mcpFail("MCP_PROTOCOL_ERROR")
                             val schema = checkNotNull(preview.schema)
-                            schemaBytes += schema.toString().toByteArray(Charsets.UTF_8).size
+                            schemaBytes += schema.toString().utf8Size()
                             if (schemaBytes > 128 * 1024) mcpFail("MCP_LIMIT_EXCEEDED")
                             specs += ToolSpec.external(qualified(profile.id, name),
                                 "Untrusted MCP server ${profile.id}: ${preview.description}", schema, profile.risk, ExternalToolRoute(profile.id, name))
@@ -98,7 +97,7 @@ class McpToolSource(private val executor: Executor, private val clientVersion: S
             execution != null && taskSupport !in setOf("optional", "forbidden", "required") -> "MCP_UNSUPPORTED_EXECUTION"
             taskSupport == "required" -> "MCP_TASKS_REQUIRED"
             schema == null || schema.string("type") != "object" -> "MCP_UNSUPPORTED_SCHEMA"
-            schema.toString().toByteArray(Charsets.UTF_8).size > 16 * 1024 -> "MCP_SCHEMA_TOO_LARGE"
+            schema.toString().utf8Size() > 16 * 1024 -> "MCP_SCHEMA_TOO_LARGE"
             runCatching { InputSchema(schema, external = true) }.isFailure -> "MCP_UNSUPPORTED_SCHEMA"
             else -> null
         }
@@ -110,8 +109,7 @@ class McpToolSource(private val executor: Executor, private val clientVersion: S
             val prefix = "mcp_${serverId}_"
             if (toolName.matches(Regex("[a-z][a-z0-9_]*")) && prefix.length + toolName.length <= 64) return prefix + toolName
             val slug = toolName.lowercase(Locale.ROOT).replace(Regex("[^a-z0-9_]"), "_").ifEmpty { "tool" }
-            val digest = MessageDigest.getInstance("SHA-256").digest(toolName.toByteArray(Charsets.UTF_8))
-                .take(4).joinToString("") { "%02x".format(Locale.ROOT, it.toInt() and 255) }
+            val digest = Digests.sha256Hex(toolName).take(8)
             return prefix + slug.take(64 - prefix.length - 9) + "_" + digest
         }
     }
@@ -192,14 +190,9 @@ class McpSnapshot internal constructor(val catalog: ToolCatalog, private val ses
             val bounded = AgentJson.truncate(safe, remaining)
             if (bounded != safe) truncated = true
             if (bounded.isNotEmpty()) observations.add(jsonObject("type" to "text".json(), "text" to bounded.json()))
-            remaining = (remaining - bounded.toByteArray(Charsets.UTF_8).size).coerceAtLeast(0)
+            remaining = (remaining - bounded.utf8Size()).coerceAtLeast(0)
         }
-        fun redacted(value: JsonElement): JsonElement = when {
-            value.isJsonObject -> JsonObject().apply { value.asJsonObject.entrySet().forEach { (key, child) -> add(session.redact(key), redacted(child)) } }
-            value.isJsonArray -> JsonArray().apply { value.asJsonArray.forEach { add(redacted(it)) } }
-            value.isJsonPrimitive && value.asJsonPrimitive.isString -> session.redact(value.asString).json()
-            else -> value.deepCopy()
-        }
+        fun redacted(value: JsonElement): JsonElement = Redaction.mapStrings(value, keys = true, transform = session::redact)
         return jsonObject("untrusted" to true.json(), "source" to "mcp".json(), "serverId" to route.serverId.json(), "tool" to route.toolName.json(),
             "isError" to isError.json(), "content" to observations, "truncated" to truncated.json()).apply {
             response["structuredContent"]?.let { add("structuredContent", ObservationCompactor.compact(redacted(it), 8 * 1024, false)) }
@@ -207,10 +200,7 @@ class McpSnapshot internal constructor(val catalog: ToolCatalog, private val ses
     }
 }
 
-internal fun fixedCode(failure: Exception): String = (failure as? McpFailure)?.code?.takeIf {
-    it in setOf("MCP_AUTH_REQUIRED", "MCP_PAIRING_REQUIRED", "MCP_PAIRING_DENIED", "MCP_PROTOCOL_ERROR", "MCP_CATALOG_CHANGED",
-        "MCP_TIMEOUT", "MCP_UNAVAILABLE", "MCP_LIMIT_EXCEEDED")
-} ?: when ((failure as? McpFailure)?.code) {
+internal fun fixedCode(failure: Exception): String = (failure as? McpFailure)?.code?.takeIf { it in PortResult.Failure.MCP_REASONS } ?: when ((failure as? McpFailure)?.code) {
     "MCP_RATE_LIMITED" -> "MCP_LIMIT_EXCEEDED"
     "MCP_REDIRECT_REJECTED" -> "MCP_PROTOCOL_ERROR"
     else -> "MCP_UNAVAILABLE"

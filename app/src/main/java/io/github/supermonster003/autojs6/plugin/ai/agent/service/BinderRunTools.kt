@@ -131,7 +131,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
             result(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE
         }
         val json = call.envelope(id).toString()
-        if (json.toByteArray(Charsets.UTF_8).size > maximumRequestBytes) { result(PortResult.Failure(RunError.LIMIT_EXCEEDED)); return Cancellation.NONE }
+        if (json.utf8Size() > maximumRequestBytes) { result(PortResult.Failure(RunError.LIMIT_EXCEEDED)); return Cancellation.NONE }
         val remote = object : IHostCapabilityCallback.Stub() {
             @Suppress("DEPRECATION")
             override fun onResponse(response: Bundle?) {
@@ -142,7 +142,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                     // The brokerInfo handshake negotiates the version; legacy replies omit it.
                     require(response != null && (!response.containsKey(H.KEY_CONTRACT_VERSION) || response.get(H.KEY_CONTRACT_VERSION) == H.CONTRACT_VERSION))
                     val text = response.get(H.KEY_BRIDGE_RESPONSE_JSON) as? String ?: error("Missing response")
-                    require(text.toByteArray(Charsets.UTF_8).size <= H.MAX_BRIDGE_INLINE_JSON_BYTES)
+                    require(text.utf8Size() <= H.MAX_BRIDGE_INLINE_JSON_BYTES)
                     val ok = response.get(H.KEY_BRIDGE_RESPONSE_OK) as? Boolean ?: error("Missing result flag")
                     val fd = response.get(H.KEY_BRIDGE_PAYLOAD_FD) as? ParcelFileDescriptor
                     val count = if (fd != null) response.get(H.KEY_BRIDGE_PAYLOAD_BYTES) as? Long else null
@@ -164,7 +164,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                                 val marker = envelope.getAsJsonObject("result")?.getAsJsonObject("payload")
                                 require(marker?.string("kind") == "descriptor" && marker.string("mime") == mime && marker.number("bytes") == count)
                                 val decoded = data.use { it.read(call.timeoutMs) }
-                                require(decoded.toByteArray(Charsets.UTF_8).size.toLong() == count)
+                                require(decoded.utf8Size().toLong() == count)
                                 result(PortResult.Success(AgentJson.parse(decoded, maximumPayloadBytes, maximumNodes)))
                             }
                         } catch (_: Exception) { result(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)) }

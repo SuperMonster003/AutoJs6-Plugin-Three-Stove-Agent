@@ -26,7 +26,7 @@ class NativeToolResult(val id: String, val output: String, val isError: Boolean,
     fun wire(firstImageIndex: Int = 0) = jsonObject("callId" to id.json(), "output" to output.json(), "isError" to isError.json()).apply {
         if (images.isNotEmpty()) add("imageRefs", imageReferences(images, firstImageIndex))
     }
-    override fun toString() = "NativeToolResult(bytes=${output.toByteArray(Charsets.UTF_8).size}, isError=$isError)"
+    override fun toString() = "NativeToolResult(bytes=${output.utf8Size()}, isError=$isError)"
 }
 class NativeToolTurn(calls: List<NativeToolCall>, val continuation: NativeContinuation) {
     val calls = calls.toList()

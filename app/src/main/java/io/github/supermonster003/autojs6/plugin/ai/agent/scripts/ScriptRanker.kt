@@ -11,7 +11,7 @@ object ScriptRanker {
     const val MAX_CANDIDATES = 24
     private val WORDS = Regex("[\\p{L}\\p{N}]+")
     fun select(catalog: ScriptCatalogSnapshot, query: String, filter: Boolean = false): ScriptPresentation {
-        require(query.toByteArray(Charsets.UTF_8).size <= 4096)
+        require(query.utf8Size() <= 4096)
         val words = tokens(query)
         fun overlap(text: String) = tokens(text).count { it in words }
         val scored = catalog.entries.map { entry ->
@@ -43,7 +43,7 @@ object ScriptRanker {
         val properties = schema.getAsJsonObject("properties").entrySet().sortedWith(
             compareByDescending<Map.Entry<String, JsonElement>> { it.key in required }.thenBy { it.key })
         for ((name, value) in properties.take(12)) {
-            if (name.toByteArray(Charsets.UTF_8).size > 128) { truncated = true; continue }
+            if (name.utf8Size() > 128) { truncated = true; continue }
             val source = value.asJsonObject
             val target = jsonObject("type" to (source["type"] ?: JsonNull.INSTANCE).deepCopy(), "required" to (name in required).json())
             source.string("description")?.let { target.addProperty("description", shorten(it, 96)) }

@@ -80,5 +80,5 @@ object McpProfileCodec {
 
 internal fun bounded(value: String, bytes: Int, blank: Boolean = true) {
     AgentJson.checkUnicode(value)
-    require(value.toByteArray(Charsets.UTF_8).size <= bytes && (blank || value.isNotBlank()) && '\u0000' !in value) { "MCP text exceeds limit" }
+    require(value.utf8Size() <= bytes && (blank || value.isNotBlank()) && '\u0000' !in value) { "MCP text exceeds limit" }
 }
