@@ -701,7 +701,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [ ] (插件) 视觉跨 UID 真实任务: `screen_capture` 参与的 D32 用例 (2) 在真机 + 图片模型 completed 一次 (P9.2 只验了 Provider 探针). 证据 E4.
 - [ ] (插件) 任务结果分享: 详情页 "分享摘要" 经系统分享面板输出脱敏文本 (status / summary / evidence, 不含观察正文). 证据 E2.
 - [ ] (插件) MCP: `notifications/tools/list_changed` 后提示重新冻结目录而非直接以 `MCP_CATALOG_CHANGED` 失败; OAuth 与旧 HTTP+SSE 保持不支持并在设置页说明. 证据 E1 + 真实 MCP Server.
-- [ ] (插件) 移除首轮重设计遗留的 `"workbench"` SharedPreferences 迁移 (`ModelSelection`, `LauncherActivity` 草稿) — 1.2.0 发布并经过一个版本后执行. 证据 E1.
+- [ ] (插件) 移除首轮重设计遗留的 `"workbench"` SharedPreferences 迁移 (`ModelSelection`, `LauncherActivity` 草稿), 1.2.0 发布并经过一个版本后执行. 证据 E1.
 - [ ] (插件) 语音识别准确率与 ColorOS 激活: 各一次真机记录 (缺席设备写 "未执行"). 证据 E3.
 
 ---
