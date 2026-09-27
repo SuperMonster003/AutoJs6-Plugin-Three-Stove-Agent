@@ -82,9 +82,7 @@
     <string name="history_export_note">L\'export conserve les compteurs, les noms des outils et les confirmations. Les objectifs, paramètres, observations et résultats des scripts sont retirés. Choisissez un emplacement.</string>
     <string name="history_exported">Export enregistré.</string>
     <string name="history_model_selected">Les nouvelles tâches utilisent désormais %1$s.</string>
-    <string name="history_model_value">Modèle: %1$s</string>
     <string name="history_preset_unavailable">Ce préréglage est indisponible. Choisissez un préréglage disponible avant de démarrer.</string>
-    <string name="history_preset_value">Préréglage: %1$s</string>
     <string name="history_rejections">Décisions du modèle rejetées: %1$s</string>
     <string name="history_reset_dates">Réinitialiser les dates</string>
     <string name="history_result">Résultat</string>

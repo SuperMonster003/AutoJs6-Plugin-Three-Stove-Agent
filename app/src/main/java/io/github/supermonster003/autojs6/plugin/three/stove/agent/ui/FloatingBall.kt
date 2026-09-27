@@ -188,7 +188,9 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             row.view.setPaddingRelative(kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_XS), 0, kit.dp(Ui.SPACE_XS)); row.view.minimumHeight = kit.dp(56)
             parent.addView(row.view, LinearLayout.LayoutParams(-1, -2))
         }
-    @android.annotation.SuppressLint("RtlHardcoded") // x/y are physical display coordinates; content still follows RTL.
+    // RtlHardcoded: x/y are physical display coordinates; content still follows RTL.
+    // ClickableViewAccessibility: the body's touch listener only consumes ACTION_OUTSIDE (a tap beyond the window), never a click on the view.
+    @android.annotation.SuppressLint("RtlHardcoded", "ClickableViewAccessibility")
     @Suppress("DEPRECATION")
     private fun createWindow(reuse: LinearLayout? = null) {
         context = themed()

@@ -82,9 +82,7 @@
     <string name="history_export_note">Se conservan contadores, nombres de herramientas y confirmaciones. Se eliminan objetivos, parámetros, observaciones y resultados de scripts. Elige dónde guardar el archivo.</string>
     <string name="history_exported">Exportación guardada.</string>
     <string name="history_model_selected">Las tareas nuevas usarán %1$s.</string>
-    <string name="history_model_value">Modelo: %1$s</string>
     <string name="history_preset_unavailable">Este preajuste no está disponible. Elige uno disponible antes de iniciar.</string>
-    <string name="history_preset_value">Preajuste: %1$s</string>
     <string name="history_rejections">Decisiones del modelo rechazadas: %1$s</string>
     <string name="history_reset_dates">Restablecer fechas</string>
     <string name="history_result">Resultado</string>
@@ -350,7 +348,7 @@
     <string name="update_no_release">No hay una versión estable pública o el repositorio no está disponible.</string>
     <string name="update_open_release">Abrir página de la versión</string>
     <string name="update_unignore">Dejar de ignorar esta versión</string>
-    <string name="workbench_access">Permisos de operacion: %1$s</string>
+    <string name="workbench_access">Permisos de operación: %1$s</string>
     <string name="workbench_answer_required">Introduce una respuesta.</string>
     <string name="workbench_back">Volver</string>
     <string name="workbench_budget">Paso %1$d/%2$d · %3$d llamadas al modelo · %4$d min · %5$d tokens</string>

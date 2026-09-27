@@ -82,9 +82,7 @@
     <string name="history_export_note">导出保留诊断计数, 工具名称和确认结果. 目标, 参数, 观察内容及脚本结果会移除. 请选择文件保存位置.</string>
     <string name="history_exported">导出已保存.</string>
     <string name="history_model_selected">新任务将使用 %1$s.</string>
-    <string name="history_model_value">模型: %1$s</string>
     <string name="history_preset_unavailable">此预设已不可用. 请先选择可用预设再开始.</string>
-    <string name="history_preset_value">预设: %1$s</string>
     <string name="history_rejections">被拒绝的模型决策: %1$s</string>
     <string name="history_reset_dates">重置日期</string>
     <string name="history_result">任务结果</string>
