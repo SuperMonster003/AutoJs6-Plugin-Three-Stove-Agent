@@ -26,7 +26,7 @@ class ControlRequestsTest {
     @Test fun invalidOptionsCannotWidenGrantsOrBudgets() {
         val config = LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["observe"],"maxTotalTokens":1000}}""")
         for (options in listOf("""{"tools":["act"]}""", """{"budget":{"maxTotalTokens":1001}}""",
-            """{"budget":{"maxSteps":41}}""", """{"scriptRoots":["/sdcard"]}""", """{"target":"invalid"}""",
+            """{"budget":{"maxSteps":61}}""", """{"scriptRoots":["/sdcard"]}""", """{"target":"invalid"}""",
             """{"confirm":"never"}""", """{"detached":"true"}""", """{"preset":"unknown"}""", """{"unknown":1}""")) {
             assertThrows(options, IllegalArgumentException::class.java) { StartRequest.parse("""{"goal":"test","options":$options}""", config) }
         }

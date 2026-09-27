@@ -39,7 +39,7 @@ class AgentRunnerTest {
         assertEquals(6L, run.result!!.number("steps")); assertEquals(5L, run.result!!.number("toolCalls"))
         assertEquals(6L, run.result!!.getAsJsonObject("usage").number("modelCalls"))
         assertTrue(f.contexts.last().observation!!.contains("\"checked\":true"))
-        assertEquals(34L, f.contexts.last().remainingBudget.number("steps"))
+        assertEquals(54L, f.contexts.last().remainingBudget.number("steps"))
         assertEquals(6, f.journal(run).getAsJsonArray("steps").size()); assertTrue(f.queue.runs().isEmpty())
         uniqueTerminal(f, run)
     }
