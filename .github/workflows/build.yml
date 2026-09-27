@@ -119,5 +119,6 @@ jobs:
           path: |
             app/build/reports/androidTests/
             build/ci-ui-diagnostics/
+            build/p7-fake-host-android.log
           if-no-files-found: ignore
           retention-days: 7
