@@ -27,7 +27,7 @@ internal class WorkbenchViews(
  */
 internal object WorkbenchLayout {
     fun create(activity: LauncherActivity, actions: FeedActions, onConnect: () -> Unit, onOpenHost: () -> Unit,
-               onPreset: () -> Unit, onVoice: () -> Unit, onSend: () -> Unit, onMore: (View) -> Unit, onJump: () -> Unit): WorkbenchViews {
+               onPreset: () -> Unit, onAccess: () -> Unit, onVoice: () -> Unit, onSend: () -> Unit, onMore: (View) -> Unit, onJump: () -> Unit): WorkbenchViews {
         val kit = activity.kit
         val root = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(kit.palette.background) }
         val statusBar = View(activity).apply { setBackgroundColor(kit.palette.background) }
@@ -62,7 +62,7 @@ internal object WorkbenchLayout {
             addView(jump, FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = kit.dp(Ui.SPACE_SM) })
         }, LinearLayout.LayoutParams(-1, 0, 1f))
 
-        val composer = Composer(kit, onPreset, onVoice, onSend)
+        val composer = Composer(kit, onPreset, onAccess, onVoice, onSend)
         root.addView(bounded(activity, composer.view, Ui.SPACE_MD, Ui.SPACE_XS, Ui.SPACE_MD), LinearLayout.LayoutParams(-1, -2))
         activity.applySystemBarInsets(root, statusBar)
         return WorkbenchViews(root, toolbar, banner, scroll, feed, composer, jump, more)

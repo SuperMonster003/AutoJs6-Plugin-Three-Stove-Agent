@@ -13,6 +13,8 @@ internal data class AgentSettings(
     val floating: Boolean = false, val fullAccess: Boolean = false,
 ) {
     init { require(!cautious || !fullAccess) }
+    /** Wire value of the global access mode shown on the workbench: standard, cautious or full. */
+    val accessMode: String get() = when { fullAccess -> "full"; cautious -> "cautious"; else -> "standard" }
 }
 
 /** Private format; a corrupt or future version never silently restores a more permissive policy. */

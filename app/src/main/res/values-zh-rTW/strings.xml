@@ -5,8 +5,13 @@
     <string name="about_summary">版本, 開發者與授權條款</string>
     <string name="about_version">版本</string>
     <string name="about_version_value">%1$s (建置 %2$d)\n建置日期: %3$s</string>
+    <string name="access_cautious_short">審慎</string>
+    <string name="access_standard_short">標準</string>
     <string name="accessibility_open_settings">開啟無障礙設定</string>
     <string name="accessibility_start_failed">無障礙自動啟動失敗. 請在系統設定中啟用 AutoJs6 無障礙服務, 然後繼續任務.</string>
+    <string name="alert_channel">任務異常提醒</string>
+    <string name="alert_close">關閉</string>
+    <string name="alert_title">任務已停止: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">無法開啟此任務草稿或建立捷徑.</string>
     <string name="floating_collapse">收起任務卡片, 拖曳可移動</string>
+    <string name="floating_exit">退出懸浮球</string>
+    <string name="floating_minimize">最小化</string>
     <string name="floating_model">模型</string>
+    <string name="floating_more">更多</string>
     <string name="floating_open">展開任務卡片, 拖曳可移動</string>
     <string name="floating_permission_required">請允許顯示在其他應用程式上層以啟用懸浮球.</string>
     <string name="floating_setting_note">預設關閉. 需要顯示在其他應用程式上層的權限. 僅在 AutoJs6 已連線時顯示, 中斷或鎖定時隱藏. 閒置時不維持前景服務.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">最大模型呼叫次數</string>
     <string name="presets_cautious">審慎 (所有改變狀態的操作均需確認)</string>
     <string name="presets_confirmation">確認策略</string>
+    <string name="presets_confirmation_note">預設只能在設定頁 \"操作權限\" 的基礎上收緊為審慎. 完全存取只能在設定頁開啟, 不會隨預設儲存或分發.</string>
     <string name="presets_context">固定上下文 (與任務上下文合計最多 8 KiB)</string>
     <string name="presets_copy">複製預設</string>
     <string name="presets_default_badge">預設</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">混合</string>
     <string name="presets_inherit">使用全域設定</string>
     <string name="presets_local">本機</string>
+    <string name="presets_manage">管理預設</string>
     <string name="presets_memory">記憶作用域</string>
     <string name="presets_memory_both">全域及目前預設</string>
     <string name="presets_memory_global">僅全域</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">儲存目錄</string>
     <string name="script_roots_title">指令碼目錄</string>
     <string name="settings_access_mode">操作權限</string>
+    <string name="settings_alert_dialog">對話框</string>
+    <string name="settings_alert_notification">通知</string>
+    <string name="settings_alert_toast">浮動訊息 (toast)</string>
+    <string name="settings_alerts_note">任務因錯誤, 預算上限或宿主斷開而停止時, 透過所選方式提醒你. 對話框需要懸浮視窗權限或應用位於前景, 否則改用通知.</string>
+    <string name="settings_alerts_section">異常提醒</string>
     <string name="settings_clear">清除資料</string>
     <string name="settings_clear_confirm">刪除此類全部項目? 此操作無法復原, 須在任務閒置時進行.</string>
     <string name="settings_clear_presets">刪除自訂預設並重設內建 default 預設? 已儲存記憶會保留, 須在任務閒置時進行.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">暫無公開穩定版, 或儲存庫目前無法使用.</string>
     <string name="update_open_release">開啟發行頁</string>
     <string name="update_unignore">取消忽略此版本</string>
+    <string name="workbench_access">操作權限: %1$s</string>
     <string name="workbench_answer_required">請輸入回答.</string>
     <string name="workbench_back">返回</string>
     <string name="workbench_budget">步數: %1$d / %2$d. 上限: %3$d 次模型呼叫, %4$d 分鐘, %5$d token.</string>

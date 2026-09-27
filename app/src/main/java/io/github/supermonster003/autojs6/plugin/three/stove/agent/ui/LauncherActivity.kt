@@ -5,6 +5,8 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.*
+import android.net.Uri
+import android.provider.Settings
 import android.text.*
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -17,6 +19,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.ScriptRoots
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.RunLauncher
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.SettingsCodec
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.update.AppUpdateCoordinator
@@ -34,6 +37,11 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     internal lateinit var models: ModelSwitcher; private set
     internal var overflowMenu: PopupMenu? = null; private set
     internal var presetDialog: AlertDialog? = null; private set
+    internal var accessDialog: AlertDialog? = null; private set
+    private val settings by lazy { SettingsConnection(this) {} }
+    private var accessMode = "standard"
+    private var floatingEnabled = false
+    private var awaitingOverlayPermission = false
     private lateinit var updates: AppUpdateCoordinator
     private val scriptRoots by lazy { ScriptRootSettings(this) }
     private val drafts by lazy { getSharedPreferences("workbench", MODE_PRIVATE) }
@@ -60,7 +68,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         super.onCreate(savedInstanceState)
         models = ModelSwitcher(this, ::updateSend)
         views = WorkbenchLayout.create(this, this, onConnect = { requested = false; requestAttachment() }, onOpenHost = ::openHost,
-            onPreset = ::choosePreset, onVoice = ::voice, onSend = ::launchRun, onMore = ::showMenu, onJump = { scrollToEnd(true) })
+            onPreset = ::choosePreset, onAccess = ::chooseAccess, onVoice = ::voice, onSend = ::launchRun, onMore = ::showMenu, onJump = { scrollToEnd(true) })
         setContentView(views.root)
         updates = AppUpdateCoordinator(this, threeStoveAgentPluginRuntimeInfo().versionName)
         views.root.layoutDirection = resources.configuration.layoutDirection
@@ -88,13 +96,17 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         views.scroll.setOnScrollChangeListener { _: androidx.core.widget.NestedScrollView, _: Int, _: Int, _: Int, _: Int -> if (atEnd()) views.jump.visibility = View.GONE }
         renderPreset(); updateSend()
     }
-    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); updates.checkAutomatically() }
-    override fun onResume() { super.onResume(); visibility.start() }
+    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); settings.start(); updates.checkAutomatically() }
+    override fun onResume() {
+        super.onResume(); visibility.start()
+        // Returning from the overlay permission screen with the grant completes the floating ball toggle.
+        if (awaitingOverlayPermission) { awaitingOverlayPermission = false; if (Settings.canDrawOverlays(this)) saveSettings { it.withFloating(true) } }
+    }
     override fun onPause() { visibility.stop(); super.onPause() }
     override fun onStop() {
         drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
-        overflowMenu?.dismiss(); overflowMenu = null; presetDialog?.dismiss(); presetDialog = null
-        models.stop(); updates.cancel(); agent.stop(); super.onStop()
+        overflowMenu?.dismiss(); overflowMenu = null; presetDialog?.dismiss(); presetDialog = null; accessDialog?.dismiss(); accessDialog = null
+        models.stop(); updates.cancel(); agent.stop(); settings.stop(); super.onStop()
     }
     override fun onDestroy() { models.close(); updates.close(); agent.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -123,10 +135,12 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)
             menu.add(0, R.id.launcher_script_roots, 3, R.string.script_roots_title)
             menu.add(0, R.id.workbench_mcp, 4, R.string.mcp_servers)
-            menu.add(0, R.id.workbench_settings, 5, R.string.settings_title)
+            menu.add(0, R.id.workbench_floating, 5, R.string.settings_floating).setCheckable(true).isChecked = floatingEnabled
+            menu.add(0, R.id.workbench_settings, 6, R.string.settings_title)
             setOnMenuItemClickListener { item ->
                 val screen = when (item.itemId) {
                     R.id.workbench_new_task -> { newTask(); return@setOnMenuItemClickListener true }
+                    R.id.workbench_floating -> { toggleFloating(!floatingEnabled); return@setOnMenuItemClickListener true }
                     R.id.workbench_settings -> SettingsActivity::class.java
                     R.id.workbench_presets -> PresetsActivity::class.java
                     R.id.workbench_memory -> MemoryActivity::class.java
@@ -138,6 +152,32 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         }
     }
     private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+    /** Whole-object save of the private settings, the same path as the settings screen. */
+    private fun saveSettings(change: (SettingsDraft) -> SettingsDraft) {
+        settings.query(jsonObject("operation" to "get".json())) { loaded ->
+            val draft = loaded.mapCatching { SettingsDraft(SettingsCodec.decode(it.getAsJsonObject("settings").toString())) }.getOrNull()
+            if (draft == null) { showError(); return@query }
+            settings.query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(change(draft).settings))) { saved ->
+                if (saved.isFailure) showError() else agent.refresh()
+            }
+        }
+    }
+    private fun chooseAccess() {
+        val modes = AccessMode.entries
+        val labels = listOf(R.string.presets_standard, R.string.presets_cautious, R.string.settings_full_access).map(::getString)
+        val current = when (accessMode) { "full" -> AccessMode.FULL; "cautious" -> AccessMode.CAUTIOUS; else -> AccessMode.STANDARD }
+        accessDialog = kit.singleChoiceDialog(getString(R.string.settings_access_mode), labels, modes.indexOf(current)) { index ->
+            if (modes[index] != current) saveSettings { it.withAccess(modes[index]) }
+        }
+    }
+    /** The floating ball needs the overlay permission first; the toggle completes when the user returns with it. */
+    private fun toggleFloating(enabled: Boolean) {
+        if (enabled && !Settings.canDrawOverlays(this)) {
+            awaitingOverlayPermission = true
+            runCatching { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) }
+                .onFailure { awaitingOverlayPermission = false; showError() }
+        } else saveSettings { it.withFloating(enabled) }
+    }
     private fun renderPreset() { views.composer.showPreset(presetLabel(selectedPreset), !attached || selectedPreset in availablePresets) }
     private fun choosePreset() {
         val names = presetChoices
@@ -197,7 +237,9 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
-        views.composer.fullAccess.visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
+        accessMode = value.status.string("accessMode") ?: if (value.status.flag("fullAccessEnabled") == true) "full" else "standard"
+        views.composer.showAccess(accessMode)
+        floatingEnabled = value.status.flag("floatingEnabled") == true
         views.composer.voice.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(this)) View.VISIBLE else View.GONE
         availablePresets = value.presets
         if (followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset) selectedPreset = value.defaultPreset
