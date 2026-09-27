@@ -24,8 +24,13 @@ internal class Composer(private val kit: Kit, onPreset: () -> Unit, onAccess: ()
     }
     /** Preset names are user text of any length; the chip may ellipsize and states the full name in its description. */
     val preset: Chip = kit.chip("", "preset-chip", icon = R.drawable.ic_layers) { onPreset() }.apply { id = R.id.workbench_preset; Ui.truncatable(this) }
-    /** Global access mode (standard, cautious, full access); tapping switches it. Only full access is red. */
-    val access: Chip = kit.chip("", "access-chip", icon = R.drawable.ic_shield) { onAccess() }.apply { id = R.id.workbench_access }
+    /**
+     * Global access mode (standard, cautious, full access); tapping switches it. Only full access is red.
+     * Until the first status arrives the chip has no value, so it is named by the setting it opens.
+     */
+    val access: Chip = kit.chip("", "access-chip", icon = R.drawable.ic_shield) { onAccess() }.apply {
+        id = R.id.workbench_access; contentDescription = kit.string(R.string.settings_access_mode)
+    }
     val voice = kit.iconButton(R.drawable.ic_mic, kit.string(R.string.workbench_voice), "voice", kit.palette.accent) { onVoice() }
         .apply { id = R.id.workbench_voice; visibility = View.GONE }
     /** Round send button; its label is the accessible name "Start task". */
