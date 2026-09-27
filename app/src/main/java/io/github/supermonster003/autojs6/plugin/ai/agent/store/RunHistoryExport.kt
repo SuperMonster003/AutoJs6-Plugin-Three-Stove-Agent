@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.store
 
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.runner.StepJournal
 
 /** Diagnostic export is an allowlist, not a promise that regexes can find personal data in prose. */
 internal object RunHistoryExport {
@@ -25,6 +26,7 @@ internal object RunHistoryExport {
                 source.string("tool")?.takeIf { it in toolNames }?.let { addProperty("tool", it) }
                 source.string("confirmation")?.takeIf { it in setOf("auto", "allowed", "denied") }?.let { addProperty("confirmation", it) }
                 for (key in listOf("decision", "arguments", "observation", "error")) if (source.has(key)) addProperty(key, "[redacted]")
+                source.getAsJsonObject("decision")?.string("failure")?.takeIf { it.matches(StepJournal.FAILURE_CLASS) }?.let { addProperty("failure", it) }
                 add("usage", usage(source.getAsJsonObject("usage")))
                 source.getAsJsonObject("decision")?.get("rejections")?.takeIf { it.isJsonArray }?.asJsonArray?.let { codes ->
                     add("rejections", JsonArray().apply { codes.take(DecisionRepairSession.MAX_REPAIRS + 1).forEach { code ->

@@ -19,6 +19,7 @@
         "Las tarjetas de confirmación añaden Permitir siempre en esta sesión: hasta que termine la tarea, la misma herramienta con el mismo nivel de riesgo se ejecuta sin volver a preguntar, aunque cambien los argumentos. Los pagos requieren su propia aprobación; los scripts generados y las propuestas de memoria también pueden permitirse para la sesión."
       ],
       "fix": [
+        "Cuando una excepcion interna hace fallar una tarea, el registro del paso conserva la clase de la excepcion (nunca su mensaje) para el diagnostico; un tiempo de espera de herramienta ahora indica la dimension del limite de tiempo de la herramienta en el resultado; el descubrimiento de herramientas MCP se limita a 8 segundos para no consumir la ventana de preparacion de 15 segundos",
         "Las capacidades del complemento ahora declaran native-tools y vision, los limites de ejecucion se vinculan directamente a las constantes del contrato del anfitrion, la version del cliente MCP proviene del paquete instalado y los literales dispersos de tiempo y tamano referencian el contrato",
         "Un servicio de accesibilidad de AutoJs6 detenido se comunica al modelo como A11Y_SERVICE_NOT_RUNNING en lugar de un error de argumentos"
       ],
