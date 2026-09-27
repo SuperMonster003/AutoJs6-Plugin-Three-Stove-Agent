@@ -32,7 +32,7 @@ class ContextCompiler(
     private val local = target.locality == ModelLocality.ON_DEVICE
     val maximumBytes = minOf(limits.maximumBytes, limits.grantMaximumBytes, target.maximumContextBytes,
         if (local) limits.localInputTokens * 5 / 2 else Int.MAX_VALUE)
-    init { require(fixedContext.toByteArray(Charsets.UTF_8).size <= 8192); AgentJson.checkUnicode(fixedContext) }
+    init { require(fixedContext.utf8Size() <= 8192); AgentJson.checkUnicode(fixedContext) }
 
     override fun observe(tool: String, result: JsonElement): String {
         val envelope = jsonObject("ok" to true.json(), "result" to result)
@@ -58,7 +58,7 @@ class ContextCompiler(
         var observationBytes = minOf(ToolObservation.DEFAULT_MAX_BYTES, maximumBytes.coerceAtLeast(128))
         var retained = minOf(limits.recentPairs, history.size)
         var summaryCount = (history.size - retained).coerceAtMost(32)
-        var contextBytes = fixedContext.toByteArray(Charsets.UTF_8).size
+        var contextBytes = fixedContext.utf8Size()
         var memoryCount = memories.size()
         var compact = local
         var scriptCount = scripts?.size ?: 0
@@ -95,7 +95,7 @@ class ContextCompiler(
                 val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
                 message("system", prompts.system(language, policy, format,
                     AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
-                    contextBytes < fixedContext.toByteArray(Charsets.UTF_8).size, scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes))
+                    contextBytes < fixedContext.utf8Size(), scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes))
             }
             val messages = jsonArray(system, goalMessage)
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach(::add) })))

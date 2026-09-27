@@ -36,7 +36,7 @@ internal object AgentWire {
             require(bundle != null && bundle.get(C.KEY_CONTRACT_VERSION) == C.CONTRACT_VERSION)
             require(!bundle.hasFileDescriptors())
             val value = bundle.get(key) as? String ?: throw WireFailure(C.ERROR_INVALID_REQUEST)
-            require(value.toByteArray(Charsets.UTF_8).size <= maximum)
+            require(value.utf8Size() <= maximum)
             return value
         } catch (failure: WireFailure) { throw failure }
         catch (_: Exception) { throw WireFailure(C.ERROR_INVALID_REQUEST) }
@@ -50,7 +50,7 @@ internal object AgentWire {
             descriptor = bundle.get(fdKey) as? ParcelFileDescriptor
             val inline = bundle.get(key) as? String
             require((inline == null) != (descriptor == null))
-            require(inline == null || inline.toByteArray(Charsets.UTF_8).size <= inlineMaximum)
+            require(inline == null || inline.utf8Size() <= inlineMaximum)
             closeDescriptors(bundle, descriptor)
             return OwnedJson(inline, descriptor, maximum)
         } catch (_: Exception) { closeDescriptors(bundle); throw WireFailure(C.ERROR_INVALID_REQUEST) }
@@ -76,7 +76,7 @@ internal class OwnedJson(private val inline: String?, private val descriptor: Pa
     @Volatile private var closed = false
     fun read(timeoutMs: Long = 15_000): String {
         check(!closed)
-        if (inline != null) return inline.also { require(it.toByteArray(Charsets.UTF_8).size <= maximum); AgentJson.checkUnicode(it) }
+        if (inline != null) return inline.also { require(it.utf8Size() <= maximum); AgentJson.checkUnicode(it) }
         val fd = checkNotNull(descriptor).fileDescriptor
         val end = SystemClock.elapsedRealtime() + timeoutMs.coerceIn(1, C.MAX_TOOL_TIMEOUT_MS)
         val output = ByteArrayOutputStream()

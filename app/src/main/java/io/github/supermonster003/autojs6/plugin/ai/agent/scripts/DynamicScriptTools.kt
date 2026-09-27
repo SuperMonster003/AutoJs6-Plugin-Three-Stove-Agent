@@ -13,7 +13,7 @@ object DynamicScriptSource {
     fun validate(source: String): String {
         AgentJson.checkUnicode(source)
         require(source.isNotBlank() && '\u0000' !in source)
-        require(source.toByteArray(Charsets.UTF_8).size <= MAX_BYTES && StepJournal.bytes(source.json()) <= MAX_BYTES)
+        require(source.utf8Size() <= MAX_BYTES && StepJournal.bytes(source.json()) <= MAX_BYTES)
         return source
     }
     fun available(optional: Set<String>, methods: Set<String>, permissions: Set<String>) =

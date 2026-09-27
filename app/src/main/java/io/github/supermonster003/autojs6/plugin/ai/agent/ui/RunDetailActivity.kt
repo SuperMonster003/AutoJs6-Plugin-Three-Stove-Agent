@@ -217,7 +217,7 @@ class RunDetailActivity : HostAppearanceActivity() {
         box.addView(caption(facts.joinToString(" · ")))
         step.string("error")?.let { box.addView(caption(getString(R.string.history_error) + ": " + it).apply { setTextColor(palette.danger) }) }
         step.string("observation")?.let { observation ->
-            val long = observation.toByteArray(Charsets.UTF_8).size > 240
+            val long = observation.utf8Size() > 240
             val text = body(if (index in expanded || !long) observation else AgentJson.truncate(observation, 240)).apply {
                 background = kit.roundedFill(palette.surfaceVariant, Ui.RADIUS_CONTROL)
                 setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM))

@@ -29,7 +29,7 @@ internal object PresetCodec {
     val ceilings = SettingsCodec.ceilings
     fun name(text: String) = text.also {
         AgentJson.checkUnicode(it)
-        require(it.isNotBlank() && it == it.trim() && it.toByteArray(Charsets.UTF_8).size <= 128 && it != "global" && it.none(Character::isISOControl))
+        require(it.isNotBlank() && it == it.trim() && it.utf8Size() <= 128 && it != "global" && it.none(Character::isISOControl))
     }
     fun target(text: String) = text.also { require(it.length <= 256 && it.matches(Regex("[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}"))) }
     private fun strings(value: JsonObject, key: String): Set<String>? {
@@ -46,7 +46,7 @@ internal object PresetCodec {
             val ceiling = requireNotNull(ceilings[key]); requireNotNull(rawBudget.number(key)).also { require(it in 1..ceiling) }
         }
         fun text(key: String, default: String) = if (value.has(key)) requireNotNull(value.string(key)) else default
-        val context = text("context", "").also { AgentJson.checkUnicode(it); require(it.toByteArray(Charsets.UTF_8).size <= 8192) }
+        val context = text("context", "").also { AgentJson.checkUnicode(it); require(it.utf8Size() <= 8192) }
         val roots = strings(value, "scriptRoots")?.let(ScriptRoots::validate)
         return Preset(name(requireNotNull(value.string("name"))), if (value.has("targetId")) target(requireNotNull(value.string("targetId"))) else null,
             groups, budget, text("confirmPolicy", "default").also { require(it in setOf("default", "cautious")) }, context, roots,

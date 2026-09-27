@@ -33,7 +33,7 @@ internal class ModelEventSequence(private val requestId: String, private val tar
                     require(!seenUsage && event.number("chunkSequence") == chunkSequence + 1)
                     val text = event.string("text") ?: error("Missing chunk")
                     chunkSequence++
-                    val size = text.toByteArray(Charsets.UTF_8).size
+                    val size = text.utf8Size()
                     if (size > maximumOutputBytes - outputBytes) return reject(RunError.LIMIT_EXCEEDED)
                     outputBytes += size; chunks.append(text)
                     Event.More
@@ -52,7 +52,7 @@ internal class ModelEventSequence(private val requestId: String, private val tar
                     fields(event, setOf("text", "targetId", "finishReason"))
                     require(event.string("targetId") == targetId && event.number("finishReason") in 0..Int.MAX_VALUE.toLong())
                     val text = event.string("text") ?: error("Missing completion")
-                    val size = text.toByteArray(Charsets.UTF_8).size
+                    val size = text.utf8Size()
                     if (size > maximumOutputBytes) return reject(RunError.LIMIT_EXCEEDED)
                     require(chunkSequence == 0L || text == chunks.toString())
                     outputBytes = size; ended = true; chunks.setLength(0)

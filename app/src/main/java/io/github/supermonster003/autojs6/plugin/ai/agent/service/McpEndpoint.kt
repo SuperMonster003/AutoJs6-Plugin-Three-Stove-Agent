@@ -46,7 +46,7 @@ internal class McpEndpoint(private val runtime: AgentRuntime) : IAgentSettings.S
             if (maintenance) runtime.endMaintenance()
             try {
                 val response = result.getOrNull()?.toString()
-                callback.onResult(if (response != null && response.toByteArray(Charsets.UTF_8).size <= MAX_RESPONSE_BYTES)
+                callback.onResult(if (response != null && response.utf8Size() <= MAX_RESPONSE_BYTES)
                     AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, response) else AgentWire.error(C.ERROR_INVALID_REQUEST))
             } catch (_: Exception) { /* A closed screen must not leak remote or credential data. */ }
             finally { pending.decrementAndGet() }

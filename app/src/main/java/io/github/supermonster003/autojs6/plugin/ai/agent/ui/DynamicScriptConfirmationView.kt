@@ -25,7 +25,7 @@ internal object DynamicScriptConfirmationView {
             background = kit.roundedFill(kit.palette.warningSurface, Ui.RADIUS_CONTROL)
             setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM))
         }, top = Ui.SPACE_SM)
-        add(label(context.getString(R.string.script_dynamic_source_summary, source.toByteArray(Charsets.UTF_8).size, source.count { it == '\n' } + 1)))
+        add(label(context.getString(R.string.script_dynamic_source_summary, source.utf8Size(), source.count { it == '\n' } + 1)))
         arguments.number("timeoutMs")?.let { add(label(context.getString(R.string.script_dynamic_timeout, it))) }
         add(kit.text(context.getString(R.string.script_dynamic_source), Ui.TEXT_SECTION, kit.palette.muted, medium = true).apply {
             labelFor = R.id.script_dynamic_source; textAlignment = View.TEXT_ALIGNMENT_VIEW_START

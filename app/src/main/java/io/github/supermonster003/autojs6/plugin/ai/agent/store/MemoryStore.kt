@@ -4,7 +4,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
-import java.security.MessageDigest
+import io.github.supermonster003.autojs6.plugin.ai.agent.model.Digests
+import io.github.supermonster003.autojs6.plugin.ai.agent.model.utf8Size
 
 /** Single-worker owner. Each atomic mutation writes one entry, not the entire memory collection. */
 internal class MemoryStore(private val directory: File, private val legacy: File? = null) {
@@ -52,7 +53,7 @@ internal class MemoryStore(private val directory: File, private val legacy: File
     }
     private fun validate(values: List<MemoryEntry>) {
         MemoryCodec.encode(values)
-        require(values.sumOf { MemoryCodec.encodeFile(it).toByteArray(Charsets.UTF_8).size } <= MemoryCodec.MAX_BYTES)
+        require(values.sumOf { MemoryCodec.encodeFile(it).utf8Size() } <= MemoryCodec.MAX_BYTES)
     }
     private fun atomic(file: File, text: String) {
         check(directory.isDirectory || directory.mkdirs())
@@ -70,7 +71,7 @@ internal class MemoryStore(private val directory: File, private val legacy: File
     companion object {
         fun fileName(scope: String, key: String): String {
             val data = com.google.gson.JsonArray().apply { add(scope); add(key) }.toString().toByteArray(Charsets.UTF_8)
-            return MessageDigest.getInstance("SHA-256").digest(data).joinToString("") { "%02x".format(it) } + ".json"
+            return Digests.sha256Hex(data) + ".json"
         }
         fun read(file: File, limit: Int): String = file.inputStream().use { input ->
             val output = java.io.ByteArrayOutputStream(); val buffer = ByteArray(4096)

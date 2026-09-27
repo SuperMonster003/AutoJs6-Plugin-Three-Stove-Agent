@@ -92,14 +92,14 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
     private fun resultEnvelope(results: List<NativeToolResult>): String {
         require(pendingCalls.isNotEmpty() && results.size == pendingCalls.size)
         require(results.map { it.id }.distinct().size == results.size && results.map { it.id }.toSet() == pendingCalls.map { it.id }.toSet())
-        results.forEach { AgentJson.checkUnicode(it.output); require(it.output.toByteArray(Charsets.UTF_8).size <= limits.resultBytes) }
+        results.forEach { AgentJson.checkUnicode(it.output); require(it.output.utf8Size() <= limits.resultBytes) }
         val images = results.flatMap { it.images }
         require(images.isEmpty() || vision)
         if (images.isNotEmpty()) requireNotNull(target.vision).validate(images, imageCount, imageBytes)
         return jsonObject("requestId" to id.json(), "round" to events.round.json(), "results" to JsonArray().apply {
             var index = 0
             results.forEach { add(it.wire(index)); index += it.images.size }
-        }).toString().also { if (it.toByteArray(Charsets.UTF_8).size > limits.batchBytes) throw ContextLimitExceeded() }
+        }).toString().also { if (it.utf8Size() > limits.batchBytes) throw ContextLimitExceeded() }
     }
     override fun onFailure(callback: (RunError) -> Unit) {
         val error = synchronized(lock) { failureListener = callback; failure }

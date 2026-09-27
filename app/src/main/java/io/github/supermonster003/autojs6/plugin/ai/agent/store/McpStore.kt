@@ -66,7 +66,7 @@ internal class McpStore(private val file: File, private val encryption: McpEncry
             validate(profiles)
             return jsonObject("version" to 1.json(), "profiles" to JsonArray().apply {
                 profiles.forEach { add(McpProfileCodec.encode(it, includeSecret = true)) }
-            }).toString().also { require(it.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) }
+            }).toString().also { require(it.utf8Size() <= MAX_BYTES) }
         }
         fun decode(text: String): List<McpServerProfile> {
             val value = AgentJson.objectOf(text, MAX_BYTES)

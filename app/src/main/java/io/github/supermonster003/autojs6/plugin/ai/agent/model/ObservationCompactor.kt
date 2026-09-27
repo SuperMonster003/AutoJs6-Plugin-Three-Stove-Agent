@@ -41,15 +41,18 @@ object ObservationCompactor {
             }
         }
         val text = if (copy.isJsonPrimitive && copy.asJsonPrimitive.isString) copy.asString else copy.toString()
-        val result = jsonObject("truncated" to true.json(), "text" to "".json())
-        var low = 0; var high = maxBytes
+        return fitText(jsonObject("truncated" to true.json(), "text" to "".json()), "text", text, maxBytes)
+    }
+    /** Binary-searches the longest prefix of [source] that keeps [record], with [key] set, within [maxBytes] once escaped. */
+    fun fitText(record: JsonObject, key: String, source: String, maxBytes: Int): JsonObject {
+        var low = 0; var high = minOf(source.utf8Size(), maxBytes)
         while (low < high) {
             val middle = (low + high + 1) / 2
-            result.addProperty("text", AgentJson.truncate(text, middle))
-            if (StepJournal.bytes(result) <= maxBytes) low = middle else high = middle - 1
+            record.addProperty(key, AgentJson.truncate(source, middle))
+            if (StepJournal.bytes(record) <= maxBytes) low = middle else high = middle - 1
         }
-        result.addProperty("text", AgentJson.truncate(text, low))
-        return result
+        record.addProperty(key, AgentJson.truncate(source, low))
+        return record
     }
     private fun isTree(text: String) = text.lineSequence().firstOrNull()?.startsWith("window:") == true && text.lineSequence().any { node.containsMatchIn(it) }
     private fun tree(text: String, maxBytes: Int, local: Boolean): String {
@@ -73,13 +76,13 @@ object ObservationCompactor {
                 if (important) 2 else if (hasText) 1 else 0)
         }
         val selected = mutableListOf<Row>()
-        var bytes = header.toByteArray(Charsets.UTF_8).size + 40
+        var bytes = header.utf8Size() + 40
         for (row in rows.sortedWith(compareByDescending<Row> { it.priority }.thenBy { it.index })) {
-            val size = row.text.toByteArray(Charsets.UTF_8).size + 1
+            val size = row.text.utf8Size() + 1
             if (selected.size < (if (local) 70 else 400) && bytes + size <= maxBytes) { selected += row; bytes += size }
         }
         val changed = local || selected.size != lines.drop(1).count { node.containsMatchIn(it) }
-        if (!changed && text.toByteArray(Charsets.UTF_8).size <= maxBytes) return text
+        if (!changed && text.utf8Size() <= maxBytes) return text
         return (listOf(header) + selected.sortedBy { it.index }.map { it.text } + "[context truncated]").joinToString("\n")
     }
 }

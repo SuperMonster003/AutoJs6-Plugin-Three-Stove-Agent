@@ -18,7 +18,7 @@ internal class AgentRuntime internal constructor(val context: Context) {
     val info = context.aiAgentPluginRuntimeInfo()
     val verifier = HostCallerVerifier(context)
     fun asset(path: String) = context.assets.open(path).bufferedReader().use { it.readText() }
-    val catalog = ToolCatalog(asset("catalog/tools.json"))
+    val catalog = ToolCatalog.fromAssets(::asset)
     val prompts = PromptCatalog(::asset, catalog)
     val runnerText = asset("runner/texts.json")
     private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json", "catalog/order-intent-keywords.json").associateWith(::asset)

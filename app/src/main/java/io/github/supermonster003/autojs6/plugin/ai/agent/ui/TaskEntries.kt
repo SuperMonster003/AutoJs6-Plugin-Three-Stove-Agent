@@ -10,7 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
-import java.security.MessageDigest
+import io.github.supermonster003.autojs6.plugin.ai.agent.model.Digests
 
 internal object TaskEntries {
     const val NEW_TASK = "io.github.supermonster003.autojs6.plugin.ai.agent.NEW_TASK"
@@ -33,8 +33,7 @@ internal object TaskEntries {
         .setAction(if (entry.preset == null) Intent.ACTION_VIEW else PRESET_TASK)
         .putExtra("rerunGoal", entry.goal).apply { entry.preset?.let { putExtra("rerunPreset", it) } }
     fun canPin(context: Context) = Build.VERSION.SDK_INT >= 26 && context.getSystemService(ShortcutManager::class.java)?.isRequestPinShortcutSupported == true
-    private fun id(entry: TaskEntry) = "preset-" + MessageDigest.getInstance("SHA-256")
-        .digest((requireNotNull(entry.preset) + "\u0000" + entry.goal).toByteArray()).joinToString("") { "%02x".format(it) }
+    private fun id(entry: TaskEntry) = "preset-" + Digests.sha256Hex(requireNotNull(entry.preset) + "\u0000" + entry.goal)
     fun opened(context: Context, entry: TaskEntry) {
         if (Build.VERSION.SDK_INT >= 25 && entry.preset != null) runCatching { context.getSystemService(ShortcutManager::class.java).reportShortcutUsed(id(entry)) }
     }

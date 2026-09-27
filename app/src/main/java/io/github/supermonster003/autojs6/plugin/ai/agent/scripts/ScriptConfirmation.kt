@@ -8,7 +8,7 @@ object ScriptConfirmation {
         var bytes = 4096
         var result = AgentJson.truncate(text, bytes)
         // JSON escaping also counts toward the 32 KiB Binder event limit.
-        while (result.json().toString().toByteArray(Charsets.UTF_8).size > 4096) {
+        while (result.json().toString().utf8Size() > 4096) {
             bytes /= 2; result = AgentJson.truncate(text, bytes)
         }
         return result + if (result != text) "..." else ""
