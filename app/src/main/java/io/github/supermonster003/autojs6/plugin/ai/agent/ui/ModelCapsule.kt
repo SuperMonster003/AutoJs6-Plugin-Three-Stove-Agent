@@ -14,9 +14,9 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 /** Compact pill naming the model for new tasks. Tapping it opens the shared model switcher. */
 internal class ModelCapsule(private val kit: Kit, onClick: () -> Unit) {
     private val icon = ImageView(kit.context).apply { importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
-    /** The only label allowed to ellipsize: model names are unbounded, the full name is in the description. */
+    /** Model names are unbounded; the label may ellipsize because the capsule's description states the full name. */
     private val label: TextView = kit.text("", Ui.TEXT_SECONDARY, kit.palette.text, medium = true).apply {
-        tag = TRUNCATABLE; maxLines = 1; ellipsize = TextUtils.TruncateAt.END
+        Ui.truncatable(this); maxLines = 1; ellipsize = TextUtils.TruncateAt.END
         maxWidth = kit.dp(220); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
     val view: LinearLayout = LinearLayout(kit.context).apply {
@@ -27,7 +27,8 @@ internal class ModelCapsule(private val kit: Kit, onClick: () -> Unit) {
         setPaddingRelative(kit.dp(Ui.SPACE_MD), 0, kit.dp(Ui.SPACE_SM), 0)
         isClickable = true; isFocusable = true
         addView(icon, LinearLayout.LayoutParams(kit.dp(18), kit.dp(18)).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
-        addView(label, LinearLayout.LayoutParams(-2, -2))
+        // Weighted so that, when the bar is narrow, the label shrinks instead of pushing the arrow out.
+        addView(label, LinearLayout.LayoutParams(-2, -2, 1f))
         addView(ImageView(kit.context).apply {
             setImageDrawable(kit.tintedDrawable(R.drawable.ic_expand, kit.palette.muted))
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -41,20 +42,18 @@ internal class ModelCapsule(private val kit: Kit, onClick: () -> Unit) {
     }
 
     /** Renders the stored choice. [automaticPick] names the model Automatic would use, when known. */
-    fun render(selection: ModelSelectionState, automaticPick: String?, available: Boolean) {
+    fun render(selection: ModelSelectionState, automaticPick: String?, available: Boolean, connected: Boolean = true) {
         val current = selection.current
         val name = current?.name ?: automaticPick?.let { kit.string(R.string.model_automatic_with, it) } ?: kit.string(R.string.model_automatic)
         label.text = name
         label.setTextColor(if (available) kit.palette.text else kit.palette.danger)
+        // The spark takes the accent color only while AutoJs6 is attached.
         icon.setImageDrawable(kit.tintedDrawable(if (available) R.drawable.ic_spark else R.drawable.ic_warning,
-            if (available) kit.palette.accent else kit.palette.danger))
+            if (!available) kit.palette.danger else if (connected) kit.palette.accent else kit.palette.muted))
         val fill = if (available) kit.palette.accentTone else kit.palette.dangerSurface
         view.background = kit.roundedRippleFill(fill, Ui.RADIUS_PILL, if (available) null else kit.palette.danger)
         view.contentDescription = kit.string(R.string.model_capsule_description,
             if (available) name else kit.string(R.string.presets_unavailable, name))
     }
 
-    companion object {
-        const val TRUNCATABLE = "truncatable"
-    }
 }

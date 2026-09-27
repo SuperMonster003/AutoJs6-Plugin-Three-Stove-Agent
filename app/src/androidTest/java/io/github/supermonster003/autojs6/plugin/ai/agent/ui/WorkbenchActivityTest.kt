@@ -384,12 +384,12 @@ class WorkbenchActivityTest {
         ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java)
             .putExtra("rerunGoal", "Only prepare this draft").putExtra("rerunPreset", "removed-preset")).use { scenario ->
             waitUi(scenario, "Missing preset preserved") {
-                it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == "removed-preset" &&
+                it.selectedPresetName == "removed-preset" &&
                     it.findViewById<TextView>(R.id.workbench_error).text == it.getString(R.string.history_preset_unavailable)
             }
             scenario.onActivity { assertFalse(it.findViewById<Button>(R.id.workbench_send).isEnabled) }
             scenario.recreate()
-            waitUi(scenario, "Preset survives recreation") { it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == "removed-preset" }
+            waitUi(scenario, "Preset survives recreation") { it.selectedPresetName == "removed-preset" }
             assertEquals(0, model.calls.get())
         }
     }
@@ -621,7 +621,7 @@ class WorkbenchActivityTest {
                 val prefs = context.getSharedPreferences("workbench", Context.MODE_PRIVATE)
                 prefs.edit().putString("goal", "").commit()
                 ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
-                    waitUi(scenario, "Workbench honors chosen default") { it.findViewById<Spinner>(R.id.workbench_preset).selectedItem == second }
+                    waitUi(scenario, "Workbench honors chosen default") { it.selectedPresetName == second }
                 }
                 val firstRun = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON, """{"goal":"First preset fixture"}"""), null)).string("runId")!!
                 waitFor("First run preparing") { model.calls.get() == 1 && model.held != null }
@@ -1240,9 +1240,8 @@ class WorkbenchActivityTest {
             scenario.onActivity {
                 assertEquals(it.resources.configuration.locales[0].toLanguageTag(), SpeechInput.intent(it).getStringExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE))
                 if (!SpeechInput.available(it)) assertEquals(View.GONE, it.findViewById<View>(R.id.workbench_voice).visibility)
-                LauncherActivity::class.java.getDeclaredMethod("onActivityResult", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, Intent::class.java)
-                    .apply { isAccessible = true }.invoke(it, SpeechInput.REQUEST, android.app.Activity.RESULT_OK,
-                        Intent().putStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS, arrayListOf("Speech draft")))
+                it.onSpeechResult(android.app.Activity.RESULT_OK,
+                    Intent().putStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS, arrayListOf("Speech draft")))
                 assertEquals("Speech draft", it.findViewById<EditText>(R.id.workbench_goal).text.toString())
             }
             assertEquals(0, model.calls.get())
@@ -1518,7 +1517,7 @@ class WorkbenchActivityTest {
                             val root = it.findViewById<ViewGroup>(android.R.id.content)
                             ready = root.width > 0 && (readyTag == null || root.findViewWithTag<View>(readyTag)?.isLaidOut == true) &&
                                 (type != HistoryActivity::class.java || texts(root).any { it.contains("Layout inspection fixture") }) &&
-                                (type != LauncherActivity::class.java || it.findViewById<Spinner>(R.id.workbench_preset)?.adapter?.count?.let { n -> n > 0 } == true)
+                                (type != LauncherActivity::class.java || (it as LauncherActivity).presetsLoaded)
                         }; ready }
                         instrumentation.waitForIdleSync()
                         scenario.onActivity { audit.expandSections(it) }

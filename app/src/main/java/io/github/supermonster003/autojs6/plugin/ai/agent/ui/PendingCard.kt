@@ -113,7 +113,7 @@ internal class PendingCard(
             if (session) add(caption(context.getString(R.string.interaction_allow_run_note)))
         } else {
             frame(Tone.ACCENT)
-            header(null, Tone.ACCENT, R.drawable.ic_bubble)
+            header(null, Tone.ACCENT, R.drawable.ic_help)
             add(title(context.getString(R.string.interaction_question)))
             add(body(pending.string("question").orEmpty()).apply { textSize = Ui.TEXT_ITEM })
             if (pending.has("memoryKey")) {

@@ -3,10 +3,14 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.*
 import android.text.*
 import android.view.View
-import android.widget.*
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.PopupMenu
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.AiAgentPlugin
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
@@ -14,140 +18,162 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptRoots
 import io.github.supermonster003.autojs6.plugin.ai.agent.service.RunLauncher
 import io.github.supermonster003.autojs6.plugin.ai.agent.aiAgentPluginRuntimeInfo
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.update.AppUpdateCoordinator
 import org.autojs.plugin.ai.agent.api.AiAgentActions
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
 import java.util.UUID
 
-/** Standalone task workbench. Model/device work stays in the attached agent process. */
-class LauncherActivity : HostAppearanceActivity() {
+/** Standalone task workbench: a task feed with a docked composer. Model/device work stays in the agent process. */
+class LauncherActivity : HostAppearanceActivity(), FeedActions {
     private lateinit var agent: AgentConnection
     private lateinit var pending: PendingCard
+    private lateinit var views: WorkbenchViews
     private val visibility by lazy { InteractionVisibility(this, followsRun = true) }
-    private lateinit var goal: EditText
-    private lateinit var preset: Spinner
+    private val goal get() = views.composer.goal
     internal lateinit var models: ModelSwitcher; private set
     internal var overflowMenu: PopupMenu? = null; private set
+    internal var presetDialog: AlertDialog? = null; private set
     private lateinit var updates: AppUpdateCoordinator
     private val scriptRoots by lazy { ScriptRootSettings(this) }
     private val drafts by lazy { getSharedPreferences("workbench", MODE_PRIVATE) }
+    private val speech = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onSpeechResult(it.resultCode, it.data) }
     private var currentId: String? = null
     private var attached = false
     private var sending = false
     private var requested = false
     private var deadline = 0L
     private var requestId: String? = null
-    private var presetIds = emptyList<String>()
     private var availablePresets = emptyList<String>()
     private var selectedPreset = "default"
     private var followDefault = true
-    private var recentKey = ""
+    /** A finished task the user dismissed with New task; the feed shows the welcome state instead. */
+    private var hiddenRunId: String? = null
     private var revealCurrent = false
     private var lastPendingId: String? = null
     internal var hostReader: () -> HostPackageSnapshot? = { readHostPackage() }
+    internal val selectedPresetName get() = selectedPreset
+    internal val presetChoices get() = (availablePresets + selectedPreset).distinct()
+    internal val presetsLoaded get() = availablePresets.isNotEmpty()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         models = ModelSwitcher(this, ::updateSend)
-        setContentView(WorkbenchLayout.create(this))
+        views = WorkbenchLayout.create(this, this, onConnect = { requested = false; requestAttachment() }, onOpenHost = ::openHost,
+            onPreset = ::choosePreset, onVoice = ::voice, onSend = ::launchRun, onMore = ::showMenu, onJump = { scrollToEnd(true) })
+        setContentView(views.root)
         updates = AppUpdateCoordinator(this, aiAgentPluginRuntimeInfo().versionName)
-        findViewById<View>(android.R.id.content).layoutDirection = resources.configuration.layoutDirection
+        views.root.layoutDirection = resources.configuration.layoutDirection
         agent = AgentConnection(this, ::render)
         agent.selectedId = savedInstanceState?.getString("selectedId")
+        hiddenRunId = savedInstanceState?.getString("hiddenRunId")
         val entry = TaskEntries.read(intent)
         // The model is the shared choice, independent of presets; entries never reset it.
         if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_OPEN_MODELS, false)) window.decorView.post { models.open() }
         if (savedInstanceState == null && intent.action == TaskEntries.PRESET_TASK && entry != null) TaskEntries.opened(this, entry)
         selectedPreset = savedInstanceState?.getString("preset") ?: entry?.preset ?: drafts.getString("preset", "default")!!
-        goal = findViewById(R.id.workbench_goal)
         goal.setText(savedInstanceState?.getString("goal") ?: entry?.goal ?: drafts.getString("goal", ""))
-        followDefault = savedInstanceState?.getBoolean("followDefault") ?: (entry?.preset == null && (entry != null || goal.text.isBlank()))
-        goal.filters = arrayOf(InputFilter.LengthFilter(4096))
+        followDefault = savedInstanceState?.getBoolean("followDefault") ?: (entry?.preset == null && (entry != null || goal.text.isNullOrBlank()))
         goal.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { updateSend() }
             override fun afterTextChanged(s: Editable?) = Unit
         })
-        preset = findViewById(R.id.workbench_preset)
-        preset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                presetIds.getOrNull(position)?.let { if (it != selectedPreset) followDefault = false; selectedPreset = it; updateSend() }
-            }
-        }
-        pending = PendingCard(findViewById(R.id.workbench_pending)) { body, complete ->
+        pending = PendingCard(views.feed.pending, kit) { body, complete ->
             agent.command({ it.respond(AgentConnection.request(C.KEY_RUN_RESPONSE_JSON, body)) }) { result ->
                 complete(result.isSuccess); if (result.isFailure) showError()
             }
         }
         pending.restore(savedInstanceState)
-        findViewById<Button>(R.id.workbench_send).setOnClickListener { launchRun() }
-        findViewById<Button>(R.id.workbench_stop).setOnClickListener {
-            currentId?.let { id -> agent.command({ link ->
-                link.cancelRun(AgentConnection.request(C.KEY_RUN_REF_JSON, jsonObject("runId" to id.json())))
-                AgentConnection.request(C.KEY_RUN_RESPONSE_JSON)
-            }) { if (it.isFailure) showError() } }
-        }
-        findViewById<Button>(R.id.workbench_details).setOnClickListener { currentId?.let(::openDetail) }
-        findViewById<Button>(R.id.workbench_history).setOnClickListener { startActivity(Intent(this, HistoryActivity::class.java)) }
-        findViewById<View>(R.id.workbench_more).setOnClickListener { anchor ->
-            overflowMenu = PopupMenu(this, anchor).apply {
-                menu.add(0, R.id.workbench_settings, 0, R.string.settings_title)
-                menu.add(0, R.id.workbench_presets, 1, R.string.presets_title)
-                menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)
-                menu.add(0, R.id.launcher_script_roots, 3, R.string.script_roots_title)
-                setOnMenuItemClickListener { item ->
-                    val screen = when (item.itemId) {
-                        R.id.workbench_settings -> SettingsActivity::class.java
-                        R.id.workbench_presets -> PresetsActivity::class.java
-                        R.id.workbench_memory -> MemoryActivity::class.java
-                        else -> ScriptRootsActivity::class.java
-                    }
-                    startActivity(Intent(this@LauncherActivity, screen)); true
-                }; show()
-            }
-        }
-        findViewById<Button>(R.id.launcher_connect).setOnClickListener { requested = false; requestAttachment() }
-        findViewById<Button>(R.id.launcher_open_host).setOnClickListener {
-            packageManager.getLaunchIntentForPackage(AiAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
-                intent.putExtra(AiAgentActions.EXTRA_AI_AGENT_ATTACH, true); identify(intent)
-                runCatching { startActivity(intent) }.onFailure { showError() }
-            }
-        }
-        findViewById<Button>(R.id.workbench_voice).apply {
-            visibility = View.GONE
-            setOnClickListener { runCatching { startActivityForResult(SpeechInput.intent(this@LauncherActivity), SpeechInput.REQUEST) }.onFailure { showError() } }
-        }
-        updateSend(); tint(findViewById(android.R.id.content))
+        views.scroll.setOnScrollChangeListener { _: androidx.core.widget.NestedScrollView, _: Int, _: Int, _: Int, _: Int -> if (atEnd()) views.jump.visibility = View.GONE }
+        renderPreset(); updateSend()
     }
     override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); updates.checkAutomatically() }
     override fun onResume() { super.onResume(); visibility.start() }
     override fun onPause() { visibility.stop(); super.onPause() }
     override fun onStop() {
         drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
-        overflowMenu?.dismiss(); overflowMenu = null
+        overflowMenu?.dismiss(); overflowMenu = null; presetDialog?.dismiss(); presetDialog = null
         models.stop(); updates.cancel(); agent.stop(); super.onStop()
     }
     override fun onDestroy() { models.close(); updates.close(); agent.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("goal", goal.text.toString()); outState.putString("preset", selectedPreset)
-        outState.putString("selectedId", agent.selectedId)
+        outState.putString("selectedId", agent.selectedId); outState.putString("hiddenRunId", hiddenRunId)
         outState.putBoolean("followDefault", followDefault)
         pending.save(outState)
         super.onSaveInstanceState(outState)
     }
-    @Deprecated("Platform speech result callback")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == SpeechInput.REQUEST && resultCode == RESULT_OK) SpeechInput.result(data)
-            ?.let { goal.setText(it); goal.setSelection(goal.length()) }
+
+    /** Voice results only fill the goal; they never start a task. */
+    internal fun onSpeechResult(resultCode: Int, data: Intent?) {
+        if (resultCode == RESULT_OK) SpeechInput.result(data)?.let { goal.setText(it); goal.setSelection(goal.length()) }
+    }
+    private fun voice() { runCatching { speech.launch(SpeechInput.intent(this)) }.onFailure { showError() } }
+    private fun openHost() {
+        packageManager.getLaunchIntentForPackage(AiAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
+            intent.putExtra(AiAgentActions.EXTRA_AI_AGENT_ATTACH, true); identify(intent)
+            runCatching { startActivity(intent) }.onFailure { showError() }
+        }
+    }
+    private fun showMenu(anchor: View) {
+        overflowMenu = PopupMenu(this, anchor).apply {
+            menu.add(0, R.id.workbench_new_task, 0, R.string.workbench_new_task)
+            menu.add(0, R.id.workbench_presets, 1, R.string.presets_title)
+            menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)
+            menu.add(0, R.id.launcher_script_roots, 3, R.string.script_roots_title)
+            menu.add(0, R.id.workbench_mcp, 4, R.string.mcp_servers)
+            menu.add(0, R.id.workbench_settings, 5, R.string.settings_title)
+            setOnMenuItemClickListener { item ->
+                val screen = when (item.itemId) {
+                    R.id.workbench_new_task -> { newTask(); return@setOnMenuItemClickListener true }
+                    R.id.workbench_settings -> SettingsActivity::class.java
+                    R.id.workbench_presets -> PresetsActivity::class.java
+                    R.id.workbench_memory -> MemoryActivity::class.java
+                    R.id.workbench_mcp -> McpServersActivity::class.java
+                    else -> ScriptRootsActivity::class.java
+                }
+                startActivity(Intent(this@LauncherActivity, screen)); true
+            }; show()
+        }
+    }
+    private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+    private fun renderPreset() { views.composer.showPreset(presetLabel(selectedPreset), !attached || selectedPreset in availablePresets) }
+    private fun choosePreset() {
+        val names = presetChoices
+        presetDialog = kit.singleChoiceDialog(getString(R.string.workbench_preset), names.map(::presetLabel), names.indexOf(selectedPreset)) { index ->
+            names.getOrNull(index)?.let { if (it != selectedPreset) followDefault = false; selectedPreset = it; renderPreset(); updateSend() }
+        }
+    }
+    /** New task: clear the composer and set a finished task aside; a running task stays visible. */
+    private fun newTask() {
+        currentId?.takeIf { views.feed.stopButton.visibility != View.VISIBLE }?.let { hiddenRunId = it }
+        goal.setText(""); views.composer.error.visibility = View.GONE
+        agent.refresh(); focusComposer()
+    }
+    override fun prefill(goal: String, preset: String?, chooseModel: Boolean) {
+        this.goal.setText(goal); this.goal.setSelection(this.goal.length())
+        preset?.let { selectedPreset = it; followDefault = false; renderPreset() }
+        updateSend(); focusComposer()
+        if (chooseModel) models.open()
+    }
+    override fun openDetail(runId: String) { startActivity(Intent(this, RunDetailActivity::class.java).putExtra("runId", runId)) }
+    override fun stop(runId: String) {
+        agent.command({ link ->
+            link.cancelRun(AgentConnection.request(C.KEY_RUN_REF_JSON, jsonObject("runId" to runId.json())))
+            AgentConnection.request(C.KEY_RUN_RESPONSE_JSON)
+        }) { if (it.isFailure) showError() }
+    }
+    private fun focusComposer() {
+        goal.requestFocus()
+        getSystemService(InputMethodManager::class.java).showSoftInput(goal, 0)
     }
 
     private fun launchRun() {
         if (!attached || sending || selectedPreset !in availablePresets || !models.available) return
         val text = goal.text.toString().trim()
         val request = runCatching { RunLauncher.uiRequest(text, selectedPreset, resources.configuration.locales[0].toLanguageTag(), models.targetId) }.getOrNull()
-        if (request == null) { goal.error = getString(R.string.workbench_goal_invalid); return }
+        if (request == null) { views.composer.error.apply { setText(R.string.workbench_goal_invalid); visibility = View.VISIBLE }; return }
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
         sending = true; updateSend()
@@ -156,91 +182,67 @@ class LauncherActivity : HostAppearanceActivity() {
         }, null) }) { result ->
             sending = false
             result.onSuccess {
-                agent.selectedId = it.string("runId"); revealCurrent = true
+                agent.selectedId = it.string("runId"); hiddenRunId = null; revealCurrent = true
                 goal.clearFocus()
-                (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager).hideSoftInputFromWindow(goal.windowToken, 0)
+                getSystemService(InputMethodManager::class.java).hideSoftInputFromWindow(goal.windowToken, 0)
                 if (goal.text.toString().trim() == text) goal.setText("")
                 drafts.edit().putString("goal", goal.text.toString()).apply()
-                findViewById<TextView>(R.id.workbench_error).visibility = View.GONE
+                views.composer.error.visibility = View.GONE
             }.onFailure { showError() }
             updateSend()
         }
     }
     private fun updateSend() {
-        findViewById<Button>(R.id.workbench_send).isEnabled = attached && !sending && goal.text.isNotBlank() && selectedPreset in availablePresets && models.available
+        views.composer.send.isEnabled = attached && !sending && !goal.text.isNullOrBlank() && selectedPreset in availablePresets && models.available
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
-        findViewById<View>(R.id.workbench_full_access).visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
-        findViewById<Button>(R.id.workbench_voice).visibility = if (value.status.flag("voiceEnabled") == true &&
-            SpeechInput.available(this)) View.VISIBLE else View.GONE
+        views.composer.fullAccess.visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
+        views.composer.voice.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(this)) View.VISIBLE else View.GONE
         availablePresets = value.presets
-        val nextDefault = followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset
-        if (nextDefault) selectedPreset = value.defaultPreset
+        if (followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset) selectedPreset = value.defaultPreset
+        renderPreset()
         // Preserve a historical preset that has since disappeared. Never silently rerun with default.
-        val displayedPresets = (value.presets + selectedPreset).distinct()
-        if (displayedPresets != presetIds || nextDefault) {
-            presetIds = displayedPresets
-            preset.adapter = ArrayAdapter(this, R.layout.item_spinner_choice,
-                presetIds.map { if (it == "default") getString(R.string.workbench_default_preset) else it })
-            preset.setSelection(presetIds.indexOf(selectedPreset).coerceAtLeast(0))
+        views.composer.error.apply {
+            if (attached && selectedPreset !in availablePresets) { setText(R.string.history_preset_unavailable); visibility = View.VISIBLE }
+            else if (text == getString(R.string.history_preset_unavailable)) visibility = View.GONE
         }
-        preset.isEnabled = attached && presetIds.isNotEmpty()
-        if (attached && selectedPreset !in availablePresets) findViewById<TextView>(R.id.workbench_error).apply {
-            setText(R.string.history_preset_unavailable); visibility = View.VISIBLE
-        } else if (findViewById<TextView>(R.id.workbench_error).text == getString(R.string.history_preset_unavailable)) {
-            findViewById<View>(R.id.workbench_error).visibility = View.GONE
-        }
-        val row = value.run
+        val row = value.run?.takeIf { it.string("runId") != hiddenRunId }
         currentId = row?.string("runId")
-        findViewById<View>(R.id.workbench_current_access).visibility = if (row?.flag("fullAccess") == true) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.workbench_accessibility).visibility = if (WorkbenchText.accessibilityBlocked(row)) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.workbench_current).visibility = if (row == null) View.GONE else View.VISIBLE
-        if (row != null) {
-            findViewById<TextView>(R.id.workbench_current_goal).text = row.string("goal")
-            findViewById<TextView>(R.id.workbench_state).text = WorkbenchText.state(this, row)
-            findViewById<TextView>(R.id.workbench_step).text = if (!WorkbenchText.active(row)) WorkbenchText.summary(row) else
-                row.string("progress") ?: row.getAsJsonArray("steps")?.lastOrNull()?.asJsonObject?.let {
-                    it.getAsJsonObject("decision")?.string("reasoning") ?: it.string("tool")
-                }.orEmpty()
-            findViewById<TextView>(R.id.workbench_budget).text = WorkbenchText.budget(this, row)
-            findViewById<ProgressBar>(R.id.workbench_progress).apply {
-                max = row.getAsJsonObject("budget")?.number("maxSteps")?.toInt() ?: 40
-                progress = (row.number("step") ?: 0).toInt()
-                contentDescription = WorkbenchText.budget(this@LauncherActivity, row)
-            }
-            findViewById<Button>(R.id.workbench_stop).visibility = if (WorkbenchText.active(row)) View.VISIBLE else View.GONE
-        }
+        val wasAtEnd = atEnd()
+        val before = views.feed.view.height
+        views.feed.render(value.copy(run = row))
         pending.render(row)
         visibility.render(row)
         val request = row?.getAsJsonObject("pending")?.string("requestId")
         val revealQuestion = request != null && request != lastPendingId
         lastPendingId = request
-        if (row != null && (revealCurrent || revealQuestion)) {
-            revealCurrent = false
-            val target = findViewById<View>(if (revealQuestion) R.id.workbench_pending else R.id.workbench_current)
-            target.post {
-                target.requestRectangleOnScreen(android.graphics.Rect(0, 0, target.width, minOf(target.height, AgentUi.dp(this, 220))), false)
+        views.scroll.post {
+            when {
+                row != null && revealCurrent -> { revealCurrent = false; reveal(views.feed.current) }
+                row != null && revealQuestion -> reveal(views.feed.pending)
+                wasAtEnd -> scrollToEnd(false)
+                views.feed.view.height > before && !atEnd() -> views.jump.visibility = View.VISIBLE
             }
         }
-        val key = value.runs.toString()
-        if (key != recentKey) {
-            recentKey = key
-            findViewById<LinearLayout>(R.id.workbench_recent).apply {
-                removeAllViews()
-                if (value.runs.isEmpty()) {
-                    AgentUi.text(this, getString(R.string.ui_empty_title), 18, true)
-                    AgentUi.text(this, getString(R.string.workbench_no_runs), 14).setTextColor(AgentUi.palette(context).muted)
-                } else value.runs.take(5).forEach { recent ->
-                    AgentUi.row(this, recent.string("goal").orEmpty(), WorkbenchText.state(context, recent) + " / " +
-                        HistoryViews.date(context, recent.number("startedAt") ?: 0), "recent-${recent.string("runId")}") {
-                        recent.string("runId")?.let(::openDetail)
-                    }
-                }
-            }
-            tint(findViewById(R.id.workbench_recent))
-        }
-        tint(findViewById(R.id.workbench_pending)); updateSend()
+        updateSend()
+    }
+    private fun atEnd(): Boolean {
+        val content = views.scroll.getChildAt(0) ?: return true
+        return content.bottom - (views.scroll.height + views.scroll.scrollY) <= kit.dp(48)
+    }
+    private fun scrollToEnd(animated: Boolean) {
+        val bottom = (views.scroll.getChildAt(0)?.height ?: 0) - views.scroll.height
+        if (animated) views.scroll.smoothScrollTo(0, bottom.coerceAtLeast(0)) else views.scroll.scrollTo(0, bottom.coerceAtLeast(0))
+        views.jump.visibility = View.GONE
+    }
+    /** Brings [target] to the top of the feed viewport (a new task or a new question). */
+    private fun reveal(target: View) {
+        val content = views.scroll.getChildAt(0) ?: return
+        val rect = Rect(0, 0, target.width, target.height)
+        runCatching { (content as android.view.ViewGroup).offsetDescendantRectToMyCoords(target, rect) }.onFailure { return }
+        views.scroll.smoothScrollTo(0, (rect.top - kit.dp(Ui.SPACE_LG)).coerceAtLeast(0))
+        views.jump.visibility = View.GONE
     }
     private fun renderLink(status: JsonObject) {
         val host = hostReader()
@@ -250,29 +252,13 @@ class LauncherActivity : HostAppearanceActivity() {
         }.getOrDefault(false)
         attached = presence == HostPresence.READY && status.string("state") == C.LINK_STATE_ATTACHED && rootsAccepted
         models.attached(attached)
-        val label = when (presence) {
-            HostPresence.MISSING -> getString(R.string.launcher_host_missing, AiAgentPlugin.REQUIRED_HOST_VERSION)
-            HostPresence.DISABLED -> getString(R.string.launcher_host_disabled)
-            HostPresence.INCOMPATIBLE -> getString(R.string.launcher_host_incompatible, host!!.versionCode, AiAgentPlugin.REQUIRED_HOST_VERSION)
-            HostPresence.READY -> when {
-                attached -> { deadline = 0; getString(R.string.ui_connected) }
-                deadline > SystemClock.elapsedRealtime() -> getString(R.string.launcher_link_connecting)
-                requested -> getString(if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) R.string.script_roots_rejected else R.string.launcher_link_timeout)
-                else -> getString(R.string.launcher_host_ready, host!!.versionName, host.versionCode)
-            }
+        val stage = when {
+            attached -> { deadline = 0; LinkStage.ATTACHED }
+            deadline > SystemClock.elapsedRealtime() -> LinkStage.CONNECTING
+            requested -> if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT
+            else -> LinkStage.WAITING
         }
-        findViewById<TextView>(R.id.launcher_host_status).apply {
-            text = label; setTextColor(AgentUi.palette(this@LauncherActivity).muted)
-            val dot = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(if (attached) AgentUi.palette(this@LauncherActivity).accent else AgentUi.palette(this@LauncherActivity).muted)
-                setBounds(0, 0, AgentUi.dp(this@LauncherActivity, 7), AgentUi.dp(this@LauncherActivity, 7))
-            }
-            compoundDrawablePadding = AgentUi.dp(this@LauncherActivity, 8)
-            setCompoundDrawablesRelative(dot, null, null, null)
-        }
-        findViewById<Button>(R.id.launcher_connect).apply { isEnabled = presence == HostPresence.READY; visibility = if (attached) View.GONE else View.VISIBLE }
-        findViewById<Button>(R.id.launcher_open_host).apply { isEnabled = presence == HostPresence.READY; visibility = if (attached) View.GONE else View.VISIBLE }
+        views.banner.render(presence, host, stage, AiAgentPlugin.REQUIRED_HOST_VERSION)
         if (presence == HostPresence.READY && !attached && !requested) requestAttachment()
     }
     private fun identify(intent: Intent) {
@@ -284,12 +270,11 @@ class LauncherActivity : HostAppearanceActivity() {
     private fun requestAttachment() {
         if (classifyHostPresence(hostReader(), AiAgentPlugin.REQUIRED_HOST_VERSION) != HostPresence.READY) return
         requested = true; requestId = UUID.randomUUID().toString(); deadline = SystemClock.elapsedRealtime() + 15000
-        findViewById<TextView>(R.id.launcher_host_status).setText(R.string.launcher_link_connecting)
+        views.banner.render(HostPresence.READY, hostReader(), LinkStage.CONNECTING, AiAgentPlugin.REQUIRED_HOST_VERSION)
         val intent = Intent(AiAgentActions.ACTION_ATTACH_REQUEST).setPackage(AiAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         identify(intent); sendBroadcast(intent, AiAgentActions.PLUGIN_PERMISSION)
     }
-    private fun showError() { findViewById<TextView>(R.id.workbench_error).apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
-    private fun openDetail(id: String) { startActivity(Intent(this, RunDetailActivity::class.java).putExtra("runId", id)) }
+    private fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
     private fun readHostPackage(): HostPackageSnapshot? {
         val info = try { packageManager.getPackageInfo(AiAgentPlugin.HOST_PACKAGE_NAME, PackageManager.MATCH_DISABLED_COMPONENTS) }
             catch (_: PackageManager.NameNotFoundException) { return null }
