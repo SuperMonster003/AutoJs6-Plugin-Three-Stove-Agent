@@ -170,6 +170,18 @@
     <string name="memory_title">الذاكرة</string>
     <string name="memory_updated">التحديث: %1$s</string>
     <string name="memory_value">القيمة</string>
+    <string name="model_automatic">تلقائي</string>
+    <string name="model_automatic_current">حاليا: %1$s</string>
+    <string name="model_automatic_note">يفضل نموذجا على الجهاز, وإلا فأول نموذج متاح</string>
+    <string name="model_automatic_with">تلقائي · %1$s</string>
+    <string name="model_capsule_description">نموذج المهام الجديدة: %1$s</string>
+    <string name="model_pin">تثبيت %1$s</string>
+    <string name="model_pins_full">قائمة المثبتات ممتلئة. ألغ تثبيت نموذج أولا.</string>
+    <string name="model_section_pinned">المثبتة</string>
+    <string name="model_section_recent">الأخيرة</string>
+    <string name="model_unavailable">غير متاح</string>
+    <string name="model_unavailable_note">لم يعد AutoJs6 يوفر هذا النموذج. اختر نموذجا آخر قبل بدء مهمة.</string>
+    <string name="model_unpin">إلغاء تثبيت %1$s</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
     <string name="presets_budget_note">اترك الحقول فارغة لوراثة حدود المهمة. يمكن تقليلها فقط. القيم الافتراضية: 40 خطوة, 60 استدعاء, 600000 مللي ثانية (1800000 للمهام المستقلة), 300000 رمز, مع مراعاة حدود المضيف.</string>
     <string name="presets_calls">الحد الأقصى لاستدعاءات النموذج</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">السياق الثابت (حتى 8 KiB مع سياق المهمة)</string>
     <string name="presets_copy">نسخ الإعداد المسبق</string>
     <string name="presets_default_item">%1$s (افتراضي)</string>
-    <string name="presets_degraded">الوضع البديل</string>
     <string name="presets_delete">حذف الإعداد المسبق</string>
     <string name="presets_delete_confirm">حذف %1$s? ستبقى المهام والسجل. إذا كان هو الإعداد الافتراضي, فستستخدم المهام الجديدة default.</string>
     <string name="presets_duration">المدة القصوى (مللي ثانية)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">العامة فقط</string>
     <string name="presets_memory_none">عدم استخدام الذاكرة المحفوظة</string>
     <string name="presets_memory_preset">هذا الإعداد فقط</string>
-    <string name="presets_model">النموذج المستهدف</string>
     <string name="presets_models_unavailable">قائمة النماذج غير متاحة. اتصل بـ AutoJs6 من شاشة المهام ثم حدث القائمة.</string>
     <string name="presets_name">الاسم</string>
     <string name="presets_name_note">يستخدم الاسم في السكربتات ونطاق الذاكرة ويثبت بعد الحفظ. انسخ الإعداد لاستخدام اسم آخر.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">تعيين كافتراضي</string>
     <string name="presets_standard">افتراضية (تأكيد الإجراءات الحساسة)</string>
     <string name="presets_steps">الحد الأقصى للخطوات</string>
-    <string name="presets_structured">JSON منظم</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">الإعدادات المسبقة</string>
     <string name="presets_tokens">الحد الأقصى للرموز</string>
     <string name="presets_tools">مجموعات الأدوات المفعلة</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">تصفية المهام</string>
     <string name="ui_home_subtitle">اختر نموذجا, صف هدفك, وتابع تقدم المهمة.</string>
     <string name="ui_home_title">من الفكرة إلى التنفيذ</string>
-    <string name="ui_model_capabilities">يحدد المزود المتصل قدرات النموذج.</string>
-    <string name="ui_model_inherit">اتباع الإعداد المسبق / تلقائي</string>
-    <string name="ui_model_inherit_note">استخدم نموذج الإعداد المسبق, أو اختر نموذجا متاحا تلقائيا.</string>
-    <string name="ui_model_note">ينطبق الاختيار على المهام الجديدة فقط. لا يغيّر الإعدادات المسبقة أو المهمة الجارية.</string>
+    <string name="ui_model_note">ينطبق على المهام الجديدة من لوحة المهام والكرة العائمة. لا تتغير الإعدادات المسبقة ولا المهام الجارية.</string>
     <string name="ui_model_search">البحث عن نموذج أو مزود</string>
     <string name="ui_model_tools">استدعاء الأدوات</string>
     <string name="ui_model_vision">إدخال الصور</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">لا توجد نماذج مطابقة</string>
     <string name="ui_more">المزيد من الخيارات</string>
     <string name="ui_preset_optional">قوالب اختيارية للأدوات والحدود والسياق. بدّل النماذج مباشرة من الشاشة الرئيسية.</string>
-    <string name="ui_selected_model">%1$s (محدد)</string>
     <string name="ui_task_options">خيارات المهمة</string>
     <string name="ui_task_section">المهام والقدرات</string>
     <string name="ui_theme_amber">كهرماني</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">فتح صفحة الإصدار</string>
     <string name="update_unignore">إلغاء تجاهل هذا الإصدار</string>
     <string name="workbench_answer_required">أدخل إجابة.</string>
-    <string name="workbench_auto_model">اختيار النموذج تلقائيا</string>
     <string name="workbench_back">رجوع</string>
     <string name="workbench_budget">الخطوات: %1$d / %2$d. الحدود: %3$d استدعاء للنموذج, %4$d دقيقة, %5$d رمز.</string>
     <string name="workbench_current">المهمة الحالية</string>

@@ -25,7 +25,7 @@ internal class HistoryEndpoint(private val archive: RunArchive, private val cach
             require(value.keySet().all { it in setOf("operation", "runId", "touch") })
             require(!value.has("touch") || value.flag("touch") != null)
             if (op in setOf("list", "clear")) require(!value.has("runId"))
-            if (op == "list") archive.list(200, 0) else if (op == "clear") {
+            if (op == "list") archive.list(200, 0, presentation = true) else if (op == "clear") {
                 require(!value.has("runId")); archive.remove(null); JsonObject()
             } else {
                 val id = RunHistoryCodec.id(requireNotNull(value.string("runId")))

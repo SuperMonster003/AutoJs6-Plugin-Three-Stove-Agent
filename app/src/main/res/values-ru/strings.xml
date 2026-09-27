@@ -170,6 +170,18 @@
     <string name="memory_title">Память</string>
     <string name="memory_updated">Обновлено: %1$s</string>
     <string name="memory_value">Значение</string>
+    <string name="model_automatic">Автоматически</string>
+    <string name="model_automatic_current">Сейчас: %1$s</string>
+    <string name="model_automatic_note">Предпочитает модель на устройстве, иначе первую доступную</string>
+    <string name="model_automatic_with">Авто · %1$s</string>
+    <string name="model_capsule_description">Модель для новых задач: %1$s</string>
+    <string name="model_pin">Закрепить %1$s</string>
+    <string name="model_pins_full">Список закрепленных заполнен. Сначала открепите модель.</string>
+    <string name="model_section_pinned">Закрепленные</string>
+    <string name="model_section_recent">Недавние</string>
+    <string name="model_unavailable">Недоступна</string>
+    <string name="model_unavailable_note">AutoJs6 больше не предоставляет эту модель. Выберите другую перед запуском задачи.</string>
+    <string name="model_unpin">Открепить %1$s</string>
     <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
     <string name="presets_budget_note">Пустое поле наследует лимит задачи. Значения могут только уменьшать его. По умолчанию: 40 шагов, 60 вызовов, 600000 мс (1800000 мс для автономных задач), 300000 токенов, с учетом ограничений хоста.</string>
     <string name="presets_calls">Максимум вызовов модели</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">Постоянный контекст (до 8 KiB вместе с контекстом задачи)</string>
     <string name="presets_copy">Копировать предустановку</string>
     <string name="presets_default_item">%1$s (по умолчанию)</string>
-    <string name="presets_degraded">Резервный режим</string>
     <string name="presets_delete">Удалить предустановку</string>
     <string name="presets_delete_confirm">Удалить %1$s? Задачи и история сохранятся. Если это предустановка по умолчанию, новые задачи будут использовать default.</string>
     <string name="presets_duration">Максимальная длительность (мс)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">Только общая</string>
     <string name="presets_memory_none">Не использовать сохраненную память</string>
     <string name="presets_memory_preset">Только этой предустановки</string>
-    <string name="presets_model">Целевая модель</string>
     <string name="presets_models_unavailable">Список моделей недоступен. Подключитесь к AutoJs6 на экране задач и обновите список.</string>
     <string name="presets_name">Имя</string>
     <string name="presets_name_note">Имя используется в скриптах и областях памяти. После сохранения оно неизменно; для другого имени создайте копию.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">Использовать по умолчанию</string>
     <string name="presets_standard">Обычные (подтверждать чувствительные действия)</string>
     <string name="presets_steps">Максимум шагов</string>
-    <string name="presets_structured">Структурированный JSON</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">Предустановки</string>
     <string name="presets_tokens">Максимум токенов</string>
     <string name="presets_tools">Включенные группы инструментов</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">Фильтр задач</string>
     <string name="ui_home_subtitle">Выберите модель, опишите цель и следите за ходом задачи.</string>
     <string name="ui_home_title">От замысла к действию</string>
-    <string name="ui_model_capabilities">Возможности модели сообщает подключенный провайдер.</string>
-    <string name="ui_model_inherit">По профилю / Автоматически</string>
-    <string name="ui_model_inherit_note">Использовать модель профиля или автоматически выбрать доступную модель.</string>
-    <string name="ui_model_note">Выбор применяется только к новым задачам. Профили и текущая задача не изменяются.</string>
+    <string name="ui_model_note">Применяется к новым задачам с экрана задач и плавающей кнопки. Предустановки и выполняемые задачи не меняются.</string>
     <string name="ui_model_search">Поиск моделей или провайдеров</string>
     <string name="ui_model_tools">Вызов инструментов</string>
     <string name="ui_model_vision">Ввод изображений</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">Подходящие модели не найдены</string>
     <string name="ui_more">Другие действия</string>
     <string name="ui_preset_optional">Необязательные шаблоны инструментов, лимитов и контекста. Переключайте модели прямо на главном экране.</string>
-    <string name="ui_selected_model">%1$s (выбрано)</string>
     <string name="ui_task_options">Параметры задачи</string>
     <string name="ui_task_section">Задачи и возможности</string>
     <string name="ui_theme_amber">Янтарный</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">Открыть страницу выпуска</string>
     <string name="update_unignore">Перестать игнорировать эту версию</string>
     <string name="workbench_answer_required">Введите ответ.</string>
-    <string name="workbench_auto_model">Автоматический выбор модели</string>
     <string name="workbench_back">Назад</string>
     <string name="workbench_budget">Шаги: %1$d / %2$d. Лимиты: %3$d вызовов модели, %4$d мин, %5$d токенов.</string>
     <string name="workbench_current">Текущая задача</string>

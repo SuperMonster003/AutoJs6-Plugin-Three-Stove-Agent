@@ -63,8 +63,12 @@ internal class LinkConfiguration private constructor(val locale: String, val roo
 internal class StartRequest(val options: RunOptions, val target: String?, val groups: Set<String>, val context: String, val interaction: String, val scriptRoots: Set<String>,
                             val preset: String, val memory: Boolean, val memoryScope: String = "global_and_preset") {
     companion object {
+        /**
+         * [pluginUi] is decided by the receiving endpoint, never by the request: plugin UI tasks use the
+         * shared model choice (absent means Automatic) and never inherit a preset's legacy model.
+         */
         fun parse(json: String, config: LinkConfiguration, presets: PresetSnapshot = PresetSnapshot.INITIAL,
-                  settings: AgentSettings? = null): StartRequest = with(ControlRequests) {
+                  settings: AgentSettings? = null, pluginUi: Boolean = false): StartRequest = with(ControlRequests) {
             val value = AgentJson.objectOf(json, 32 * 1024)
             closed(value, setOf("goal", "options", "origin"))
             require(text(value, "origin", "script", 16) in setOf("script", "ui"))
@@ -110,7 +114,7 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
                 require(it in setOf("default", "cautious") && (!cautious || it == "cautious"))
             }
             val interaction = text(opts, "interaction", "plugin", 16).also { require(it in setOf("plugin", "script")) }!!
-            val target = text(opts, "target", preset.targetId)?.let(PresetCodec::target)
+            val target = text(opts, "target", if (pluginUi) null else preset.targetId)?.let(PresetCodec::target)
             val additional = if (opts.has("context")) requireNotNull(opts.string("context")) else ""
             val fixed = listOf(preset.context, additional).filter { it.isNotEmpty() }.joinToString("\n\n")
             require(fixed.toByteArray(Charsets.UTF_8).size <= 8192)

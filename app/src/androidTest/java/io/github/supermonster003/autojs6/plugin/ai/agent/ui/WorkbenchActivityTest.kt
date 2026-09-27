@@ -56,6 +56,8 @@ class WorkbenchActivityTest {
         val calls = AtomicInteger()
         val requests = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
         @Volatile var held: Pair<String, IAiAgentModelCallback>? = null
+        /** Completion reports the model that was asked, as a real broker does. */
+        private val targets = java.util.concurrent.ConcurrentHashMap<String, String>()
         override fun getBrokerInfo() = bundle(C.KEY_MODEL_BROKER_INFO_JSON,
             """{"available":true,"providerId":"workbench","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
             putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""")
@@ -76,12 +78,13 @@ class WorkbenchActivityTest {
             val json = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
             requests.add(json)
             val id = json.getString("requestId")
+            targets[id] = json.optString("targetId", "workbench:fixture")
             emit(callback, id, "started", 1); held = id to callback
             if (calls.incrementAndGet() > 1 && !holdEveryCall) finish(completed)
         }
         fun finish(text: String) { val (id, callback) = checkNotNull(held); held = null
             emit(callback, id, "usage", 2, JSONObject().put("usage", JSONObject().put("inputTokens", 1).put("outputTokens", 1).put("totalTokens", 2)))
-            emit(callback, id, "completed", 3, JSONObject().put("text", text).put("targetId", "workbench:fixture").put("finishReason", 0)) }
+            emit(callback, id, "completed", 3, JSONObject().put("text", text).put("targetId", targets.remove(id) ?: "workbench:fixture").put("finishReason", 0)) }
         override fun cancel(reference: Bundle?) = Unit
         override fun submitToolResults(request: Bundle?) { error("Fixture does not advertise native tools") }
         override fun destroy(reason: Bundle?) = Unit
@@ -106,6 +109,10 @@ class WorkbenchActivityTest {
         val oldGoal = prefs.getString("goal", null); val oldPreset = prefs.getString("preset", null)
         val oldTarget = prefs.getString("target", null); val oldTargetName = prefs.getString("targetName", null)
         prefs.edit().remove("target").remove("targetName").commit()
+        // Every fixture starts from Automatic; the user's own model choice is restored afterwards.
+        val selectionFile = java.io.File(context.filesDir, "model-selection.json")
+        val oldSelection = selectionFile.takeIf { it.exists() }?.readBytes()
+        selectionFile.delete(); java.io.File(context.filesDir, "model-selection.json.bak").delete()
         check(context.bindService(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connection, Context.BIND_AUTO_CREATE))
         var link: IAiAgentLink? = null
         try {
@@ -120,6 +127,7 @@ class WorkbenchActivityTest {
             context.unbindService(connection)
             prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset)
                 .putString("target", oldTarget).putString("targetName", oldTargetName).commit()
+            if (oldSelection != null) selectionFile.writeBytes(oldSelection) else selectionFile.delete()
         }
     }
     private fun waitFor(message: String, timeoutMs: Long = 20000, predicate: () -> Boolean) {
@@ -136,50 +144,82 @@ class WorkbenchActivityTest {
         waitUi(scenario, "Send enabled after attachment") { it.findViewById<Button>(R.id.workbench_send).isEnabled }
         scenario.onActivity { it.findViewById<Button>(R.id.workbench_send).performClick() }
     }
+    private fun sheetRow(activity: LauncherActivity, tag: String): View? = activity.models.sheet.handle?.content?.findViewWithTag(tag)
+    private fun openModels(scenario: ActivityScenario<LauncherActivity>, tag: String) {
+        waitUi(scenario, "Model catalog loaded") { it.models.catalog.status == ModelCatalog.Status.READY }
+        scenario.onActivity { it.findViewById<View>(R.id.workbench_model).performClick() }
+        waitUi(scenario, "Model row $tag listed") { sheetRow(it, tag) != null && it.models.catalog.status == ModelCatalog.Status.READY }
+    }
     @Test fun quickModelSwitchSurvivesRecreationAndAppliesOnlyToNewTasks() = withFixture(Model(true).apply { offerSecond = true }) { _, model ->
         ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
-            waitUi(scenario, "Model selector enabled") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
-            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
-            waitUi(scenario, "Second public model listed") {
-                it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second") != null
-            }
+            openModels(scenario, "model-workbench:second")
             scenario.onActivity {
-                it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick()
+                assertTrue("Automatic previews its pick", sheetRow(it, "model-automatic")!!.contentDescription.contains("Workbench fixture model"))
+                sheetRow(it, "model-workbench:second")!!.performClick()
+                assertNull("Choosing closes the sheet", it.models.sheet.handle)
+                assertTrue(it.findViewById<View>(R.id.workbench_model).contentDescription.contains("Second online model"))
             }
+            assertEquals("workbench:second", ModelSelection.read(context).current?.targetId)
             scenario.recreate()
-            waitUi(scenario, "Model selection retained") { it.modelPicker.selectedId == "workbench:second" }
+            waitUi(scenario, "Model selection retained") { it.models.targetId == "workbench:second" }
             enter(scenario, "Quick model fixture")
             waitFor("Selected model used") { model.requests.size == 1 }
             assertEquals("workbench:second", model.requests.single().getString("targetId"))
-            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
-            waitUi(scenario, "Default model option") {
-                it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-inherit") != null
+            openModels(scenario, "recent-workbench:second")
+            scenario.onActivity {
+                sheetRow(it, "model-automatic")!!.performClick()
+                assertNull(it.models.targetId)
             }
-            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-inherit").performClick() }
             assertEquals("Running request remains unchanged", "workbench:second", model.requests.single().getString("targetId"))
             scenario.onActivity { it.findViewById<Button>(R.id.workbench_stop).performClick() }
             waitUi(scenario, "Fixture cancelled") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_cancelled) }
         }
     }
+    @Test fun pinnedModelsPersistAndSearchFiltersTheSheet() = withFixture(Model(true).apply { offerSecond = true }) { _, _ ->
+        ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            openModels(scenario, "pin-workbench:second")
+            scenario.onActivity { sheetRow(it, "pin-workbench:second")!!.performClick() }
+            waitUi(scenario, "Pinned section shown") { sheetRow(it, "pinned-workbench:second") != null }
+            assertTrue(ModelSelection.read(context).isPinned("workbench:second"))
+            scenario.onActivity {
+                val search = (it.models.sheet.handle!!.dialog.window!!.decorView as ViewGroup).findEditText()!!
+                search.setText("second")
+                assertNull("Automatic is hidden while searching", sheetRow(it, "model-automatic"))
+                assertNull(sheetRow(it, "model-workbench:fixture"))
+                assertNotNull(sheetRow(it, "model-workbench:second"))
+                search.setText("no such model")
+                assertNull(sheetRow(it, "model-workbench:second"))
+                search.setText("")
+                sheetRow(it, "unpin-workbench:second")!!.performClick()
+                assertNull(sheetRow(it, "pinned-workbench:second"))
+                it.models.sheet.dismiss()
+            }
+            assertFalse(ModelSelection.read(context).isPinned("workbench:second"))
+        }
+    }
     @Test fun removedQuickModelBlocksNewTasksUntilTheUserChoosesAnotherModel() = withFixture(Model(true).apply { offerSecond = true }) { _, model ->
         ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
-            waitUi(scenario, "Model selector ready") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
-            scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
-            waitUi(scenario, "Second model loaded") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second") != null }
-            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick() }
+            openModels(scenario, "model-workbench:second")
+            scenario.onActivity { sheetRow(it, "model-workbench:second")!!.performClick() }
             model.offerSecond = false
             scenario.recreate()
-            waitUi(scenario, "Removed model identified") { !it.modelPicker.selectionAvailable }
+            waitUi(scenario, "Removed model identified") { !it.models.available }
             scenario.onActivity {
                 it.findViewById<EditText>(R.id.workbench_goal).setText("Do not silently change this model")
                 assertFalse(it.findViewById<Button>(R.id.workbench_send).isEnabled)
-                assertEquals("workbench:second", it.modelPicker.selectedId)
-                it.findViewById<Button>(R.id.workbench_model).performClick()
+                assertEquals("workbench:second", it.models.targetId)
+                assertTrue(it.findViewById<View>(R.id.workbench_model).contentDescription
+                    .contains(it.getString(R.string.presets_unavailable, "Second online model")))
             }
-            waitUi(scenario, "Replacement model loaded") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:fixture") != null }
-            scenario.onActivity { it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:fixture").performClick() }
+            openModels(scenario, "model-unavailable")
+            scenario.onActivity { sheetRow(it, "model-workbench:fixture")!!.performClick() }
             waitUi(scenario, "New model enables sending") { it.findViewById<Button>(R.id.workbench_send).isEnabled }
             assertEquals(0, model.calls.get())
+        }
+    }
+    @Test fun openModelsExtraShowsTheSwitcherOnArrival() = withFixture { _, _ ->
+        ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).putExtra(LauncherActivity.EXTRA_OPEN_MODELS, true)).use { scenario ->
+            waitUi(scenario, "Switcher opened") { it.models.sheet.handle?.dialog?.isShowing == true }
         }
     }
     @Test fun overflowSettingsEntryNavigatesWithoutDiscardingTheTaskDraft() = withFixture { _, _ ->
@@ -506,7 +546,7 @@ class WorkbenchActivityTest {
         fun named(operation: String, name: String) = query(operation, jsonObject("name" to name.json()))
         override fun close() { context.unbindService(connection) }
     }
-    @Test fun presetEditorCreatesRestoresAndStartsWithSelectedTargetContextAndBudget() = withFixture(Model(true)) { link, model ->
+    @Test fun presetEditorHasNoModelAndLegacyPresetModelsApplyOnlyToScripts() = withFixture(Model(true).apply { offerSecond = true }) { link, model ->
         PresetsClient().use { client ->
             val key = "ui-${java.util.UUID.randomUUID()}"
             try {
@@ -516,6 +556,7 @@ class WorkbenchActivityTest {
                     scenario.onActivity { activity ->
                         val root = activity.findViewById<ViewGroup>(android.R.id.content)
                         root.findViewWithTag<Button>("preset-new").performClick()
+                        assertNull("Presets no longer carry a model", root.findViewWithTag<View>("preset-target"))
                         root.findViewWithTag<EditText>("preset-name").setText(key)
                         root.findViewWithTag<EditText>("preset-context").setText("P63 fixture fixed context")
                         root.findViewWithTag<EditText>("preset-maxSteps").setText("3")
@@ -524,17 +565,10 @@ class WorkbenchActivityTest {
                         root.findViewWithTag<Spinner>("preset-confirm").setSelection(1)
                         root.findViewWithTag<Spinner>("preset-memory").setSelection(3)
                     }
-                    ready("Host model catalog shown with locality and fallback") { activity ->
-                        val spinner = activity.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Spinner>("preset-target")
-                        spinner.count == 2 && spinner.getItemAtPosition(1).toString().contains(activity.getString(R.string.presets_degraded)) &&
-                            spinner.getItemAtPosition(1).toString().contains(activity.getString(R.string.presets_remote))
-                    }
-                    scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Spinner>("preset-target").setSelection(1) }
                     instrumentation.waitForIdleSync(); scenario.recreate()
-                    ready("Editor draft and model selection restored") { activity ->
+                    ready("Editor draft restored") { activity ->
                         val root = activity.findViewById<ViewGroup>(android.R.id.content)
                         root.findViewWithTag<EditText>("preset-context")?.text?.toString() == "P63 fixture fixed context" &&
-                            root.findViewWithTag<Spinner>("preset-target")?.selectedItem?.toString()?.contains("Workbench fixture model") == true &&
                             root.findViewWithTag<Spinner>("preset-confirm")?.selectedItemPosition == 1
                     }
                     scenario.onActivity { activity ->
@@ -547,21 +581,29 @@ class WorkbenchActivityTest {
                     ready("Saved preset appears") { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-$key") != null }
                 }
                 val saved = PresetCodec.decodePreset(client.named("get", key).getOrThrow())
-                assertEquals("workbench:fixture", saved.targetId); assertEquals("none", saved.memoryScope)
+                assertNull(saved.targetId); assertEquals("none", saved.memoryScope)
                 assertEquals(setOf("observe"), saved.toolGroups); assertEquals("cautious", saved.confirmPolicy)
                 assertTrue(AgentConnection.decode(link.listPresets(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("presets").any { it.asJsonObject.string("id") == key })
+                // A model stored by an earlier version stays on the preset for scripts only.
+                client.save(saved.copy(targetId = "workbench:second"), false).getOrThrow()
                 ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).putExtra("rerunPreset", key)).use { scenario ->
                     enter(scenario, "Preset UI fixture goal")
-                    waitFor("Preset model started") { model.calls.get() == 1 && model.held != null }
-                    assertEquals("workbench:fixture", model.requests.single().getString("targetId"))
+                    waitFor("Preset task started") { model.calls.get() == 1 && model.held != null }
+                    assertEquals("UI tasks use the shared choice (Automatic)", "workbench:fixture", model.requests.single().getString("targetId"))
                     assertTrue(model.requests.single().toString().contains("P63 fixture fixed context"))
                     val rows = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")
                     val id = rows.first { it.asJsonObject.string("preset") == key }.asJsonObject.string("runId")!!
                     val run = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
                     assertEquals(3, run.getAsJsonObject("budget").number("maxSteps")!!.toInt())
+                    for (key in listOf("model", "target", "fullAccess")) assertFalse("Host projection hides $key", run.has(key))
                     model.finish(completed)
                     waitUi(scenario, "Preset run completed") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_completed) }
                 }
+                // This fixture link is the private (plugin UI) endpoint; host script inheritance is covered by PresetAdmissionTest.
+                AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON, """{"goal":"Private preset fixture","options":{"preset":"$key"}}"""), null))
+                waitFor("Private task started") { model.calls.get() == 2 && model.held != null }
+                assertEquals("Private tasks ignore the legacy preset model", "workbench:fixture", model.requests[1].getString("targetId"))
+                model.finish(completed)
             } finally { client.named("delete", key) }
         }
     }
@@ -613,7 +655,7 @@ class WorkbenchActivityTest {
                 assertEquals("REMOTE", targets.single().asJsonObject.string("locality"))
                 assertFalse(targets.single().asJsonObject.flag("structuredJson")!!)
                 val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
-                    """{"goal":"Missing model fixture","options":{"preset":"$key"}}"""), null)).string("runId")!!
+                    """{"goal":"Missing model fixture","options":{"preset":"$key","target":"profile:removed"}}"""), null)).string("runId")!!
                 waitFor("Missing target fails closed") {
                     val run = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
                     run.string("state") == "failed" && run.toString().contains("TARGET_UNAVAILABLE")
@@ -1150,6 +1192,7 @@ class WorkbenchActivityTest {
         } finally { HostAppearance.cached = original; release.countDown() }
     }
     @Test fun shareAndShortcutOpenDraftsAndEachStartExactlyOneTask() = withFixture(Model().apply { offerSecond = true }) { link, model ->
+        // A choice saved by an earlier version migrates once into the shared model selection.
         context.getSharedPreferences("workbench", Context.MODE_PRIVATE).edit().putString("target", "workbench:second").commit()
         val automation = instrumentation.uiAutomation
         val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
@@ -1179,7 +1222,7 @@ class WorkbenchActivityTest {
                 assertEquals(1, model.calls.get())
                 scenario.onActivity { it.findViewById<Button>(R.id.workbench_send).performClick() }
                 waitFor("Shortcut model call") { model.calls.get() == 2 }
-                assertEquals("Preset shortcut uses its own model", "workbench:fixture", model.requests[1].getString("targetId"))
+                assertEquals("Preset shortcuts keep the shared model choice", "workbench:second", model.requests[1].getString("targetId"))
                 waitUi(scenario, "Shortcut completed") { it.findViewById<TextView>(R.id.workbench_state).text == it.getString(R.string.run_completed) }
             }
         } finally { instrumentation.removeMonitor(monitor) }
@@ -1310,7 +1353,9 @@ class WorkbenchActivityTest {
         }
     }
 
-    @Test fun floatingWindowFramesExpandDraftSurvivesCollapseAndStopsTask() = withFixture { link, model ->
+    @Test fun floatingWindowFramesExpandDraftSurvivesCollapseAndStopsTask() = withFixture(Model().apply { offerSecond = true }) { link, model ->
+        // The floating ball (in the :agent process) starts tasks with the same stored model choice as the workbench.
+        ModelSelection.choose(context, io.github.supermonster003.autojs6.plugin.ai.agent.store.ModelRef("workbench:second", "Second online model"))
         withFloatingSettings {
             shell("input keyevent KEYCODE_WAKEUP"); shell("wm dismiss-keyguard"); shell("input keyevent KEYCODE_HOME")
             SystemClock.sleep(500) // Let the launcher transition finish before injecting a touch.
@@ -1362,6 +1407,7 @@ class WorkbenchActivityTest {
                     node?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true
                 }
                 waitFor("Floating model call") { model.calls.get() == 1 }
+                assertEquals("Floating ball uses the shared model", "workbench:second", model.requests.single().getString("targetId"))
                 val id = AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId")!!
                 waitFor("Running ball resized") { floatingFrame(false)?.width()?.let { it > ball.width() } == true }
                 SystemClock.sleep(300)
@@ -1609,14 +1655,12 @@ class WorkbenchActivityTest {
         try {
             withFixture(Model(true, "Example online model").apply { offerSecond = true }) { _, _ ->
                 ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
-                    waitUi(scenario, "Redesign home ready") { it.findViewById<Button>(R.id.workbench_model).isEnabled }
-                    instrumentation.waitForIdleSync()
-                    scenario.onActivity { it.findViewById<Button>(R.id.workbench_model).performClick() }
-                    waitUi(scenario, "Redesign picker ready") { it.modelPicker.dialog?.window?.decorView?.findViewWithTag<Button>("model-workbench:second")?.isLaidOut == true }
+                    openModels(scenario, "model-workbench:second")
+                    waitUi(scenario, "Redesign picker ready") { sheetRow(it, "model-workbench:second")?.isLaidOut == true }
                     instrumentation.waitForIdleSync()
                     scenario.onActivity {
-                        ReadmeCapture.save(it.modelPicker.dialog!!.window!!.decorView, "models-$dark")
-                        it.modelPicker.dialog!!.window!!.decorView.findViewWithTag<Button>("model-workbench:second").performClick()
+                        ReadmeCapture.save(it.models.sheet.handle!!.dialog.window!!.decorView, "models-$dark")
+                        sheetRow(it, "model-workbench:second")!!.performClick()
                         it.findViewById<EditText>(R.id.workbench_goal).setText("帮我整理今天的待办, 并按优先级安排执行顺序.")
                     }
                     instrumentation.waitForIdleSync()
@@ -1625,17 +1669,15 @@ class WorkbenchActivityTest {
                 ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
                     waitFor("Redesign settings ready") { var ready = false; scenario.onActivity {
                         ready = it.findViewById<View>(android.R.id.content).findViewWithTag<View>("appearance-color")?.isLaidOut == true &&
-                            it.findViewById<View>(android.R.id.content).findViewWithTag<View>("maxSteps") != null
+                            it.findViewById<View>(android.R.id.content).findViewWithTag<View>("tool-groups")?.isEnabled == true
                     }; ready }
                     instrumentation.waitForIdleSync()
                     scenario.onActivity {
                         ReadmeCapture.save(it.window.decorView, "settings-$dark")
-                        val shell = it.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ViewGroup
-                        (shell.getChildAt(1) as ScrollView).apply { isSmoothScrollingEnabled = false; fullScroll(View.FOCUS_DOWN) }
+                        it.scaffold.scroll!!.apply { isSmoothScrollingEnabled = false; fullScroll(View.FOCUS_DOWN) }
                     }
                     waitFor("Settings bottom visible") { var ready = false; scenario.onActivity {
-                        val shell = it.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ViewGroup
-                        val scroll = shell.getChildAt(1) as ScrollView
+                        val scroll = it.scaffold.scroll!!
                         ready = scroll.scrollY >= scroll.getChildAt(0).height - scroll.height - 1
                     }; ready }
                     instrumentation.waitForIdleSync()

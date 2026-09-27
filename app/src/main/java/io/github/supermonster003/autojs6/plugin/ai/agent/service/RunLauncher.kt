@@ -9,10 +9,10 @@ import org.autojs.plugin.ai.agent.api.AiAgentContract as C
  * Admission queues preparation, which promotes the foreground service before any broker work. */
 internal object RunLauncher {
     fun <T> start(state: String, config: LinkConfiguration, json: String, presets: PresetSnapshot = PresetSnapshot.INITIAL,
-                  settings: AgentSettings? = null, admit: (StartRequest) -> T): T {
+                  settings: AgentSettings? = null, pluginUi: Boolean = false, admit: (StartRequest) -> T): T {
         if (state != C.LINK_STATE_ATTACHED) throw WireFailure(
             if (state == C.LINK_STATE_DETACHED) C.ERROR_LINK_DETACHED else C.ERROR_HOST_UNAVAILABLE)
-        return admit(StartRequest.parse(json, config, presets, settings))
+        return admit(StartRequest.parse(json, config, presets, settings, pluginUi))
     }
 
     fun uiRequest(goal: String, preset: String, locale: String, target: String? = null): String {

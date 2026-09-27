@@ -19,14 +19,10 @@ class PresetsActivity : HostAppearanceActivity() {
     private lateinit var body: LinearLayout
     private lateinit var error: TextView
     private var configuration = JsonObject()
-    private var targets = emptyList<JsonObject>()
-    private var catalogAvailable = false
     private var draft: JsonObject? = null
     private var editing: String? = null
+    /** A legacy preset model is kept for scripts only; the plugin UI uses the shared model choice. */
     private var targetId: String? = null
-    private var targetIds = emptyList<String?>()
-    private lateinit var target: Spinner
-    private lateinit var targetStatus: TextView
     private lateinit var name: EditText
     private lateinit var fixedContext: EditText
     private lateinit var inheritGroups: CheckBox
@@ -64,14 +60,6 @@ class PresetsActivity : HostAppearanceActivity() {
             configuration = value
             val saved = draft
             if (saved == null) showList() else showEditor(saved)
-            loadTargets()
-        }
-    }
-    private fun loadTargets() {
-        connection.query(jsonObject("operation" to "targets".json())) { result ->
-            catalogAvailable = result.isSuccess
-            targets = result.getOrNull()?.getAsJsonArray("targets")?.map { it.asJsonObject }.orEmpty()
-            if (editorVisible) renderTargets()
         }
     }
     private fun header(title: Int) {
@@ -162,14 +150,6 @@ class PresetsActivity : HostAppearanceActivity() {
         }
         HistoryViews.label(body, getString(R.string.presets_name_note))
         targetId = row.string("targetId")
-        target = spinner(R.string.presets_model, "preset-target", emptyList(), 0)
-        targetStatus = HistoryViews.label(body, "")
-        HistoryViews.button(body, R.string.presets_refresh_models, "preset-refresh-models") { loadTargets() }
-        renderTargets()
-        target.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { targetId = targetIds.getOrNull(position) }
-        }
         HistoryViews.label(body, getString(R.string.presets_tools), true)
         val allowed = configuration.getAsJsonArray("toolGroups").map { it.asString }.toSet()
         val selectedGroups = row.getAsJsonArray("toolGroups")?.map { it.asString }?.toSet() ?: allowed
@@ -205,28 +185,6 @@ class PresetsActivity : HostAppearanceActivity() {
         scope = spinner(R.string.presets_memory, "preset-memory", SCOPE_LABELS.map(::getString), PresetCodec.scopes.indexOf(row.string("memoryScope")))
         HistoryViews.button(body, R.string.presets_save, "preset-save") { save() }
         tint(body)
-    }
-    private fun renderTargets() {
-        val selected = targetId
-        targetIds = (listOf<String?>(null) + targets.map { it.string("targetId")!! } + listOfNotNull(selected)).distinct()
-        val labels = targetIds.map { id ->
-            if (id == null) getString(R.string.workbench_auto_model) else {
-                val model = targets.find { it.string("targetId") == id }
-                if (model == null) getString(R.string.presets_unavailable, id) else {
-                    val locality = when (model.string("locality")) {
-                        "ON_DEVICE" -> R.string.presets_local
-                        "REMOTE" -> R.string.presets_remote
-                        else -> R.string.presets_hybrid
-                    }
-                    getString(R.string.presets_target_label, model.string("displayName"), getString(locality),
-                        getString(if (model.flag("structuredJson") == true) R.string.presets_structured else R.string.presets_degraded))
-                }
-            }
-        }
-        target.adapter = ArrayAdapter(this, R.layout.item_spinner_choice, labels)
-        target.dropDownWidth = ViewGroup.LayoutParams.MATCH_PARENT
-        target.setSelection(targetIds.indexOf(selected).coerceAtLeast(0))
-        targetStatus.text = if (catalogAvailable) "" else getString(R.string.presets_models_unavailable)
     }
     private fun readDraft(): JsonObject = jsonObject("name" to name.text.toString().json(), "context" to fixedContext.text.toString().json(),
         "confirmPolicy" to (if (confirmation.selectedItemPosition == 1) "cautious" else "default").json(),

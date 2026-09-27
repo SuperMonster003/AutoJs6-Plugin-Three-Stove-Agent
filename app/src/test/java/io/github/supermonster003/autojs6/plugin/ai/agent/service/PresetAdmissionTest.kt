@@ -83,7 +83,7 @@ class PresetAdmissionTest {
     @Test fun quickModelChoiceOverridesOnlyTheTargetAndNeverMutatesThePreset() {
         val snapshot = PresetSnapshot("office", listOf(Preset("default"), office))
         fun launch(target: String?) = RunLauncher.start(C.LINK_STATE_ATTACHED, config,
-            RunLauncher.uiRequest("test", "office", "en", target), snapshot) { it }
+            RunLauncher.uiRequest("test", "office", "en", target), snapshot, pluginUi = true) { it }
         val original = launch(null)
         val switched = launch("profile:second")
         assertEquals("profile:second", switched.target)
@@ -94,7 +94,15 @@ class PresetAdmissionTest {
         assertEquals(original.scriptRoots, switched.scriptRoots)
         assertEquals(original.memoryScope, switched.memoryScope)
         assertEquals("profile:online", snapshot.resolve("office").targetId)
-        assertEquals("profile:online", launch(null).target)
         assertThrows(IllegalArgumentException::class.java) { launch("malformed target") }
+    }
+    @Test fun pluginUiTasksUseAutomaticInsteadOfTheLegacyPresetModelWhileScriptsKeepIt() {
+        val snapshot = PresetSnapshot("office", listOf(Preset("default"), office))
+        val ui = RunLauncher.uiRequest("test", "office", "en")
+        assertNull("UI origin never inherits the preset model", RunLauncher.start(C.LINK_STATE_ATTACHED, config, ui, snapshot, pluginUi = true) { it }.target)
+        // The endpoint, not the request's origin field, decides: the host path keeps today's inheritance.
+        assertEquals("profile:online", RunLauncher.start(C.LINK_STATE_ATTACHED, config, ui, snapshot) { it }.target)
+        assertEquals("profile:online", request().target)
+        assertEquals("profile:third", request("""{"target":"profile:third"}""").target)
     }
 }

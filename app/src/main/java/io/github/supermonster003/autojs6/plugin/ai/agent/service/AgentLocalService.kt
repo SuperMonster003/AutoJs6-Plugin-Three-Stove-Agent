@@ -22,7 +22,7 @@ class AgentLocalService : Service() {
         override fun getStatus(): Bundle { guard(); return runtime.status() }
         override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?) = call(request) { it.startRun(request, callback) }
         override fun respond(response: Bundle?) = call(response) { it.respond(response) }
-        override fun listRuns(query: Bundle?): Bundle { guard(query); return RunQueries(runtime.archive).list(query) }
+        override fun listRuns(query: Bundle?): Bundle { guard(query); return RunQueries(runtime.archive, presentation = true).list(query) }
         override fun getRun(reference: Bundle?): Bundle { guard(reference); return RunQueries(runtime.archive, presentation = true).get(reference) }
         override fun listPresets(query: Bundle?) = call(query) { it.listPresets(query) }
         override fun cancelRun(reference: Bundle?) { call(reference) { it.cancelRun(reference); Bundle() } }

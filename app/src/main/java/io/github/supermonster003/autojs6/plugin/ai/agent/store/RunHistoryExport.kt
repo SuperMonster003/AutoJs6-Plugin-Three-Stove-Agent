@@ -15,6 +15,9 @@ internal object RunHistoryExport {
             "state" to run.string("state")!!.takeIf { it in RunHistoryCodec.states }!!.json(),
             "goal" to "[redacted]".json(), "preset" to "[redacted]".json(), "truncated" to (run.flag("truncated") == true).json())
         if (run.flag("fullAccess") == true) result.addProperty("fullAccess", true)
+        // The public catalog id only; the display name can carry user-chosen text.
+        run.getAsJsonObject("model")?.string("targetId")?.let { id -> runCatching { PresetCodec.target(id) }.getOrNull() }
+            ?.let { result.addProperty("targetId", it) }
         result.add("steps", JsonArray().apply { run.getAsJsonArray("steps").forEach { value ->
             val source = value.asJsonObject
             add(counters(source, listOf("index", "elapsedMs")).apply {

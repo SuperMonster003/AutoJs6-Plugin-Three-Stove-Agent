@@ -174,6 +174,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                         is PortResult.Success -> try {
                             val selected = outcome.value
                             modelName = selected.displayName
+                            runCatching { archive.model(runId(), selected) }
                             val original = selected.target
                             val policy = observationPolicy.withVisionAvailability(original.vision != null && Build.VERSION.SDK_INT >= 30 &&
                                 "accessibility.screenshot" in effectiveMethods && effectivePermissions.containsAll(listOf("accessibility", "screen_capture")))
@@ -245,11 +246,13 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel(); memoryLoading.get().cancel(); mcpLoading.get().cancel(); cleanup.cancel() }
     }
-    @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?): Bundle {
+    @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?, pluginUi: Boolean): Bundle {
         val configuration = config
         return synchronized(runtime.admissionLock) {
             check(!runtime.maintenance)
-            RunLauncher.start(state, configuration, json, runtime.presets.snapshot(), runtime.settings.snapshot()) { request -> admit(request, configuration, callback) }
+            RunLauncher.start(state, configuration, json, runtime.presets.snapshot(), runtime.settings.snapshot(), pluginUi) { request ->
+                admit(request, configuration, callback)
+            }
         }
     }
     private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IAiAgentRunCallback?): Bundle {
@@ -322,7 +325,10 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             AgentWire.error(when (e) { is WireFailure -> e.code; is RunAdmissionFailure -> e.error.name; else -> C.ERROR_INVALID_REQUEST })
         }
         override fun getStatus(): Bundle { check(); return status(presentation = !hostValidatedRoots) }
-        override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?): Bundle { check(request); return result { start(read(request, C.KEY_RUN_REQUEST_JSON), callback) } }
+        override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?): Bundle { check(request); return result {
+            // Only the private endpoint (workbench, floating ball) starts plugin UI tasks.
+            start(read(request, C.KEY_RUN_REQUEST_JSON), callback, pluginUi = !hostValidatedRoots)
+        } }
         override fun respond(response: Bundle?): Bundle { check(response); return result {
             respond(read(response, C.KEY_RUN_RESPONSE_JSON), if (hostValidatedRoots) "script" else "plugin")
         } }
