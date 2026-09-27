@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-/** Implemented by the Binder adapter (BinderModelBroker) over IAiAgentModelBroker, including Bundle/FD ownership and death.
+/** Implemented by the Binder adapter (BinderModelBroker) over IThreeStoveAgentModelBroker, including Bundle/FD ownership and death.
  * Both calls must return promptly. Events contain complete bounded JSON, never partial FD reads.
  * Implementations translate Binder death to HOST_UNAVAILABLE, with no raw exception logging. */
 interface ModelBrokerTransport {

@@ -65,7 +65,7 @@ require(hostApiLockFile.isFile) {
     "Missing host API lock: ${hostApiLockFile.relativeTo(rootProject.projectDir)}"
 }
 val hostApiLock = hostApiLockFile.loadUniqueLock()
-val hostApiIds = listOf("common-plugin-api", "host-capability-api", "ai-agent-api")
+val hostApiIds = listOf("common-plugin-api", "host-capability-api", "three-stove-agent-api")
 val expectedHostApiLockKeys = setOf("format") + hostApiIds.flatMap { id -> listOf("$id.file", "$id.sha256") }
 require(hostApiLock.stringPropertyNames() == expectedHostApiLockKeys) {
     "Host API AAR lock must contain exactly these keys: ${expectedHostApiLockKeys.sorted()}"
@@ -116,8 +116,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         resValue("string", "plugin_author", "SuperMonster003")
-        resValue("string", "plugin_engine", "ai-agent")
-        resValue("string", "plugin_id", "ai-agent")
+        resValue("string", "plugin_engine", "three-stove-agent")
+        resValue("string", "plugin_id", "three-stove-agent")
         resValue("string", "plugin_variant", "default")
         resValue("string", "plugin_version_date", utils.getDateString("MMM d, yyyy", "GMT+08:00"))
     }

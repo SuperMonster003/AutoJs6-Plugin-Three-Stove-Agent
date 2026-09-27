@@ -9,8 +9,8 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.mcp.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.nodes.ObservationCapabilities
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.*
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 import java.util.concurrent.ConcurrentHashMap
@@ -19,8 +19,8 @@ import java.util.concurrent.atomic.AtomicReference
 
 /** Link-owned queue and broker adapters. Control methods validate and enqueue; all remote work is asynchronous. */
 internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkConfiguration,
-                        private val remoteModel: IAiAgentModelBroker, private val remoteTools: IHostCapabilityBroker,
-                        private val callback: IAiAgentLinkCallback, private val ownerUid: Int) {
+                        private val remoteModel: IThreeStoveAgentModelBroker, private val remoteTools: IHostCapabilityBroker,
+                        private val callback: IThreeStoveAgentLinkCallback, private val ownerUid: Int) {
     private val scheduler = SerialRunScheduler()
     private val workers = LinkWorkers()
     private val scripts = ScriptCatalogClient(scheduler::nowMs)
@@ -49,8 +49,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     }
     private val queue = RunQueue(scheduler, runtime.catalog, emptyPolicy, RunContextCompiler { error("Preparation required") },
         unusedModel, unusedTools, { RunnerText(runtime.runnerText, it) })
-    val binder: IAiAgentLink = endpoint(hostValidatedRoots = true) { runtime.verifier.enforceOwner(ownerUid) }
-    val local: IAiAgentLink = endpoint { if (Binder.getCallingUid() != Process.myUid()) throw SecurityException("Private link") }
+    val binder: IThreeStoveAgentLink = endpoint(hostValidatedRoots = true) { runtime.verifier.enforceOwner(ownerUid) }
+    val local: IThreeStoveAgentLink = endpoint { if (Binder.getCallingUid() != Process.myUid()) throw SecurityException("Private link") }
 
     fun activate() {
         try { watched.forEach { it.linkToDeath(death, 0) } } catch (_: Exception) { disconnect(C.LINK_STATE_HOST_UNAVAILABLE) }
@@ -246,7 +246,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel(); memoryLoading.get().cancel(); mcpLoading.get().cancel(); cleanup.cancel() }
     }
-    @Synchronized private fun start(json: String, callback: IAiAgentRunCallback?, pluginUi: Boolean): Bundle {
+    @Synchronized private fun start(json: String, callback: IThreeStoveAgentRunCallback?, pluginUi: Boolean): Bundle {
         val configuration = config
         return synchronized(runtime.admissionLock) {
             check(!runtime.maintenance)
@@ -255,7 +255,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             }
         }
     }
-    private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IAiAgentRunCallback?): Bundle {
+    private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IThreeStoveAgentRunCallback?): Bundle {
         val policy = runtime.policy(request.groups)
         val sink = RunSink(callback)
         val admittedId = AtomicReference<String>()
@@ -318,14 +318,14 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
         AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to id.json(), "accepted" to true.json()).toString())
     }
-    private fun endpoint(hostValidatedRoots: Boolean = false, enforce: () -> Unit) = object : IAiAgentLink.Stub() {
+    private fun endpoint(hostValidatedRoots: Boolean = false, enforce: () -> Unit) = object : IThreeStoveAgentLink.Stub() {
         private fun check(bundle: Bundle? = null) { try { enforce() } catch (e: SecurityException) { AgentWire.closeDescriptors(bundle); throw e } }
         private fun read(bundle: Bundle?, key: String) = AgentWire.control(bundle, key)
         private fun result(body: () -> Bundle): Bundle = try { body() } catch (e: Exception) {
             AgentWire.error(when (e) { is WireFailure -> e.code; is RunAdmissionFailure -> e.error.name; else -> C.ERROR_INVALID_REQUEST })
         }
         override fun getStatus(): Bundle { check(); return status(presentation = !hostValidatedRoots) }
-        override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?): Bundle { check(request); return result {
+        override fun startRun(request: Bundle?, callback: IThreeStoveAgentRunCallback?): Bundle { check(request); return result {
             // Only the private endpoint (workbench, floating ball) starts plugin UI tasks.
             start(read(request, C.KEY_RUN_REQUEST_JSON), callback, pluginUi = !hostValidatedRoots)
         } }
@@ -359,7 +359,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
             disconnect(C.LINK_STATE_DETACHED)
         }
     }
-    private inner class RunSink(private val remote: IAiAgentRunCallback?) : AutoCloseable {
+    private inner class RunSink(private val remote: IThreeStoveAgentRunCallback?) : AutoCloseable {
         private val dead = AtomicBoolean(remote == null)
         private val death = IBinder.DeathRecipient { close() }
         init { runCatching { remote?.asBinder()?.linkToDeath(death, 0) }.onFailure { dead.set(true) } }

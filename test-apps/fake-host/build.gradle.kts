@@ -13,7 +13,7 @@ android {
         applicationId = "org.autojs.autojs6"
         minSdk = versions.sdkVersionMin
         targetSdk = versions.sdkVersionTarget
-        versionCode = 5289
+        versionCode = 5298
         versionName = "conformance"
         testApplicationId = "org.autojs.plugin.three.stove.agent.fakehost.test"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -32,7 +32,7 @@ android {
 androidComponents { beforeVariants(selector().withBuildType("release")) { it.enable = false } }
 dependencies {
     // The app module validates these same repository-local AARs against locks/host-api-aars.lock.
-    implementation(files("../../libs/common-plugin-api.aar", "../../libs/host-capability-api.aar", "../../libs/ai-agent-api.aar"))
+    implementation(files("../../libs/common-plugin-api.aar", "../../libs/host-capability-api.aar", "../../libs/three-stove-agent-api.aar"))
     androidTestImplementation(libs.test.runner)
     androidTestImplementation(libs.test.ext.junit)
 }

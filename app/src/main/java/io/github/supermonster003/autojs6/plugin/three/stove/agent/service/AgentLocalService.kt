@@ -3,8 +3,8 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /** Private UI connection across main / :agent processes. It never substitutes for host attachment. */
 class AgentLocalService : Service() {
@@ -13,14 +13,14 @@ class AgentLocalService : Service() {
     private fun guard(bundle: Bundle? = null) {
         if (Binder.getCallingUid() != Process.myUid()) { AgentWire.closeDescriptors(bundle); throw SecurityException("Private UI endpoint") }
     }
-    private fun call(bundle: Bundle?, operation: (IAiAgentLink) -> Bundle): Bundle {
+    private fun call(bundle: Bundle?, operation: (IThreeStoveAgentLink) -> Bundle): Bundle {
         guard(bundle)
         val link = runtime.current?.local ?: run { AgentWire.closeDescriptors(bundle); return AgentWire.error(C.ERROR_LINK_DETACHED) }
         return operation(link)
     }
-    private val binder = object : IAiAgentLink.Stub() {
+    private val binder = object : IThreeStoveAgentLink.Stub() {
         override fun getStatus(): Bundle { guard(); return runtime.status() }
-        override fun startRun(request: Bundle?, callback: IAiAgentRunCallback?) = call(request) { it.startRun(request, callback) }
+        override fun startRun(request: Bundle?, callback: IThreeStoveAgentRunCallback?) = call(request) { it.startRun(request, callback) }
         override fun respond(response: Bundle?) = call(response) { it.respond(response) }
         override fun listRuns(query: Bundle?): Bundle { guard(query); return RunQueries(runtime.archive, presentation = true).list(query) }
         override fun getRun(reference: Bundle?): Bundle { guard(reference); return RunQueries(runtime.archive, presentation = true).get(reference) }

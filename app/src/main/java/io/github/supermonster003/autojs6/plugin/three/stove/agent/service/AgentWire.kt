@@ -7,7 +7,7 @@ import android.system.Os
 import android.system.OsConstants
 import android.system.StructPollfd
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer

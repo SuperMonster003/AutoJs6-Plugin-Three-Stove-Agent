@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.RunHistoryCodec
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.util.concurrent.Executors
 
 /** Visible-screen lifetime; disk data never travels through the public 32 KiB getRun projection. */

@@ -54,7 +54,7 @@
   "p_security_permission": "Only obtain the plugin from the official [Releases]({{ repo_url }}/releases) page or the AutoJs6 plugin center. Packages from unknown sources may fail host verification or carry risks even when the version number looks identical.",
   "h3_plugin_interface": "Plugin Interface",
   "p_plugin_interface": "The following information targets AutoJs6 host and plugin developers; the host uses these identifiers to discover the plugin and negotiate compatibility",
-  "p_contract_service": "`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.",
+  "p_contract_service": "`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.",
   "h3_roadmap": "Roadmap",
   "p_roadmap": "The plugin's plans and progress are maintained as a checkable list in ROADMAP.md, organized by phase with acceptance criteria and evidence levels. Unchecked items express intent rather than current capabilities; discussion via Issues is welcome.",
   "text_link_roadmap": "View ROADMAP.md",

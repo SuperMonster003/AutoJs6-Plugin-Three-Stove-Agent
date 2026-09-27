@@ -7,8 +7,8 @@ import androidx.test.filters.SdkSuppress
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.BridgeCall
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.*
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.junit.Assert.*
@@ -145,9 +145,9 @@ class VisionTransportDeviceTest {
         val image = ScreenImageCodec.convert(png(), "image/png", 160, 240)
         val descriptors = mutableListOf<ParcelFileDescriptor>(); val requests = LinkedBlockingQueue<String>()
         val failures = LinkedBlockingQueue<RunError>()
-        val remote = object : IAiAgentModelBroker.Stub() {
+        val remote = object : IThreeStoveAgentModelBroker.Stub() {
             override fun getBrokerInfo() = Bundle()
-            override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) = Unit
+            override fun listTargets(request: Bundle, callback: IThreeStoveAgentModelCallback) = Unit
             @Suppress("DEPRECATION") private fun inspect(request: Bundle) {
                 val fd = request.getParcelableArray(C.KEY_MODEL_IMAGE_FDS)!!.single() as ParcelFileDescriptor
                 descriptors += fd
@@ -159,7 +159,7 @@ class VisionTransportDeviceTest {
                     ParcelFileDescriptor.dup(requireNotNull(request.getParcelable<ParcelFileDescriptor>(C.KEY_PAYLOAD_FD)).fileDescriptor)).bufferedReader().use { it.readText() }
                 requests.add(AgentJson.objectOf(text, 2 * 1024 * 1024).string("requestId")!!)
             }
-            override fun generate(request: Bundle, callback: IAiAgentModelCallback) = inspect(request)
+            override fun generate(request: Bundle, callback: IThreeStoveAgentModelCallback) = inspect(request)
             override fun submitToolResults(request: Bundle) = inspect(request)
             override fun cancel(reference: Bundle?) = Unit
             override fun destroy(reason: Bundle?) = Unit

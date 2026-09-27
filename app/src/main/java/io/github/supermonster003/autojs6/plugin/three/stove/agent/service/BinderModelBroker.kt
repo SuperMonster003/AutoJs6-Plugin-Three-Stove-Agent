@@ -5,9 +5,9 @@ import android.os.*
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
-import org.autojs.plugin.ai.agent.api.IAiAgentModelBroker
-import org.autojs.plugin.ai.agent.api.IAiAgentModelCallback
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentModelBroker
+import org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentModelCallback
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import java.io.File
 import java.util.UUID
@@ -18,7 +18,7 @@ internal class SelectedModel(val target: ModelTarget, val maximumInputBytes: Int
                              val displayName: String = target.targetId)
 
 /** Worker/descriptor adapter for the host's model broker. No Provider binding or HTTP implementation. */
-internal class BinderModelBroker(private val context: Context, private val broker: IAiAgentModelBroker,
+internal class BinderModelBroker(private val context: Context, private val broker: IThreeStoveAgentModelBroker,
                                 private val ownerUid: Int, private val workers: LinkWorkers) : ModelBrokerTransport, AutoCloseable {
     private val streams = ConcurrentHashMap<String, OrderedModelEvents>()
     private val closed = AtomicBoolean()
@@ -129,7 +129,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
             if (type in C.MODEL_TERMINAL_EVENTS) streams.remove(id)?.close()
         }, { code -> streams.remove(id)?.close(); failure(code) })
         require(streams.putIfAbsent(id, ordered) == null)
-        val callback = object : IAiAgentModelCallback.Stub() {
+        val callback = object : IThreeStoveAgentModelCallback.Stub() {
             override fun onEvent(bundle: Bundle?) {
                 if (Binder.getCallingUid() != ownerUid || closed.get() || streams[id] !== ordered) { AgentWire.closeDescriptors(bundle); return }
                 try { ordered.accept(AgentWire.take(bundle, C.KEY_MODEL_EVENT_JSON, C.KEY_PAYLOAD_FD, C.MAX_EVENT_JSON_BYTES, C.MAX_MODEL_REQUEST_PAYLOAD_BYTES)) }

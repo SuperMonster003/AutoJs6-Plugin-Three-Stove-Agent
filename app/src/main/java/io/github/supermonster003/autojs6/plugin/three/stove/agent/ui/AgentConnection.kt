@@ -6,8 +6,8 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.AgentLocalService
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.AgentWire
-import org.autojs.plugin.ai.agent.api.IAiAgentLink
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentLink
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.util.concurrent.Executors
 
 internal data class WorkbenchSnapshot(val status: JsonObject, val runs: List<JsonObject>, val run: JsonObject?, val presets: List<String>, val defaultPreset: String = "default")
@@ -18,7 +18,7 @@ internal class AgentConnection(private val context: Context, private val receive
     private val completions = Handler(Looper.getMainLooper())
     private var closed = false
     private val worker = Executors.newSingleThreadExecutor()
-    private var link: IAiAgentLink? = null
+    private var link: IThreeStoveAgentLink? = null
     private var bound = false
     private var generation = 0
     private var polling = false
@@ -26,7 +26,7 @@ internal class AgentConnection(private val context: Context, private val receive
     var selectedId: String? = null
     var preferRunning = true
     private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) { link = IAiAgentLink.Stub.asInterface(binder); refresh() }
+        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) { link = IThreeStoveAgentLink.Stub.asInterface(binder); refresh() }
         override fun onServiceDisconnected(name: ComponentName?) {
             generation++; polling = false; main.removeCallbacks(pollAgain); link = null
             receive(WorkbenchSnapshot(jsonObject("state" to "host-unavailable".json()), emptyList(), null, emptyList()))
@@ -66,7 +66,7 @@ internal class AgentConnection(private val context: Context, private val receive
             }
         }
     }
-    fun command(action: (IAiAgentLink) -> Bundle, completeWhileStopped: Boolean = false, complete: (Result<JsonObject>) -> Unit) {
+    fun command(action: (IThreeStoveAgentLink) -> Bundle, completeWhileStopped: Boolean = false, complete: (Result<JsonObject>) -> Unit) {
         val current = link
         if (current == null) { complete(Result.failure(IllegalStateException(C.ERROR_LINK_DETACHED))); return }
         val expected = generation

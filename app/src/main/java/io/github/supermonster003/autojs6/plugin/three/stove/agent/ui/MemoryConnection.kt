@@ -5,7 +5,7 @@ import android.os.*
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.AgentJson
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.util.concurrent.Executors
 
 internal class MemoryConnection(private val context: Context, private val ready: () -> Unit) {

@@ -20,8 +20,8 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.RunLau
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.update.AppUpdateCoordinator
-import org.autojs.plugin.ai.agent.api.AiAgentActions
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentActions
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.util.UUID
 
 /** Standalone task workbench: a task feed with a docked composer. Model/device work stays in the agent process. */
@@ -112,7 +112,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     private fun voice() { runCatching { speech.launch(SpeechInput.intent(this)) }.onFailure { showError() } }
     private fun openHost() {
         packageManager.getLaunchIntentForPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
-            intent.putExtra(AiAgentActions.EXTRA_AI_AGENT_ATTACH, true); identify(intent)
+            intent.putExtra(ThreeStoveAgentActions.EXTRA_THREE_STOVE_AGENT_ATTACH, true); identify(intent)
             runCatching { startActivity(intent) }.onFailure { showError() }
         }
     }
@@ -265,7 +265,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     }
     private fun identify(intent: Intent) {
         val identity = PendingIntent.getActivity(this, 0, Intent(this, LauncherActivity::class.java), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        intent.putExtra(AiAgentActions.EXTRA_ATTACH_IDENTITY, identity)
+        intent.putExtra(ThreeStoveAgentActions.EXTRA_ATTACH_IDENTITY, identity)
         intent.putExtra("requestId", requestId ?: UUID.randomUUID().toString())
         if (scriptRoots.configured) intent.putExtra(C.KEY_LINK_CONFIG_JSON, ScriptRoots.configuration(scriptRoots.read()))
     }
@@ -273,8 +273,8 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         if (classifyHostPresence(hostReader(), ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION) != HostPresence.READY) return
         requested = true; requestId = UUID.randomUUID().toString(); deadline = SystemClock.elapsedRealtime() + 15000
         views.banner.render(HostPresence.READY, hostReader(), LinkStage.CONNECTING, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
-        val intent = Intent(AiAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-        identify(intent); sendBroadcast(intent, AiAgentActions.PLUGIN_PERMISSION)
+        val intent = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+        identify(intent); sendBroadcast(intent, ThreeStoveAgentActions.PLUGIN_PERMISSION)
     }
     private fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
     private fun readHostPackage(): HostPackageSnapshot? {

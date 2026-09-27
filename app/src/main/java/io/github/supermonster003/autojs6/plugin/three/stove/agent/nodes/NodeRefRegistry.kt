@@ -2,12 +2,12 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.nodes
 
 import com.google.gson.JsonArray
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 
 /** Run-owned display snapshots for change summaries and reference resolution. The host validates every action target
  * through inspectNode; the plugin never relocates a reference on its own (review 2026-09-27, decision D47). */
-class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_PER_LINK) : AutoCloseable {
-    init { require(capacity in 1..AiAgentContract.MAX_SNAPSHOTS_PER_LINK) }
+class NodeRefRegistry(private val capacity: Int = ThreeStoveAgentContract.MAX_SNAPSHOTS_PER_LINK) : AutoCloseable {
+    init { require(capacity in 1..ThreeStoveAgentContract.MAX_SNAPSHOTS_PER_LINK) }
     data class Reference(val snapshotId: String, val node: CompactNodeText.Node, val window: String)
     class Stale : IllegalArgumentException("NODE_REF_STALE")
     private val snapshots = linkedMapOf<String, CompactNodeText.Snapshot>()

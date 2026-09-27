@@ -95,7 +95,7 @@ Installez et activez [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plu
 
 ### Compatibilité
 
-Android 7.0+ (API 24). La connexion nécessite AutoJs6 6.8.0 / build 5289+; l'API complète et ce guide nécessitent build 5293+. Utilisez une compilation contenant les changements Agent. Les actions à l'écran exigent le service d'accessibilité de l'hôte; Agent le démarre d'abord avec la méthode automatique configurée dans AutoJs6 (Root, paramètres sécurisés ou Shizuku) et ne vous demande de l'activer qu'en cas d'échec. OCR est facultatif et nécessite un plugin installé, autorisé et déclaré disponible par l'hôte. Three Stove Agent ne conserve aucun identifiant de modèle et ne possède pas de service d'accessibilité propre.
+Android 7.0+ (API 24). La connexion nécessite AutoJs6 6.8.0 / build 5298+; l'API complète et ce guide nécessitent build 5293+. Utilisez une compilation contenant les changements Agent. Les actions à l'écran exigent le service d'accessibilité de l'hôte; Agent le démarre d'abord avec la méthode automatique configurée dans AutoJs6 (Root, paramètres sécurisés ou Shizuku) et ne vous demande de l'activer qu'en cas d'échec. OCR est facultatif et nécessite un plugin installé, autorisé et déclaré disponible par l'hôte. Three Stove Agent ne conserve aucun identifiant de modèle et ne possède pas de service d'accessibilité propre.
 
 ### Démarrer depuis l'interface
 
@@ -260,18 +260,18 @@ Les informations suivantes s'adressent aux développeurs de l'hôte AutoJs6 et d
 
 ```text
 application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
-plugin id: ai-agent
-engine: ai-agent
+plugin id: three-stove-agent
+engine: three-stove-agent
 variant: default
-service action: org.autojs.plugin.AI_AGENT
-service category: ai-agent
+service action: org.autojs.plugin.THREE_STOVE_AGENT
+service category: three-stove-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
-aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5289 (6.8.0)
+aidl interface: org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentPlugin
+minimum host build: 5298 (6.8.0)
 ```
 
-`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus.
+`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: Connexion avec identité du programme hôte vérifiée, file de tâches, réponses, annulation, requêtes et historique privé; tâches bloquées après déconnexion et aucun redémarrage automatique après arrêt du processus.
 
 ******
 
@@ -293,7 +293,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/09/27_
 
-- `Note` L'application est renommée Three Stove Agent: l'ID d'application devient io.github.supermonster003.autojs6.plugin.three.stove.agent et le dépôt devient AutoJs6-Plugin-Three-Stove-Agent. L'ancien nom n'est plus pris en charge: désinstallez l'ancien AI Agent avant l'installation; l'historique, les préréglages et la mémoire ne sont pas migrés. L'ID de plugin ai-agent, l'action du service et le paquet AIDL proviennent des AAR du contrat AutoJs6 et seront remplacés avec le renommage de l'hôte et les AAR reverrouillés.
+- `Note` L'application est renommee Three Stove Agent: l'ID d'application est desormais io.github.supermonster003.autojs6.plugin.three.stove.agent, le depot est AutoJs6-Plugin-Three-Stove-Agent, l'ID et l'engine du plugin sont three-stove-agent, l'action du service est org.autojs.plugin.THREE_STOVE_AGENT et la version du contrat est 2. L'ancien nom n'est pas pris en charge: desinstallez l'ancien AI Agent avant d'installer; l'historique, les preselections et les memoires ne sont pas migres. L'hote minimum est desormais AutoJs6 6.8.0 / build 5298; les hotes anterieurs ne reconnaissent plus ce plugin
 - `Note` La version 1.2.0 en développement propose les outils MCP facultatifs, appels natifs, captures et scripts générés. AiGoCode gpt-5.6-sol a réussi les tests P9.2 avec image initiale et image dans un résultat d'outil. P9.1 a validé l'activation du Wi-Fi et la relecture de son état avec les parcours JSON et natif, en désactivant temporairement la connexion automatique au point d'accès actuel et en accédant au modèle via les données mobiles et le VPN. Les échecs après un changement de réseau du VPN avec la connexion automatique par défaut restent non résolus; voir ROADMAP.md.
 - `Fonctionnalité` Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
 - `Fonctionnalité` Ouvrez Three Stove Agent, connectez AutoJs6, saisissez un objectif et démarrez. La capsule de modèle de l'accueil choisit un modèle en ligne ou local, ou Automatique (un modèle sur l'appareil d'abord, sinon le premier disponible). Recherchez, épinglez vos modèles favoris et réutilisez les récents; des badges indiquent la prise en charge déclarée des outils et des images. Le plan de travail et la bulle flottante partagent ce choix pour les nouvelles tâches, sans modifier les préréglages ni la tâche en cours; les préréglages ne contiennent plus de modèle. La puce de préréglage de la zone de saisie choisit un préréglage facultatif. Répondez aux questions et suivez la progression dans la carte de tâche.
@@ -313,6 +313,7 @@ _2026/09/27_
 - `Amélioration` Les confirmations affichent le niveau de risque, le groupe d'outils et chaque paramètre dans un tableau lisible au lieu du JSON brut, avec des actions distinctes: autoriser une fois, toujours autoriser pour cette session et refuser. La bulle flottante adopte le même design Material, choisit le préréglage directement dans la carte et sa ligne Modèle ouvre le sélecteur de modèle partagé
 - `Amélioration` L'historique ajoute la recherche, des puces d'état et des filtres par préréglage et par période, et efface les tâches terminées depuis son menu. Les détails d'une tâche montrent le modèle, une chronologie des étapes avec tableaux de paramètres et observations dépliables, Relancer ou Réessayer avec un autre modèle, et un menu pour exporter le diagnostic, supprimer l'enregistrement ou utiliser le modèle de la tâche pour les nouvelles tâches
 - `Amélioration` Préréglages, mémoire, serveurs MCP et dossiers de scripts partagent le même design: cartes de préréglages avec menu de ligne et éditeur plein écran (durée en minutes, bouton Enregistrer fixe), recherche et puces de portée pour la mémoire, liste d'outils MCP avec interrupteur d'activation et choix du risque, et confirmation avant d'abandonner des modifications non enregistrées
+- `Dépendance` Mise a niveau des trois artefacts API hote release vers AutoJs6 86d9bfa26b / build 5298: ai-agent-api devient three-stove-agent-api (paquet AIDL org.autojs.plugin.three.stove.agent.api, version de contrat 2), common-plugin-api et host-capability-api etant reverrouilles depuis le meme build
 - `Dépendance` Mettre a niveau les trois artefacts release de l'API hote vers AutoJs6 3cdf7de13c / build 5297 (option du groupe mcp de P10 et constante TOOL_FAILED); le contrat de base reste en V1
 - `Dépendance` Ajout d'AndroidX AppCompat 1.7.1 et de Material Components for Android 1.13.0 avec leurs dépendances AndroidX d'exécution pour l'interface Material 3
 

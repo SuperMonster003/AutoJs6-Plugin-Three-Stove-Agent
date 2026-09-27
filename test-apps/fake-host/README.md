@@ -1,6 +1,6 @@
 # Independent fake host conformance APK
 
-This debug-only, `testOnly` module is a minimal host with the **real host application ID** `org.autojs.autojs6`, version 5289 and the same optional local signer as the Agent. It exercises the production installed-package/version/signer verifier without a debug bypass or any production API change. It has no network, accessibility, storage or device-action permission. The test control service is unexported and runs in `:broker`, separately from instrumentation.
+This debug-only, `testOnly` module is a minimal host with the **real host application ID** `org.autojs.autojs6`, version 5298 and the same optional local signer as the Agent. It exercises the production installed-package/version/signer verifier without a debug bypass or any production API change. It has no network, accessibility, storage or device-action permission. The test control service is unexported and runs in `:broker`, separately from instrumentation.
 
 Install only in a new disposable AVD named `Three_Stove_Agent_Conformance_*` with a separate data directory. Do not install over AutoJs6 or on a physical device. `run_conformance.py` checks the emulator identity, AVD name and installed host version before any install, and refuses a real host. The runner does not uninstall or clear applications. The module disables release variants and is not part of plugin distribution.
 

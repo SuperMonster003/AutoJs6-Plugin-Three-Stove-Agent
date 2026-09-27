@@ -6,7 +6,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgen
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentTaskForegroundService
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.*
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 import java.io.File
 
@@ -46,14 +46,14 @@ internal class AgentRuntime internal constructor(val context: Context) {
         } else { floating?.close(); floating = null }
     } }
     init { initialized = true; presentationChanged() }
-    @Synchronized fun attach(config: LinkConfiguration, model: IAiAgentModelBroker, capability: IHostCapabilityBroker,
-                             callback: IAiAgentLinkCallback, uid: Int): HostLink {
-        current?.disconnect(AiAgentContract.LINK_STATE_HOST_UNAVAILABLE)
+    @Synchronized fun attach(config: LinkConfiguration, model: IThreeStoveAgentModelBroker, capability: IHostCapabilityBroker,
+                             callback: IThreeStoveAgentLinkCallback, uid: Int): HostLink {
+        current?.disconnect(ThreeStoveAgentContract.LINK_STATE_HOST_UNAVAILABLE)
         presets // Start loading on its own worker before admission; never read disk on Binder.
         return HostLink(this, config, model, capability, callback, uid).also { current = it; it.activate() }
     }
-    fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(AiAgentContract.KEY_STATUS_JSON,
-        jsonObject("state" to AiAgentContract.LINK_STATE_DETACHED.json(), "attachedAt" to 0.json(), "queuedCount" to 0.json(),
+    fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(ThreeStoveAgentContract.KEY_STATUS_JSON,
+        jsonObject("state" to ThreeStoveAgentContract.LINK_STATE_DETACHED.json(), "attachedAt" to 0.json(), "queuedCount" to 0.json(),
             "pluginVersion" to info.versionName.json(), "voiceEnabled" to runCatching { settings.snapshot().voice }.getOrDefault(false).json()).toString())
     companion object {
         @Volatile private var instance: AgentRuntime? = null

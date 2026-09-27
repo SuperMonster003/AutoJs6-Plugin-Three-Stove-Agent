@@ -3,7 +3,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.service
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.PresetSnapshot
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.AgentSettings
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /** The admission gate shared by host scripts and every private UI entry.
  * Admission queues preparation, which promotes the foreground service before any broker work. */

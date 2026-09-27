@@ -2,7 +2,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.service
 
 import android.os.Bundle
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /** Read-only private history survives link loss. Both endpoints use the same bounded projections. */
 internal class RunQueries(private val archive: RunArchive, private val presentation: Boolean = false) {

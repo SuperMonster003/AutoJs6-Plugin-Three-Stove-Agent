@@ -95,7 +95,7 @@ Android API 37.1 上の実際の英語画面です. 専用のサンプルタス�
 
 ### 互換性
 
-Android 7.0+ (API 24). 接続には AutoJs6 6.8.0 / build 5289+, 完全なタスク API とこの手順には build 5293+ が必要です. Agent の変更を含むホストを使用してください. 画面操作にはホストのユーザー補助サービスが必要です. Agent はまず AutoJs6 で設定済みの自動起動方法 (Root, セキュア設定または Shizuku) で起動し, 失敗した場合のみ手動での有効化を求めます. OCR は任意で, インストールと認可が済み, ホストが利用可能と報告する OCR プラグインが必要です. Three Stove Agent 自体はモデル認証情報や独立したユーザー補助サービスを持ちません.
+Android 7.0+ (API 24). 接続には AutoJs6 6.8.0 / build 5298+, 完全なタスク API とこの手順には build 5293+ が必要です. Agent の変更を含むホストを使用してください. 画面操作にはホストのユーザー補助サービスが必要です. Agent はまず AutoJs6 で設定済みの自動起動方法 (Root, セキュア設定または Shizuku) で起動し, 失敗した場合のみ手動での有効化を求めます. OCR は任意で, インストールと認可が済み, ホストが利用可能と報告する OCR プラグインが必要です. Three Stove Agent 自体はモデル認証情報や独立したユーザー補助サービスを持ちません.
 
 ### 画面から開始
 
@@ -260,18 +260,18 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 ```text
 application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
-plugin id: ai-agent
-engine: ai-agent
+plugin id: three-stove-agent
+engine: three-stove-agent
 variant: default
-service action: org.autojs.plugin.AI_AGENT
-service category: ai-agent
+service action: org.autojs.plugin.THREE_STOVE_AGENT
+service category: three-stove-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
-aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5289 (6.8.0)
+aidl interface: org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentPlugin
+minimum host build: 5298 (6.8.0)
 ```
 
-`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: ホスト認証付き接続でタスクの待機列, 応答, 取消, 照会と非公開の手順履歴を提供; ホスト切断時は停止状態になり, プロセス再起動で自動再開しない.
+`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: ホスト認証付き接続でタスクの待機列, 応答, 取消, 照会と非公開の手順履歴を提供; ホスト切断時は停止状態になり, プロセス再起動で自動再開しない.
 
 ******
 
@@ -293,7 +293,7 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/27_
 
-- `ヒント` アプリ名を Three Stove Agent に変更しました. アプリケーション ID は io.github.supermonster003.autojs6.plugin.three.stove.agent, リポジトリは AutoJs6-Plugin-Three-Stove-Agent になります. 旧名称との互換性はありません. 先に旧 AI Agent をアンインストールしてからインストールしてください. 履歴, プリセット, メモリは移行されません. プラグイン ID ai-agent, サービス action, AIDL パッケージ名は AutoJs6 契約 AAR に由来し, ホスト側の改名と AAR の再ロックに合わせて置き換えます.
+- `ヒント` アプリ名を Three Stove Agent に変更: アプリケーション ID は io.github.supermonster003.autojs6.plugin.three.stove.agent, リポジトリは AutoJs6-Plugin-Three-Stove-Agent, プラグイン ID と engine は three-stove-agent, サービス action は org.autojs.plugin.THREE_STOVE_AGENT, 契約バージョンは 2 になりました. 旧名称とは互換性がありません: インストール前に旧 AI Agent をアンインストールしてください. 履歴, プリセット, メモリは移行されません. 最低ホストは AutoJs6 6.8.0 / build 5298 に引き上げられ, それより古いホストは本プラグインを認識しません
 - `ヒント` 開発版 1.2.0 は任意の MCP ツール, ネイティブ呼び出し, スクリーンショット, 生成スクリプトを提供します. AiGoCode gpt-5.6-sol は P9.2 の初期画像とツール結果画像の検証に合格しました. P9.1 の JSON/ネイティブ経路は, 現在のアクセスポイントへの自動接続を一時的に無効にし, モバイルデータと VPN 経由でモデルに接続する条件で, Wi-Fi の有効化と状態の再読み取りを完了しました. 既定の自動接続で VPN の接続先ネットワークが切り替わった後の失敗は未解決です. 証拠は ROADMAP.md を参照してください.
 - `機能` 選択したローカルまたは外部 MCP サーバーのツールに対応し, サーバーごとにリスクを設定. mcp グループは初期状態で無効
 - `機能` Three Stove Agent を開いて AutoJs6 に接続し, 目標を入力して開始します. ホームのモデルカプセルでオンラインまたはローカルモデル, あるいは自動 (端末上のモデルを優先し, なければ最初に利用可能なモデル) を選べます. モデルの検索, よく使うモデルの固定, 最近使ったモデルの再利用ができ, バッジでツール呼び出しと画像入力の対応を確認できます. タスク画面とフローティングボールの新しいタスクはこの選択を共有し, プリセットや実行中のタスクは変更されません. プリセットはモデルを持たなくなりました. 入力欄のプリセットチップで任意のプリセットを選べます. タスクカードで質問への回答と進捗確認ができます.
@@ -313,6 +313,7 @@ _2026/09/27_
 - `改善` 確認カードはリスクレベル, ツールグループ, すべてのパラメーターを生の JSON ではなく読みやすい表で表示し, 今回のみ許可, このセッションでは常に許可, 拒否を明確に区別します. フローティングボールも同じ Material デザインになり, プリセットをカード内で選べ, モデルの行から共有のモデル切り替えを開けます
 - `改善` タスク履歴に検索, 状態チップ, プリセットと日付範囲の絞り込みを追加し, メニューから終了したタスクを消去できます. タスク詳細には使用モデル, パラメーター表と展開できる観察結果を含むステップのタイムライン, もう一度実行と別のモデルで再試行があり, メニューから診断のエクスポート, 記録の削除, このタスクのモデルを新しいタスクに使う操作ができます
 - `改善` プリセット, メモリ, MCP サーバー, スクリプトフォルダーを同じデザインに統一しました. プリセットはカードと行メニュー, 全画面の編集画面 (時間は分単位, 保存ボタンは下部に固定), メモリは検索とスコープチップ, MCP は有効化スイッチ, リスク選択, ツールのチェックリストを備え, 未保存の変更を破棄する前に確認します
+- `依存関係` 3 個のホスト API release 成果物を AutoJs6 86d9bfa26b / build 5298 に更新: ai-agent-api は three-stove-agent-api に変更 (AIDL パッケージ org.autojs.plugin.three.stove.agent.api, 契約バージョン 2), common-plugin-api と host-capability-api は同じビルドから再ロック
 - `依存関係` ホスト API の 3 つの release 成果物を AutoJs6 3cdf7de13c / build 5297 に更新 (P10 の mcp グループ設定と TOOL_FAILED 定数), 基本契約は V1 のまま
 - `依存関係` Material 3 画面のため AndroidX AppCompat 1.7.1 と Material Components for Android 1.13.0 および AndroidX 実行時依存関係を追加
 

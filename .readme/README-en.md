@@ -95,7 +95,7 @@ Install and enable [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugi
 
 ### Compatibility
 
-Android 7.0+ (API 24). Host attachment requires AutoJs6 6.8.0 / build 5289+, while the complete task API and this quick start require build 5293+. Use a host build containing the Agent changes. Screen actions need the host accessibility service; the Agent first starts it through the unattended method configured in AutoJs6 (Root, secure settings or Shizuku) and asks you to enable it only when that fails. OCR is optional and requires an installed, authorized OCR plugin reported as available by the host. The Three Stove Agent plugin has no model credentials or accessibility service of its own.
+Android 7.0+ (API 24). Host attachment requires AutoJs6 6.8.0 / build 5298+, while the complete task API and this quick start require build 5293+. Use a host build containing the Agent changes. Screen actions need the host accessibility service; the Agent first starts it through the unattended method configured in AutoJs6 (Root, secure settings or Shizuku) and asks you to enable it only when that fails. OCR is optional and requires an installed, authorized OCR plugin reported as available by the host. The Three Stove Agent plugin has no model credentials or accessibility service of its own.
 
 ### Quick start from the interface
 
@@ -260,18 +260,18 @@ The following information targets AutoJs6 host and plugin developers; the host u
 
 ```text
 application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
-plugin id: ai-agent
-engine: ai-agent
+plugin id: three-stove-agent
+engine: three-stove-agent
 variant: default
-service action: org.autojs.plugin.AI_AGENT
-service category: ai-agent
+service action: org.autojs.plugin.THREE_STOVE_AGENT
+service category: three-stove-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
-aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5289 (6.8.0)
+aidl interface: org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentPlugin
+minimum host build: 5298 (6.8.0)
 ```
 
-`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.
+`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: Verified host attachment with queued tasks, responses, cancellation, queries and private step history; host loss blocks tasks and process restart never resumes them automatically.
 
 ******
 
@@ -293,7 +293,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/09/27_
 
-- `Hint` The app is renamed Three Stove Agent: the application ID is now io.github.supermonster003.autojs6.plugin.three.stove.agent and the repository is AutoJs6-Plugin-Three-Stove-Agent. The old name is not supported: uninstall the old AI Agent before installing; history, presets and memories are not migrated. The plugin ID ai-agent, the service action and the AIDL package come from the AutoJs6 contract AARs and will be replaced together with the host rename and relocked AARs.
+- `Hint` The app is renamed Three Stove Agent: the application ID is now io.github.supermonster003.autojs6.plugin.three.stove.agent, the repository is AutoJs6-Plugin-Three-Stove-Agent, the plugin ID and engine are three-stove-agent, the service action is org.autojs.plugin.THREE_STOVE_AGENT and the contract version is 2. The old name is not supported: uninstall the old AI Agent before installing; history, presets and memories are not migrated. The minimum host is now AutoJs6 6.8.0 / build 5298; earlier hosts no longer recognize this plugin
 - `Hint` Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see ROADMAP.md.
 - `Feature` MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
 - `Feature` Open Three Stove Agent, connect to AutoJs6, enter a goal and start. The model capsule on the home screen chooses an online or local model, or Automatic (an on-device model first, otherwise the first available one). Search models, pin favorites and reuse recent ones; badges show declared tool-calling and image-input support. The workbench and the floating ball share this choice for new tasks; it never edits a preset or a running task, and presets no longer carry a model. The preset chip in the composer selects an optional preset. Answer questions and review progress in the task card.
@@ -313,6 +313,7 @@ _2026/09/27_
 - `Improvement` Confirmations show the risk level, the tool group and every parameter in a readable table instead of raw JSON, with Allow once, Always allow for this session and Deny as clear actions. The floating ball uses the same Material design and chooses presets inline; its model row opens the shared model switcher
 - `Improvement` Task history adds search, status chips and preset and date range filters, and clears finished tasks from its menu. Task details show the model, a step timeline with parameter tables and expandable observations, Run again or Retry with another model, and a menu to export diagnostics, delete the record or use the task's model for new tasks
 - `Improvement` Presets, memory, MCP servers and script directories share the same design: preset cards with a row menu and a full-page editor (duration in minutes, sticky Save), memory search with scope chips, an MCP tool checklist with an enable switch and risk choice, and a prompt before discarding unsaved changes
+- `Dependency` Upgrade the three host API release artifacts to AutoJs6 86d9bfa26b / build 5298: ai-agent-api becomes three-stove-agent-api (AIDL package org.autojs.plugin.three.stove.agent.api, contract version 2), with common-plugin-api and host-capability-api relocked from the same build
 - `Dependency` Upgrade the three host API release artifacts to AutoJs6 3cdf7de13c / build 5297 (P10 mcp group option and TOOL_FAILED constant); the base contract stays V1
 - `Dependency` Add AndroidX AppCompat 1.7.1 and Material Components for Android 1.13.0 with their AndroidX runtime dependencies for the Material 3 interface
 

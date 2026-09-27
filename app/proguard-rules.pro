@@ -6,5 +6,5 @@
 -keep class io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.LauncherActivity { *; }
 
 -keep class org.autojs.plugin.common.api.** { *; }
--keep class org.autojs.plugin.ai.agent.api.** { *; }
+-keep class org.autojs.plugin.three.stove.agent.api.** { *; }
 -keep class org.autojs.plugin.host.capability.api.** { *; }

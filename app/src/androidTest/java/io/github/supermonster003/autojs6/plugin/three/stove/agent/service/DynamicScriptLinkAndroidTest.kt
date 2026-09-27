@@ -8,8 +8,8 @@ import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.ScriptRootsActivity
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.*
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.junit.Assert.*
@@ -53,23 +53,23 @@ class DynamicScriptLinkAndroidTest {
         })
         assertTrue("Private store response", ready.await(15, TimeUnit.SECONDS)); return decode(checkNotNull(response))
     }
-    private inner class Model(private val dynamic: Boolean) : IAiAgentModelBroker.Stub() {
+    private inner class Model(private val dynamic: Boolean) : IThreeStoveAgentModelBroker.Stub() {
         val calls = AtomicInteger()
         val requests = CopyOnWriteArrayList<JsonObject>()
         override fun getBrokerInfo() = AgentWire.envelope(C.KEY_MODEL_BROKER_INFO_JSON,
             """{"available":true,"providerId":"dynamic-fixture","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
             putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""")
         }
-        private fun emit(callback: IAiAgentModelCallback, id: String, type: String, sequence: Int, data: JsonObject = JsonObject()) {
+        private fun emit(callback: IThreeStoveAgentModelCallback, id: String, type: String, sequence: Int, data: JsonObject = JsonObject()) {
             data.addProperty("requestId", id); data.addProperty("type", type); data.addProperty("sequence", sequence)
             callback.onEvent(envelope(C.KEY_MODEL_EVENT_JSON, data))
         }
-        override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun listTargets(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val id = AgentJson.objectOf(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).string("requestId")!!
             emit(callback, id, "started", 1)
             emit(callback, id, "completed", 2, AgentJson.objectOf("""{"targets":[{"targetId":"dynamic-fixture:text","displayName":"Dynamic fixture","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]}"""))
         }
-        override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun generate(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val value = AgentJson.objectOf(request.getString(C.KEY_MODEL_REQUEST_JSON)!!, 131072)
             requests += value
             val id = value.string("requestId")!!
@@ -108,11 +108,11 @@ class DynamicScriptLinkAndroidTest {
         }
         override fun destroy(reason: Bundle?) = Unit
     }
-    private fun fixture(advertised: Boolean, action: (IAiAgentLink, Model, Capabilities, String, CopyOnWriteArrayList<JsonObject>) -> Unit) {
+    private fun fixture(advertised: Boolean, action: (IThreeStoveAgentLink, Model, Capabilities, String, CopyOnWriteArrayList<JsonObject>) -> Unit) {
         // Keep the app visibly foreground while the real service passes its promotion barrier.
         val screen = ActivityScenario.launch(ScriptRootsActivity::class.java)
         val connections = mutableListOf<ServiceConnection>()
-        var link: IAiAgentLink? = null
+        var link: IThreeStoveAgentLink? = null
         var settings: IAgentSettings? = null
         var original: JsonObject? = null
         var presets: IPresetStore? = null
@@ -120,7 +120,7 @@ class DynamicScriptLinkAndroidTest {
         var runId: String? = null
         val presetName = "p93-${UUID.randomUUID()}"
         try {
-            val plugin = IAiAgentPlugin.Stub.asInterface(bind(Intent().setClassName(context,
+            val plugin = IThreeStoveAgentPlugin.Stub.asInterface(bind(Intent().setClassName(context,
                 context.packageName + ".service.WorkbenchFixtureService"), connections))
             settings = IAgentSettings.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(SettingsEndpoint.ACTION), connections))
             val settingsEndpoint = checkNotNull(settings)
@@ -130,7 +130,7 @@ class DynamicScriptLinkAndroidTest {
             val model = Model(advertised)
             val capabilities = Capabilities(advertised)
             link = plugin.attach(envelope(C.KEY_LINK_CONFIG_JSON, jsonObject("grantSummary" to jsonObject("toolGroups" to jsonArray("script_dynamic".json(), "user".json())))),
-                model, capabilities, object : IAiAgentLinkCallback.Stub() {
+                model, capabilities, object : IThreeStoveAgentLinkCallback.Stub() {
                     override fun onStatus(status: Bundle?) = Unit
                     override fun onEvent(event: Bundle?) = Unit
                 })
@@ -142,7 +142,7 @@ class DynamicScriptLinkAndroidTest {
             val response = link.startRun(envelope(C.KEY_RUN_REQUEST_JSON, jsonObject("goal" to "Run the harmless dynamic fixture".json(),
                 "options" to jsonObject("preset" to presetName.json(), "interaction" to "plugin".json(), "memory" to false.json(),
                     "budget" to jsonObject("maxSteps" to 3.json(), "maxModelCalls" to 4.json(), "maxDurationMs" to 60000.json())))),
-                object : IAiAgentRunCallback.Stub() {
+                object : IThreeStoveAgentRunCallback.Stub() {
                     override fun onRunEvent(event: Bundle?) {
                         events += AgentJson.objectOf(checkNotNull(event?.getString(C.KEY_RUN_EVENT_JSON)), C.MAX_EVENT_JSON_BYTES)
                     }

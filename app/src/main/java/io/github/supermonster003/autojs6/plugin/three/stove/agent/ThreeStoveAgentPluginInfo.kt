@@ -5,8 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import org.autojs.plugin.common.api.PluginCapabilityKeys
 import org.autojs.plugin.common.api.PluginInfo
-import org.autojs.plugin.ai.agent.api.AiAgentCapabilityKeys
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentCapabilityKeys
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 
 /** Collects the installed package version and the localized metadata of this plugin. */
 internal fun Context.threeStoveAgentPluginRuntimeInfo(): ThreeStoveAgentPluginRuntimeInfo {
@@ -53,9 +53,9 @@ internal fun ThreeStoveAgentPluginRuntimeInfo.toPluginInfo(): PluginInfo {
  * Features list what this build implements; native tools and vision still need a host and target that negotiate them. */
 internal fun ThreeStoveAgentPluginRuntimeInfo.capabilitiesBundle(): Bundle = Bundle().apply {
     putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, requiresHostVersion)
-    putInt(AiAgentCapabilityKeys.CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
-    putStringArray(AiAgentCapabilityKeys.TOOL_GROUPS,
+    putInt(ThreeStoveAgentCapabilityKeys.CONTRACT_VERSION, ThreeStoveAgentContract.CONTRACT_VERSION)
+    putStringArray(ThreeStoveAgentCapabilityKeys.TOOL_GROUPS,
         io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup.entries.map { it.id }.toTypedArray())
-    putStringArray(AiAgentCapabilityKeys.FEATURES, arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP,
-        AiAgentCapabilityKeys.FEATURE_NATIVE_TOOLS, AiAgentCapabilityKeys.FEATURE_VISION, AiAgentCapabilityKeys.FEATURE_MCP_TOOLS))
+    putStringArray(ThreeStoveAgentCapabilityKeys.FEATURES, arrayOf(ThreeStoveAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP,
+        ThreeStoveAgentCapabilityKeys.FEATURE_NATIVE_TOOLS, ThreeStoveAgentCapabilityKeys.FEATURE_VISION, ThreeStoveAgentCapabilityKeys.FEATURE_MCP_TOOLS))
 }

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.toPluginInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.capabilitiesBundle
-import org.autojs.plugin.ai.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.*
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 
 /** Debug-only, unexported injection point. No fixture class or component is packaged in release. */
@@ -19,7 +19,7 @@ class WorkbenchFixtureService : Service() {
         }
     }
     override fun onDestroy() { Looper.getMainLooper().setMessageLogging(null); super.onDestroy() }
-    private val binder = object : IAiAgentPlugin.Stub() {
+    private val binder = object : IThreeStoveAgentPlugin.Stub() {
         private fun runtime(): AgentRuntime {
             check(Binder.getCallingUid() == Process.myUid())
             return AgentRuntime.get(this@WorkbenchFixtureService)
@@ -30,9 +30,9 @@ class WorkbenchFixtureService : Service() {
             putLong("fixture.cpuMs", Process.getElapsedCpuTime())
             putInt("fixture.pid", Process.myPid())
         }
-        override fun attach(configuration: Bundle?, model: IAiAgentModelBroker?, capabilities: IHostCapabilityBroker?, callback: IAiAgentLinkCallback?): IAiAgentLink {
+        override fun attach(configuration: Bundle?, model: IThreeStoveAgentModelBroker?, capabilities: IHostCapabilityBroker?, callback: IThreeStoveAgentLinkCallback?): IThreeStoveAgentLink {
             val runtime = runtime()
-            val config = LinkConfiguration.parse(AgentWire.control(configuration, AiAgentContract.KEY_LINK_CONFIG_JSON))
+            val config = LinkConfiguration.parse(AgentWire.control(configuration, ThreeStoveAgentContract.KEY_LINK_CONFIG_JSON))
             return runtime.attach(config, requireNotNull(model), requireNotNull(capabilities), requireNotNull(callback), Process.myUid()).local
         }
     }

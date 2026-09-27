@@ -5,7 +5,7 @@ import android.os.*
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.AgentJson
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /** Bounded asynchronous settings, with callbacks fenced to the visible screen lifetime. */
 internal class SettingsConnection(private val context: Context, private val ready: () -> Unit) : ServiceConnection {

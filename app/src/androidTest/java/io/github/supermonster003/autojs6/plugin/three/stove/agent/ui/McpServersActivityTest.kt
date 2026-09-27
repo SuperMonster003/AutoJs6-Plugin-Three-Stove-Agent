@@ -8,7 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.concurrent.CountDownLatch

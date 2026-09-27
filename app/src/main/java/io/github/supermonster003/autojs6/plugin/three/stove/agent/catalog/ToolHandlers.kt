@@ -2,9 +2,9 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog
 
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 
-data class BridgeCall(val module: String, val method: String, val args: JsonArray, val permissions: List<String>, val timeoutMs: Long = AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS) {
+data class BridgeCall(val module: String, val method: String, val args: JsonArray, val permissions: List<String>, val timeoutMs: Long = ThreeStoveAgentContract.DEFAULT_TOOL_TIMEOUT_MS) {
     fun envelope(id: String): JsonObject = jsonObject("id" to id.json(), "module" to module.json(), "method" to method.json(),
         "args" to args.deepCopy(), "permissions" to JsonArray().apply { permissions.forEach { add(it) } }, "timeoutMs" to timeoutMs.json())
 }
@@ -34,7 +34,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
         fun str(key: String) = checkNotNull(args.string(key))
         fun num(key: String) = checkNotNull(args.number(key))
         if (spec.group == ToolGroup.FILES) WorkspacePath.requireValid(str("path"))
-        fun call(method: String, vararg values: JsonElement, timeout: Long = AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS): BridgeCall {
+        fun call(method: String, vararg values: JsonElement, timeout: Long = ThreeStoveAgentContract.DEFAULT_TOOL_TIMEOUT_MS): BridgeCall {
             require(method in spec.bridgeMapping) { "Undeclared bridge method" }
             return bridge(method, jsonArray(*values), timeout)
         }
@@ -84,7 +84,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             ToolNames.SCRIPT_CATALOG -> ToolPlan.Call(call("agent.listScripts", args))
             ToolNames.SCRIPT_RUN -> {
                 if (args["parameters"].toString().utf8Size() > 16 * 1024) invalid("Script parameters exceed the byte limit.")
-                ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = AiAgentContract.MAX_TOOL_TIMEOUT_MS))
+                ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS))
             }
             ToolNames.SCRIPT_RUN_SOURCE -> {
                 try { io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.DynamicScriptSource.validate(str("source")) }
@@ -115,7 +115,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
     private fun invalid(hint: String): Nothing = throw ToolFailure("TOOL_ARGUMENTS_INVALID", hint)
 
     companion object {
-        fun bridge(method: String, args: JsonArray, timeoutMs: Long = AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS): BridgeCall {
+        fun bridge(method: String, args: JsonArray, timeoutMs: Long = ThreeStoveAgentContract.DEFAULT_TOOL_TIMEOUT_MS): BridgeCall {
             val (module, operation) = method.split('.', limit = 2)
             val permissions = when (module) {
                 "accessibility" -> when (operation) {

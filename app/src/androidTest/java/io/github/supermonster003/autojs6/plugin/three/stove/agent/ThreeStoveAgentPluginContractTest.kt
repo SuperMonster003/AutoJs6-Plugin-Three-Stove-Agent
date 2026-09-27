@@ -15,7 +15,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.LauncherActivity
 import org.autojs.plugin.common.api.IPluginInfoProvider
 import org.autojs.plugin.common.api.PluginCapabilityKeys
-import org.autojs.plugin.ai.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.*
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * Verifies the host-facing activation and discovery contract against the installed APK:
  * the Wake Activity, the INFO service (with a real `getInfo()` round trip), the
- * `org.autojs.plugin.AI_AGENT` service living in its own process with its real Binder
+ * `org.autojs.plugin.THREE_STOVE_AGENT` service living in its own process with its real Binder
  * contract and host identity enforcement (roadmap P2.5), and the launcher entry.
  */
 @RunWith(AndroidJUnit4::class)
@@ -133,7 +133,7 @@ class ThreeStoveAgentPluginContractTest {
             assertEquals(ThreeStoveAgentPlugin.SERVICE_DESCRIPTOR, binder.interfaceDescriptor)
             assertTrue(binder.isBinderAlive)
             assertTrue(binder.pingBinder())
-            val api = IAiAgentPlugin.Stub.asInterface(binder)
+            val api = IThreeStoveAgentPlugin.Stub.asInterface(binder)
             assertCapabilities(api.capabilities)
             assertEquals(ThreeStoveAgentPlugin.ID, api.info.id)
             assertThrows(SecurityException::class.java) { api.attach(Bundle(), null, null, null) }
@@ -144,11 +144,11 @@ class ThreeStoveAgentPluginContractTest {
 
     private fun assertCapabilities(capabilities: Bundle) {
         assertEquals(ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, capabilities.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION))
-        assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION, AiAgentCapabilityKeys.CONTRACT_VERSION,
-            AiAgentCapabilityKeys.TOOL_GROUPS, AiAgentCapabilityKeys.FEATURES), capabilities.keySet())
-        assertEquals(AiAgentContract.CONTRACT_VERSION, capabilities.getInt(AiAgentCapabilityKeys.CONTRACT_VERSION))
-        assertArrayEquals(arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP, AiAgentCapabilityKeys.FEATURE_NATIVE_TOOLS,
-            AiAgentCapabilityKeys.FEATURE_VISION, AiAgentCapabilityKeys.FEATURE_MCP_TOOLS), capabilities.getStringArray(AiAgentCapabilityKeys.FEATURES))
+        assertEquals(setOf(PluginCapabilityKeys.REQUIRES_HOST_VERSION, ThreeStoveAgentCapabilityKeys.CONTRACT_VERSION,
+            ThreeStoveAgentCapabilityKeys.TOOL_GROUPS, ThreeStoveAgentCapabilityKeys.FEATURES), capabilities.keySet())
+        assertEquals(ThreeStoveAgentContract.CONTRACT_VERSION, capabilities.getInt(ThreeStoveAgentCapabilityKeys.CONTRACT_VERSION))
+        assertArrayEquals(arrayOf(ThreeStoveAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP, ThreeStoveAgentCapabilityKeys.FEATURE_NATIVE_TOOLS,
+            ThreeStoveAgentCapabilityKeys.FEATURE_VISION, ThreeStoveAgentCapabilityKeys.FEATURE_MCP_TOOLS), capabilities.getStringArray(ThreeStoveAgentCapabilityKeys.FEATURES))
     }
 
     private fun discoverSingleService(action: String, expectedClassName: String): ServiceInfo {
