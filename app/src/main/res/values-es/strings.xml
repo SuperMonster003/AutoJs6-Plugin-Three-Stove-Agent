@@ -195,12 +195,13 @@
     <string name="model_unpin">Dejar de fijar %1$s</string>
     <string name="plugin_description">Ejecuta tareas en lenguaje natural eligiendo scripts registrados y manejando la pantalla paso a paso</string>
     <string name="presets_actions">Acciones de %1$s</string>
-    <string name="presets_budget_note">Deje en blanco para heredar límites. Solo se pueden reducir. Valores iniciales: 40 pasos, 60 llamadas, 600000 ms (1800000 ms en tareas independientes), 300000 tokens, sujetos al host.</string>
+    <string name="presets_budget_note">Deje en blanco para heredar límites. Solo se pueden reducir. Valores iniciales: 60 pasos, 90 llamadas, 15 minutos (30 minutos en tareas independientes), 500000 tokens, sujetos al host.</string>
     <string name="presets_calls">Máximo de llamadas al modelo</string>
     <string name="presets_cautious">Prudente (confirmar todos los cambios)</string>
     <string name="presets_confirmation">Política de confirmación</string>
     <string name="presets_confirmation_note">Un preajuste solo puede endurecer a Prudente el modo elegido en Ajustes. El acceso completo se activa solo en Ajustes y nunca se guarda ni se comparte con un preajuste.</string>
     <string name="presets_context">Contexto fijo (hasta 8 KiB junto al contexto de la tarea)</string>
+    <string name="presets_context_section">Contexto</string>
     <string name="presets_copy">Copiar preajuste</string>
     <string name="presets_default_badge">Predeterminado</string>
     <string name="presets_delete">Eliminar preajuste</string>

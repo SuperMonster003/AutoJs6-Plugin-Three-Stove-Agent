@@ -37,6 +37,8 @@ class McpServersActivity : HostAppearanceActivity() {
     private val fields = linkedMapOf<String, TextInputEditText>()
     private val selections = linkedMapOf<String, MaterialCheckBox>()
     private val frozen = mutableListOf<Pair<View, Boolean>>()
+    /** Pinned below the editor: Delete (existing servers) and Save, like the presets and memory editors. */
+    private lateinit var bar: LinearLayout
     private lateinit var enabled: SettingRow
     internal lateinit var risk: ChoiceRow; private set
     private lateinit var token: TextInputEditText
@@ -54,6 +56,8 @@ class McpServersActivity : HostAppearanceActivity() {
         }
         scaffold = buildScaffold(getString(R.string.mcp_servers), contentPadding = ContentPadding.SCREEN)
         body = scaffold.content
+        bar = kit.actionBar().apply { visibility = View.GONE }
+        scaffold.root.addView(bar, LinearLayout.LayoutParams(-1, -2))
         setContentView(scaffold.root)
         message = kit.text(getString(R.string.interaction_loading), Ui.TEXT_BODY, palette.muted).also { body.addView(it) }
         connection = McpConnection(this, ::refresh)
@@ -97,6 +101,7 @@ class McpServersActivity : HostAppearanceActivity() {
     }.onFailure { error(R.string.mcp_error) } }
     private fun header(title: CharSequence) {
         frozen.clear(); body.removeAllViews(); fields.clear(); selections.clear()
+        bar.removeAllViews(); bar.visibility = View.GONE
         supportActionBar?.title = title
         message = kit.text("", Ui.TEXT_BODY, palette.danger).apply {
             tag = "mcp-message"; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -178,13 +183,14 @@ class McpServersActivity : HostAppearanceActivity() {
                 "mcp-tool-$name", supported && name in selected).apply { isEnabled = supported && !blocked; textDirection = View.TEXT_DIRECTION_LTR }
             tool.string("description")?.takeIf { it.isNotBlank() }?.let { kit.caption(body, AgentJson.truncate(it, 256)) }
         }
-        body.addView(kit.filledButton(getString(R.string.settings_save), "mcp-save", ::save).apply { isEnabled = !blocked && !busy },
-            LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SECTION_GAP) })
-        if (editing != null) body.addView(kit.outlinedButton(getString(R.string.mcp_delete), "mcp-delete", danger = true) {
+        bar.visibility = View.VISIBLE
+        if (editing != null) bar.addView(kit.textButton(getString(R.string.mcp_delete), "mcp-delete", danger = true) {
             prompt = kit.confirmDialog(getString(R.string.mcp_delete), getString(R.string.mcp_delete_confirm), getString(R.string.mcp_delete), destructive = true) {
                 mutate("delete", jsonObject("revision" to editingRevision.json(), "id" to editing!!.json()))
             }
-        }.apply { isEnabled = !blocked && !busy }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
+        }.apply { isEnabled = !blocked && !busy })
+        bar.addView(View(this), LinearLayout.LayoutParams(0, 1, 1f))
+        bar.addView(kit.filledButton(getString(R.string.settings_save), "mcp-save", ::save).apply { isEnabled = !blocked && !busy })
         pristine = readDraft()
         if (busy) freeze()
     }
@@ -216,6 +222,7 @@ class McpServersActivity : HostAppearanceActivity() {
             if (view is ViewGroup) for (index in 0 until view.childCount) visit(view.getChildAt(index))
         }
         for (index in 0 until body.childCount) visit(body.getChildAt(index))
+        for (index in 0 until bar.childCount) visit(bar.getChildAt(index))
     }
     private fun unfreeze() { frozen.forEach { (view, enabled) -> view.isEnabled = enabled }; frozen.clear() }
     private fun probe() {

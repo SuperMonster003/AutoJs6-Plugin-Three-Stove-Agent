@@ -195,12 +195,13 @@
     <string name="model_unpin">取消置頂 %1$s</string>
     <string name="plugin_description">按自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
     <string name="presets_actions">%1$s 的操作</string>
-    <string name="presets_budget_note">留空沿用任務限制, 填寫值只能收緊. 預設: 40 步, 60 次模型調用, 600000 毫秒 (託管任務 1800000 毫秒), 300000 token, 同時受宿主限制.</string>
+    <string name="presets_budget_note">留空沿用任務限制, 填寫值只能收緊. 預設: 60 步, 90 次模型調用, 15 分鐘 (託管任務 30 分鐘), 500000 token, 同時受宿主限制.</string>
     <string name="presets_calls">最大模型調用次數</string>
     <string name="presets_cautious">審慎 (所有改變狀態的操作均需確認)</string>
     <string name="presets_confirmation">確認策略</string>
     <string name="presets_confirmation_note">預設只能在設定頁 \"操作權限\" 的基礎上收緊為審慎. 完全訪問只能在設定頁開啟, 不會隨預設儲存或分發.</string>
     <string name="presets_context">固定上下文 (與任務上下文合計最多 8 KiB)</string>
+    <string name="presets_context_section">上下文</string>
     <string name="presets_copy">複製預設</string>
     <string name="presets_default_badge">預設</string>
     <string name="presets_delete">刪除預設</string>

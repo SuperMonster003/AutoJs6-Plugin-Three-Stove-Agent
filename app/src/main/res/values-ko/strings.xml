@@ -195,12 +195,13 @@
     <string name="model_unpin">%1$s 고정 해제</string>
     <string name="plugin_description">등록된 스크립트를 선택하고 화면을 단계별로 조작하여 자연어 작업을 실행</string>
     <string name="presets_actions">%1$s 작업</string>
-    <string name="presets_budget_note">비워 두면 작업 제한을 따릅니다. 값을 줄일 수만 있습니다. 기본값: 40단계, 모델 호출 60회, 600000 ms (분리된 작업은 1800000 ms), 300000토큰. 호스트 제한도 적용됩니다.</string>
+    <string name="presets_budget_note">비워 두면 작업 제한을 따릅니다. 값을 줄일 수만 있습니다. 기본값: 60단계, 모델 호출 90회, 15분 (분리된 작업은 30분), 500000토큰. 호스트 제한도 적용됩니다.</string>
     <string name="presets_calls">최대 모델 호출 수</string>
     <string name="presets_cautious">신중 (상태를 바꾸는 모든 작업 확인)</string>
     <string name="presets_confirmation">확인 정책</string>
     <string name="presets_confirmation_note">프리셋은 설정에서 고른 작업 권한을 신중으로 좁힐 수만 있습니다. 전체 접근은 설정에서만 켤 수 있으며 프리셋에 저장되거나 공유되지 않습니다.</string>
     <string name="presets_context">고정 문맥 (작업 문맥과 합해 최대 8 KiB)</string>
+    <string name="presets_context_section">문맥</string>
     <string name="presets_copy">프리셋 복사</string>
     <string name="presets_default_badge">기본</string>
     <string name="presets_delete">프리셋 삭제</string>

@@ -1,7 +1,7 @@
 # Interface captures
 
 Captured on 2026-09-28 from production views after the third UI pass,
-version 1.2.0 / build 137. Android API 36.1 (google_apis, x86_64), disposable
+version 1.2.0 / build 140. Android API 36.1 (google_apis, x86_64), disposable
 pixel_7 emulator, 1080 x 2400, density 420, font scale 1.0. These are interface
 examples with synthetic tasks and scripted replies, not real-model acceptance
 results.
@@ -24,8 +24,8 @@ the bottom of the settings page after scrolling has finished.
 | app-settings-more-dark.png | 1080 x 2400 | 65d8842881a0204233be0c5e4b259b794e786638ea00e9d2840d7cd5861b6998 |
 | app-settings-more-light.png | 1080 x 2400 | 9a0df9ae35720af8200760c569e1ca1b319842fcc66a8cd2ed7a7b301baf53f0 |
 | confirmation.png | 1024 x 1965 | 8591e4bc2ff5af4b3cec629685e31b9ae9d4ad61d6b3fb30ec47a5b3b0fdf22d |
-| detail.png | 1080 x 2400 | 0e3f9a9dcdc3e935249bca264673d2f835ce5058b3fef9c74ed5ecab37704fae |
-| floating.png | 945 x 1052 | 0c12f581ae1f0f97472dabf28232de84b5d7747e0e47837c6716178e6205a9a1 |
+| detail.png | 1080 x 2400 | 077815d7790ae8fbe0ce193391d9db89cccb85d001fea67c162a5f50da0b7547 |
+| floating.png | 945 x 1062 | 203069549a9a874038a54e1f1941a348567e1019d1c922d64b8863954d7bf6bb |
 | workbench.png | 1080 x 2400 | e604495df8633ac735d237611923de4eb6caa92dfa92cbc06585fcc586e35122 |
 
 ## Reproduce
