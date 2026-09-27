@@ -41,6 +41,10 @@ internal data class SettingsDraft(val settings: AgentSettings) {
     })
 
     fun withVoice(enabled: Boolean) = copy(settings = settings.copy(voice = enabled))
+    fun withFailureAlert(channel: String, enabled: Boolean): SettingsDraft {
+        require(channel in AgentSettings.ALERT_CHANNELS)
+        return copy(settings = settings.copy(failureAlerts = if (enabled) settings.failureAlerts + channel else settings.failureAlerts - channel))
+    }
     fun withFloating(enabled: Boolean) = copy(settings = settings.copy(floating = enabled))
 
     companion object {

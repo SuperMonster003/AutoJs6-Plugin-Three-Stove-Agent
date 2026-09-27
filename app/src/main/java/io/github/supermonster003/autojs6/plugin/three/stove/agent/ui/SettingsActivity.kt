@@ -14,6 +14,7 @@ import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.AgentSettings
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.BudgetLimits
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.SettingsCodec
@@ -138,6 +139,14 @@ class SettingsActivity : HostAppearanceActivity() {
             } else updater.apply { it.withFloating(enabled) }
         }, divider = false)
 
+        page.addView(sectionHeader(getString(R.string.settings_alerts_section)))
+        val alertRows = listOf(Triple(AgentSettings.ALERT_NOTIFICATION, R.string.settings_alert_notification, R.drawable.ic_task),
+            Triple(AgentSettings.ALERT_TOAST, R.string.settings_alert_toast, R.drawable.ic_bubble), Triple(AgentSettings.ALERT_DIALOG, R.string.settings_alert_dialog, R.drawable.ic_description))
+        for ((channel, label, icon) in alertRows) add(page, "alert-$channel", switchRow(getString(label), null, icon, false, "alert-$channel") { enabled ->
+            updater.apply { it.withFailureAlert(channel, enabled) }
+        }, divider = channel != AgentSettings.ALERT_DIALOG)
+        page.addView(pageCaption(getString(R.string.settings_alerts_note)))
+
         page.addView(sectionHeader(getString(R.string.settings_data)))
         for ((kind, title, icon) in listOf(Triple("history", R.string.history_title, R.drawable.ic_history),
             Triple("presets", R.string.presets_title, R.drawable.ic_layers), Triple("memory", R.string.memory_title, R.drawable.ic_lightbulb))) {
@@ -164,7 +173,7 @@ class SettingsActivity : HostAppearanceActivity() {
 
         page.addView(sectionHeader(getString(R.string.settings_section_information)))
         add(page, "about", settingRow(getString(R.string.ui_about), getString(R.string.about_summary), R.drawable.ic_info, "about") { open(AboutActivity::class.java) }, divider = false)
-        for (key in listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating")) rows.getValue(key).setEnabled(false)
+        for (key in SETTING_KEYS) rows.getValue(key).setEnabled(false)
     }
 
     private fun Kit.pageCaption(value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
@@ -217,7 +226,7 @@ class SettingsActivity : HostAppearanceActivity() {
                 Formatter.formatShortFileSize(this, statistics.number("bytes") ?: 0)))
             clearButtons.getValue(kind).isEnabled = !busy
         }
-        for (key in listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating")) rows.getValue(key).setEnabled(true)
+        for (key in SETTING_KEYS) rows.getValue(key).setEnabled(true)
     }
     private fun renderSettings(draft: SettingsDraft) {
         val settings = draft.settings
@@ -232,6 +241,7 @@ class SettingsActivity : HostAppearanceActivity() {
             count("maxTotalTokens", defaults.maxTotalTokens)))
         limitRows.forEach { (key, row) -> row.setSummary(limitSummary(draft, key)) }
         rows.getValue("voice").switch!!.isChecked = settings.voice
+        for (channel in AgentSettings.ALERT_CHANNELS) rows.getValue("alert-$channel").switch!!.isChecked = channel in settings.failureAlerts
         rows.getValue("floating").switch!!.isChecked = settings.floating && Settings.canDrawOverlays(this)
         rows.values.forEach(SettingRow::refreshDescription)
     }
@@ -314,3 +324,7 @@ class SettingsActivity : HostAppearanceActivity() {
             SettingsDraft.DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
     }
 }
+
+/** Rows that follow the private settings snapshot; disabled until it loads. */
+private val SETTING_KEYS = listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating",
+    "alert-" + AgentSettings.ALERT_NOTIFICATION, "alert-" + AgentSettings.ALERT_TOAST, "alert-" + AgentSettings.ALERT_DIALOG)

@@ -37,6 +37,7 @@ internal class AgentRuntime internal constructor(val context: Context) {
     fun endMaintenance() { synchronized(admissionLock) { maintenance = false } }
     @Volatile var current: HostLink? = null; private set
     val interactions by lazy { InteractionPresentation(this) }
+    val alerts by lazy { FailureAlerts(this) }
     fun taskChanged() { ThreeStoveAgentTaskForegroundService.changed(); interactions.changed(); presentationChanged() }
     fun presentationChanged() { main.post {
         if (!initialized) return@post
