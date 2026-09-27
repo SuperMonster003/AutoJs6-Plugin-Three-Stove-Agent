@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.runner
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import org.autojs.plugin.host.capability.api.HostCapabilityContract
 import java.util.Locale
 
 enum class RunState {
@@ -42,7 +43,7 @@ class RunOptions(
     val limits: BudgetLimits = BudgetLimits.defaults(detached),
     val confirmationMode: ConfirmationMode = ConfirmationMode.DEFAULT,
     val locale: String = "en",
-    val modelTimeoutMs: Long = 300_000,
+    val modelTimeoutMs: Long = RunLimits.TOOL_TIMEOUT_MS,
     val maximumOutputTokens: Int = 2048,
 ) {
     init {
@@ -134,7 +135,7 @@ class PreparedTool(val invocation: ToolInvocation, val metadata: ToolMetadata, v
 class ToolReply(result: JsonElement, val script: io.github.supermonster003.autojs6.plugin.ai.agent.scripts.ScriptOutcome? = null,
                 images: List<ModelImage> = emptyList(), val error: RunError? = null) {
     val images = images.toList().also { require(it.size <= 1) }
-    private val data = AgentJson.parse(result.toString(), 512 * 1024)
+    private val data = AgentJson.parse(result.toString(), HostCapabilityContract.MAX_BRIDGE_INLINE_JSON_BYTES)
     val result: JsonElement get() = data.deepCopy()
     override fun toString() = "ToolReply(bytes=${StepJournal.bytes(data)})"
 }

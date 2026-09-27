@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.runner
 
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import org.autojs.plugin.ai.agent.api.AiAgentContract
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -8,6 +9,16 @@ class BudgetTest {
     private fun exceeds(dimension: String, block: () -> Unit) {
         val error = assertThrows(BudgetExceeded::class.java, block)
         assertEquals(dimension, error.dimension)
+    }
+    @Test fun runLimitsMirrorTheHostContract() {
+        assertEquals(AiAgentContract.MAX_STEPS, RunLimits.STEPS); assertEquals(AiAgentContract.MAX_MODEL_CALLS, RunLimits.MODEL_CALLS)
+        assertEquals(AiAgentContract.MAX_RUN_QUEUE, RunLimits.QUEUED_RUNS); assertEquals(AiAgentContract.MAX_DURATION_MS, RunLimits.DURATION_MS)
+        assertEquals(AiAgentContract.MAX_DETACHED_DURATION_MS, RunLimits.DETACHED_DURATION_MS)
+        assertEquals(AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS, RunLimits.DEFAULT_TOOL_TIMEOUT_MS)
+        assertEquals(AiAgentContract.MAX_TOOL_TIMEOUT_MS, RunLimits.TOOL_TIMEOUT_MS)
+        assertEquals(AiAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK, RunLimits.TOKENS)
+        assertEquals(AiAgentContract.MAX_RUN_JOURNAL_BYTES, RunLimits.JOURNAL_BYTES)
+        assertTrue(RunLimits.DEFAULT_DURATION_MS < RunLimits.DEFAULT_DETACHED_DURATION_MS && RunLimits.DEFAULT_DETACHED_DURATION_MS <= RunLimits.DURATION_MS)
     }
     @Test fun defaultsAndOwnershipRespectContractCeilings() {
         val limits = BudgetLimits()

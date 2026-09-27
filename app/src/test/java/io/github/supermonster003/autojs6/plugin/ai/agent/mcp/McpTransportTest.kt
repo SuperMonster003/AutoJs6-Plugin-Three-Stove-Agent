@@ -20,6 +20,7 @@ class McpTransportTest {
             val discovery = awaitPort<McpDiscovery> { fixture.source().probe(fixture.profile(token = "fixture-secret"), 3000, it) }.success()
             assertEquals(listOf("echo"), discovery.tools.map { it.name })
             assertEquals(listOf("initialize", "notifications/initialized", "tools/list"), fixture.methods.take(3))
+            assertEquals(McpFixture.CLIENT_VERSION, fixture.clientVersions.firstOrNull())
             assertEquals(protocol, fixture.versions[2]); assertEquals("fixture-session", fixture.sessions[2])
             assertEquals(3, authenticated.get())
         }

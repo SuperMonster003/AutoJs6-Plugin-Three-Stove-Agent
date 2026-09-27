@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-/** P2.5 adapts these calls to IAiAgentModelBroker, including Bundle/FD ownership and death.
+/** Implemented by the Binder adapter (BinderModelBroker) over IAiAgentModelBroker, including Bundle/FD ownership and death.
  * Both calls must return promptly. Events contain complete bounded JSON, never partial FD reads.
  * Implementations translate Binder death to HOST_UNAVAILABLE, with no raw exception logging. */
 interface ModelBrokerTransport {
@@ -61,7 +61,7 @@ class ModelClient(
         if (!target.supportsOutputLimit) { callback(PortResult.Failure(RunError.TARGET_UNSUPPORTED)); return Cancellation.NONE }
         val id = "decision-${UUID.randomUUID()}"
         val request = try {
-            require(timeoutMs <= 600_000 && maximumOutputTokens in 1..65_536)
+            require(timeoutMs <= RunLimits.TOOL_TIMEOUT_MS && maximumOutputTokens in 1..65_536)
             val format = requireNotNull(input.format)
             require(format.protocol == target.protocol && (!format.degraded || input.schemaBytes == 0))
             require(format.degraded || format.nativeTools || target.structuredJson)

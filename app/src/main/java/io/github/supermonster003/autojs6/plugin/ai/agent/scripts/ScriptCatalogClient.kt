@@ -21,7 +21,7 @@ class ScriptCatalogClient(private val nowMs: () -> Long) : AutoCloseable {
 
     fun load(roots: Set<String>, refresh: Boolean, timeoutMs: Long, source: ScriptCatalogSource,
              callback: (PortResult<ScriptCatalogSnapshot>) -> Unit): Cancellation {
-        require(timeoutMs in 1..300_000)
+        require(timeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS)
         val key = ScriptRoots.validate(roots).sorted()
         val request: Request
         synchronized(this) {

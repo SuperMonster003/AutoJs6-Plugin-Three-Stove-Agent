@@ -19,6 +19,7 @@
         "Les cartes de confirmation ajoutent Toujours autoriser pour cette session: jusqu'à la fin de la tâche, le même outil au même niveau de risque s'exécute sans nouvelle demande, même avec d'autres arguments. Les paiements demandent leur propre accord; les scripts générés et les propositions de mémoire peuvent aussi être autorisés pour la session."
       ],
       "fix": [
+        "Les capacites du plugin declarent desormais native-tools et vision, les limites d'execution sont liees directement aux constantes du contrat hote, la version du client MCP provient du paquet installe et les litteraux disperses de delai et de taille referencent le contrat",
         "Un service d'accessibilité AutoJs6 arrêté est signalé au modèle par A11Y_SERVICE_NOT_RUNNING au lieu d'une erreur d'arguments"
       ],
       "improvement": [

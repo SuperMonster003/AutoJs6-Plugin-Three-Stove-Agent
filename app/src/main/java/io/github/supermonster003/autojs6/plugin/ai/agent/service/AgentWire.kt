@@ -78,7 +78,7 @@ internal class OwnedJson(private val inline: String?, private val descriptor: Pa
         check(!closed)
         if (inline != null) return inline.also { require(it.toByteArray(Charsets.UTF_8).size <= maximum); AgentJson.checkUnicode(it) }
         val fd = checkNotNull(descriptor).fileDescriptor
-        val end = SystemClock.elapsedRealtime() + timeoutMs.coerceIn(1, 300_000)
+        val end = SystemClock.elapsedRealtime() + timeoutMs.coerceIn(1, C.MAX_TOOL_TIMEOUT_MS)
         val output = ByteArrayOutputStream()
         val bytes = ByteArray(8192)
         val poll = StructPollfd().apply { this.fd = fd; events = (OsConstants.POLLIN or OsConstants.POLLHUP or OsConstants.POLLERR).toShort() }

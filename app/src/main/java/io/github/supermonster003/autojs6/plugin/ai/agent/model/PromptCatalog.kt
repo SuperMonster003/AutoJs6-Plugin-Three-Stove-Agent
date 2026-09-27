@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.model
 
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.runner.RunLimits
 import java.util.Locale
 
 /** Assets supply rules; user/screen/script/memory content is inserted exactly once as JSON data. */
@@ -53,7 +54,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     }
 
     fun observation(language: String, step: Int, tool: String, elapsedMs: Long, result: String, budget: JsonObject): String {
-        require(step in 1..200 && catalog[tool] != null && elapsedMs in 0..3_600_000)
+        require(step in 1..RunLimits.STEPS && catalog[tool] != null && elapsedMs in 0..RunLimits.DETACHED_DURATION_MS)
         val observation = AgentJson.objectOf(result, 24 * 1024)
         val budgetCopy = AgentJson.objectOf(budget.toString(), 4 * 1024)
         val data = jsonObject("step" to step.json(), "tool" to tool.json(), "elapsedMs" to elapsedMs.json(),
