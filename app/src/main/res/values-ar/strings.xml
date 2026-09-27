@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">الاقتران مطلوب. وافق على هذا العميل في تطبيق خادم MCP ثم أعد الاكتشاف.</string>
     <string name="mcp_probe">اكتشاف أدوات الخادم المحفوظ</string>
     <string name="mcp_probe_error">فشل الاكتشاف. تحقق من الخادم والشبكة والأذونات وحدود الدليل.</string>
+    <string name="mcp_risk">مستوى الخطورة</string>
     <string name="mcp_risk_note">تسري سياسة المخاطر المحلية على كل الأدوات المختارة. الافتراضي حساس. أوصاف الخادم وتعليقاته لا تخفف هذه السياسة.</string>
     <string name="mcp_save_before_probe">احفظ تغييرات العنوان أو الرمز قبل الاكتشاف.</string>
     <string name="mcp_selection_note">اختر الأدوات بشكل صريح. الحد 32 أداة لجميع الخوادم. لا يمكن اختيار مخططات الإدخال غير المدعومة.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">خوادم MCP</string>
     <string name="mcp_setup_note">الخوادم ومجموعة أدوات MCP معطلة افتراضيا. اضبط الرموز والاقتران في تطبيق الخادم. يقرأ الاكتشاف دليل الخادم المحفوظ فقط ولا يستدعي نموذجا.</string>
+    <string name="mcp_state_off">متوقف</string>
+    <string name="mcp_state_on">مفعل</string>
     <string name="mcp_token">رمز Bearer</string>
     <string name="mcp_token_empty">لا يوجد رمز محفوظ</string>
     <string name="mcp_token_note">اتركه فارغا للاحتفاظ بالرمز. اختر المسح لحذفه. لا يعرض الرمز مجددا ويحذف الإدخال غير المحفوظ عند مغادرة الشاشة.</string>
     <string name="mcp_token_saved">الرمز محفوظ (مخفي)</string>
+    <string name="mcp_tools">الأدوات</string>
     <string name="mcp_unsupported">%1$s - أداة غير مدعومة</string>
     <string name="memory_accept">تأكيد هذا الإدخال</string>
     <string name="memory_cancel_import">إلغاء بقية الاستيراد</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">تعذرت قراءة الذاكرة أو حفظها. تحقق من الملف والحدود وقيود بيانات الاعتماد والنطاق أو حدث القائمة إذا تغير الإدخال.</string>
     <string name="memory_export">تصدير JSON</string>
     <string name="memory_export_notice">يتضمن JSON القيم ومعرفات المهام المصدرية. اختر موقعا خاصا للحفظ.</string>
-    <string name="memory_identity">المفتاح: %1$s\nالنطاق: %2$s</string>
     <string name="memory_import">استيراد JSON</string>
     <string name="memory_import_progress">مراجعة الاستيراد %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">سيتم استبدال القيمة المحفوظة التالية:</string>
     <string name="memory_save">حفظ التغييرات</string>
     <string name="memory_save_confirm">حفظ قيمة التفضيل المعدلة?</string>
-    <string name="memory_scope">النطاق</string>
     <string name="memory_scope_missing">أنشئ الإعداد المسبق المطابق قبل الاستيراد إلى هذا النطاق أو تخط هذا الإدخال.</string>
+    <string name="memory_search">البحث في الذاكرة</string>
     <string name="memory_skip">تخطي الإدخال</string>
     <string name="memory_source">معرف المهمة المصدرية: %1$s</string>
     <string name="memory_title">الذاكرة</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">لم يعد AutoJs6 يوفر هذا النموذج. اختر نموذجا آخر قبل بدء مهمة.</string>
     <string name="model_unpin">إلغاء تثبيت %1$s</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
+    <string name="presets_actions">إجراءات %1$s</string>
     <string name="presets_budget_note">اترك الحقول فارغة لوراثة حدود المهمة. يمكن تقليلها فقط. القيم الافتراضية: 40 خطوة, 60 استدعاء, 600000 مللي ثانية (1800000 للمهام المستقلة), 300000 رمز, مع مراعاة حدود المضيف.</string>
     <string name="presets_calls">الحد الأقصى لاستدعاءات النموذج</string>
     <string name="presets_cautious">حذرة (تأكيد كل إجراء يغير الحالة)</string>
     <string name="presets_confirmation">سياسة التأكيد</string>
     <string name="presets_context">السياق الثابت (حتى 8 KiB مع سياق المهمة)</string>
     <string name="presets_copy">نسخ الإعداد المسبق</string>
-    <string name="presets_default_item">%1$s (افتراضي)</string>
+    <string name="presets_default_badge">افتراضي</string>
     <string name="presets_delete">حذف الإعداد المسبق</string>
     <string name="presets_delete_confirm">حذف %1$s? ستبقى المهام والسجل. إذا كان هو الإعداد الافتراضي, فستستخدم المهام الجديدة default.</string>
-    <string name="presets_duration">المدة القصوى (مللي ثانية)</string>
     <string name="presets_edit">تعديل الإعداد المسبق</string>
     <string name="presets_error">تعذر قراءة الإعداد أو حفظه. تحقق من عدم تكرار الاسم والحدود وحجم السياق والمجموعات والمجلدات المسموح بها ثم أعد المحاولة.</string>
     <string name="presets_group_act">إجراءات الشاشة</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">حدود المهمة</string>
     <string name="ui_budget_invalid">أدخل عددا صحيحا بين 1 و %1$d, أو اتركه فارغا للقيمة الافتراضية.</string>
     <string name="ui_choose_model">اختيار نموذج</string>
-    <string name="ui_collapse">طي</string>
-    <string name="ui_expand">توسيع</string>
+    <string name="ui_discard">تجاهل التغييرات</string>
     <string name="ui_home_subtitle">اختر نموذجا, صف هدفك, وتابع تقدم المهمة.</string>
     <string name="ui_home_title">من الفكرة إلى التنفيذ</string>
     <string name="ui_model_note">ينطبق على المهام الجديدة من لوحة المهام والكرة العائمة. لا تتغير الإعدادات المسبقة ولا المهام الجارية.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">قوالب اختيارية للأدوات والحدود والسياق. بدّل النماذج مباشرة من الشاشة الرئيسية.</string>
     <string name="ui_task_section">المهام والقدرات</string>
     <string name="ui_theme_amber">كهرماني</string>
+    <string name="ui_unsaved_note">المغادرة دون حفظ? ستفقد التغييرات في هذه الصفحة.</string>
+    <string name="ui_unsaved_title">تغييرات غير محفوظة</string>
     <string name="update_available">تحديث متاح: %1$s</string>
     <string name="update_check">التحقق من التحديثات</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">جار التحقق من التحديثات...</string>

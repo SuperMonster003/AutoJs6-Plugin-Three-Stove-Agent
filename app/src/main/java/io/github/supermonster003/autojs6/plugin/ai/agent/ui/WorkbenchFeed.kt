@@ -178,7 +178,7 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         runs.forEach { item ->
             val id = item.string("runId") ?: return@forEach
             val (tone, icon) = WorkbenchText.tone(item)
-            val summary = listOfNotNull(WorkbenchText.state(context, item), HistoryViews.date(context, item.number("startedAt") ?: 0),
+            val summary = listOfNotNull(WorkbenchText.state(context, item), Formats.date(context, item.number("startedAt") ?: 0),
                 item.getAsJsonObject("model")?.string("name")).joinToString(" · ")
             val entry = kit.settingRow(item.string("goal").orEmpty(), summary, icon, "recent-$id") { actions.openDetail(id) }
             (entry.view.getChildAt(0) as? ImageView)?.setImageDrawable(kit.tintedDrawable(icon, kit.toneColors(tone).second))

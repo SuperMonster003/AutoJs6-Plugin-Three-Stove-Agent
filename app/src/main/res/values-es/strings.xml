@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">Se requiere emparejamiento. Autoriza este cliente en la aplicación del servidor MCP y vuelve a descubrir herramientas.</string>
     <string name="mcp_probe">Descubrir herramientas del servidor guardado</string>
     <string name="mcp_probe_error">Falló el descubrimiento. Revisa el servidor, red, permisos y límites del catálogo.</string>
+    <string name="mcp_risk">Nivel de riesgo</string>
     <string name="mcp_risk_note">La política local de riesgo se aplica a todas las herramientas seleccionadas. Sensible de forma predeterminada. Las descripciones y anotaciones del servidor nunca reducen esta política.</string>
     <string name="mcp_save_before_probe">Guarda los cambios de URL o token antes del descubrimiento.</string>
     <string name="mcp_selection_note">Selecciona las herramientas individualmente. Máximo 32 entre todos los servidores. Los esquemas no compatibles no se pueden seleccionar.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">Servidores MCP</string>
     <string name="mcp_setup_note">Los servidores y el grupo MCP están desactivados inicialmente. Configura tokens y emparejamiento en la aplicación del servidor. El descubrimiento solo lee su catálogo, sin llamar a un modelo.</string>
+    <string name="mcp_state_off">Desactivado</string>
+    <string name="mcp_state_on">Activado</string>
     <string name="mcp_token">Token Bearer</string>
     <string name="mcp_token_empty">No hay token guardado</string>
     <string name="mcp_token_note">Déjalo vacío para conservar el token. Marca Borrar para eliminarlo. Los tokens no vuelven a mostrarse y los no guardados se descartan al salir de esta pantalla.</string>
     <string name="mcp_token_saved">Token guardado (oculto)</string>
+    <string name="mcp_tools">Herramientas</string>
     <string name="mcp_unsupported">%1$s - Herramienta no compatible</string>
     <string name="memory_accept">Confirmar esta entrada</string>
     <string name="memory_cancel_import">Cancelar el resto</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">No se puede leer o guardar la memoria. Compruebe el archivo, los límites, las restricciones de credenciales y el ámbito, o actualice si la entrada cambió.</string>
     <string name="memory_export">Exportar JSON</string>
     <string name="memory_export_notice">El JSON incluye valores e ID de las tareas de origen. Elija una ubicación privada.</string>
-    <string name="memory_identity">Clave: %1$s\nÁmbito: %2$s</string>
     <string name="memory_import">Importar JSON</string>
     <string name="memory_import_progress">Revisar importación %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">Se reemplazará este valor guardado:</string>
     <string name="memory_save">Guardar cambios</string>
     <string name="memory_save_confirm">Guardar el valor modificado?</string>
-    <string name="memory_scope">Ámbito</string>
     <string name="memory_scope_missing">Cree el preajuste correspondiente antes de importar en este ámbito, u omita esta entrada.</string>
+    <string name="memory_search">Buscar en la memoria</string>
     <string name="memory_skip">Omitir entrada</string>
     <string name="memory_source">ID de tarea de origen: %1$s</string>
     <string name="memory_title">Memoria</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6 ya no ofrece este modelo. Elige otro antes de iniciar una tarea.</string>
     <string name="model_unpin">Dejar de fijar %1$s</string>
     <string name="plugin_description">Ejecuta tareas en lenguaje natural eligiendo scripts registrados y manejando la pantalla paso a paso</string>
+    <string name="presets_actions">Acciones de %1$s</string>
     <string name="presets_budget_note">Deje en blanco para heredar límites. Solo se pueden reducir. Valores iniciales: 40 pasos, 60 llamadas, 600000 ms (1800000 ms en tareas independientes), 300000 tokens, sujetos al host.</string>
     <string name="presets_calls">Máximo de llamadas al modelo</string>
     <string name="presets_cautious">Prudente (confirmar todos los cambios)</string>
     <string name="presets_confirmation">Política de confirmación</string>
     <string name="presets_context">Contexto fijo (hasta 8 KiB junto al contexto de la tarea)</string>
     <string name="presets_copy">Copiar preajuste</string>
-    <string name="presets_default_item">%1$s (predeterminado)</string>
+    <string name="presets_default_badge">Predeterminado</string>
     <string name="presets_delete">Eliminar preajuste</string>
     <string name="presets_delete_confirm">Eliminar %1$s? Se conservan las tareas y el historial. Si es el predeterminado, las nuevas tareas usarán default.</string>
-    <string name="presets_duration">Duración máxima (ms)</string>
     <string name="presets_edit">Editar preajuste</string>
     <string name="presets_error">No se pudo leer o guardar el preajuste. Revise el nombre único, los límites, el tamaño del contexto y los grupos o carpetas permitidos e inténtelo de nuevo.</string>
     <string name="presets_group_act">Acciones en pantalla</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">Límites de tarea</string>
     <string name="ui_budget_invalid">Introduce un entero entre 1 y %1$d, o deja el campo vacío para usar el valor predeterminado.</string>
     <string name="ui_choose_model">Elegir modelo</string>
-    <string name="ui_collapse">Contraer</string>
-    <string name="ui_expand">Expandir</string>
+    <string name="ui_discard">Descartar cambios</string>
     <string name="ui_home_subtitle">Elige un modelo, describe tu objetivo y sigue el progreso.</string>
     <string name="ui_home_title">De la idea a la acción</string>
     <string name="ui_model_note">Se aplica a las tareas nuevas del panel y de la burbuja flotante. No cambia los preajustes ni las tareas en curso.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">Plantillas opcionales para herramientas, límites y contexto. Cambia de modelo desde el inicio.</string>
     <string name="ui_task_section">Tareas y capacidades</string>
     <string name="ui_theme_amber">Ámbar</string>
+    <string name="ui_unsaved_note">Salir sin guardar? Se perderán los cambios de esta página.</string>
+    <string name="ui_unsaved_title">Cambios sin guardar</string>
     <string name="update_available">Actualización disponible: %1$s</string>
     <string name="update_check">Buscar actualizaciones</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">Buscando actualizaciones...</string>

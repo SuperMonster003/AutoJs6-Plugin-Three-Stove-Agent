@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">需要配對. 請在 MCP 伺服器應用程式中核准此用戶端, 然後重新探索工具.</string>
     <string name="mcp_probe">從已儲存的伺服器探索工具</string>
     <string name="mcp_probe_error">工具探索失敗. 請檢查伺服器, 網路, 權限和目錄限額.</string>
+    <string name="mcp_risk">風險等級</string>
     <string name="mcp_risk_note">本機風險原則適用於每個選取的工具, 預設為敏感. 伺服器描述和註解不能降低此原則.</string>
     <string name="mcp_save_before_probe">探索工具前請儲存端點或權杖的修改.</string>
     <string name="mcp_selection_note">請逐項選擇工具. 所有伺服器最多選擇 32 個工具. 不支援的輸入結構無法選擇.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">MCP 伺服器</string>
     <string name="mcp_setup_note">伺服器和 MCP 工具群組預設關閉. 請在伺服器應用程式中設定權杖和配對. 工具探索僅讀取已儲存伺服器的目錄, 不呼叫模型.</string>
+    <string name="mcp_state_off">已關閉</string>
+    <string name="mcp_state_on">已啟用</string>
     <string name="mcp_token">Bearer 權杖</string>
     <string name="mcp_token_empty">未儲存權杖</string>
     <string name="mcp_token_note">留空保留已儲存的權杖, 勾選清除可將其移除. 權杖不會再次顯示, 離開此頁面將捨棄未儲存的權杖.</string>
     <string name="mcp_token_saved">已儲存權杖 (隱藏)</string>
+    <string name="mcp_tools">工具</string>
     <string name="mcp_unsupported">%1$s - 不支援的工具</string>
     <string name="memory_accept">確認此項目</string>
     <string name="memory_cancel_import">取消其餘匯入</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">無法讀取或儲存記憶. 請檢查檔案, 大小限制, 憑證限制及作用域; 若項目已變更, 請重新整理.</string>
     <string name="memory_export">匯出 JSON</string>
     <string name="memory_export_notice">JSON 包含偏好值和來源任務 ID. 請選擇私密的儲存位置.</string>
-    <string name="memory_identity">鍵: %1$s\n作用域: %2$s</string>
     <string name="memory_import">匯入 JSON</string>
     <string name="memory_import_progress">審閱匯入 %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">將取代以下已儲存的值:</string>
     <string name="memory_save">儲存修改</string>
     <string name="memory_save_confirm">儲存修改後的偏好值?</string>
-    <string name="memory_scope">作用域</string>
     <string name="memory_scope_missing">請先建立對應預設再匯入此作用域, 或略過此項目.</string>
+    <string name="memory_search">搜尋記憶</string>
     <string name="memory_skip">略過項目</string>
     <string name="memory_source">來源任務 ID: %1$s</string>
     <string name="memory_title">記憶</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6 已不再提供此模型. 開始任務前請選擇其他模型.</string>
     <string name="model_unpin">取消置頂 %1$s</string>
     <string name="plugin_description">依自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
+    <string name="presets_actions">%1$s 的操作</string>
     <string name="presets_budget_note">留空沿用任務限制, 填寫值只能收緊. 預設: 40 步, 60 次模型呼叫, 600000 毫秒 (託管任務 1800000 毫秒), 300000 token, 同時受宿主限制.</string>
     <string name="presets_calls">最大模型呼叫次數</string>
     <string name="presets_cautious">審慎 (所有改變狀態的操作均需確認)</string>
     <string name="presets_confirmation">確認策略</string>
     <string name="presets_context">固定上下文 (與任務上下文合計最多 8 KiB)</string>
     <string name="presets_copy">複製預設</string>
-    <string name="presets_default_item">%1$s (預設值)</string>
+    <string name="presets_default_badge">預設</string>
     <string name="presets_delete">刪除預設</string>
     <string name="presets_delete_confirm">刪除預設 %1$s? 已有任務和歷史記錄會保留. 若它是預設值, 新任務將使用 default.</string>
-    <string name="presets_duration">最長時間 (毫秒)</string>
     <string name="presets_edit">編輯預設</string>
     <string name="presets_error">無法讀取或儲存預設. 請檢查名稱是否重複, 預算和上下文大小是否合規, 工具群組及目錄是否已獲准, 然後重試.</string>
     <string name="presets_group_act">螢幕操作</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">任務預算</string>
     <string name="ui_budget_invalid">請輸入 1 到 %1$d 之間的整數, 或留空使用預設值.</string>
     <string name="ui_choose_model">選擇模型</string>
-    <string name="ui_collapse">收合</string>
-    <string name="ui_expand">展開</string>
+    <string name="ui_discard">放棄修改</string>
     <string name="ui_home_subtitle">選好模型, 描述目標, 隨時掌握任務進度</string>
     <string name="ui_home_title">讓想法成為行動</string>
     <string name="ui_model_note">對任務台與懸浮球的新任務生效, 不會修改預設或正在執行的任務.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">預設可儲存工具範圍, 預算與上下文. 切換模型可直接在首頁完成.</string>
     <string name="ui_task_section">任務與能力</string>
     <string name="ui_theme_amber">琥珀色</string>
+    <string name="ui_unsaved_note">不儲存就離開? 本頁的修改將會遺失.</string>
+    <string name="ui_unsaved_title">尚未儲存修改</string>
     <string name="update_available">有可用更新: %1$s</string>
     <string name="update_check">檢查更新</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">正在檢查更新...</string>
