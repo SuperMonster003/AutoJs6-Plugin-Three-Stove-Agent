@@ -131,7 +131,8 @@ class ModelClientTest {
         assertEquals(RunError.MODEL_FAILED, failure.error); assertEquals("REQUEST_REJECTED", failure.reason)
         assertEquals(ModelUsage(10, 5, 15), failure.usage)
         broker.script = { it.started(); it.fail(RunError.MODEL_FAILED, "PROVIDER_FAILED") }
-        assertNull((client(broker).await(input(), 20, 1000) as PortResult.Failure).reason)
+        // Fixed host reasons other than REQUEST_REJECTED are kept for the terminal summary; only REQUEST_REJECTED drives a format fallback.
+        assertEquals("PROVIDER_FAILED", (client(broker).await(input(), 20, 1000) as PortResult.Failure).reason)
         broker.script = { it.started(); it.fail(RunError.MODEL_FAILED, "private error body") }
         assertEquals(RunError.INVALID_REQUEST, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
     }

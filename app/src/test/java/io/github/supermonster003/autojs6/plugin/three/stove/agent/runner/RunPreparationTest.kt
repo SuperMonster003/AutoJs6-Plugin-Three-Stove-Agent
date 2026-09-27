@@ -35,7 +35,7 @@ class RunPreparationTest {
         f.scheduler.advance(RunLimits.MCP_PREPARATION_MS)
         assertEquals(RunState.FAILED, run.state)
         assertEquals("TOOL_FAILED", run.result!!.getAsJsonObject("error").string("code"))
-        assertTrue(run.result!!.string("summary")!!.endsWith("[MCP_TIMEOUT]"))
+        assertTrue(run.result!!.string("summary")!!.endsWith("[TOOL_FAILED: MCP_TIMEOUT]"))
         assertTrue(f.model.calls.isEmpty())
     }
     @Test fun internalFailuresRecordTheExceptionClassWithoutItsMessage() {
