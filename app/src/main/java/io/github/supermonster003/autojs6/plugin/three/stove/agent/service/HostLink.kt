@@ -69,6 +69,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 modelName?.let { addProperty("modelName", it) }
                 addProperty("voiceEnabled", runCatching { runtime.settings.snapshot().voice }.getOrDefault(false))
                 addProperty("fullAccessEnabled", runCatching { runtime.settings.snapshot().fullAccess }.getOrDefault(false))
+                addProperty("accessMode", runCatching { runtime.settings.snapshot().accessMode }.getOrDefault("standard"))
+                addProperty("floatingEnabled", runCatching { runtime.settings.snapshot().floating }.getOrDefault(false))
             } }.toString())
     }
     fun liveRuns(): List<JsonObject> = active.values.filter { !it.state.terminal }.mapNotNull { archive.summary(it.id) }

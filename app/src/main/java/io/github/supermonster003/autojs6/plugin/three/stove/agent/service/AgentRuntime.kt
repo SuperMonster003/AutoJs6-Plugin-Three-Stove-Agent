@@ -54,7 +54,9 @@ internal class AgentRuntime internal constructor(val context: Context) {
     }
     fun status(): Bundle = current?.status(presentation = true) ?: AgentWire.envelope(ThreeStoveAgentContract.KEY_STATUS_JSON,
         jsonObject("state" to ThreeStoveAgentContract.LINK_STATE_DETACHED.json(), "attachedAt" to 0.json(), "queuedCount" to 0.json(),
-            "pluginVersion" to info.versionName.json(), "voiceEnabled" to runCatching { settings.snapshot().voice }.getOrDefault(false).json()).toString())
+            "pluginVersion" to info.versionName.json(), "voiceEnabled" to runCatching { settings.snapshot().voice }.getOrDefault(false).json(),
+            "accessMode" to runCatching { settings.snapshot().accessMode }.getOrDefault("standard").json(),
+            "floatingEnabled" to runCatching { settings.snapshot().floating }.getOrDefault(false).json()).toString())
     companion object {
         @Volatile private var instance: AgentRuntime? = null
         fun get(context: Context): AgentRuntime = instance ?: synchronized(this) {

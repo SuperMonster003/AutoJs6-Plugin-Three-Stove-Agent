@@ -5,8 +5,13 @@
     <string name="about_summary">Версия, разработчик и лицензии</string>
     <string name="about_version">Версия</string>
     <string name="about_version_value">%1$s (сборка %2$d)\nДата сборки: %3$s</string>
+    <string name="access_cautious_short">Осторожный</string>
+    <string name="access_standard_short">Стандартный</string>
     <string name="accessibility_open_settings">Открыть специальные возможности</string>
     <string name="accessibility_start_failed">Автоматический запуск специальных возможностей не удался. Включите службу AutoJs6 в настройках системы и продолжите задачу.</string>
+    <string name="alert_channel">Оповещения о сбоях задач</string>
+    <string name="alert_close">Закрыть</string>
+    <string name="alert_title">Задача остановлена: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">Не удалось открыть черновик или создать ярлык.</string>
     <string name="floating_collapse">Свернуть карточку. Перетащите для перемещения</string>
+    <string name="floating_exit">Выключить плавающий шар</string>
+    <string name="floating_minimize">Свернуть</string>
     <string name="floating_model">Модель</string>
+    <string name="floating_more">Еще</string>
     <string name="floating_open">Открыть карточку. Перетащите для перемещения</string>
     <string name="floating_permission_required">Разрешите показ поверх других приложений для плавающей кнопки.</string>
     <string name="floating_setting_note">По умолчанию выключена. Нужно разрешение на показ поверх других приложений. Кнопка видна при подключении AutoJs6 и скрыта при отключении или блокировке. Служба переднего плана не работает в простое.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">Максимум вызовов модели</string>
     <string name="presets_cautious">Осторожные (подтверждать все изменения)</string>
     <string name="presets_confirmation">Правила подтверждения</string>
+    <string name="presets_confirmation_note">Пресет может только ужесточить выбранный в настройках режим до осторожного. Полный доступ включается только в настройках и никогда не сохраняется в пресете.</string>
     <string name="presets_context">Постоянный контекст (до 8 KiB вместе с контекстом задачи)</string>
     <string name="presets_copy">Копировать предустановку</string>
     <string name="presets_default_badge">По умолчанию</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">Гибридная</string>
     <string name="presets_inherit">Использовать общие настройки</string>
     <string name="presets_local">На устройстве</string>
+    <string name="presets_manage">Управление пресетами</string>
     <string name="presets_memory">Область памяти</string>
     <string name="presets_memory_both">Общая и этой предустановки</string>
     <string name="presets_memory_global">Только общая</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">Сохранить каталоги</string>
     <string name="script_roots_title">Каталоги скриптов</string>
     <string name="settings_access_mode">Разрешения операций</string>
+    <string name="settings_alert_dialog">Диалог</string>
+    <string name="settings_alert_notification">Уведомление</string>
+    <string name="settings_alert_toast">Всплывающее сообщение (toast)</string>
+    <string name="settings_alerts_note">Когда задача останавливается из-за ошибки, лимита бюджета или потери соединения с хостом, вы получаете оповещение выбранными способами. Для диалога нужно разрешение наложения или приложение на переднем плане; иначе используется уведомление.</string>
+    <string name="settings_alerts_section">Оповещения о сбоях</string>
     <string name="settings_clear">Очистить данные</string>
     <string name="settings_clear_confirm">Удалить все записи этой категории? Отмена невозможна. Активных задач быть не должно.</string>
     <string name="settings_clear_presets">Удалить пользовательские профили и сбросить встроенный default? Память сохраняется. Активных задач быть не должно.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">Нет публичного стабильного выпуска или репозиторий недоступен.</string>
     <string name="update_open_release">Открыть страницу выпуска</string>
     <string name="update_unignore">Перестать игнорировать эту версию</string>
+    <string name="workbench_access">Режим доступа: %1$s</string>
     <string name="workbench_answer_required">Введите ответ.</string>
     <string name="workbench_back">Назад</string>
     <string name="workbench_budget">Шаги: %1$d / %2$d. Лимиты: %3$d вызовов модели, %4$d мин, %5$d токенов.</string>

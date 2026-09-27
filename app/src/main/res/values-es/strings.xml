@@ -5,8 +5,13 @@
     <string name="about_summary">Versión, desarrollador y licencias</string>
     <string name="about_version">Versión</string>
     <string name="about_version_value">%1$s (compilación %2$d)\nFecha: %3$s</string>
+    <string name="access_cautious_short">Prudente</string>
+    <string name="access_standard_short">Estandar</string>
     <string name="accessibility_open_settings">Abrir ajustes de accesibilidad</string>
     <string name="accessibility_start_failed">Falló el inicio automático de accesibilidad. Active el servicio de accesibilidad de AutoJs6 en los ajustes del sistema y continúe la tarea.</string>
+    <string name="alert_channel">Avisos de fallo de tareas</string>
+    <string name="alert_close">Cerrar</string>
+    <string name="alert_title">Tarea detenida: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">No se puede abrir este borrador ni crear su acceso directo.</string>
     <string name="floating_collapse">Contraer tarjeta. Arrastra para mover</string>
+    <string name="floating_exit">Desactivar la burbuja flotante</string>
+    <string name="floating_minimize">Minimizar</string>
     <string name="floating_model">Modelo</string>
+    <string name="floating_more">Mas</string>
     <string name="floating_open">Abrir tarjeta. Arrastra para mover</string>
     <string name="floating_permission_required">Permite mostrar sobre otras aplicaciones para activar la burbuja flotante.</string>
     <string name="floating_setting_note">Desactivada por defecto. Requiere permiso de superposición. La burbuja aparece con AutoJs6 conectado y se oculta al desconectar o bloquear. No mantiene un servicio en primer plano en reposo.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">Máximo de llamadas al modelo</string>
     <string name="presets_cautious">Prudente (confirmar todos los cambios)</string>
     <string name="presets_confirmation">Política de confirmación</string>
+    <string name="presets_confirmation_note">Un preajuste solo puede endurecer a Prudente el modo elegido en Ajustes. El acceso completo se activa solo en Ajustes y nunca se guarda ni se comparte con un preajuste.</string>
     <string name="presets_context">Contexto fijo (hasta 8 KiB junto al contexto de la tarea)</string>
     <string name="presets_copy">Copiar preajuste</string>
     <string name="presets_default_badge">Predeterminado</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">Híbrido</string>
     <string name="presets_inherit">Usar ajustes globales</string>
     <string name="presets_local">En el dispositivo</string>
+    <string name="presets_manage">Gestionar preajustes</string>
     <string name="presets_memory">Ámbito de memoria</string>
     <string name="presets_memory_both">Global y este preajuste</string>
     <string name="presets_memory_global">Solo global</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">Guardar directorios</string>
     <string name="script_roots_title">Directorios de scripts</string>
     <string name="settings_access_mode">Permisos de las operaciones</string>
+    <string name="settings_alert_dialog">Dialogo</string>
+    <string name="settings_alert_notification">Notificacion</string>
+    <string name="settings_alert_toast">Mensaje flotante (toast)</string>
+    <string name="settings_alerts_note">Cuando una tarea se detiene por un error, un limite de presupuesto o una conexion perdida con el anfitrion, te avisa por los canales elegidos. El dialogo requiere el permiso de superposicion o la app en primer plano; de lo contrario se usa una notificacion.</string>
+    <string name="settings_alerts_section">Avisos de fallo</string>
     <string name="settings_clear">Borrar datos</string>
     <string name="settings_clear_confirm">Borrar todos los elementos de esta categoría? No se puede deshacer. No debe haber tareas activas.</string>
     <string name="settings_clear_presets">Borrar los perfiles personalizados y restablecer el perfil integrado default? La memoria se conserva. No debe haber tareas activas.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">No hay una versión estable pública o el repositorio no está disponible.</string>
     <string name="update_open_release">Abrir página de la versión</string>
     <string name="update_unignore">Dejar de ignorar esta versión</string>
+    <string name="workbench_access">Permisos de operacion: %1$s</string>
     <string name="workbench_answer_required">Introduce una respuesta.</string>
     <string name="workbench_back">Volver</string>
     <string name="workbench_budget">Pasos: %1$d / %2$d. Límites: %3$d llamadas, %4$d min, %5$d tokens.</string>

@@ -5,8 +5,13 @@
     <string name="about_summary">Version, developer and licenses</string>
     <string name="about_version">Version</string>
     <string name="about_version_value">%1$s (build %2$d)\nBuilt: %3$s</string>
+    <string name="access_cautious_short">Cautious</string>
+    <string name="access_standard_short">Standard</string>
     <string name="accessibility_open_settings">Open accessibility settings</string>
     <string name="accessibility_start_failed">Automatic accessibility startup failed. Enable the AutoJs6 accessibility service in system settings, then continue the task.</string>
+    <string name="alert_channel">Task failure alerts</string>
+    <string name="alert_close">Close</string>
+    <string name="alert_title">Task stopped: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">Unable to open this task draft or create its shortcut.</string>
     <string name="floating_collapse">Collapse task card; drag to move</string>
+    <string name="floating_exit">Turn off the floating ball</string>
+    <string name="floating_minimize">Minimize</string>
     <string name="floating_model">Model</string>
+    <string name="floating_more">More</string>
     <string name="floating_open">Open task card; drag to move</string>
     <string name="floating_permission_required">Allow display over other apps to enable the floating ball.</string>
     <string name="floating_setting_note">Off by default. Requires permission to display over other apps. Shown only while AutoJs6 is connected; hidden when disconnected or locked. No foreground service is kept while idle.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">Maximum model calls</string>
     <string name="presets_cautious">Cautious (confirm all actions that change state)</string>
     <string name="presets_confirmation">Confirmation policy</string>
+    <string name="presets_confirmation_note">A preset can only tighten the access mode chosen in Settings to Cautious. Full access is enabled only in Settings and is never stored in or shared with a preset.</string>
     <string name="presets_context">Fixed context (up to 8 KiB together with task context)</string>
     <string name="presets_copy">Copy preset</string>
     <string name="presets_default_badge">Default</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">Hybrid</string>
     <string name="presets_inherit">Use global settings</string>
     <string name="presets_local">On device</string>
+    <string name="presets_manage">Manage presets</string>
     <string name="presets_memory">Memory scope</string>
     <string name="presets_memory_both">Global and this preset</string>
     <string name="presets_memory_global">Global only</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">Save directories</string>
     <string name="script_roots_title">Script directories</string>
     <string name="settings_access_mode">Operation permissions</string>
+    <string name="settings_alert_dialog">Dialog</string>
+    <string name="settings_alert_notification">Notification</string>
+    <string name="settings_alert_toast">Floating message (toast)</string>
+    <string name="settings_alerts_note">When a task stops on an error, a budget limit or a lost host connection, alert you through the selected channels. A dialog needs the overlay permission or the app in the foreground; otherwise a notification is used instead.</string>
+    <string name="settings_alerts_section">Failure alerts</string>
     <string name="settings_clear">Clear data</string>
     <string name="settings_clear_confirm">Delete all entries in this category? This cannot be undone. Tasks must be idle.</string>
     <string name="settings_clear_presets">Delete custom presets and reset the built-in default preset? Saved memory is kept. Tasks must be idle.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">No public stable release is available, or the repository is unavailable.</string>
     <string name="update_open_release">Open release page</string>
     <string name="update_unignore">Stop ignoring this version</string>
+    <string name="workbench_access">Access mode: %1$s</string>
     <string name="workbench_answer_required">Enter an answer.</string>
     <string name="workbench_back">Back</string>
     <string name="workbench_budget">Steps: %1$d / %2$d. Limits - model calls: %3$d, minutes: %4$d, tokens: %5$d.</string>

@@ -5,8 +5,13 @@
     <string name="about_summary">バージョン, 開発者, ライセンス</string>
     <string name="about_version">バージョン</string>
     <string name="about_version_value">%1$s (ビルド %2$d)\nビルド日: %3$s</string>
+    <string name="access_cautious_short">慎重</string>
+    <string name="access_standard_short">標準</string>
     <string name="accessibility_open_settings">ユーザー補助設定を開く</string>
     <string name="accessibility_start_failed">ユーザー補助の自動起動に失敗しました. システム設定で AutoJs6 のユーザー補助サービスを有効にしてからタスクを続けてください.</string>
+    <string name="alert_channel">タスク異常の通知</string>
+    <string name="alert_close">閉じる</string>
+    <string name="alert_title">タスクが停止しました: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">タスクの下書きを開くかショートカットを作成できません.</string>
     <string name="floating_collapse">タスクカードを閉じる. ドラッグで移動</string>
+    <string name="floating_exit">フローティングボールを終了</string>
+    <string name="floating_minimize">最小化</string>
     <string name="floating_model">モデル</string>
+    <string name="floating_more">その他</string>
     <string name="floating_open">タスクカードを開く. ドラッグで移動</string>
     <string name="floating_permission_required">フローティングボールを有効にするには他のアプリの上への表示を許可してください.</string>
     <string name="floating_setting_note">初期状態では無効です. 他のアプリの上への表示の許可が必要です. AutoJs6 の接続中のみ表示し, 切断時とロック時は非表示になります. 待機中のフォアグラウンドサービスは使用しません.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">最大モデル呼び出し数</string>
     <string name="presets_cautious">慎重 (状態を変更する操作をすべて確認)</string>
     <string name="presets_confirmation">確認方針</string>
+    <string name="presets_confirmation_note">プリセットは設定で選んだ操作権限を慎重に絞ることしかできません. フルアクセスは設定でのみ有効化でき, プリセットには保存も配布もされません.</string>
     <string name="presets_context">固定コンテキスト (タスク分と合わせて最大 8 KiB)</string>
     <string name="presets_copy">プリセットを複製</string>
     <string name="presets_default_badge">既定</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">ハイブリッド</string>
     <string name="presets_inherit">全体設定を使用</string>
     <string name="presets_local">端末内</string>
+    <string name="presets_manage">プリセットを管理</string>
     <string name="presets_memory">記憶の範囲</string>
     <string name="presets_memory_both">全体とこのプリセット</string>
     <string name="presets_memory_global">全体のみ</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">ディレクトリを保存</string>
     <string name="script_roots_title">スクリプトディレクトリ</string>
     <string name="settings_access_mode">操作の権限</string>
+    <string name="settings_alert_dialog">ダイアログ</string>
+    <string name="settings_alert_notification">通知</string>
+    <string name="settings_alert_toast">フローティングメッセージ (toast)</string>
+    <string name="settings_alerts_note">タスクがエラー, 予算上限, ホスト切断で停止したとき, 選んだ方法で通知します. ダイアログにはオーバーレイ権限またはアプリが前面にあることが必要で, それ以外は通知に切り替わります.</string>
+    <string name="settings_alerts_section">異常の通知</string>
     <string name="settings_clear">データを消去</string>
     <string name="settings_clear_confirm">この種類の全項目を削除しますか? 元に戻せません. タスクが停止している必要があります.</string>
     <string name="settings_clear_presets">カスタムプリセットを削除し, 内蔵の default を初期化しますか? 記憶は保持されます. タスクが停止している必要があります.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">公開の安定版がないか, リポジトリを利用できません.</string>
     <string name="update_open_release">リリースページを開く</string>
     <string name="update_unignore">このバージョンの無視を解除</string>
+    <string name="workbench_access">操作権限: %1$s</string>
     <string name="workbench_answer_required">回答を入力してください.</string>
     <string name="workbench_back">戻る</string>
     <string name="workbench_budget">ステップ: %1$d / %2$d. 上限: モデル呼出 %3$d 回, %4$d 分, %5$d トークン.</string>

@@ -5,8 +5,13 @@
     <string name="about_summary">الإصدار والمطور والتراخيص</string>
     <string name="about_version">الإصدار</string>
     <string name="about_version_value">%1$s (البناء %2$d)\nتاريخ البناء: %3$s</string>
+    <string name="access_cautious_short">حذر</string>
+    <string name="access_standard_short">قياسي</string>
     <string name="accessibility_open_settings">فتح إعدادات تسهيل الاستخدام</string>
     <string name="accessibility_start_failed">تعذر بدء خدمة تسهيل الاستخدام تلقائيا. فعل خدمة AutoJs6 من إعدادات النظام ثم تابع المهمة.</string>
+    <string name="alert_channel">تنبيهات فشل المهام</string>
+    <string name="alert_close">إغلاق</string>
+    <string name="alert_title">توقفت المهمة: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">تعذر فتح مسودة المهمة أو إنشاء اختصارها.</string>
     <string name="floating_collapse">طي بطاقة المهمة. اسحب للتحريك</string>
+    <string name="floating_exit">إيقاف الكرة العائمة</string>
+    <string name="floating_minimize">تصغير</string>
     <string name="floating_model">النموذج</string>
+    <string name="floating_more">المزيد</string>
     <string name="floating_open">فتح بطاقة المهمة. اسحب للتحريك</string>
     <string name="floating_permission_required">اسمح بالظهور فوق التطبيقات الأخرى لتفعيل الكرة العائمة.</string>
     <string name="floating_setting_note">معطلة افتراضيا. تتطلب إذن الظهور فوق التطبيقات الأخرى. تظهر الكرة عند اتصال AutoJs6 وتختفي عند الانقطاع أو القفل. لا تبقى خدمة أمامية أثناء الخمول.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">الحد الأقصى لاستدعاءات النموذج</string>
     <string name="presets_cautious">حذرة (تأكيد كل إجراء يغير الحالة)</string>
     <string name="presets_confirmation">سياسة التأكيد</string>
+    <string name="presets_confirmation_note">لا يمكن للإعداد المسبق إلا تشديد وضع الوصول المختار في الإعدادات إلى حذر. لا يفعل الوصول الكامل إلا من الإعدادات ولا يحفظ أو يشارك مع الإعداد المسبق أبدا.</string>
     <string name="presets_context">السياق الثابت (حتى 8 KiB مع سياق المهمة)</string>
     <string name="presets_copy">نسخ الإعداد المسبق</string>
     <string name="presets_default_badge">افتراضي</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">هجين</string>
     <string name="presets_inherit">استخدام الإعدادات العامة</string>
     <string name="presets_local">على الجهاز</string>
+    <string name="presets_manage">إدارة الإعدادات المسبقة</string>
     <string name="presets_memory">نطاق الذاكرة</string>
     <string name="presets_memory_both">العامة وهذا الإعداد</string>
     <string name="presets_memory_global">العامة فقط</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">حفظ المجلدات</string>
     <string name="script_roots_title">مجلدات السكربتات</string>
     <string name="settings_access_mode">أذونات العمليات</string>
+    <string name="settings_alert_dialog">مربع حوار</string>
+    <string name="settings_alert_notification">إشعار</string>
+    <string name="settings_alert_toast">رسالة عائمة (toast)</string>
+    <string name="settings_alerts_note">عند توقف مهمة بسبب خطأ أو حد الميزانية أو فقدان الاتصال بالمضيف, يتم تنبيهك عبر القنوات المختارة. يحتاج مربع الحوار إلى إذن التراكب أو وجود التطبيق في المقدمة, وإلا يستخدم الإشعار بدلا منه.</string>
+    <string name="settings_alerts_section">تنبيهات الفشل</string>
     <string name="settings_clear">مسح البيانات</string>
     <string name="settings_clear_confirm">حذف جميع عناصر هذه الفئة? لا يمكن التراجع. يجب ألا تكون هناك مهام نشطة.</string>
     <string name="settings_clear_presets">حذف الإعدادات المسبقة المخصصة وإعادة ضبط default المدمج? تبقى الذاكرة المحفوظة. يجب ألا تكون هناك مهام نشطة.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">لا يوجد إصدار مستقر عام أو المستودع غير متاح.</string>
     <string name="update_open_release">فتح صفحة الإصدار</string>
     <string name="update_unignore">إلغاء تجاهل هذا الإصدار</string>
+    <string name="workbench_access">وضع الوصول: %1$s</string>
     <string name="workbench_answer_required">أدخل إجابة.</string>
     <string name="workbench_back">رجوع</string>
     <string name="workbench_budget">الخطوات: %1$d / %2$d. الحدود: %3$d استدعاء للنموذج, %4$d دقيقة, %5$d رمز.</string>

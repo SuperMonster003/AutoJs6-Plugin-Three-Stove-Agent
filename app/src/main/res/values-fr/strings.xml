@@ -5,8 +5,13 @@
     <string name="about_summary">Version, développeur et licences</string>
     <string name="about_version">Version</string>
     <string name="about_version_value">%1$s (build %2$d)\nCompilé le: %3$s</string>
+    <string name="access_cautious_short">Prudent</string>
+    <string name="access_standard_short">Standard</string>
     <string name="accessibility_open_settings">Ouvrir les paramètres d\'accessibilité</string>
     <string name="accessibility_start_failed">Le démarrage automatique de l\'accessibilité a échoué. Activez le service AutoJs6 dans les paramètres système, puis continuez la tâche.</string>
+    <string name="alert_channel">Alertes d\'echec des taches</string>
+    <string name="alert_close">Fermer</string>
+    <string name="alert_title">Tache arretee: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
     <string name="app_language_es">Español</string>
@@ -45,7 +50,10 @@
     <string name="app_update_stop_ignoring">Stop ignoring</string>
     <string name="entry_invalid">Impossible d\'ouvrir ce brouillon ou de créer son raccourci.</string>
     <string name="floating_collapse">Réduire la carte. Faire glisser pour déplacer</string>
+    <string name="floating_exit">Desactiver la bulle flottante</string>
+    <string name="floating_minimize">Reduire</string>
     <string name="floating_model">Modèle</string>
+    <string name="floating_more">Plus</string>
     <string name="floating_open">Ouvrir la carte. Faire glisser pour déplacer</string>
     <string name="floating_permission_required">Autorisez la superposition pour activer la bulle flottante.</string>
     <string name="floating_setting_note">Désactivée par défaut. Nécessite l\'autorisation de superposition. La bulle apparaît lorsque AutoJs6 est connecté et se masque à la déconnexion ou au verrouillage. Aucun service de premier plan au repos.</string>
@@ -191,6 +199,7 @@
     <string name="presets_calls">Nombre maximal d\'appels au modèle</string>
     <string name="presets_cautious">Prudente (confirmer toute modification)</string>
     <string name="presets_confirmation">Politique de confirmation</string>
+    <string name="presets_confirmation_note">Une preselection ne peut que durcir en Prudent le mode choisi dans les Reglages. L\'acces complet ne s\'active que dans les Reglages et n\'est jamais enregistre ni partage avec une preselection.</string>
     <string name="presets_context">Contexte fixe (8 KiB maximum avec le contexte de la tâche)</string>
     <string name="presets_copy">Dupliquer le préréglage</string>
     <string name="presets_default_badge">Par défaut</string>
@@ -212,6 +221,7 @@
     <string name="presets_hybrid">Hybride</string>
     <string name="presets_inherit">Utiliser les réglages globaux</string>
     <string name="presets_local">Sur l\'appareil</string>
+    <string name="presets_manage">Gerer les preselections</string>
     <string name="presets_memory">Portée de la mémoire</string>
     <string name="presets_memory_both">Globale et ce préréglage</string>
     <string name="presets_memory_global">Globale uniquement</string>
@@ -259,6 +269,11 @@
     <string name="script_roots_save">Enregistrer les dossiers</string>
     <string name="script_roots_title">Dossiers de scripts</string>
     <string name="settings_access_mode">Autorisations des opérations</string>
+    <string name="settings_alert_dialog">Boite de dialogue</string>
+    <string name="settings_alert_notification">Notification</string>
+    <string name="settings_alert_toast">Message flottant (toast)</string>
+    <string name="settings_alerts_note">Quand une tache s\'arrete sur une erreur, une limite de budget ou une connexion hote perdue, vous etes alerte par les canaux choisis. La boite de dialogue requiert la permission de superposition ou l\'application au premier plan; sinon une notification est utilisee.</string>
+    <string name="settings_alerts_section">Alertes d\'echec</string>
     <string name="settings_clear">Effacer les données</string>
     <string name="settings_clear_confirm">Supprimer tous les éléments de cette catégorie? Cette action est irréversible. Aucune tâche ne doit être active.</string>
     <string name="settings_clear_presets">Supprimer les profils personnalisés et réinitialiser le profil intégré default? La mémoire est conservée. Aucune tâche ne doit être active.</string>
@@ -333,6 +348,7 @@
     <string name="update_no_release">Aucune version stable publique disponible, ou dépôt inaccessible.</string>
     <string name="update_open_release">Ouvrir la page de publication</string>
     <string name="update_unignore">Ne plus ignorer cette version</string>
+    <string name="workbench_access">Droits d\'action: %1$s</string>
     <string name="workbench_answer_required">Saisissez une réponse.</string>
     <string name="workbench_back">Retour</string>
     <string name="workbench_budget">Étapes: %1$d / %2$d. Limites: %3$d appels, %4$d min, %5$d tokens.</string>

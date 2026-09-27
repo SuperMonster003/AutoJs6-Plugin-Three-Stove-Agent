@@ -61,6 +61,8 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var presetRow: SettingRow? = null
     private var presetPanel: LinearLayout? = null
     private var presetPanelOpen = false
+    private var morePanel: LinearLayout? = null
+    private var morePanelOpen = false
     private var modelRow: SettingRow? = null
     /** The shared model choice (null means Automatic), read off the UI thread with each snapshot. */
     private var modelName: String? = null
@@ -224,6 +226,14 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             snapshot?.run?.string("runId")?.let { runtime.current?.cancelLocal(it) }
         }.also { header.addView(it, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET))) }
         if (expanded) {
+            // More: an inline panel (an overlay cannot host popup menus) with Minimize and Turn off.
+            header.addView(kit.iconButton(R.drawable.ic_more, context.getString(R.string.floating_more), "floating-more", palette.muted) {
+                morePanelOpen = !morePanelOpen; morePanel?.visibility = if (morePanelOpen) View.VISIBLE else View.GONE
+            }, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)))
+            // Any tap outside the card minimizes it, like dismissing a sheet.
+            body.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_OUTSIDE && expanded) { expanded = false; rebuildWindow(); publish(); true } else false
+            }
             val scroll = ScrollView(context)
             cardScroll = scroll
             val card = LinearLayout(context).apply {
@@ -231,6 +241,20 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD))
             }
             scroll.addView(card); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
+            morePanel = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL; tag = "floating-more-panel"; visibility = if (morePanelOpen) View.VISIBLE else View.GONE
+                background = kit.roundedFill(palette.surfaceVariant, Ui.RADIUS_CONTROL)
+                addView(kit.settingRow(context.getString(R.string.floating_minimize), null, R.drawable.ic_expand, "floating-minimize", chevron = false) {
+                    morePanelOpen = false; expanded = false; rebuildWindow(); publish()
+                }.view, LinearLayout.LayoutParams(-1, -2))
+                addView(kit.settingRow(context.getString(R.string.floating_exit), null, R.drawable.ic_block, "floating-exit", chevron = false,
+                    titleColor = palette.danger) {
+                    // Turning the ball off is the same private setting as the settings screen switch; the runtime closes the window.
+                    morePanelOpen = false
+                    runCatching { runtime.settings.query(runtime.settings.snapshot().copy(floating = false)) {} }.onFailure { showError() }
+                }.view, LinearLayout.LayoutParams(-1, -2))
+                card.addView(this, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = kit.dp(Ui.SPACE_XS) })
+            }
             val pendingColumn = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; card.addView(this) }
             pending = PendingCard(pendingColumn, kit, framed = false) { request, complete ->
                 val link = runtime.current
@@ -288,7 +312,8 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 LinearLayout.LayoutParams(0, -2, 1f))
         }
         val flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-            (if (expanded) WindowManager.LayoutParams.FLAG_SECURE else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            (if (expanded) WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+            else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
         layout = WindowManager.LayoutParams(-2, -2, type, flags, PixelFormat.TRANSLUCENT).apply {
             gravity = Gravity.TOP or Gravity.LEFT
             title = if (expanded) "3-Stove Agent floating card" else "3-Stove Agent floating ball"
@@ -399,7 +424,15 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val bounds = usableBounds()
         val active = snapshot?.run != null
         params.width = (if (expanded) kit.dp(360) else if (active) kit.dp(280) else kit.dp(64)).coerceAtMost(bounds.width())
-        params.height = if (expanded) (bounds.height() * 0.72f).toInt() else {
+        params.height = if (expanded) {
+            // Size the card to its content up to 72% of the usable height; taller content scrolls inside.
+            val cap = (bounds.height() * 0.72f).toInt()
+            val content = cardScroll?.getChildAt(0)?.also {
+                it.measure(View.MeasureSpec.makeMeasureSpec((params.width - kit.dp(8)).coerceAtLeast(1), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            }?.measuredHeight ?: cap
+            (content + kit.dp(56 + 8 + 8)).coerceIn(kit.dp(160), cap)
+        } else {
             // A fixed 64dp window clips the stop label when the system font is enlarged.
             root?.measure(View.MeasureSpec.makeMeasureSpec(params.width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
@@ -416,7 +449,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private fun clearVisibility() { runtime.interactions.present(visibilityOwner, null, null) }
     private fun clearCard() {
         goalField = null; pending = null; statusLabel = null; stopButton = null; cardScroll = null; visibleRequest = null
-        sendButton = null; presetRow = null; presetPanel = null; modelRow = null; voiceButton = null; fullAccessLabel = null; message = null
+        sendButton = null; presetRow = null; presetPanel = null; modelRow = null; voiceButton = null; fullAccessLabel = null; message = null; morePanel = null
         presetNames = emptyList(); dimensions = null
     }
     private fun rebuildWindow() {
