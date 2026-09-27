@@ -49,12 +49,13 @@ internal fun AiAgentPluginRuntimeInfo.toPluginInfo(): PluginInfo {
     }
 }
 
-/** Available group names do not enable default-off tools or bypass target capability checks. */
+/** Available group names do not enable default-off tools or bypass target capability checks.
+ * Features list what this build implements; native tools and vision still need a host and target that negotiate them. */
 internal fun AiAgentPluginRuntimeInfo.capabilitiesBundle(): Bundle = Bundle().apply {
     putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, requiresHostVersion)
     putInt(AiAgentCapabilityKeys.CONTRACT_VERSION, AiAgentContract.CONTRACT_VERSION)
     putStringArray(AiAgentCapabilityKeys.TOOL_GROUPS,
         io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolGroup.entries.map { it.id }.toTypedArray())
     putStringArray(AiAgentCapabilityKeys.FEATURES, arrayOf(AiAgentCapabilityKeys.FEATURE_STRUCTURED_JSON_LOOP,
-        AiAgentCapabilityKeys.FEATURE_MCP_TOOLS))
+        AiAgentCapabilityKeys.FEATURE_NATIVE_TOOLS, AiAgentCapabilityKeys.FEATURE_VISION, AiAgentCapabilityKeys.FEATURE_MCP_TOOLS))
 }

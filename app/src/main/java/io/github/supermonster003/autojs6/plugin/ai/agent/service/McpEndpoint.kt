@@ -18,7 +18,7 @@ internal class McpEndpoint(private val runtime: AgentRuntime) : IAgentSettings.S
     private val worker = ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS, ArrayBlockingQueue(4),
         { work -> Thread(work, "ai-agent-mcp-probe").apply { isDaemon = true } }, ThreadPoolExecutor.AbortPolicy())
         .apply { allowCoreThreadTimeOut(true) }
-    private val source = McpToolSource(worker)
+    private val source = McpToolSource(worker, runtime.info.versionName)
     override fun close() {
         val active = synchronized(lifecycle) {
             if (closed) return

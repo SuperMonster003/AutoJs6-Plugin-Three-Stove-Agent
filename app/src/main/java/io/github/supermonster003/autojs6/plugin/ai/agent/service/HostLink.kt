@@ -25,7 +25,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
     private val workers = LinkWorkers()
     private val scripts = ScriptCatalogClient(scheduler::nowMs)
     private val model = BinderModelBroker(runtime.context, remoteModel, ownerUid, workers)
-    private val mcp = McpToolSource(workers.io)
+    private val mcp = McpToolSource(workers.io, runtime.info.versionName)
     private val archive get() = runtime.archive
     private val attachedAt = System.currentTimeMillis()
     private val fallbacks = linkedMapOf<String, SchemaFallbacks>()
@@ -140,8 +140,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 require(!grant.hasFileDescriptors() && grant.getInt(H.KEY_CONTRACT_VERSION) == H.CONTRACT_VERSION)
                 val methods = requireNotNull(grant.getStringArray(H.KEY_GRANT_METHODS)).toSet().also { require(it.size <= 256) }
                 val permissions = requireNotNull(grant.getStringArray(H.KEY_GRANT_PERMISSIONS)).toSet().also { require(it.size <= 128) }
-                val maxRequest = grant.getInt(H.KEY_GRANT_MAX_REQUEST_BYTES).also { require(it in 1..512 * 1024) }
-                val maxTimeout = grant.getLong(H.KEY_GRANT_MAX_TIMEOUT_MS).also { require(it in 1..300_000) }
+                val maxRequest = grant.getInt(H.KEY_GRANT_MAX_REQUEST_BYTES).also { require(it in 1..H.MAX_BRIDGE_INLINE_JSON_BYTES) }
+                val maxTimeout = grant.getLong(H.KEY_GRANT_MAX_TIMEOUT_MS).also { require(it in 1..H.MAX_TOOL_TIMEOUT_MS) }
                 val effectiveMethods = methods.intersect(configuration.methods ?: methods)
                 val effectivePermissions = permissions.intersect(configuration.permissions ?: permissions)
                 val optional = grant.getStringArray(H.KEY_AVAILABLE_OPTIONAL_METHODS)?.also { values -> require(values.size <= 256 && values.all { it.length <= 128 }) }?.toSet().orEmpty()

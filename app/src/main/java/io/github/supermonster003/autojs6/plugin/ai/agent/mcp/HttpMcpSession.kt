@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.mcp
 
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.runner.RunLimits
 import java.io.FilterInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -22,12 +23,12 @@ internal class McpFailure(val code: String) : IOException(code)
 internal fun mcpFail(code: String = "MCP_PROTOCOL_ERROR"): Nothing = throw McpFailure(code)
 
 internal class McpOperation(timeoutMs: Long) {
-    private val deadline = System.nanoTime() + timeoutMs.coerceIn(1, 300_000) * 1_000_000
+    private val deadline = System.nanoTime() + timeoutMs.coerceIn(1, RunLimits.TOOL_TIMEOUT_MS) * 1_000_000
     private val connections = ConcurrentHashMap.newKeySet<HttpURLConnection>()
     private val cancelled = AtomicBoolean()
     @Volatile private var expired = false
     @Volatile var onCancel: (() -> Unit)? = null
-    private val timer = clock.schedule({ expired = true; cancel() }, timeoutMs.coerceIn(1, 300_000), TimeUnit.MILLISECONDS)
+    private val timer = clock.schedule({ expired = true; cancel() }, timeoutMs.coerceIn(1, RunLimits.TOOL_TIMEOUT_MS), TimeUnit.MILLISECONDS)
     fun remaining(): Int {
         if (cancelled.get()) mcpFail(if (expired) "MCP_TIMEOUT" else "MCP_CANCELLED")
         val ms = (deadline - System.nanoTime()) / 1_000_000
@@ -55,7 +56,8 @@ internal class McpOperation(timeoutMs: Long) {
 }
 
 /** One initialized, per-run Streamable HTTP session. There is deliberately no action retry. */
-internal class HttpMcpSession(profile: McpServerProfile) {
+internal class HttpMcpSession(profile: McpServerProfile, private val clientVersion: String) {
+    init { require(clientVersion.isNotBlank() && clientVersion.length <= 64) }
     private val endpoint = McpEndpoints.validate(profile.endpoint)
     private var token: String? = profile.bearerToken
     // A late response still needs redaction after session cleanup clears the outgoing credential.
@@ -72,7 +74,7 @@ internal class HttpMcpSession(profile: McpServerProfile) {
 
     fun initialize(operation: McpOperation) {
         val result = request("initialize", jsonObject("protocolVersion" to version.json(), "capabilities" to jsonObject(),
-            "clientInfo" to jsonObject("name" to "AutoJs6 AI Agent".json(), "version" to "1.2.0".json())), operation)
+            "clientInfo" to jsonObject("name" to "AutoJs6 AI Agent".json(), "version" to clientVersion.json())), operation)
         val negotiated = result.string("protocolVersion") ?: mcpFail()
         if (negotiated !in VERSIONS || result.getAsJsonObject("capabilities")?.get("tools")?.isJsonObject != true) mcpFail()
         version = negotiated

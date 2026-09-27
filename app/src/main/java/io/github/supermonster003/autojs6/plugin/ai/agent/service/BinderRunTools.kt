@@ -121,7 +121,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         val isOwnedScript = call.module == "agent" && call.method == "execRegistered" ||
             call.module == "engines" && call.method == "execScript" && call.args.size() > 2 &&
                 call.args[2].isJsonObject && call.args[2].asJsonObject.string("agentInvocationId") != null
-        val maximumPayloadBytes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_BYTES else 512 * 1024
+        val maximumPayloadBytes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_BYTES else H.MAX_BRIDGE_INLINE_JSON_BYTES
         val maximumNodes = if (isScriptCatalog) ScriptCatalogSnapshot.MAX_NODES else 16_384
         val closed = AtomicBoolean()
         val claimed = AtomicBoolean()

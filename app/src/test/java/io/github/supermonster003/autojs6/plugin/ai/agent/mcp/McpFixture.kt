@@ -20,6 +20,7 @@ internal class McpFixture : AutoCloseable {
     val methods = CopyOnWriteArrayList<String>()
     val versions = CopyOnWriteArrayList<String>()
     val sessions = CopyOnWriteArrayList<String>()
+    val clientVersions = CopyOnWriteArrayList<String>()
     val calls = CopyOnWriteArrayList<JsonObject>()
     var protocol = "2025-11-25"
     var tools = listOf(tool("echo"))
@@ -37,6 +38,7 @@ internal class McpFixture : AutoCloseable {
                     versions += exchange.requestHeaders.getFirst("MCP-Protocol-Version").orEmpty()
                     sessions += exchange.requestHeaders.getFirst("Mcp-Session-Id").orEmpty()
                     if (method == "tools/call") calls += request.deepCopy()
+                    if (method == "initialize") clientVersions += request.getAsJsonObject("params")?.getAsJsonObject("clientInfo")?.string("version").orEmpty()
                     if (onRequest?.invoke(exchange, request) != true) when (method) {
                         "initialize" -> {
                             exchange.responseHeaders.set("Mcp-Session-Id", "fixture-session")
@@ -54,7 +56,7 @@ internal class McpFixture : AutoCloseable {
     val endpoint get() = "http://127.0.0.1:${server.address.port}/mcp"
     fun profile(selected: List<String> = listOf("echo"), token: String? = null) =
         McpServerProfile("local", "Fixture", endpoint, true, selectedTools = selected, bearerToken = token)
-    fun source() = McpToolSource(workers)
+    fun source() = McpToolSource(workers, CLIENT_VERSION)
     fun result(exchange: HttpExchange, request: JsonObject, result: JsonObject, sse: Boolean = false, before: String = "") {
         val body = jsonObject("jsonrpc" to "2.0".json(), "id" to request["id"], "result" to result).toString()
         respond(exchange, 200, if (sse) before + "event: message\ndata: $body\n\n" else body, if (sse) "text/event-stream" else "application/json")
@@ -69,6 +71,7 @@ internal class McpFixture : AutoCloseable {
     }
     override fun close() { server.stop(0); workers.shutdownNow() }
     companion object {
+        const val CLIENT_VERSION = "9.9.9-fixture"
         fun tool(name: String, schema: JsonObject = jsonObject("type" to "object".json(), "properties" to jsonObject())) =
             jsonObject("name" to name.json(), "description" to "Fixture tool".json(), "inputSchema" to schema)
     }

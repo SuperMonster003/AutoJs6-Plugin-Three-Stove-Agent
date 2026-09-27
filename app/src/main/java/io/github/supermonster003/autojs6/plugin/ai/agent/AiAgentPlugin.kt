@@ -31,9 +31,9 @@ object AiAgentPlugin {
     const val INFO_ACTION = PluginActions.INFO
 
     /**
-     * Binder descriptor of the `IAiAgentPlugin` AIDL that the host defines in its
-     * `ai-agent-api` module (roadmap P1.1). Until that contract is staged in `libs/`, the
-     * service exposes a placeholder Binder carrying only this descriptor.
+     * Binder descriptor of the `IAiAgentPlugin` AIDL from the host `ai-agent-api` module, staged
+     * as a locked AAR in `libs/`. [AiAgentPluginService] implements the full interface; the
+     * contract test asserts that the bound Binder carries exactly this descriptor.
      */
     const val SERVICE_DESCRIPTOR = "org.autojs.plugin.ai.agent.api.IAiAgentPlugin"
 

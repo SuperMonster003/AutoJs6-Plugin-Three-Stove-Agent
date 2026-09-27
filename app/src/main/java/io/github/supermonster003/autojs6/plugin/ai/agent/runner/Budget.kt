@@ -1,25 +1,30 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.runner
 
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import org.autojs.plugin.ai.agent.api.AiAgentContract
 
-/** Pure-core ceilings from appendix B.5. P2.5 binds these to the staged host contract. */
+/** Pure-core ceilings bound to the host contract (appendix B.5), so a relocked AAR cannot drift from the loop. */
 object RunLimits {
-    const val STEPS = 200
-    const val MODEL_CALLS = 300
-    const val QUEUED_RUNS = 8
-    const val DURATION_MS = 30 * 60_000L
-    const val DETACHED_DURATION_MS = 60 * 60_000L
-    const val TOOL_TIMEOUT_MS = 300_000L
-    const val TOKENS = 1_000_000L
-    const val JOURNAL_BYTES = 1024 * 1024
+    const val STEPS = AiAgentContract.MAX_STEPS
+    const val MODEL_CALLS = AiAgentContract.MAX_MODEL_CALLS
+    const val QUEUED_RUNS = AiAgentContract.MAX_RUN_QUEUE
+    const val DURATION_MS = AiAgentContract.MAX_DURATION_MS
+    const val DETACHED_DURATION_MS = AiAgentContract.MAX_DETACHED_DURATION_MS
+    const val DEFAULT_TOOL_TIMEOUT_MS = AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS
+    const val TOOL_TIMEOUT_MS = AiAgentContract.MAX_TOOL_TIMEOUT_MS
+    const val TOKENS = AiAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK
+    const val JOURNAL_BYTES = AiAgentContract.MAX_RUN_JOURNAL_BYTES
+    /** Plugin defaults from P2.3; settings, presets and requests can only narrow them. */
+    const val DEFAULT_DURATION_MS = 10 * 60_000L
+    const val DEFAULT_DETACHED_DURATION_MS = 30 * 60_000L
 }
 
 data class BudgetLimits(
     val maxSteps: Int = 40,
     val maxModelCalls: Int = 60,
-    val maxDurationMs: Long = 10 * 60_000L,
+    val maxDurationMs: Long = RunLimits.DEFAULT_DURATION_MS,
     val maxTotalTokens: Long = 300_000,
-    val stepToolTimeoutMs: Long = 30_000,
+    val stepToolTimeoutMs: Long = RunLimits.DEFAULT_TOOL_TIMEOUT_MS,
     val confirmationTimeoutMs: Long = 120_000,
     val askTimeoutMs: Long = 10 * 60_000,
 ) {
@@ -32,7 +37,9 @@ data class BudgetLimits(
     fun validateOwnership(detached: Boolean) {
         require(maxDurationMs <= if (detached) RunLimits.DETACHED_DURATION_MS else RunLimits.DURATION_MS)
     }
-    companion object { fun defaults(detached: Boolean) = BudgetLimits(maxDurationMs = if (detached) 30 * 60_000L else 10 * 60_000L) }
+    companion object {
+        fun defaults(detached: Boolean) = BudgetLimits(maxDurationMs = if (detached) RunLimits.DEFAULT_DETACHED_DURATION_MS else RunLimits.DEFAULT_DURATION_MS)
+    }
 }
 
 data class ModelUsage(val inputTokens: Long? = null, val outputTokens: Long? = null, val totalTokens: Long? = null) {

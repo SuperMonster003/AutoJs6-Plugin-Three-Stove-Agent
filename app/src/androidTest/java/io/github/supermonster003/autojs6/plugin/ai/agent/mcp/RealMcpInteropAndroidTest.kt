@@ -42,7 +42,7 @@ class RealMcpInteropAndroidTest {
         val workers = Executors.newCachedThreadPool { task -> Thread(task, "agent-mcp-interop").apply { isDaemon = true } }
         var snapshot: McpSnapshot? = null
         try {
-            val source = McpToolSource(workers)
+            val source = McpToolSource(workers, "androidTest")
             val discovery = await<McpDiscovery> { source.probe(profile, 15_000, it) }
             assertTrue("Real SDK tools/list must expose multiple distinct tools", discovery.tools.size > 1 && discovery.tools.map { it.name }.distinct().size == discovery.tools.size)
             assertTrue("Real SDK device_info schema must be supported", discovery.tools.any { it.name == "device_info" && it.supported })

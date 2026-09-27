@@ -21,10 +21,10 @@ class McpDiscovery(tools: List<McpToolPreview>) {
 }
 
 /** A replaceable, task-only MCP source. It does not implement the future public MCP Client plugin API. */
-class McpToolSource(private val executor: Executor) {
+class McpToolSource(private val executor: Executor, private val clientVersion: String) {
     fun probe(profile: McpServerProfile, timeoutMs: Long, callback: (PortResult<McpDiscovery>) -> Unit): Cancellation {
         val frozen = profile.frozen()
-        val session = HttpMcpSession(frozen)
+        val session = HttpMcpSession(frozen, clientVersion)
         val operation = McpOperation(timeoutMs)
         val cancelled = AtomicBoolean()
         try {
@@ -59,7 +59,7 @@ class McpToolSource(private val executor: Executor) {
                     var schemaBytes = 0
                     for (profile in selected) {
                         operation.remaining()
-                        val session = HttpMcpSession(profile)
+                        val session = HttpMcpSession(profile, clientVersion)
                         sessions[profile.id] = session
                         session.initialize(operation)
                         val listed = session.list(operation)
