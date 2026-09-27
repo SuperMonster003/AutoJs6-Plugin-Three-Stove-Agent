@@ -22,8 +22,8 @@ class BudgetTest {
     }
     @Test fun defaultsAndOwnershipRespectContractCeilings() {
         val limits = BudgetLimits()
-        assertEquals(40, limits.maxSteps); assertEquals(60, limits.maxModelCalls)
-        assertEquals(600_000, limits.maxDurationMs); assertEquals(300_000, limits.maxTotalTokens)
+        assertEquals(60, limits.maxSteps); assertEquals(90, limits.maxModelCalls)
+        assertEquals(900_000, limits.maxDurationMs); assertEquals(500_000, limits.maxTotalTokens)
         assertEquals(30_000, limits.stepToolTimeoutMs); assertEquals(120_000, limits.confirmationTimeoutMs)
         assertEquals(600_000, limits.askTimeoutMs)
         assertEquals(1_800_000, BudgetLimits.defaults(true).maxDurationMs)

@@ -47,7 +47,7 @@ class PresetAdmissionTest {
     }
     @Test fun presetDurationIsClampedByTaskOwnershipAndHostTokenGrant() {
         val preset = office.copy(budget = mapOf("maxDurationMs" to 1800000, "maxTotalTokens" to 300000))
-        assertEquals(600000, request(preset = preset).options.limits.maxDurationMs)
+        assertEquals(900000, request(preset = preset).options.limits.maxDurationMs)
         assertEquals(1800000, request("""{"detached":true}""", preset).options.limits.maxDurationMs)
         assertEquals(10000, request(preset = preset).options.limits.maxTotalTokens)
     }

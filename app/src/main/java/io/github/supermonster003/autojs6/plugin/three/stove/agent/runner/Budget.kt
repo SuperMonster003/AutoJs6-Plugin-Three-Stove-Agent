@@ -14,8 +14,8 @@ object RunLimits {
     const val TOOL_TIMEOUT_MS = ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS
     const val TOKENS = ThreeStoveAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK
     const val JOURNAL_BYTES = ThreeStoveAgentContract.MAX_RUN_JOURNAL_BYTES
-    /** Plugin defaults from P2.3; settings, presets and requests can only narrow them. */
-    const val DEFAULT_DURATION_MS = 10 * 60_000L
+    /** Plugin defaults (P2.3, relaxed on maintainer feedback in P14.3); settings, presets and requests can only narrow them. */
+    const val DEFAULT_DURATION_MS = 15 * 60_000L
     const val DEFAULT_DETACHED_DURATION_MS = 30 * 60_000L
     /** Whole preparation window (model selection, catalog, memory, MCP) before the first decision. */
     const val PREPARATION_MS = 15_000L
@@ -24,10 +24,10 @@ object RunLimits {
 }
 
 data class BudgetLimits(
-    val maxSteps: Int = 40,
-    val maxModelCalls: Int = 60,
+    val maxSteps: Int = 60,
+    val maxModelCalls: Int = 90,
     val maxDurationMs: Long = RunLimits.DEFAULT_DURATION_MS,
-    val maxTotalTokens: Long = 300_000,
+    val maxTotalTokens: Long = 500_000,
     val stepToolTimeoutMs: Long = RunLimits.DEFAULT_TOOL_TIMEOUT_MS,
     val confirmationTimeoutMs: Long = 120_000,
     val askTimeoutMs: Long = 10 * 60_000,

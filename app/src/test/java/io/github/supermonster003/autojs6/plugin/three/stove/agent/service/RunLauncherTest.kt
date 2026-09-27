@@ -11,7 +11,7 @@ class RunLauncherTest {
         val admitted = RunLauncher.start(C.LINK_STATE_ATTACHED, config, request) { it }
         assertEquals("plugin", admitted.interaction)
         assertEquals("zh-Hans", admitted.options.locale)
-        assertEquals(40, admitted.options.limits.maxSteps)
+        assertEquals(60, admitted.options.limits.maxSteps)
         assertThrows(IllegalArgumentException::class.java) {
             RunLauncher.start(C.LINK_STATE_ATTACHED, config, RunLauncher.uiRequest("Read", "missing", "en")) { fail("Invalid preset admitted") }
         }
