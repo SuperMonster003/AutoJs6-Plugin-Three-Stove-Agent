@@ -274,6 +274,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val run = active[event.runId]
         if (event.type in setOf("step", "done", "error")) run?.readJournal { archive.journal(event.runId, it) }
         sinks[event.runId]?.send(event)
+        if (event.type == "done") runCatching { runtime.alerts.runEnded(event.runId, event.payload) }
         if (event.type == "done" && run?.state?.terminal == true) {
             active.remove(event.runId)
             val sink = sinks.remove(event.runId)

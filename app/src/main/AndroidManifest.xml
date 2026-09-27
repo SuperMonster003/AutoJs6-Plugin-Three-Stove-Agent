@@ -91,6 +91,8 @@
         <activity android:name=".ui.AboutActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
             android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />
+        <activity android:name=".ui.FailureAlertActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
+            android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />
 
         <service
             android:name=".ThreeStoveAgentTaskForegroundService"

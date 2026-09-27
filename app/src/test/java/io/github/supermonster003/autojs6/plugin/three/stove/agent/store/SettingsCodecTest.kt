@@ -13,7 +13,7 @@ class SettingsCodecTest {
     @Test fun fullAccessRequiresExplicitPrivateSettingsAndPreservesToolAndBudgetLimits() {
         val chosen = AgentSettings(fullAccess = true, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
         assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
-        val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply { addProperty("version", 2); remove("fullAccess") }
+        val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply { addProperty("version", 2); remove("fullAccess"); remove("failureAlerts") }
         assertFalse(SettingsCodec.decode(legacy.toString()).fullAccess)
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("cautious", true) }.toString()) }
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("fullAccess", "true") }.toString()) }
@@ -41,7 +41,8 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 4.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json()))
+        for ((key, value) in listOf("version" to 5.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
+            "failureAlerts" to AgentJson.parse("[\"email\"]"), "failureAlerts" to AgentJson.parse("[\"toast\",\"toast\"]")))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add(key, value) }.toString()) }
         for (budget in listOf("""{"maxSteps":201}""", """{"maxSteps":1.5}""", """{"maxSteps":0}""", """{"unknown":1}"""))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add("budget", AgentJson.parse(budget)) }.toString()) }
@@ -50,9 +51,14 @@ class SettingsCodecTest {
     }
     @Test fun oldSettingsMigrateWithoutEnablingAnOverlayOrChangingAuthority() {
         val chosen = AgentSettings(cautious = true, voice = false, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
-        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating"); remove("fullAccess") }
+        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts") }
         assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
         assertFalse(SettingsCodec.decode(legacy.toString()).floating)
+        assertEquals(setOf(AgentSettings.ALERT_NOTIFICATION), SettingsCodec.decode(legacy.toString()).failureAlerts)
+        val alerted = chosen.copy(failureAlerts = setOf(AgentSettings.ALERT_TOAST, AgentSettings.ALERT_DIALOG))
+        assertEquals(alerted, SettingsCodec.decode(SettingsCodec.encode(alerted)))
+        assertEquals(emptySet<String>(), SettingsCodec.decode(SettingsCodec.encode(chosen.copy(failureAlerts = emptySet()))).failureAlerts)
+        reject { AgentSettings(failureAlerts = setOf("email")) }
         val enabled = chosen.copy(floating = true)
         assertEquals(enabled, SettingsCodec.decode(SettingsCodec.encode(enabled)))
         reject { SettingsCodec.decode(legacy.deepCopy().apply { addProperty("floating", true) }.toString()) }

@@ -11,10 +11,18 @@ internal data class AgentSettings(
     val toolGroups: Set<String> = ToolGroup.entries.filter { it.defaultEnabled }.map { it.id }.toSet(),
     val budget: Map<String, Long> = emptyMap(), val cautious: Boolean = false, val voice: Boolean = true,
     val floating: Boolean = false, val fullAccess: Boolean = false,
+    /** Channels that report a task stopped by an error, a budget limit or a lost host (P14.1). */
+    val failureAlerts: Set<String> = setOf(ALERT_NOTIFICATION),
 ) {
-    init { require(!cautious || !fullAccess) }
+    init { require(!cautious || !fullAccess); require(failureAlerts.all { it in ALERT_CHANNELS }) }
     /** Wire value of the global access mode shown on the workbench: standard, cautious or full. */
     val accessMode: String get() = when { fullAccess -> "full"; cautious -> "cautious"; else -> "standard" }
+    companion object {
+        const val ALERT_NOTIFICATION = "notification"
+        const val ALERT_TOAST = "toast"
+        const val ALERT_DIALOG = "dialog"
+        val ALERT_CHANNELS = setOf(ALERT_NOTIFICATION, ALERT_TOAST, ALERT_DIALOG)
+    }
 }
 
 /** Private format; a corrupt or future version never silently restores a more permissive policy. */
@@ -25,10 +33,11 @@ internal object SettingsCodec {
     fun decode(text: String): AgentSettings {
         val root = AgentJson.objectOf(text, MAX_BYTES)
         val version = requireNotNull(root.number("version"))
-        require(version in 1L..3L)
+        require(version in 1L..4L)
         require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") +
             (if (version >= 2L) setOf("floating") else emptySet()) +
-            (if (version == 3L) setOf("fullAccess") else emptySet()))
+            (if (version >= 3L) setOf("fullAccess") else emptySet()) +
+            (if (version >= 4L) setOf("failureAlerts") else emptySet()))
         val groups = requireNotNull(root["toolGroups"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }
@@ -37,14 +46,19 @@ internal object SettingsCodec {
         val limits = budget.keySet().associateWith { key ->
             val ceiling = requireNotNull(ceilings[key]); requireNotNull(runCatching { budget.number(key) }.getOrNull()).also { require(it in 1..ceiling) }
         }
+        val alerts = if (version >= 4L) requireNotNull(root["failureAlerts"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
+            require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
+        }.also { require(it.toSet().size == it.size && it.all { channel -> channel in AgentSettings.ALERT_CHANNELS }) }.toSet()
+        else setOf(AgentSettings.ALERT_NOTIFICATION)
         return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
             if (version >= 2L) requireNotNull(root.flag("floating")) else false,
-            if (version == 3L) requireNotNull(root.flag("fullAccess")) else false)
+            if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts)
     }
-    fun json(value: AgentSettings) = jsonObject("version" to 3.json(), "toolGroups" to JsonArray().apply {
+    fun json(value: AgentSettings) = jsonObject("version" to 4.json(), "toolGroups" to JsonArray().apply {
         value.toolGroups.sorted().forEach(::add)
     }, "budget" to JsonObject().apply { value.budget.forEach { (key, number) -> addProperty(key, number) } },
-        "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json(), "fullAccess" to value.fullAccess.json())
+        "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json(), "fullAccess" to value.fullAccess.json(),
+        "failureAlerts" to JsonArray().apply { value.failureAlerts.sorted().forEach(::add) })
     fun encode(value: AgentSettings): String = json(value).toString().also { decode(it) }
 }
 
