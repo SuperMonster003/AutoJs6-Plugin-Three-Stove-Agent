@@ -12,6 +12,7 @@ import android.text.*
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
@@ -41,6 +42,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var appearance: HostAppearance? = null
     private var readAppearance = true
     private var context: Context = themed()
+    private var kit: Kit = Kit(context, AgentPalette.resolve(context, appearance))
     private var closed = false
     private var unlocked = power.isInteractive && !keyguard.isKeyguardLocked
     private var wakeGeneration = 0
@@ -54,10 +56,15 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var pending: PendingCard? = null
     private var pendingDraft = Bundle()
     private var statusLabel: TextView? = null
-    private var stopButton: Button? = null
+    private var stopButton: View? = null
     private var sendButton: Button? = null
-    private var presetSpinner: Spinner? = null
-    private var voiceButton: Button? = null
+    private var presetRow: SettingRow? = null
+    private var presetPanel: LinearLayout? = null
+    private var presetPanelOpen = false
+    private var modelRow: SettingRow? = null
+    /** The shared model choice (null means Automatic), read off the UI thread with each snapshot. */
+    private var modelName: String? = null
+    private var voiceButton: View? = null
     private var message: TextView? = null
     private var cardScroll: ScrollView? = null
     private var visibleRequest: String? = null
@@ -114,11 +121,12 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 runtime.settings.snapshot().let { status.addProperty("voiceEnabled", it.voice); status.addProperty("fullAccessEnabled", it.fullAccess) }
                 WorkbenchSnapshot(status, active, run, presets.presets.map { it.name }, presets.defaultName)
             }.getOrNull()
+            val model = runCatching { ModelSelection.read(app).current?.name }.getOrNull()
             main.post {
                 queued.set(false)
                 if (closed) return@post
                 if (appearance != nextAppearance) { appearance = nextAppearance; removeWindow(); context = themed() }
-                snapshot = value
+                snapshot = value; modelName = model
                 publish()
                 if (revision != expected) changed()
             }
@@ -145,11 +153,8 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         if (expanded) {
             if (selectedPreset == null) selectedPreset = value.defaultPreset
             val names = (value.presets + requireNotNull(selectedPreset)).distinct()
-            if (names != presetNames) {
-                presetNames = names
-                presetSpinner?.adapter = ArrayAdapter(context, R.layout.item_spinner_choice, names)
-                presetSpinner?.setSelection(names.indexOf(selectedPreset).coerceAtLeast(0))
-            }
+            if (names != presetNames) { presetNames = names; renderPresets() }
+            modelRow?.setSummary(modelName ?: context.getString(R.string.model_automatic))
             voiceButton?.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(context)) View.VISIBLE else View.GONE
             fullAccessLabel?.visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
             pending?.render(run)
@@ -158,54 +163,75 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             if (visibleRequest != request?.string("requestId")) { visibleRequest = request?.string("requestId"); cardScroll?.scrollTo(0, 0) }
             runtime.interactions.present(visibilityOwner, run?.string("runId").takeIf { request != null }, request?.string("requestId"))
         } else runtime.interactions.present(visibilityOwner, null, null)
-        root?.let { styleHostControls(it, appearance) }
         updateSend(); reposition()
     }
-    private fun button(parent: LinearLayout, resource: Int, tag: String, action: () -> Unit): Button = Button(context).apply {
-        text = context.getString(resource); contentDescription = text; this.tag = tag; isAllCaps = false
-        AgentUi.role(this, when (tag) { "floating-send", "floating-toggle" -> "primary"; "floating-stop" -> "danger"; else -> "secondary" })
-        minimumHeight = dp(48); setOnClickListener { action() }
-        parent.addView(this, LinearLayout.LayoutParams(if (parent.orientation == LinearLayout.VERTICAL) -1 else -2, -2).apply {
-            if (parent.orientation == LinearLayout.VERTICAL) { topMargin = dp(6); bottomMargin = dp(6) }
-        })
+    private fun presetLabel(name: String) = if (name == "default") context.getString(R.string.workbench_default_preset) else name
+    /** Inline choices: an overlay window cannot host popups, dialogs or bottom sheets. */
+    private fun renderPresets() {
+        presetRow?.setSummary(selectedPreset?.let(::presetLabel))
+        val panel = presetPanel ?: return
+        panel.removeAllViews()
+        presetNames.forEach { name ->
+            val selected = name == selectedPreset
+            panel.addView(kit.settingRow(presetLabel(name), null, if (selected) R.drawable.ic_check else null, "floating-preset-$name", chevron = false,
+                titleColor = if (selected) kit.palette.accent else kit.palette.text) {
+                selectedPreset = name; presetPanelOpen = false; panel.visibility = View.GONE; renderPresets(); updateSend(); saveDraft()
+            }.view.apply { setPaddingRelative(kit.dp(Ui.SPACE_SM), paddingTop, kit.dp(Ui.SPACE_SM), paddingBottom); minimumHeight = kit.dp(52) })
+        }
+        panel.visibility = if (presetPanelOpen) View.VISIBLE else View.GONE
     }
+    private fun pickerRow(parent: LinearLayout, title: Int, icon: Int, tag: String, onClick: () -> Unit): SettingRow =
+        kit.settingRow(context.getString(title), null, icon, tag, onClick = onClick).also { row ->
+            row.view.setPaddingRelative(kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_XS), 0, kit.dp(Ui.SPACE_XS)); row.view.minimumHeight = kit.dp(56)
+            parent.addView(row.view, LinearLayout.LayoutParams(-1, -2))
+        }
     @android.annotation.SuppressLint("RtlHardcoded") // x/y are physical display coordinates; content still follows RTL.
     @Suppress("DEPRECATION")
     private fun createWindow(reuse: LinearLayout? = null) {
         context = themed()
+        kit = Kit(context, AgentPalette.resolve(context, appearance))
+        val palette = kit.palette
+        val compact = !expanded && snapshot?.run == null
         val body = (reuse ?: LinearLayout(context)).apply {
             orientation = LinearLayout.VERTICAL; layoutDirection = context.resources.configuration.layoutDirection
-            val background = android.util.TypedValue().also { context.theme.resolveAttribute(android.R.attr.colorBackground, it, true) }
-            this.background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(if (background.resourceId != 0) context.getColor(background.resourceId) else background.data)
-                cornerRadius = dp(if (!expanded && snapshot?.run == null) 32 else 22).toFloat()
-            }
+            background = kit.roundedFill(palette.surface, if (compact) Ui.RADIUS_PILL else Ui.RADIUS_BUBBLE + 2, palette.outline)
             clipToOutline = true
             elevation = dp(8).toFloat(); setPadding(dp(4), dp(4), dp(4), dp(4))
         }
         root = body
-        val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; body.addView(this) }
-        val handle = button(header, if (expanded) R.string.floating_collapse else R.string.floating_open, "floating-toggle") { toggle() }
-        handle.setText(R.string.floating_monogram)
-        handle.background = android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(AgentUi.palette(context, appearance).accent) }
-        handle.minWidth = dp(48); handle.minimumWidth = dp(48)
-        handle.layoutParams = LinearLayout.LayoutParams(dp(56), -2)
+        val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; body.addView(this) }
+        // The handle stays the first header child: it toggles the card and drags the window.
+        val handle = Button(context).apply {
+            tag = "floating-toggle"; setText(R.string.floating_monogram); isAllCaps = false
+            textSize = Ui.TEXT_ITEM; typeface = Ui.medium; setTextColor(palette.onPrimary); stateListAnimator = null
+            contentDescription = context.getString(if (expanded) R.string.floating_collapse else R.string.floating_open)
+            background = android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(palette.accentRipple),
+                android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(palette.primary) }, null)
+            minWidth = dp(48); minimumWidth = dp(48); minHeight = dp(48); minimumHeight = dp(48); setPadding(0, 0, 0, 0)
+            setOnClickListener { toggle() }
+        }
+        header.addView(handle, LinearLayout.LayoutParams(dp(56), dp(56)))
         drag(handle)
         statusLabel = TextView(context).apply {
             tag = "floating-step"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END
+            textSize = Ui.TEXT_BODY; setTextColor(palette.text); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            setPaddingRelative(dp(Ui.SPACE_MD), 0, dp(Ui.SPACE_XS), 0)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             header.addView(this, LinearLayout.LayoutParams(0, -2, 1f))
         }
-        stopButton = button(header, R.string.task_stop, "floating-stop") {
+        stopButton = kit.iconButton(R.drawable.ic_stop, context.getString(R.string.task_stop), "floating-stop", palette.danger) {
             snapshot?.run?.string("runId")?.let { runtime.current?.cancelLocal(it) }
-        }
+        }.also { header.addView(it, LinearLayout.LayoutParams(dp(Ui.TOUCH_TARGET), dp(Ui.TOUCH_TARGET))) }
         if (expanded) {
             val scroll = ScrollView(context)
             cardScroll = scroll
-            val card = HistoryViews.column(context)
+            val card = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPaddingRelative(dp(Ui.SPACE_MD), dp(Ui.SPACE_XS), dp(Ui.SPACE_MD), dp(Ui.SPACE_MD))
+            }
             scroll.addView(card); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
             val pendingColumn = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; card.addView(this) }
-            pending = PendingCard(pendingColumn) { request, complete ->
+            pending = PendingCard(pendingColumn, kit, framed = false) { request, complete ->
                 val link = runtime.current
                 if (link == null) complete(false) else {
                     // Release focus before the confirmed action or the next observation resumes.
@@ -216,37 +242,49 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                     }
                 }
             }.apply { restore(pendingDraft) }
-            fullAccessLabel = HistoryViews.label(card, context.getString(R.string.settings_full_access)).apply {
-                tag = "floating-full-access"; visibility = View.GONE; setTextColor(AgentUi.palette(context, appearance).danger)
-            }
-            HistoryViews.label(card, context.getString(R.string.workbench_goal_hint)).apply {
-                labelFor = R.id.workbench_goal
-            }
-            goalField = EditText(context).apply {
-                id = R.id.workbench_goal; tag = "floating-goal"; setText(draft)
-                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE; maxLines = 5; minLines = 2
-                filters = arrayOf(InputFilter.LengthFilter(4096))
+            // The goal field sits directly under the header so it is reachable without scrolling.
+            val (goalLayout, goal) = kit.textField(draft, context.getString(R.string.workbench_goal_hint),
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 4096, singleLine = false, tag = "floating-goal")
+            goalField = goal.apply {
+                id = R.id.workbench_goal; maxLines = 5; minLines = 2
                 if (Build.VERSION.SDK_INT >= 26) importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
                 addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { draft = s.toString(); updateSend() }
                     override fun afterTextChanged(s: Editable?) = Unit
-                }); card.addView(this)
+                })
             }
-            presetSpinner = Spinner(context).apply {
-                tag = "floating-preset"; contentDescription = context.getString(R.string.presets_title); minimumHeight = dp(48)
-                onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        presetNames.getOrNull(position)?.let { selectedPreset = it; updateSend() }
-                    }
-                }; card.addView(this)
+            card.addView(goalLayout, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+            modelRow = pickerRow(card, R.string.floating_model, R.drawable.ic_spark, "floating-model") { open(LauncherActivity::class.java, models = true) }
+            presetRow = pickerRow(card, R.string.workbench_preset, R.drawable.ic_layers, "floating-preset") {
+                presetPanelOpen = !presetPanelOpen; renderPresets()
             }
-            message = HistoryViews.label(card, "").apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
-            voiceButton = button(card, R.string.workbench_voice, "floating-voice", ::voice)
-            sendButton = button(card, R.string.workbench_send, "floating-send", ::send)
-            button(card, R.string.history_title, "floating-history") { open(HistoryActivity::class.java) }
-            button(card, R.string.floating_workbench, "floating-workbench") { open(LauncherActivity::class.java) }
+            presetPanel = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL; tag = "floating-presets"; visibility = View.GONE
+                background = kit.roundedFill(palette.surfaceVariant, Ui.RADIUS_CONTROL)
+                card.addView(this, LinearLayout.LayoutParams(-1, -2))
+            }
+            renderPresets()
+            fullAccessLabel = kit.badge(context.getString(R.string.settings_full_access), Tone.DANGER).apply {
+                tag = "floating-full-access"; visibility = View.GONE
+                card.addView(this, LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+            }
+            message = kit.text("", Ui.TEXT_SECONDARY, palette.danger).apply {
+                accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+                card.addView(this, LinearLayout.LayoutParams(-1, -2))
+            }
+            val actions = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+            card.addView(actions, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_SM) })
+            voiceButton = kit.iconButton(R.drawable.ic_mic, context.getString(R.string.workbench_voice), "floating-voice", palette.accent, ::voice)
+                .also { actions.addView(it, LinearLayout.LayoutParams(dp(Ui.TOUCH_TARGET), dp(Ui.TOUCH_TARGET)).apply { marginEnd = dp(Ui.SPACE_SM) }) }
+            sendButton = kit.filledButton(context.getString(R.string.workbench_send), "floating-send", ::send)
+                .also { actions.addView(it, LinearLayout.LayoutParams(0, -2, 1f)) }
+            val links = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+            card.addView(links, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+            links.addView(kit.textButton(context.getString(R.string.history_title), "floating-history") { open(HistoryActivity::class.java) },
+                LinearLayout.LayoutParams(0, -2, 1f))
+            links.addView(kit.textButton(context.getString(R.string.floating_workbench), "floating-workbench") { open(LauncherActivity::class.java) },
+                LinearLayout.LayoutParams(0, -2, 1f))
         }
         val flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
             (if (expanded) WindowManager.LayoutParams.FLAG_SECURE else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
@@ -263,7 +301,6 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             val next = bounds.width() to bounds.height()
             if (dimensions != next) { dimensions = next; main.post { if (root === body) reposition() } }
         }
-        styleHostControls(body, appearance)
     }
     private fun updateSend() {
         sendButton?.isEnabled = !sending && draft.isNotBlank() && selectedPreset in snapshot?.presets.orEmpty() && permitted()
@@ -296,10 +333,11 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     }
     private fun showError() { message?.setText(R.string.workbench_request_failed) }
     private fun toggle() { expanded = !expanded; readAppearance = true; rebuildWindow(); publish(); changed() }
-    private fun open(type: Class<*>) {
+    private fun open(type: Class<*>, models: Boolean = false) {
         saveDraft()
         runCatching {
-            val intent = if (type == LauncherActivity::class.java) TaskEntries.intent(app, TaskEntry(draft, selectedPreset)) else Intent(app, type)
+            val intent = if (type == LauncherActivity::class.java) TaskEntries.intent(app, TaskEntry(draft, selectedPreset))
+                .putExtra(LauncherActivity.EXTRA_OPEN_MODELS, models) else Intent(app, type)
             app.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }.onSuccess { expanded = false; rebuildWindow(); publish() }.onFailure { showError() }
     }
@@ -377,7 +415,8 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private fun clearVisibility() { runtime.interactions.present(visibilityOwner, null, null) }
     private fun clearCard() {
         goalField = null; pending = null; statusLabel = null; stopButton = null; cardScroll = null; visibleRequest = null
-        sendButton = null; presetSpinner = null; voiceButton = null; fullAccessLabel = null; message = null; presetNames = emptyList(); dimensions = null
+        sendButton = null; presetRow = null; presetPanel = null; modelRow = null; voiceButton = null; fullAccessLabel = null; message = null
+        presetNames = emptyList(); dimensions = null
     }
     private fun rebuildWindow() {
         val body = root ?: return

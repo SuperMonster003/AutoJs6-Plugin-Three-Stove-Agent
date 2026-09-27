@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">لا توجد إصدارات متجاهلة حاليا</string>
     <string name="app_update_release_history_summary">عرض سجل الإصدارات المضمن في التطبيق</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">المعلمة</string>
-    <string name="confirmation_value">القيمة</string>
     <string name="entry_invalid">تعذر فتح مسودة المهمة أو إنشاء اختصارها.</string>
     <string name="floating_collapse">طي بطاقة المهمة. اسحب للتحريك</string>
+    <string name="floating_model">النموذج</string>
     <string name="floating_open">فتح بطاقة المهمة. اسحب للتحريك</string>
     <string name="floating_permission_required">اسمح بالظهور فوق التطبيقات الأخرى لتفعيل الكرة العائمة.</string>
     <string name="floating_setting_note">معطلة افتراضيا. تتطلب إذن الظهور فوق التطبيقات الأخرى. تظهر الكرة عند اتصال AutoJs6 وتختفي عند الانقطاع أو القفل. لا تبقى خدمة أمامية أثناء الخمول.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">الإجابة لاحقا</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">جار تحميل الطلب...</string>
     <string name="interaction_memory_disabled">الذاكرة معطلة لهذه المهمة. تستخدم الإجابة في المهمة الحالية فقط.</string>
+    <string name="interaction_no_parameters">لا توجد معلمات</string>
+    <string name="interaction_parameters">المعلمات</string>
     <string name="interaction_question">إجابتك مطلوبة</string>
     <string name="interaction_remaining">الوقت المتبقي: %1$d ثانية</string>
     <string name="interaction_remember">تذكر هذه الإجابة</string>
     <string name="interaction_remember_review">راجع اقتراح الذاكرة وأكده بشكل منفصل بعد الإجابة.</string>
-    <string name="interaction_risk">المخاطر: %1$s</string>
     <string name="interaction_risk_normal">عادي</string>
     <string name="interaction_risk_read_only">للقراءة فقط</string>
     <string name="interaction_risk_sensitive">حساس</string>

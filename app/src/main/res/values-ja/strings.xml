@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">無視しているリリースはありません</string>
     <string name="app_update_release_history_summary">アプリに同梱のバージョン履歴を表示</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">パラメータ</string>
-    <string name="confirmation_value">値</string>
     <string name="entry_invalid">タスクの下書きを開くかショートカットを作成できません.</string>
     <string name="floating_collapse">タスクカードを閉じる. ドラッグで移動</string>
+    <string name="floating_model">モデル</string>
     <string name="floating_open">タスクカードを開く. ドラッグで移動</string>
     <string name="floating_permission_required">フローティングボールを有効にするには他のアプリの上への表示を許可してください.</string>
     <string name="floating_setting_note">初期状態では無効です. 他のアプリの上への表示の許可が必要です. AutoJs6 の接続中のみ表示し, 切断時とロック時は非表示になります. 待機中のフォアグラウンドサービスは使用しません.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">後で回答</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">リクエストを読み込み中...</string>
     <string name="interaction_memory_disabled">このタスクでは記憶が無効です. 回答は現在のタスクでのみ使用されます.</string>
+    <string name="interaction_no_parameters">パラメーターなし</string>
+    <string name="interaction_parameters">パラメーター</string>
     <string name="interaction_question">回答が必要です</string>
     <string name="interaction_remaining">残り時間: %1$d 秒</string>
     <string name="interaction_remember">この回答を記憶</string>
     <string name="interaction_remember_review">回答後に記憶の提案を別途確認して承認してください.</string>
-    <string name="interaction_risk">リスク: %1$s</string>
     <string name="interaction_risk_normal">通常</string>
     <string name="interaction_risk_read_only">読み取り専用</string>
     <string name="interaction_risk_sensitive">機密</string>

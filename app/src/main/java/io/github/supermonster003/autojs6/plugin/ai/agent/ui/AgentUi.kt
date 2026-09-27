@@ -147,7 +147,7 @@ internal object AgentUi {
         val minimum = dp(view.context, 48)
         when (view) {
             // Kit-built Material widgets carry their own palette styling.
-            is MaterialButton, is MaterialSwitch, is Chip, is TextInputEditText -> Unit
+            is MaterialButton, is MaterialSwitch, is Chip, is TextInputEditText, is com.google.android.material.checkbox.MaterialCheckBox -> Unit
             is CompoundButton -> {
                 view.minHeight = minimum; view.minWidth = minimum; view.textSize = 15f; view.setTextColor(p.text)
                 val colors = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(p.accent, p.muted))

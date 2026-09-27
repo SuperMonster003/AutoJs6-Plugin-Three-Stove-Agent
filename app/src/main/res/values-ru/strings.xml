@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">Нет пропущенных версий</string>
     <string name="app_update_release_history_summary">Просмотр истории версий в приложении</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">Параметр</string>
-    <string name="confirmation_value">Значение</string>
     <string name="entry_invalid">Не удалось открыть черновик или создать ярлык.</string>
     <string name="floating_collapse">Свернуть карточку. Перетащите для перемещения</string>
+    <string name="floating_model">Модель</string>
     <string name="floating_open">Открыть карточку. Перетащите для перемещения</string>
     <string name="floating_permission_required">Разрешите показ поверх других приложений для плавающей кнопки.</string>
     <string name="floating_setting_note">По умолчанию выключена. Нужно разрешение на показ поверх других приложений. Кнопка видна при подключении AutoJs6 и скрыта при отключении или блокировке. Служба переднего плана не работает в простое.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">Ответить позже</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">Загрузка запроса...</string>
     <string name="interaction_memory_disabled">Память отключена для этой задачи. Ответ используется только в текущей задаче.</string>
+    <string name="interaction_no_parameters">Нет параметров</string>
+    <string name="interaction_parameters">Параметры</string>
     <string name="interaction_question">Требуется ваш ответ</string>
     <string name="interaction_remaining">Осталось: %1$d с</string>
     <string name="interaction_remember">Запомнить этот ответ</string>
     <string name="interaction_remember_review">После ответа отдельно проверьте и подтвердите предложение памяти.</string>
-    <string name="interaction_risk">Риск: %1$s</string>
     <string name="interaction_risk_normal">Обычный</string>
     <string name="interaction_risk_read_only">Только чтение</string>
     <string name="interaction_risk_sensitive">Чувствительный</string>

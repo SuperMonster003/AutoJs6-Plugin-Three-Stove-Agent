@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">目前沒有已忽略的版本</string>
     <string name="app_update_release_history_summary">查看應用程式內建的版本歷史</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">參數</string>
-    <string name="confirmation_value">值</string>
     <string name="entry_invalid">無法開啟此任務草稿或建立捷徑.</string>
     <string name="floating_collapse">收起任務卡片, 拖曳可移動</string>
+    <string name="floating_model">模型</string>
     <string name="floating_open">展開任務卡片, 拖曳可移動</string>
     <string name="floating_permission_required">請允許顯示在其他應用程式上層以啟用懸浮球.</string>
     <string name="floating_setting_note">預設關閉. 需要顯示在其他應用程式上層的權限. 僅在 AutoJs6 已連線時顯示, 中斷或鎖定時隱藏. 閒置時不維持前景服務.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">稍後處理</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">正在讀取請求...</string>
     <string name="interaction_memory_disabled">本次任務已停用記憶. 回答僅用於目前任務.</string>
+    <string name="interaction_no_parameters">沒有參數</string>
+    <string name="interaction_parameters">參數</string>
     <string name="interaction_question">需要你的回答</string>
     <string name="interaction_remaining">剩餘時間: %1$d 秒</string>
     <string name="interaction_remember">記住此答案</string>
     <string name="interaction_remember_review">回答後需另行檢閱並確認記憶提議.</string>
-    <string name="interaction_risk">風險: %1$s</string>
     <string name="interaction_risk_normal">一般</string>
     <string name="interaction_risk_read_only">唯讀</string>
     <string name="interaction_risk_sensitive">敏感</string>

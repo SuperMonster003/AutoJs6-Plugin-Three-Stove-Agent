@@ -1,9 +1,8 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.scripts
 
-import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 
-/** JSON scalar rendering preserves quotes, line breaks and types; no markup is interpreted. */
+/** Bounded script descriptions for confirmation events; no markup is interpreted. */
 object ScriptConfirmation {
     fun description(text: String): String {
         var bytes = 4096
@@ -14,6 +13,4 @@ object ScriptConfirmation {
         }
         return result + if (result != text) "..." else ""
     }
-    fun rows(arguments: JsonObject): List<Pair<String, String>> = arguments.getAsJsonObject("parameters")
-        .entrySet().sortedBy { it.key }.map { it.key to it.value.toString() }
 }

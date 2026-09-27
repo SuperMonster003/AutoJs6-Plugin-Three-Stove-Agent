@@ -5,6 +5,8 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.core.CoreFixtures as F
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.ArgumentRow
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.ArgumentRows
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -43,7 +45,7 @@ class RegisteredScriptToolsTest {
         assertEquals(7L, prepared.metadata.script.parameters.number("days"))
         val gate = ConfirmationGate(policy, ConfirmationMode.DEFAULT)
         assertTrue(gate.description(catalog["script_run"]!!, prepared.metadata, "en").contains("Remove old installers"))
-        assertEquals(listOf("days" to "7"), ScriptConfirmation.rows(gate.arguments(invocation.arguments, prepared.metadata)))
+        assertEquals(listOf(ArgumentRow("days", "7", true)), ArgumentRows.rows(gate.arguments(invocation.arguments, prepared.metadata)["parameters"], sorted = true))
         assertTrue(gate.assess(catalog["script_run"]!!, prepared.metadata).allowRunScope)
     }
     @Test fun unauthorizedUnknownAndAmbiguousIdsNeverReadAManifest() {
@@ -103,8 +105,9 @@ class RegisteredScriptToolsTest {
     }
     @Test fun confirmationRowsPreserveTypesFullValuesAndDeterministicOrder() {
         val args = AgentJson.objectOf("""{"parameters":{"z":false,"a":"<b>line\nquoted\"</b>","n":1.5}}""")
-        assertEquals(listOf("a" to "\"<b>line\\nquoted\\\"</b>\"", "n" to "1.5", "z" to "false"), ScriptConfirmation.rows(args))
+        fun rows() = ArgumentRows.rows(args["parameters"], sorted = true)
+        assertEquals(listOf(ArgumentRow("a", "<b>line\nquoted\"</b>", false), ArgumentRow("n", "1.5", true), ArgumentRow("z", "false", true)), rows())
         args.getAsJsonObject("parameters").addProperty("a", "x".repeat(8000))
-        assertEquals(8002, ScriptConfirmation.rows(args).first().second.length)
+        assertEquals(8000, rows().first().value.length)
     }
 }

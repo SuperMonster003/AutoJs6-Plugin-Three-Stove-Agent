@@ -23,7 +23,8 @@
       ],
       "improvement": [
         "模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.",
-        "統一獨立應用程式的導覽, 卡片, 任務時間軸, 分區清晰的設定與明暗外觀, 預算輸入提供即時驗證"
+        "統一獨立應用程式的導覽, 卡片, 任務時間軸, 分區清晰的設定與明暗外觀, 預算輸入提供即時驗證",
+        "確認卡片以可讀表格顯示風險等級, 工具群組和全部參數, 不再顯示原始 JSON; 允許一次, 目前工作階段一律允許與拒絕三個操作清楚區分. 懸浮球採用相同的 Material 設計, 預設在卡片內直接選擇, 模型一列可開啟共用的模型切換器"
       ],
       "dependency": [
         "附加 AndroidX AppCompat 1.7.1 與 Material Components for Android 1.13.0 及其 AndroidX 執行時相依套件, 用於 Material 3 介面"

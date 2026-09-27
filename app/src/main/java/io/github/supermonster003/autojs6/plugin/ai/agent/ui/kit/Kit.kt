@@ -169,7 +169,20 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
                 if (current is HostAppearanceActivity) return current.kit
                 current = (current as? ContextWrapper)?.baseContext?.takeIf { it !== current }
             }
-            return Kit(context, AgentPalette.resolve(context, AppearancePreferences.resolve(context)))
+            val palette = AgentPalette.resolve(context, AppearancePreferences.resolve(context))
+            return Kit(materialContext(context, palette.isDark), palette)
+        }
+
+        /**
+         * Material widgets require a Material theme. Application, configuration and overlay contexts
+         * may carry a platform theme, so they are wrapped in the app theme for the current night mode.
+         */
+        fun materialContext(context: Context, dark: Boolean): Context {
+            val attributes = context.theme.obtainStyledAttributes(intArrayOf(com.google.android.material.R.attr.colorPrimaryVariant))
+            val material = attributes.hasValue(0); attributes.recycle()
+            return if (material) context else androidx.appcompat.view.ContextThemeWrapper(context,
+                if (dark) io.github.supermonster003.autojs6.plugin.ai.agent.R.style.Theme_AiAgent_Dark
+                else io.github.supermonster003.autojs6.plugin.ai.agent.R.style.Theme_AiAgent_Light)
         }
     }
 }

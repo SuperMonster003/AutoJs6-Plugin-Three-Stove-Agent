@@ -1400,7 +1400,9 @@ class WorkbenchActivityTest {
                 val again = checkNotNull(floatingFrame(false)); tap(again.centerX(), again.centerY())
                 waitFor("Reopened card") { floatingFrame(true) != null }
                 waitFor("Draft retained") {
-                    overlayRoot()?.findAccessibilityNodeInfosByViewId("${context.packageName}:id/workbench_goal")?.firstOrNull()?.text?.toString() == "Floating acceptance fixture"
+                    val text = overlayRoot()?.findAccessibilityNodeInfosByViewId("${context.packageName}:id/workbench_goal")?.firstOrNull()?.text?.toString()
+                    // Below API 26 the Material text field announces "text, hint" because TalkBack ignored hint text there.
+                    text == "Floating acceptance fixture" || Build.VERSION.SDK_INT < 26 && text?.startsWith("Floating acceptance fixture, ") == true
                 }
                 waitFor("Start from actual overlay") {
                     val node = overlayRoot()?.findAccessibilityNodeInfosByText(labels.getString(R.string.workbench_send))?.firstOrNull { it.isClickable && it.isEnabled }

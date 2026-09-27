@@ -1,17 +1,31 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.text.InputFilter
 import android.os.Bundle
+import android.text.InputFilter
 import android.text.InputType
+import android.view.Gravity
 import android.view.View
 import android.widget.*
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import java.util.concurrent.TimeUnit
 
-/** Inline interaction, rebuilt only for a new request so polling cannot erase an answer being typed. */
-internal class PendingCard(private val container: LinearLayout, private val submit: (JsonObject, (Boolean) -> Unit) -> Unit) {
+/**
+ * Inline question or confirmation, rebuilt only for a new request so polling cannot erase an answer
+ * being typed. Answer buttons stay direct children of [container], in the order Allow once, Always
+ * allow for this session, Deny.
+ */
+internal class PendingCard(
+    private val container: LinearLayout,
+    private val kit: Kit = Kit.of(container.context),
+    /** False inside a surface that is already a card (confirmation dialog, floating card). */
+    private val framed: Boolean = true,
+    private val submit: (JsonObject, (Boolean) -> Unit) -> Unit,
+) {
     private var shown: String? = null
     private var restoredKey: String? = null
     private var restoredAnswer: String? = null
@@ -56,12 +70,12 @@ internal class PendingCard(private val container: LinearLayout, private val subm
         shown = key; container.removeCallbacks(tick); countdown = null; deadline = null; sending = false
         buttons.clear(); container.removeAllViews()
         sourceExpanded = key == restoredKey && restoredSourceExpanded
-        if (pending == null || pending.flag("submitted") == true) return
+        if (pending == null || pending.flag("submitted") == true) { frame(null); return }
         val context = container.context
-        fun label(text: String) = AgentUi.text(container, text, 14).apply { setTextIsSelectable(true) }
-        if (run.string("interaction") != "plugin") { label(context.getString(R.string.workbench_script_interaction)); return }
+        if (run.string("interaction") != "plugin") {
+            frame(Tone.NEUTRAL); add(body(context.getString(R.string.workbench_script_interaction))); return
+        }
         deadline = pending.number("deadlineMs")
-        if (deadline != null) countdown = label("").apply { id = R.id.interaction_countdown; setTextIsSelectable(false) }
         var remember: CheckBox? = null
         fun send(value: JsonElement? = null, allowed: Boolean? = null, scope: String = "once") {
             if (sending || expired()) return
@@ -73,59 +87,105 @@ internal class PendingCard(private val container: LinearLayout, private val subm
                 sending = false; buttons.forEach { it.isEnabled = !expired() }
             } }
         }
-        fun button(text: String, role: String = "secondary", click: () -> Unit) { container.addView(Button(context).apply {
-            this.text = text; AgentUi.role(this, role)
-            setOnClickListener { click() }; buttons += this
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = AgentUi.dp(context, 6); bottomMargin = AgentUi.dp(context, 6) }) }
         if (pending.string("type") == "confirmation") {
-            val risk = when (pending.string("risk")) {
-                "read_only" -> R.string.interaction_risk_read_only
-                "normal" -> R.string.interaction_risk_normal
-                else -> R.string.interaction_risk_sensitive
+            val (risk, tone) = when (pending.string("risk")) {
+                "read_only" -> R.string.interaction_risk_read_only to Tone.NEUTRAL
+                "normal" -> R.string.interaction_risk_normal to Tone.ACCENT
+                else -> R.string.interaction_risk_sensitive to Tone.WARNING
             }
-            label(context.getString(R.string.interaction_risk, context.getString(risk)))
+            frame(tone)
+            header(context.getString(risk), tone, R.drawable.ic_shield)
+            add(title(context.getString(R.string.interaction_confirmation)))
+            pending.string("tool")?.let { tool -> add(caption(ToolPresentation.label(context, tool))) }
+            val tool = pending.string("tool")
             when {
-                pending.string("tool") == "script_run_source" -> container.addView(DynamicScriptConfirmationView.create(context,
-                    pending.getAsJsonObject("arguments"), sourceExpanded) { sourceExpanded = it })
-                pending.string("tool") == "script_run" && pending.getAsJsonObject("arguments")?.has("parameters") == true ->
-                    container.addView(ScriptConfirmationView.create(context, pending))
-                else -> { label(pending.string("description").orEmpty()); label(pending["arguments"]?.toString().orEmpty()) }
-            }
-            button(context.getString(R.string.task_allow), "primary") { send(allowed = true) }
-            val session = pending.flag("allowRunScope") == true
-            if (session) button(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") }
-            button(context.getString(R.string.task_deny), "danger") { send(allowed = false) }
-            if (session) label(context.getString(R.string.interaction_allow_run_note))
-        } else {
-            label(pending.string("question").orEmpty())
-            if (pending.has("memoryKey")) {
-                remember = CheckBox(context).apply {
-                    id = R.id.interaction_remember; setText(R.string.interaction_remember)
-                    isEnabled = pending.has("rememberScope"); isChecked = isEnabled && key == restoredKey && restoredRemember
-                    container.addView(this)
+                tool == "script_run_source" -> add(DynamicScriptConfirmationView.create(context, pending.getAsJsonObject("arguments"), sourceExpanded) { sourceExpanded = it })
+                tool == "script_run" && pending.getAsJsonObject("arguments")?.has("parameters") == true -> add(ScriptConfirmationView.create(context, pending))
+                else -> {
+                    pending.string("description")?.takeIf { it.isNotBlank() }?.let { add(body(it)) }
+                    add(kit.parameterTable(ArgumentRows.rows(pending["arguments"])), top = Ui.SPACE_SM)
                 }
-                label(context.getString(if (remember.isEnabled) R.string.interaction_remember_review else R.string.interaction_memory_disabled))
+            }
+            button(kit.filledButton(context.getString(R.string.task_allow)) { send(allowed = true) }, first = true)
+            val session = pending.flag("allowRunScope") == true
+            if (session) button(kit.tonalButton(context.getString(R.string.interaction_allow_run)) { send(allowed = true, scope = "run") })
+            button(kit.outlinedButton(context.getString(R.string.task_deny), danger = true) { send(allowed = false) })
+            if (session) add(caption(context.getString(R.string.interaction_allow_run_note)))
+        } else {
+            frame(Tone.ACCENT)
+            header(null, Tone.ACCENT, R.drawable.ic_bubble)
+            add(title(context.getString(R.string.interaction_question)))
+            add(body(pending.string("question").orEmpty()).apply { textSize = Ui.TEXT_ITEM })
+            if (pending.has("memoryKey")) {
+                remember = MaterialCheckBox(kit.context).apply {
+                    id = R.id.interaction_remember; setText(R.string.interaction_remember)
+                    textSize = Ui.TEXT_BODY; setTextColor(kit.palette.text); buttonTintList = kit.controlTintList()
+                    minHeight = kit.dp(Ui.TOUCH_TARGET)
+                    isEnabled = pending.has("rememberScope"); isChecked = isEnabled && key == restoredKey && restoredRemember
+                }
+                add(remember, top = Ui.SPACE_SM)
+                add(caption(context.getString(if (remember.isEnabled) R.string.interaction_remember_review else R.string.interaction_memory_disabled)))
             }
             when (pending.string("kind")) {
-                "choice" -> pending.getAsJsonArray("choices").forEach { choice -> button(choice.asString) { send(choice) } }
+                "choice" -> pending.getAsJsonArray("choices").forEachIndexed { index, choice ->
+                    button(kit.tonalButton(choice.asString) { send(choice) }.apply { gravity = Gravity.START or Gravity.CENTER_VERTICAL }, first = index == 0)
+                }
                 "confirm" -> {
-                    button(context.getString(android.R.string.yes)) { send(true.json()) }
-                    button(context.getString(android.R.string.no)) { send(false.json()) }
+                    button(kit.tonalButton(context.getString(android.R.string.yes)) { send(true.json()) }, first = true)
+                    button(kit.tonalButton(context.getString(android.R.string.no)) { send(false.json()) })
                 }
                 else -> {
-                    val field = EditText(context).apply {
-                        id = R.id.workbench_answer; hint = context.getString(R.string.task_reply); minLines = 2; maxLines = 6
-                        inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                        filters = arrayOf(InputFilter.LengthFilter(1000))
-                        if (key == restoredKey) setText(restoredAnswer)
-                    }
-                    container.addView(field)
-                    button(context.getString(R.string.task_reply), "primary") {
-                        if (field.text.isNotBlank()) send(field.text.toString().json()) else field.error = context.getString(R.string.workbench_answer_required)
-                    }
+                    val (field, edit) = kit.textField(if (key == restoredKey) restoredAnswer else null, context.getString(R.string.task_reply),
+                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 1000, singleLine = false)
+                    edit.id = R.id.workbench_answer; edit.minLines = 2; edit.maxLines = 6
+                    edit.filters = arrayOf(InputFilter.LengthFilter(1000))
+                    add(field, top = Ui.SPACE_MD)
+                    button(kit.filledButton(context.getString(R.string.task_reply)) {
+                        if (edit.text?.isNotBlank() == true) { field.error = null; send(edit.text.toString().json()) }
+                        else field.error = context.getString(R.string.workbench_answer_required)
+                    }, first = true)
                 }
             }
         }
         tick.run()
+    }
+
+    /** The card surface, tinted by the request's tone; an empty card takes no space. */
+    private fun frame(tone: Tone?) {
+        if (tone == null || !framed) { container.background = null; container.setPaddingRelative(0, 0, 0, 0); return }
+        val stroke = when (tone) { Tone.WARNING -> kit.palette.warning; Tone.DANGER -> kit.palette.danger; Tone.ACCENT -> kit.palette.accent; else -> kit.palette.outline }
+        container.background = kit.roundedFill(kit.palette.surface, Ui.RADIUS_CARD, AgentColorPolicy.withAlpha(stroke, 0x66))
+        container.setPaddingRelative(kit.dp(Ui.SPACE_LG), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_LG), kit.dp(Ui.SPACE_LG))
+    }
+    private fun header(label: String?, tone: Tone, icon: Int) {
+        val row = LinearLayout(kit.context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        val color = kit.toneColors(tone).second
+        row.addView(ImageView(container.context).apply {
+            setImageDrawable(kit.tintedDrawable(icon, color)); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(kit.dp(20), kit.dp(20)).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
+        label?.let { row.addView(kit.badge(it, tone)) }
+        row.addView(View(container.context), LinearLayout.LayoutParams(0, 1, 1f))
+        if (deadline != null) countdown = kit.text("", Ui.TEXT_CAPTION, kit.palette.muted).apply {
+            id = R.id.interaction_countdown; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
+            row.addView(this, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
+        }
+        add(row)
+    }
+    private fun title(text: String) = kit.text(text, Ui.TEXT_TITLE, kit.palette.text, medium = true).apply {
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_SM), 0, 0)
+        if (android.os.Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
+    }
+    private fun body(text: String) = kit.text(text, Ui.TEXT_BODY).apply {
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setTextIsSelectable(true); setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
+    }
+    private fun caption(text: String) = kit.text(text, Ui.TEXT_SECONDARY, kit.palette.muted).apply {
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
+    }
+    private fun add(view: View, top: Int = 0) {
+        container.addView(view, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(top) })
+    }
+    private fun button(view: MaterialButton, first: Boolean = false) {
+        buttons += view
+        container.addView(view, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(if (first) Ui.SPACE_LG else Ui.SPACE_SM) })
     }
 }
