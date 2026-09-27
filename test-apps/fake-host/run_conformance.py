@@ -31,6 +31,8 @@ def main():
     installed = adb("shell", "dumpsys", "package", "org.autojs.autojs6")
     if "versionName=" in installed and "versionName=conformance" not in installed:
         raise SystemExit("Refusing to replace a real AutoJs6 installation")
+    # The conformance test refuses fingerprints/models that do not look like an emulator; keep the identity in the log.
+    print("FAKE_HOST_DEVICE", adb("shell", "getprop", "ro.build.fingerprint").strip(), "/", adb("shell", "getprop", "ro.product.model").strip())
     variant = "release" if args.release_plugin else "debug"
     apks = [root / "test-apps/fake-host/build/outputs/apk/debug/fake-host-debug.apk",
             root / f"app/build/outputs/apk/{variant}/autojs6-plugin-three-stove-agent-v{version}.apk"]
@@ -60,6 +62,8 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result, encoding="utf-8")
     if "OK (12 tests)" not in result or "FAILURES!!!" in result:
+        # Fixture output is deterministic (no real model, device or user data), so it can go straight into CI logs.
+        print(result)
         raise SystemExit(f"Conformance failed; see {output}")
     print(f"FAKE_HOST_OK tests=12 log={output}")
 
