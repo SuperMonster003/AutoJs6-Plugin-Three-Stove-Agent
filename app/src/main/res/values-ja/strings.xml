@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">この記録を削除しますか? 実行済みの操作は取り消されません.</string>
     <string name="history_denied">拒否済み</string>
     <string name="history_elapsed">所要時間: %1$d ms</string>
+    <string name="history_elapsed_label">所要時間</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">条件に一致するタスクはありません.</string>
     <string name="history_error">エラー</string>
     <string name="history_evidence">完了の根拠</string>

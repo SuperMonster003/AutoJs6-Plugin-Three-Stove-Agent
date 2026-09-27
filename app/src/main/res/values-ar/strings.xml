@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">حذف هذا السجل? لن يتم التراجع عن الإجراءات المنفذة.</string>
     <string name="history_denied">مرفوض</string>
     <string name="history_elapsed">المدة: %1$d ms</string>
+    <string name="history_elapsed_label">المدة</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">لا توجد مهام تطابق المرشحات.</string>
     <string name="history_error">خطأ</string>
     <string name="history_evidence">أدلة الإكمال</string>

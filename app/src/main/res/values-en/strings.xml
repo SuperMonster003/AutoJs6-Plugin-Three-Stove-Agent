@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">Delete this record? This does not undo actions already performed.</string>
     <string name="history_denied">Denied</string>
     <string name="history_elapsed">Elapsed: %1$d ms</string>
+    <string name="history_elapsed_label">Elapsed</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">No tasks match these filters.</string>
     <string name="history_error">Error</string>
     <string name="history_evidence">Evidence</string>

@@ -1,9 +1,10 @@
 # Interface captures
 
-Captured on 2026-09-27 from production views after the Material 3 redesign,
-version 1.2.0 / build 102. Android API 37.1, 16 KiB disposable emulator,
-1080 x 1920, density 420, font scale 1.0. These are interface examples with
-synthetic tasks and scripted replies, not real-model acceptance results.
+Captured on 2026-09-28 from production views after the third UI pass,
+version 1.2.0 / build 137. Android API 36.1 (google_apis, x86_64), disposable
+pixel_7 emulator, 1080 x 2400, density 420, font scale 1.0. These are interface
+examples with synthetic tasks and scripted replies, not real-model acceptance
+results.
 
 The four README images use English and a supported host appearance snapshot.
 The app-* images use Simplified Chinese and the app's indigo theme, in light
@@ -14,23 +15,23 @@ the bottom of the settings page after scrolling has finished.
 
 | File | Pixels | SHA-256 |
 | --- | --- | --- |
-| app-home-dark.png | 1080 x 1920 | 525ca968f01821a143ed7adf582fe6418e112955427e4e2975fad5fd7469dcc2 |
-| app-home-light.png | 1080 x 1920 | f4008bdf692ad9bdf63ede2d8b057912ae095c7a77477d69fa50445e3fe09d94 |
-| app-models-dark.png | 1080 x 1278 | 761bd7af098207f45356506fea171b68ea287d394fbc9d7ed3198de93b48c221 |
-| app-models-light.png | 1080 x 1278 | 2607e04cf11c1d361487be1a7842a66e9152a7c129706e346bbfa5beb57aaaee |
-| app-settings-dark.png | 1080 x 1920 | bb0b41c5d3f7961c7b7bb48ca5cc83196a4c50b23de5958a24b0484e4aedf21d |
-| app-settings-light.png | 1080 x 1920 | ad9d16fc02dcf7f997c94e32200ae27b0fc374039c6840575e8cbea867875a08 |
-| app-settings-more-dark.png | 1080 x 1920 | b41b06974cd20faac6b934028bd4f951ed925d12561373b6eaa49451a60dc709 |
-| app-settings-more-light.png | 1080 x 1920 | 9071a12a396e0a2369e076265ca498c2182daad13a2a90597c7f2846fc39469f |
-| confirmation.png | 1024 x 1715 | d2940940a54b1c58b5fa9b33182216dea964182a32a5c98632e8400b1c4e5489 |
-| detail.png | 1080 x 1920 | 5b2340646cb30213fee18d435d8e5a0a1007249fd7972f5f292c9adb0a2954c9 |
-| floating.png | 945 x 1234 | f51581e43c7c49794cd3cd6c74e72da4947fff097143d24da0d4bbfcf991f0d2 |
-| workbench.png | 1080 x 1920 | 412c0af1b3796902c20d484f25cd258ac40162329cf09bc41e798daadeb8c977 |
+| app-home-dark.png | 1080 x 2400 | ae4bb556092a4e80508092f562cf2f55959d3bb3aa9d98349d82f89975aaed20 |
+| app-home-light.png | 1080 x 2400 | 27f0a57e1ec91573a560e3479cea68e158992234385c928710dbce240562b49d |
+| app-models-dark.png | 1080 x 1503 | 69e5bf7ebbc3765c2a5a96ee58cea6ad0f2de4f42c84c5c88426d251208e3b89 |
+| app-models-light.png | 1080 x 1503 | fe3fe8c85076cc1f15816f8d74bb3eff59a21318191c5935e4bdc7ce6200ac99 |
+| app-settings-dark.png | 1080 x 2400 | 95a3d91a0e57de51437d80d1ca091580ac4a43f50aa32eb5c57c59c9d11429f4 |
+| app-settings-light.png | 1080 x 2400 | 95b40aa8cd693b5c35ad77efafd3d374da6194dcaed778d6f28db48da79ec7c6 |
+| app-settings-more-dark.png | 1080 x 2400 | 65d8842881a0204233be0c5e4b259b794e786638ea00e9d2840d7cd5861b6998 |
+| app-settings-more-light.png | 1080 x 2400 | 9a0df9ae35720af8200760c569e1ca1b319842fcc66a8cd2ed7a7b301baf53f0 |
+| confirmation.png | 1024 x 1965 | 8591e4bc2ff5af4b3cec629685e31b9ae9d4ad61d6b3fb30ec47a5b3b0fdf22d |
+| detail.png | 1080 x 2400 | 0e3f9a9dcdc3e935249bca264673d2f835ce5058b3fef9c74ed5ecab37704fae |
+| floating.png | 945 x 1052 | 0c12f581ae1f0f97472dabf28232de84b5d7747e0e47837c6716178e6205a9a1 |
+| workbench.png | 1080 x 2400 | e604495df8633ac735d237611923de4eb6caa92dfa92cbc06585fcc586e35122 |
 
 ## Reproduce
 
-1. Create a fresh disposable AI_Agent_Conformance_* emulator without personal
-   history, or run adb shell pm clear on the plugin package of such an
+1. Create a fresh disposable Three_Stove_Agent_Conformance_* emulator without
+   personal history, or run adb shell pm clear on the plugin package of such an
    emulator after earlier test runs, because the home screen lists recent
    tasks. Build Debug and androidTest, then use the guarded
    test-apps/fake-host/run_conformance.py --prepare-only setup on that serial.
@@ -47,8 +48,8 @@ the bottom of the settings page after scrolling has finished.
 - WorkbenchActivityTest#captureRedesignedScreens, once with agent.ui.dark=false
   and once with agent.ui.dark=true
 
-Use the io.github.supermonster003.autojs6.plugin.ai.agent.ui package prefix
-for each class and the package's androidx.test.runner.AndroidJUnitRunner
+Use the io.github.supermonster003.autojs6.plugin.three.stove.agent.ui package
+prefix for each class and the package's ThreeStoveAgentTestRunner
 instrumentation component. All capture methods are skipped without explicit
 opt-in. The original README capture rejects pre-existing task history.
 

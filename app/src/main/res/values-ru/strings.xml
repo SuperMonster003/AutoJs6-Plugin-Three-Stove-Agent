@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">Удалить эту запись? Выполненные действия не будут отменены.</string>
     <string name="history_denied">Отклонено</string>
     <string name="history_elapsed">Время: %1$d ms</string>
+    <string name="history_elapsed_label">Время</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">Нет задач, соответствующих фильтрам.</string>
     <string name="history_error">Ошибка</string>
     <string name="history_evidence">Подтверждения результата</string>

@@ -10,6 +10,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TableLayout
+import android.widget.TableRow
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
@@ -151,12 +153,11 @@ class RunDetailActivity : HostAppearanceActivity() {
         summary.addView(kit.text(value.string("goal").orEmpty(), Ui.TEXT_TITLE, medium = true).apply {
             setTextIsSelectable(true); textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_MD), 0, kit.dp(Ui.SPACE_XS))
         })
-        value.getAsJsonObject("model")?.string("name")?.let { summary.addView(caption(getString(R.string.history_model_value, it))) }
-        summary.addView(caption(getString(R.string.history_preset_value, value.string("preset")?.let {
-            if (it == "default") getString(R.string.workbench_default_preset) else it
-        }.orEmpty())))
-        value.getAsJsonObject("result")?.number("durationMs")?.let { summary.addView(caption(getString(R.string.history_elapsed, it))) }
-        summary.addView(caption(WorkbenchText.budget(this, value)))
+        summary.addView(metaTable(listOfNotNull(
+            value.getAsJsonObject("model")?.string("name")?.let { getString(R.string.floating_model) to it },
+            getString(R.string.workbench_preset) to value.string("preset")?.let { if (it == "default") getString(R.string.workbench_default_preset) else it }.orEmpty(),
+            value.getAsJsonObject("result")?.number("durationMs")?.let { getString(R.string.history_elapsed_label) to getString(R.string.history_elapsed_ms, it) },
+            getString(R.string.ui_budget) to WorkbenchText.budget(this, value))), LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
         val active = WorkbenchText.active(value)
         summary.addView(kit.tonalButton(getString(R.string.workbench_run_again), "rerun") { rerun(value, false) }.apply { isEnabled = !active },
             LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
@@ -244,6 +245,21 @@ class RunDetailActivity : HostAppearanceActivity() {
             .onSuccess { kit.snackbar(scaffold.root, getString(R.string.history_model_selected, ref.name)) }.onFailure { showError() }
     }
     private fun caption(text: String) = kit.note(text)
+    /** Key / value rows with aligned columns: the label column keeps its width and long values wrap beside it. */
+    private fun metaTable(rows: List<Pair<String, String>>): TableLayout = TableLayout(this).apply {
+        tag = "detail-meta"
+        setColumnShrinkable(1, true); setColumnStretchable(1, true)
+        rows.forEach { (label, text) ->
+            addView(TableRow(context).apply {
+                addView(kit.text(label, Ui.TEXT_SECONDARY, palette.muted).apply {
+                    textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(2), kit.dp(Ui.SPACE_MD), kit.dp(2))
+                })
+                addView(kit.text(text, Ui.TEXT_SECONDARY).apply {
+                    textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(2), 0, kit.dp(2)); setTextIsSelectable(true)
+                })
+            })
+        }
+    }
     private fun body(text: String) = kit.paragraph(text)
 
     private fun saveDestination() {

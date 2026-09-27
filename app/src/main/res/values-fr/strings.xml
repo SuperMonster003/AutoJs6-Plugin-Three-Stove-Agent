@@ -72,6 +72,8 @@
     <string name="history_delete_confirm">Supprimer cette trace? Les actions déjà effectuées ne seront pas annulées.</string>
     <string name="history_denied">Refusé</string>
     <string name="history_elapsed">Durée: %1$d ms</string>
+    <string name="history_elapsed_label">Durée</string>
+    <string name="history_elapsed_ms">%1$d ms</string>
     <string name="history_empty">Aucune tâche ne correspond aux filtres.</string>
     <string name="history_error">Erreur</string>
     <string name="history_evidence">Preuves</string>
