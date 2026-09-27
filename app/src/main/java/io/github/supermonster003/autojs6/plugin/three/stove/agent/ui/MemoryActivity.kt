@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.*
 import android.text.Editable
 import android.text.InputType
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
@@ -178,7 +179,11 @@ class MemoryActivity : HostAppearanceActivity() {
         addView(LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
             addView(kit.text(row.key, Ui.TEXT_ITEM, medium = true).apply { textAlignment = View.TEXT_ALIGNMENT_VIEW_START }, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(kit.badge(row.scope, if (row.scope == "global") Tone.ACCENT else Tone.NEUTRAL), LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
+            // A scope is an unbounded preset name. Measured after the weighted key, an unbounded badge would take the
+            // whole row on a 360 dp screen and push the key out, so it ellipsizes and carries the full name itself.
+            addView(kit.badge(row.scope, if (row.scope == "global") Tone.ACCENT else Tone.NEUTRAL).apply {
+                Ui.truncatable(this); maxLines = 1; ellipsize = TextUtils.TruncateAt.END; maxWidth = kit.dp(160); contentDescription = row.scope
+            }, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
         })
         addView(kit.text(AgentJson.truncate(row.value, 160), Ui.TEXT_SECONDARY, palette.muted).apply {
             textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)

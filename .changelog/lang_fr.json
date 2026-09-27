@@ -20,6 +20,7 @@
         "Les cartes de confirmation ajoutent Toujours autoriser pour cette session: jusqu'à la fin de la tâche, le même outil au même niveau de risque s'exécute sans nouvelle demande, même avec d'autres arguments. Les paiements demandent leur propre accord; les scripts générés et les propositions de mémoire peuvent aussi être autorisés pour la session."
       ],
       "fix": [
+        "Un nom de portee long dans la liste de memoire ne repousse plus la cle de l'entree hors de sa ligne: le badge de portee est tronque sur une ligne et conserve le nom complet dans sa description d'accessibilite (detecte par l'audit de mise en page CI en API 24 / 360 dp)",
         "Lorsqu'une exception interne fait echouer une tache, l'enregistrement de l'etape conserve la classe de l'exception (jamais son message) pour le diagnostic; un delai d'outil depasse nomme desormais la dimension de limite de temps d'outil dans le resultat; la decouverte des outils MCP est limitee a 8 secondes pour ne pas consommer la fenetre de preparation de 15 secondes",
         "Les capacites du plugin declarent desormais native-tools et vision, les limites d'execution sont liees directement aux constantes du contrat hote, la version du client MCP provient du paquet installe et les litteraux disperses de delai et de taille referencent le contrat",
         "Un service d'accessibilité AutoJs6 arrêté est signalé au modèle par A11Y_SERVICE_NOT_RUNNING au lieu d'une erreur d'arguments"
