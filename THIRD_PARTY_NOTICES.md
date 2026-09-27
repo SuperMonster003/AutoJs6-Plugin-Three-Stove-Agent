@@ -32,14 +32,14 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 - appcompat-resources AAR SHA-256: `8e2db31224ca53b108c784da2b361959062716d416b210cfef3d5a3828306df0`
 - material AAR SHA-256: `6d5e1cbb67c05bcdcbbf84005787dafd354a155f59a4d3800fd45fa7eb3689f5`
 - Transitive runtime components (all Apache License 2.0), as resolved for the release APK:
-  - AndroidX: `activity:1.8.0`, `annotation:1.8.1`, `annotation-experimental:1.4.1`, `appcompat-resources:1.7.1`, `arch.core:core-common:2.2.0`, `arch.core:core-runtime:2.2.0`, `cardview:1.0.0`, `collection:1.4.2`, `concurrent:concurrent-futures:1.1.0`, `constraintlayout:2.1.0`, `constraintlayout-core:1.0.0`, `coordinatorlayout:1.1.0`, `core:1.13.0`, `core-ktx:1.13.0`, `cursoradapter:1.0.0`, `customview:1.1.0`, `drawerlayout:1.1.1`, `dynamicanimation:1.1.0`, `emoji2:1.3.0`, `emoji2-views-helper:1.3.0`, `fragment:1.5.4`, `graphics:graphics-shapes:1.0.1`, `interpolator:1.0.0`, `lifecycle-common/livedata/livedata-core/process/runtime/viewmodel/viewmodel-savedstate:2.6.2`, `loader:1.0.0`, `profileinstaller:1.3.1`, `recyclerview:1.2.1`, `resourceinspection-annotation:1.0.1`, `savedstate:1.2.1`, `startup-runtime:1.1.1`, `tracing:1.0.0`, `transition:1.5.0`, `vectordrawable:1.1.0`, `vectordrawable-animated:1.1.0`, `versionedparcelable:1.1.1`, `viewpager:1.0.0`, `viewpager2:1.0.0` (source <https://android.googlesource.com/platform/frameworks/support>)
-  - `org.jetbrains.kotlinx:kotlinx-coroutines-core` and `kotlinx-coroutines-android:1.6.4` (source <https://github.com/Kotlin/kotlinx.coroutines>)
+  - AndroidX: `activity:1.8.0`, `annotation:1.8.1`, `annotation-experimental:1.4.1`, `appcompat-resources:1.7.1`, `arch.core:core-common:2.2.0`, `arch.core:core-runtime:2.2.0`, `cardview:1.0.0`, `collection:1.4.2`, `concurrent:concurrent-futures:1.1.0`, `constraintlayout:2.1.0`, `constraintlayout-core:1.0.0`, `coordinatorlayout:1.1.0`, `core:1.13.0`, `core-ktx:1.13.0`, `cursoradapter:1.0.0`, `customview:1.1.0`, `drawerlayout:1.1.1`, `dynamicanimation:1.1.0`, `emoji2:1.3.0`, `emoji2-views-helper:1.3.0`, `fragment:1.5.4`, `graphics:graphics-shapes:1.0.1`, `interpolator:1.0.0`, `lifecycle-common/livedata/livedata-core/process/runtime/viewmodel/viewmodel-savedstate:2.6.2`, `loader:1.0.0`, `profileinstaller:1.3.1`, `recyclerview:1.2.1`, `resourceinspection-annotation:1.0.1`, `savedstate:1.2.1`, `startup-runtime:1.1.1`, `tracing:1.0.0`, `transition:1.5.0`, `vectordrawable:1.1.0`, `vectordrawable-animated:1.1.0`, `versionedparcelable:1.1.1`, `viewpager:1.0.0`, `viewpager2:1.0.0` (source <https://android.googlesource.com/platform/frameworks/support>); the `annotation-jvm`, `collection-jvm` and `graphics-shapes-android` platform artifacts resolve at the same versions
+  - `org.jetbrains.kotlinx:kotlinx-coroutines-core`, `kotlinx-coroutines-core-jvm`, `kotlinx-coroutines-android` and `kotlinx-coroutines-bom`, all 1.6.4 (source <https://github.com/Kotlin/kotlinx.coroutines>)
   - `com.google.guava:listenablefuture:1.0` (source <https://github.com/google/guava>), `org.jetbrains:annotations:13.0` (source <https://github.com/JetBrains/java-annotations>), `org.jspecify:jspecify:1.0.0` (source <https://github.com/jspecify/jspecify>)
 - Vector icons in `app/src/main/res/drawable/ic_*.xml` follow Google Material Symbols path data, Apache License 2.0, source <https://github.com/google/material-design-icons>
 
 ## Kotlin standard library
 
-- Component: `org.jetbrains.kotlin:kotlin-stdlib` (provided through the Android Gradle Plugin built-in Kotlin support)
+- Component: `org.jetbrains.kotlin:kotlin-stdlib:2.3.20` (provided through the Android Gradle Plugin built-in Kotlin support), with `kotlin-stdlib-common:2.3.20`, `kotlin-stdlib-jdk7:1.8.22`, `kotlin-stdlib-jdk8:1.8.22` and `kotlin-bom:1.8.22` resolved into the release APK
 - Source: <https://github.com/JetBrains/kotlin>
 - License: Apache License 2.0
 
@@ -48,5 +48,5 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 These libraries are used by the JVM and instrumentation test source sets only and are not shipped
 in the APK.
 
-- JUnit 4 (`junit:junit`): Eclipse Public License 1.0
-- AndroidX Test (`androidx.test:runner`, `androidx.test:rules`, `androidx.test.ext:junit`): Apache License 2.0
+- JUnit 4 (`junit:junit:4.13.2`): Eclipse Public License 1.0
+- AndroidX Test (`androidx.test:runner:1.7.0`, `androidx.test:rules:1.7.0`, `androidx.test.ext:junit:1.3.0`): Apache License 2.0

@@ -42,6 +42,7 @@
   "h3_security": "권한과 보안",
   "p_security_intro": "플러그인은 명확한 경계를 따릅니다:",
   "security_points": [
+    "권한 목록: org.autojs.permission.PLUGIN (호스트 계약 진입점), FOREGROUND_SERVICE 와 FOREGROUND_SERVICE_SPECIAL_USE (작업 실행 중 포그라운드 서비스), POST_NOTIFICATIONS (백그라운드 확인 및 진행 알림), INTERNET (GitHub 릴리스 수동 또는 자동 확인과 사용자가 설정한 MCP 서버 연결), ACCESS_LOCAL_NETWORK (Android 17+ 에서 MCP 설정에서만 요청), SYSTEM_ALERT_WINDOW (설정에서 플로팅 볼을 켤 때만 요청). 접근성, 저장소, 마이크 권한은 요청하지 않으며 모델 트래픽은 플러그인을 거치지 않습니다.",
     "Binder 계약 진입점은 org.autojs.permission.PLUGIN 서명 권한으로 보호됩니다. 런처 (바로가기 포함)와 text/plain ACTION_SEND 공유 대상은 공개되며 크기가 제한된 목표/프리셋 초안만 받습니다. 외부 Intent는 작업 실행, 확인 응답 또는 권한 변경을 할 수 없습니다. 설정, 음성 결과 및 작업 제어는 공개되지 않습니다.",
     "AI Agent는 독립 작업 화면과 ai.agent로 사용하는 AutoJs6 플러그인을 제공합니다. 기본 기기 작업과 모델 호출은 호스트를 거칩니다. 선택적 MCP 도구는 사용자가 설정한 서버에만 연결합니다. 모델 Provider에 직접 연결하거나 접근성 권한을 요청하지 않습니다.",
     "모델 자격 증명은 Provider가 보관하고 모델 호출은 AutoJs6를 거칩니다. MCP Bearer 토큰은 Android Keystore로 암호화하여 비공개 저장소에 보관하며 프롬프트나 기록 내보내기에 포함하지 않습니다. INTERNET은 설정된 MCP 서버 연결에도 사용합니다. Android 17+ 로컬 네트워크 권한은 MCP 설정에서 요청합니다. 서버별 위험의 초기값은 SENSITIVE입니다. 취소는 원격 작업을 되돌리지 않으며 실패한 호출은 자동 재실행하지 않습니다.",

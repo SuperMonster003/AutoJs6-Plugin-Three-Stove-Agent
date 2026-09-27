@@ -25,12 +25,14 @@
 * `Mejora` Las confirmaciones muestran el nivel de riesgo, el grupo de herramientas y cada parámetro en una tabla legible en lugar de JSON sin procesar, con acciones claras: permitir una vez, permitir siempre en esta sesión y denegar. La burbuja flotante usa el mismo diseño Material, elige el preajuste dentro de la tarjeta y su fila de modelo abre el selector de modelo compartido
 * `Mejora` El historial añade búsqueda, chips de estado y filtros por preajuste y rango de fechas, y borra las tareas terminadas desde su menú. Los detalles de la tarea muestran el modelo, una cronología de pasos con tablas de parámetros y observaciones desplegables, Ejecutar de nuevo o Reintentar con otro modelo, y un menú para exportar diagnósticos, eliminar el registro o usar el modelo de la tarea en tareas nuevas
 * `Mejora` Preajustes, memoria, servidores MCP y carpetas de scripts comparten el mismo diseño: tarjetas de preajustes con menú de fila y editor a pantalla completa (duración en minutos, botón Guardar fijo), búsqueda y chips de ámbito en la memoria, lista de herramientas MCP con interruptor de activación y elección de riesgo, y confirmación antes de descartar cambios sin guardar
+* `Dependencia` Actualizar los tres artefactos release de la API del anfitrion a AutoJs6 3cdf7de13c / build 5297 (opcion del grupo mcp de P10 y constante TOOL_FAILED); el contrato base sigue en V1
 * `Dependencia` Adición de AndroidX AppCompat 1.7.1 y Material Components for Android 1.13.0 con sus dependencias AndroidX de ejecución para la interfaz Material 3
 
 # v1.1.0
 
 ###### 2026/09/26
 
+* `Aviso` 1.1.0 no se publico por separado; todos sus cambios se distribuyen con 1.2.0
 * `Aviso` Las llamadas nativas requieren AutoJs6 build 5297+ y un destino tools, como un destino en línea de la versión de desarrollo 3-Stone AI 1.2.0. Los hosts antiguos y destinos no compatibles mantienen JSON. Cada conversación conserva su plazo inicial, límites de contexto/salida y hasta 16 rondas de herramientas; un error tras una acción no reinicia por JSON
 * `Aviso` La entrada de imágenes requiere un host compatible, el grupo observe y un modelo visual con esta entrada activada explícitamente. Implementación y pruebas deterministas completas; la validación visual real en línea sigue pendiente. Sistemas anteriores y modelos de texto mantienen observaciones textuales. Consulte ROADMAP.md
 * `Aviso` Los scripts generados usan permisos de AutoJs6 sin aislamiento JavaScript y pueden actuar fuera de los grupos habilitados. El código completo permanece en pasos privados, sujeto a eliminación de contraseñas y retención del historial. Un código modificado por esa eliminación posterior no puede guardarse como original. Revise los .js antes de compartirlos.

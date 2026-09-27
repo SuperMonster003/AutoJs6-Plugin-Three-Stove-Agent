@@ -239,6 +239,7 @@ Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2
 
 The plugin follows explicit boundaries:
 
+- Permission list: org.autojs.permission.PLUGIN (host contract entry points), FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE (the foreground service while a task runs), POST_NOTIFICATIONS (background confirmation and progress notices), INTERNET (manual or automatic GitHub release checks and connections to user-configured MCP servers), ACCESS_LOCAL_NETWORK (requested only from MCP settings on Android 17+), SYSTEM_ALERT_WINDOW (requested only when the floating ball is enabled in Settings). No accessibility, storage or microphone permission is requested, and model traffic never passes through the plugin.
 - Binder contract entries require the org.autojs.permission.PLUGIN signature permission. The launcher (also used by shortcuts) and the text/plain ACTION_SEND share target are public; they accept bounded goal/preset drafts only. External intents cannot execute tasks, provide confirmations or change grants. Private settings, voice results and task controls are not exported.
 - AI Agent is a standalone task workbench and an AutoJs6 plugin reached through ai.agent. Built-in device actions and model calls use the host brokers. Optional MCP tools connect only to servers configured by the user. No direct model-provider binding or accessibility permission is used.
 - Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
@@ -309,12 +310,14 @@ _2026/09/27_
 - `Improvement` Confirmations show the risk level, the tool group and every parameter in a readable table instead of raw JSON, with Allow once, Always allow for this session and Deny as clear actions. The floating ball uses the same Material design and chooses presets inline; its model row opens the shared model switcher
 - `Improvement` Task history adds search, status chips and preset and date range filters, and clears finished tasks from its menu. Task details show the model, a step timeline with parameter tables and expandable observations, Run again or Retry with another model, and a menu to export diagnostics, delete the record or use the task's model for new tasks
 - `Improvement` Presets, memory, MCP servers and script directories share the same design: preset cards with a row menu and a full-page editor (duration in minutes, sticky Save), memory search with scope chips, an MCP tool checklist with an enable switch and risk choice, and a prompt before discarding unsaved changes
+- `Dependency` Upgrade the three host API release artifacts to AutoJs6 3cdf7de13c / build 5297 (P10 mcp group option and TOOL_FAILED constant); the base contract stays V1
 - `Dependency` Add AndroidX AppCompat 1.7.1 and Material Components for Android 1.13.0 with their AndroidX runtime dependencies for the Material 3 interface
 
 #### v1.1.0
 
 _2026/09/26_
 
+- `Hint` 1.1.0 was not published on its own; all of its changes ship with 1.2.0
 - `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
 - `Hint` Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
 - `Hint` Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.

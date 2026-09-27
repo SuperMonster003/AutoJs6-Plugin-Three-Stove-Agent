@@ -42,6 +42,7 @@
   "h3_security": "权限与安全",
   "p_security_intro": "插件遵循明确的边界:",
   "security_points": [
+    "权限清单: org.autojs.permission.PLUGIN (宿主契约入口), FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE (任务运行期间的前台服务), POST_NOTIFICATIONS (后台确认与进度通知), INTERNET (手动或自动检查 GitHub 发行版本, 以及连接用户配置的 MCP 服务器), ACCESS_LOCAL_NETWORK (Android 17+ 仅从 MCP 设置主动申请), SYSTEM_ALERT_WINDOW (仅在设置中开启悬浮球时申请). 不申请无障碍, 存储或麦克风权限, 模型流量不经过插件.",
     "Binder 契约入口受 org.autojs.permission.PLUGIN 签名权限保护. 启动器 (也用于快捷方式) 和 text/plain ACTION_SEND 分享目标为公开入口, 只接受有界的目标/预设草稿. 外部 Intent 不能执行任务, 提交确认或改变授权. 设置, 语音结果与任务控制入口均不导出.",
     "AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.",
     "模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.",
