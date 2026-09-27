@@ -40,7 +40,7 @@ object ThreeStoveAgentPlugin {
     const val SERVICE_DESCRIPTOR = "org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentPlugin"
 
     /**
-     * Minimum AutoJs6 `versionCode` shipping the Three Stove Agent contract line (version 2). It
+     * Minimum AutoJs6 `versionCode` shipping the 3-Stove Agent contract line (version 2). It
      * already includes the P4.2 inspected node bindings and the host-side append with
      * authoritative identity validation that build 5289 introduced.
      */

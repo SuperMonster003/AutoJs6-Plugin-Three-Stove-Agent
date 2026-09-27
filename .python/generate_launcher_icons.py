@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Compose the Three Stove Agent launcher icons from the maintainer's source art.
+"""Compose the 3-Stove Agent launcher icons from the maintainer's source art.
 
 Inputs (transparent-background PNG, 1254 x 1254, glyph centered):
   .python/icons/three-stove-ic-launcher-light.png   dark glyph for the light background

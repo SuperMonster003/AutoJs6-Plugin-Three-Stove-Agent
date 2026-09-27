@@ -116,7 +116,7 @@ run.result.then(
  * @timeout 10000
  */
 let context = ai.agent.context();
-if (!context) throw Error('Start this registered script through Three Stove Agent');
+if (!context) throw Error('Start this registered script through 3-Stove Agent');
 let text = new java.lang.String(context.parameters.text);
 ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 ```

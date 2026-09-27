@@ -42,9 +42,9 @@
 
 ******
 
-Three Stove Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智慧代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 依觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+3-Stove Agent 把一句自然語言目標變成執行 AutoJs6 的 Android 裝置上的實際操作. 它或者從使用者登記給智慧代理使用的指令碼中挑選一個, 補齊參數並執行; 或者透過無障礙節點樹觀察畫面, 依觀察, 決策, 操作, 驗證的循環逐步操作, 直到達成目標, 需要使用者確認, 或預算用盡. 它回應 [AutoJs6 討論 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-Three Stove Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
+3-Stove Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
 
 ******
 
@@ -89,21 +89,21 @@ Three Stove Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6
 ******
 
 1. 在安裝了 AutoJs6 組建 5293 或更新版本的裝置上, 從 [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) 安裝外掛 APK.
-2. 開啟 AutoJs6 外掛中心, 確認 `Three Stove Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
+2. 開啟 AutoJs6 外掛中心, 確認 `3-Stove Agent` 已被識別並啟用它. 官方發行套件會自動通過簽章驗證.
 
-安裝並啟用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中設定線上模型或匯入支援的本機模型. 目前宿主模型代理選用 3-Stone AI, 其他 Provider 需要宿主完成整合後才能使用. 在 Three Stove Agent 首頁點按模型膠囊選擇模型. 僅在未連接 AutoJs6 時, 首頁才會顯示連線提示.
+安裝並啟用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中設定線上模型或匯入支援的本機模型. 目前宿主模型代理選用 3-Stone AI, 其他 Provider 需要宿主完成整合後才能使用. 在 3-Stove Agent 首頁點按模型膠囊選擇模型. 僅在未連接 AutoJs6 時, 首頁才會顯示連線提示.
 
 ### 相容性
 
-支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5298+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要宿主的無障礙服務; Agent 會先透過 AutoJs6 已設定的免打擾方式 (Root, 安全設定或 Shizuku) 自動啟動, 僅在失敗時提示手動開啟. OCR 為選用能力, 需要安裝並授權 OCR 外掛, 且宿主回報其可用. Three Stove Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
+支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5298+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要宿主的無障礙服務; Agent 會先透過 AutoJs6 已設定的免打擾方式 (Root, 安全設定或 Shizuku) 自動啟動, 僅在失敗時提示手動開啟. OCR 為選用能力, 需要安裝並授權 OCR 外掛, 且宿主回報其可用. 3-Stove Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
 
 ### 介面快速開始
 
-開啟 Three Stove Agent 並連接 AutoJs6, 輸入目標並開始任務. 首頁的模型膠囊可選擇線上或本機模型, 或選擇自動 (優先本機模型, 否則使用第一個可用模型). 模型清單支援搜尋, 置頂常用模型及重複使用最近使用的模型, 標籤顯示已宣告的工具呼叫與圖片輸入能力. 任務台與懸浮球的新任務共用這個選擇, 不修改預設或正在執行的任務, 預設也不再包含模型. 輸入欄中的預設標籤用於選擇可選的預設. 在任務卡片中回答問題並查看進度.
+開啟 3-Stove Agent 並連接 AutoJs6, 輸入目標並開始任務. 首頁的模型膠囊可選擇線上或本機模型, 或選擇自動 (優先本機模型, 否則使用第一個可用模型). 模型清單支援搜尋, 置頂常用模型及重複使用最近使用的模型, 標籤顯示已宣告的工具呼叫與圖片輸入能力. 任務台與懸浮球的新任務共用這個選擇, 不修改預設或正在執行的任務, 預設也不再包含模型. 輸入欄中的預設標籤用於選擇可選的預設. 在任務卡片中回答問題並查看進度.
 
 ### 指令碼快速開始
 
-連接 Three Stove Agent 並設定模型後, 在 AutoJs6 執行以下 JavaScript. 詢問與確認由外掛介面處理. 如需使用已儲存的設定, 在選項加入 `preset: "your-preset-name"`.
+連接 3-Stove Agent 並設定模型後, 在 AutoJs6 執行以下 JavaScript. 詢問與確認由外掛介面處理. 如需使用已儲存的設定, 在選項加入 `preset: "your-preset-name"`.
 
 ```javascript
 let run = ai.agent.run('讀取 Android 版本, 根據實際觀察結果報告.', {
@@ -134,7 +134,7 @@ run.result.then(
  * @timeout 10000
  */
 let context = ai.agent.context();
-if (!context) throw Error('Start this registered script through Three Stove Agent');
+if (!context) throw Error('Start this registered script through 3-Stove Agent');
 let text = new java.lang.String(context.parameters.text);
 ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 ```
@@ -215,7 +215,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 - 前景在任務台回答, 背景從高優先通知開啟對應請求. 確認頁顯示工具, 參數, 風險及剩餘時間. 目前工作階段一律允許會在本次任務結束前放行同一工具的同級風險操作, 亦適用於後續記憶提議或生成原始碼; 付款需另行授權. "記住此答案" 在允許的記憶作用域內產生單獨的 memory_propose 供檢閱. 確認通常等待 120 秒, 詢問最多 10 分鐘, 均受任務預算限制. 逾時回傳 USER_TIMEOUT, 由模型決定再次詢問或回報部分完成. 舊請求無法回答新請求. 背景提醒受通知權限與頻道設定影響.
 - 從任務台開啟 "設定", 選擇工具組, 預算, 操作權限 (標準, 審慎或完全存取), 語音輸入及預設組態. 每項修改即時儲存, 對新任務生效. 完全存取讓已啟用的工具 (含付款) 免確認執行, 啟用期間任務台, 懸浮球及歷史詳情會顯示警示標示. gesture/files/shell/script_dynamic 初始關閉, OCR 亦需宿主提供可用且授權的外掛. 任務限制設為自動時沿用初始預設值, 時長以分鐘填寫, 設定值受協定上限約束, 預設與單次參數只能繼續收緊. 資料管理顯示項目數及位元組用量, 按類別清除須確認且不能有執行中的任務; 清除預設後還原內建 default. 預設, 記憶, 腳本目錄與 MCP 伺服器亦可從設定進入.
 - 從首頁右上角選單開啟設定. 語言, 深色模式與主題色可跟隨 AutoJs6 或獨立設定, 語言與深色模式也可跟隨系統. 版本歷史和法律聲明內建, 可離線閱讀. 手動 GitHub 更新檢查快取成功結果 24 小時. 自動檢查預設關閉, 開啟後僅在應用程式使用期間每 12 小時最多嘗試一次, 失敗或遇到已忽略版本時保持安靜, 不自動下載 APK. 管理已忽略更新可逐項恢復版本提醒. 關於頁面顯示版本, 開發者, 原始碼, 授權條款與第三方聲明.
-- 在設定中開啟懸浮球, 並授權顯示在其他應用程式上層. 預設關閉, 僅在 AutoJs6 已連線時顯示, 鎖定或中斷時隱藏, 閒置時不維持前景服務. 可拖曳調整位置, 點擊輸入目標並選擇預設, 查看詢問或確認, 停止任務. 收起卡片後恢復背景確認通知. 可將純文字分享至 Three Stove Agent, 使用新增任務捷徑, 或在預設頁將預設及選填固定目標固定至主畫面. 所有入口先顯示可編輯草稿, 點擊開始任務才執行. 預設已刪除時不自動改用其他預設. 語音使用跟隨介面語言的系統辨識器, 不可用時隱藏, 結果只填入而不自動傳送.
+- 在設定中開啟懸浮球, 並授權顯示在其他應用程式上層. 預設關閉, 僅在 AutoJs6 已連線時顯示, 鎖定或中斷時隱藏, 閒置時不維持前景服務. 可拖曳調整位置, 點擊輸入目標並選擇預設, 查看詢問或確認, 停止任務. 收起卡片後恢復背景確認通知. 可將純文字分享至 3-Stove Agent, 使用新增任務捷徑, 或在預設頁將預設及選填固定目標固定至主畫面. 所有入口先顯示可編輯草稿, 點擊開始任務才執行. 預設已刪除時不自動改用其他預設. 語音使用跟隨介面語言的系統辨識器, 不可用時隱藏, 結果只填入而不自動傳送.
 
 ### 常見問題
 
@@ -241,7 +241,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 - 權限清單: org.autojs.permission.PLUGIN (宿主契約入口), FOREGROUND_SERVICE 與 FOREGROUND_SERVICE_SPECIAL_USE (任務執行期間的前景服務), POST_NOTIFICATIONS (背景確認與進度通知), INTERNET (手動或自動檢查 GitHub 發行版本, 以及連線使用者設定的 MCP 伺服器), ACCESS_LOCAL_NETWORK (Android 17+ 僅從 MCP 設定主動申請), SYSTEM_ALERT_WINDOW (僅在設定中開啟懸浮球時申請). 不申請無障礙, 儲存或麥克風權限, 模型流量不經過外掛.
 - Binder 契約入口受 org.autojs.permission.PLUGIN 簽章權限保護. 啟動器 (也用於捷徑) 和 text/plain ACTION_SEND 分享目標為公開入口, 只接受有大小限制的目標/預設草稿. 外部 Intent 不能執行任務, 提交確認或改變授權. 設定, 語音結果與任務控制入口均不匯出.
-- Three Stove Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
+- 3-Stove Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
 - 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
 - 任務歷史, 預設與偏好記憶只儲存在外掛私有儲存空間; 備份與裝置轉移已停用.
 - 截圖經 AutoJs6 傳送至所選模型, 該模型可能在線上執行. 截圖要求螢幕已解鎖且處於喚醒狀態. 步驟歷史只儲存尺寸和位元組數等中繼資料, 不儲存圖片內容. JSON 決策保留目前圖片, 直到其他觀察或使用者回答取代它; 原生工作階段在每批和工作階段限額內保留已有圖片, 每輪重新預留相應 token.
@@ -293,10 +293,10 @@ minimum host build: 5298 (6.8.0)
 
 _2026/09/27_
 
-- `提示` 應用已更名為 Three Stove Agent: 應用 ID 改為 io.github.supermonster003.autojs6.plugin.three.stove.agent, 儲存庫改為 AutoJs6-Plugin-Three-Stove-Agent, 外掛 ID 與 engine 改為 three-stove-agent, 服務 action 改為 org.autojs.plugin.THREE_STOVE_AGENT, 契約版本升為 2. 不相容舊名稱: 需先解除安裝舊的 AI Agent 再安裝, 歷史, 預設與記憶不遷移; 最低宿主版本提升為 AutoJs6 6.8.0 / build 5298, 更早的宿主不再識別本外掛
+- `提示` 應用已更名為 3-Stove Agent: 應用 ID 改為 io.github.supermonster003.autojs6.plugin.three.stove.agent, 儲存庫改為 AutoJs6-Plugin-Three-Stove-Agent, 外掛 ID 與 engine 改為 three-stove-agent, 服務 action 改為 org.autojs.plugin.THREE_STOVE_AGENT, 契約版本升為 2. 不相容舊名稱: 需先解除安裝舊的 AI Agent 再安裝, 歷史, 預設與記憶不遷移; 最低宿主版本提升為 AutoJs6 6.8.0 / build 5298, 更早的宿主不再識別本外掛
 - `提示` 1.2.0 開發版本提供可選 MCP 工具, 原生工具呼叫, 截圖觀察及動態指令碼. AiGoCode gpt-5.6-sol 已通過 P9.2 初始圖片及工具結果圖片測試. P9.1 JSON/原生路徑均已完成 Wi-Fi 開啟及狀態回讀: 測試時暫時關閉目前熱點的自動連線, 模型經行動網路和 VPN 連線. 預設自動連線時 VPN 跨網路切換後的失敗仍未解決. 證據見 ROADMAP.md.
 - `新增` 本機或外部 MCP 伺服器的所選工具, 按伺服器設定風險等級, mcp 工具群組預設關閉
-- `新增` 開啟 Three Stove Agent 並連接 AutoJs6, 輸入目標並開始任務. 首頁的模型膠囊可選擇線上或本機模型, 或選擇自動 (優先本機模型, 否則使用第一個可用模型). 模型清單支援搜尋, 置頂常用模型及重複使用最近使用的模型, 標籤顯示已宣告的工具呼叫與圖片輸入能力. 任務台與懸浮球的新任務共用這個選擇, 不修改預設或正在執行的任務, 預設也不再包含模型. 輸入欄中的預設標籤用於選擇可選的預設. 在任務卡片中回答問題並查看進度.
+- `新增` 開啟 3-Stove Agent 並連接 AutoJs6, 輸入目標並開始任務. 首頁的模型膠囊可選擇線上或本機模型, 或選擇自動 (優先本機模型, 否則使用第一個可用模型). 模型清單支援搜尋, 置頂常用模型及重複使用最近使用的模型, 標籤顯示已宣告的工具呼叫與圖片輸入能力. 任務台與懸浮球的新任務共用這個選擇, 不修改預設或正在執行的任務, 預設也不再包含模型. 輸入欄中的預設標籤用於選擇可選的預設. 在任務卡片中回答問題並查看進度.
 - `新增` 從首頁右上角選單開啟設定. 外觀, 操作權限, 工具群組, 任務限制 (時長以分鐘計), 語音輸入, 懸浮球與資料清理均即時生效, 無需儲存按鈕. 語言, 深色模式與主題色可跟隨 AutoJs6 或獨立設定, 語言與深色模式也可跟隨系統. 版本歷史和法律聲明內建, 可離線閱讀. 手動 GitHub 更新檢查快取成功結果 24 小時. 自動檢查預設關閉, 開啟後僅在應用程式使用期間每 12 小時最多嘗試一次, 失敗或遇到已忽略版本時保持安靜, 不自動下載 APK. 管理已忽略更新可逐項恢復版本提醒. 關於頁面顯示版本, 開發者, 原始碼, 授權條款與第三方聲明.
 - `新增` 介面任務需要無障礙時, 先使用 AutoJs6 中已設定的免打擾啟動方式 (Root, 安全設定或 Shizuku). 僅在自動啟動失敗或未設定時, 任務卡片才提示手動開啟並提供無障礙設定入口.
 - `新增` 設定中的操作權限新增完全存取: 已啟用的工具 (含付款, 刪除, 指令碼與記憶寫入) 免確認執行. 它不會開啟額外工具群組, 也不放寬預算或宿主權限. 任務台, 懸浮球, 目前任務與歷史詳情以醒目文字標示, 不彈出打擾對話框. 明確要求審慎確認的任務仍依審慎模式執行.

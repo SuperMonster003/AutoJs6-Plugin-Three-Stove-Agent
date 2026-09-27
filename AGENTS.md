@@ -18,7 +18,7 @@
 |---|---|
 | 仓库与目录名 | `AutoJs6-Plugin-Three-Stove-Agent` |
 | `rootProject.name` | `autojs6-plugin-three-stove-agent` |
-| 应用标题 (不可翻译) | `Three Stove Agent` |
+| 应用标题 (不可翻译) | `3-Stove Agent` |
 | `applicationId` / namespace | `io.github.supermonster003.autojs6.plugin.three.stove.agent` |
 | 插件 ID / engine / variant | `three-stove-agent` / `three-stove-agent` / `default` |
 | Binder 服务类 | `ThreeStoveAgentPluginService` (进程 `:agent`) |
@@ -27,7 +27,7 @@
 | 宿主契约标识 | 插件 ID / engine / category `three-stove-agent`, action `org.autojs.plugin.THREE_STOVE_AGENT`, AIDL 包 `org.autojs.plugin.three.stove.agent.api` 与契约类 `ThreeStoveAgentContract` / `ThreeStoveAgentIds` / `ThreeStoveAgentActions` / `ThreeStoveAgentCapabilityKeys` / `IThreeStoveAgent*` 由宿主 `three-stove-agent-api` AAR (契约版本 2, 宿主 5298 起) 决定; `ThreeStoveAgentPlugin` 的 ID / engine / variant / action / category / 最低宿主版本直接引用这些常量, 已于 2026-09-27 随宿主改名一并替换 (路线图 D50) |
 | 启动器入口 | `ui.LauncherActivity` (`MAIN` / `LAUNCHER`, 主进程) |
 | 专用 API | `three-stove-agent-api` (宿主 `plugin-api/three-stove-agent-api`, AIDL 包 `org.autojs.plugin.three.stove.agent.api`) 与共享能力契约 `host-capability-api` (宿主 `plugin-api/host-capability-api`, 路线图 D33); 路线图 P1.1 落地后以 AAR 形式进入 `libs/` |
-| 最低宿主 versionCode | `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` = `ThreeStoveAgentIds.REQUIRED_HOST_VERSION_CODE` = 5298 (AutoJs6 6.8.0, Three Stove Agent 契约 V2; 已包含 5289 起的 P4.2 动作节点检查与执行绑定) |
+| 最低宿主 versionCode | `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` = `ThreeStoveAgentIds.REQUIRED_HOST_VERSION_CODE` = 5298 (AutoJs6 6.8.0, 3-Stove Agent 契约 V2; 已包含 5289 起的 P4.2 动作节点检查与执行绑定) |
 | 平台版本插件 | `io.github.supermonster003.autojs6-platform-versions` 1.8.3 |
 | 发布文件名 | `autojs6-plugin-three-stove-agent-v{VERSION_NAME}-{CRC32}.apk` (单 APK) |
 
@@ -184,7 +184,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 
 - 用户可见字符串 MUST 覆盖 `values`, `values-en`, `values-ar`, `values-es`, `values-fr`, `values-ja`, `values-ko`, `values-ru`, `values-zh`, `values-zh-rHK`, `values-zh-rTW`; `values` 与 `values-en` 共有条目内容一致, 各语言占位符与转义一致.
 - `app_name` 位于 `strings_donottranslate.xml` 且 `translatable="false"`; `plugin_author`, `plugin_id`, `plugin_engine`, `plugin_variant`, `plugin_version_date` 由 Gradle `resValue` 生成.
-- 每个 locale MUST 有 `plugin_description`: 简洁说明能力, 句尾不加终止标点, 不写 "Three Stove Agent 插件" 前缀, 不写 "适用于 AutoJs6" 等限定表述.
+- 每个 locale MUST 有 `plugin_description`: 简洁说明能力, 句尾不加终止标点, 不写 "3-Stove Agent 插件" 前缀, 不写 "适用于 AutoJs6" 等限定表述.
 - `<string>` 按 `name` 升序; plurals 与数组放入各自文件.
 - 所有资源与文档字符串使用 ASCII 标点 (`, . : ; ! ? ( ) [ ] / -`), 省略号用 `...` 并加 `tools:ignore="TypographyEllipsis"`; 禁止全角标点, 顿号, 弯引号. `ApplicationTextPunctuationTest` 会扫描 `app/src/main`, `.readme`, `.changelog`, `README.md`, `ROADMAP.md` 与 `AGENTS.md`.
 - 模型消费的提示词与工具描述 (P2 起, `assets/prompts/{en,zh}/`) 以英文为主并提供 zh 版本, 不进入 10 语言资源.

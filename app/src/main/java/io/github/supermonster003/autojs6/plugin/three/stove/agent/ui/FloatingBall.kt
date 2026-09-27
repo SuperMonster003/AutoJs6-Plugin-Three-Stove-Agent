@@ -291,7 +291,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             (if (expanded) WindowManager.LayoutParams.FLAG_SECURE else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
         layout = WindowManager.LayoutParams(-2, -2, type, flags, PixelFormat.TRANSLUCENT).apply {
             gravity = Gravity.TOP or Gravity.LEFT
-            title = if (expanded) "Three Stove Agent floating card" else "Three Stove Agent floating ball"
+            title = if (expanded) "3-Stove Agent floating card" else "3-Stove Agent floating ball"
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         }
         measureWindow()

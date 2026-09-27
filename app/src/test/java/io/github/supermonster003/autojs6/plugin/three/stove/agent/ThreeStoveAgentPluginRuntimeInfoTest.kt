@@ -10,17 +10,17 @@ class ThreeStoveAgentPluginRuntimeInfoTest {
     @Test
     fun `runtime fields are assembled without losing the plugin identity`() {
         val info = ThreeStoveAgentPluginRuntimeInfo(
-            name = "Three Stove Agent",
+            name = "3-Stove Agent",
             description = "Runs natural-language tasks by choosing registered scripts and operating the screen step by step",
-            instruction = "# Three Stove Agent",
+            instruction = "# 3-Stove Agent",
             versionName = "1.1.0",
             versionCode = 1L,
             versionDate = "Sep 22, 2026",
         )
 
-        assertEquals("Three Stove Agent", info.name)
+        assertEquals("3-Stove Agent", info.name)
         assertEquals("Runs natural-language tasks by choosing registered scripts and operating the screen step by step", info.description)
-        assertEquals("# Three Stove Agent", info.instruction)
+        assertEquals("# 3-Stove Agent", info.instruction)
         assertEquals("SuperMonster003", info.author)
         assertEquals("three-stove-agent", info.id)
         assertEquals("three-stove-agent", info.engine)

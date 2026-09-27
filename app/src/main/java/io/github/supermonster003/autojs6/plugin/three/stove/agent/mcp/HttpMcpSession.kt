@@ -74,7 +74,7 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
 
     fun initialize(operation: McpOperation) {
         val result = request("initialize", jsonObject("protocolVersion" to version.json(), "capabilities" to jsonObject(),
-            "clientInfo" to jsonObject("name" to "AutoJs6 Three Stove Agent".json(), "version" to clientVersion.json())), operation)
+            "clientInfo" to jsonObject("name" to "AutoJs6 3-Stove Agent".json(), "version" to clientVersion.json())), operation)
         val negotiated = result.string("protocolVersion") ?: mcpFail()
         if (negotiated !in VERSIONS || result.getAsJsonObject("capabilities")?.get("tools")?.isJsonObject != true) mcpFail()
         version = negotiated
