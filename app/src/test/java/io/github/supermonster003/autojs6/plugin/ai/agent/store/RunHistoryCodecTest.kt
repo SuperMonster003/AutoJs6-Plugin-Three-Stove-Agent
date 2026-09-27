@@ -21,6 +21,21 @@ class RunHistoryCodecTest {
         assertFalse(RunHistoryExport.redact(fixture(1), emptySet()).has("fullAccess"))
         rejects { RunHistoryCodec.encode(fixture(1).apply { addProperty("fullAccess", "true") }, 1) }
     }
+    @Test fun resolvedModelIsPrivateHistoryThatExportsOnlyItsCatalogIdAndNeverReachesHostQueries() {
+        val model = jsonObject("targetId" to "profile:online".json(), "name" to "Office model".json(), "locality" to "REMOTE".json())
+        val run = fixture(1).apply { addProperty("target", "profile:online"); add("model", model); addProperty("fullAccess", true) }
+        assertEquals(run, RunHistoryCodec.decode(RunHistoryCodec.encode(run, 1)).run)
+        val exported = RunHistoryExport.redact(run, emptySet())
+        assertEquals("profile:online", exported.string("targetId"))
+        assertFalse(exported.toString().contains("Office model"))
+        val projected = io.github.supermonster003.autojs6.plugin.ai.agent.service.RunArchive.hostProjection(run.deepCopy())
+        for (key in listOf("fullAccess", "target", "model")) assertFalse(key, projected.has(key))
+        assertEquals(run.string("goal"), projected.string("goal"))
+        rejects { RunHistoryCodec.encode(fixture(1).apply { addProperty("target", "Not a target") }, 1) }
+        rejects { RunHistoryCodec.encode(fixture(1).apply { add("model", model.deepCopy().apply { addProperty("locality", "MOON") }) }, 1) }
+        rejects { RunHistoryCodec.encode(fixture(1).apply { add("model", model.deepCopy().apply { addProperty("extra", 1) }) }, 1) }
+        rejects { RunHistoryCodec.encode(fixture(1).apply { addProperty("model", "profile:online") }, 1) }
+    }
     @Test fun unknownVersionAndDuplicateKeysFailClosed() {
         val encoded = RunHistoryCodec.encode(fixture(1), 1)
         rejects { RunHistoryCodec.decode(encoded.replace("\"version\":1", "\"version\":2")) }

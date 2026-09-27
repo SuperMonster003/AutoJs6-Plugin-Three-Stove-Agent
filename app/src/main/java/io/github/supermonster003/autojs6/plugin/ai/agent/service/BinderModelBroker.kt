@@ -36,7 +36,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
             when (result) {
                 is PortResult.Failure -> callback(result)
                 is PortResult.Success -> {
-                    val selected = if (targetId == null) result.value.firstOrNull { it.target.locality == ModelLocality.ON_DEVICE } ?: result.value.firstOrNull()
+                    val selected = if (targetId == null) AutomaticTarget.pick(result.value) { it.target.locality }
                         else result.value.firstOrNull { it.target.targetId == targetId }
                     callback(if (selected == null) PortResult.Failure(RunError.TARGET_UNAVAILABLE) else PortResult.Success(selected))
                 }

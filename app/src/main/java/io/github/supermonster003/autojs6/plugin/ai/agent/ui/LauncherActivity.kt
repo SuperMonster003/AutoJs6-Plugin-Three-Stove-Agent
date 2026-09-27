@@ -26,7 +26,7 @@ class LauncherActivity : HostAppearanceActivity() {
     private val visibility by lazy { InteractionVisibility(this, followsRun = true) }
     private lateinit var goal: EditText
     private lateinit var preset: Spinner
-    internal lateinit var modelPicker: ModelPicker; private set
+    internal lateinit var models: ModelSwitcher; private set
     internal var overflowMenu: PopupMenu? = null; private set
     private lateinit var updates: AppUpdateCoordinator
     private val scriptRoots by lazy { ScriptRootSettings(this) }
@@ -48,17 +48,15 @@ class LauncherActivity : HostAppearanceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        models = ModelSwitcher(this, ::updateSend)
         setContentView(WorkbenchLayout.create(this))
         updates = AppUpdateCoordinator(this, aiAgentPluginRuntimeInfo().versionName)
-        modelPicker = ModelPicker(this, findViewById(R.id.workbench_model), ::updateSend)
         findViewById<View>(android.R.id.content).layoutDirection = resources.configuration.layoutDirection
         agent = AgentConnection(this, ::render)
         agent.selectedId = savedInstanceState?.getString("selectedId")
         val entry = TaskEntries.read(intent)
-        // Explicit preset shortcuts and history reruns keep their own model inheritance.
-        modelPicker.selectedId = if (savedInstanceState != null) savedInstanceState.getString("target") else if (entry?.preset != null) null else drafts.getString("target", null)
-        modelPicker.selectedName = savedInstanceState?.getString("targetName") ?: drafts.getString("targetName", null)
-        modelPicker.renderButton()
+        // The model is the shared choice, independent of presets; entries never reset it.
+        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_OPEN_MODELS, false)) window.decorView.post { models.open() }
         if (savedInstanceState == null && intent.action == TaskEntries.PRESET_TASK && entry != null) TaskEntries.opened(this, entry)
         selectedPreset = savedInstanceState?.getString("preset") ?: entry?.preset ?: drafts.getString("preset", "default")!!
         goal = findViewById(R.id.workbench_goal)
@@ -122,21 +120,19 @@ class LauncherActivity : HostAppearanceActivity() {
         }
         updateSend(); tint(findViewById(android.R.id.content))
     }
-    override fun onStart() { super.onStart(); requested = false; sending = false; modelPicker.start(); agent.start(); updates.checkAutomatically() }
+    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); updates.checkAutomatically() }
     override fun onResume() { super.onResume(); visibility.start() }
     override fun onPause() { visibility.stop(); super.onPause() }
     override fun onStop() {
-        drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset)
-            .putString("target", modelPicker.selectedId).putString("targetName", modelPicker.selectedName).apply()
+        drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
         overflowMenu?.dismiss(); overflowMenu = null
-        modelPicker.stop(); updates.cancel(); agent.stop(); super.onStop()
+        models.stop(); updates.cancel(); agent.stop(); super.onStop()
     }
-    override fun onDestroy() { modelPicker.close(); updates.close(); agent.close(); super.onDestroy() }
+    override fun onDestroy() { models.close(); updates.close(); agent.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("goal", goal.text.toString()); outState.putString("preset", selectedPreset)
         outState.putString("selectedId", agent.selectedId)
         outState.putBoolean("followDefault", followDefault)
-        outState.putString("target", modelPicker.selectedId); outState.putString("targetName", modelPicker.selectedName)
         pending.save(outState)
         super.onSaveInstanceState(outState)
     }
@@ -148,9 +144,9 @@ class LauncherActivity : HostAppearanceActivity() {
     }
 
     private fun launchRun() {
-        if (!attached || sending || selectedPreset !in availablePresets || !modelPicker.selectionAvailable) return
+        if (!attached || sending || selectedPreset !in availablePresets || !models.available) return
         val text = goal.text.toString().trim()
-        val request = runCatching { RunLauncher.uiRequest(text, selectedPreset, resources.configuration.locales[0].toLanguageTag(), modelPicker.selectedId) }.getOrNull()
+        val request = runCatching { RunLauncher.uiRequest(text, selectedPreset, resources.configuration.locales[0].toLanguageTag(), models.targetId) }.getOrNull()
         if (request == null) { goal.error = getString(R.string.workbench_goal_invalid); return }
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
@@ -171,7 +167,7 @@ class LauncherActivity : HostAppearanceActivity() {
         }
     }
     private fun updateSend() {
-        findViewById<Button>(R.id.workbench_send).isEnabled = attached && !sending && goal.text.isNotBlank() && selectedPreset in availablePresets && modelPicker.selectionAvailable
+        findViewById<Button>(R.id.workbench_send).isEnabled = attached && !sending && goal.text.isNotBlank() && selectedPreset in availablePresets && models.available
     }
     private fun render(value: WorkbenchSnapshot) {
         renderLink(value.status)
@@ -253,7 +249,7 @@ class LauncherActivity : HostAppearanceActivity() {
             status.getAsJsonArray("scriptRoots").map { it.asString }.toSet() == scriptRoots.read()
         }.getOrDefault(false)
         attached = presence == HostPresence.READY && status.string("state") == C.LINK_STATE_ATTACHED && rootsAccepted
-        modelPicker.attached(attached)
+        models.attached(attached)
         val label = when (presence) {
             HostPresence.MISSING -> getString(R.string.launcher_host_missing, AiAgentPlugin.REQUIRED_HOST_VERSION)
             HostPresence.DISABLED -> getString(R.string.launcher_host_disabled)
@@ -299,5 +295,9 @@ class LauncherActivity : HostAppearanceActivity() {
             catch (_: PackageManager.NameNotFoundException) { return null }
         val version = if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
         return HostPackageSnapshot(info.applicationInfo?.enabled == true, version, info.versionName.orEmpty())
+    }
+    companion object {
+        /** Opens the model switcher on arrival, for example from the floating ball. */
+        const val EXTRA_OPEN_MODELS = "openModels"
     }
 }

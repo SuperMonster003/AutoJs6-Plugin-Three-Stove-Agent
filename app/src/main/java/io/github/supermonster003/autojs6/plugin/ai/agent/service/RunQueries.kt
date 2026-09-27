@@ -11,7 +11,7 @@ internal class RunQueries(private val archive: RunArchive, private val presentat
         ControlRequests.closed(value, setOf("limit", "offset"))
         val limit = ControlRequests.number(value, "limit", 20, 50).toInt()
         val offset = if (value.has("offset")) requireNotNull(value.number("offset")).also { require(it in 0..1000) }.toInt() else 0
-        archive.list(limit, offset).toString()
+        archive.list(limit, offset, presentation).toString()
     }
     fun get(reference: Bundle?): Bundle = answer {
         val value = AgentJson.objectOf(AgentWire.control(reference, C.KEY_RUN_REF_JSON))

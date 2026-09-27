@@ -170,6 +170,18 @@
     <string name="memory_title">メモリ</string>
     <string name="memory_updated">更新日時: %1$s</string>
     <string name="memory_value">値</string>
+    <string name="model_automatic">自動</string>
+    <string name="model_automatic_current">現在: %1$s</string>
+    <string name="model_automatic_note">端末上のモデルを優先し, なければ最初に利用可能なモデルを使います</string>
+    <string name="model_automatic_with">自動 · %1$s</string>
+    <string name="model_capsule_description">新しいタスクのモデル: %1$s</string>
+    <string name="model_pin">%1$s を固定</string>
+    <string name="model_pins_full">固定リストがいっぱいです. 先にモデルの固定を解除してください.</string>
+    <string name="model_section_pinned">固定済み</string>
+    <string name="model_section_recent">最近使用</string>
+    <string name="model_unavailable">利用不可</string>
+    <string name="model_unavailable_note">AutoJs6 はこのモデルを提供しなくなりました. タスクを開始する前に別のモデルを選んでください.</string>
+    <string name="model_unpin">%1$s の固定を解除</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
     <string name="presets_budget_note">空欄はタスクの制限を継承します. 値は制限を縮小する場合のみ指定できます. 既定: 40 ステップ, 60 回, 600000 ms (切り離したタスクは 1800000 ms), 300000 トークン. ホストの制限も適用されます.</string>
     <string name="presets_calls">最大モデル呼び出し数</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">固定コンテキスト (タスク分と合わせて最大 8 KiB)</string>
     <string name="presets_copy">プリセットを複製</string>
     <string name="presets_default_item">%1$s (既定)</string>
-    <string name="presets_degraded">フォールバックモード</string>
     <string name="presets_delete">プリセットを削除</string>
     <string name="presets_delete_confirm">プリセット %1$s を削除しますか? 既存のタスクと履歴は保持されます. 既定の場合, 新規タスクは default を使用します.</string>
     <string name="presets_duration">最大実行時間 (ms)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">全体のみ</string>
     <string name="presets_memory_none">保存済みの記憶を使用しない</string>
     <string name="presets_memory_preset">このプリセットのみ</string>
-    <string name="presets_model">モデル</string>
     <string name="presets_models_unavailable">モデル一覧を取得できません. タスク画面から AutoJs6 に接続して更新してください.</string>
     <string name="presets_name">名前</string>
     <string name="presets_name_note">名前はスクリプトと記憶の範囲に使用され, 保存後は変更できません. 別名にするには複製してください.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">既定に設定</string>
     <string name="presets_standard">標準 (機密操作を確認)</string>
     <string name="presets_steps">最大ステップ数</string>
-    <string name="presets_structured">構造化 JSON</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">プリセット</string>
     <string name="presets_tokens">最大トークン数</string>
     <string name="presets_tools">有効なツールグループ</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">タスクを絞り込む</string>
     <string name="ui_home_subtitle">モデルを選び, 目標を伝え, 進捗を確認できます.</string>
     <string name="ui_home_title">アイデアを行動に</string>
-    <string name="ui_model_capabilities">モデルの機能は接続中のプロバイダーが提供します.</string>
-    <string name="ui_model_inherit">プリセットに従う / 自動</string>
-    <string name="ui_model_inherit_note">プリセットのモデルを使用し, 未指定の場合は利用可能なモデルを自動選択します.</string>
-    <string name="ui_model_note">この選択は新しいタスクにのみ適用されます. プリセットや実行中のタスクは変更しません.</string>
+    <string name="ui_model_note">タスク画面とフローティングボールの新しいタスクに適用されます. プリセットや実行中のタスクは変更されません.</string>
     <string name="ui_model_search">モデルやプロバイダーを検索</string>
     <string name="ui_model_tools">ツール呼び出し</string>
     <string name="ui_model_vision">画像入力</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">一致するモデルがありません</string>
     <string name="ui_more">その他のオプション</string>
     <string name="ui_preset_optional">ツール, 制限, コンテキストを保存する任意のテンプレートです. モデルはホームから直接切り替えられます.</string>
-    <string name="ui_selected_model">%1$s (選択中)</string>
     <string name="ui_task_options">タスクのオプション</string>
     <string name="ui_task_section">タスクと機能</string>
     <string name="ui_theme_amber">アンバー</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">リリースページを開く</string>
     <string name="update_unignore">このバージョンの無視を解除</string>
     <string name="workbench_answer_required">回答を入力してください.</string>
-    <string name="workbench_auto_model">モデルを自動選択</string>
     <string name="workbench_back">戻る</string>
     <string name="workbench_budget">ステップ: %1$d / %2$d. 上限: モデル呼出 %3$d 回, %4$d 分, %5$d トークン.</string>
     <string name="workbench_current">現在のタスク</string>

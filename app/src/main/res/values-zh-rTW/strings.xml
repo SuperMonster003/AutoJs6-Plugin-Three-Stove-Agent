@@ -170,6 +170,18 @@
     <string name="memory_title">記憶</string>
     <string name="memory_updated">更新時間: %1$s</string>
     <string name="memory_value">值</string>
+    <string name="model_automatic">自動</string>
+    <string name="model_automatic_current">目前: %1$s</string>
+    <string name="model_automatic_note">優先使用本機模型, 否則使用第一個可用模型</string>
+    <string name="model_automatic_with">自動 · %1$s</string>
+    <string name="model_capsule_description">新任務使用的模型: %1$s</string>
+    <string name="model_pin">置頂 %1$s</string>
+    <string name="model_pins_full">置頂清單已滿, 請先取消置頂一個模型.</string>
+    <string name="model_section_pinned">置頂</string>
+    <string name="model_section_recent">最近使用</string>
+    <string name="model_unavailable">無法使用</string>
+    <string name="model_unavailable_note">AutoJs6 已不再提供此模型. 開始任務前請選擇其他模型.</string>
+    <string name="model_unpin">取消置頂 %1$s</string>
     <string name="plugin_description">依自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
     <string name="presets_budget_note">留空沿用任務限制, 填寫值只能收緊. 預設: 40 步, 60 次模型呼叫, 600000 毫秒 (託管任務 1800000 毫秒), 300000 token, 同時受宿主限制.</string>
     <string name="presets_calls">最大模型呼叫次數</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">固定上下文 (與任務上下文合計最多 8 KiB)</string>
     <string name="presets_copy">複製預設</string>
     <string name="presets_default_item">%1$s (預設值)</string>
-    <string name="presets_degraded">退化模式</string>
     <string name="presets_delete">刪除預設</string>
     <string name="presets_delete_confirm">刪除預設 %1$s? 已有任務和歷史記錄會保留. 若它是預設值, 新任務將使用 default.</string>
     <string name="presets_duration">最長時間 (毫秒)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">僅全域</string>
     <string name="presets_memory_none">不使用已儲存的記憶</string>
     <string name="presets_memory_preset">僅目前預設</string>
-    <string name="presets_model">模型目標</string>
     <string name="presets_models_unavailable">模型清單暫時無法使用. 請從任務台連接 AutoJs6 後重新整理.</string>
     <string name="presets_name">名稱</string>
     <string name="presets_name_note">名稱用於腳本呼叫和記憶作用域, 儲存後保持不變; 如需更名, 請複製預設.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">設為預設值</string>
     <string name="presets_standard">標準 (敏感操作需確認)</string>
     <string name="presets_steps">最大步數</string>
-    <string name="presets_structured">結構化 JSON</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">預設</string>
     <string name="presets_tokens">最大 token 數</string>
     <string name="presets_tools">啟用的工具群組</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">篩選任務</string>
     <string name="ui_home_subtitle">選好模型, 描述目標, 隨時掌握任務進度</string>
     <string name="ui_home_title">讓想法成為行動</string>
-    <string name="ui_model_capabilities">模型能力由已連接的提供者宣告.</string>
-    <string name="ui_model_inherit">跟隨預設 / 自動選擇</string>
-    <string name="ui_model_inherit_note">使用預設指定的模型, 未指定時自動選擇可用模型.</string>
-    <string name="ui_model_note">此選擇僅用於新任務, 不會修改預設或正在執行的任務.</string>
+    <string name="ui_model_note">對任務台與懸浮球的新任務生效, 不會修改預設或正在執行的任務.</string>
     <string name="ui_model_search">搜尋模型或提供者</string>
     <string name="ui_model_tools">工具呼叫</string>
     <string name="ui_model_vision">圖片輸入</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">沒有符合的模型</string>
     <string name="ui_more">更多選項</string>
     <string name="ui_preset_optional">預設可儲存工具範圍, 預算與上下文. 切換模型可直接在首頁完成.</string>
-    <string name="ui_selected_model">%1$s (已選擇)</string>
     <string name="ui_task_options">任務選項</string>
     <string name="ui_task_section">任務與能力</string>
     <string name="ui_theme_amber">琥珀色</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">開啟發行頁</string>
     <string name="update_unignore">取消忽略此版本</string>
     <string name="workbench_answer_required">請輸入回答.</string>
-    <string name="workbench_auto_model">自動選擇模型</string>
     <string name="workbench_back">返回</string>
     <string name="workbench_budget">步數: %1$d / %2$d. 上限: %3$d 次模型呼叫, %4$d 分鐘, %5$d token.</string>
     <string name="workbench_current">目前任務</string>

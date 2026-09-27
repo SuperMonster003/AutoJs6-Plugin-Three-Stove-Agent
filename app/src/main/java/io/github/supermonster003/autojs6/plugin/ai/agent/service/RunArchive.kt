@@ -56,9 +56,19 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
             "detached" to request.options.detached.json(), "interaction" to request.interaction.json(), "preset" to request.preset.json(), "steps" to JsonArray(),
             "budget" to request.options.limits.let { jsonObject("maxSteps" to it.maxSteps.json(), "maxModelCalls" to it.maxModelCalls.json(),
                 "maxDurationMs" to it.maxDurationMs.json(), "maxTotalTokens" to it.maxTotalTokens.json()) })
-            // Private audit marker for the plugin UI and history; the host/script projection omits it.
-            .apply { if (request.options.confirmationMode == ConfirmationMode.FULL_ACCESS) addProperty(FULL_ACCESS, true) }
+            // Private markers for the plugin UI and history; the host/script projection omits them.
+            .apply {
+                if (request.options.confirmationMode == ConfirmationMode.FULL_ACCESS) addProperty(FULL_ACCESS, true)
+                request.target?.let { addProperty(TARGET, it) }
+            }
         markDirty(run.id)
+    }
+    /** Records the model the broker resolved for this run, including an Automatic pick. */
+    @Synchronized fun model(id: String, selected: SelectedModel) {
+        val row = records[id] ?: return
+        row.add(MODEL, jsonObject("targetId" to selected.target.targetId.json(),
+            "name" to AgentJson.truncate(selected.displayName, 256).json(), "locality" to selected.target.locality.name.json()))
+        markDirty(id)
     }
     @Synchronized fun event(event: RunEvent) {
         val row = records[event.runId] ?: return
@@ -99,7 +109,7 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         return true
     }
     @Synchronized fun get(id: String, stepLimit: Int = 50, presentation: Boolean = false): JsonObject? = records[id]?.let { source ->
-        project(source, stepLimit).apply { if (presentation) pendingForUi(id)?.let { add("pending", it) } else remove(FULL_ACCESS) }
+        project(source, stepLimit).let { row -> if (presentation) row.apply { pendingForUi(id)?.let { add("pending", it) } } else hostProjection(row) }
     }
     @Synchronized fun full(id: String): JsonObject? = records[id]?.deepCopy()
     /** All private history commands and file access run on the same worker as journal writes. */
@@ -122,10 +132,11 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
         store.delete(ids)
         synchronized(this) { ids.forEach { records.remove(it); dirty.remove(it) } }
     }
-    @Synchronized fun list(limit: Int, offset: Int): JsonObject {
+    @Synchronized fun list(limit: Int, offset: Int, presentation: Boolean = false): JsonObject {
         val summaries = records.values.sortedByDescending { it.number("startedAt") ?: 0 }.drop(offset).take(limit).map { row ->
             jsonObject("runId" to row["runId"], "goal" to AgentJson.truncate(row.string("goal").orEmpty(), 256).json(),
                 "state" to row["state"], "startedAt" to row["startedAt"], "detached" to row["detached"], "preset" to (row["preset"] ?: "default".json()))
+                .apply { if (presentation) for (key in listOf(FULL_ACCESS, MODEL)) row[key]?.let { add(key, it.deepCopy()) } }
         }
         return jsonObject("runs" to JsonArray().apply { summaries.forEach(::add) }, "total" to records.size.json(), "ready" to ready.json())
     }
@@ -150,6 +161,10 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
     companion object {
         private const val MAX_RECORD_BYTES = RunHistoryCodec.MAX_BYTES
         const val FULL_ACCESS = "fullAccess"
+        const val TARGET = "target"
+        const val MODEL = "model"
+        /** Host and script queries never see private UI markers: full access, the requested target or the resolved model. */
+        internal fun hostProjection(row: JsonObject): JsonObject = row.apply { listOf(FULL_ACCESS, TARGET, MODEL).forEach(::remove) }
         private val TERMINAL = RunState.entries.filter { it.terminal }.map { it.wire }.toSet()
         internal fun recoverInterrupted(value: JsonObject) {
             val state = RunState.entries.firstOrNull { it.wire == value.string("state") } ?: error("Invalid state")

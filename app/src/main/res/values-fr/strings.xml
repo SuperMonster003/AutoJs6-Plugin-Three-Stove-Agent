@@ -170,6 +170,18 @@
     <string name="memory_title">Mémoire</string>
     <string name="memory_updated">Modification: %1$s</string>
     <string name="memory_value">Valeur</string>
+    <string name="model_automatic">Automatique</string>
+    <string name="model_automatic_current">Actuellement: %1$s</string>
+    <string name="model_automatic_note">Privilégie un modèle sur l\'appareil, sinon le premier modèle disponible</string>
+    <string name="model_automatic_with">Automatique · %1$s</string>
+    <string name="model_capsule_description">Modèle des nouvelles tâches: %1$s</string>
+    <string name="model_pin">Épingler %1$s</string>
+    <string name="model_pins_full">La liste épinglée est pleine. Désépinglez d\'abord un modèle.</string>
+    <string name="model_section_pinned">Épinglés</string>
+    <string name="model_section_recent">Récents</string>
+    <string name="model_unavailable">Indisponible</string>
+    <string name="model_unavailable_note">AutoJs6 ne propose plus ce modèle. Choisissez-en un autre avant de lancer une tâche.</string>
+    <string name="model_unpin">Désépingler %1$s</string>
     <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
     <string name="presets_budget_note">Laisser vide pour hériter des limites. Les valeurs ne peuvent que les réduire. Par défaut: 40 étapes, 60 appels, 600000 ms (1800000 ms pour les tâches détachées), 300000 jetons, sous réserve des limites de l\'hôte.</string>
     <string name="presets_calls">Nombre maximal d\'appels au modèle</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">Contexte fixe (8 KiB maximum avec le contexte de la tâche)</string>
     <string name="presets_copy">Dupliquer le préréglage</string>
     <string name="presets_default_item">%1$s (par défaut)</string>
-    <string name="presets_degraded">Mode dégradé</string>
     <string name="presets_delete">Supprimer le préréglage</string>
     <string name="presets_delete_confirm">Supprimer %1$s? Les tâches et l\'historique sont conservés. Si ce préréglage est celui par défaut, les nouvelles tâches utiliseront default.</string>
     <string name="presets_duration">Durée maximale (ms)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">Globale uniquement</string>
     <string name="presets_memory_none">Ne pas utiliser la mémoire enregistrée</string>
     <string name="presets_memory_preset">Ce préréglage uniquement</string>
-    <string name="presets_model">Modèle cible</string>
     <string name="presets_models_unavailable">Liste des modèles indisponible. Connectez AutoJs6 depuis l\'écran des tâches, puis actualisez.</string>
     <string name="presets_name">Nom</string>
     <string name="presets_name_note">Le nom identifie le préréglage dans les scripts et la mémoire. Il reste fixe après enregistrement; dupliquez pour changer de nom.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">Définir par défaut</string>
     <string name="presets_standard">Standard (confirmer les actions sensibles)</string>
     <string name="presets_steps">Nombre maximal d\'étapes</string>
-    <string name="presets_structured">JSON structuré</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">Préréglages</string>
     <string name="presets_tokens">Nombre maximal de jetons</string>
     <string name="presets_tools">Groupes d\'outils activés</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">Filtrer les tâches</string>
     <string name="ui_home_subtitle">Choisissez un modèle, décrivez votre objectif et suivez la progression.</string>
     <string name="ui_home_title">De l\'idée à l\'action</string>
-    <string name="ui_model_capabilities">Les capacités sont déclarées par le fournisseur connecté.</string>
-    <string name="ui_model_inherit">Suivre le préréglage / Automatique</string>
-    <string name="ui_model_inherit_note">Utiliser le modèle du préréglage ou choisir automatiquement un modèle disponible.</string>
-    <string name="ui_model_note">Ce choix concerne uniquement les nouvelles tâches. Il ne modifie ni vos préréglages ni la tâche en cours.</string>
+    <string name="ui_model_note">S\'applique aux nouvelles tâches du plan de travail et de la bulle flottante. Les préréglages et les tâches en cours ne changent pas.</string>
     <string name="ui_model_search">Rechercher un modèle ou fournisseur</string>
     <string name="ui_model_tools">Appels d\'outils</string>
     <string name="ui_model_vision">Entrée d\'images</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">Aucun modèle correspondant</string>
     <string name="ui_more">Plus d\'options</string>
     <string name="ui_preset_optional">Modèles de configuration facultatifs pour les outils, limites et contexte. Changez de modèle depuis l\'accueil.</string>
-    <string name="ui_selected_model">%1$s (sélectionné)</string>
     <string name="ui_task_options">Options de tâche</string>
     <string name="ui_task_section">Tâches et capacités</string>
     <string name="ui_theme_amber">Ambre</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">Ouvrir la page de publication</string>
     <string name="update_unignore">Ne plus ignorer cette version</string>
     <string name="workbench_answer_required">Saisissez une réponse.</string>
-    <string name="workbench_auto_model">Sélection automatique du modèle</string>
     <string name="workbench_back">Retour</string>
     <string name="workbench_budget">Étapes: %1$d / %2$d. Limites: %3$d appels, %4$d min, %5$d tokens.</string>
     <string name="workbench_current">Tâche actuelle</string>

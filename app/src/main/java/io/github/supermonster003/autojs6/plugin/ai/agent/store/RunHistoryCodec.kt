@@ -44,6 +44,14 @@ internal object RunHistoryCodec {
                     if (budget.has(key)) require((budget.number(key) ?: -1) >= 0)
             }
             for (key in listOf("interaction", "progress")) if (run.has(key)) require(run.string(key) != null)
+            if (run.has("target")) PresetCodec.target(requireNotNull(run.string("target")))
+            run["model"]?.let { value ->
+                val model = value.asJsonObject
+                require(model.keySet() == setOf("targetId", "name", "locality"))
+                PresetCodec.target(requireNotNull(model.string("targetId")))
+                require(requireNotNull(model.string("name")).length <= 256)
+                ModelLocality.valueOf(requireNotNull(model.string("locality")))
+            }
             require(run["steps"]?.isJsonArray == true)
             val steps = run.getAsJsonArray("steps")
             require(steps.size() <= RunLimits.STEPS)

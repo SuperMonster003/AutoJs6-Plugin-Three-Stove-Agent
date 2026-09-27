@@ -86,7 +86,8 @@ internal class UiAccessibilityAudit {
                 val parent = view.parent as ViewGroup
                 check(view.left >= -1 && view.right <= parent.width + 1, view, "outside parent horizontal bounds")
             }
-            if (view is TextView && view !is EditText && view.text.isNotBlank() && view.tag != "floating-step") {
+            // The model capsule is the one label allowed to ellipsize; its full name is in the description.
+            if (view is TextView && view !is EditText && view.text.isNotBlank() && view.tag !in setOf("floating-step", ModelCapsule.TRUNCATABLE)) {
                 view.layout?.let { layout ->
                     check(layout.height <= view.height - view.compoundPaddingTop - view.compoundPaddingBottom + 2,
                         view, "text vertically clipped")

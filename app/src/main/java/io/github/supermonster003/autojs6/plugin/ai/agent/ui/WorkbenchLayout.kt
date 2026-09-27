@@ -22,7 +22,7 @@ internal object WorkbenchLayout {
         AgentUi.text(composer, activity.getString(R.string.settings_full_access_note), 13).apply {
             id = R.id.workbench_full_access; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
         }
-        AgentUi.row(composer, activity.getString(R.string.ui_choose_model), activity.getString(R.string.ui_model_inherit), "model") {}.id = R.id.workbench_model
+        composer.addView(activity.models.capsule.view, LinearLayout.LayoutParams(-2, -2).apply { bottomMargin = AgentUi.dp(activity, 8) })
         AgentUi.text(composer, activity.getString(R.string.workbench_goal_label), 16, true).labelFor = R.id.workbench_goal
         composer.addView(EditText(activity).apply {
             id = R.id.workbench_goal; setHint(R.string.workbench_goal_hint)

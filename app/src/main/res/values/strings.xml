@@ -170,6 +170,18 @@
     <string name="memory_title">Memory</string>
     <string name="memory_updated">Updated: %1$s</string>
     <string name="memory_value">Value</string>
+    <string name="model_automatic">Automatic</string>
+    <string name="model_automatic_current">Currently: %1$s</string>
+    <string name="model_automatic_note">Prefers an on-device model, otherwise the first available model</string>
+    <string name="model_automatic_with">Automatic · %1$s</string>
+    <string name="model_capsule_description">Model for new tasks: %1$s</string>
+    <string name="model_pin">Pin %1$s</string>
+    <string name="model_pins_full">The pinned list is full. Unpin a model first.</string>
+    <string name="model_section_pinned">Pinned</string>
+    <string name="model_section_recent">Recent</string>
+    <string name="model_unavailable">Unavailable</string>
+    <string name="model_unavailable_note">AutoJs6 no longer offers this model. Choose another model before starting a task.</string>
+    <string name="model_unpin">Unpin %1$s</string>
     <string name="plugin_description">Runs natural-language tasks by choosing registered scripts and operating the screen step by step</string>
     <string name="presets_budget_note">Leave blank to inherit the task limits. Values can only reduce them. Defaults: 40 steps, 60 model calls, 600000 ms (1800000 ms for detached tasks), 300000 tokens, subject to host limits.</string>
     <string name="presets_calls">Maximum model calls</string>
@@ -178,7 +190,6 @@
     <string name="presets_context">Fixed context (up to 8 KiB together with task context)</string>
     <string name="presets_copy">Copy preset</string>
     <string name="presets_default_item">%1$s (default)</string>
-    <string name="presets_degraded">Degraded mode</string>
     <string name="presets_delete">Delete preset</string>
     <string name="presets_delete_confirm">Delete preset %1$s? Existing tasks and history are kept. If it is the default, default will be selected for new tasks.</string>
     <string name="presets_duration">Maximum duration (ms)</string>
@@ -203,7 +214,6 @@
     <string name="presets_memory_global">Global only</string>
     <string name="presets_memory_none">Do not use saved memory</string>
     <string name="presets_memory_preset">This preset only</string>
-    <string name="presets_model">Model target</string>
     <string name="presets_models_unavailable">Model list unavailable. Connect to AutoJs6 from the workbench, then refresh.</string>
     <string name="presets_name">Name</string>
     <string name="presets_name_note">The name is used in scripts and memory scopes. It stays fixed after saving; copy the preset to use another name.</string>
@@ -214,8 +224,6 @@
     <string name="presets_set_default">Set as default</string>
     <string name="presets_standard">Default (confirm sensitive actions)</string>
     <string name="presets_steps">Maximum steps</string>
-    <string name="presets_structured">Structured JSON</string>
-    <string name="presets_target_label">%1$s\n%2$s / %3$s</string>
     <string name="presets_title">Presets</string>
     <string name="presets_tokens">Maximum tokens</string>
     <string name="presets_tools">Enabled tool groups</string>
@@ -300,10 +308,7 @@
     <string name="ui_history_filters">Filter tasks</string>
     <string name="ui_home_subtitle">Choose a model. Describe your goal. Follow the progress.</string>
     <string name="ui_home_title">From intent to action</string>
-    <string name="ui_model_capabilities">Capabilities are reported by the connected provider.</string>
-    <string name="ui_model_inherit">Follow preset / Automatic</string>
-    <string name="ui_model_inherit_note">Use the preset model, or automatically choose an available model.</string>
-    <string name="ui_model_note">This choice applies to new tasks only. It does not change your presets or a task already running.</string>
+    <string name="ui_model_note">Applies to new tasks from the workbench and the floating ball. Presets and running tasks are not changed.</string>
     <string name="ui_model_search">Search models or providers</string>
     <string name="ui_model_tools">Tool calling</string>
     <string name="ui_model_vision">Image input</string>
@@ -311,7 +316,6 @@
     <string name="ui_models_no_match">No matching models</string>
     <string name="ui_more">More options</string>
     <string name="ui_preset_optional">Optional templates for tools, limits, and context. Switch models directly on the home screen.</string>
-    <string name="ui_selected_model">%1$s (selected)</string>
     <string name="ui_task_options">Task options</string>
     <string name="ui_task_section">Tasks and capabilities</string>
     <string name="ui_theme_amber">Amber</string>
@@ -326,7 +330,6 @@
     <string name="update_open_release">Open release page</string>
     <string name="update_unignore">Stop ignoring this version</string>
     <string name="workbench_answer_required">Enter an answer.</string>
-    <string name="workbench_auto_model">Automatic model selection</string>
     <string name="workbench_back">Back</string>
     <string name="workbench_budget">Steps: %1$d / %2$d. Limits - model calls: %3$d, minutes: %4$d, tokens: %5$d.</string>
     <string name="workbench_current">Current task</string>

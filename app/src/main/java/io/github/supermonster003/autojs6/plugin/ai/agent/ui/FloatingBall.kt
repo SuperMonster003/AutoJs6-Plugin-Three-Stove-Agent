@@ -272,7 +272,9 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val link = runtime.current ?: return
         if (sending || !permitted()) return
         val text = draft.trim()
-        val request = runCatching { RunLauncher.uiRequest(text, requireNotNull(selectedPreset), context.resources.configuration.locales[0].toLanguageTag()) }.getOrNull()
+        // The same stored model choice as the workbench; a missing or unreadable file means Automatic.
+        val target = ModelSelection.read(app).current?.targetId
+        val request = runCatching { RunLauncher.uiRequest(text, requireNotNull(selectedPreset), context.resources.configuration.locales[0].toLanguageTag(), target) }.getOrNull()
         if (request == null) { goalField?.error = context.getString(R.string.workbench_goal_invalid); return }
         sending = true; updateSend()
         command({ link.local.startRun(AgentWire.envelope(C.KEY_RUN_REQUEST_JSON, request), null) }) { result ->
