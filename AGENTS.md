@@ -191,8 +191,9 @@ AutoJs6-Plugin-Three-Stove-Agent/
 
 ### 11.1 启动器图标
 
-- `app/src/main/res/mipmap/ic_launcher.png` 与 `mipmap-night/` 变体, adaptive 图层由 `.python/generate_launcher_icons.py` 确定性生成; 修改图标时修改脚本并重新生成, 不手工改 PNG.
-- 图标语义为 "接收指令并完成任务的智能体" (对话气泡 + `AI` 字样 + 任务勾号), 不沿用 MCP 服务器的节点框或 AI Provider 插件的颜色身份; 背景色与 `values*/ic_launcher_background.xml` 保持一致.
+- 图标源图为维护者提供的 `.python/icons/three-stove-ic-launcher-light.png` (亮色模式前景, 深色图案) 与 `three-stove-ic-launcher-dark.png` (暗色模式前景, 浅色图案), 1254 x 1254, 透明背景. `app/src/main/res/mipmap/` 与 `mipmap-night/` 下的四个 PNG 由 `.python/generate_launcher_icons.py` 从源图确定性合成; 修改图标时替换源图或修改脚本并重新生成, 不手工改 PNG.
+- 合成规则 (路线图 D50): `ic_launcher.png` 只含图案, 背景透明; `ic_launcher_round.png` 为同一图案叠在填充圆盘上, 二者同为 432 px 且图案尺寸与位置一致 (宽度占 66%); `ic_launcher_foreground.png` / `ic_launcher_monochrome.png` 为自适应图层 (图案宽度占 44%, 落在 66 dp 安全区内, 单色层为黑色轮廓). 与 3-Stone AI 相同, `mipmap*-anydpi-v26/ic_launcher*.xml` 直接引用 mipmap 图层与 `@color/ic_launcher_background`, 不使用 inset drawable.
+- 背景色: `values/ic_launcher_background.xml` = `#D8D8D8` (亮色), `values-night/ic_launcher_background.xml` = `#272727` (暗色); 圆形图标与自适应背景使用同一颜色.
 
 ## 12. README 与多语言生成
 
