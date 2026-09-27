@@ -51,6 +51,9 @@ def main():
         adb("shell", "wm", "dismiss-keyguard")
         adb("shell", "settings", "put", "system", "screen_off_timeout", "1800000")
         adb("shell", "svc", "power", "stayon", "true")
+        # A slow CI emulator can raise a launcher ANR dialog on top of a test fixture; UiAutomation then reports
+        # that system dialog as the active window (run 36323445813, API 35). The disposable AVD hides such dialogs.
+        adb("shell", "settings", "put", "global", "hide_error_dialogs", "1")
         if int(adb("shell", "getprop", "ro.build.version.sdk").strip()) >= 33:
             adb("shell", "pm", "grant", "io.github.supermonster003.autojs6.plugin.three.stove.agent",
                 "android.permission.POST_NOTIFICATIONS")
