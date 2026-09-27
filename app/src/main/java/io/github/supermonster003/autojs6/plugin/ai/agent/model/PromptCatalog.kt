@@ -62,7 +62,6 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         return render(language, "observation", mapOf("observation_json" to data.toString()))
     }
 
-    fun repair(language: String, repair: DecisionAttempt.Repair): String = repair(language, repair.observation)
     fun repair(language: String, repair: JsonObject): String = render(language, "repair",
         mapOf("repair_json" to AgentJson.objectOf(repair.toString(), 1024).toString()))
 

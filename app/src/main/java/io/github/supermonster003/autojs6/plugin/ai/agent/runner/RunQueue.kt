@@ -13,6 +13,7 @@ class RunQueue(private val scheduler: RunScheduler, private val catalog: ToolCat
     private val pending = ArrayDeque<AgentRunner>()
     private var unavailable: RunError? = null
 
+    /** Test seam without host preparation; production admits every run through [submitPrepared]. */
     fun submit(options: RunOptions, listener: (RunEvent) -> Unit = {}): AgentRunner = submitPrepared(options, policy, null, listener = listener)
     @Synchronized fun submitPrepared(options: RunOptions, runPolicy: ToolPolicy, preparation: RunPreparation?,
                                      onAdmitted: (AgentRunner) -> Unit = {}, listener: (RunEvent) -> Unit = {}): AgentRunner {

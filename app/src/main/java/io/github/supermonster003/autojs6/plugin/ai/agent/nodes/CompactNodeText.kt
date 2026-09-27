@@ -7,16 +7,9 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 object CompactNodeText {
     data class Bounds(val left: Int, val top: Int, val right: Int, val bottom: Int) {
         init { require(left <= right && top <= bottom) }
-        fun permits(other: Bounds): Boolean {
-            val dx = if (left == right) 48L else minOf(48L, (right.toLong() - left) / 2)
-            val dy = if (top == bottom) 48L else minOf(48L, (bottom.toLong() - top) / 2)
-            return kotlin.math.abs(other.left.toLong() - left) <= dx && kotlin.math.abs(other.right.toLong() - right) <= dx &&
-                kotlin.math.abs(other.top.toLong() - top) <= dy && kotlin.math.abs(other.bottom.toLong() - bottom) <= dy
-        }
     }
     data class Node(val ref: String, val depth: Int, val className: String, val id: String, val text: String,
                     val description: String, val flags: Set<String>, val bounds: Bounds) {
-        val relocatable get() = text != "[password]" && !text.endsWith("...") && !description.endsWith("...")
         fun fingerprint(window: String): String = Digests.sha256Hex(jsonArray(window.json(), className.json(), id.json(), text.json(), description.json(),
             flags.intersect(IDENTITY_FLAGS).sorted().joinToString(",").json()).toString())
     }

@@ -97,8 +97,9 @@ class ModelClient(
             input.vision, input.imageTokens, input.images.size, input.images.sumOf { it.byteCount }).dispatch(request, timeoutMs, input.images)
     }
 
-    /** Only a worker may block; the P2.5 adapter must exclude main/Binder/runner threads.
-     * The callback and timeout paths do not depend on this waiting thread. */
+    /** Synchronous wrapper used by JVM tests only; production always calls [generate] with a callback and the
+     * Binder adapter passes blockingAllowed = false, so this throws there. The callback and timeout paths do not
+     * depend on the waiting thread. */
     fun await(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long): PortResult<ModelReply> {
         check(blockingAllowed()) { "Model wait requires an independent worker thread" }
         val latch = CountDownLatch(1)

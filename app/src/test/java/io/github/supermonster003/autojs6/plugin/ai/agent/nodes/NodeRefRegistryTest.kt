@@ -7,22 +7,15 @@ import org.junit.Test
 class NodeRefRegistryTest {
     private fun snapshot(id: String, rows: List<String> = listOf("#n1 Button clickable \"Go\" id=go c=(10,20)"), pkg: String = "test", truncated: Boolean = false) =
         CompactNodeText.parse(dump(id, rows, truncated, pkg))
-    @Test fun reorderedNodeRelocatesToNewHostReferenceWithoutChangingFingerprint() {
-        val registry = NodeRefRegistry()
-        val old = snapshot("s1"); registry.record(old)
-        val next = snapshot("s2", listOf("#n1 View c=(0,0)", "#n2 Button clickable \"Go\" id=go c=(15,22)")); registry.record(next)
-        val match = registry.relocate("#n1", "s1")
-        assertEquals("s2", match.snapshotId); assertEquals("#n2", match.node.ref)
-        assertEquals(old.nodes[0].fingerprint(old.window), match.node.fingerprint(next.window))
-    }
-    @Test fun ambiguousMovedAndClippedNodesRequireFreshObservation() {
-        for (rows in listOf(listOf("#n1 Button clickable \"Go\" id=go c=(200,20)"),
-            listOf("#n1 Button clickable \"Go\" id=go c=(10,20)", "#n2 Button clickable \"Go\" id=go c=(10,20)"))) {
-            val registry = NodeRefRegistry(); registry.record(snapshot("s1")); registry.record(snapshot("s2", rows))
-            assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
-        }
-        val registry = NodeRefRegistry(); registry.record(snapshot("s1", listOf("#n1 Button \"Go...\" c=(1,1)")))
-        assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+    @Test fun fingerprintIgnoresReferenceAndPositionButKeepsIdentity() {
+        val old = snapshot("s1")
+        val next = snapshot("s2", listOf("#n1 View c=(0,0)", "#n2 Button clickable \"Go\" id=go c=(15,22)"))
+        assertEquals(old.nodes[0].fingerprint(old.window), next.nodes[1].fingerprint(next.window))
+        assertNotEquals(old.nodes[0].fingerprint(old.window), next.nodes[0].fingerprint(next.window))
+        assertNotEquals(old.nodes[0].fingerprint("test"), old.nodes[0].fingerprint("other"))
+        val registry = NodeRefRegistry(); registry.record(old); registry.record(next)
+        assertEquals("#n2", registry.resolve("#n2").node.ref); assertEquals("#n1", registry.resolve("#n1", "s1").node.ref)
+        assertThrows(NodeRefRegistry.Stale::class.java) { registry.resolve("#n3") }
     }
     @Test fun windowChangeEvictionClearAndCloseInvalidateOldReferences() {
         val registry = NodeRefRegistry(1); registry.record(snapshot("s1")); registry.record(snapshot("s2"))
@@ -32,38 +25,17 @@ class NodeRefRegistryTest {
         registry.clear(); assertThrows(NodeRefRegistry.Stale::class.java) { registry.resolve("#n1") }
         registry.close(); assertThrows(IllegalStateException::class.java) { registry.record(snapshot("s4")) }
     }
-    @Test fun anonymousContainerRelocationDoesNotAliasSmallerDescendants() {
-        val registry = NodeRefRegistry()
-        registry.record(snapshot("s1", listOf("#n1 FrameLayout [0,746][1800,991]")))
-        registry.record(snapshot("s2", listOf("#n1 FrameLayout [0,746][1800,991]", "#n2 FrameLayout [183,771][623,825]")))
-        assertEquals("#n1", registry.relocate("#n1", "s1").node.ref)
-    }
-    @Test fun actionableContainerDoesNotAliasIdenticallySizedPassiveWrappers() {
-        val registry = NodeRefRegistry()
-        registry.record(snapshot("s1", listOf("#n1 ViewGroup clickable [0,0][100,100]")))
-        registry.record(snapshot("s2", listOf("#n1 ViewGroup [0,0][100,100]", "#n2 ViewGroup clickable [0,0][100,100]", "#n3 ViewGroup [0,0][100,100]")))
-        assertEquals("#n2", registry.relocate("#n1", "s1").node.ref)
-        registry.record(snapshot("s3", listOf("#n1 ViewGroup clickable [0,0][100,100]", "#n2 ViewGroup clickable [0,0][100,100]")))
-        assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
-    }
-    @Test fun changedCapabilitiesCannotRelocateAnOtherwiseIdenticalTarget() {
+    @Test fun changedCapabilitiesChangeTheFingerprint() {
+        val plain = snapshot("s1", listOf("#n1 ViewGroup [0,0][100,100]")).nodes.single()
         for (flag in listOf("clickable", "long_clickable", "checkable", "scrollable", "editable")) {
-            val registry = NodeRefRegistry()
-            registry.record(snapshot("s1", listOf("#n1 ViewGroup [0,0][100,100]")))
-            registry.record(snapshot("s2", listOf("#n1 ViewGroup $flag [0,0][100,100]")))
-            assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+            val capable = snapshot("s2", listOf("#n1 ViewGroup $flag [0,0][100,100]")).nodes.single()
+            assertNotEquals(flag, plain.fingerprint("test"), capable.fingerprint("test"))
         }
     }
-    @Test fun transientSelectionStateDoesNotChangeTargetIdentity() {
-        val registry = NodeRefRegistry(); registry.record(snapshot("s1"))
-        registry.record(snapshot("s2", listOf("#n1 Button clickable checked focused selected \"Go\" id=go c=(10,20)")))
-        assertEquals("#n1", registry.relocate("#n1", "s1").node.ref)
-    }
-    @Test fun aSmallerReplacementInsideTheOldBoundsCannotRelocate() {
-        val registry = NodeRefRegistry()
-        registry.record(snapshot("s1", listOf("#n1 FrameLayout [0,0][100,100]")))
-        registry.record(snapshot("s2", listOf("#n1 FrameLayout [49,49][51,51]")))
-        assertThrows(NodeRefRegistry.Stale::class.java) { registry.relocate("#n1", "s1") }
+    @Test fun transientSelectionStateDoesNotChangeTheFingerprint() {
+        val plain = snapshot("s1").nodes.single()
+        val selected = snapshot("s2", listOf("#n1 Button clickable checked focused selected \"Go\" id=go c=(10,20)")).nodes.single()
+        assertEquals(plain.fingerprint("test"), selected.fingerprint("test"))
     }
     @Test fun textDiffCountsDuplicatesAndFlagsPartialSnapshots() {
         val registry = NodeRefRegistry()

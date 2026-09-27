@@ -3,6 +3,9 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.catalog
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.core.CoreFixtures as F
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.runner.RunError
+import io.github.supermonster003.autojs6.plugin.ai.agent.service.BinderRunTools
+import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -112,15 +115,19 @@ class ToolCatalogTest {
         }
     }
 
-    @Test fun bridgeErrorsPreserveStableCodesWithoutLeakingExceptionBodies() {
-        val expected = mapOf("process-dead" to "LINK_DETACHED", "unavailable" to "HOST_UNAVAILABLE", "permission-denied" to "CAPABILITY_DENIED",
-            "capability-denied" to "CAPABILITY_DENIED", "resource-limit" to "LIMIT_EXCEEDED", "rate-limited" to "RATE_LIMITED",
-            "invalid-request" to "TOOL_ARGUMENTS_INVALID", "timeout" to "SCRIPT_TIMEOUT", "runtime-error" to "SCRIPT_FAILED", "provider-failed" to "HOST_UNAVAILABLE")
-        expected.forEach { (category, code) ->
-            val result = ToolObservation.failure(category, "secret provider response", "agent")
-            assertEquals(code, AgentJson.objectOf(result).string("error"))
-            assertFalse(result.contains("secret"))
-        }
-        assertEquals("NODE_REF_STALE", AgentJson.objectOf(ToolObservation.failure("invalid-request", "NODE_REF_STALE")).string("error"))
+    @Test fun bridgeErrorsMapHostCategoriesToStableCodesWithoutExceptionBodies() {
+        fun error(category: String, message: String = "secret provider response", module: String = "agent") =
+            jsonObject("message" to message.json(), "category" to category.json(), "module" to module.json())
+        val expected = mapOf(H.ERROR_PROCESS_DEAD to RunError.HOST_UNAVAILABLE, H.ERROR_PERMISSION_DENIED to RunError.CAPABILITY_DENIED,
+            H.ERROR_CAPABILITY_DENIED to RunError.CAPABILITY_DENIED, H.ERROR_RESOURCE_LIMIT to RunError.LIMIT_EXCEEDED,
+            H.ERROR_RATE_LIMITED to RunError.RATE_LIMITED, "invalid-request" to RunError.TOOL_ARGUMENTS_INVALID,
+            "runtime-error" to RunError.TOOL_ARGUMENTS_INVALID, "provider-failed" to RunError.TOOL_ARGUMENTS_INVALID)
+        expected.forEach { (category, code) -> assertEquals(category, code, BinderRunTools.bridgeError(error(category))) }
+        assertEquals(RunError.SCRIPT_TIMEOUT, BinderRunTools.bridgeError(error(H.ERROR_TIMEOUT), scriptExecution = true))
+        assertEquals(RunError.NODE_NOT_FOUND, BinderRunTools.bridgeError(error(H.ERROR_TIMEOUT)))
+        // Only the stable prefix of the host message is interpreted; the body after it never becomes a code.
+        assertEquals(RunError.NODE_REF_STALE, BinderRunTools.bridgeError(error("invalid-request", "NODE_REF_STALE: secret provider response")))
+        assertEquals(RunError.TOOL_ARGUMENTS_INVALID, BinderRunTools.bridgeError(error("invalid-request", "secret: NODE_REF_STALE")))
+        assertEquals(RunError.TOOL_ARGUMENTS_INVALID, BinderRunTools.bridgeError(null))
     }
 }
