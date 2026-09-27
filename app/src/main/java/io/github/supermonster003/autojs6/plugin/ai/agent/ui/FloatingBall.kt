@@ -149,6 +149,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         statusLabel?.visibility = if (!expanded && run == null) View.GONE else View.VISIBLE
         statusLabel?.text = if (run == null) context.getString(R.string.app_name) else
             WorkbenchText.state(context, run) + " " + (run.string("progress") ?: run.string("goal").orEmpty())
+        statusLabel?.contentDescription = statusLabel?.text // The single-line label may ellipsize; readers get the full text.
         stopButton?.visibility = if (run != null) View.VISIBLE else View.GONE
         if (expanded) {
             if (selectedPreset == null) selectedPreset = value.defaultPreset
@@ -196,7 +197,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             orientation = LinearLayout.VERTICAL; layoutDirection = context.resources.configuration.layoutDirection
             background = kit.roundedFill(palette.surface, if (compact) Ui.RADIUS_PILL else Ui.RADIUS_BUBBLE + 2, palette.outline)
             clipToOutline = true
-            elevation = dp(8).toFloat(); setPadding(dp(4), dp(4), dp(4), dp(4))
+            elevation = kit.dp(8).toFloat(); setPadding(kit.dp(4), kit.dp(4), kit.dp(4), kit.dp(4))
         }
         root = body
         val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; body.addView(this) }
@@ -207,27 +208,27 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             contentDescription = context.getString(if (expanded) R.string.floating_collapse else R.string.floating_open)
             background = android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(palette.accentRipple),
                 android.graphics.drawable.GradientDrawable().apply { shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(palette.primary) }, null)
-            minWidth = dp(48); minimumWidth = dp(48); minHeight = dp(48); minimumHeight = dp(48); setPadding(0, 0, 0, 0)
+            minWidth = kit.dp(48); minimumWidth = kit.dp(48); minHeight = kit.dp(48); minimumHeight = kit.dp(48); setPadding(0, 0, 0, 0)
             setOnClickListener { toggle() }
         }
-        header.addView(handle, LinearLayout.LayoutParams(dp(56), dp(56)))
+        header.addView(handle, LinearLayout.LayoutParams(kit.dp(56), kit.dp(56)))
         drag(handle)
         statusLabel = TextView(context).apply {
-            tag = "floating-step"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END
+            tag = "floating-step"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END; Ui.truncatable(this)
             textSize = Ui.TEXT_BODY; setTextColor(palette.text); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
-            setPaddingRelative(dp(Ui.SPACE_MD), 0, dp(Ui.SPACE_XS), 0)
+            setPaddingRelative(kit.dp(Ui.SPACE_MD), 0, kit.dp(Ui.SPACE_XS), 0)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             header.addView(this, LinearLayout.LayoutParams(0, -2, 1f))
         }
         stopButton = kit.iconButton(R.drawable.ic_stop, context.getString(R.string.task_stop), "floating-stop", palette.danger) {
             snapshot?.run?.string("runId")?.let { runtime.current?.cancelLocal(it) }
-        }.also { header.addView(it, LinearLayout.LayoutParams(dp(Ui.TOUCH_TARGET), dp(Ui.TOUCH_TARGET))) }
+        }.also { header.addView(it, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET))) }
         if (expanded) {
             val scroll = ScrollView(context)
             cardScroll = scroll
             val card = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
-                setPaddingRelative(dp(Ui.SPACE_MD), dp(Ui.SPACE_XS), dp(Ui.SPACE_MD), dp(Ui.SPACE_MD))
+                setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD))
             }
             scroll.addView(card); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
             val pendingColumn = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; card.addView(this) }
@@ -254,7 +255,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                     override fun afterTextChanged(s: Editable?) = Unit
                 })
             }
-            card.addView(goalLayout, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+            card.addView(goalLayout, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
             modelRow = pickerRow(card, R.string.floating_model, R.drawable.ic_spark, "floating-model") { open(LauncherActivity::class.java, models = true) }
             presetRow = pickerRow(card, R.string.workbench_preset, R.drawable.ic_layers, "floating-preset") {
                 presetPanelOpen = !presetPanelOpen; renderPresets()
@@ -267,20 +268,20 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             renderPresets()
             fullAccessLabel = kit.badge(context.getString(R.string.settings_full_access), Tone.DANGER).apply {
                 tag = "floating-full-access"; visibility = View.GONE
-                card.addView(this, LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+                card.addView(this, LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
             }
             message = kit.text("", Ui.TEXT_SECONDARY, palette.danger).apply {
                 accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 card.addView(this, LinearLayout.LayoutParams(-1, -2))
             }
             val actions = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-            card.addView(actions, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_SM) })
+            card.addView(actions, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
             voiceButton = kit.iconButton(R.drawable.ic_mic, context.getString(R.string.workbench_voice), "floating-voice", palette.accent, ::voice)
-                .also { actions.addView(it, LinearLayout.LayoutParams(dp(Ui.TOUCH_TARGET), dp(Ui.TOUCH_TARGET)).apply { marginEnd = dp(Ui.SPACE_SM) }) }
+                .also { actions.addView(it, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)).apply { marginEnd = kit.dp(Ui.SPACE_SM) }) }
             sendButton = kit.filledButton(context.getString(R.string.workbench_send), "floating-send", ::send)
                 .also { actions.addView(it, LinearLayout.LayoutParams(0, -2, 1f)) }
             val links = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
-            card.addView(links, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(Ui.SPACE_XS) })
+            card.addView(links, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
             links.addView(kit.textButton(context.getString(R.string.history_title), "floating-history") { open(HistoryActivity::class.java) },
                 LinearLayout.LayoutParams(0, -2, 1f))
             links.addView(kit.textButton(context.getString(R.string.floating_workbench), "floating-workbench") { open(LauncherActivity::class.java) },
@@ -397,12 +398,12 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val params = layout ?: return
         val bounds = usableBounds()
         val active = snapshot?.run != null
-        params.width = (if (expanded) dp(360) else if (active) dp(280) else dp(64)).coerceAtMost(bounds.width())
+        params.width = (if (expanded) kit.dp(360) else if (active) kit.dp(280) else kit.dp(64)).coerceAtMost(bounds.width())
         params.height = if (expanded) (bounds.height() * 0.72f).toInt() else {
             // A fixed 64dp window clips the stop label when the system font is enlarged.
             root?.measure(View.MeasureSpec.makeMeasureSpec(params.width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-            maxOf(dp(64), root?.measuredHeight ?: 0).coerceAtMost(bounds.height())
+            maxOf(kit.dp(64), root?.measuredHeight ?: 0).coerceAtMost(bounds.height())
         }
         params.x = FloatingPosition.coordinate(xFraction, bounds.left, bounds.right, params.width)
         params.y = FloatingPosition.coordinate(yFraction, bounds.top, bounds.bottom, params.height)
@@ -433,7 +434,6 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         root = null; layout = null; clearCard()
         saveDraft(); clearVisibility()
     }
-    private fun dp(value: Int) = (value * context.resources.displayMetrics.density).toInt()
     override fun close() {
         if (closed) return
         closed = true; removeWindow(); main.removeCallbacksAndMessages(null)

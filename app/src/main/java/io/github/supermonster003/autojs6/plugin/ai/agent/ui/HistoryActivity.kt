@@ -159,7 +159,7 @@ class HistoryActivity : HostAppearanceActivity() {
         dateChip.isCloseIconVisible = from != null
         list.removeAllViews()
         val matching = rows.filter(filter::matches)
-        if (loaded && matching.isEmpty()) list.addView(kit.emptyState(getString(R.string.history_empty), null, R.drawable.ic_history))
+        if (loaded && matching.isEmpty()) list.addView(kit.emptyState(getString(R.string.history_empty), R.drawable.ic_history))
         matching.forEach { row -> list.addView(runCard(row), kit.cardParams(bottomDp = Ui.SPACE_SM)) }
     }
     private fun runCard(row: JsonObject): View {

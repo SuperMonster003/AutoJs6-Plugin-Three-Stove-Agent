@@ -9,8 +9,8 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import com.google.android.material.snackbar.Snackbar
 
-/** Centered empty state: tonal icon disc, title, description and an optional action. */
-internal fun Kit.emptyState(title: CharSequence, description: CharSequence?, @DrawableRes icon: Int? = null, action: View? = null): LinearLayout =
+/** Centered empty state: tonal icon disc and a title. */
+internal fun Kit.emptyState(title: CharSequence, @DrawableRes icon: Int? = null): LinearLayout =
     LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
@@ -25,9 +25,6 @@ internal fun Kit.emptyState(title: CharSequence, description: CharSequence?, @Dr
         addView(text(title, Ui.TEXT_TITLE, medium = true).apply {
             gravity = Gravity.CENTER; setPaddingRelative(0, dp(Ui.SPACE_LG), 0, dp(Ui.SPACE_SM))
         }, LinearLayout.LayoutParams(-1, -2))
-        if (!description.isNullOrEmpty()) addView(text(description, Ui.TEXT_BODY, palette.muted).apply { gravity = Gravity.CENTER },
-            LinearLayout.LayoutParams(-1, -2))
-        action?.let { addView(it, LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(Ui.SPACE_XL) }) }
     }
 
 /** Inline notice with a tone, an optional icon and optional actions; announced politely. */

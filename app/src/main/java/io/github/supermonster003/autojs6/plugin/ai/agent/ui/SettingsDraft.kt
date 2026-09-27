@@ -43,12 +43,8 @@ internal data class SettingsDraft(val settings: AgentSettings) {
     fun withVoice(enabled: Boolean) = copy(settings = settings.copy(voice = enabled))
     fun withFloating(enabled: Boolean) = copy(settings = settings.copy(floating = enabled))
 
-    fun json() = SettingsCodec.json(settings)
-
     companion object {
         const val DURATION = "maxDurationMs"
         val MAX_DURATION_MINUTES = requireNotNull(SettingsCodec.ceilings[DURATION]) / 60_000
-        /** Numeric limits other than duration, in display order. */
-        val COUNT_LIMITS = listOf("maxSteps", "maxModelCalls", "maxTotalTokens")
     }
 }

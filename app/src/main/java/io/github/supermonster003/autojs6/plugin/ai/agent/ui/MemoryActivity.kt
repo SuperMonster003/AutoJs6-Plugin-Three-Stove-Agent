@@ -150,7 +150,7 @@ class MemoryActivity : HostAppearanceActivity() {
             val visible = rows.filter { (filter == null || it.scope == filter) &&
                 (needle.isEmpty() || listOf(it.key, it.value, it.scope).any { text -> text.lowercase(Locale.ROOT).contains(needle) }) }
                 .sortedWith(compareBy<MemoryEntry> { it.scope }.thenBy { it.key })
-            if (visible.isEmpty()) list.addView(kit.emptyState(getString(R.string.memory_empty), null, R.drawable.ic_lightbulb))
+            if (visible.isEmpty()) list.addView(kit.emptyState(getString(R.string.memory_empty), R.drawable.ic_lightbulb))
             visible.forEach { row -> list.addView(entryCard(row), kit.cardParams(bottomDp = Ui.SPACE_SM)) }
         }
         val (searchLayout, search) = kit.textField(query, getString(R.string.memory_search), InputType.TYPE_CLASS_TEXT, 256, tag = "memory-search")

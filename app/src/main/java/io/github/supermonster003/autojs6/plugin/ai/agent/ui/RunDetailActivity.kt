@@ -245,12 +245,8 @@ class RunDetailActivity : HostAppearanceActivity() {
         runCatching { ModelSelection.choose(this, ref) }
             .onSuccess { kit.snackbar(scaffold.root, getString(R.string.history_model_selected, ref.name)) }.onFailure { showError() }
     }
-    private fun caption(text: String) = kit.text(text, Ui.TEXT_SECONDARY, palette.muted).apply {
-        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
-    }
-    private fun body(text: String) = kit.text(text, Ui.TEXT_BODY).apply {
-        setTextIsSelectable(true); textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
-    }
+    private fun caption(text: String) = kit.note(text)
+    private fun body(text: String) = kit.paragraph(text)
 
     private fun saveDestination() {
         val uri = destination ?: return

@@ -1,14 +1,10 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.*
-import android.graphics.Color
 import android.view.View
-import android.view.ViewGroup
-import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate

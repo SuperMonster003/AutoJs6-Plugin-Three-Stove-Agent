@@ -121,7 +121,7 @@ class McpServersActivity : HostAppearanceActivity() {
                     "enabled" to false.json(), "risk" to "sensitive".json(), "selectedTools" to JsonArray(), "hasBearerToken" to false.json()))
             }
         }.apply { isEnabled = !blocked && profiles.size() < 8 }, LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_MD); bottomMargin = kit.dp(Ui.SPACE_SM) })
-        if (profiles.isEmpty) body.addView(kit.emptyState(getString(R.string.mcp_empty), null, R.drawable.ic_hub))
+        if (profiles.isEmpty) body.addView(kit.emptyState(getString(R.string.mcp_empty), R.drawable.ic_hub))
         profiles.forEach { value -> val profile = value.asJsonObject
             val row = kit.settingRow(getString(R.string.mcp_server_label, profile.string("name"), profile.string("id")),
                 listOfNotNull(profile.string("endpoint"), getString(if (profile.flag("enabled") == true) R.string.mcp_state_on else R.string.mcp_state_off)).joinToString(" · "),

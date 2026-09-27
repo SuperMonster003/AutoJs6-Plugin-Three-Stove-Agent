@@ -83,7 +83,7 @@ internal class UiAccessibilityAudit {
             val truncatable = view.getTag(io.github.supermonster003.autojs6.plugin.ai.agent.R.id.ui_role) == io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.Ui.TRUNCATABLE
             if (truncatable) check(!view.contentDescription.isNullOrBlank() || !(view.parent as? View)?.contentDescription.isNullOrBlank(),
                 view, "truncatable label without a full description")
-            if (view is TextView && view !is EditText && view.text.isNotBlank() && view.tag != "floating-step" && !truncatable) {
+            if (view is TextView && view !is EditText && view.text.isNotBlank() && !truncatable) {
                 view.layout?.let { layout ->
                     check(layout.height <= view.height - view.compoundPaddingTop - view.compoundPaddingBottom + 2,
                         view, "text vertically clipped")
