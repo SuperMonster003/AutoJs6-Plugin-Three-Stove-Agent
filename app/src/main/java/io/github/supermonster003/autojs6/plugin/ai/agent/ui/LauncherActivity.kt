@@ -218,11 +218,13 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         val revealQuestion = request != null && request != lastPendingId
         lastPendingId = request
         views.scroll.post {
+            // Sticky scrolling follows a task; the welcome state and first load keep their position.
             when {
-                row != null && revealCurrent -> { revealCurrent = false; reveal(views.feed.current) }
-                row != null && revealQuestion -> reveal(views.feed.pending)
+                row == null -> views.jump.visibility = View.GONE
+                revealCurrent -> { revealCurrent = false; reveal(views.feed.current) }
+                revealQuestion -> reveal(views.feed.pending)
                 wasAtEnd -> scrollToEnd(false)
-                views.feed.view.height > before && !atEnd() -> views.jump.visibility = View.VISIBLE
+                before > 0 && views.feed.view.height > before && !atEnd() -> views.jump.visibility = View.VISIBLE
             }
         }
         updateSend()

@@ -29,7 +29,13 @@ internal class Composer(private val kit: Kit, onPreset: () -> Unit, onVoice: () 
     }
     val voice = kit.iconButton(R.drawable.ic_mic, kit.string(R.string.workbench_voice), "voice", kit.palette.accent) { onVoice() }
         .apply { id = R.id.workbench_voice; visibility = View.GONE }
-    val send = kit.filledButton(kit.string(R.string.workbench_send), "send") { onSend() }.apply { id = R.id.workbench_send }
+    /** Round send button; its label is the accessible name "Start task". */
+    val send = kit.filledButton("", "send") { onSend() }.apply {
+        id = R.id.workbench_send; contentDescription = kit.string(R.string.workbench_send)
+        setIconResource(R.drawable.ic_send); iconPadding = 0; iconSize = kit.dp(22)
+        iconGravity = com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START
+        setPaddingRelative(0, 0, 0, 0); minWidth = kit.dp(Ui.TOUCH_TARGET); minimumWidth = kit.dp(Ui.TOUCH_TARGET)
+    }
     val error: TextView = kit.text("", Ui.TEXT_SECONDARY, kit.palette.danger).apply {
         id = R.id.workbench_error; visibility = View.GONE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
@@ -40,18 +46,22 @@ internal class Composer(private val kit: Kit, onPreset: () -> Unit, onVoice: () 
         background = kit.roundedFill(kit.palette.surface, Ui.RADIUS_SHEET, kit.palette.outline)
         elevation = kit.dp(6).toFloat()
         setPaddingRelative(kit.dp(Ui.SPACE_LG), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM))
-        addView(fieldPair.first, LinearLayout.LayoutParams(-1, -2).apply { marginEnd = kit.dp(Ui.SPACE_XS) })
-        addView(error, LinearLayout.LayoutParams(-1, -2))
+        // Options row: the preset chip may use the full width, so it never competes with the actions.
         addView(LinearLayout(kit.context).apply {
             orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
-            // The chip keeps its natural width but never pushes the actions out of the row.
             addView(android.widget.FrameLayout(kit.context).apply {
                 addView(preset, android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.START or Gravity.CENTER_VERTICAL))
             }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
             addView(fullAccess, LinearLayout.LayoutParams(-2, -2).apply { marginEnd = kit.dp(Ui.SPACE_XS) })
-            addView(voice, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)))
-            addView(send, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_XS) })
+        }, LinearLayout.LayoutParams(-1, -2))
+        // Input row: the goal field grows; voice and send keep fixed 48dp targets beside it.
+        addView(LinearLayout(kit.context).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = Gravity.BOTTOM
+            addView(fieldPair.first, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(voice, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)).apply { marginStart = kit.dp(Ui.SPACE_XS); bottomMargin = kit.dp(4) })
+            addView(send, LinearLayout.LayoutParams(kit.dp(52), kit.dp(52)).apply { marginStart = kit.dp(Ui.SPACE_XS); bottomMargin = kit.dp(2) })
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
+        addView(error, LinearLayout.LayoutParams(-1, -2))
     }
 
     fun showPreset(label: String, available: Boolean) {

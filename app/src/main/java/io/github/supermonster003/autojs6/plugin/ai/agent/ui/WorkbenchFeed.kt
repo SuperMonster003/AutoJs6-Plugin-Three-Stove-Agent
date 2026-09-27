@@ -81,7 +81,8 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
     }
     private var row: JsonObject? = null
     private var runId: String? = null
-    private var recentKey = ""
+    /** Null until the first render, so an empty history still hides the section header. */
+    private var recentKey: String? = null
     private var welcomeShown: Boolean? = null
 
     init {

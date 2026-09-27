@@ -164,11 +164,13 @@ internal class PendingCard(
             setImageDrawable(kit.tintedDrawable(icon, color)); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, LinearLayout.LayoutParams(kit.dp(20), kit.dp(20)).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
         label?.let { row.addView(kit.badge(it, tone)) }
-        row.addView(View(container.context), LinearLayout.LayoutParams(0, 1, 1f))
-        if (deadline != null) countdown = kit.text("", Ui.TEXT_CAPTION, kit.palette.muted).apply {
-            id = R.id.interaction_countdown; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
-            row.addView(this, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
+        // The countdown takes the remaining width and wraps there, so large text never pushes it out.
+        val remaining = kit.text("", Ui.TEXT_CAPTION, kit.palette.muted).apply {
+            gravity = Gravity.END; textAlignment = View.TEXT_ALIGNMENT_VIEW_END
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
         }
+        row.addView(remaining, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = kit.dp(Ui.SPACE_SM) })
+        if (deadline != null) countdown = remaining.apply { id = R.id.interaction_countdown }
         add(row)
     }
     private fun title(text: String) = kit.text(text, Ui.TEXT_TITLE, kit.palette.text, medium = true).apply {

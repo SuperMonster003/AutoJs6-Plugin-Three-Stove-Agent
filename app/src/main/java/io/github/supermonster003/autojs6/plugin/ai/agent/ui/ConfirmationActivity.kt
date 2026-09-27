@@ -49,7 +49,8 @@ class ConfirmationActivity : HostAppearanceActivity() {
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
             content.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
         }
-        val pending = LinearLayout(this).apply { id = R.id.workbench_pending; orientation = LinearLayout.VERTICAL; content.addView(this) }
+        val pending = LinearLayout(this).apply { id = R.id.workbench_pending; orientation = LinearLayout.VERTICAL }
+        content.addView(pending, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
         content.addView(kit.textButton(getString(R.string.interaction_later), "interaction-later") { finish() },
             LinearLayout.LayoutParams(-2, -2).apply { gravity = android.view.Gravity.END; topMargin = kit.dp(Ui.SPACE_SM) })
         setContentView(androidx.core.widget.NestedScrollView(this).apply { isFillViewport = true; addView(content) })

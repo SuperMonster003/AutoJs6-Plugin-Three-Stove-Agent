@@ -229,11 +229,13 @@ class MemoryActivity : HostAppearanceActivity() {
         val available = row.scope in scopes
         if (!available) page.addView(Banner(kit).apply { show(getString(R.string.memory_scope_missing), Tone.WARNING, R.drawable.ic_warning) }.view,
             LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
-        bar.addView(kit.textButton(getString(R.string.memory_cancel_import), "memory-cancel-import") { imports = emptyList(); importIndex = 0; refresh() })
-        bar.addView(View(this), LinearLayout.LayoutParams(0, 1, 1f))
+        page.addView(kit.textButton(getString(R.string.memory_cancel_import), "memory-cancel-import") { imports = emptyList(); importIndex = 0; refresh() },
+            LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
+        // Equal shares: at large text sizes both labels wrap instead of overflowing the bar.
         bar.addView(kit.tonalButton(getString(R.string.memory_skip), "memory-skip") { nextImport() },
-            LinearLayout.LayoutParams(-2, -2).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
-        bar.addView(kit.filledButton(getString(R.string.memory_accept), "memory-accept") { save(row, before, true) { nextImport() } }.apply { isEnabled = available })
+            LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
+        bar.addView(kit.filledButton(getString(R.string.memory_accept), "memory-accept") { save(row, before, true) { nextImport() } }.apply { isEnabled = available },
+            LinearLayout.LayoutParams(0, -2, 1f))
     }
     private fun nextImport() {
         importIndex++
