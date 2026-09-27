@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.text.*
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
@@ -38,6 +39,10 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     internal var overflowMenu: PopupMenu? = null; private set
     internal var presetDialog: AlertDialog? = null; private set
     internal var accessDialog: AlertDialog? = null; private set
+    internal var presetSheet: SheetHandle? = null; private set
+    internal var presetMenu: PopupMenu? = null; private set
+    private val presetStore by lazy { PresetConnection(this) {} }
+    private var defaultPresetName = "default"
     private val settings by lazy { SettingsConnection(this) {} }
     private var accessMode = "standard"
     private var floatingEnabled = false
@@ -96,7 +101,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         views.scroll.setOnScrollChangeListener { _: androidx.core.widget.NestedScrollView, _: Int, _: Int, _: Int, _: Int -> if (atEnd()) views.jump.visibility = View.GONE }
         renderPreset(); updateSend()
     }
-    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); settings.start(); updates.checkAutomatically() }
+    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); settings.start(); presetStore.start(); updates.checkAutomatically() }
     override fun onResume() {
         super.onResume(); visibility.start()
         // Returning from the overlay permission screen with the grant completes the floating ball toggle.
@@ -106,9 +111,10 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     override fun onStop() {
         drafts.edit().putString("goal", goal.text.toString()).putString("preset", selectedPreset).apply()
         overflowMenu?.dismiss(); overflowMenu = null; presetDialog?.dismiss(); presetDialog = null; accessDialog?.dismiss(); accessDialog = null
-        models.stop(); updates.cancel(); agent.stop(); settings.stop(); super.onStop()
+        presetMenu?.dismiss(); presetMenu = null; presetSheet?.dialog?.dismiss(); presetSheet = null
+        models.stop(); updates.cancel(); agent.stop(); settings.stop(); presetStore.stop(); super.onStop()
     }
-    override fun onDestroy() { models.close(); updates.close(); agent.close(); super.onDestroy() }
+    override fun onDestroy() { models.close(); updates.close(); agent.close(); presetStore.close(); super.onDestroy() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("goal", goal.text.toString()); outState.putString("preset", selectedPreset)
         outState.putString("selectedId", agent.selectedId); outState.putString("hiddenRunId", hiddenRunId)
@@ -179,10 +185,59 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         } else saveSettings { it.withFloating(enabled) }
     }
     private fun renderPreset() { views.composer.showPreset(presetLabel(selectedPreset), !attached || selectedPreset in availablePresets) }
+    /** Preset sheet: pick a preset for the next task, or manage presets without leaving the workbench. */
     private fun choosePreset() {
-        val names = presetChoices
-        presetDialog = kit.singleChoiceDialog(getString(R.string.workbench_preset), names.map(::presetLabel), names.indexOf(selectedPreset)) { index ->
-            names.getOrNull(index)?.let { if (it != selectedPreset) followDefault = false; selectedPreset = it; renderPreset(); updateSend() }
+        presetSheet?.dialog?.dismiss()
+        val handle = kit.bottomSheet(getString(R.string.workbench_preset), minHeightFraction = 0.3f, onDismiss = { presetSheet = null })
+        presetSheet = handle
+        renderPresetSheet(handle)
+    }
+    private fun renderPresetSheet(handle: SheetHandle) {
+        handle.content.removeAllViews()
+        presetChoices.forEach { name ->
+            val selected = name == selectedPreset
+            val row = kit.settingRow(presetLabel(name), if (name == defaultPresetName) getString(R.string.presets_default_badge) else null,
+                if (selected) R.drawable.ic_check else R.drawable.ic_layers, "preset-choice-$name", chevron = false,
+                titleColor = if (selected) palette.accent else palette.text) {
+                if (name != selectedPreset) followDefault = false
+                selectedPreset = name; renderPreset(); updateSend(); handle.dialog.dismiss()
+            }
+            val more = kit.iconButton(R.drawable.ic_more, getString(R.string.presets_actions, presetLabel(name)), "preset-actions-$name", palette.muted) {}
+            more.setOnClickListener { presetActions(name, more, handle) }
+            row.view.addView(more)
+            handle.content.addView(row.view)
+        }
+        handle.content.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+            setPaddingRelative(kit.dp(Ui.SCREEN_MARGIN), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SCREEN_MARGIN), 0)
+            addView(kit.tonalButton(getString(R.string.presets_new), "preset-sheet-new") { openPresets(PresetsIntents.NEW); handle.dialog.dismiss() },
+                LinearLayout.LayoutParams(-2, -2).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
+            addView(kit.textButton(getString(R.string.presets_manage), "preset-sheet-manage") { openPresets(null); handle.dialog.dismiss() })
+        }, LinearLayout.LayoutParams(-1, -2))
+    }
+    private fun openPresets(extra: String?, name: String = "") {
+        startActivity(Intent(this, PresetsActivity::class.java).apply { extra?.let { putExtra(it, name) } })
+    }
+    private fun presetActions(name: String, anchor: View, handle: SheetHandle) {
+        presetMenu = PopupMenu(this, anchor).apply {
+            menu.add(0, 1, 0, R.string.presets_edit); menu.add(0, 2, 1, R.string.presets_copy)
+            if (name != defaultPresetName) menu.add(0, 3, 2, R.string.presets_set_default)
+            if (name != "default") menu.add(0, 4, 3, R.string.presets_delete)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> { openPresets(PresetsIntents.EDIT, name); handle.dialog.dismiss() }
+                    2 -> { openPresets(PresetsIntents.COPY, name); handle.dialog.dismiss() }
+                    3 -> presetStore.query(jsonObject("operation" to "default".json(), "name" to name.json())) { if (it.isFailure) showError() else agent.refresh() }
+                    4 -> presetDialog = kit.confirmDialog(getString(R.string.presets_delete), getString(R.string.presets_delete_confirm, name),
+                        getString(R.string.presets_delete), destructive = true) {
+                        presetStore.query(jsonObject("operation" to "delete".json(), "name" to name.json())) { result ->
+                            if (result.isFailure) showError() else { if (selectedPreset == name) { selectedPreset = "default"; followDefault = true }; agent.refresh() }
+                        }
+                    }
+                }
+                true
+            }
+            show()
         }
     }
     /** New task: clear the composer and set a finished task aside; a running task stays visible. */
@@ -241,9 +296,11 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         views.composer.showAccess(accessMode)
         floatingEnabled = value.status.flag("floatingEnabled") == true
         views.composer.voice.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(this)) View.VISIBLE else View.GONE
-        availablePresets = value.presets
+        val presetsChanged = availablePresets != value.presets || defaultPresetName != value.defaultPreset
+        availablePresets = value.presets; defaultPresetName = value.defaultPreset
         if (followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset) selectedPreset = value.defaultPreset
         renderPreset()
+        if (presetsChanged) presetSheet?.let(::renderPresetSheet)
         // Preserve a historical preset that has since disappeared. Never silently rerun with default.
         views.composer.error.apply {
             if (attached && selectedPreset !in availablePresets) { setText(R.string.history_preset_unavailable); visibility = View.VISIBLE }

@@ -50,6 +50,8 @@ class PresetsActivity : HostAppearanceActivity() {
     internal var menu: PopupMenu? = null; private set
     private var editorVisible = false
     private var busy = false
+    /** An editor requested by the launching intent: name to edit or copy, or "" for a new preset. */
+    private var pendingOpen: Pair<String, Boolean>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +66,12 @@ class PresetsActivity : HostAppearanceActivity() {
         setContentView(scaffold.root)
         message = kit.text("", Ui.TEXT_BODY, palette.danger)
         connection = PresetConnection(this) { refresh() }
+        if (savedInstanceState == null) pendingOpen = when {
+            intent.hasExtra(PresetsIntents.NEW) -> "" to false
+            intent.hasExtra(PresetsIntents.EDIT) -> intent.getStringExtra(PresetsIntents.EDIT).orEmpty() to false
+            intent.hasExtra(PresetsIntents.COPY) -> intent.getStringExtra(PresetsIntents.COPY).orEmpty() to true
+            else -> null
+        }
     }
     override fun onStart() { super.onStart(); busy = false; connection.start() }
     override fun onStop() { if (editorVisible) draft = readDraft(); connection.stop(); prompt?.dismiss(); prompt = null; menu?.dismiss(); menu = null; super.onStop() }
@@ -89,7 +97,13 @@ class PresetsActivity : HostAppearanceActivity() {
         request("list") { value ->
             configuration = value
             val saved = draft
-            if (saved == null) showList() else showEditor(saved, initial ?: saved)
+            val open = pendingOpen; pendingOpen = null
+            when {
+                saved != null -> showEditor(saved, initial ?: saved)
+                open == null -> showList()
+                open.first.isEmpty() -> { editing = null; val row = PresetCodec.encodePreset(Preset("")); showEditor(row, row) }
+                else -> edit(open.first, copy = open.second)
+            }
         }
     }
     private fun reset(title: Int) {
@@ -265,4 +279,11 @@ class PresetsActivity : HostAppearanceActivity() {
             DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
         val SCOPE_LABELS = listOf(R.string.presets_memory_both, R.string.presets_memory_global, R.string.presets_memory_preset, R.string.presets_memory_none)
     }
+}
+
+/** Intent extras that open the presets screen directly in its editor (value: the preset name, or "" for a new one). */
+internal object PresetsIntents {
+    const val EDIT = "edit"
+    const val COPY = "copy"
+    const val NEW = "new"
 }
