@@ -113,9 +113,9 @@ internal fun Kit.inputDialog(
     return dialog
 }
 
-/** Choice adapter whose rows wrap long labels and keep a 52dp minimum height. */
-internal class PaletteChoiceAdapter(private val kit: Kit, labels: List<CharSequence>, private val single: Boolean = true) :
-    ArrayAdapter<CharSequence>(kit.context, if (single) android.R.layout.simple_list_item_single_choice else android.R.layout.simple_list_item_multiple_choice, labels) {
+/** Single-choice adapter whose rows wrap long labels and keep a 52dp minimum height. */
+internal class PaletteChoiceAdapter(private val kit: Kit, labels: List<CharSequence>) :
+    ArrayAdapter<CharSequence>(kit.context, android.R.layout.simple_list_item_single_choice, labels) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
         (view as? CheckedTextView)?.apply {
@@ -150,17 +150,15 @@ internal fun Kit.multiChoiceDialog(title: CharSequence, labels: List<CharSequenc
         .show().also { tintDialogButtons(it) }
 }
 
-internal class SheetHandle(val dialog: BottomSheetDialog, val content: LinearLayout, val positive: View?)
+internal class SheetHandle(val dialog: BottomSheetDialog, val content: LinearLayout)
 
 /**
- * Fully expanded bottom sheet with a pinned title (and optional pinned [header]), a scrolling body
- * and an optional action row. Used for forms, the model switcher and multi-toggle lists.
+ * Fully expanded bottom sheet with a pinned title (and optional pinned [header]) and a scrolling body.
+ * Used for the model switcher and multi-toggle lists; full-page editors carry their own Save button.
  */
 internal fun Kit.bottomSheet(
     title: CharSequence,
     header: View? = null,
-    positive: CharSequence? = null,
-    onPositive: (() -> Boolean)? = null,
     minHeightFraction: Float = 0.5f,
     onDismiss: (() -> Unit)? = null,
 ): SheetHandle {
@@ -180,17 +178,6 @@ internal fun Kit.bottomSheet(
     header?.let { column.addView(it, LinearLayout.LayoutParams(-1, -2)) }
     val body = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; setPaddingRelative(0, 0, 0, dp(Ui.SPACE_LG)) }
     column.addView(NestedScrollView(context).apply { addView(body, ViewGroup.LayoutParams(-1, -2)) }, LinearLayout.LayoutParams(-1, 0, 1f))
-    var confirm: View? = null
-    if (positive != null && onPositive != null) {
-        column.addView(LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END or Gravity.CENTER_VERTICAL
-            setPaddingRelative(dp(Ui.SPACE_XXL), dp(Ui.SPACE_SM), dp(Ui.SPACE_XXL), dp(Ui.SPACE_LG))
-            addView(textButton(string(android.R.string.cancel)) { dialog.dismiss() })
-            confirm = filledButton(positive) { if (onPositive()) dialog.dismiss() }
-            addView(confirm, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(Ui.SPACE_MD) })
-        })
-    }
     dialog.setContentView(column)
     dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
     dialog.behavior.skipCollapsed = true
@@ -199,10 +186,5 @@ internal fun Kit.bottomSheet(
     onDismiss?.let { callback -> dialog.setOnDismissListener { callback() } }
     dialog.show()
     column.minimumHeight = (context.resources.displayMetrics.heightPixels * minHeightFraction).toInt()
-    return SheetHandle(dialog, body, confirm)
-}
-
-/** Secondary label above a form field. */
-internal fun Kit.formLabel(value: CharSequence): TextView = text(value, Ui.TEXT_SECTION, palette.muted, medium = true).apply {
-    setPaddingRelative(0, dp(Ui.SPACE_XL), 0, dp(Ui.SPACE_SM))
+    return SheetHandle(dialog, body)
 }

@@ -21,7 +21,8 @@
     <style name="Theme.AiAgent" parent="Base.Theme.AiAgent">
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <!-- Explicit variants: the base activity and the :agent overlay choose the mode themselves. -->
+    <!-- Explicit aliases for setTheme: HostAppearanceActivity and the :agent overlay force night mode on the
+         AppCompat delegate, so night resources apply through the base theme and the aliases stay empty. -->
     <style name="Theme.AiAgent.Light" parent="Base.Theme.AiAgent" />
     <style name="Theme.AiAgent.Dark" parent="Base.Theme.AiAgent" />
     <style name="Theme.AiAgent.Dialog.Light" parent="Theme.Material3.DayNight.Dialog">

@@ -56,6 +56,7 @@ class ShareTargetActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val entry = if (intent.action == Intent.ACTION_SEND) TaskEntries.read(intent) else null
+        // This entry has no window of its own and finishes at once; only a toast can outlive it.
         if (entry == null) Toast.makeText(this, R.string.entry_invalid, Toast.LENGTH_LONG).show()
         else startActivity(TaskEntries.intent(this, entry))
         finish()

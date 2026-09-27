@@ -67,6 +67,7 @@ class ConfirmationActivity : HostAppearanceActivity() {
                     } else if (body.flag("remember") == true) {
                         message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE
                     } else {
+                        // The activity finishes at once, so a snackbar anchored to it would vanish; a toast outlives it.
                         Toast.makeText(applicationContext, R.string.workbench_request_failed, Toast.LENGTH_LONG).show(); finish()
                     }
                 }

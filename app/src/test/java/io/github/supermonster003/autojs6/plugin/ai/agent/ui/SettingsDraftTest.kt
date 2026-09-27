@@ -15,7 +15,7 @@ class SettingsDraftTest {
         assertTrue(draft.settings.fullAccess); assertFalse(draft.settings.cautious); assertEquals(AccessMode.FULL, draft.accessMode)
         draft = draft.withAccess(AccessMode.CAUTIOUS)
         assertTrue(draft.settings.cautious); assertFalse(draft.settings.fullAccess)
-        assertEquals(draft.settings, SettingsCodec.decode(draft.json().toString()))
+        assertEquals(draft.settings, SettingsCodec.decode(SettingsCodec.json(draft.settings).toString()))
     }
 
     @Test fun groupsAndLimitsAreValidatedAndAutomaticRemovesTheKey() {

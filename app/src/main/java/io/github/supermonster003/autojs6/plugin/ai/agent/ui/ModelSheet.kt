@@ -9,7 +9,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.ModelLocality
@@ -151,7 +150,7 @@ internal class ModelSheet(
             if (pinned) kit.palette.accent else kit.palette.muted) {
             val before = selection()
             if (!before.isPinned(model.targetId) && before.pinned.size >= ModelSelectionState.MAX_PINNED)
-                Toast.makeText(context, kit.string(R.string.model_pins_full), Toast.LENGTH_SHORT).show()
+                list?.let { anchor -> kit.snackbar(anchor, kit.string(R.string.model_pins_full)) }
             else update { it.togglePin(model) }
         }
     }

@@ -178,12 +178,8 @@ internal class PendingCard(
         textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_SM), 0, 0)
         if (android.os.Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
     }
-    private fun body(text: String) = kit.text(text, Ui.TEXT_BODY).apply {
-        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setTextIsSelectable(true); setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
-    }
-    private fun caption(text: String) = kit.text(text, Ui.TEXT_SECONDARY, kit.palette.muted).apply {
-        textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_XS), 0, 0)
-    }
+    private fun body(text: String) = kit.paragraph(text)
+    private fun caption(text: String) = kit.note(text)
     private fun add(view: View, top: Int = 0) {
         container.addView(view, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(top) })
     }

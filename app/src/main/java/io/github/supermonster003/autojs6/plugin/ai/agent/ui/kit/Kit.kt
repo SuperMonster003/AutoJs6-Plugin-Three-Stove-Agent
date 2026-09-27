@@ -86,10 +86,6 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
     fun roundedRippleFill(fill: Int, radiusDp: Int, stroke: Int? = null, ripple: Int = palette.accentRipple): RippleDrawable =
         RippleDrawable(ColorStateList.valueOf(ripple), roundedFill(fill, radiusDp, stroke), null)
 
-    /** Transparent until pressed; clipped to a rounded rectangle. */
-    fun boundedRipple(radiusDp: Int, ripple: Int = palette.accentRipple): RippleDrawable =
-        RippleDrawable(ColorStateList.valueOf(ripple), null, roundedFill(-0x1, radiusDp))
-
     fun selectableBackground(view: View, borderless: Boolean = false) {
         val value = TypedValue()
         val attribute = if (borderless) android.R.attr.selectableItemBackgroundBorderless else android.R.attr.selectableItemBackground

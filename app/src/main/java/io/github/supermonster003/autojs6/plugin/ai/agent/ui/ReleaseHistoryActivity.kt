@@ -42,7 +42,7 @@ class ReleaseHistoryActivity : HostAppearanceActivity() {
                 progress.visibility = View.GONE
                 if (text == null) {
                     content.visibility = View.GONE
-                    scaffold.content.addView(kit.emptyState(getString(R.string.release_history_error), null, R.drawable.ic_warning))
+                    scaffold.content.addView(kit.emptyState(getString(R.string.release_history_error), R.drawable.ic_warning))
                 } else content.text = if (document == "license") text else DocumentText.render(text, palette)
             }
         }

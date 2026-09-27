@@ -34,6 +34,16 @@ internal fun Kit.checkRow(parent: LinearLayout, label: CharSequence, tag: String
         parent.addView(this, LinearLayout.LayoutParams(-1, -2))
     }
 
+/** Selectable body paragraph aligned to the start edge, used by cards and detail pages. */
+internal fun Kit.paragraph(value: CharSequence): TextView = text(value, Ui.TEXT_BODY).apply {
+    textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setTextIsSelectable(true); setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0)
+}
+
+/** Muted secondary line below a paragraph or title. */
+internal fun Kit.note(value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
+    textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0)
+}
+
 /** Secondary explanatory text below a form control. */
 internal fun Kit.caption(parent: LinearLayout, value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
     textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0)

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
 import android.text.format.Formatter
-import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -118,7 +117,7 @@ class SettingsActivity : HostAppearanceActivity() {
         })
         add(page, "tool-groups", settingRow(getString(R.string.presets_tools), null, R.drawable.ic_tune, "tool-groups") { toolGroups() })
         add(page, "limits", settingRow(getString(R.string.ui_budget), null, R.drawable.ic_timer, "limits") { limits() }, divider = false)
-        page.addView(caption(getString(R.string.settings_policy_note)))
+        page.addView(pageCaption(getString(R.string.settings_policy_note)))
 
         page.addView(sectionHeader(getString(R.string.settings_section_tools)))
         add(page, "presets", settingRow(getString(R.string.presets_title), getString(R.string.ui_preset_optional), R.drawable.ic_layers, "presets") { open(PresetsActivity::class.java) })
@@ -168,7 +167,7 @@ class SettingsActivity : HostAppearanceActivity() {
         for (key in listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating")) rows.getValue(key).setEnabled(false)
     }
 
-    private fun Kit.caption(value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
+    private fun Kit.pageCaption(value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
         setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XS), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_SM))
     }
     private fun add(page: LinearLayout, key: String, row: SettingRow, divider: Boolean = true) {
@@ -254,7 +253,7 @@ class SettingsActivity : HostAppearanceActivity() {
             }
             groupRows[group.id] = row; handle.content.addView(row.view)
         }
-        handle.content.addView(kit.caption(getString(R.string.settings_ocr_note)))
+        handle.content.addView(kit.pageCaption(getString(R.string.settings_ocr_note)))
         sheet = handle
     }
     private fun limits() {
@@ -266,7 +265,7 @@ class SettingsActivity : HostAppearanceActivity() {
             val row = kit.settingRow(getString(limitLabels.getValue(key)), limitSummary(draft, key), null, tag) { editLimit(key) }
             limitRows[key] = row; handle.content.addView(row.view)
         }
-        handle.content.addView(kit.caption(getString(R.string.settings_limits_note)))
+        handle.content.addView(kit.pageCaption(getString(R.string.settings_limits_note)))
         sheet = handle
     }
     private fun limitSummary(draft: SettingsDraft, key: String): String {
