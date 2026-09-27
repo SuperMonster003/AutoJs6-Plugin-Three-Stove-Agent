@@ -351,7 +351,7 @@
     <string name="workbench_access">操作権限: %1$s</string>
     <string name="workbench_answer_required">回答を入力してください.</string>
     <string name="workbench_back">戻る</string>
-    <string name="workbench_budget">ステップ: %1$d / %2$d. 上限: モデル呼出 %3$d 回, %4$d 分, %5$d トークン.</string>
+    <string name="workbench_budget">ステップ %1$d/%2$d · モデル呼出 %3$d 回 · %4$d 分 · %5$d トークン</string>
     <string name="workbench_default_preset">標準</string>
     <string name="workbench_details">タスクの詳細</string>
     <string name="workbench_example_notifications">画面上の通知を要約</string>

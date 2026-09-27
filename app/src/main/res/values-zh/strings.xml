@@ -351,7 +351,7 @@
     <string name="workbench_access">操作权限: %1$s</string>
     <string name="workbench_answer_required">请输入回答.</string>
     <string name="workbench_back">返回</string>
-    <string name="workbench_budget">步数: %1$d / %2$d. 上限: %3$d 次模型调用, %4$d 分钟, %5$d token.</string>
+    <string name="workbench_budget">步骤 %1$d/%2$d · 模型调用 %3$d 次 · %4$d 分钟 · %5$d token</string>
     <string name="workbench_default_preset">默认</string>
     <string name="workbench_details">任务详情</string>
     <string name="workbench_example_notifications">总结屏幕上的通知</string>

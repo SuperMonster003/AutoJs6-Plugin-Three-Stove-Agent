@@ -6,7 +6,7 @@
 
 # v1.2.0
 
-###### 2026/09/27
+###### 2026/09/28
 
 * `Aviso` La aplicacion pasa a llamarse 3-Stove Agent: el ID de aplicacion es ahora io.github.supermonster003.autojs6.plugin.three.stove.agent, el repositorio es AutoJs6-Plugin-Three-Stove-Agent, el ID y el engine del plugin son three-stove-agent, la accion del servicio es org.autojs.plugin.THREE_STOVE_AGENT y la version del contrato es 2. El nombre antiguo no es compatible: desinstale el antiguo AI Agent antes de instalar; el historial, los preajustes y las memorias no se migran. El anfitrion minimo es ahora AutoJs6 6.8.0 / build 5298; los anfitriones anteriores ya no reconocen este plugin
 * `Aviso` La versión 1.2.0 en desarrollo ofrece herramientas MCP opcionales, llamadas nativas, capturas y scripts generados. AiGoCode gpt-5.6-sol pasó las pruebas P9.2 de imagen inicial e imagen en resultados de herramientas. P9.1 completó la activación de Wi-Fi y la lectura posterior de su estado con las rutas JSON y nativa, desactivando temporalmente la conexión automática al punto de acceso actual y accediendo al modelo mediante datos móviles y VPN. Los fallos tras el cambio de red de la VPN con la conexión automática predeterminada siguen sin resolverse; consulte ROADMAP.md.
@@ -24,6 +24,7 @@
 * `Corrección` Cuando una excepcion interna hace fallar una tarea, el registro del paso conserva la clase de la excepcion (nunca su mensaje) para el diagnostico; un tiempo de espera de herramienta ahora indica la dimension del limite de tiempo de la herramienta en el resultado; el descubrimiento de herramientas MCP se limita a 8 segundos para no consumir la ventana de preparacion de 15 segundos
 * `Corrección` Las capacidades del complemento ahora declaran native-tools y vision, los limites de ejecucion se vinculan directamente a las constantes del contrato del anfitrion, la version del cliente MCP proviene del paquete instalado y los literales dispersos de tiempo y tamano referencian el contrato
 * `Corrección` Un servicio de accesibilidad de AutoJs6 detenido se comunica al modelo como A11Y_SERVICE_NOT_RUNNING en lugar de un error de argumentos
+* `Mejora` La tarjeta de tarea actual tiene una sola fila de estado: el estado en su color (acento en ejecucion, verde completada, rojo fallida, ambar parcial) con el modelo y el preajuste en la misma linea, y el presupuesto es una linea compacta "Paso n/m · llamadas · min · tokens"; en los detalles "Ejecutar de nuevo" es la accion principal a todo el ancho y "Reintentar con otro modelo" va en su propia linea sin partirse
 * `Mejora` El presupuesto automatico de tareas se amplia: pasos 40 -> 60, llamadas al modelo 60 -> 90, duracion 10 -> 15 minutos, tokens 300k -> 500k; los ajustes, los preajustes y cada tarea solo pueden reducirlo
 * `Mejora` El icono del lanzador es la ilustracion Three Stove proporcionada por el mantenedor: un glifo oscuro sobre gris claro en modo claro, un glifo claro sobre gris oscuro en modo oscuro, con los iconos redondo y adaptable compuestos a partir de la misma imagen
 * `Mejora` La etiqueta de paso de la burbuja flotante ofrece su texto completo a los lectores de pantalla bajo el rol truncable, el aviso de modelos fijados llenos es una barra en pagina y el lanzador declara un icono redondo; el kit de interfaz elimina miembros sin uso y comparte sus constructores de parrafo y nota

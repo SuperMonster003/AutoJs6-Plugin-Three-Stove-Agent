@@ -158,13 +158,11 @@ class RunDetailActivity : HostAppearanceActivity() {
         value.getAsJsonObject("result")?.number("durationMs")?.let { summary.addView(caption(getString(R.string.history_elapsed, it))) }
         summary.addView(caption(WorkbenchText.budget(this, value)))
         val active = WorkbenchText.active(value)
-        summary.addView(LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
-            addView(kit.tonalButton(getString(R.string.workbench_run_again), "rerun") { rerun(value, false) }.apply { isEnabled = !active },
-                LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
-            addView(kit.textButton(getString(R.string.workbench_retry_model), "retry-model") { rerun(value, true) }.apply { isEnabled = !active },
-                LinearLayout.LayoutParams(0, -2, 1f))
-        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
+        summary.addView(kit.tonalButton(getString(R.string.workbench_run_again), "rerun") { rerun(value, false) }.apply { isEnabled = !active },
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
+        // The secondary label is long in several languages; a full-width text button never wraps or competes with the primary one.
+        summary.addView(kit.textButton(getString(R.string.workbench_retry_model), "retry-model") { rerun(value, true) }.apply { isEnabled = !active },
+            LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.END; topMargin = kit.dp(Ui.SPACE_XS) })
     }
     private fun renderResult(value: JsonObject) {
         val data = value.getAsJsonObject("result")

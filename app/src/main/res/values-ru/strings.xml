@@ -351,7 +351,7 @@
     <string name="workbench_access">Режим доступа: %1$s</string>
     <string name="workbench_answer_required">Введите ответ.</string>
     <string name="workbench_back">Назад</string>
-    <string name="workbench_budget">Шаги: %1$d / %2$d. Лимиты: %3$d вызовов модели, %4$d мин, %5$d токенов.</string>
+    <string name="workbench_budget">Шаг %1$d/%2$d · вызовов модели: %3$d · %4$d мин · %5$d токенов</string>
     <string name="workbench_default_preset">По умолчанию</string>
     <string name="workbench_details">Подробности задачи</string>
     <string name="workbench_example_notifications">Кратко пересказать уведомления на экране</string>

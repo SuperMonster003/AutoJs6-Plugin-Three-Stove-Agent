@@ -6,7 +6,7 @@
 
 # v1.2.0
 
-###### 2026/09/27
+###### 2026/09/28
 
 * `Hint` The app is renamed 3-Stove Agent: the application ID is now io.github.supermonster003.autojs6.plugin.three.stove.agent, the repository is AutoJs6-Plugin-Three-Stove-Agent, the plugin ID and engine are three-stove-agent, the service action is org.autojs.plugin.THREE_STOVE_AGENT and the contract version is 2. The old name is not supported: uninstall the old AI Agent before installing; history, presets and memories are not migrated. The minimum host is now AutoJs6 6.8.0 / build 5298; earlier hosts no longer recognize this plugin
 * `Hint` Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see ROADMAP.md.
@@ -24,6 +24,7 @@
 * `Fix` When an internal exception fails a task, the step record keeps the exception class (never its message) for diagnosis; a tool timeout now names the tool time limit dimension in the result; MCP tool discovery is capped at 8 seconds so it cannot consume the 15 second preparation window
 * `Fix` Plugin capabilities now declare native-tools and vision, run limits bind directly to the host contract constants, the MCP client version comes from the installed package, and scattered timeout and size literals reference the contract
 * `Fix` A stopped AutoJs6 accessibility service is reported to the model as A11Y_SERVICE_NOT_RUNNING instead of an argument error
+* `Improvement` The home task card has a single status row: the state in its tone colour (running accent, completed green, failed red, partial amber) with the model and preset on the same line, and the budget caption is a compact "Step n/m · calls · minutes · tokens" line; on task details "Run again" is the full-width primary action and "Retry with another model" sits on its own line so it never wraps
 * `Improvement` The automatic task budget is relaxed: steps 40 -> 60, model calls 60 -> 90, duration 10 -> 15 minutes, tokens 300k -> 500k; settings, presets and single tasks can still only narrow it
 * `Improvement` The launcher icon is the maintainer-provided Three Stove artwork: a dark glyph on light grey in light mode, a light glyph on dark grey in dark mode, with the round and adaptive icons composed from the same source image
 * `Improvement` The floating ball step label carries its full text for screen readers under the truncatable role, the pinned-models-full notice is an in-page snackbar, and the launcher declares a round icon; the UI kit drops unused members and shares its paragraph and note builders

@@ -351,7 +351,7 @@
     <string name="workbench_access">Droits d\'action: %1$s</string>
     <string name="workbench_answer_required">Saisissez une réponse.</string>
     <string name="workbench_back">Retour</string>
-    <string name="workbench_budget">Étapes: %1$d / %2$d. Limites: %3$d appels, %4$d min, %5$d tokens.</string>
+    <string name="workbench_budget">Etape %1$d/%2$d · %3$d appels au modele · %4$d min · %5$d tokens</string>
     <string name="workbench_default_preset">Par défaut</string>
     <string name="workbench_details">Détails de la tâche</string>
     <string name="workbench_example_notifications">Résumer les notifications à l\'écran</string>
