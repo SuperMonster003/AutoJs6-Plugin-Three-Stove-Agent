@@ -2,82 +2,79 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
 import android.view.Gravity
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.NestedScrollView
+import com.google.android.material.chip.Chip
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 
+internal class WorkbenchViews(
+    val root: LinearLayout,
+    val toolbar: Toolbar,
+    val banner: ConnectionBanner,
+    val scroll: NestedScrollView,
+    val feed: WorkbenchFeed,
+    val composer: Composer,
+    val jump: Chip,
+    val more: View,
+)
+
+/**
+ * Home: a top bar with the model capsule, history and the overflow menu; the connection banner;
+ * the task feed; and the composer docked above the keyboard.
+ */
 internal object WorkbenchLayout {
-    fun create(activity: LauncherActivity): LinearLayout {
-        val body = AgentUi.column(activity)
-        AgentUi.text(body, activity.getString(R.string.ui_home_title), 30, true)
-        AgentUi.text(body, activity.getString(R.string.ui_home_subtitle), 15).setTextColor(AgentUi.palette(activity).muted)
-        val connection = AgentUi.column(activity, 4).apply {
-            setPaddingRelative(AgentUi.dp(activity, 4), 0, AgentUi.dp(activity, 4), AgentUi.dp(activity, 10))
-            body.addView(this, LinearLayout.LayoutParams(-1, -2))
-        }
-        AgentUi.text(connection, "", 13).apply { id = R.id.launcher_host_status; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
-        AgentUi.action(connection, R.string.launcher_connect, "connect") {}.id = R.id.launcher_connect
-        AgentUi.action(connection, R.string.launcher_open_host, "host") {}.id = R.id.launcher_open_host
+    fun create(activity: LauncherActivity, actions: FeedActions, onConnect: () -> Unit, onOpenHost: () -> Unit,
+               onPreset: () -> Unit, onVoice: () -> Unit, onSend: () -> Unit, onMore: (View) -> Unit, onJump: () -> Unit): WorkbenchViews {
+        val kit = activity.kit
+        val root = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(kit.palette.background) }
+        val statusBar = View(activity).apply { setBackgroundColor(kit.palette.background) }
+        root.addView(statusBar, LinearLayout.LayoutParams(-1, 0))
 
-        val composer = AgentUi.card(body)
-        AgentUi.text(composer, activity.getString(R.string.settings_full_access_note), 13).apply {
-            id = R.id.workbench_full_access; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
+        val toolbar = activity.createToolbar("", showBack = false)
+        activity.supportActionBar?.setDisplayShowTitleEnabled(false)
+        toolbar.setContentInsetsRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS))
+        // End-gravity custom views are laid out from the end: the first one added sits outermost.
+        val more = kit.iconButton(R.drawable.ic_more, kit.string(R.string.ui_more), "more") {}.apply { id = R.id.workbench_more }
+        more.setOnClickListener { onMore(more) }
+        toolbar.addView(more, Toolbar.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET), Gravity.END or Gravity.CENTER_VERTICAL))
+        toolbar.addView(kit.iconButton(R.drawable.ic_history, kit.string(R.string.history_title), "home-history") {
+            activity.startActivity(android.content.Intent(activity, HistoryActivity::class.java))
+        }.apply { id = R.id.workbench_history }, Toolbar.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET), Gravity.END or Gravity.CENTER_VERTICAL))
+        toolbar.addView(activity.models.capsule.view, Toolbar.LayoutParams(-2, -2, Gravity.START or Gravity.CENTER_VERTICAL))
+        root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
+
+        val banner = ConnectionBanner(kit, onConnect, onOpenHost)
+        root.addView(bounded(activity, banner.view, Ui.SPACE_LG, 0, Ui.SPACE_SM), LinearLayout.LayoutParams(-1, -2))
+
+        val feed = WorkbenchFeed(kit, actions)
+        val scroll = NestedScrollView(activity).apply {
+            isFillViewport = true; clipToPadding = false
+            addView(bounded(activity, feed.view, Ui.SPACE_LG, Ui.SPACE_XS, Ui.SPACE_LG), android.view.ViewGroup.LayoutParams(-1, -2))
         }
-        composer.addView(activity.models.capsule.view, LinearLayout.LayoutParams(-2, -2).apply { bottomMargin = AgentUi.dp(activity, 8) })
-        AgentUi.text(composer, activity.getString(R.string.workbench_goal_label), 16, true).labelFor = R.id.workbench_goal
-        composer.addView(EditText(activity).apply {
-            id = R.id.workbench_goal; setHint(R.string.workbench_goal_hint)
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            gravity = Gravity.TOP or Gravity.START; minLines = 3; maxLines = 10
-        }, LinearLayout.LayoutParams(-1, -2))
-        val options = AgentUi.disclosure(composer, R.string.ui_task_options)
-        AgentUi.text(options, activity.getString(R.string.workbench_preset), 14).labelFor = R.id.workbench_preset
-        options.addView(Spinner(activity).apply { id = R.id.workbench_preset; contentDescription = activity.getString(R.string.workbench_preset) }, LinearLayout.LayoutParams(-1, -2))
-        AgentUi.text(options, activity.getString(R.string.ui_preset_optional), 13).setTextColor(AgentUi.palette(activity).muted)
-        val actions = LinearLayout(activity).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        composer.addView(actions, LinearLayout.LayoutParams(-1, -2))
-        AgentUi.action(actions, R.string.workbench_voice, "voice") {}.apply {
-            id = R.id.workbench_voice; visibility = View.GONE; text = ""; contentDescription = activity.getString(R.string.workbench_voice)
-            val mic = activity.getDrawable(R.drawable.ic_mic)!!.mutate().apply {
-                setTint(AgentUi.palette(activity).accent); setBounds(0, 0, AgentUi.dp(activity, 24), AgentUi.dp(activity, 24))
-            }
-            setCompoundDrawablesRelative(mic, null, null, null)
-            layoutParams = LinearLayout.LayoutParams(AgentUi.dp(activity, 56), -2).apply { marginEnd = AgentUi.dp(activity, 10) }
+        val jump = kit.chip(kit.string(R.string.workbench_jump_latest), "jump-latest", icon = R.drawable.ic_expand) { onJump() }.apply {
+            visibility = View.GONE; elevation = kit.dp(4).toFloat()
         }
-        AgentUi.action(actions, R.string.workbench_send, "send", true) {}.apply {
-            id = R.id.workbench_send; layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        root.addView(FrameLayout(activity).apply {
+            addView(scroll, FrameLayout.LayoutParams(-1, -1))
+            addView(jump, FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = kit.dp(Ui.SPACE_SM) })
+        }, LinearLayout.LayoutParams(-1, 0, 1f))
+
+        val composer = Composer(kit, onPreset, onVoice, onSend)
+        root.addView(bounded(activity, composer.view, Ui.SPACE_MD, Ui.SPACE_XS, Ui.SPACE_MD), LinearLayout.LayoutParams(-1, -2))
+        activity.applySystemBarInsets(root, statusBar)
+        return WorkbenchViews(root, toolbar, banner, scroll, feed, composer, jump, more)
+    }
+
+    /** Centers [child] within the 840dp content width. Vertical space is a margin, so a hidden child takes none. */
+    private fun bounded(activity: LauncherActivity, child: View, horizontal: Int, top: Int, bottom: Int): FrameLayout {
+        val kit = activity.kit
+        val column = BoundedColumn(activity).apply {
+            setPaddingRelative(kit.dp(horizontal), 0, kit.dp(horizontal), 0)
+            addView(child, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(top); bottomMargin = kit.dp(bottom) })
         }
-        AgentUi.text(composer, "", 14).apply {
-            id = R.id.workbench_error; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
-            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
-        }
-        val current = AgentUi.card(body).apply { id = R.id.workbench_current; visibility = View.GONE }
-        AgentUi.section(current, R.string.workbench_current)
-        AgentUi.text(current, activity.getString(R.string.settings_full_access), 14, true).apply {
-            id = R.id.workbench_current_access; visibility = View.GONE; setTextColor(AgentUi.palette(activity).danger)
-        }
-        AgentUi.text(current, "", 19, true).apply { id = R.id.workbench_current_goal; setTextIsSelectable(true) }
-        AgentUi.text(current, "", 14, true).apply { id = R.id.workbench_state; setTextColor(AgentUi.palette(activity).accent); accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
-        AgentUi.text(current, "", 15).apply { id = R.id.workbench_step; setTextIsSelectable(true) }
-        current.addView(ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply { id = R.id.workbench_progress }, LinearLayout.LayoutParams(-1, AgentUi.dp(activity, 8)))
-        AgentUi.text(current, "", 12).apply { id = R.id.workbench_budget; setTextColor(AgentUi.palette(activity).muted) }
-        current.addView(AgentUi.column(activity, 0).apply { id = R.id.workbench_pending })
-        AgentUi.column(activity, 0).apply {
-            id = R.id.workbench_accessibility; visibility = View.GONE; current.addView(this)
-            AgentUi.text(this, activity.getString(R.string.accessibility_start_failed), 14)
-            AgentUi.action(this, R.string.accessibility_open_settings, "accessibility-settings") {
-                activity.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            }
-        }
-        AgentUi.action(current, R.string.task_stop, "stop") {}.apply { id = R.id.workbench_stop; AgentUi.role(this, "danger") }
-        AgentUi.action(current, R.string.workbench_details, "details") {}.id = R.id.workbench_details
-        AgentUi.section(body, R.string.workbench_recent)
-        AgentUi.card(body).id = R.id.workbench_recent
-        AgentUi.action(body, R.string.history_title, "history") {}.id = R.id.workbench_history
-        return AgentUi.screen(activity, activity.getString(R.string.app_name), body, onBack = null).apply {
-            (getChildAt(0) as LinearLayout).addView(AgentUi.icon(activity, R.drawable.ic_history, R.string.history_title, "home-history") {
-                activity.startActivity(android.content.Intent(activity, HistoryActivity::class.java))
-            })
-            (getChildAt(0) as LinearLayout).addView(AgentUi.icon(activity, R.drawable.ic_more, R.string.ui_more, "more") {}.apply { id = R.id.workbench_more })
-        }
+        return FrameLayout(activity).apply { addView(column, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL)) }
     }
 }

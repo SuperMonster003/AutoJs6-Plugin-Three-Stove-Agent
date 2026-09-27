@@ -28,6 +28,10 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.ui.HostAppearanceActivi
 
 /** Design tokens shared by every standalone surface (3-Stone AI scale, AI Agent palette). */
 internal object Ui {
+    /** Role of a single-line label allowed to ellipsize; its full text must be in a content description. */
+    const val TRUNCATABLE = "truncatable"
+    fun truncatable(view: android.view.View) { view.setTag(io.github.supermonster003.autojs6.plugin.ai.agent.R.id.ui_role, TRUNCATABLE) }
+
     const val SPACE_XS = 4
     const val SPACE_SM = 8
     const val SPACE_MD = 12

@@ -21,9 +21,11 @@
     <item name="workbench_full_access" type="id" />
     <item name="workbench_goal" type="id" />
     <item name="workbench_history" type="id" />
+    <item name="workbench_mcp" type="id" />
     <item name="workbench_memory" type="id" />
     <item name="workbench_model" type="id" />
     <item name="workbench_more" type="id" />
+    <item name="workbench_new_task" type="id" />
     <item name="workbench_pending" type="id" />
     <item name="workbench_preset" type="id" />
     <item name="workbench_presets" type="id" />

@@ -16,13 +16,15 @@ internal class ModelSwitcher(private val activity: HostAppearanceActivity, priva
     val available get() = catalog.available(selection.current)
     val targetId: String? get() = selection.current?.targetId
 
+    private var connected = false
+
     init { render() }
 
     /** Another screen or the floating ball may have changed the choice while this one was stopped. */
     fun start() { selection = ModelSelection.read(activity); render(); catalog.start() }
     fun stop() { catalog.stop(); sheet.dismiss() }
     fun close() { catalog.close() }
-    fun attached(value: Boolean) { catalog.attached(value) }
+    fun attached(value: Boolean) { if (connected != value) { connected = value; render() }; catalog.attached(value) }
 
     fun open() { sheet.show(); catalog.refresh() }
 
@@ -39,5 +41,5 @@ internal class ModelSwitcher(private val activity: HostAppearanceActivity, priva
         render(); sheet.render(); changed()
     }
 
-    private fun render() = capsule.render(selection, catalog.automatic?.name, available)
+    private fun render() = capsule.render(selection, catalog.automatic?.name, available, connected)
 }
