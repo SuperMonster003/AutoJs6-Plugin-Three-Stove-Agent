@@ -220,7 +220,7 @@ class AgentRunner internal constructor(
                     if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
                     b.check()
                     val next = if (continuation == null && formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
-                    if (next == null) finishError(outcome.error) else {
+                    if (next == null) finishError(outcome.error, detail = if (outcome.error == RunError.LIMIT_EXCEEDED) "key:limit_response" else outcome.reason) else {
                         formatFallbacks++; format = next
                         checkNotNull(repairSession).switchFormat(next)
                         requestModel(repair) // New admission and usage ticket, same step and repair allowance.
@@ -234,10 +234,10 @@ class AgentRunner internal constructor(
                     responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
                     settle(reply.usage, outputBytes)
                     b.check()
-                    if (responseLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED); return@beginOperation }
+                    if (responseLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_response"); return@beginOperation }
                     val turn = reply.nativeTurn
                     if (turn != null && (turn.continuation.limits.batchBytes - 256) / turn.calls.size < 1024) {
-                        finishError(RunError.LIMIT_EXCEEDED); return@beginOperation
+                        finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_tool_results"); return@beginOperation
                     }
                     turn?.continuation?.onFailure { error -> enqueueCallback { guarded {
                         if (nativeTurn?.continuation === turn.continuation) finishError(error)
@@ -357,7 +357,8 @@ class AgentRunner internal constructor(
         if (unknownPassword) protectText()
         (decision as? AgentDecision.Tool)?.let { loopRules.failed(checkNotNull(catalog[it.name])) }
         if (error.hostLost || error == RunError.BUDGET_EXCEEDED) {
-            finishError(error, budgetDimension = "toolTimeout".takeIf { error == RunError.BUDGET_EXCEEDED }); return
+            finishError(error, budgetDimension = "toolTimeout".takeIf { error == RunError.BUDGET_EXCEEDED },
+                detail = if (error == RunError.BUDGET_EXCEEDED) budgetDetail("toolTimeout") else null); return
         }
         observation = scriptParameters?.observation() ?: jsonObject("error" to error.name.json()).apply {
             if (error == RunError.A11Y_SERVICE_NOT_RUNNING) addProperty("hint",
@@ -501,12 +502,12 @@ class AgentRunner internal constructor(
     private inline fun guarded(action: () -> Unit) {
         if (state.terminal) return
         try { if (canContinue()) action() }
-        catch (error: BudgetExceeded) { finishError(RunError.BUDGET_EXCEEDED, error.dimension) }
-        catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED) }
+        catch (error: BudgetExceeded) { finishError(RunError.BUDGET_EXCEEDED, error.dimension, detail = budgetDetail(error.dimension)) }
+        catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_context") }
         catch (error: Exception) {
             // A programming error is indistinguishable from a bad request on the public surface; keep the class for diagnosis.
             internalFailure = error.javaClass.simpleName.ifBlank { "Exception" }
-            finishError(RunError.INVALID_REQUEST)
+            finishError(RunError.INVALID_REQUEST, detail = internalFailure)
         }
     }
     private fun record(value: String?, error: RunError? = null, images: List<ModelImage> = emptyList()) {
@@ -576,7 +577,19 @@ class AgentRunner internal constructor(
         if (error == RunError.CANCELLED && state != RunState.QUEUED) transition(RunState.CANCELLING)
         finishError(error)
     }
-    private fun finishError(error: RunError, budgetDimension: String? = null, mcpReason: String? = null) {
+    /** "used/limit" for a budget dimension, so the summary says which limit and how far it went. */
+    private fun budgetDetail(dimension: String): String? {
+        val b = budget ?: return null
+        return when (dimension) {
+            "steps" -> "${b.steps}/${b.limits.maxSteps}"
+            "modelCalls" -> "${b.modelCalls}/${b.limits.maxModelCalls}"
+            "duration" -> "${b.durationMs / 1000} s/${b.limits.maxDurationMs / 1000} s"
+            "tokens" -> "${b.totalTokens}/${b.tokenLimit}"
+            "toolTimeout" -> "${b.limits.stepToolTimeoutMs / 1000} s"
+            else -> null
+        }
+    }
+    private fun finishError(error: RunError, budgetDimension: String? = null, mcpReason: String? = null, detail: String? = null) {
         if (state.terminal) return
         clearOperation(cancel = true); clearInteraction()
         closeNative()
@@ -590,8 +603,8 @@ class AgentRunner internal constructor(
             error == RunError.BUDGET_EXCEEDED && successfulTools > 0 -> RunState.PARTIAL
             else -> RunState.FAILED
         }
-        val detail = mcpReason?.takeIf { error == RunError.TOOL_FAILED && it in PortResult.Failure.MCP_REASONS }
-        finish(terminal, text.terminal(error, budgetDimension) + (detail?.let { " [$it]" } ?: ""), error = error)
+        val cause = mcpReason?.takeIf { error == RunError.TOOL_FAILED && it in PortResult.Failure.MCP_REASONS } ?: detail
+        finish(terminal, text.terminal(error, budgetDimension, cause), error = error)
     }
     private fun finish(terminal: RunState, summary: String, evidence: List<String> = emptyList(), unfinished: List<String> = emptyList(),
                        orderStatus: String? = null, error: RunError? = null) {

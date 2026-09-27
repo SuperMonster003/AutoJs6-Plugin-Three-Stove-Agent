@@ -62,7 +62,9 @@ class Budget(val limits: BudgetLimits, private val startedMs: Long, private val 
     var totalTokens = 0L; private set
     var estimated = false; private set
     private var reservation: ModelReservation? = null
-    private var tokenLimit = limits.maxTotalTokens
+    /** Effective token ceiling: the limit, narrowed by the host grant. Read for the budget cause in terminal summaries. */
+    var tokenLimit = limits.maxTotalTokens
+        private set
     fun narrowTokens(maximum: Long) { require(maximum >= 0); tokenLimit = minOf(tokenLimit, maximum); check() }
 
     class ModelReservation internal constructor(val inputEstimate: Long, val maximumOutputTokens: Int)

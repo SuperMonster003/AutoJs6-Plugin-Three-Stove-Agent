@@ -49,7 +49,7 @@ class AgentRunnerTest {
         val run = f.start()
         f.tools.inspections.single().second.fail(RunError.BUDGET_EXCEEDED); f.scheduler.drain()
         assertEquals(RunState.FAILED, run.state); assertEquals("BUDGET_EXCEEDED", error(run))
-        assertTrue(run.result!!.string("summary")!!.endsWith("[Tool time limit]"))
+        assertTrue(run.result!!.string("summary")!!.endsWith("[Tool time limit 30 s]"))
         uniqueTerminal(f, run)
     }
     @Test fun allModelDoneStatusesAreTerminalAndImmutable() {

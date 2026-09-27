@@ -26,10 +26,12 @@ sealed interface PortResult<out T> {
     data class Failure(val error: RunError, val reason: String? = null, val usage: ModelUsage? = null, val outputBytes: Int = 0,
                        val scriptParameters: io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.ScriptParameterProblem? = null,
                        val mcpReason: String? = null) : PortResult<Nothing> {
-        init { require(reason == null || reason == "REQUEST_REJECTED"); require(outputBytes >= 0)
+        init { require(reason == null || REASON.matches(reason)); require(outputBytes >= 0)
             require(scriptParameters == null || error == RunError.TOOL_ARGUMENTS_INVALID)
             require(mcpReason == null || (error == RunError.TOOL_FAILED && mcpReason in MCP_REASONS)) }
         companion object {
+            /** Fixed host or provider reason tokens (for example ONLINE_NETWORK_UNAVAILABLE); never provider text. */
+            val REASON = Regex("[A-Z][A-Z0-9_]{0,63}")
             val MCP_REASONS = setOf("MCP_AUTH_REQUIRED", "MCP_PAIRING_REQUIRED", "MCP_PAIRING_DENIED", "MCP_PROTOCOL_ERROR",
                 "MCP_CATALOG_CHANGED", "MCP_TIMEOUT", "MCP_UNAVAILABLE", "MCP_LIMIT_EXCEEDED")
         }
@@ -166,7 +168,12 @@ class RunnerText(json: String, locale: String) {
         rows.has(locale.substringBefore('-').lowercase(Locale.ROOT)) -> locale.substringBefore('-').lowercase(Locale.ROOT)
         else -> "en"
     }
-    fun terminal(error: RunError, budgetDimension: String? = null): String {
+    /**
+     * Fixed sentence plus a bracketed cause: the budget dimension with used/limit, the limit that was
+     * exceeded, or the error code with the host reason. [detail] is ASCII (numbers, codes) or a catalog key
+     * prefixed with "key:" that is resolved in the current language.
+     */
+    fun terminal(error: RunError, budgetDimension: String? = null, detail: String? = null): String {
         val strings = rows.getAsJsonObject(key)
         val message = strings.string(when {
             error == RunError.CANCELLED -> "cancelled"
@@ -175,8 +182,13 @@ class RunnerText(json: String, locale: String) {
             error == RunError.DECISION_UNPARSABLE -> "decision"
             else -> "failed"
         }) ?: error("Missing runner text")
-        val dimension = if (error == RunError.BUDGET_EXCEEDED) strings.string("budget_$budgetDimension") else null
-        return message + if (dimension == null) "" else " [$dimension]"
+        val resolved = detail?.let { if (it.startsWith("key:")) strings.string(it.removePrefix("key:")) ?: it.removePrefix("key:") else it }
+        val cause = when {
+            error == RunError.BUDGET_EXCEEDED -> listOfNotNull(strings.string("budget_$budgetDimension"), resolved).joinToString(" ")
+            error == RunError.CANCELLED || error.hostLost -> resolved
+            else -> listOfNotNull(error.name, resolved).joinToString(": ")
+        }
+        return message + if (cause.isNullOrBlank()) "" else " [$cause]"
     }
     fun rule(name: String): String = rows.getAsJsonObject(key).string(name) ?: error("Missing rule text")
 }

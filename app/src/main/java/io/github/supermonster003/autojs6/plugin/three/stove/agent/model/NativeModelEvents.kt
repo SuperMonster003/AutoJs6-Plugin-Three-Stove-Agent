@@ -84,7 +84,7 @@ internal class NativeModelEvents(private val id: String, private val target: Str
                 require(error in ERRORS && (type != "cancelled" || error == RunError.CANCELLED))
                 val reason = event.string("reason")?.also { require(it.matches(Regex("[A-Z][A-Z0-9_]{0,63}"))) }
                 ended = true
-                Event.Terminal(takeProgress().copy(error = error!!, reason = reason?.takeIf { it == "REQUEST_REJECTED" }))
+                Event.Terminal(takeProgress().copy(error = error!!, reason = reason))
             }
             else -> returnTerminal(RunError.INVALID_REQUEST)
         }

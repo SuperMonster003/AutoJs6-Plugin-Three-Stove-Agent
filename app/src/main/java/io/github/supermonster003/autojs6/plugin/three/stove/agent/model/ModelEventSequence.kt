@@ -67,7 +67,7 @@ internal class ModelEventSequence(private val requestId: String, private val tar
                         require(it.matches(Regex("[A-Z][A-Z0-9_]{0,63}")))
                     }
                     ended = true; chunks.setLength(0)
-                    Event.Terminal(failure(code!!, if (reason == "REQUEST_REJECTED") reason else null))
+                    Event.Terminal(failure(code!!, reason))
                 }
                 else -> reject(RunError.INVALID_REQUEST)
             }
