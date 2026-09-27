@@ -64,7 +64,10 @@ internal class UiAccessibilityAudit {
             (runCatching { view.resources.getResourceEntryName(view.id) }.getOrNull() ?: "generated")
         fun check(ok: Boolean, view: View, issue: String) { if (!ok) failures += "$name/${identity(view)}: $issue" }
         for (view in views) {
-            val control = view is Button || view is ImageButton || view is EditText || view is Spinner
+            // Kit rows are clickable containers; a switch inside a row is decorative (the row carries its role).
+            val hidden = view.importantForAccessibility == View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            val row = view is ViewGroup && view !is Spinner && view.isClickable && view.hasOnClickListeners()
+            val control = !hidden && (view is Button || view is ImageButton || view is EditText || view is Spinner || row)
             if (control) {
                 controls++
                 val caption = views.filterIsInstance<TextView>().any {

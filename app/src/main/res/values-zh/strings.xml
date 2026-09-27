@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="about_developer">开发者</string>
+    <string name="about_developer_page">开发者主页</string>
+    <string name="about_summary">版本, 开发者与许可证</string>
+    <string name="about_version">版本</string>
+    <string name="about_version_value">%1$s (构建 %2$d)\n构建日期: %3$s</string>
     <string name="accessibility_open_settings">打开无障碍设置</string>
     <string name="accessibility_start_failed">无障碍自动启动失败. 请在系统设置中开启 AutoJs6 无障碍服务, 然后继续任务.</string>
     <string name="app_language_ar">العربية</string>
@@ -33,6 +38,7 @@
     <string name="app_update_automatic">自动检查更新</string>
     <string name="app_update_automatic_summary">使用应用时检查, 每 12 小时最多一次</string>
     <string name="app_update_current_version">已安装版本: %1$s</string>
+    <string name="app_update_ignored_count">已忽略版本: %1$d</string>
     <string name="app_update_manage_ignored">管理已忽略更新</string>
     <string name="app_update_no_ignored">当前没有已忽略的发行版</string>
     <string name="app_update_release_history_summary">查看应用内置的版本历史</string>
@@ -43,7 +49,7 @@
     <string name="floating_collapse">收起任务卡片, 拖动可移动</string>
     <string name="floating_open">展开任务卡片, 拖动可移动</string>
     <string name="floating_permission_required">请允许显示在其他应用上层以启用悬浮球.</string>
-    <string name="floating_setting_note">默认关闭. 请授权显示在其他应用上层后保存. 仅在 AutoJs6 已连接时显示, 断开或锁屏时隐藏. 空闲时不维持前台服务.</string>
+    <string name="floating_setting_note">默认关闭. 需要显示在其他应用上层的权限. 仅在 AutoJs6 已连接时显示, 断开或锁屏时隐藏. 空闲时不维持前台服务.</string>
     <string name="floating_workbench">打开任务台</string>
     <string name="history_all">全部</string>
     <string name="history_allowed">已允许</string>
@@ -215,7 +221,7 @@
     <string name="presets_tools">启用的工具组</string>
     <string name="presets_unavailable">%1$s (不可用)</string>
     <string name="release_history_error">无法读取内置文档.</string>
-    <string name="release_history_title">发行历史</string>
+    <string name="release_history_title">版本历史</string>
     <string name="run_blocked">已阻塞</string>
     <string name="run_cancelled">已停止</string>
     <string name="run_cancelling">正在停止</string>
@@ -242,26 +248,33 @@
     <string name="script_roots_save">保存目录</string>
     <string name="script_roots_title">脚本目录</string>
     <string name="settings_access_mode">操作权限</string>
-    <string name="settings_budget_note">预算留空使用内置默认值: 40 步, 60 次模型调用, 10 分钟 (独立任务 30 分钟), 300000 token. 上限: 200 步, 300 次调用, 30 分钟 (独立任务 60 分钟), 1000000 token. 下方时长单位为毫秒.</string>
     <string name="settings_clear">清除数据</string>
     <string name="settings_clear_confirm">删除此类全部条目? 此操作无法撤销, 须在任务空闲时进行.</string>
     <string name="settings_clear_presets">删除自定义预设并重置内置 default 预设? 已保存记忆会保留, 须在任务空闲时进行.</string>
     <string name="settings_data">数据管理</string>
+    <string name="settings_data_summary">%1$d 条 · %2$s</string>
+    <string name="settings_default_preset">默认预设</string>
+    <string name="settings_duration_minutes">最长时长 (分钟)</string>
     <string name="settings_error">无法读取或保存设置. 请检查限制后重试. 清除数据前请先停止运行中的任务.</string>
     <string name="settings_floating">启用悬浮球</string>
     <string name="settings_full_access">完全访问</string>
     <string name="settings_full_access_note">完全访问: 所有已启用工具均可免确认执行, 包括付款, 删除, 脚本及记忆写入. 对新任务覆盖预设的确认策略. 开始前请核对任务目标.</string>
     <string name="settings_license">许可证</string>
+    <string name="settings_limit_automatic">自动 (%1$s)</string>
+    <string name="settings_limits_note">留空使用内置值. 从应用启动的任务最多运行 30 分钟, 独立任务最多 60 分钟. 预设和单次任务只能进一步降低这些限制.</string>
+    <string name="settings_limits_summary">%1$s 步 · %2$s 次调用 · %3$s · %4$s token</string>
+    <string name="settings_minutes">%1$d 分钟</string>
     <string name="settings_notices">第三方声明</string>
     <string name="settings_ocr_note">启用 OCR 组后, 宿主检测到已授权的识别插件时会自动提供 OCR.</string>
     <string name="settings_open_failed">没有应用可以打开此链接.</string>
     <string name="settings_policy_note">保存的设置用于新任务. 预设和单次任务只能进一步收紧限制, 仍须遵守宿主权限.</string>
     <string name="settings_save">保存设置</string>
-    <string name="settings_saved">设置已保存.</string>
+    <string name="settings_section_information">信息</string>
+    <string name="settings_section_quick">快捷入口</string>
+    <string name="settings_section_tools">工具与数据</string>
     <string name="settings_source">源码</string>
     <string name="settings_title">设置</string>
-    <string name="settings_usage">%1$s: %2$d 条 / %3$d 字节</string>
-    <string name="settings_version">版本: %1$s\n构建: %2$d\n日期: %3$s\n作者: %4$s</string>
+    <string name="settings_tool_groups_summary">已启用 %1$d / %2$d</string>
     <string name="settings_voice">启用语音输入</string>
     <string name="shortcut_goal">固定目标 (可选)</string>
     <string name="shortcut_new_task">新建任务</string>
@@ -282,7 +295,6 @@
     <string name="ui_choose_model">选择模型</string>
     <string name="ui_collapse">收起</string>
     <string name="ui_connected">已连接 AutoJs6</string>
-    <string name="ui_discard">放弃修改</string>
     <string name="ui_empty_title">从这里开始你的第一个任务</string>
     <string name="ui_expand">展开</string>
     <string name="ui_history_filters">筛选任务</string>
@@ -303,8 +315,6 @@
     <string name="ui_task_options">任务选项</string>
     <string name="ui_task_section">任务与能力</string>
     <string name="ui_theme_amber">琥珀色</string>
-    <string name="ui_unsaved_note">离开前请保存任务设置, 或放弃本次修改.</string>
-    <string name="ui_unsaved_title">尚未保存修改</string>
     <string name="update_available">有可用更新: %1$s</string>
     <string name="update_check">检查更新</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">正在检查更新...</string>

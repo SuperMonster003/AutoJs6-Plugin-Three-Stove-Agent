@@ -86,6 +86,7 @@
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.McpServersActivity" android:exported="false" />
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
+        <activity android:name=".ui.AboutActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
             android:theme="@style/Theme.AiAgent.Dialog.Light" />
 
