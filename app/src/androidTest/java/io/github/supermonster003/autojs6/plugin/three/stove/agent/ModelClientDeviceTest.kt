@@ -74,7 +74,11 @@ class ModelClientDeviceTest {
             }
             assertEquals(0, calls.get())
             assertEquals(RunError.MODEL_TIMEOUT, (client.await(input, 20, 1000) as PortResult.Failure).error)
-            assertEquals(1, calls.get()); assertEquals(1, cancels.get())
+            assertEquals(1, calls.get())
+            // The cancel is dispatched on the scheduler after the timeout settles; a loaded CI emulator needs a moment (run 36334996089).
+            val deadline = android.os.SystemClock.uptimeMillis() + 5000
+            while (cancels.get() == 0 && android.os.SystemClock.uptimeMillis() < deadline) android.os.SystemClock.sleep(20)
+            assertEquals(1, cancels.get())
         }
     }
 }
