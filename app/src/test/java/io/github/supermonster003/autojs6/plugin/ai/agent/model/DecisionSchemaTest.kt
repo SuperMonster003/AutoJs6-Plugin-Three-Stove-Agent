@@ -89,8 +89,6 @@ class DecisionSchemaTest {
         assertEquals(ArgumentsEncoding.JSON_STRING, fallback.select(target, minimal).argumentsEncoding)
         assertEquals(ArgumentsEncoding.OBJECT, fallback.select(target.copy(targetId = "other"), minimal).argumentsEncoding)
         assertEquals(ArgumentsEncoding.OBJECT, fallback.select(target.copy(providerId = "different-provider"), minimal).argumentsEncoding)
-        fallback.clear()
-        assertEquals(ArgumentsEncoding.OBJECT, fallback.select(target, minimal).argumentsEncoding)
     }
 
     @Test fun unknownProtocolNeverGuessesFromTargetOrProviderName() {

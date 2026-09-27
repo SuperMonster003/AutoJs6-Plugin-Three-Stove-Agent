@@ -35,7 +35,7 @@ class ObservationToolsTest {
     @Test fun croppedEscapeAndEllipsisRemainDisplayOnly() {
         val value = dump(rows = listOf("#n1 TextView \"clipped\\...\" c=(1,1)"))
         val node = CompactNodeText.parse(value).nodes.single()
-        assertEquals("clipped\\...", node.text); assertFalse(node.relocatable)
+        assertEquals("clipped\\...", node.text)
     }
     @Test fun dumpRegistersSnapshotAndPreservesBoundedChanges() {
         val tools = ObservationTools()

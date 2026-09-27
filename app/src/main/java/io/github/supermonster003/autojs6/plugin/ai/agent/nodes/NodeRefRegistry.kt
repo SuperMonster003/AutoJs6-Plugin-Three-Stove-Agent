@@ -4,7 +4,8 @@ import com.google.gson.JsonArray
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract
 
-/** Run-owned display snapshots. Host snapshot IDs remain authoritative for every real action. */
+/** Run-owned display snapshots for change summaries and reference resolution. The host validates every action target
+ * through inspectNode; the plugin never relocates a reference on its own (review 2026-09-27, decision D47). */
 class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_PER_LINK) : AutoCloseable {
     init { require(capacity in 1..AiAgentContract.MAX_SNAPSHOTS_PER_LINK) }
     data class Reference(val snapshotId: String, val node: CompactNodeText.Node, val window: String)
@@ -43,16 +44,6 @@ class NodeRefRegistry(private val capacity: Int = AiAgentContract.MAX_SNAPSHOTS_
         if (closed) throw Stale()
         val snapshot = snapshots[snapshotId ?: latest?.id] ?: throw Stale()
         return Reference(snapshot.id, snapshot.nodes.singleOrNull { it.ref == ref } ?: throw Stale(), snapshot.window)
-    }
-    /** A conservative display match only. P4 actions must still ask the host to validate the returned ID. */
-    @Synchronized fun relocate(ref: String, snapshotId: String): Reference {
-        val old = resolve(ref, snapshotId)
-        val before = snapshots[snapshotId] ?: throw Stale()
-        val current = latest ?: throw Stale()
-        if (before.window != current.window || !old.node.relocatable) throw Stale()
-        val fingerprint = old.node.fingerprint(before.window)
-        val candidate = current.nodes.filter { it.relocatable && it.fingerprint(current.window) == fingerprint && old.node.bounds.permits(it.bounds) }.singleOrNull() ?: throw Stale()
-        return Reference(current.id, candidate, current.window)
     }
     @Synchronized fun clear() { snapshots.clear(); latest = null }
     @Synchronized override fun close() { clear(); closed = true }

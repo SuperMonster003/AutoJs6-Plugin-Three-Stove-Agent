@@ -21,7 +21,7 @@ class PromptCatalogTest {
             "goal" to prompts.goal(language, "Open the registered coffee task / 打开已登记的咖啡任务").json(),
             "observation" to prompts.observation(language, 1, "report_progress", 10,
                 ToolObservation.success(jsonObject("message" to "working".json())), jsonObject("stepsRemaining" to 39.json())).json(),
-            "repair" to prompts.repair(language, repair).json(),
+            "repair" to prompts.repair(language, repair.observation).json(),
         ))
         DecisionSchemaTest.checkSnapshot("prompts.snapshot.json", snapshot)
     }

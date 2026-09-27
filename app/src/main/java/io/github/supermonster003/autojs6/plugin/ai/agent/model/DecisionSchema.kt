@@ -177,5 +177,4 @@ class SchemaFallbacks(private val schema: DecisionSchema) {
         return select(target, policy)
     }
 
-    @Synchronized fun clear() = rejected.clear()
 }

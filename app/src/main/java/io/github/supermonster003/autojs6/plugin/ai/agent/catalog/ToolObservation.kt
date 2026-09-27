@@ -16,18 +16,4 @@ object ToolObservation {
         return ObservationCompactor.fitText(record, "text", source, maxBytes).toString()
     }
 
-    fun failure(category: String, stableDetail: String? = null, module: String? = null): String {
-        val code = stableDetail?.takeIf { it in DETAILS } ?: when (category) {
-            "process-dead" -> "LINK_DETACHED"
-            "permission-denied", "capability-denied" -> "CAPABILITY_DENIED"
-            "rate-limited" -> "RATE_LIMITED"
-            "resource-limit" -> "LIMIT_EXCEEDED"
-            "invalid-request" -> "TOOL_ARGUMENTS_INVALID"
-            "timeout" -> if (module == "agent" || module == "engines") "SCRIPT_TIMEOUT" else "HOST_UNAVAILABLE"
-            "runtime-error" -> if (module == "agent" || module == "engines") "SCRIPT_FAILED" else "HOST_UNAVAILABLE"
-            else -> "HOST_UNAVAILABLE"
-        }
-        return jsonObject("error" to code.json(), "hint" to "Check the last observation and the tool prerequisites before retrying.".json()).toString()
-    }
-    private val DETAILS = setOf("A11Y_SERVICE_NOT_RUNNING", "NODE_REF_STALE", "NODE_NOT_FOUND", "SCREEN_LOCKED", "SCRIPT_NOT_REGISTERED", "SCRIPT_TIMEOUT", "SCRIPT_FAILED", "OCR_PLUGIN_REQUIRED", "CAPABILITY_DENIED", "QUOTA_EXCEEDED", "LIMIT_EXCEEDED", "RATE_LIMITED")
 }
