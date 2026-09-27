@@ -165,6 +165,7 @@ class AdversarialInputDeviceTest {
     }
     private fun screenNode(text: String): AccessibilityNodeInfo {
         val deadline = SystemClock.uptimeMillis() + 5000
+        var dismissed = 0
         while (SystemClock.uptimeMillis() < deadline) {
             var selected: AccessibilityNodeInfo? = null
             for (root in windowRoots()) {
@@ -174,10 +175,27 @@ class AdversarialInputDeviceTest {
                 matches.filter { it !== selected }.forEach(::recycle)
             }
             if (selected != null) return selected
+            // Android 7 reports only the system dialog when a crash or ANR dialog of another app sits above the
+            // fixture (run 36330587723: "Application Error: com.google.android.apps.messaging"); dismiss it and retry.
+            if (dismissed < 3 && dismissSystemDialog()) dismissed++
             SystemClock.sleep(50)
         }
         CiUiDiagnostics.capture("injection-node-missing")
         error("Injection fixture node was not visible")
+    }
+    /** Clicks Wait / OK / Close app on a focused system (package "android") dialog; returns whether one was dismissed. */
+    private fun dismissSystemDialog(): Boolean {
+        val root = instrumentation.uiAutomation.rootInActiveWindow ?: return false
+        try {
+            if (root.packageName?.toString() != "android") return false
+            for (label in listOf("Wait", "OK", "Close app")) {
+                val matches = root.findAccessibilityNodeInfosByText(label)
+                val button = matches.firstOrNull { it.isClickable && it.text?.toString().equals(label, ignoreCase = true) }
+                try { if (button != null && button.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true }
+                finally { matches.forEach(::recycle) }
+            }
+            return false
+        } finally { recycle(root) }
     }
     private fun withScreen(action: () -> Unit) {
         // Connect UiAutomation before starting the separate test APK, then wait for
