@@ -177,12 +177,7 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         recentHeader.visibility = if (runs.isEmpty()) View.GONE else View.VISIBLE
         runs.forEach { item ->
             val id = item.string("runId") ?: return@forEach
-            val (tone, icon) = when (item.string("state")) {
-                "completed" -> Tone.SUCCESS to R.drawable.ic_check
-                "failed", "blocked" -> Tone.DANGER to R.drawable.ic_warning
-                "partial", "cancelled" -> Tone.WARNING to R.drawable.ic_block
-                else -> Tone.ACCENT to R.drawable.ic_timer
-            }
+            val (tone, icon) = WorkbenchText.tone(item)
             val summary = listOfNotNull(WorkbenchText.state(context, item), HistoryViews.date(context, item.number("startedAt") ?: 0),
                 item.getAsJsonObject("model")?.string("name")).joinToString(" · ")
             val entry = kit.settingRow(item.string("goal").orEmpty(), summary, icon, "recent-$id") { actions.openDetail(id) }

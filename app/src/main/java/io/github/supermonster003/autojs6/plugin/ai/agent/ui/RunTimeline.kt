@@ -21,10 +21,12 @@ internal class RunTimeline(
     private val kit: Kit,
     /** False where the result summary is already shown next to the timeline (the home feed). */
     private val showDoneSummary: Boolean = true,
+    /** Optional per-step details (task details screen), rebuilt only when that step changes. */
+    private val details: ((JsonObject, LinearLayout) -> Unit)? = null,
     val view: LinearLayout = LinearLayout(kit.context).apply { orientation = LinearLayout.VERTICAL },
 ) {
     private class Row(val view: LinearLayout, val icon: ImageView, val disc: FrameLayout, val title: TextView, val detail: TextView,
-                      val badge: TextView, var signature: String = "")
+                      val badge: TextView, val extra: LinearLayout, var signature: String = "")
     private val rows = linkedMapOf<Long, Row>()
 
     fun reset() { rows.clear(); view.removeAllViews() }
@@ -54,10 +56,12 @@ internal class RunTimeline(
             textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setTextIsSelectable(true); setPaddingRelative(0, kit.dp(2), 0, 0)
         }
         val badge = kit.badge("")
+        val extra = LinearLayout(kit.context).apply { orientation = LinearLayout.VERTICAL; visibility = View.GONE }
         val column = LinearLayout(kit.context).apply {
             orientation = LinearLayout.VERTICAL
             addView(title); addView(detail)
             addView(badge, LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
+            addView(extra, LinearLayout.LayoutParams(-1, -2))
         }
         val row = LinearLayout(kit.context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -66,7 +70,7 @@ internal class RunTimeline(
             addView(disc, LinearLayout.LayoutParams(kit.dp(28), kit.dp(28)).apply { marginEnd = kit.dp(Ui.SPACE_MD) })
             addView(column, LinearLayout.LayoutParams(0, -2, 1f))
         }
-        return Row(row, icon, disc, title, detail, badge)
+        return Row(row, icon, disc, title, detail, badge, extra)
     }
 
     private fun bind(row: Row, step: JsonObject) {
@@ -102,6 +106,10 @@ internal class RunTimeline(
         badge?.let { (text, badgeTone) ->
             val (badgeFill, badgeText) = kit.toneColors(badgeTone)
             row.badge.text = text; row.badge.setTextColor(badgeText); row.badge.background = kit.roundedFill(badgeFill, Ui.RADIUS_PILL)
+        }
+        details?.let { build ->
+            row.extra.removeAllViews(); build(step, row.extra)
+            row.extra.visibility = if (row.extra.childCount == 0) View.GONE else View.VISIBLE
         }
     }
 }

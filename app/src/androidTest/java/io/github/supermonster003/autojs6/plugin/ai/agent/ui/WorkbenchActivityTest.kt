@@ -1527,7 +1527,7 @@ class WorkbenchActivityTest {
                     }
                 }
                 page(LauncherActivity::class.java, "workbench")
-                page(HistoryActivity::class.java, "history", "clear")
+                page(HistoryActivity::class.java, "history", "history-search")
                 page(RunDetailActivity::class.java, "detail", "rerun")
                 page(PresetsActivity::class.java, "presets", "preset-new") { scenario ->
                     scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("preset-new").performClick() }

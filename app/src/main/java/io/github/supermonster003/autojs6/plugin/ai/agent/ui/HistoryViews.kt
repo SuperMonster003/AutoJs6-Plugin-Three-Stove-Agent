@@ -22,5 +22,6 @@ internal object HistoryViews {
         tag in setOf("save", "preset-save", "preset-new", "mcp-save", "memory-save", "rerun"), action)
     fun date(context: Context, time: Long) = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
         context.resources.configuration.locales[0]).format(Date(time))
+    fun day(context: Context, time: Long) = DateFormat.getDateInstance(DateFormat.MEDIUM, context.resources.configuration.locales[0]).format(Date(time))
     fun pretty(value: JsonElement?) = value?.let { GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(it) }.orEmpty()
 }

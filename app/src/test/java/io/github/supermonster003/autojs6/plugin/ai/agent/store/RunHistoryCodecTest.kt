@@ -85,6 +85,17 @@ class RunHistoryCodecTest {
         assertFalse(filter.matches(fixture(10).apply { addProperty("state", "failed") }))
         assertFalse(filter.matches(fixture(10).apply { addProperty("preset", "other") }))
     }
+    @Test fun searchMatchesGoalPresetOrModelIgnoringCaseAndActiveGroupsUnfinishedStates() {
+        val row = fixture(10).apply {
+            addProperty("goal", "Order a Coffee"); add("model", jsonObject("targetId" to "profile:m".json(), "name" to "Pocket Model".json(), "locality" to "REMOTE".json()))
+        }
+        for (query in listOf("coffee", "  ORDER ", "default", "pocket")) assertTrue(query, RunHistoryFilter(query = query).matches(row))
+        assertFalse(RunHistoryFilter(query = "tea").matches(row))
+        assertTrue(RunHistoryFilter(query = " ").matches(row))
+        assertFalse(RunHistoryFilter(RunHistoryFilter.ACTIVE).matches(row))
+        for (state in listOf("queued", "running", "waiting_confirmation")) assertTrue(state,
+            RunHistoryFilter(RunHistoryFilter.ACTIVE).matches(fixture(10).apply { addProperty("state", state) }))
+    }
     @Test fun fullDynamicSourceSurvivesPrivateStorageButNotDiagnosticExport() {
         val source = "// " + "private-code-".repeat(550) + "\nai.agent.result(42);"
         val run = fixture(1).apply { add("steps", jsonArray(step(1).apply {

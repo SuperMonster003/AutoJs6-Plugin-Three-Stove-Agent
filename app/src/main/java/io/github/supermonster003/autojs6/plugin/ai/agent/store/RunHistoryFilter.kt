@@ -2,11 +2,32 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.store
 
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
+import java.util.Locale
 
-internal data class RunHistoryFilter(val state: String? = null, val preset: String? = null, val from: Long? = null, val until: Long? = null) {
+/**
+ * Pure history filter. [state] is a wire state or [ACTIVE] for any unfinished task; [query] matches
+ * the goal, preset or model name ignoring case; [from] is inclusive and [until] exclusive.
+ */
+internal data class RunHistoryFilter(val state: String? = null, val preset: String? = null, val from: Long? = null, val until: Long? = null,
+                                     val query: String? = null) {
     fun matches(row: JsonObject): Boolean {
         val started = row.number("startedAt") ?: return false
-        return (state == null || row.string("state") == state) && (preset == null || row.string("preset") == preset) &&
-            (from == null || started >= from) && (until == null || started < until)
+        val stateMatches = when (state) {
+            null -> true
+            ACTIVE -> row.string("state").let { it != null && it !in RunHistoryCodec.terminal }
+            else -> row.string("state") == state
+        }
+        return stateMatches && (preset == null || row.string("preset") == preset) &&
+            (from == null || started >= from) && (until == null || started < until) && matchesQuery(row)
+    }
+
+    private fun matchesQuery(row: JsonObject): Boolean {
+        val needle = query?.trim()?.lowercase(Locale.ROOT)?.takeIf { it.isNotEmpty() } ?: return true
+        return listOfNotNull(row.string("goal"), row.string("preset"), row.getAsJsonObject("model")?.string("name"))
+            .any { it.lowercase(Locale.ROOT).contains(needle) }
+    }
+
+    companion object {
+        const val ACTIVE = "active"
     }
 }
