@@ -1600,6 +1600,7 @@ class WorkbenchActivityTest {
                         waitUi(scenario, "Demo answer field") { it.findViewById<EditText>(R.id.workbench_answer)?.isLaidOut == true }
                         scenario.onActivity { it.findViewById<EditText>(R.id.workbench_answer).setText("English") }
                         instrumentation.waitForIdleSync()
+                        SystemClock.sleep(600) // Let the field's floating-label animation finish before rendering.
                         scenario.onActivity { ReadmeCapture.save(it.window.decorView, "workbench") }
                         scenario.onActivity {
                             val card = it.findViewById<LinearLayout>(R.id.workbench_pending)
@@ -1658,11 +1659,12 @@ class WorkbenchActivityTest {
                     waitUi(scenario, "Redesign picker ready") { sheetRow(it, "model-workbench:second")?.isLaidOut == true }
                     instrumentation.waitForIdleSync()
                     scenario.onActivity {
-                        ReadmeCapture.save(it.models.sheet.handle!!.dialog.window!!.decorView, "models-$dark")
+                        // Only the sheet itself; the dialog window around it is transparent.
+                        ReadmeCapture.save(it.models.sheet.handle!!.dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet)!!, "models-$dark")
                         sheetRow(it, "model-workbench:second")!!.performClick()
                         it.findViewById<EditText>(R.id.workbench_goal).setText("帮我整理今天的待办, 并按优先级安排执行顺序.")
                     }
-                    instrumentation.waitForIdleSync()
+                    instrumentation.waitForIdleSync(); SystemClock.sleep(600)
                     scenario.onActivity { ReadmeCapture.save(it.window.decorView, "home-$dark") }
                 }
                 ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
