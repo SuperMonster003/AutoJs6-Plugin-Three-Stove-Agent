@@ -1,240 +1,319 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.app.AlertDialog
 import android.content.Intent
-import android.os.Bundle
 import android.net.Uri
+import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
+import android.text.format.Formatter
+import android.view.Gravity
 import android.view.View
-import android.widget.*
-import com.google.gson.*
-import io.github.supermonster003.autojs6.plugin.ai.agent.*
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import com.google.gson.JsonObject
+import io.github.supermonster003.autojs6.plugin.ai.agent.R
+import io.github.supermonster003.autojs6.plugin.ai.agent.aiAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
-import io.github.supermonster003.autojs6.plugin.ai.agent.store.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.runner.BudgetLimits
+import io.github.supermonster003.autojs6.plugin.ai.agent.store.SettingsCodec
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.update.*
 
+/**
+ * Settings modelled on 3-Stone AI: every change applies at once (no Save button). Appearance is a
+ * UI-process preference; task settings are whole-object saves through [SettingsUpdater].
+ */
 class SettingsActivity : HostAppearanceActivity() {
     private lateinit var connection: SettingsConnection
-    private lateinit var page: LinearLayout
-    internal lateinit var appearanceSettings: AppearanceSettings; private set
-    private var baseline: JsonObject? = null
-    private lateinit var column: LinearLayout
-    private lateinit var message: TextView
+    internal lateinit var scaffold: Scaffold; private set
     internal lateinit var updates: AppUpdateCoordinator; private set
+    /** The last opened dialog or bottom sheet, exposed for instrumentation. */
     internal var prompt: AlertDialog? = null; private set
-    private var draft: JsonObject? = null
-    private var rendered = false
-    private var saving = false
-    private val groups = linkedMapOf<String, CheckBox>()
-    private val budgets = linkedMapOf<String, EditText>()
-    private lateinit var confirmation: Spinner
-    private lateinit var voice: CheckBox
-    private lateinit var floating: CheckBox
+    internal var sheet: SheetHandle? = null; private set
+    internal lateinit var access: ChoiceRow; private set
+    private lateinit var updater: SettingsUpdater
+    private var snapshot: JsonObject? = null
     private var awaitingOverlayPermission = false
+    private val rows = linkedMapOf<String, SettingRow>()
+    private val groupRows = linkedMapOf<String, SettingRow>()
+    private val limitRows = linkedMapOf<String, SettingRow>()
+    private val clearButtons = linkedMapOf<String, View>()
+    private lateinit var fullAccessNote: Banner
+    private lateinit var appearancePreferences: AppearancePreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState); setTitle(R.string.settings_title)
-        draft = savedInstanceState?.getString("draft")?.let { runCatching { AgentJson.objectOf(it) }.getOrNull() }
+        super.onCreate(savedInstanceState)
         awaitingOverlayPermission = savedInstanceState?.getBoolean("overlayPermission") == true
-        page = HistoryViews.column(this)
-        appearanceSettings = AppearanceSettings(this)
+        appearancePreferences = AppearancePreferences.read(this)
         updates = AppUpdateCoordinator(this, aiAgentPluginRuntimeInfo().versionName)
-        appearanceSettings.build(page)
-        column = page
-        message = HistoryViews.label(page, getString(R.string.interaction_loading))
-        localSections()
-        setContentView(AgentUi.screen(this, getString(R.string.settings_title), page, onBack = ::requestExit))
+        updater = SettingsUpdater(::save, ::renderSettings) {
+            kit.snackbar(scaffold.root, getString(R.string.settings_error)); refresh()
+        }
+        scaffold = buildScaffold(getString(R.string.settings_title))
+        buildPage(scaffold.content)
+        setContentView(scaffold.root)
         connection = SettingsConnection(this, ::refresh)
-        tint(page)
     }
-    override fun onStart() { super.onStart(); saving = false; connection.start() }
-    override fun onStop() { if (rendered) draft = readDraft(); connection.stop(); updates.cancel(); appearanceSettings.close(); prompt?.dismiss(); prompt = null; super.onStop() }
+    override fun onStart() { super.onStart(); connection.start() }
+    override fun onStop() {
+        connection.stop(); updates.cancel(); prompt?.dismiss(); prompt = null
+        sheet?.dialog?.dismiss(); sheet = null
+        super.onStop()
+    }
     override fun onDestroy() { updates.close(); super.onDestroy() }
     override fun onResume() {
         super.onResume()
         if (awaitingOverlayPermission) {
             awaitingOverlayPermission = false
-            val granted = Settings.canDrawOverlays(this)
-            draft?.addProperty("floating", granted)
-            if (rendered) floating.isChecked = granted
-            if (!granted) Toast.makeText(this, R.string.floating_permission_required, Toast.LENGTH_LONG).show()
+            if (Settings.canDrawOverlays(this)) updater.apply { it.withFloating(true) }
+            else kit.snackbar(scaffold.root, getString(R.string.floating_permission_required))
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean("overlayPermission", awaitingOverlayPermission)
-        outState.putString("draft", (if (rendered) readDraft() else draft)?.toString()); super.onSaveInstanceState(outState)
+        outState.putBoolean("overlayPermission", awaitingOverlayPermission); super.onSaveInstanceState(outState)
     }
+
+    private fun buildPage(page: LinearLayout) = with(kit) {
+        // Appearance: UI-process preferences, applied immediately by recreating the screen.
+        page.addView(sectionHeader(getString(R.string.app_settings_appearance)))
+        val current = appearance!!
+        add(page, "appearance-language", settingRow(getString(R.string.app_settings_language), followSummary(appearancePreferences.language,
+            languageLabels[AppearancePreferences.languages.indexOf(appearancePreferences.language)],
+            java.util.Locale.forLanguageTag(current.language).getDisplayName(resources.configuration.locales[0])), R.drawable.ic_language, "appearance-language") {
+            choose(R.string.app_settings_language, languageLabels, AppearancePreferences.languages.indexOf(appearancePreferences.language)) {
+                saveAppearance(appearancePreferences.copy(language = AppearancePreferences.languages[it]))
+            }
+        })
+        add(page, "appearance-dark", settingRow(getString(R.string.app_settings_dark_mode), followSummary(appearancePreferences.darkMode,
+            modeLabels[AppearancePreferences.modes.indexOf(appearancePreferences.darkMode)],
+            getString(if (current.dark) R.string.app_settings_always_dark else R.string.app_settings_always_light)), R.drawable.ic_dark_mode, "appearance-dark") {
+            choose(R.string.app_settings_dark_mode, modeLabels, AppearancePreferences.modes.indexOf(appearancePreferences.darkMode)) {
+                saveAppearance(appearancePreferences.copy(darkMode = AppearancePreferences.modes[it]))
+            }
+        })
+        val color = settingRow(getString(R.string.app_settings_theme_color),
+            appearancePreferences.color?.let(AppearancePreferences::colorHex)
+                ?: getString(R.string.app_settings_follow_autojs6_summary, AppearancePreferences.colorHex(current.primary)),
+            R.drawable.ic_palette, "appearance-color") { themeColors() }
+        color.view.addView(View(this@SettingsActivity).apply {
+            background = roundedFill(palette.primary, Ui.RADIUS_PILL, palette.outline)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, color.view.childCount - 1, LinearLayout.LayoutParams(dp(20), dp(20)).apply { marginStart = dp(Ui.SPACE_MD) })
+        add(page, "appearance-color", color, divider = false)
+
+        // Tasks: whole-object saves of the private settings.
+        page.addView(sectionHeader(getString(R.string.ui_task_section)))
+        add(page, "default", settingRow(getString(R.string.settings_default_preset), getString(R.string.interaction_loading), R.drawable.ic_bookmark, "default") { defaultPreset() })
+        access = choiceRow(getString(R.string.settings_access_mode),
+            listOf(R.string.presets_standard, R.string.presets_cautious, R.string.settings_full_access).map(::getString), 0,
+            R.drawable.ic_shield, "confirmation-mode") { index -> updater.apply { it.withAccess(AccessMode.entries[index]) } }
+        add(page, "confirmation-mode", access.row)
+        fullAccessNote = Banner(this).apply {
+            view.tag = "full-access-note"; show(getString(R.string.settings_full_access_note), Tone.DANGER, R.drawable.ic_warning); hide()
+        }
+        page.addView(fullAccessNote.view, LinearLayout.LayoutParams(-1, -2).apply {
+            marginStart = dp(Ui.SCREEN_MARGIN); marginEnd = dp(Ui.SCREEN_MARGIN); bottomMargin = dp(Ui.SPACE_SM)
+        })
+        add(page, "tool-groups", settingRow(getString(R.string.presets_tools), null, R.drawable.ic_tune, "tool-groups") { toolGroups() })
+        add(page, "limits", settingRow(getString(R.string.ui_budget), null, R.drawable.ic_timer, "limits") { limits() }, divider = false)
+        page.addView(caption(getString(R.string.settings_policy_note)))
+
+        page.addView(sectionHeader(getString(R.string.settings_section_tools)))
+        add(page, "presets", settingRow(getString(R.string.presets_title), getString(R.string.ui_preset_optional), R.drawable.ic_layers, "presets") { open(PresetsActivity::class.java) })
+        add(page, "memory", settingRow(getString(R.string.memory_title), null, R.drawable.ic_lightbulb, "memory") { open(MemoryActivity::class.java) })
+        add(page, "roots", settingRow(getString(R.string.script_roots_title), null, R.drawable.ic_folder, "roots") { open(ScriptRootsActivity::class.java) })
+        add(page, "mcp-servers", settingRow(getString(R.string.mcp_servers), null, R.drawable.ic_hub, "mcp-servers") { open(McpServersActivity::class.java) }, divider = false)
+
+        page.addView(sectionHeader(getString(R.string.settings_section_quick)))
+        add(page, "voice", switchRow(getString(R.string.settings_voice), null, R.drawable.ic_mic, false, "voice") { enabled ->
+            updater.apply { it.withVoice(enabled) }
+        })
+        add(page, "floating", switchRow(getString(R.string.settings_floating), getString(R.string.floating_setting_note), R.drawable.ic_bubble, false, "floating") { enabled ->
+            if (enabled && !Settings.canDrawOverlays(this@SettingsActivity)) {
+                rows.getValue("floating").switch!!.isChecked = false
+                awaitingOverlayPermission = true
+                runCatching { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) }
+                    .onFailure { awaitingOverlayPermission = false; snackbar(scaffold.root, getString(R.string.settings_open_failed)) }
+            } else updater.apply { it.withFloating(enabled) }
+        }, divider = false)
+
+        page.addView(sectionHeader(getString(R.string.settings_data)))
+        for ((kind, title, icon) in listOf(Triple("history", R.string.history_title, R.drawable.ic_history),
+            Triple("presets", R.string.presets_title, R.drawable.ic_layers), Triple("memory", R.string.memory_title, R.drawable.ic_lightbulb))) {
+            val row = settingRow(getString(title), getString(R.string.interaction_loading), icon, "data-$kind", chevron = false)
+            val clear = textButton(getString(R.string.settings_clear), "clear-$kind", danger = true) { clearData(kind, title) }.apply {
+                contentDescription = getString(R.string.settings_clear) + ", " + getString(title); isEnabled = false
+            }
+            row.view.addView(clear)
+            clearButtons[kind] = clear
+            add(page, "data-$kind", row, divider = kind != "memory")
+        }
+
+        page.addView(sectionHeader(getString(R.string.app_settings_updates)))
+        val info = aiAgentPluginRuntimeInfo()
+        val preferences = AppUpdateSettings(this@SettingsActivity)
+        add(page, "update", settingRow(getString(R.string.update_check), getString(R.string.app_update_current_version, info.versionName), R.drawable.ic_restart, "update") { updates.check() })
+        add(page, "update-automatic", switchRow(getString(R.string.app_update_automatic), getString(R.string.app_update_automatic_summary),
+            R.drawable.ic_download, preferences.automatic, "update-automatic") { preferences.automatic = it })
+        add(page, "update-ignored", settingRow(getString(R.string.app_update_manage_ignored),
+            getString(R.string.app_update_ignored_count, preferences.ignored.size), R.drawable.ic_block, "update-ignored") { ignoredUpdates() })
+        add(page, "history", settingRow(getString(R.string.release_history_title), getString(R.string.app_update_release_history_summary), R.drawable.ic_article, "history") {
+            open(ReleaseHistoryActivity::class.java)
+        }, divider = false)
+
+        page.addView(sectionHeader(getString(R.string.settings_section_information)))
+        add(page, "about", settingRow(getString(R.string.ui_about), getString(R.string.about_summary), R.drawable.ic_info, "about") { open(AboutActivity::class.java) }, divider = false)
+        for (key in listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating")) rows.getValue(key).setEnabled(false)
+    }
+
+    private fun Kit.caption(value: CharSequence): TextView = text(value, Ui.TEXT_SECONDARY, palette.muted).apply {
+        setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XS), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_SM))
+    }
+    private fun add(page: LinearLayout, key: String, row: SettingRow, divider: Boolean = true) {
+        rows[key] = row; page.addView(row.view, LinearLayout.LayoutParams(-1, -2))
+        if (divider) page.addView(kit.hairline(Ui.SCREEN_MARGIN + Ui.ICON_SIZE + Ui.SPACE_LG))
+    }
+    private fun followSummary(mode: String, label: Int, resolved: String) =
+        if (mode == "host") getString(R.string.app_settings_follow_autojs6_summary, resolved) else getString(label)
+    private fun choose(title: Int, labels: List<Int>, selection: Int, selected: (Int) -> Unit) {
+        prompt = kit.singleChoiceDialog(getString(title), labels.map(::getString), selection, selected)
+    }
+    private fun open(type: Class<*>) { startActivity(Intent(this, type)) }
+
+    private fun saveAppearance(value: AppearancePreferences) {
+        runCatching { value.save(this) }.onSuccess { appearancePreferences = value; recreate() }
+            .onFailure { kit.snackbar(scaffold.root, getString(R.string.settings_error)) }
+    }
+    private fun themeColors() {
+        val seeds = listOf<Int?>(null) + AppearancePreferences.CURATED_COLORS
+        val labels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_theme_blue, R.string.app_settings_theme_teal,
+            R.string.app_settings_theme_green, R.string.app_settings_theme_purple, R.string.ui_theme_amber, R.string.app_settings_theme_custom)
+        choose(R.string.app_settings_theme_color, labels, seeds.indexOf(appearancePreferences.color).let { if (it < 0) seeds.size else it }) {
+            if (it < seeds.size) saveAppearance(appearancePreferences.copy(color = seeds[it]))
+            else prompt = kit.inputDialog(getString(R.string.app_settings_custom_color_title),
+                AppearancePreferences.colorHex(appearancePreferences.color ?: appearance!!.primary),
+                hint = getString(R.string.app_settings_custom_color_hint), maxLength = 7,
+                validate = { value -> if (AppearancePreferences.parseColor(value) == null) getString(R.string.app_settings_custom_color_error) else null },
+            ) { value -> saveAppearance(appearancePreferences.copy(color = AppearancePreferences.parseColor(value))) }
+        }
+    }
+
     private fun request(operation: String, fields: JsonObject = JsonObject(), complete: (JsonObject) -> Unit) {
         fields.addProperty("operation", operation)
-        connection.query(fields) { result -> result.onSuccess(complete).onFailure { error() } }
+        connection.query(fields) { result -> result.onSuccess(complete).onFailure { kit.snackbar(scaffold.root, getString(R.string.settings_error)) } }
     }
-    private fun refresh() { request("get") { render(it) } }
-    private fun error() { saving = false; message.setText(R.string.settings_error); message.visibility = View.VISIBLE }
-    private fun button(resource: Int, tag: String, action: () -> Unit) = HistoryViews.button(column, resource, tag, action).apply { isAllCaps = false }
-    private fun open(type: Class<*>) { startActivity(Intent(this, type)) }
-    private fun checkbox(resource: Int, tag: String, checked: Boolean) = CheckBox(this).apply {
-        setText(resource); this.tag = tag; isChecked = checked; minHeight = (48 * resources.displayMetrics.density).toInt(); column.addView(this)
+    private fun refresh() { request("get") { value -> snapshot = value; renderSnapshot(value); updater.load(SettingsCodec.decode(value.getAsJsonObject("settings").toString())) } }
+    private fun save(settings: io.github.supermonster003.autojs6.plugin.ai.agent.store.AgentSettings, done: (Boolean) -> Unit) {
+        connection.query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(settings))) { done(it.isSuccess) }
     }
-    private fun render(value: JsonObject) {
-        baseline = value.getAsJsonObject("settings").deepCopy()
-        val form = draft ?: baseline!!
-        page.removeAllViews(); groups.clear(); budgets.clear()
-        appearanceSettings.build(page)
-        message = HistoryViews.label(page, "").apply { visibility = View.GONE; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE }
-        AgentUi.section(page, R.string.ui_task_section)
-        column = AgentUi.disclosure(page, R.string.ui_task_options, R.string.settings_policy_note)
-        val enabled = form.getAsJsonArray("toolGroups").map { it.asString }.toSet()
-        val options = column
-        column = AgentUi.disclosure(options, R.string.presets_tools)
-        ToolGroup.entries.forEach { group -> groups[group.id] = checkbox(groupLabels.getValue(group), "group-${group.id}", group.id in enabled) }
-        HistoryViews.label(column, getString(R.string.settings_ocr_note))
-        column = AgentUi.disclosure(options, R.string.ui_budget, R.string.settings_budget_note)
-        for ((key, label) in budgetLabels) {
-            val caption = HistoryViews.label(column, getString(label))
-            budgets[key] = EditText(this).apply {
-                id = View.generateViewId(); tag = key; caption.labelFor = id; inputType = InputType.TYPE_CLASS_NUMBER
-                setText(form.getAsJsonObject("budget")[key]?.asString.orEmpty()); setHint(R.string.history_auto)
-                filters = arrayOf(android.text.InputFilter.LengthFilter(16)); column.addView(this, LinearLayout.LayoutParams(-1, -2))
-            }
-        }
-        column = options
-        val confirmationLabel = HistoryViews.label(column, getString(R.string.settings_access_mode))
-        confirmation = Spinner(this).apply {
-            id = View.generateViewId(); tag = "confirmation-mode"; confirmationLabel.labelFor = id
-            contentDescription = getString(R.string.settings_access_mode)
-            adapter = ArrayAdapter(this@SettingsActivity, R.layout.item_spinner_choice,
-                listOf(R.string.presets_standard, R.string.presets_cautious, R.string.settings_full_access).map(::getString))
-            setSelection(when { form.flag("fullAccess") == true -> 2; form.flag("cautious") == true -> 1; else -> 0 })
-            column.addView(this, LinearLayout.LayoutParams(-1, -2))
-        }
-        val accessNote = HistoryViews.label(column, getString(R.string.settings_full_access_note)).apply {
-            tag = "full-access-note"; setTextColor(AgentUi.palette(this@SettingsActivity).danger)
-            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
-            visibility = if (confirmation.selectedItemPosition == 2) View.VISIBLE else View.GONE
-        }
-        confirmation.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                accessNote.visibility = if (position == 2) View.VISIBLE else View.GONE
-            }
-        }
-        voice = checkbox(R.string.settings_voice, "voice", form.flag("voice") == true)
-        floating = checkbox(R.string.settings_floating, "floating", form.flag("floating") == true && Settings.canDrawOverlays(this))
-        HistoryViews.label(column, getString(R.string.floating_setting_note))
-        floating.setOnCheckedChangeListener { _, checked ->
-            if (checked && !Settings.canDrawOverlays(this)) {
-                floating.isChecked = false; draft = readDraft(); awaitingOverlayPermission = true
-                runCatching { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) }
-                    .onFailure { awaitingOverlayPermission = false; error() }
-            }
-        }
-        button(R.string.settings_save, "save") {
-            if (saving) return@button
-            var validFields = true
-            budgets.forEach { (key, field) ->
-                val text = field.text.toString().trim()
-                if (text.isNotEmpty() && text.toLongOrNull()?.let { it in 1..SettingsCodec.ceilings.getValue(key) } != true) {
-                    field.error = getString(R.string.ui_budget_invalid, SettingsCodec.ceilings.getValue(key)); validFields = false
-                    (field.parent as? View)?.visibility = View.VISIBLE
-                }
-            }
-            if (!validFields) return@button
-            val next = readDraft()
-            val valid = runCatching { SettingsCodec.decode(next.toString()) }.getOrNull()
-            if (valid == null) error() else {
-                saving = true
-                request("save", jsonObject("settings" to SettingsCodec.json(valid))) {
-                    saving = false; draft = null; rendered = false; refresh()
-                    Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        column = AgentUi.card(page)
-        AgentUi.row(column, getString(R.string.presets_title), getString(R.string.ui_preset_optional), "presets") { open(PresetsActivity::class.java) }
-        AgentUi.row(column, getString(R.string.presets_set_default), value.string("defaultName"), "default") {
-            draft = readDraft()
-            val names = value.getAsJsonArray("presets").map { it.asString }
-            prompt = AlertDialog.Builder(this).setTitle(R.string.presets_set_default).setItems(names.toTypedArray()) { _, which ->
-                request("default", jsonObject("name" to names[which].json())) { refresh() }
-            }.showStyled()
-        }
-        AgentUi.row(column, getString(R.string.memory_title), null, "memory") { open(MemoryActivity::class.java) }
-        AgentUi.row(column, getString(R.string.script_roots_title), null, "roots") { open(ScriptRootsActivity::class.java) }
-        AgentUi.row(column, getString(R.string.mcp_servers), null, "mcp-servers") { open(McpServersActivity::class.java) }
-        column = AgentUi.disclosure(page, R.string.settings_data)
-        for ((kind, key, label) in listOf(Triple("history", "historyData", R.string.history_title), Triple("presets", "presetData", R.string.presets_title), Triple("memory", "memoryData", R.string.memory_title))) {
+
+    private fun renderSnapshot(value: JsonObject) {
+        rows.getValue("default").setSummary(presetLabel(value.string("defaultName").orEmpty()))
+        val busy = value.flag("busy") == true
+        for ((kind, key) in listOf("history" to "historyData", "presets" to "presetData", "memory" to "memoryData")) {
             val statistics = value.getAsJsonObject(key)
-            HistoryViews.label(column, getString(R.string.settings_usage, getString(label), statistics.number("count"), statistics.number("bytes"))).tag = "data-$kind"
-            button(R.string.settings_clear, "clear-$kind") {
-                draft = readDraft()
-                prompt = AlertDialog.Builder(this).setTitle(label).setMessage(if (kind == "presets") R.string.settings_clear_presets else R.string.settings_clear_confirm)
-                    .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.settings_clear) { _, _ ->
-                        request("clear", jsonObject("store" to kind.json())) { refresh() }
-                    }.showStyled()
-            }.apply {
-                AgentUi.role(this, "danger"); isEnabled = value.flag("busy") != true
-                contentDescription = getString(R.string.settings_clear) + " " + getString(label)
-            }
+            rows.getValue("data-$kind").setSummary(getString(R.string.settings_data_summary, (statistics.number("count") ?: 0).toInt(),
+                Formatter.formatShortFileSize(this, statistics.number("bytes") ?: 0)))
+            clearButtons.getValue(kind).isEnabled = !busy
         }
-        localSections()
-        rendered = true; tint(page)
+        for (key in listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating")) rows.getValue(key).setEnabled(true)
     }
-    private fun localSections() {
-        val info = aiAgentPluginRuntimeInfo()
-        val preferences = AppUpdateSettings(this)
-        AgentUi.section(page, R.string.app_settings_updates)
-        column = AgentUi.card(page)
-        AgentUi.row(column, getString(R.string.update_check), getString(R.string.app_update_current_version, info.versionName), "update") { updates.check() }
-        val automatic = Switch(this).apply {
-            setText(R.string.app_update_automatic); tag = "update-automatic"; isChecked = preferences.automatic
-            column.addView(this, LinearLayout.LayoutParams(-1, -2))
-            setOnCheckedChangeListener { _, checked -> preferences.automatic = checked }
+    private fun renderSettings(draft: SettingsDraft) {
+        val settings = draft.settings
+        if (access.selectedIndex != draft.accessMode.ordinal) access.select(draft.accessMode.ordinal)
+        if (draft.accessMode == AccessMode.FULL) fullAccessNote.view.visibility = View.VISIBLE else fullAccessNote.hide()
+        rows.getValue("tool-groups").setSummary(getString(R.string.settings_tool_groups_summary, settings.toolGroups.size, ToolGroup.entries.size))
+        groupRows.forEach { (id, row) -> row.switch!!.isChecked = id in settings.toolGroups }
+        val defaults = BudgetLimits.defaults(false)
+        fun count(key: String, fallback: Long) = (draft.limit(key) ?: fallback).toString()
+        rows.getValue("limits").setSummary(getString(R.string.settings_limits_summary, count("maxSteps", defaults.maxSteps.toLong()),
+            count("maxModelCalls", defaults.maxModelCalls.toLong()), getString(R.string.settings_minutes, draft.durationMinutes() ?: defaults.maxDurationMs / 60_000),
+            count("maxTotalTokens", defaults.maxTotalTokens)))
+        limitRows.forEach { (key, row) -> row.setSummary(limitSummary(draft, key)) }
+        rows.getValue("voice").switch!!.isChecked = settings.voice
+        rows.getValue("floating").switch!!.isChecked = settings.floating && Settings.canDrawOverlays(this)
+        rows.values.forEach(SettingRow::refreshDescription)
+    }
+    private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+
+    private fun defaultPreset() {
+        val names = snapshot?.getAsJsonArray("presets")?.map { it.asString } ?: return
+        prompt = kit.singleChoiceDialog(getString(R.string.settings_default_preset), names.map(::presetLabel), names.indexOf(snapshot?.string("defaultName"))) {
+            request("default", jsonObject("name" to names[it].json())) { refresh() }
         }
-        HistoryViews.label(column, getString(R.string.app_update_automatic_summary)).labelFor = automatic.id
-        AgentUi.row(column, getString(R.string.app_update_manage_ignored), null, "update-ignored") { ignoredUpdates() }
-        AgentUi.row(column, getString(R.string.release_history_title), getString(R.string.app_update_release_history_summary), "history") { open(ReleaseHistoryActivity::class.java) }
-        column = AgentUi.disclosure(page, R.string.ui_about)
-        HistoryViews.label(column, getString(R.string.app_name), true)
-        HistoryViews.label(column, getString(R.string.plugin_description))
-        HistoryViews.label(column, getString(R.string.settings_version, info.versionName, info.versionCode,
-            getString(R.string.plugin_version_date), getString(R.string.plugin_author)))
-        AgentUi.row(column, getString(R.string.settings_source), null, "source") { AppUpdateCoordinator.openPage(this, ReleaseInfoCodec.SOURCE) }
-        AgentUi.row(column, getString(R.string.settings_license), null, "license") { startActivity(Intent(this, ReleaseHistoryActivity::class.java).putExtra("document", "license")) }
-        AgentUi.row(column, getString(R.string.settings_notices), null, "notices") { startActivity(Intent(this, ReleaseHistoryActivity::class.java).putExtra("document", "notices")) }
+    }
+    private fun toolGroups() {
+        val draft = updater.current ?: return
+        groupRows.clear()
+        val handle = kit.bottomSheet(getString(R.string.presets_tools), onDismiss = { groupRows.clear() })
+        ToolGroup.entries.forEach { group ->
+            val row = kit.switchRow(getString(groupLabels.getValue(group)), null, null, group.id in draft.settings.toolGroups, "group-${group.id}") { enabled ->
+                if (!updater.apply { it.withGroup(group.id, enabled) }) groupRows[group.id]?.switch?.isChecked = !enabled
+            }
+            groupRows[group.id] = row; handle.content.addView(row.view)
+        }
+        handle.content.addView(kit.caption(getString(R.string.settings_ocr_note)))
+        sheet = handle
+    }
+    private fun limits() {
+        val draft = updater.current ?: return
+        limitRows.clear()
+        val handle = kit.bottomSheet(getString(R.string.ui_budget), minHeightFraction = 0.4f, onDismiss = { limitRows.clear() })
+        for (key in listOf("maxSteps", "maxModelCalls", SettingsDraft.DURATION, "maxTotalTokens")) {
+            val tag = if (key == SettingsDraft.DURATION) "limit-maxDuration" else "limit-$key"
+            val row = kit.settingRow(getString(limitLabels.getValue(key)), limitSummary(draft, key), null, tag) { editLimit(key) }
+            limitRows[key] = row; handle.content.addView(row.view)
+        }
+        handle.content.addView(kit.caption(getString(R.string.settings_limits_note)))
+        sheet = handle
+    }
+    private fun limitSummary(draft: SettingsDraft, key: String): String {
+        val defaults = BudgetLimits.defaults(false)
+        return if (key == SettingsDraft.DURATION) draft.durationMinutes()?.let { getString(R.string.settings_minutes, it) }
+            ?: getString(R.string.settings_limit_automatic, getString(R.string.settings_minutes, defaults.maxDurationMs / 60_000))
+        else draft.limit(key)?.toString() ?: getString(R.string.settings_limit_automatic, when (key) {
+            "maxSteps" -> defaults.maxSteps.toString(); "maxModelCalls" -> defaults.maxModelCalls.toString(); else -> defaults.maxTotalTokens.toString()
+        })
+    }
+    internal fun editLimit(key: String) {
+        val draft = updater.current ?: return
+        val duration = key == SettingsDraft.DURATION
+        val ceiling = if (duration) SettingsDraft.MAX_DURATION_MINUTES else SettingsCodec.ceilings.getValue(key)
+        val current = if (duration) draft.durationMinutes() else draft.limit(key)
+        val label = getString(limitLabels.getValue(key))
+        prompt = kit.inputDialog(label, current?.toString(), hint = label, inputType = InputType.TYPE_CLASS_NUMBER, maxLength = 9,
+            neutral = getString(R.string.history_auto) to { applyLimit(key, null) },
+            validate = { value -> if (value.trim().toLongOrNull()?.let { it in 1..ceiling } == true) null else getString(R.string.ui_budget_invalid, ceiling) },
+        ) { value -> applyLimit(key, value.trim().toLong()) }
+    }
+    private fun applyLimit(key: String, value: Long?) {
+        updater.apply { if (key == SettingsDraft.DURATION) it.withDurationMinutes(value) else it.withLimit(key, value) }
+    }
+    private fun clearData(kind: String, title: Int) {
+        prompt = kit.confirmDialog(getString(title), getString(if (kind == "presets") R.string.settings_clear_presets else R.string.settings_clear_confirm),
+            getString(R.string.settings_clear), destructive = true) { request("clear", jsonObject("store" to kind.json())) { refresh() } }
     }
     private fun ignoredUpdates() {
         val settings = AppUpdateSettings(this)
         val ignored = settings.ignored.sorted()
-        val builder = AlertDialog.Builder(this).setTitle(R.string.app_update_manage_ignored)
-        if (ignored.isEmpty()) builder.setMessage(R.string.app_update_no_ignored).setPositiveButton(android.R.string.ok, null)
-        else {
-            val selected = BooleanArray(ignored.size)
-            builder.setMultiChoiceItems(ignored.toTypedArray(), selected) { _, index, checked -> selected[index] = checked }
-                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.app_update_stop_ignoring) { _, _ ->
-                    settings.unignore(ignored.filterIndexed { index, _ -> selected[index] })
-                }
+        prompt = if (ignored.isEmpty()) kit.messageDialog(getString(R.string.app_update_manage_ignored), getString(R.string.app_update_no_ignored))
+        else kit.multiChoiceDialog(getString(R.string.app_update_manage_ignored), ignored, BooleanArray(ignored.size), getString(R.string.app_update_stop_ignoring)) { selected ->
+            settings.unignore(ignored.filterIndexed { index, _ -> selected[index] })
+            rows.getValue("update-ignored").setSummary(getString(R.string.app_update_ignored_count, AppUpdateSettings(this).ignored.size))
         }
-        prompt = builder.showStyled()
     }
-    private fun requestExit() {
-        if (saving) return
-        if (!rendered || readDraft() == baseline) { finish(); return }
-        prompt = AlertDialog.Builder(this).setTitle(R.string.ui_unsaved_title).setMessage(R.string.ui_unsaved_note)
-            .setNegativeButton(android.R.string.cancel, null).setPositiveButton(R.string.ui_discard) { _, _ -> finish() }.showStyled()
-    }
-    override fun navigateBack() { requestExit() }
-    private fun readDraft() = jsonObject("version" to 3.json(), "toolGroups" to JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) },
-        "budget" to JsonObject().apply { budgets.forEach { (key, field) ->
-            val text = field.text.toString().trim(); if (text.isNotEmpty()) {
-                val number = text.toLongOrNull(); if (number == null) addProperty(key, text) else addProperty(key, number)
-            }
-        } }, "cautious" to (confirmation.selectedItemPosition == 1).json(), "fullAccess" to (confirmation.selectedItemPosition == 2).json(),
-        "voice" to voice.isChecked.json(), "floating" to floating.isChecked.json())
+
     companion object {
-        internal val budgetLabels = linkedMapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
-            "maxDurationMs" to R.string.presets_duration, "maxTotalTokens" to R.string.presets_tokens)
-        private val groupLabels = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.ACT to R.string.presets_group_act,
+        private val languageLabels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_follow_system,
+            R.string.app_language_zh_hans, R.string.app_language_zh_hant_hk, R.string.app_language_zh_hant_tw, R.string.app_language_en,
+            R.string.app_language_fr, R.string.app_language_es, R.string.app_language_ja, R.string.app_language_ko, R.string.app_language_ru, R.string.app_language_ar)
+        private val modeLabels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_follow_system,
+            R.string.app_settings_always_light, R.string.app_settings_always_dark)
+        private val limitLabels = mapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
+            SettingsDraft.DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
+        internal val groupLabels = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.ACT to R.string.presets_group_act,
             ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.OCR to R.string.presets_group_ocr, ToolGroup.SCRIPT to R.string.presets_group_script,
             ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic, ToolGroup.MCP to R.string.presets_group_mcp,
             ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory,

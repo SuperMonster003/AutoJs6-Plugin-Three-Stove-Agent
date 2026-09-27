@@ -1,11 +1,11 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.app.AlertDialog
 import android.content.*
 import android.os.*
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.JsonArray
@@ -37,6 +37,8 @@ class SettingsActivityTest {
         var result = false; scenario.onActivity { result = check(it) }; result
     }
     private fun <T : View> SettingsActivity.view(tag: String): T? = findViewById<View>(android.R.id.content).findViewWithTag(tag)
+    private fun SettingsActivity.ready() = view<View>("tool-groups")?.isEnabled == true
+    private fun AlertDialog.pick(index: Int) { listView.performItemClick(null, index, listView.adapter.getItemId(index)) }
     private fun query(endpoint: IAgentSettings, operation: String, fields: JsonObject = JsonObject()): JsonObject {
         val latch = CountDownLatch(1); var response: Bundle? = null
         fields.addProperty("operation", operation)
@@ -46,6 +48,7 @@ class SettingsActivityTest {
         assertTrue("Settings response", latch.await(15, TimeUnit.SECONDS))
         assertNull(response!!.getString(C.KEY_ERROR_CODE)); return AgentConnection.decode(response!!)
     }
+    private fun stored(directory: File) = runCatching { SettingsStore(File(directory, "agent-settings.json")).open() }.getOrNull()
     private fun isolated(action: (AgentRuntime, IAgentSettings, File) -> Unit) {
         val directory = File(context.cacheDir, "p66-${UUID.randomUUID()}").apply { check(mkdirs()) }
         val fixture = object : ContextWrapper(context) { override fun getFilesDir() = directory }
@@ -62,80 +65,88 @@ class SettingsActivityTest {
         try { query(endpoint, "get"); action(runtime, endpoint, directory) }
         finally { SettingsConnection.endpointOverride = null; runtime.memories.close(); directory.deleteRecursively() }
     }
-    @Test fun settingsDraftAndSavedLimitsSurviveRecreationAndDiskReload() = isolated { _, endpoint, directory ->
+
+    @Test fun changesApplyImmediatelyAndSurviveRecreationAndDiskReload() = isolated { _, endpoint, directory ->
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Settings form") { it.view<Button>("save") != null }
+            ui(scenario, "Settings loaded") { it.ready() }
+            scenario.onActivity { it.view<View>("tool-groups")!!.performClick() }
+            ui(scenario, "Tool group sheet") { it.sheet?.content?.findViewWithTag<View>("group-shell") != null }
             scenario.onActivity {
-                assertFalse(it.view<CheckBox>("group-gesture")!!.isChecked)
-                assertFalse(it.view<CheckBox>("group-files")!!.isChecked)
-                assertFalse(it.view<CheckBox>("group-shell")!!.isChecked)
-                it.view<CheckBox>("group-shell")!!.isChecked = true
-                it.view<Spinner>("confirmation-mode")!!.setSelection(1)
-                it.view<CheckBox>("voice")!!.isChecked = false
-                it.view<EditText>("maxSteps")!!.setText("7")
+                val shell = it.sheet!!.content.findViewWithTag<ViewGroup>("group-shell")!!
+                assertFalse(shell.findSwitch()!!.isChecked)
+                shell.performClick(); assertTrue(shell.findSwitch()!!.isChecked); it.sheet!!.dialog.dismiss()
             }
-            scenario.recreate()
-            ui(scenario, "Draft retained") { it.view<EditText>("maxSteps")?.text?.toString() == "7" && it.view<CheckBox>("group-shell")?.isChecked == true }
-            scenario.onActivity { it.view<Button>("save")!!.performClick() }
-            waitFor("Settings stored") { runCatching { SettingsStore(File(directory, "agent-settings.json")).open().budget["maxSteps"] == 7L }.getOrDefault(false) }
+            waitFor("Tool group saved") { stored(directory)?.toolGroups?.contains("shell") == true }
+            scenario.onActivity { it.access.choose(1) }
+            waitFor("Cautious saved") { stored(directory)?.cautious == true }
+            scenario.onActivity { it.view<View>("voice")!!.performClick() }
+            waitFor("Voice saved") { stored(directory)?.voice == false }
+            scenario.onActivity { it.editLimit("maxSteps") }
+            scenario.onActivity {
+                val field = (it.prompt!!.window!!.decorView as ViewGroup).findEditText()!!
+                field.setText("7"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            }
+            waitFor("Limit saved") { stored(directory)?.budget?.get("maxSteps") == 7L }
+            assertFalse("Full access is untouched", stored(directory)!!.fullAccess)
             val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
             assertTrue(saved.cautious); assertFalse(saved.voice); assertTrue("shell" in saved.toolGroups)
             scenario.recreate()
-            ui(scenario, "Saved state retained") { it.view<Spinner>("confirmation-mode")?.selectedItemPosition == 1 && it.view<CheckBox>("voice")?.isChecked == false }
-        }
-    }
-    @Test fun fullAccessShowsInlineWarningAndPersists() = isolated { _, endpoint, directory ->
-        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Settings form") { it.view<Button>("save") != null }
-            // Selection callbacks need a laid-out spinner, as when a user opens Task options and picks the mode.
-            scenario.onActivity { assertEquals(View.GONE, it.view<TextView>("full-access-note")!!.visibility); UiAccessibilityAudit().expandSections(it) }
-            ui(scenario, "Task options expanded") { it.view<Spinner>("confirmation-mode")?.isLaidOut == true && it.view<Spinner>("confirmation-mode")!!.isShown }
-            scenario.onActivity { it.view<Spinner>("confirmation-mode")!!.setSelection(2) }
-            ui(scenario, "Inline full access warning") { it.view<TextView>("full-access-note")?.visibility == View.VISIBLE }
-            scenario.onActivity { it.view<Button>("save")!!.performClick() }
-            waitFor("Full access stored") { runCatching { SettingsStore(File(directory, "agent-settings.json")).open().fullAccess }.getOrDefault(false) }
-            val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
-            assertTrue(saved.fullAccess); assertFalse(saved.cautious)
-            scenario.recreate()
-            ui(scenario, "Full access retained") {
-                it.view<Spinner>("confirmation-mode")?.selectedItemPosition == 2 && it.view<TextView>("full-access-note")?.visibility == View.VISIBLE
+            ui(scenario, "Saved state retained") {
+                it.ready() && it.access.selectedIndex == 1 && it.view<ViewGroup>("voice")!!.findSwitch()?.isChecked == false
             }
         }
     }
-    @Test fun appearanceChoicesPersistAndPreserveTheUnsavedTaskDraft() = isolated { _, _, _ ->
+
+    @Test fun fullAccessShowsOnlyAnInlineWarningAndPersists() = isolated { _, endpoint, directory ->
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Settings loaded") { it.ready() }
+            scenario.onActivity { assertEquals(View.GONE, it.view<View>("full-access-note")!!.visibility); it.access.choose(2) }
+            ui(scenario, "Inline full access warning") { it.view<View>("full-access-note")?.visibility == View.VISIBLE }
+            scenario.onActivity { assertNull("Choosing full access must not open a dialog", it.prompt) }
+            waitFor("Full access stored") { stored(directory)?.fullAccess == true }
+            val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
+            assertTrue(saved.fullAccess); assertFalse(saved.cautious)
+            scenario.recreate()
+            ui(scenario, "Full access retained") { it.ready() && it.access.selectedIndex == 2 && it.view<View>("full-access-note")?.visibility == View.VISIBLE }
+        }
+    }
+
+    @Test fun durationIsEditedInMinutesAndAutomaticRestoresTheDefault() = isolated { _, _, directory ->
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Settings loaded") { it.ready() }
+            scenario.onActivity { it.editLimit(SettingsDraft.DURATION) }
+            scenario.onActivity {
+                val field = (it.prompt!!.window!!.decorView as ViewGroup).findEditText()!!
+                field.setText("61"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                assertTrue("Out of range stays open", it.prompt!!.isShowing)
+                field.setText("12"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            }
+            waitFor("Minutes stored as milliseconds") { stored(directory)?.budget?.get("maxDurationMs") == 720_000L }
+            scenario.onActivity { it.editLimit(SettingsDraft.DURATION) }
+            scenario.onActivity { it.prompt!!.getButton(AlertDialog.BUTTON_NEUTRAL).performClick() }
+            waitFor("Automatic removes the limit") { stored(directory)?.budget?.containsKey("maxDurationMs") == false }
+        }
+    }
+
+    @Test fun appearanceChoicesApplyImmediately() = isolated { _, _, _ ->
         val original = AppearancePreferences.read(context)
         AppearancePreferences(language = "en", darkMode = "light").save(context)
         try {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-                ui(scenario, "Appearance and task settings ready") { it.view<EditText>("maxSteps") != null }
-                scenario.onActivity {
-                    it.view<EditText>("maxSteps")!!.setText("9")
-                    it.view<Button>("appearance-language")!!.performClick()
-                    val list = it.appearanceSettings.dialog!!.listView
-                    list.performItemClick(null, 2, list.adapter.getItemId(2))
-                }
-                ui(scenario, "Chinese applied without losing draft") {
-                    it.resources.configuration.locales[0].language == "zh" && it.view<EditText>("maxSteps")?.text?.toString() == "9"
-                }
-                scenario.onActivity {
-                    it.view<Button>("appearance-dark")!!.performClick()
-                    val list = it.appearanceSettings.dialog!!.listView
-                    list.performItemClick(null, 3, list.adapter.getItemId(3))
-                }
+                ui(scenario, "Appearance ready") { it.view<View>("appearance-language") != null }
+                scenario.onActivity { it.view<View>("appearance-language")!!.performClick(); it.prompt!!.pick(2) }
+                ui(scenario, "Chinese applied") { it.resources.configuration.locales[0].language == "zh" }
+                scenario.onActivity { it.view<View>("appearance-dark")!!.performClick(); it.prompt!!.pick(3) }
                 ui(scenario, "Independent dark preference applied") {
-                    it.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES &&
-                        it.view<EditText>("maxSteps")?.text?.toString() == "9"
+                    it.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
                 }
-                scenario.onActivity {
-                    it.view<Button>("appearance-color")!!.performClick()
-                    val list = it.appearanceSettings.dialog!!.listView
-                    list.performItemClick(null, 2, list.adapter.getItemId(2))
-                }
-                ui(scenario, "Theme color applied") { it.appearance?.primary == 0xff007c8a.toInt() && it.view<EditText>("maxSteps")?.text?.toString() == "9" }
+                scenario.onActivity { it.view<View>("appearance-color")!!.performClick(); it.prompt!!.pick(2) }
+                ui(scenario, "Theme color applied") { it.appearance?.primary == 0xff007c8a.toInt() }
                 assertEquals(AppearancePreferences("zh-Hans", "dark", 0xff007c8a.toInt()), AppearancePreferences.read(context))
             }
         } finally { original.save(context) }
     }
+
     @Test fun ignoredVersionsMigrateAndCanBeRestoredIndividually() = withUpdatePreferences { preferences ->
         preferences.edit().putString("ignored", "v2.0.0").commit()
         val settings = AppUpdateSettings(context)
@@ -149,23 +160,21 @@ class SettingsActivityTest {
         settings.unignore(listOf("v3.0.0"))
         assertTrue(settings.ignored.isEmpty())
     }
+
     @Test fun defaultSelectionAndConfirmedCategoryClearsReachRealStores() = isolated { _, endpoint, directory ->
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Data rows") { it.view<Button>("clear-memory") != null }
-            scenario.onActivity {
-                it.view<Button>("default")!!.performClick()
-                val list = it.prompt!!.listView; list.performItemClick(list.getChildAt(0), 0, list.adapter.getItemId(0))
-            }
+            ui(scenario, "Data rows") { it.view<View>("clear-memory")?.isEnabled == true }
+            scenario.onActivity { it.view<View>("default")!!.performClick(); it.prompt!!.pick(0) }
             waitFor("Default changed") { query(endpoint, "get").string("defaultName") == "default" }
             for ((store, key, expected) in listOf(Triple("memory", "memoryData", 0L), Triple("history", "historyData", 0L), Triple("presets", "presetData", 1L))) {
-                ui(scenario, "Clear enabled") { it.view<Button>("clear-$store")?.isEnabled == true }
+                ui(scenario, "Clear enabled") { it.view<View>("clear-$store")?.isEnabled == true }
                 scenario.onActivity {
-                    it.view<Button>("clear-$store")!!.performClick()
+                    it.view<View>("clear-$store")!!.performClick()
                     it.prompt!!.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
                 }
                 assertTrue(query(endpoint, "get").getAsJsonObject(key).number("count")!! > expected)
                 scenario.onActivity {
-                    it.view<Button>("clear-$store")!!.performClick()
+                    it.view<View>("clear-$store")!!.performClick()
                     it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
                 }
                 waitFor("Category cleared") { query(endpoint, "get").getAsJsonObject(key).number("count") == expected }
@@ -175,6 +184,7 @@ class SettingsActivityTest {
             assertEquals(listOf("default"), PresetStore(File(directory, "agent-presets.json")).open().presets.map { it.name })
         }
     }
+
     @Test fun competingMaintenanceCannotClearData() = isolated { runtime, endpoint, _ ->
         assertTrue(runtime.beginMaintenance())
         val latch = CountDownLatch(1); var error: String? = null
@@ -186,8 +196,9 @@ class SettingsActivityTest {
         } finally { runtime.endMaintenance() }
         assertEquals(1L, query(endpoint, "get").getAsJsonObject("memoryData").number("count"))
     }
+
     @Test fun bundledReleaseHistoryLicenseAndNoticesOpenWithoutNetwork() {
-        for ((document, expected) in listOf("history" to "v1.1.0", "license" to "Mozilla Public License", "notices" to "Gson")) {
+        for ((document, expected) in listOf("history" to "v1.1.0", "license" to "Mozilla Public License", "notices" to "Material Components")) {
             ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
                 waitFor("Bundled $document") { var ready = false; scenario.onActivity {
                     ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.text?.contains(expected, ignoreCase = true) == true
@@ -195,6 +206,26 @@ class SettingsActivityTest {
             }
         }
     }
+
+    @Test fun aboutShowsIdentityAndOpensBundledDocuments() {
+        ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
+            val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName!!
+            scenario.onActivity {
+                val root = it.findViewById<View>(android.R.id.content)
+                assertTrue(root.findViewWithTag<ViewGroup>("about-version")!!.let { block -> (block.getChildAt(1) as TextView).text.contains(version) })
+                assertEquals(context.getString(R.string.about_license_name), (root.findViewWithTag<ViewGroup>("about-license-name")!!.getChildAt(1) as TextView).text.toString())
+                for (tag in listOf("about-history", "about-source", "about-developer", "about-license", "about-notices")) assertNotNull(tag, root.findViewWithTag<View>(tag))
+            }
+            val monitor = instrumentation.addMonitor(ReleaseHistoryActivity::class.java.name, null, false)
+            try {
+                scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<View>("about-notices")!!.performClick() }
+                val opened = monitor.waitForActivityWithTimeout(10000)
+                assertNotNull(opened); assertEquals("notices", opened.intent.getStringExtra("document"))
+                instrumentation.runOnMainSync { opened.finish() }
+            } finally { instrumentation.removeMonitor(monitor) }
+        }
+    }
+
     @Test fun privateSettingsBinderPersistsAcrossConnectionsAndRestoresUserPreferences() {
         fun withEndpoint(action: (IAgentSettings) -> Unit) {
             val ready = CountDownLatch(1); var binder: IBinder? = null
@@ -224,6 +255,7 @@ class SettingsActivityTest {
             }
         } finally { original?.let { value -> withEndpoint { query(it, "save", jsonObject("settings" to value)) } } }
     }
+
     @Test fun settingsAndHistoryUseArabicNightAppearanceWithinScrollableWidth() = isolated { _, _, _ ->
         val original = HostAppearance.cached
         val release = CountDownLatch(1); val entered = CountDownLatch(1)
@@ -238,7 +270,9 @@ class SettingsActivityTest {
             assertEquals(View.LAYOUT_DIRECTION_RTL, root.getChildAt(0).layoutDirection)
             fun widths(view: View) {
                 if (view.visibility == View.GONE) return
-                assertTrue("${view.tag} fits", view.width in 1..root.width)
+                // The toolbar keeps an empty menu container of zero width when a screen has no actions.
+                if (view is ViewGroup && view.childCount == 0 && view.width == 0) return
+                assertTrue("${view.javaClass.simpleName}:${view.tag} width ${view.width} fits", view.width in 1..root.width)
                 if (view is ViewGroup) for (index in 0 until view.childCount) widths(view.getChildAt(index))
             }
             widths(root)
@@ -249,8 +283,7 @@ class SettingsActivityTest {
         }
         try {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-                ui(scenario, "RTL settings layout") { it.view<Button>("update")?.isLaidOut == true }
-                scenario.onActivity { UiAccessibilityAudit().expandSections(it) }
+                ui(scenario, "RTL settings layout") { it.ready() && it.view<View>("update")?.isLaidOut == true }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { inspect(it, "settings") }
             }
@@ -263,24 +296,33 @@ class SettingsActivityTest {
             }
         } finally { HostAppearance.cached = original; release.countDown() }
     }
-    @Test fun settingsDocumentsAndDialogsHaveAccessibleControlsAndUnclippedText() = isolated { _, _, _ -> withUpdatePreferences {
+
+    @Test fun settingsDocumentsSheetsAndDialogsHaveAccessibleControlsAndUnclippedText() = isolated { _, _, _ -> withUpdatePreferences {
         val audit = UiAccessibilityAudit()
         audit.themed {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-                ui(scenario, "Audit settings ready") { it.view<Button>("update")?.isLaidOut == true }
-                scenario.onActivity { audit.expandSections(it) }
+                ui(scenario, "Audit settings ready") { it.ready() && it.view<View>("update")?.isLaidOut == true }
                 instrumentation.waitForIdleSync()
-                scenario.onActivity { audit.inspect(it, "settings"); it.view<Button>("clear-history")!!.performClick() }
+                scenario.onActivity { audit.inspect(it, "settings"); it.view<View>("clear-history")!!.performClick() }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "clear-dialog"); it.prompt!!.dismiss() }
-                scenario.onActivity { it.view<Button>("default")!!.performClick() }
+                scenario.onActivity { it.view<View>("default")!!.performClick() }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "default-dialog"); it.prompt!!.dismiss() }
+                for (tag in listOf("tool-groups", "limits")) {
+                    scenario.onActivity { it.view<View>(tag)!!.performClick() }
+                    instrumentation.waitForIdleSync(); SystemClock.sleep(400)
+                    scenario.onActivity { audit.inspect(it.sheet!!.dialog.window!!.decorView, "sheet-$tag"); it.sheet!!.dialog.dismiss() }
+                }
                 AppUpdateCoordinator.sourceOverride = UpdateSource { UpdateResult.Success(
                     ReleaseInfo("v2.0.0", "${ReleaseInfoCodec.SOURCE}/releases/tag/v2.0.0", "Controlled update fixture")) }
-                scenario.onActivity { it.view<Button>("update")!!.performClick() }
+                scenario.onActivity { it.view<View>("update")!!.performClick() }
                 ui(scenario, "Audit update dialog ready") { it.updates.dialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.isLaidOut == true }
                 scenario.onActivity { audit.inspect(it.updates.dialog!!.window!!.decorView, "update-dialog"); it.updates.dialog!!.dismiss() }
+            }
+            ActivityScenario.launch(AboutActivity::class.java).use { scenario ->
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { audit.inspect(it, "about") }
             }
             for (document in listOf("history", "license", "notices")) {
                 ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
@@ -313,7 +355,7 @@ class SettingsActivityTest {
         AppUpdateCoordinator.sourceOverride = UpdateSource { calls.incrementAndGet(); UpdateResult.Success(release) }
         AppUpdateSettings(context).ignore("v2.0.0")
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Update controls ready") { it.view<Button>("update") != null }
+            ui(scenario, "Update controls ready") { it.view<View>("update") != null }
             scenario.onActivity { it.updates.checkAutomatically() }
             assertEquals(0, calls.get())
             AppUpdateSettings(context).automatic = true
@@ -332,12 +374,12 @@ class SettingsActivityTest {
         val calls = AtomicInteger(); val release = ReleaseInfo("v2.0.0", "${ReleaseInfoCodec.SOURCE}/releases/tag/v2.0.0", "Controlled update fixture")
         AppUpdateCoordinator.sourceOverride = UpdateSource { calls.incrementAndGet(); UpdateResult.Success(release) }
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Update entry") { it.view<Button>("update") != null }
-            scenario.onActivity { it.view<Button>("update")!!.performClick() }
+            ui(scenario, "Update entry") { it.view<View>("update") != null }
+            scenario.onActivity { it.view<View>("update")!!.performClick() }
             ui(scenario, "New version dialog") { it.updates.dialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.visibility == View.VISIBLE }
             scenario.onActivity { it.updates.dialog!!.getButton(AlertDialog.BUTTON_NEGATIVE).performClick() }
             waitFor("Version ignored") { preferences.getString("ignored", null) == "v2.0.0" }; assertEquals(1, calls.get())
-            scenario.onActivity { it.view<Button>("update")!!.performClick() }
+            scenario.onActivity { it.view<View>("update")!!.performClick() }
             ui(scenario, "Cached ignored version") { it.updates.dialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.text == it.getString(R.string.update_unignore) }
             scenario.onActivity { it.updates.dialog!!.getButton(AlertDialog.BUTTON_NEGATIVE).performClick() }
             waitFor("Ignore removed") { preferences.getString("ignored", null) == null }; assertEquals(1, calls.get())
@@ -345,12 +387,12 @@ class SettingsActivityTest {
                 addDataScheme("https"); addDataAuthority("github.com", null)
             }, null, true)
             try {
-                scenario.onActivity { it.view<Button>("update")!!.performClick(); it.updates.dialog!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick() }
+                scenario.onActivity { it.view<View>("update")!!.performClick(); it.updates.dialog!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick() }
                 waitFor("Release page navigation") { monitor.hits == 1 }
             } finally { instrumentation.removeMonitor(monitor) }
             val historyMonitor = instrumentation.addMonitor(ReleaseHistoryActivity::class.java.name, null, false)
             try {
-                scenario.onActivity { it.view<Button>("update")!!.performClick(); it.updates.dialog!!.getButton(AlertDialog.BUTTON_NEUTRAL).performClick() }
+                scenario.onActivity { it.view<View>("update")!!.performClick(); it.updates.dialog!!.getButton(AlertDialog.BUTTON_NEUTRAL).performClick() }
                 val history = historyMonitor.waitForActivityWithTimeout(10000)
                 assertNotNull(history); instrumentation.runOnMainSync { history.finish() }
             } finally { instrumentation.removeMonitor(historyMonitor) }
@@ -360,8 +402,8 @@ class SettingsActivityTest {
         preferences.edit().putLong("checked", 1).putString("release", "").commit()
         AppUpdateCoordinator.sourceOverride = UpdateSource { UpdateResult.Failure(UpdateFailure.HTTP) }
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
-            ui(scenario, "Update entry") { it.view<Button>("update") != null }
-            scenario.onActivity { it.view<Button>("update")!!.performClick() }
+            ui(scenario, "Update entry") { it.view<View>("update") != null }
+            scenario.onActivity { it.view<View>("update")!!.performClick() }
             ui(scenario, "Failure dismissed") { it.updates.dialog == null }
             assertEquals(1L, preferences.getLong("checked", -1))
             val started = CountDownLatch(1); val returned = CountDownLatch(1)
@@ -370,11 +412,29 @@ class SettingsActivityTest {
                 while (!token.cancelled) SystemClock.sleep(10)
                 returned.countDown(); UpdateResult.Success(null)
             }
-            scenario.onActivity { it.view<Button>("update")!!.performClick() }
+            scenario.onActivity { it.view<View>("update")!!.performClick() }
             assertTrue(started.await(5, TimeUnit.SECONDS))
             scenario.onActivity { it.updates.dialog!!.getButton(AlertDialog.BUTTON_NEGATIVE).performClick() }
             assertTrue(returned.await(5, TimeUnit.SECONDS)); instrumentation.waitForIdleSync()
             assertEquals(1L, preferences.getLong("checked", -1))
         }
     } }
+}
+
+internal fun ViewGroup.findEditText(): EditText? {
+    for (index in 0 until childCount) {
+        val child = getChildAt(index)
+        if (child is EditText) return child
+        if (child is ViewGroup) child.findEditText()?.let { return it }
+    }
+    return null
+}
+
+internal fun ViewGroup.findSwitch(): CompoundButton? {
+    for (index in 0 until childCount) {
+        val child = getChildAt(index)
+        if (child is CompoundButton) return child
+        if (child is ViewGroup) child.findSwitch()?.let { return it }
+    }
+    return null
 }

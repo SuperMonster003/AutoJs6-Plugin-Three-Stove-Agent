@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="about_developer">Developer</string>
+    <string name="about_developer_page">Developer page</string>
+    <string name="about_summary">Version, developer and licenses</string>
+    <string name="about_version">Version</string>
+    <string name="about_version_value">%1$s (build %2$d)\nBuilt: %3$s</string>
     <string name="accessibility_open_settings">Open accessibility settings</string>
     <string name="accessibility_start_failed">Automatic accessibility startup failed. Enable the AutoJs6 accessibility service in system settings, then continue the task.</string>
     <string name="app_language_ar">العربية</string>
@@ -33,6 +38,7 @@
     <string name="app_update_automatic">Automatically check for updates</string>
     <string name="app_update_automatic_summary">Check at most once every 12 hours while the app is in use</string>
     <string name="app_update_current_version">Installed version: %1$s</string>
+    <string name="app_update_ignored_count">Ignored versions: %1$d</string>
     <string name="app_update_manage_ignored">Manage ignored updates</string>
     <string name="app_update_no_ignored">No releases are currently ignored</string>
     <string name="app_update_release_history_summary">Read the version history included with this app</string>
@@ -43,7 +49,7 @@
     <string name="floating_collapse">Collapse task card; drag to move</string>
     <string name="floating_open">Open task card; drag to move</string>
     <string name="floating_permission_required">Allow display over other apps to enable the floating ball.</string>
-    <string name="floating_setting_note">Off by default. Allow display over other apps, then save. The ball appears while AutoJs6 is connected and hides when disconnected or locked. It does not keep an idle foreground service.</string>
+    <string name="floating_setting_note">Off by default. Requires permission to display over other apps. Shown only while AutoJs6 is connected; hidden when disconnected or locked. No foreground service is kept while idle.</string>
     <string name="floating_workbench">Open workbench</string>
     <string name="history_all">All</string>
     <string name="history_allowed">Allowed</string>
@@ -215,7 +221,7 @@
     <string name="presets_tools">Enabled tool groups</string>
     <string name="presets_unavailable">%1$s (unavailable)</string>
     <string name="release_history_error">Unable to read the bundled document.</string>
-    <string name="release_history_title">Release history</string>
+    <string name="release_history_title">Version history</string>
     <string name="run_blocked">Blocked</string>
     <string name="run_cancelled">Stopped</string>
     <string name="run_cancelling">Stopping</string>
@@ -242,26 +248,33 @@
     <string name="script_roots_save">Save directories</string>
     <string name="script_roots_title">Script directories</string>
     <string name="settings_access_mode">Operation permissions</string>
-    <string name="settings_budget_note">Leave budgets blank for built-in defaults: 40 steps, 60 model calls, 10 minutes (30 for detached tasks), 300000 tokens. Maximums: 200 steps, 300 calls, 30 minutes (60 detached), 1000000 tokens. Durations below use milliseconds.</string>
     <string name="settings_clear">Clear data</string>
     <string name="settings_clear_confirm">Delete all entries in this category? This cannot be undone. Tasks must be idle.</string>
     <string name="settings_clear_presets">Delete custom presets and reset the built-in default preset? Saved memory is kept. Tasks must be idle.</string>
     <string name="settings_data">Data management</string>
+    <string name="settings_data_summary">Items: %1$d · %2$s</string>
+    <string name="settings_default_preset">Default preset</string>
+    <string name="settings_duration_minutes">Maximum duration (minutes)</string>
     <string name="settings_error">Unable to read or save settings. Check the limits and try again. Stop active tasks before clearing data.</string>
     <string name="settings_floating">Enable floating ball</string>
     <string name="settings_full_access">Full access</string>
     <string name="settings_full_access_note">Full access: all enabled tools, including payments, deletion, scripts and memory writes, can run without approval. This overrides preset confirmation policies for new tasks. Review the goal before starting.</string>
     <string name="settings_license">License</string>
+    <string name="settings_limit_automatic">Automatic (%1$s)</string>
+    <string name="settings_limits_note">Leave empty to use the built-in value. Tasks started from the app stop after at most 30 minutes; detached tasks after 60. Presets and single tasks can only lower these limits.</string>
+    <string name="settings_limits_summary">%1$s steps · %2$s calls · %3$s · %4$s tokens</string>
+    <string name="settings_minutes">%1$d min</string>
     <string name="settings_notices">Third-party notices</string>
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>
     <string name="settings_open_failed">No application could open this link.</string>
     <string name="settings_policy_note">Saved settings apply to new tasks. Presets and individual tasks can only narrow these limits; host permissions still apply.</string>
     <string name="settings_save">Save settings</string>
-    <string name="settings_saved">Settings saved.</string>
+    <string name="settings_section_information">Information</string>
+    <string name="settings_section_quick">Quick access</string>
+    <string name="settings_section_tools">Tools and data</string>
     <string name="settings_source">Source code</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_usage">%1$s: Entries: %2$d. Bytes: %3$d</string>
-    <string name="settings_version">Version: %1$s\nBuild: %2$d\nDate: %3$s\nAuthor: %4$s</string>
+    <string name="settings_tool_groups_summary">Enabled: %1$d / %2$d</string>
     <string name="settings_voice">Enable voice input</string>
     <string name="shortcut_goal">Fixed goal (optional)</string>
     <string name="shortcut_new_task">New task</string>
@@ -282,7 +295,6 @@
     <string name="ui_choose_model">Choose a model</string>
     <string name="ui_collapse">Collapse</string>
     <string name="ui_connected">Connected to AutoJs6</string>
-    <string name="ui_discard">Discard changes</string>
     <string name="ui_empty_title">Your next task starts here</string>
     <string name="ui_expand">Expand</string>
     <string name="ui_history_filters">Filter tasks</string>
@@ -303,8 +315,6 @@
     <string name="ui_task_options">Task options</string>
     <string name="ui_task_section">Tasks and capabilities</string>
     <string name="ui_theme_amber">Amber</string>
-    <string name="ui_unsaved_note">Save your task settings before leaving, or discard these changes.</string>
-    <string name="ui_unsaved_title">Unsaved changes</string>
     <string name="update_available">Update available: %1$s</string>
     <string name="update_check">Check for updates</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">Checking for updates...</string>

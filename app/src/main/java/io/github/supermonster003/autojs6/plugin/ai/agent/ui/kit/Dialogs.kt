@@ -54,7 +54,6 @@ internal fun Kit.textField(value: CharSequence?, hint: CharSequence? = null, inp
         tintEditText(this)
         background = null
         backgroundTintList = null
-        contentDescription = hint
     }
     val layout = TextInputLayout(context).apply {
         boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE

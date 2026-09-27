@@ -60,11 +60,14 @@ private fun Kit.rowIcon(@DrawableRes icon: Int, color: Int = palette.muted): Ima
 private fun Kit.rowText(title: CharSequence, summary: CharSequence?, titleColor: Int): Triple<LinearLayout, TextView, TextView> {
     val titleView = TextView(context).apply {
         text = title; textSize = Ui.TEXT_ITEM; setTextColor(titleColor)
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
     val summaryView = TextView(context).apply {
         text = summary; textSize = Ui.TEXT_SECONDARY; setTextColor(palette.muted)
         setLineSpacing(0f, 1.1f); setPaddingRelative(0, dp(3), 0, 0)
+        // Follow the layout direction, so a Latin value (a preset name) still aligns with Arabic titles.
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         visibility = if (summary.isNullOrEmpty()) View.GONE else View.VISIBLE
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
@@ -149,16 +152,24 @@ internal class ChoiceRow(
 ) {
     var selectedIndex: Int = selected
         private set
+    /** The open choice dialog, if any. */
+    var dialog: androidx.appcompat.app.AlertDialog? = null
+        private set
     val view: LinearLayout get() = row.view
     init {
         render()
-        row.view.setOnClickListener { kit.singleChoiceDialog(title, labels, selectedIndex) { choose(it) } }
+        row.view.setOnClickListener { dialog = kit.singleChoiceDialog(title, labels, selectedIndex) { choose(it) } }
     }
+    /** User choice: updates the summary, then reports it. */
     fun choose(index: Int) {
+        select(index)
+        onSelect(index)
+    }
+    /** Programmatic state update that does not report a choice. */
+    fun select(index: Int) {
         require(index in labels.indices)
         selectedIndex = index
         render()
-        onSelect(index)
     }
     private fun render() { row.setSummary(labels.getOrNull(selectedIndex)) }
 }
@@ -177,6 +188,8 @@ internal fun Kit.infoBlock(label: CharSequence, value: CharSequence, tag: String
     orientation = LinearLayout.VERTICAL
     this.tag = tag
     setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD))
-    addView(text(label, Ui.TEXT_SECTION, palette.accent, medium = true))
-    addView(text(value, Ui.TEXT_BODY + 0.5f).apply { setTextIsSelectable(true); setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0) })
+    addView(text(label, Ui.TEXT_SECTION, palette.accent, medium = true).apply { textAlignment = View.TEXT_ALIGNMENT_VIEW_START })
+    addView(text(value, Ui.TEXT_BODY + 0.5f).apply {
+        setTextIsSelectable(true); setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+    })
 }
