@@ -82,9 +82,7 @@
     <string name="history_export_note">진단 횟수, 도구 이름과 확인 결과를 보존합니다. 목표, 매개변수, 관찰 내용과 스크립트 결과는 제거됩니다. 저장 위치를 선택하세요.</string>
     <string name="history_exported">내보내기를 저장했습니다.</string>
     <string name="history_model_selected">새 작업에 %1$s을(를) 사용합니다.</string>
-    <string name="history_model_value">모델: %1$s</string>
     <string name="history_preset_unavailable">이 프리셋을 사용할 수 없습니다. 사용 가능한 프리셋을 선택한 후 시작하세요.</string>
-    <string name="history_preset_value">프리셋: %1$s</string>
     <string name="history_rejections">거부된 모델 결정: %1$s</string>
     <string name="history_reset_dates">날짜 초기화</string>
     <string name="history_result">결과</string>

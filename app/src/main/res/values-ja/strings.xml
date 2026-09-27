@@ -82,9 +82,7 @@
     <string name="history_export_note">診断用の回数, ツール名, 確認結果を保存します. 目標, 引数, 観察内容, スクリプト結果は除去されます. 保存先を選択してください.</string>
     <string name="history_exported">エクスポートを保存しました.</string>
     <string name="history_model_selected">新しいタスクで %1$s を使います.</string>
-    <string name="history_model_value">モデル: %1$s</string>
     <string name="history_preset_unavailable">このプリセットは利用できません. 利用可能なプリセットを選択してから開始してください.</string>
-    <string name="history_preset_value">プリセット: %1$s</string>
     <string name="history_rejections">拒否したモデルの判断: %1$s</string>
     <string name="history_reset_dates">日付をリセット</string>
     <string name="history_result">結果</string>

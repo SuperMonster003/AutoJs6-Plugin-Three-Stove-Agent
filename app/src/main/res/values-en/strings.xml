@@ -82,9 +82,7 @@
     <string name="history_export_note">The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file.</string>
     <string name="history_exported">Export saved.</string>
     <string name="history_model_selected">New tasks now use %1$s.</string>
-    <string name="history_model_value">Model: %1$s</string>
     <string name="history_preset_unavailable">This preset is unavailable. Choose an available preset before starting.</string>
-    <string name="history_preset_value">Preset: %1$s</string>
     <string name="history_rejections">Rejected model decisions: %1$s</string>
     <string name="history_reset_dates">Reset dates</string>
     <string name="history_result">Result</string>
@@ -353,7 +351,7 @@
     <string name="workbench_access">Access mode: %1$s</string>
     <string name="workbench_answer_required">Enter an answer.</string>
     <string name="workbench_back">Back</string>
-    <string name="workbench_budget">Step %1$d/%2$d · %3$d model calls · %4$d min · %5$d tokens</string>
+    <string name="workbench_budget" tools:ignore="PluralsCandidate">Step %1$d/%2$d · %3$d model calls · %4$d min · %5$d tokens</string>
     <string name="workbench_default_preset">Default</string>
     <string name="workbench_details">Task details</string>
     <string name="workbench_example_notifications">Summarize the notifications on screen</string>

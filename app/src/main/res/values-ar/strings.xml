@@ -82,9 +82,7 @@
     <string name="history_export_note">يحتفظ التصدير بالعدادات وأسماء الأدوات ونتائج التأكيد. تتم إزالة الأهداف والمعلمات والملاحظات ونتائج البرامج النصية. اختر مكان حفظ الملف.</string>
     <string name="history_exported">تم حفظ التصدير.</string>
     <string name="history_model_selected">ستستخدم المهام الجديدة %1$s.</string>
-    <string name="history_model_value">النموذج: %1$s</string>
     <string name="history_preset_unavailable">هذا الإعداد المسبق غير متاح. اختر إعدادا متاحا قبل البدء.</string>
-    <string name="history_preset_value">الإعداد المسبق: %1$s</string>
     <string name="history_rejections">قرارات النموذج المرفوضة: %1$s</string>
     <string name="history_reset_dates">إعادة ضبط التواريخ</string>
     <string name="history_result">النتيجة</string>

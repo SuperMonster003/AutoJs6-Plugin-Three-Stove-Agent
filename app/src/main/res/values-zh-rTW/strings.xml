@@ -82,9 +82,7 @@
     <string name="history_export_note">匯出保留診斷計數, 工具名稱和確認結果. 目標, 參數, 觀察內容及腳本結果會移除. 請選擇檔案儲存位置.</string>
     <string name="history_exported">匯出已儲存.</string>
     <string name="history_model_selected">新任務將使用 %1$s.</string>
-    <string name="history_model_value">模型: %1$s</string>
     <string name="history_preset_unavailable">此預設已不可用. 請先選擇可用預設再開始.</string>
-    <string name="history_preset_value">預設: %1$s</string>
     <string name="history_rejections">被拒絕的模型決策: %1$s</string>
     <string name="history_reset_dates">重設日期</string>
     <string name="history_result">任務結果</string>
