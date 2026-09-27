@@ -39,7 +39,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                 }.toString(),
         ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
             else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) })
-        if (catalog["screen_capture"]?.let(policy::isEnabled) == true) system += "\n" + templates.getValue(language(language)).getValue("vision").trimEnd()
+        if (catalog[ToolNames.SCREEN_CAPTURE]?.let(policy::isEnabled) == true) system += "\n" + templates.getValue(language(language)).getValue("vision").trimEnd()
         if (catalog.tools.any { it.external != null && policy.isEnabled(it) }) system += "\n" + templates.getValue(language(language)).getValue("mcp").trimEnd()
         return if (registeredScripts == null) system else {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }

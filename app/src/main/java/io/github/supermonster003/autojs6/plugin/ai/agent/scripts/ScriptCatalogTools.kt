@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.ai.agent.scripts
 
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.string
 import io.github.supermonster003.autojs6.plugin.ai.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 /** The model can search metadata, but cannot supply roots or replace host approval. */
 class ScriptCatalogTools(private val client: ScriptCatalogClient, roots: Set<String>, private val source: ScriptCatalogSource,
@@ -18,13 +19,13 @@ class ScriptCatalogTools(private val client: ScriptCatalogClient, roots: Set<Str
         }
     }
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
-        if (invocation.name == "script_catalog" && !allowed) {
+        if (invocation.name == ToolNames.SCRIPT_CATALOG && !allowed) {
             callback(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE
         }
         return delegate.prepare(invocation, timeoutMs, callback)
     }
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
-        if (prepared.invocation.name != "script_catalog") return delegate.execute(prepared, timeoutMs, callback)
+        if (prepared.invocation.name != ToolNames.SCRIPT_CATALOG) return delegate.execute(prepared, timeoutMs, callback)
         return present(prepared.invocation.arguments.string("query").orEmpty(), true, false, timeoutMs) { result ->
             callback(when (result) {
                 is PortResult.Failure -> result

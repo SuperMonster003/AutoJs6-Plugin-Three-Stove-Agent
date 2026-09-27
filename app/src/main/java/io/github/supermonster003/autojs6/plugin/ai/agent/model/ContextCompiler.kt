@@ -36,12 +36,12 @@ class ContextCompiler(
 
     override fun observe(tool: String, result: JsonElement): String {
         val envelope = jsonObject("ok" to true.json(), "result" to result)
-        return ObservationCompactor.compact(envelope, ToolObservation.DEFAULT_MAX_BYTES, local && tool == "ui_dump").toString()
+        return ObservationCompactor.compact(envelope, ToolObservation.DEFAULT_MAX_BYTES, local && tool == ToolNames.UI_DUMP).toString()
     }
 
     override fun compile(context: RunContext): ModelInput {
         val format = context.format ?: initialFormat
-        val vision = policy.visionAvailable && catalog["screen_capture"]?.let(policy::isEnabled) == true && target.vision != null
+        val vision = policy.visionAvailable && catalog[ToolNames.SCREEN_CAPTURE]?.let(policy::isEnabled) == true && target.vision != null
         require(context.images.isEmpty() || vision)
         target.vision?.validate(context.images)
         val schemaBytes = format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0

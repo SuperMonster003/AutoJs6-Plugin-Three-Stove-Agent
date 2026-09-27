@@ -44,7 +44,7 @@ internal class AccessibilityPreparation(
 
     companion object {
         fun required(invocation: ToolInvocation): Boolean = when (val plan = invocation.plan) {
-            is ToolPlan.Call -> "accessibility" in plan.request.permissions || invocation.name == "ui_press_key"
+            is ToolPlan.Call -> "accessibility" in plan.request.permissions || invocation.name == ToolNames.UI_PRESS_KEY
             is ToolPlan.Poll -> "accessibility" in plan.request.permissions
             is ToolPlan.Repeat -> "accessibility" in plan.request.permissions
             is ToolPlan.AppendText -> true

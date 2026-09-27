@@ -66,7 +66,7 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
         if (action == null || action.owner !== this) { operation.finish(PortResult.Failure(RunError.INVALID_REQUEST)); return operation }
         var before: CompactNodeText.Snapshot? = null
         fun complete(value: JsonElement, count: Int) {
-            val ok = if (prepared.invocation.name == "clipboard_get") true else value.isJsonPrimitive && value.asJsonPrimitive.isBoolean && value.asBoolean
+            val ok = if (prepared.invocation.name == ToolNames.CLIPBOARD_GET) true else value.isJsonPrimitive && value.asJsonPrimitive.isBoolean && value.asBoolean
             val result = jsonObject("ok" to ok.json(), "actionResult" to value, "windowChanged" to JsonNull.INSTANCE, "attempts" to count.json())
             operation.finish(PortResult.Success(ToolReply(result)))
         }
@@ -76,15 +76,15 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
                 is PortResult.Failure -> operation.finish(answer)
                 is PortResult.Success -> {
                     attempts++
-                    val value = if (prepared.invocation.name == "clipboard_set" && answer.value.isJsonNull) true.json() else answer.value
-                    if (prepared.invocation.name == "clipboard_get") { complete(value, attempts); return@call }
+                    val value = if (prepared.invocation.name == ToolNames.CLIPBOARD_SET && answer.value.isJsonNull) true.json() else answer.value
+                    if (prepared.invocation.name == ToolNames.CLIPBOARD_GET) { complete(value, attempts); return@call }
                     if (!value.isJsonPrimitive || !value.asJsonPrimitive.isBoolean) { operation.finish(PortResult.Failure(RunError.TOOL_ARGUMENTS_INVALID)); return@call }
                     if (value.asBoolean && attempts < action.times) next() else completeAction(operation, before, value, attempts)
                 }
             } } }
             next()
         }
-        if (prepared.invocation.name == "clipboard_get") perform()
+        if (prepared.invocation.name == ToolNames.CLIPBOARD_GET) perform()
         else readSnapshot(operation) { snapshot -> before = snapshot; observations.actionBaseline(snapshot); perform() }
         return operation
     }
@@ -161,8 +161,8 @@ class ActionTools(private val scheduler: RunScheduler, private val observations:
     }
 
     companion object {
-        val NODE_ACTIONS = setOf("ui_click", "ui_long_click", "ui_set_text", "ui_scroll")
-        val GESTURES = setOf("ui_click_xy", "ui_swipe", "ui_gesture")
-        val NAMES = NODE_ACTIONS + GESTURES + setOf("ui_press_key", "app_launch", "clipboard_get", "clipboard_set")
+        val NODE_ACTIONS = ToolNames.NODE_ACTIONS
+        val GESTURES = ToolNames.GESTURES
+        val NAMES = ToolNames.ACTIONS
     }
 }

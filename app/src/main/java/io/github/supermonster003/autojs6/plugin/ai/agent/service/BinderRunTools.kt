@@ -38,11 +38,11 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         else if (invocation.name in ActionTools.NAMES) return actions.prepare(invocation, timeoutMs, callback)
         else if (invocation.name !in IMPLEMENTED) callback(PortResult.Failure(RunError.TOOL_DISABLED))
         else callback(PortResult.Success(PreparedTool(invocation, ToolMetadata(
-            passwordField = invocation.name == "ui_set_text", forceConfirmation = catalog[invocation.name]?.readOnlyHint == false))))
+            passwordField = invocation.name == ToolNames.UI_SET_TEXT, forceConfirmation = catalog[invocation.name]?.readOnlyHint == false))))
         return Cancellation.NONE
     }
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
-        if (prepared.invocation.name == "screen_capture") {
+        if (prepared.invocation.name == ToolNames.SCREEN_CAPTURE) {
             val call = (prepared.invocation.plan as ToolPlan.Call).request.copy(timeoutMs = minOf(timeoutMs, maximumTimeoutMs))
             if ("${call.module}.${call.method}" !in methods || !permissions.containsAll(call.permissions)) {
                 callback(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE
@@ -67,7 +67,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         fun success(value: JsonElement) {
             try {
                 val transformed = observations.transform(prepared.invocation, value)
-                if (prepared.invocation.name == "ui_wait_for" && observations.hasActionBaseline) {
+                if (prepared.invocation.name == ToolNames.UI_WAIT_FOR && observations.hasActionBaseline) {
                     val handle = actions.afterWait(transformed, (end - scheduler.nowMs()).coerceAtLeast(1), ::finish)
                     current.set(handle); if (cancelled.get()) handle.cancel()
                 } else finish(PortResult.Success(ToolReply(transformed)))
@@ -77,7 +77,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         when (val plan = prepared.invocation.plan) {
             is ToolPlan.Call -> call(plan.request) { value -> when (value) {
                 is PortResult.Failure -> finish(value)
-                is PortResult.Success -> success(if (prepared.invocation.name != "ui_find" && plan.resultLimit != null && value.value.isJsonArray)
+                is PortResult.Success -> success(if (prepared.invocation.name != ToolNames.UI_FIND && plan.resultLimit != null && value.value.isJsonArray)
                     JsonArray().apply { value.value.asJsonArray.take(plan.resultLimit).forEach(::add) } else value.value)
             } }
             is ToolPlan.Poll -> {
@@ -107,7 +107,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                 repeatCall()
             }
             is ToolPlan.Local -> when (plan.name) {
-                "report_progress" -> success(jsonObject("reported" to true.json()))
+                ToolNames.REPORT_PROGRESS -> success(jsonObject("reported" to true.json()))
                 else -> finish(PortResult.Failure(RunError.TOOL_DISABLED))
             }
             else -> finish(PortResult.Failure(RunError.TOOL_DISABLED))
@@ -183,9 +183,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         return Cancellation { closed.set(true); payload.getAndSet(null)?.close() }
     }
     companion object {
-        val IMPLEMENTED = setOf("ui_dump", "ui_find", "ui_wait_for", "app_current", "screen_state", "screen_capture", "device_info", "console_tail", "ocr_screen",
-            "ui_click", "ui_long_click", "ui_set_text", "ui_scroll", "ui_press_key", "app_launch", "clipboard_get", "clipboard_set",
-            "ui_click_xy", "ui_swipe", "ui_gesture", "script_catalog", "script_stop", "files_list", "files_stat", "files_read", "files_write", "shell_exec", "report_progress")
+        val IMPLEMENTED = ToolNames.HOST_DISPATCHED
         fun bridgeError(error: JsonObject?, scriptExecution: Boolean = false): RunError {
             val stable = error?.string("message")?.substringBefore(':')?.trim()
             val recognized = setOf("A11Y_SERVICE_NOT_RUNNING", "NODE_REF_STALE", "NODE_NOT_FOUND", "SCREEN_LOCKED", "OCR_PLUGIN_REQUIRED",

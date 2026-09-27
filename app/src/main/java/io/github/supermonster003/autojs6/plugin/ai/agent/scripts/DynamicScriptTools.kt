@@ -27,7 +27,7 @@ class DynamicScriptTools(private val delegate: RunTools, private val source: Scr
                          private val maximumTimeoutMs: Long = RunLimits.TOOL_TIMEOUT_MS) : RunTools {
     private class Inspected(val plan: ToolPlan.DynamicScript)
     override fun prepare(invocation: ToolInvocation, timeoutMs: Long, callback: (PortResult<PreparedTool>) -> Unit): Cancellation {
-        if (invocation.name != "script_run_source") return delegate.prepare(invocation, timeoutMs, callback)
+        if (invocation.name != ToolNames.SCRIPT_RUN_SOURCE) return delegate.prepare(invocation, timeoutMs, callback)
         if (!allowed) callback(PortResult.Failure(RunError.CAPABILITY_DENIED))
         else {
             val plan = invocation.plan as? ToolPlan.DynamicScript
@@ -39,7 +39,7 @@ class DynamicScriptTools(private val delegate: RunTools, private val source: Scr
         return Cancellation.NONE
     }
     override fun execute(prepared: PreparedTool, timeoutMs: Long, callback: (PortResult<ToolReply>) -> Unit): Cancellation {
-        if (prepared.invocation.name != "script_run_source") return delegate.execute(prepared, timeoutMs, callback)
+        if (prepared.invocation.name != ToolNames.SCRIPT_RUN_SOURCE) return delegate.execute(prepared, timeoutMs, callback)
         val inspected = prepared.opaqueContext as? Inspected
         if (!allowed || inspected == null || inspected.plan != prepared.invocation.plan) {
             callback(PortResult.Failure(RunError.INVALID_REQUEST)); return Cancellation.NONE

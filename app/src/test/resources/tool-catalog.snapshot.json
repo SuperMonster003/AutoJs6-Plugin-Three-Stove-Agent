@@ -1558,7 +1558,8 @@
     ],
     "defaultEnabled": false,
     "readOnlyHint": false,
-    "destructiveHint": true
+    "destructiveHint": true,
+    "confirmAlways": true
   },
   {
     "name": "script_stop",
@@ -1832,7 +1833,8 @@
     ],
     "defaultEnabled": true,
     "readOnlyHint": false,
-    "destructiveHint": true
+    "destructiveHint": true,
+    "confirmAlways": true
   },
   {
     "name": "report_progress",

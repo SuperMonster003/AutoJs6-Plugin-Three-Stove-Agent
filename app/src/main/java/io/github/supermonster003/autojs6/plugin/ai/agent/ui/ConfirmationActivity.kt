@@ -11,6 +11,7 @@ import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import io.github.supermonster003.autojs6.plugin.ai.agent.catalog.ToolNames
 
 /** A request-specific entry shared by notifications and the later opt-in floating card. */
 class ConfirmationActivity : HostAppearanceActivity() {
@@ -105,10 +106,10 @@ class ConfirmationActivity : HostAppearanceActivity() {
         val pending = row?.getAsJsonObject("pending")
         // If preparation rejected the user proposal, there is no confirmation to follow.
         if (requestId == null && row?.getAsJsonArray("steps")?.lastOrNull()?.asJsonObject?.let {
-                (it.number("index") ?: 0) > memoryAfterStep && it.string("tool") == "memory_propose" &&
+                (it.number("index") ?: 0) > memoryAfterStep && it.string("tool") == ToolNames.MEMORY_PROPOSE &&
                     it.getAsJsonObject("decision")?.string("source") == "user"
             } == true) { finish(); return }
-        if (requestId == null && pending?.string("tool") == "memory_propose" && pending.flag("submitted") != true)
+        if (requestId == null && pending?.string("tool") == ToolNames.MEMORY_PROPOSE && pending.flag("submitted") != true)
             requestId = pending.string("requestId")
         val matches = pending != null && pending.string("requestId") == requestId && pending.flag("submitted") != true
         val display = row?.takeIf { matches }

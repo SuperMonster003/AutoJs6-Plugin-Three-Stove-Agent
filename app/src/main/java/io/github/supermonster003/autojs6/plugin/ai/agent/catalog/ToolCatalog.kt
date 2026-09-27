@@ -23,6 +23,8 @@ class ToolSpec internal constructor(private val data: JsonObject, val external: 
     val defaultEnabled = checkNotNull(data.flag("defaultEnabled"))
     val readOnlyHint = checkNotNull(data.flag("readOnlyHint"))
     val destructiveHint = checkNotNull(data.flag("destructiveHint"))
+    /** Confirmed before every execution regardless of the default or cautious policy; only full access skips it. */
+    val confirmAlways = data.flag("confirmAlways") ?: false
     val outputHint = checkNotNull(data.string("outputHint"))
     val bridgeMapping: List<String> = data.getAsJsonArray("bridgeMapping").map { it.asString }
     val inputSchema: JsonObject get() = data.getAsJsonObject("inputSchema").deepCopy()
@@ -57,6 +59,7 @@ class ToolCatalog private constructor(specifications: List<ToolSpec>) {
         require(tools.all { if (it.external == null) it.group != ToolGroup.MCP && it.inputSchema["additionalProperties"] == false.json() && it.bridgeMapping.isNotEmpty()
             else it.group == ToolGroup.MCP && it.name.startsWith("mcp_") && it.bridgeMapping.isEmpty() })
         require(tools.all { it.readOnlyHint == (it.risk == RiskLevel.READ_ONLY) })
+        require(tools.all { !it.confirmAlways || (it.external == null && it.risk == RiskLevel.SENSITIVE) })
         require(tools.all { it.description("en").isNotBlank() && it.description("zh").isNotBlank() })
         byName = tools.associateBy { it.name }
         require(byName.size == tools.size) { "Duplicate tool name" }
@@ -127,14 +130,14 @@ class ToolPolicy(
         return context.packageName in paymentPackages || paymentKeywords.any { text.contains(it.lowercase(Locale.ROOT)) }
     }
     fun isEnabled(spec: ToolSpec): Boolean = (available == null || spec.name in available) && (enabled[spec.group] ?: spec.defaultEnabled) &&
-        (spec.group != ToolGroup.OCR || ocrAvailable) && (spec.name != "screen_capture" || visionAvailable)
+        (spec.group != ToolGroup.OCR || ocrAvailable) && (spec.name != ToolNames.SCREEN_CAPTURE || visionAvailable)
     fun requireEnabled(catalog: ToolCatalog, name: String): ToolSpec {
         val spec = catalog[name] ?: throw ToolFailure("TOOL_UNKNOWN", "Choose a listed tool.")
         if (!isEnabled(spec)) throw ToolFailure("TOOL_DISABLED", "This tool group is disabled or unavailable.")
         return spec
     }
     fun risk(spec: ToolSpec, context: RiskContext = RiskContext()): RiskLevel {
-        val base = if (spec.name == "script_run") context.registeredScriptRisk ?: spec.risk else spec.risk
+        val base = if (spec.name == ToolNames.SCRIPT_RUN) context.registeredScriptRisk ?: spec.risk else spec.risk
         val text = (context.nodeText + "\n" + context.nodeDescription).lowercase(Locale.ROOT)
         val elevated = spec.group == ToolGroup.ACT && spec.risk != RiskLevel.READ_ONLY &&
             (context.packageName in paymentPackages || keywords.any { text.contains(it.lowercase(Locale.ROOT)) })

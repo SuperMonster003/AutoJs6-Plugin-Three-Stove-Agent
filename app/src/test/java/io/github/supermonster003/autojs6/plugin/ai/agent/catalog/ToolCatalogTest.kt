@@ -21,6 +21,13 @@ class ToolCatalogTest {
         assertEquals(10, AgentJson.objectOf(F.asset("catalog/sensitive-keywords.json")).size())
     }
 
+    @Test fun toolNameConstantsAndConfirmAlwaysMatchThePackagedCatalog() {
+        assertEquals(catalog.tools.map { it.name }.toSet(), ToolNames.ALL)
+        assertEquals(setOf(ToolNames.MEMORY_PROPOSE, ToolNames.SCRIPT_RUN_SOURCE), catalog.tools.filter { it.confirmAlways }.map { it.name }.toSet())
+        assertTrue(catalog.tools.filter { it.confirmAlways }.all { it.risk == RiskLevel.SENSITIVE && it.external == null })
+        assertEquals(28, ToolNames.HOST_DISPATCHED.size); assertEquals(32, ToolNames.ALL.size)
+    }
+
     @Test fun disabledGroupsAreHiddenAndRejectedBeforeArgumentValidation() {
         val policy = ToolPolicy()
         val visible = AgentJson.parse(catalog.render(policy)).asJsonArray.map { it.asJsonObject.string("name") }

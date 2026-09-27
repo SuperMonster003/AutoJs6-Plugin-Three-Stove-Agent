@@ -23,7 +23,7 @@ internal class AgentRuntime internal constructor(val context: Context) {
     val runnerText = asset("runner/texts.json")
     private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json", "catalog/order-intent-keywords.json").associateWith(::asset)
     fun policy(groups: Set<String>) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
-        ToolGroup.entries.associateWith { it.id in groups }, availableTools = BinderRunTools.IMPLEMENTED + setOf("script_run", "script_run_source") + MemoryTools.NAMES)
+        ToolGroup.entries.associateWith { it.id in groups }, availableTools = ToolNames.ALL)
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json"), ::presentationChanged) }
