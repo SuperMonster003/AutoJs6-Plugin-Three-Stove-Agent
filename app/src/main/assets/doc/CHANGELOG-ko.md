@@ -18,6 +18,7 @@
 * `수정` AutoJs6 접근성 서비스가 중지되면 인수 오류 대신 A11Y_SERVICE_NOT_RUNNING을 모델에 전달합니다
 * `개선` 모델 자격 증명은 Provider가 보관하고 모델 호출은 AutoJs6를 거칩니다. MCP Bearer 토큰은 Android Keystore로 암호화하여 비공개 저장소에 보관하며 프롬프트나 기록 내보내기에 포함하지 않습니다. INTERNET은 설정된 MCP 서버 연결에도 사용합니다. Android 17+ 로컬 네트워크 권한은 MCP 설정에서 요청합니다. 서버별 위험의 초기값은 SENSITIVE입니다. 취소는 원격 작업을 되돌리지 않으며 실패한 호출은 자동 재실행하지 않습니다.
 * `개선` 탐색, 카드, 작업 타임라인, 접을 수 있는 설정, 밝은/어두운 테마를 통일하고 예산 입력란에 검증 결과 표시
+* `의존성` Material 3 화면을 위해 AndroidX AppCompat 1.7.1 및 Material Components for Android 1.13.0과 AndroidX 런타임 의존성 추가
 
 # v1.1.0
 

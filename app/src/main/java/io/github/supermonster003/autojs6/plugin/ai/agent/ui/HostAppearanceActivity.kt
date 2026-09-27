@@ -1,6 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.ai.agent.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -10,7 +9,12 @@ import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.AgentPalette
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.Kit
 import org.autojs.plugin.common.api.AutoJs6HostSettingsContract as C
 import java.util.Locale
 import java.util.concurrent.Executors
@@ -41,17 +45,26 @@ internal data class HostAppearance(val language: String, val dark: Boolean, val 
     }
 }
 
-/** Provider IO stays off the main thread; an unavailable snapshot restores system appearance. */
-abstract class HostAppearanceActivity : Activity() {
+/**
+ * Base of every standalone screen (roadmap D45: AppCompat + Material 3). Provider IO stays off the
+ * main thread; an unavailable snapshot restores system appearance. The night mode is fixed on the
+ * delegate before the locale-wrapped base context is attached, so AppCompat never drops the locale.
+ */
+abstract class HostAppearanceActivity : AppCompatActivity() {
     protected open val dialogTheme = false
     private var applied: HostAppearance? = null
     internal val appearance get() = applied
     internal val sectionState = mutableMapOf<Int, Boolean>()
+    /** Runtime palette and component builders for this screen. */
+    internal val kit: Kit by lazy { Kit(this, AgentPalette.resolve(this, applied)) }
+    internal val palette: AgentPalette get() = kit.palette
     private lateinit var systemContext: Context
     private var appearanceGeneration = 0
     override fun attachBaseContext(newBase: Context) {
         systemContext = newBase
         applied = AppearancePreferences.resolve(newBase)
+        val dark = applied?.dark ?: (newBase.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
+        delegate.localNightMode = if (dark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         super.attachBaseContext(applied?.wrap(newBase) ?: newBase)
     }
     @Suppress("DEPRECATION")
@@ -61,15 +74,16 @@ abstract class HostAppearanceActivity : Activity() {
             if (dark) R.style.Theme_AiAgent_Dialog_Dark else R.style.Theme_AiAgent_Dialog_Light
         } else if (dark) R.style.Theme_AiAgent_Dark else R.style.Theme_AiAgent_Light)
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= 33) onBackInvokedDispatcher.registerOnBackInvokedCallback(
-            android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { navigateBack() }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { navigateBack() }
+        })
         savedInstanceState?.getBundle("sectionState")?.let { saved ->
             saved.keySet().forEach { key -> key.toIntOrNull()?.let { sectionState[it] = saved.getBoolean(key) } }
         }
         // PhoneWindow.getInsetsController() on Android 13 dereferences its decor directly.
         // Materialize it before querying the controller, even before setContentView().
         val decor = window.decorView
-        val background = AgentUi.palette(this, applied).background
+        val background = if (dialogTheme) palette.surface else palette.background
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = background
@@ -94,11 +108,8 @@ abstract class HostAppearanceActivity : Activity() {
         }
     }
     override fun onStop() { appearanceGeneration++; super.onStop() }
-    protected open fun navigateBack() { finish() }
-    // API 24-32 use this callback; newer systems use the registered platform gesture callback above.
-    @android.annotation.SuppressLint("GestureBackNavigation")
-    @Deprecated("Legacy Android back callback")
-    override fun onBackPressed() { navigateBack() }
+    /** Toolbar navigation and system back both land here; screens with drafts override it. */
+    open fun navigateBack() { finish() }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBundle("sectionState", Bundle().apply { sectionState.forEach { (key, value) -> putBoolean(key.toString(), value) } })
         super.onSaveInstanceState(outState)

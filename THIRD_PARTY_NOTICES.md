@@ -23,6 +23,20 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 - Transitive runtime component: `com.google.errorprone:error_prone_annotations:2.41.0`, Apache License 2.0, source <https://github.com/google/error-prone>
 - Annotations JAR SHA-256: `a56e782b5b50811ac204073a355a21d915a2107fce13ec711331ad036f660fcc`
 
+## AndroidX AppCompat and Material Components for Android
+
+- Components: `androidx.appcompat:appcompat:1.7.1` and `com.google.android.material:material:1.13.0`, used for the Material 3 standalone interface (themes, buttons, switches, text fields, chips, dialogs, bottom sheets, snackbars and progress indicators)
+- Sources: <https://developer.android.com/jetpack/androidx/releases/appcompat#1.7.1> and <https://github.com/material-components/material-components-android/releases/tag/1.13.0>
+- License: Apache License 2.0
+- appcompat AAR SHA-256: `2ad334a323b28046e89b738c77d184cb3dcca32a551ab048851b2fda23a3ba26`
+- appcompat-resources AAR SHA-256: `8e2db31224ca53b108c784da2b361959062716d416b210cfef3d5a3828306df0`
+- material AAR SHA-256: `6d5e1cbb67c05bcdcbbf84005787dafd354a155f59a4d3800fd45fa7eb3689f5`
+- Transitive runtime components (all Apache License 2.0), as resolved for the release APK:
+  - AndroidX: `activity:1.8.0`, `annotation:1.8.1`, `annotation-experimental:1.4.1`, `appcompat-resources:1.7.1`, `arch.core:core-common:2.2.0`, `arch.core:core-runtime:2.2.0`, `cardview:1.0.0`, `collection:1.4.2`, `concurrent:concurrent-futures:1.1.0`, `constraintlayout:2.1.0`, `constraintlayout-core:1.0.0`, `coordinatorlayout:1.1.0`, `core:1.13.0`, `core-ktx:1.13.0`, `cursoradapter:1.0.0`, `customview:1.1.0`, `drawerlayout:1.1.1`, `dynamicanimation:1.1.0`, `emoji2:1.3.0`, `emoji2-views-helper:1.3.0`, `fragment:1.5.4`, `graphics:graphics-shapes:1.0.1`, `interpolator:1.0.0`, `lifecycle-common/livedata/livedata-core/process/runtime/viewmodel/viewmodel-savedstate:2.6.2`, `loader:1.0.0`, `profileinstaller:1.3.1`, `recyclerview:1.2.1`, `resourceinspection-annotation:1.0.1`, `savedstate:1.2.1`, `startup-runtime:1.1.1`, `tracing:1.0.0`, `transition:1.5.0`, `vectordrawable:1.1.0`, `vectordrawable-animated:1.1.0`, `versionedparcelable:1.1.1`, `viewpager:1.0.0`, `viewpager2:1.0.0` (source <https://android.googlesource.com/platform/frameworks/support>)
+  - `org.jetbrains.kotlinx:kotlinx-coroutines-core` and `kotlinx-coroutines-android:1.6.4` (source <https://github.com/Kotlin/kotlinx.coroutines>)
+  - `com.google.guava:listenablefuture:1.0` (source <https://github.com/google/guava>), `org.jetbrains:annotations:13.0` (source <https://github.com/JetBrains/java-annotations>), `org.jspecify:jspecify:1.0.0` (source <https://github.com/jspecify/jspecify>)
+- Vector icons in `app/src/main/res/drawable/ic_*.xml` follow Google Material Symbols path data, Apache License 2.0, source <https://github.com/google/material-design-icons>
+
 ## Kotlin standard library
 
 - Component: `org.jetbrains.kotlin:kotlin-stdlib` (provided through the Android Gradle Plugin built-in Kotlin support)

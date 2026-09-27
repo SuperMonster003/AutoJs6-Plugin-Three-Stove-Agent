@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="window_background">#111318</color>
+    <color name="surface">#1A1D23</color>
+    <color name="surface_variant">#252932</color>
+    <color name="outline">#3B414D</color>
+    <color name="divider">#2A2F38</color>
+    <color name="text_color_primary">#ECEEF3</color>
+    <color name="text_color_secondary">#A6AEBC</color>
+    <color name="brand_primary">#B7B2FF</color>
+    <color name="status_danger">#F2B8B5</color>
+    <color name="status_danger_surface">#3A2020</color>
+    <color name="status_success">#83D99F</color>
+    <color name="status_success_surface">#1C2E23</color>
+    <color name="status_warning">#F1C274</color>
+    <color name="status_warning_surface">#342A1A</color>
+</resources>
