@@ -18,8 +18,8 @@ For R8 validation, assemble the release Agent and use `run_conformance.py --rele
 GitHub Actions also uses a fresh `Three_Stove_Agent_Conformance_CI_*` AVD for the full
 Agent instrumentation suite. After assembling the fake host and Agent debug
 APKs, `run_conformance.py --prepare-only` applies the same installation guards,
-installs the two APKs, keeps the disposable device awake and unlocked, and
-grants the Agent notification permission on API 33+. This mode prepares the
+installs the two APKs, keeps the disposable device awake and unlocked, hides
+system ANR and crash dialogs, and grants the Agent notification permission on API 33+. This mode prepares the
 real package/version checks used by the workbench; it does not bypass them or
 run the twelve independent broker tests. The main suite then runs normally.
 
