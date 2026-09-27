@@ -6,7 +6,7 @@ import android.os.IBinder
 import org.autojs.plugin.common.api.IPluginInfoProvider
 import org.autojs.plugin.common.api.PluginInfo
 
-/** Answers `org.autojs.plugin.INFO` (category `ai-agent`) for the AutoJs6 plugin center. */
+/** Answers `org.autojs.plugin.INFO` (category `three-stove-agent`) for the AutoJs6 plugin center. */
 class ThreeStoveAgentPluginInfoService : Service() {
 
     private val binder = object : IPluginInfoProvider.Stub() {

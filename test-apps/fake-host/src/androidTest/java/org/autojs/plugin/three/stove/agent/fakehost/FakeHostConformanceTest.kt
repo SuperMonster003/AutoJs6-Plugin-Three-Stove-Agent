@@ -3,8 +3,8 @@ package org.autojs.plugin.three.stove.agent.fakehost
 import android.content.*
 import android.os.*
 import androidx.test.platform.app.InstrumentationRegistry
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -25,7 +25,7 @@ class FakeHostConformanceTest {
     }
     private inner class Fixture(mode: String) : Closeable {
         lateinit var driver: IFakeHostDriver
-        val link: IAiAgentLink
+        val link: IThreeStoveAgentLink
         private val connection: ServiceConnection
         init {
             assertTrue("Disposable AVD only", Build.FINGERPRINT.contains("generic") || Build.MODEL.contains("sdk"))
@@ -42,17 +42,17 @@ class FakeHostConformanceTest {
             assertTrue(ready.await(10, TimeUnit.SECONDS))
             val attached = driver.attach(envelope(C.KEY_LINK_CONFIG_JSON, """{"grantSummary":{"toolGroups":["observe"]}}"""), mode)
             assertEquals(Process.myUid(), attached.getInt("uid")); assertNotEquals(Process.myPid(), attached.getInt("pid"))
-            link = IAiAgentLink.Stub.asInterface(attached.getBinder("link"))
-            assertNull(link.asBinder().queryLocalInterface("org.autojs.plugin.ai.agent.api.IAiAgentLink"))
+            link = IThreeStoveAgentLink.Stub.asInterface(attached.getBinder("link"))
+            assertNull(link.asBinder().queryLocalInterface("org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentLink"))
             waitFor("Callback came from the real plugin UID") { driver.stats().getInt("pluginUid") == context.packageManager.getApplicationInfo(FakeHostService.PLUGIN, 0).uid }
         }
         override fun close() { runCatching { driver.detach() }; context.unbindService(connection) }
     }
-    private fun start(link: IAiAgentLink): String {
+    private fun start(link: IThreeStoveAgentLink): String {
         val reply = link.startRun(envelope(C.KEY_RUN_REQUEST_JSON, """{"goal":"Fake host conformance","options":{"interaction":"script"}}"""), null)
         assertNull(reply.getString(C.KEY_ERROR_CODE)); return JSONObject(reply.getString(C.KEY_RUN_RESPONSE_JSON)!!).getString("runId")
     }
-    private fun row(link: IAiAgentLink, id: String): JSONObject {
+    private fun row(link: IThreeStoveAgentLink, id: String): JSONObject {
         val reply = link.getRun(envelope(C.KEY_RUN_REF_JSON, JSONObject().put("runId", id).toString()))
         assertNull(reply.getString(C.KEY_ERROR_CODE)); return JSONObject(reply.getString(C.KEY_RUN_RESPONSE_JSON)!!)
     }

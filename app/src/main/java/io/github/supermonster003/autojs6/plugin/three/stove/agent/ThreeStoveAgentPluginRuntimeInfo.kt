@@ -2,7 +2,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent
 
 /**
  * Pure-data view of the metadata reported through `IPluginInfoProvider.getInfo()` (and, from
- * roadmap P2.5 on, `IAiAgentPlugin.getInfo()` / `getCapabilities()`).
+ * roadmap P2.5 on, `IThreeStoveAgentPlugin.getInfo()` / `getCapabilities()`).
  *
  * Android-specific lookups (package version, localized strings, raw resources) happen in
  * [threeStoveAgentPluginRuntimeInfo]; this class keeps the mapping itself testable on the JVM.

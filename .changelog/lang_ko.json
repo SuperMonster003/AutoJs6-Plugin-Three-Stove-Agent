@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/27",
       "hint": [
-        "앱 이름이 Three Stove Agent 로 변경되었습니다. 애플리케이션 ID 는 io.github.supermonster003.autojs6.plugin.three.stove.agent, 저장소는 AutoJs6-Plugin-Three-Stove-Agent 입니다. 이전 이름과 호환되지 않습니다. 먼저 이전 AI Agent 를 제거한 뒤 설치하세요. 기록, 프리셋, 메모리는 이전되지 않습니다. 플러그인 ID ai-agent, 서비스 action, AIDL 패키지 이름은 AutoJs6 계약 AAR 에서 오며 호스트 이름 변경과 AAR 재잠금에 맞춰 함께 교체합니다.",
+        "앱 이름이 Three Stove Agent로 변경되었습니다: 애플리케이션 ID는 io.github.supermonster003.autojs6.plugin.three.stove.agent, 저장소는 AutoJs6-Plugin-Three-Stove-Agent, 플러그인 ID와 engine은 three-stove-agent, 서비스 action은 org.autojs.plugin.THREE_STOVE_AGENT, 계약 버전은 2입니다. 이전 이름과 호환되지 않습니다: 설치 전에 이전 AI Agent를 제거하세요. 기록, 프리셋, 메모리는 이전되지 않습니다. 최소 호스트는 AutoJs6 6.8.0 / build 5298로 올라갔으며, 더 오래된 호스트는 이 플러그인을 인식하지 않습니다",
         "개발 버전 1.2.0은 선택적 MCP 도구, 네이티브 호출, 스크린샷, 생성 스크립트를 제공합니다. AiGoCode gpt-5.6-sol은 P9.2 초기 이미지와 도구 결과 이미지 검증을 통과했습니다. P9.1 JSON/네이티브 경로 모두 현재 액세스 포인트의 자동 연결을 일시적으로 끄고 모바일 데이터와 VPN으로 모델에 접속하는 조건에서 Wi-Fi 켜기와 상태 다시 읽기를 완료했습니다. 기본 자동 연결 시 VPN의 기반 네트워크 전환 후 발생하는 실패는 아직 해결되지 않았습니다. 증거는 ROADMAP.md를 참고하세요."
       ],
       "feature": [
@@ -36,6 +36,7 @@
         "프리셋, 메모리, MCP 서버, 스크립트 폴더가 같은 디자인을 사용합니다. 프리셋은 카드와 행 메뉴, 전체 화면 편집기 (시간은 분 단위, 저장 버튼 하단 고정), 메모리는 검색과 범위 칩, MCP는 사용 스위치, 위험 선택, 도구 체크리스트를 제공하며 저장하지 않은 변경을 버리기 전에 확인합니다"
       ],
       "dependency": [
+        "호스트 API release 파일 3개를 AutoJs6 86d9bfa26b / build 5298로 업그레이드: ai-agent-api는 three-stove-agent-api로 변경 (AIDL 패키지 org.autojs.plugin.three.stove.agent.api, 계약 버전 2), common-plugin-api와 host-capability-api는 같은 빌드에서 다시 잠금",
         "호스트 API release 산출물 3 개를 AutoJs6 3cdf7de13c / build 5297 로 업그레이드 (P10 의 mcp 그룹 옵션과 TOOL_FAILED 상수), 기본 계약은 V1 유지",
         "Material 3 화면을 위해 AndroidX AppCompat 1.7.1 및 Material Components for Android 1.13.0과 AndroidX 런타임 의존성 추가"
       ]

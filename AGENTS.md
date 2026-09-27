@@ -20,14 +20,14 @@
 | `rootProject.name` | `autojs6-plugin-three-stove-agent` |
 | 应用标题 (不可翻译) | `Three Stove Agent` |
 | `applicationId` / namespace | `io.github.supermonster003.autojs6.plugin.three.stove.agent` |
-| 插件 ID / engine / variant | `ai-agent` / `ai-agent` / `default` |
+| 插件 ID / engine / variant | `three-stove-agent` / `three-stove-agent` / `default` |
 | Binder 服务类 | `ThreeStoveAgentPluginService` (进程 `:agent`) |
-| 服务发现 action / category | `org.autojs.plugin.AI_AGENT` / `ai-agent` |
-| INFO 服务 | `ThreeStoveAgentPluginInfoService`, action `org.autojs.plugin.INFO`, category `ai-agent` |
-| 宿主契约标识 (不随本仓库改名) | 插件 ID / engine / category `ai-agent`, action `org.autojs.plugin.AI_AGENT`, AIDL 包 `org.autojs.plugin.ai.agent.api` 与契约类 `AiAgentContract` / `AiAgentIds` / `AiAgentActions` / `AiAgentCapabilityKeys` / `IAiAgent*` 由宿主 `ai-agent-api` AAR 决定, 随宿主改名并换锁后一并替换 (路线图 D50) |
+| 服务发现 action / category | `org.autojs.plugin.THREE_STOVE_AGENT` / `three-stove-agent` |
+| INFO 服务 | `ThreeStoveAgentPluginInfoService`, action `org.autojs.plugin.INFO`, category `three-stove-agent` |
+| 宿主契约标识 | 插件 ID / engine / category `three-stove-agent`, action `org.autojs.plugin.THREE_STOVE_AGENT`, AIDL 包 `org.autojs.plugin.three.stove.agent.api` 与契约类 `ThreeStoveAgentContract` / `ThreeStoveAgentIds` / `ThreeStoveAgentActions` / `ThreeStoveAgentCapabilityKeys` / `IThreeStoveAgent*` 由宿主 `three-stove-agent-api` AAR (契约版本 2, 宿主 5298 起) 决定; `ThreeStoveAgentPlugin` 的 ID / engine / variant / action / category / 最低宿主版本直接引用这些常量, 已于 2026-09-27 随宿主改名一并替换 (路线图 D50) |
 | 启动器入口 | `ui.LauncherActivity` (`MAIN` / `LAUNCHER`, 主进程) |
-| 专用 API | `ai-agent-api` (宿主 `plugin-api/ai-agent-api`, AIDL 包 `org.autojs.plugin.ai.agent.api`) 与共享能力契约 `host-capability-api` (宿主 `plugin-api/host-capability-api`, 路线图 D33); 路线图 P1.1 落地后以 AAR 形式进入 `libs/` |
-| 最低宿主 versionCode | `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` = 5289 (AutoJs6 6.8.0, P4.2 动作节点检查与执行绑定) |
+| 专用 API | `three-stove-agent-api` (宿主 `plugin-api/three-stove-agent-api`, AIDL 包 `org.autojs.plugin.three.stove.agent.api`) 与共享能力契约 `host-capability-api` (宿主 `plugin-api/host-capability-api`, 路线图 D33); 路线图 P1.1 落地后以 AAR 形式进入 `libs/` |
+| 最低宿主 versionCode | `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` = `ThreeStoveAgentIds.REQUIRED_HOST_VERSION_CODE` = 5298 (AutoJs6 6.8.0, Three Stove Agent 契约 V2; 已包含 5289 起的 P4.2 动作节点检查与执行绑定) |
 | 平台版本插件 | `io.github.supermonster003.autojs6-platform-versions` 1.8.3 |
 | 发布文件名 | `autojs6-plugin-three-stove-agent-v{VERSION_NAME}-{CRC32}.apk` (单 APK) |
 
@@ -119,7 +119,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 - Gradle 构建 MUST 自包含. 禁止引用仓库外部的 JAR, AAR, `flatDir` 或兄弟项目路径 (例如 `../AutoJs6/...`).
 - 宿主 API AAR MUST 复制到 `libs/` 并在 `locks/host-api-aars.lock` 记录小写 SHA-256; `app/build.gradle.kts` 在配置期校验文件存在, 非 debug 命名, 哈希匹配, 锁文件键集合精确. 更新 AAR 时同步更新锁文件, `THIRD_PARTY_NOTICES.md` 与契约测试.
 - 宿主与插件需要同步更新时分别修改各仓库 (宿主 `D:/idea-projects/AutoJs6`), 不通过跨仓库相对路径制造隐式耦合.
-- `common-plugin-api.aar`, `host-capability-api.aar` 与 `ai-agent-api.aar` (后两者自路线图 P2.5 起) MUST 来自同一宿主构建并一起换锁.
+- `common-plugin-api.aar`, `host-capability-api.aar` 与 `three-stove-agent-api.aar` (后两者自路线图 P2.5 起) MUST 来自同一宿主构建并一起换锁.
 
 ### 5.3 签名与发布构建
 
@@ -148,11 +148,11 @@ AutoJs6-Plugin-Three-Stove-Agent/
 
 - `ThreeStoveAgentPluginRuntimeInfo` 是纯数据映射, `ThreeStoveAgentPluginInfo.kt` 负责 Android 侧读取 (包版本, 本地化描述, `@raw/plugin_instruction`, 构建日期), 二者的分离 MUST 保持, 以便 JVM 测试覆盖映射.
 - `name` 与不可翻译的 `app_name` 一致; `description` 来自当前 locale 的 `plugin_description`; `versionName` / `versionCode` 来自 `PackageInfo`; `versionDate` 来自 `plugin_version_date` (`MMM d, yyyy`, `GMT+08:00`); `id` / `engine` / `variant` 与第 2 节一致.
-- `capabilities` 至少包含 `PluginCapabilityKeys.REQUIRES_HOST_VERSION` (Long). 路线图 P2.5 起追加 `AiAgentCapabilityKeys.CONTRACT_VERSION`, `TOOL_GROUPS`, `FEATURES`; 宿主先读取能力再调用新方法, 不通过捕获异常猜测协议版本.
+- `capabilities` 至少包含 `PluginCapabilityKeys.REQUIRES_HOST_VERSION` (Long). 路线图 P2.5 起追加 `ThreeStoveAgentCapabilityKeys.CONTRACT_VERSION`, `TOOL_GROUPS`, `FEATURES`; 宿主先读取能力再调用新方法, 不通过捕获异常猜测协议版本.
 
 ## 8. Binder 与公共 API
 
-- 公共常量, Bundle key, capability key, ID, action 和 category MUST 集中在宿主契约模块 (`ai-agent-api`, `host-capability-api`) 与 `ThreeStoveAgentPlugin` 中, 禁止散落字符串字面量. 路线图 P2.5 前, `ThreeStoveAgentPluginService` 只暴露携带 `SERVICE_DESCRIPTOR` 的占位 Binder, 不伪造任何事务.
+- 公共常量, Bundle key, capability key, ID, action 和 category MUST 集中在宿主契约模块 (`three-stove-agent-api`, `host-capability-api`) 与 `ThreeStoveAgentPlugin` 中, 禁止散落字符串字面量. 路线图 P2.5 前, `ThreeStoveAgentPluginService` 只暴露携带 `SERVICE_DESCRIPTOR` 的占位 Binder, 不伪造任何事务.
 - 宿主到插件的能力代理与模型代理使用 Bundle + JSON 请求 / 响应 (路线图 D14 / D18); 所有 Binder 输入 MUST 做边界校验 (长度, 大小, key, 枚举, 索引), 上限常量集中定义并与路线图附录 B.5 一致.
 - 已发布 AIDL 演进时保持旧 transaction 顺序, 末尾追加, 通过契约版本协商; 破坏性重设计同步升级宿主与插件.
 - 不在 Binder 主路径执行不可取消的长耗时初始化; 非 oneway 方法 200 ms 内返回 (附录 B.3); 服务被回收, 首次绑定, 重复绑定和并发调用都应保持确定行为.
@@ -165,7 +165,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 - 分级确认 (D8) MUST NOT 被工具组开关绕过: 敏感工具与登记为 `sensitive` 的脚本在执行前经 `ConfirmationGate`; 审慎模式让所有非只读操作都确认; 确认超时视为拒绝. 完全访问 (路线图 D43) 只能来自插件私有设置并由 `ConfirmationGate` 统一放行, MUST NOT 由模型输出, 页面内容, 公开请求字段, 外部 Intent 或工具组开关开启, 也不得放宽工具组, 预算与宿主 grant; 开启时界面与历史 MUST 以非打扰方式标注. 会话授权 (D44) 以工具, 风险等级与付款类别为键, 不跨任务.
 - 需要无障碍的工具在准入前 SHOULD 经宿主 `accessibility.ensureEnabled` 自动启动 (D42); 插件不申请无障碍, 不复制宿主的 Root / 安全设置 / Shizuku 启动逻辑, 失败时回送 `A11Y_SERVICE_NOT_RUNNING` 并引导用户手动开启.
 - 预算 (步数, 模型调用次数, 时长, token) 在 `Budget` 中集中计数, 超限即以 `BUDGET_EXCEEDED` 终止并报告; 插件默认值不得超过附录 B.5 的契约上限.
-- 模型调用一律经 `model/ModelClient` -> `IAiAgentModelBroker`, 内置设备操作经 `catalog/ToolHandlers` -> `IHostCapabilityBroker`; MUST NOT 在插件内直接绑定 Provider, 读取宿主文件系统或复制宿主功能. P10 的可选 MCP 来源执行用户配置的服务器工具, 沿用目录校验, 确认和预算; 不得自动重放工具调用. 若独立 MCP Client 能力代理落地, 优先替换内部来源适配层.
+- 模型调用一律经 `model/ModelClient` -> `IThreeStoveAgentModelBroker`, 内置设备操作经 `catalog/ToolHandlers` -> `IHostCapabilityBroker`; MUST NOT 在插件内直接绑定 Provider, 读取宿主文件系统或复制宿主功能. P10 的可选 MCP 来源执行用户配置的服务器工具, 沿用目录校验, 确认和预算; 不得自动重放工具调用. 若独立 MCP Client 能力代理落地, 优先替换内部来源适配层.
 - 宿主代理死亡时运行中的任务转入 `blocked` (D15), 不自动续跑; 插件进程重建后不恢复运行中任务, 只保留历史记录.
 - 普通日志不得含目标文本, 模型提示词 / 输出, 节点树, 屏幕文字, 脚本参数或结果; 只记录工具名, 错误分类, 大小与耗时.
 - 任务前台服务 (`ThreeStoveAgentTaskForegroundService`) 只在有运行中或排队任务时存在, 通知显示当前步骤与 "停止"; 两侧都不做开机自启.
@@ -231,8 +231,8 @@ AutoJs6-Plugin-Three-Stove-Agent/
 ### 15.2 Android instrumentation (`app/src/androidTest`)
 
 - `ThreeStoveAgentPluginContractTest` MUST 覆盖: Wake Activity 契约, launcher 唯一入口, INFO 服务发现与真实 `getInfo()` 往返 (包版本, 本地化描述, ID / engine / variant, 显式空 `supportedAbis`, `REQUIRES_HOST_VERSION`), `ThreeStoveAgentPluginService` 发现, `:agent` 进程, 显式绑定与 Binder descriptor.
-- 路线图 P2.5 起还 MUST 覆盖: 真实 `IAiAgentPlugin` 的 `getInfo` / `getCapabilities` 能力键, 非宿主调用 `attach` 得到 `SecurityException`, 假代理下的 attach -> startRun -> 事件 -> detach 往返, 宿主 death 时任务转入 `blocked`.
-- 宿主仓库的假插件 (`test-apps:ai-agent-conformance`, P7) 是宿主契约变更时的往返证据, 宿主契约变更时 MUST 重跑.
+- 路线图 P2.5 起还 MUST 覆盖: 真实 `IThreeStoveAgentPlugin` 的 `getInfo` / `getCapabilities` 能力键, 非宿主调用 `attach` 得到 `SecurityException`, 假代理下的 attach -> startRun -> 事件 -> detach 往返, 宿主 death 时任务转入 `blocked`.
+- 宿主仓库的假插件 (`test-apps:three-stove-agent-conformance`, P7) 是宿主契约变更时的往返证据, 宿主契约变更时 MUST 重跑.
 - 本仓库 `test-apps:fake-host` 使用真实宿主包名检验现有身份校验, 禁止装到真机或覆盖真实 AutoJs6. 使用独立数据目录的一次性 `Three_Stove_Agent_Conformance_*` AVD 和模块的 `run_conformance.py`, 验证 attach / grant 拒绝 / 真实代理进程 death; 不给生产代码增加身份绕过.
 - 有设备或模拟器时执行 `:app:connectedDebugAndroidTest`; E4 级真实任务验收 (D32) 与正确性测试分开记录.
 
@@ -271,7 +271,7 @@ Release 前额外执行 `.\gradlew.bat :app:appendDigestToReleasedFiles`, 检查
 - [ ] 平台插件只在根 settings 应用一次, 无 `mavenLocal()`, 无外部路径引用, 无 `gradle/data`.
 - [ ] `libs/` AAR 与 `locks/host-api-aars.lock` 哈希匹配, `THIRD_PARTY_NOTICES.md` 已更新.
 - [ ] `sign.properties` 与 `app/sm003.jks` 被 Git 忽略; `appendDigestToReleasedFiles` 可用.
-- [ ] Wake Activity, INFO 服务, `AI_AGENT` 服务契约完整; `getInfo()` 显式 `supportedAbis = emptyArray()`.
+- [ ] Wake Activity, INFO 服务, `THREE_STOVE_AGENT` 服务契约完整; `getInfo()` 显式 `supportedAbis = emptyArray()`.
 - [ ] 10 语言资源与文档完整, ASCII 标点, `plugin_description` 无句尾点号; 图标由脚本生成.
 - [ ] JSON 文案源已生成产物且 `--check` 通过; 当前版本全部语言 changelog 已更新.
 - [ ] 单元测试, assemble, lint 通过; 有设备时 instrumentation 通过, 否则明确记录.

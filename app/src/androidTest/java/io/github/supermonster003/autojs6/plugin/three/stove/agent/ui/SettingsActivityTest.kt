@@ -15,7 +15,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.update.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.junit.Assert.*
 import org.junit.Test
 import java.io.File

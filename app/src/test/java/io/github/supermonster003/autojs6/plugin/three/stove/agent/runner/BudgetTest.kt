@@ -1,7 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.runner
 
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -11,13 +11,13 @@ class BudgetTest {
         assertEquals(dimension, error.dimension)
     }
     @Test fun runLimitsMirrorTheHostContract() {
-        assertEquals(AiAgentContract.MAX_STEPS, RunLimits.STEPS); assertEquals(AiAgentContract.MAX_MODEL_CALLS, RunLimits.MODEL_CALLS)
-        assertEquals(AiAgentContract.MAX_RUN_QUEUE, RunLimits.QUEUED_RUNS); assertEquals(AiAgentContract.MAX_DURATION_MS, RunLimits.DURATION_MS)
-        assertEquals(AiAgentContract.MAX_DETACHED_DURATION_MS, RunLimits.DETACHED_DURATION_MS)
-        assertEquals(AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS, RunLimits.DEFAULT_TOOL_TIMEOUT_MS)
-        assertEquals(AiAgentContract.MAX_TOOL_TIMEOUT_MS, RunLimits.TOOL_TIMEOUT_MS)
-        assertEquals(AiAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK, RunLimits.TOKENS)
-        assertEquals(AiAgentContract.MAX_RUN_JOURNAL_BYTES, RunLimits.JOURNAL_BYTES)
+        assertEquals(ThreeStoveAgentContract.MAX_STEPS, RunLimits.STEPS); assertEquals(ThreeStoveAgentContract.MAX_MODEL_CALLS, RunLimits.MODEL_CALLS)
+        assertEquals(ThreeStoveAgentContract.MAX_RUN_QUEUE, RunLimits.QUEUED_RUNS); assertEquals(ThreeStoveAgentContract.MAX_DURATION_MS, RunLimits.DURATION_MS)
+        assertEquals(ThreeStoveAgentContract.MAX_DETACHED_DURATION_MS, RunLimits.DETACHED_DURATION_MS)
+        assertEquals(ThreeStoveAgentContract.DEFAULT_TOOL_TIMEOUT_MS, RunLimits.DEFAULT_TOOL_TIMEOUT_MS)
+        assertEquals(ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS, RunLimits.TOOL_TIMEOUT_MS)
+        assertEquals(ThreeStoveAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK, RunLimits.TOKENS)
+        assertEquals(ThreeStoveAgentContract.MAX_RUN_JOURNAL_BYTES, RunLimits.JOURNAL_BYTES)
         assertTrue(RunLimits.DEFAULT_DURATION_MS < RunLimits.DEFAULT_DETACHED_DURATION_MS && RunLimits.DEFAULT_DETACHED_DURATION_MS <= RunLimits.DURATION_MS)
     }
     @Test fun defaultsAndOwnershipRespectContractCeilings() {

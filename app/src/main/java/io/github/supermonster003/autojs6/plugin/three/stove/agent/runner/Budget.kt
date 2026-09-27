@@ -1,19 +1,19 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.runner
 
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 
 /** Pure-core ceilings bound to the host contract (appendix B.5), so a relocked AAR cannot drift from the loop. */
 object RunLimits {
-    const val STEPS = AiAgentContract.MAX_STEPS
-    const val MODEL_CALLS = AiAgentContract.MAX_MODEL_CALLS
-    const val QUEUED_RUNS = AiAgentContract.MAX_RUN_QUEUE
-    const val DURATION_MS = AiAgentContract.MAX_DURATION_MS
-    const val DETACHED_DURATION_MS = AiAgentContract.MAX_DETACHED_DURATION_MS
-    const val DEFAULT_TOOL_TIMEOUT_MS = AiAgentContract.DEFAULT_TOOL_TIMEOUT_MS
-    const val TOOL_TIMEOUT_MS = AiAgentContract.MAX_TOOL_TIMEOUT_MS
-    const val TOKENS = AiAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK
-    const val JOURNAL_BYTES = AiAgentContract.MAX_RUN_JOURNAL_BYTES
+    const val STEPS = ThreeStoveAgentContract.MAX_STEPS
+    const val MODEL_CALLS = ThreeStoveAgentContract.MAX_MODEL_CALLS
+    const val QUEUED_RUNS = ThreeStoveAgentContract.MAX_RUN_QUEUE
+    const val DURATION_MS = ThreeStoveAgentContract.MAX_DURATION_MS
+    const val DETACHED_DURATION_MS = ThreeStoveAgentContract.MAX_DETACHED_DURATION_MS
+    const val DEFAULT_TOOL_TIMEOUT_MS = ThreeStoveAgentContract.DEFAULT_TOOL_TIMEOUT_MS
+    const val TOOL_TIMEOUT_MS = ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS
+    const val TOKENS = ThreeStoveAgentContract.DEFAULT_MAX_TOTAL_TOKENS_PER_LINK
+    const val JOURNAL_BYTES = ThreeStoveAgentContract.MAX_RUN_JOURNAL_BYTES
     /** Plugin defaults from P2.3; settings, presets and requests can only narrow them. */
     const val DEFAULT_DURATION_MS = 10 * 60_000L
     const val DEFAULT_DETACHED_DURATION_MS = 30 * 60_000L

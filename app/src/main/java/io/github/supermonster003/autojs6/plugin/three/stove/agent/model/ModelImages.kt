@@ -2,7 +2,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.io.OutputStream
 
 /** Task-local encoded observations. Never serialize the bytes into a journal or diagnostic. */

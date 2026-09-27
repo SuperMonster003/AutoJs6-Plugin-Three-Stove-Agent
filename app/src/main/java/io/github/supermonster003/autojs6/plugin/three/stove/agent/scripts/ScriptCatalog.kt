@@ -3,7 +3,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.StepJournal
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 
 /** A host-validated registration snapshot, never source code or a filesystem handle. */
 class RegisteredScript private constructor(private val value: JsonObject) {
@@ -27,7 +27,7 @@ class RegisteredScript private constructor(private val value: JsonObject) {
             require(row.string("kind") in setOf("project", "file"))
             require(row.string("risk") in setOf("readonly", "normal", "sensitive"))
             require(row.string("confirm") in setOf("never", "before-run"))
-            require((row.number("timeoutMs") ?: 0) in 1..AiAgentContract.MAX_TOOL_TIMEOUT_MS && (row.number("updatedAt") ?: -1) >= 0)
+            require((row.number("timeoutMs") ?: 0) in 1..ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS && (row.number("updatedAt") ?: -1) >= 0)
             val schema = row["parameters"]?.takeIf { it.isJsonObject }?.asJsonObject ?: error("Invalid parameters")
             require(schema.string("type") == "object" && schema["properties"]?.isJsonObject == true)
             require(schema["required"]?.isJsonArray == true && schema.getAsJsonArray("required").all { it.isJsonPrimitive && it.asJsonPrimitive.isString })
@@ -44,8 +44,8 @@ class ScriptCatalogSnapshot private constructor(private val rows: List<Registere
     val entries: List<RegisteredScript> get() = rows.toList()
     override fun toString() = "ScriptCatalogSnapshot(entries=${entries.size}, ambiguous=$ambiguous)"
     companion object {
-        const val MAX_ENTRIES = AiAgentContract.MAX_SCRIPT_CATALOG_ENTRIES
-        const val MAX_BYTES = AiAgentContract.MAX_SCRIPT_CATALOG_BYTES
+        const val MAX_ENTRIES = ThreeStoveAgentContract.MAX_SCRIPT_CATALOG_ENTRIES
+        const val MAX_BYTES = ThreeStoveAgentContract.MAX_SCRIPT_CATALOG_BYTES
         // A legal 256 KiB catalog can exceed the smaller model/observation parser budget.
         const val MAX_NODES = 131_072
         fun parse(value: JsonElement): ScriptCatalogSnapshot {

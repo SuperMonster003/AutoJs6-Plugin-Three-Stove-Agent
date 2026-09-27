@@ -10,7 +10,7 @@ import android.widget.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolNames
 
 /** A request-specific entry shared by notifications and the later opt-in floating card. */

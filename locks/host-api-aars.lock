@@ -1,8 +1,8 @@
-# AutoJs6 6.8.0 / 5297 release APIs, host commit 3cdf7de13c, 2026-09-26.
+# AutoJs6 6.8.0 / 5298 release APIs, host commit 86d9bfa26b, 2026-09-27.
 format=1
 common-plugin-api.file=common-plugin-api.aar
 common-plugin-api.sha256=ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15
 host-capability-api.file=host-capability-api.aar
-host-capability-api.sha256=0c9233f43848cc3a9d9a87071f46ecb71935964693a53de017529dfa2de79c28
-ai-agent-api.file=ai-agent-api.aar
-ai-agent-api.sha256=3f4e0aa5a5c6d7adede4a998603386a5c338c150a97fc9a75beb95e0028c2626
+host-capability-api.sha256=23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1
+three-stove-agent-api.file=three-stove-agent-api.aar
+three-stove-agent-api.sha256=02958a7c414c80a7cc839dc8da01b04b367d9b2f3694403f57e93b0e813f0762

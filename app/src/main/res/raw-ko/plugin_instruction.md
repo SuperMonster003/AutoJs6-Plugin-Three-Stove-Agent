@@ -20,6 +20,6 @@ Three Stove Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기�
 
 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI)를 설치하고 활성화한 뒤 온라인 모델을 설정하거나 지원되는 로컬 모델을 가져오세요. 현재 호스트 모델 중개자는 3-Stone AI를 선택합니다. 다른 Provider는 호스트 통합이 필요합니다. Three Stove Agent 홈의 모델 캡슐에서 모델을 선택하세요. AutoJs6에 연결되지 않은 동안에만 홈에 연결 안내가 표시됩니다.
 
-Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5289+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. Three Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
+Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5298+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. Three Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
 
 연결 안내와 현재 진행 상황은 [프로젝트 README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent)와 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)를 참고하세요.

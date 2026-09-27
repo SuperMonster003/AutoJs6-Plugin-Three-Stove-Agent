@@ -8,7 +8,7 @@
     "v1.2.0": {
       "released_date": "2026/09/27",
       "hint": [
-        "The app is renamed Three Stove Agent: the application ID is now io.github.supermonster003.autojs6.plugin.three.stove.agent and the repository is AutoJs6-Plugin-Three-Stove-Agent. The old name is not supported: uninstall the old AI Agent before installing; history, presets and memories are not migrated. The plugin ID ai-agent, the service action and the AIDL package come from the AutoJs6 contract AARs and will be replaced together with the host rename and relocked AARs.",
+        "The app is renamed Three Stove Agent: the application ID is now io.github.supermonster003.autojs6.plugin.three.stove.agent, the repository is AutoJs6-Plugin-Three-Stove-Agent, the plugin ID and engine are three-stove-agent, the service action is org.autojs.plugin.THREE_STOVE_AGENT and the contract version is 2. The old name is not supported: uninstall the old AI Agent before installing; history, presets and memories are not migrated. The minimum host is now AutoJs6 6.8.0 / build 5298; earlier hosts no longer recognize this plugin",
         "Version 1.2.0 is in development with optional MCP tools, native calling, screenshots and generated scripts. AiGoCode gpt-5.6-sol passed the P9.2 initial-image and tool-result-image probes. P9.1 JSON and native paths both completed Wi-Fi activation and state readback with auto-connect for the current hotspot temporarily disabled and model access over cellular data and VPN. Failures after VPN network switching with default auto-connect remain unresolved; see ROADMAP.md."
       ],
       "feature": [
@@ -36,6 +36,7 @@
         "Presets, memory, MCP servers and script directories share the same design: preset cards with a row menu and a full-page editor (duration in minutes, sticky Save), memory search with scope chips, an MCP tool checklist with an enable switch and risk choice, and a prompt before discarding unsaved changes"
       ],
       "dependency": [
+        "Upgrade the three host API release artifacts to AutoJs6 86d9bfa26b / build 5298: ai-agent-api becomes three-stove-agent-api (AIDL package org.autojs.plugin.three.stove.agent.api, contract version 2), with common-plugin-api and host-capability-api relocked from the same build",
         "Upgrade the three host API release artifacts to AutoJs6 3cdf7de13c / build 5297 (P10 mcp group option and TOOL_FAILED constant); the base contract stays V1",
         "Add AndroidX AppCompat 1.7.1 and Material Components for Android 1.13.0 with their AndroidX runtime dependencies for the Material 3 interface"
       ]

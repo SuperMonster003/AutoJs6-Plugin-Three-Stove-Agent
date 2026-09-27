@@ -8,7 +8,7 @@
 
 ###### 2026/09/27
 
-* `提示` 应用已更名为 Three Stove Agent: 应用 ID 改为 io.github.supermonster003.autojs6.plugin.three.stove.agent, 仓库改为 AutoJs6-Plugin-Three-Stove-Agent. 不兼容旧名称: 请先卸载旧的 AI Agent 再安装, 历史, 预设与记忆不会迁移. 插件 ID ai-agent, 服务 action 与 AIDL 包名由 AutoJs6 契约 AAR 决定, 将随宿主更名并换锁后一并替换.
+* `提示` 应用已更名为 Three Stove Agent: 应用 ID 改为 io.github.supermonster003.autojs6.plugin.three.stove.agent, 仓库改为 AutoJs6-Plugin-Three-Stove-Agent, 插件 ID 与 engine 改为 three-stove-agent, 服务 action 改为 org.autojs.plugin.THREE_STOVE_AGENT, 契约版本升为 2. 不兼容旧名称: 需先卸载旧的 AI Agent 再安装, 历史, 预设与记忆不迁移; 最低宿主版本提升为 AutoJs6 6.8.0 / build 5298, 更早的宿主不再识别本插件
 * `提示` 1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 JSON/原生路径均已完成 Wi-Fi 开启与状态回读: 测试时临时关闭当前热点的自动连接, 模型经蜂窝网络和 VPN 联网. 默认自动连接时 VPN 跨网络切换后的失败仍未解决. 证据见 ROADMAP.md.
 * `新增` 本机或外部 MCP 服务器的选定工具, 按服务器设置风险等级, mcp 工具组默认关闭
 * `新增` 打开 Three Stove Agent 并连接 AutoJs6, 输入目标并开始任务. 主页的模型胶囊可选择在线或本地模型, 或选择自动 (优先本地模型, 否则使用第一个可用模型). 模型列表支持搜索, 置顶常用模型和复用最近使用的模型, 标签显示已声明的工具调用与图片输入能力. 任务台与悬浮球的新任务共用这一选择, 不修改预设或正在运行的任务, 预设也不再包含模型. 输入栏中的预设标签用于选择可选的预设. 在任务卡片中回答问题并查看进展.
@@ -28,6 +28,7 @@
 * `优化` 确认卡片以可读表格展示风险等级, 工具组和全部参数, 不再显示原始 JSON; 允许一次, 当前会话始终允许与拒绝三个操作清晰区分. 悬浮球采用相同的 Material 设计, 预设在卡片内直接选择, 模型一行可打开共用的模型切换器
 * `优化` 任务历史新增搜索, 状态标签, 预设与日期范围筛选, 可从菜单清除已结束的任务. 任务详情显示所用模型, 带参数表格与可展开观察内容的步骤时间线, 提供再次运行与换个模型重试, 菜单中可导出诊断, 删除记录或将该任务的模型用于新任务
 * `优化` 预设, 记忆, MCP 服务器与脚本目录采用统一设计: 预设以卡片呈现并提供行菜单, 编辑器为整页 (时长以分钟计, 保存按钮固定在底部); 记忆支持搜索与作用域标签; MCP 提供启用开关, 风险选择与工具清单; 离开未保存的修改前会先确认
+* `依赖` 升级三份宿主 API release 制品至 AutoJs6 86d9bfa26b / build 5298: ai-agent-api 改为 three-stove-agent-api (AIDL 包 org.autojs.plugin.three.stove.agent.api, 契约版本 2), common-plugin-api 与 host-capability-api 从同一构建一并换锁
 * `依赖` 升级三份宿主 API release 制品至 AutoJs6 3cdf7de13c / build 5297 (P10 的 mcp 工具组选项与 TOOL_FAILED 常量), 基础契约仍为 V1
 * `依赖` 附加 AndroidX AppCompat 1.7.1 与 Material Components for Android 1.13.0 及其 AndroidX 运行时依赖, 用于 Material 3 界面
 

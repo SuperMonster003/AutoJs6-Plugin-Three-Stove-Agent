@@ -8,8 +8,8 @@ import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.ScriptRootsActivity
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.*
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.junit.Assert.*
@@ -101,9 +101,9 @@ class McpLinkAndroidTest {
         }
         override fun close() { socket.close(); workers.shutdownNow() }
     }
-    private class Model(private val tool: String, private val enabled: Boolean, private val native: Boolean, private val failure: Boolean) : IAiAgentModelBroker.Stub() {
+    private class Model(private val tool: String, private val enabled: Boolean, private val native: Boolean, private val failure: Boolean) : IThreeStoveAgentModelBroker.Stub() {
         val requests = CopyOnWriteArrayList<JsonObject>(); val submissions = CopyOnWriteArrayList<JsonObject>()
-        private var nativeCallback: IAiAgentModelCallback? = null; private var nativeId: String? = null
+        private var nativeCallback: IThreeStoveAgentModelCallback? = null; private var nativeId: String? = null
         private val sequence = AtomicInteger()
         private val done: String get() = if (failure) """{"kind":"done","done":{"status":"failed","summary":"Fixture rejected","unfinished":["External operation failed"]}}"""
             else """{"kind":"done","done":{"status":"completed","summary":"Fixture complete","evidence":["Fixture response observed"]}}"""
@@ -111,18 +111,18 @@ class McpLinkAndroidTest {
             "maximumInputBytes" to 131072.json(), "maximumOutputBytes" to 65536.json(), "maximumResponseSchemaBytes" to 16384.json()).apply {
                 if (native) { addProperty("toolCallingVersion", 1); addProperty("maximumToolRounds", 16); addProperty("maximumToolResultBytes", 65536); addProperty("maximumToolResultBatchBytes", 131072) }
             }.toString()).apply { putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""") }
-        private fun emit(callback: IAiAgentModelCallback, id: String, type: String, sequence: Int, value: JsonObject = JsonObject()) {
+        private fun emit(callback: IThreeStoveAgentModelCallback, id: String, type: String, sequence: Int, value: JsonObject = JsonObject()) {
             value.addProperty("requestId", id); value.addProperty("type", type); value.addProperty("sequence", sequence)
             callback.onEvent(AgentWire.envelope(C.KEY_MODEL_EVENT_JSON, value.toString()))
         }
-        override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun listTargets(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val id = AgentJson.objectOf(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).string("requestId")!!
             emit(callback, id, "started", 1)
             emit(callback, id, "completed", 2, jsonObject("targets" to jsonArray(AgentJson.objectOf("""{"targetId":"mcp-fixture:text","displayName":"MCP fixture","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}""").apply {
                 if (native) add("capabilityIds", jsonArray("tools".json()))
             })))
         }
-        override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun generate(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val value = AgentJson.objectOf(request.getString(C.KEY_MODEL_REQUEST_JSON)!!, 131072); requests += value
             val id = value.string("requestId")!!
             emit(callback, id, "started", 1)
@@ -152,14 +152,14 @@ class McpLinkAndroidTest {
         override fun destroy(reason: Bundle?) = Unit
     }
     private fun fixture(native: Boolean = false, failTool: Boolean = false, global: Boolean = true, preset: Boolean = true,
-                        action: (IAiAgentLink, Model, Server, String, CopyOnWriteArrayList<JsonObject>) -> Unit) {
+                        action: (IThreeStoveAgentLink, Model, Server, String, CopyOnWriteArrayList<JsonObject>) -> Unit) {
         val screen = ActivityScenario.launch(ScriptRootsActivity::class.java); val server = Server(failTool)
-        val connections = mutableListOf<ServiceConnection>(); var link: IAiAgentLink? = null; var runId: String? = null
+        val connections = mutableListOf<ServiceConnection>(); var link: IThreeStoveAgentLink? = null; var runId: String? = null
         var settings: IAgentSettings? = null; var originalSettings: JsonObject? = null; var presets: IPresetStore? = null; var mcp: IAgentSettings? = null
         var createdProfile = false; var createdPreset = false
         val id = "p10" + UUID.randomUUID().toString().replace("-", "").take(8); val presetName = "p10-$id"
         try {
-            val plugin = IAiAgentPlugin.Stub.asInterface(bind(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connections))
+            val plugin = IThreeStoveAgentPlugin.Stub.asInterface(bind(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connections))
             settings = IAgentSettings.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(SettingsEndpoint.ACTION), connections))
             originalSettings = query(jsonObject("operation" to "get".json()), checkNotNull(settings)::query).getAsJsonObject("settings").deepCopy()
             query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(AgentSettings(toolGroups = if (global) setOf("mcp", "user") else setOf("user"), voice = false))), checkNotNull(settings)::query)
@@ -171,7 +171,7 @@ class McpLinkAndroidTest {
             createdProfile = true
             val model = Model("mcp_${id}_echo", global && preset, native, failTool)
             link = plugin.attach(envelope(C.KEY_LINK_CONFIG_JSON, jsonObject("grantSummary" to jsonObject("toolGroups" to jsonArray("mcp".json(), "user".json())))),
-                model, Capabilities(), object : IAiAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
+                model, Capabilities(), object : IThreeStoveAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
             presets = IPresetStore.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(PresetEndpoint.ACTION), connections))
             query(jsonObject("operation" to "save".json(), "create" to true.json(), "preset" to PresetCodec.encodePreset(Preset(presetName,
                 targetId = "mcp-fixture:text", toolGroups = if (global && preset) setOf("mcp", "user") else setOf("user"), memoryScope = "none"))), checkNotNull(presets)::query)
@@ -179,7 +179,7 @@ class McpLinkAndroidTest {
             val events = CopyOnWriteArrayList<JsonObject>()
             runId = decode(checkNotNull(link).startRun(envelope(C.KEY_RUN_REQUEST_JSON, jsonObject("goal" to "Exercise the harmless MCP fixture".json(), "options" to jsonObject(
                 "preset" to presetName.json(), "interaction" to "plugin".json(), "memory" to false.json(), "budget" to jsonObject("maxSteps" to 3.json(), "maxModelCalls" to 4.json(), "maxDurationMs" to 60000.json())))),
-                object : IAiAgentRunCallback.Stub() { override fun onRunEvent(event: Bundle?) { events += AgentJson.objectOf(checkNotNull(event?.getString(C.KEY_RUN_EVENT_JSON)), C.MAX_EVENT_JSON_BYTES) } })).string("runId")!!
+                object : IThreeStoveAgentRunCallback.Stub() { override fun onRunEvent(event: Bundle?) { events += AgentJson.objectOf(checkNotNull(event?.getString(C.KEY_RUN_EVENT_JSON)), C.MAX_EVENT_JSON_BYTES) } })).string("runId")!!
             action(checkNotNull(link), model, server, checkNotNull(runId), events)
         } finally {
             try {
@@ -207,7 +207,7 @@ class McpLinkAndroidTest {
             }
         }
     }
-    private fun confirm(link: IAiAgentLink, runId: String, event: JsonObject) = decode(link.respond(envelope(C.KEY_RUN_RESPONSE_JSON,
+    private fun confirm(link: IThreeStoveAgentLink, runId: String, event: JsonObject) = decode(link.respond(envelope(C.KEY_RUN_RESPONSE_JSON,
         jsonObject("runId" to runId.json(), "requestId" to event["requestId"], "allowed" to true.json(), "scope" to "once".json()))))
 
     @Test fun jsonToolRequiresLocalSensitiveConfirmationDespiteReadOnlyServerAnnotations() = fixture { link, model, server, runId, events ->

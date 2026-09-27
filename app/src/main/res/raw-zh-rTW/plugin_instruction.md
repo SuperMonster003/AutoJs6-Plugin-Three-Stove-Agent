@@ -20,6 +20,6 @@ Three Stove Agent 把一句自然語言目標變成執行 AutoJs6 的 Android �
 
 安裝並啟用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中設定線上模型或匯入支援的本機模型. 目前宿主模型代理選用 3-Stone AI, 其他 Provider 需要宿主完成整合後才能使用. 在 Three Stove Agent 首頁點按模型膠囊選擇模型. 僅在未連接 AutoJs6 時, 首頁才會顯示連線提示.
 
-支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5289+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要宿主的無障礙服務; Agent 會先透過 AutoJs6 已設定的免打擾方式 (Root, 安全設定或 Shizuku) 自動啟動, 僅在失敗時提示手動開啟. OCR 為選用能力, 需要安裝並授權 OCR 外掛, 且宿主回報其可用. Three Stove Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
+支援 Android 7.0+ (API 24). 宿主附著要求 AutoJs6 6.8.0 / build 5298+, 完整任務 API 與本快速開始要求 build 5293+. 請使用包含 Agent 改動的宿主版本. 畫面操作需要宿主的無障礙服務; Agent 會先透過 AutoJs6 已設定的免打擾方式 (Root, 安全設定或 Shizuku) 自動啟動, 僅在失敗時提示手動開啟. OCR 為選用能力, 需要安裝並授權 OCR 外掛, 且宿主回報其可用. Three Stove Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.
 
 連線指南與目前進度請參閱 [專案 README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent) 與 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).

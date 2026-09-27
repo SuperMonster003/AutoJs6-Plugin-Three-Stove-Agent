@@ -7,7 +7,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /** Same-UID settings endpoint. Tokens are write-only; discovery never calls a model. */
 internal class McpEndpoint(private val runtime: AgentRuntime) : IAgentSettings.Stub(), AutoCloseable {

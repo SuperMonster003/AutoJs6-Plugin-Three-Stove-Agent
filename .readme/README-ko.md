@@ -95,7 +95,7 @@ Android API 37.1의 실제 영어 화면이며 예제 작업과 응답이 정해
 
 ### 호환성
 
-Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5289+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. Three Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
+Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5298+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. Three Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
 
 ### 화면에서 시작
 
@@ -260,18 +260,18 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 ```text
 application id: io.github.supermonster003.autojs6.plugin.three.stove.agent
-plugin id: ai-agent
-engine: ai-agent
+plugin id: three-stove-agent
+engine: three-stove-agent
 variant: default
-service action: org.autojs.plugin.AI_AGENT
-service category: ai-agent
+service action: org.autojs.plugin.THREE_STOVE_AGENT
+service category: three-stove-agent
 service process: :agent
 info action: org.autojs.plugin.INFO
-aidl interface: org.autojs.plugin.ai.agent.api.IAiAgentPlugin
-minimum host build: 5289 (6.8.0)
+aidl interface: org.autojs.plugin.three.stove.agent.api.IThreeStoveAgentPlugin
+minimum host build: 5298 (6.8.0)
 ```
 
-`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음.
+`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: 호스트 신원 확인, 작업 대기열, 응답, 취소, 조회와 비공개 단계 기록; 호스트 연결이 끊어지면 작업을 차단하고 프로세스 재시작 후 자동으로 재개하지 않음.
 
 ******
 
@@ -293,7 +293,7 @@ minimum host build: 5289 (6.8.0)
 
 _2026/09/27_
 
-- `힌트` 앱 이름이 Three Stove Agent 로 변경되었습니다. 애플리케이션 ID 는 io.github.supermonster003.autojs6.plugin.three.stove.agent, 저장소는 AutoJs6-Plugin-Three-Stove-Agent 입니다. 이전 이름과 호환되지 않습니다. 먼저 이전 AI Agent 를 제거한 뒤 설치하세요. 기록, 프리셋, 메모리는 이전되지 않습니다. 플러그인 ID ai-agent, 서비스 action, AIDL 패키지 이름은 AutoJs6 계약 AAR 에서 오며 호스트 이름 변경과 AAR 재잠금에 맞춰 함께 교체합니다.
+- `힌트` 앱 이름이 Three Stove Agent로 변경되었습니다: 애플리케이션 ID는 io.github.supermonster003.autojs6.plugin.three.stove.agent, 저장소는 AutoJs6-Plugin-Three-Stove-Agent, 플러그인 ID와 engine은 three-stove-agent, 서비스 action은 org.autojs.plugin.THREE_STOVE_AGENT, 계약 버전은 2입니다. 이전 이름과 호환되지 않습니다: 설치 전에 이전 AI Agent를 제거하세요. 기록, 프리셋, 메모리는 이전되지 않습니다. 최소 호스트는 AutoJs6 6.8.0 / build 5298로 올라갔으며, 더 오래된 호스트는 이 플러그인을 인식하지 않습니다
 - `힌트` 개발 버전 1.2.0은 선택적 MCP 도구, 네이티브 호출, 스크린샷, 생성 스크립트를 제공합니다. AiGoCode gpt-5.6-sol은 P9.2 초기 이미지와 도구 결과 이미지 검증을 통과했습니다. P9.1 JSON/네이티브 경로 모두 현재 액세스 포인트의 자동 연결을 일시적으로 끄고 모바일 데이터와 VPN으로 모델에 접속하는 조건에서 Wi-Fi 켜기와 상태 다시 읽기를 완료했습니다. 기본 자동 연결 시 VPN의 기반 네트워크 전환 후 발생하는 실패는 아직 해결되지 않았습니다. 증거는 ROADMAP.md를 참고하세요.
 - `기능` 선택한 로컬 또는 외부 MCP 서버 도구와 서버별 위험 설정, 기본적으로 꺼진 mcp 그룹
 - `기능` Three Stove Agent를 열고 AutoJs6에 연결한 뒤 목표를 입력하여 시작하세요. 홈의 모델 캡슐에서 온라인 또는 로컬 모델, 또는 자동 (기기 내 모델 우선, 없으면 첫 번째 사용 가능 모델)을 선택합니다. 모델을 검색하고 자주 쓰는 모델을 고정하며 최근 모델을 다시 쓸 수 있고, 배지로 도구 호출 및 이미지 입력 지원을 확인합니다. 작업 화면과 플로팅 볼의 새 작업은 이 선택을 공유하며 프리셋이나 진행 중인 작업을 바꾸지 않고, 프리셋에는 더 이상 모델이 없습니다. 입력란의 프리셋 칩에서 선택적 프리셋을 고릅니다. 작업 카드에서 질문에 답하고 진행 상황을 확인하세요.
@@ -313,6 +313,7 @@ _2026/09/27_
 - `개선` 확인 카드는 위험 수준, 도구 그룹, 모든 매개변수를 원시 JSON 대신 읽기 쉬운 표로 보여 주며 한 번 허용, 이 세션에서 항상 허용, 거부를 명확히 구분합니다. 플로팅 볼도 같은 Material 디자인을 사용하고 카드 안에서 프리셋을 고르며, 모델 행에서 공유 모델 전환기를 엽니다
 - `개선` 작업 기록에 검색, 상태 칩, 프리셋 및 날짜 범위 필터가 추가되었고 메뉴에서 끝난 작업을 지울 수 있습니다. 작업 세부 정보에는 사용한 모델, 매개변수 표와 펼칠 수 있는 관찰 내용이 있는 단계 타임라인, 다시 실행과 다른 모델로 다시 시도가 있으며, 메뉴에서 진단 내보내기, 기록 삭제, 이 작업의 모델을 새 작업에 사용할 수 있습니다
 - `개선` 프리셋, 메모리, MCP 서버, 스크립트 폴더가 같은 디자인을 사용합니다. 프리셋은 카드와 행 메뉴, 전체 화면 편집기 (시간은 분 단위, 저장 버튼 하단 고정), 메모리는 검색과 범위 칩, MCP는 사용 스위치, 위험 선택, 도구 체크리스트를 제공하며 저장하지 않은 변경을 버리기 전에 확인합니다
+- `의존성` 호스트 API release 파일 3개를 AutoJs6 86d9bfa26b / build 5298로 업그레이드: ai-agent-api는 three-stove-agent-api로 변경 (AIDL 패키지 org.autojs.plugin.three.stove.agent.api, 계약 버전 2), common-plugin-api와 host-capability-api는 같은 빌드에서 다시 잠금
 - `의존성` 호스트 API release 산출물 3 개를 AutoJs6 3cdf7de13c / build 5297 로 업그레이드 (P10 의 mcp 그룹 옵션과 TOOL_FAILED 상수), 기본 계약은 V1 유지
 - `의존성` Material 3 화면을 위해 AndroidX AppCompat 1.7.1 및 Material Components for Android 1.13.0과 AndroidX 런타임 의존성 추가
 

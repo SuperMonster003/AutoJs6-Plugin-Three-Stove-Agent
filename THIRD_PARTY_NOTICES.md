@@ -6,11 +6,11 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 
 ## AutoJs6 plugin APIs
 
-- Components: `common-plugin-api.aar`, `host-capability-api.aar`, `ai-agent-api.aar`
-- Source: <https://github.com/SuperMonster003/AutoJs6> (`plugin-api/common-plugin-api`, `plugin-api/host-capability-api`, `plugin-api/ai-agent-api`), host build 5297 (6.8.0), commit `3cdf7de13c`, built together as release artifacts on 2026-09-26
+- Components: `common-plugin-api.aar`, `host-capability-api.aar`, `three-stove-agent-api.aar`
+- Source: <https://github.com/SuperMonster003/AutoJs6> (`plugin-api/common-plugin-api`, `plugin-api/host-capability-api`, `plugin-api/three-stove-agent-api`), host build 5298 (6.8.0), commit `86d9bfa26b`, built together as release artifacts on 2026-09-27
 - common-plugin-api SHA-256: `ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15`
-- host-capability-api SHA-256: `0c9233f43848cc3a9d9a87071f46ecb71935964693a53de017529dfa2de79c28`
-- ai-agent-api SHA-256: `3f4e0aa5a5c6d7adede4a998603386a5c338c150a97fc9a75beb95e0028c2626`
+- host-capability-api SHA-256: `23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1`
+- three-stove-agent-api SHA-256: `02958a7c414c80a7cc839dc8da01b04b367d9b2f3694403f57e93b0e813f0762`
 - All hashes are pinned in `locks/host-api-aars.lock` and checked during Gradle configuration
 - License: Mozilla Public License 2.0
 

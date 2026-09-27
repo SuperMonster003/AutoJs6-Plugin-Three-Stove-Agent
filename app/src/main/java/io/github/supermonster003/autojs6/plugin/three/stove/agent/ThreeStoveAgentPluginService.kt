@@ -4,19 +4,19 @@ import android.app.Service
 import android.content.Intent
 import android.os.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
-import org.autojs.plugin.ai.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.*
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 
 /** The exported service and loop live in :agent. Authentication precedes all attachment input. */
 class ThreeStoveAgentPluginService : Service() {
     private lateinit var runtime: AgentRuntime
     override fun onCreate() { super.onCreate(); runtime = AgentRuntime.get(this) }
-    private val binder = object : IAiAgentPlugin.Stub() {
+    private val binder = object : IThreeStoveAgentPlugin.Stub() {
         override fun getInfo() = runtime.info.toPluginInfo()
         override fun getCapabilities() = runtime.info.capabilitiesBundle()
-        override fun attach(configuration: Bundle?, model: IAiAgentModelBroker?, capabilities: IHostCapabilityBroker?, callback: IAiAgentLinkCallback?): IAiAgentLink {
+        override fun attach(configuration: Bundle?, model: IThreeStoveAgentModelBroker?, capabilities: IHostCapabilityBroker?, callback: IThreeStoveAgentLinkCallback?): IThreeStoveAgentLink {
             val uid = try { runtime.verifier.enforce() } catch (e: SecurityException) { AgentWire.closeDescriptors(configuration); throw e }
-            val config = LinkConfiguration.parse(AgentWire.control(configuration, AiAgentContract.KEY_LINK_CONFIG_JSON, 8192))
+            val config = LinkConfiguration.parse(AgentWire.control(configuration, ThreeStoveAgentContract.KEY_LINK_CONFIG_JSON, 8192))
             requireNotNull(model); requireNotNull(capabilities); requireNotNull(callback)
             return runtime.attach(config, model, capabilities, callback, uid).binder
         }

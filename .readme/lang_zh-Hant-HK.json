@@ -54,7 +54,7 @@
   "p_security_permission": "請只從官方 [Releases]({{ repo_url }}/releases) 頁面或 AutoJs6 外掛中心取得外掛. 來源不明的安裝套件即使版本號相同, 也可能無法通過主程式驗證或帶來風險.",
   "h3_plugin_interface": "外掛介面",
   "p_plugin_interface": "以下資訊面向 AutoJs6 主程式與外掛開發者; 主程式使用這些識別碼發現外掛並協商相容性",
-  "p_contract_service": "`ThreeStoveAgentPluginService` / `IAiAgentPlugin` / `IAiAgentLink`: 經身份驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續.",
+  "p_contract_service": "`ThreeStoveAgentPluginService` / `IThreeStoveAgentPlugin` / `IThreeStoveAgentLink`: 經身份驗證的宿主連接, 支援任務排隊, 回應, 取消, 查詢與私有步驟記錄; 宿主斷開時任務阻塞, 程序重建後不會自動繼續.",
   "h3_roadmap": "路線圖",
   "p_roadmap": "外掛的規劃與進度以可勾選清單的形式維護在 ROADMAP.md 中, 按階段組織並附有驗收條件與證據等級. 未勾選條目表達的是意圖而非目前能力; 歡迎透過 Issues 討論.",
   "text_link_roadmap": "檢視 ROADMAP.md",

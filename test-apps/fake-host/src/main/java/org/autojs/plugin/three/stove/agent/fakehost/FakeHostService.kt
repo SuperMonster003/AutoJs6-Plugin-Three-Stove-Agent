@@ -5,8 +5,8 @@ import android.content.*
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.*
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.*
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.json.JSONObject
@@ -22,11 +22,11 @@ import java.security.MessageDigest
 class FakeHostService : Service() {
     private val worker = Executors.newSingleThreadExecutor()
     private var connection: ServiceConnection? = null
-    private var link: IAiAgentLink? = null
+    private var link: IThreeStoveAgentLink? = null
     private var mode = "hold"
     private val models = AtomicInteger(); private val tools = AtomicInteger()
     private val continuations = AtomicInteger(); private val cancellations = AtomicInteger()
-    private var nativeRequest: Pair<String, IAiAgentModelCallback>? = null
+    private var nativeRequest: Pair<String, IThreeStoveAgentModelCallback>? = null
     private var nativeSequence = 0
     private var nativeIds = emptyList<String>()
     private val nativeMode get() = mode.startsWith("native-")
@@ -35,11 +35,11 @@ class FakeHostService : Service() {
     @Volatile private var pluginUid = -1
     @Volatile private var observedDenial = false
     private fun enforce() { check(Binder.getCallingUid() == Process.myUid()) }
-    private val callback = object : IAiAgentLinkCallback.Stub() {
+    private val callback = object : IThreeStoveAgentLinkCallback.Stub() {
         override fun onStatus(status: Bundle?) { pluginUid = Binder.getCallingUid() }
         override fun onEvent(event: Bundle?) = Unit
     }
-    private val model = object : IAiAgentModelBroker.Stub() {
+    private val model = object : IThreeStoveAgentModelBroker.Stub() {
         override fun getBrokerInfo() = envelope(C.KEY_MODEL_BROKER_INFO_JSON,
             JSONObject("""{"available":true,"providerId":"fake-host","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
                 if (nativeMode) { put("toolCallingVersion", 1); put("maximumToolRounds", 16)
@@ -52,7 +52,7 @@ class FakeHostService : Service() {
             }.toString()).apply {
             putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""")
         }
-        override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun listTargets(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val id = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).getString("requestId")
             worker.execute {
                 callback.onEvent(envelope(C.KEY_MODEL_EVENT_JSON, JSONObject().put("requestId", id).put("sequence", 1).put("type", "started").toString()))
@@ -63,7 +63,7 @@ class FakeHostService : Service() {
                     }).toString()))
             }
         }
-        override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun generate(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val body = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
             val index = models.incrementAndGet()
             if (visionMode) {
@@ -186,9 +186,9 @@ class FakeHostService : Service() {
                 check(connection == null); mode = nextMode
                 models.set(0); tools.set(0); continuations.set(0); cancellations.set(0); observedDenial = false; nativeRequest = null
                 imagesReceived = 0
-                val ready = CountDownLatch(1); var plugin: IAiAgentPlugin? = null
+                val ready = CountDownLatch(1); var plugin: IThreeStoveAgentPlugin? = null
                 val bound = object : ServiceConnection {
-                    override fun onServiceConnected(name: ComponentName, service: IBinder) { plugin = IAiAgentPlugin.Stub.asInterface(service); ready.countDown() }
+                    override fun onServiceConnected(name: ComponentName, service: IBinder) { plugin = IThreeStoveAgentPlugin.Stub.asInterface(service); ready.countDown() }
                     override fun onServiceDisconnected(name: ComponentName) = Unit
                 }
                 check(bindService(Intent().setComponent(ComponentName(PLUGIN, "$PLUGIN.ThreeStoveAgentPluginService")), bound, Context.BIND_AUTO_CREATE))

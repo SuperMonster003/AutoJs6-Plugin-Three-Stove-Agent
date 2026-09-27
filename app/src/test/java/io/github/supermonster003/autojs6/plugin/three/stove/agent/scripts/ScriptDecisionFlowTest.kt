@@ -8,7 +8,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.RunnerFixture.Companion.ask
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.RunnerFixture.Companion.done
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.RunnerFixture.Companion.tool
-import org.autojs.plugin.ai.agent.api.AiAgentContract
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -102,7 +102,7 @@ class ScriptDecisionFlowTest {
         val value = "x".repeat(16000)
         s.reply(s.script(jsonObject("value" to value.json())))
         val event = s.events.last { it.type == "confirmation" }.payload.apply { addProperty("runId", s.run.id); addProperty("sequence", 100); addProperty("type", "confirmation") }
-        assertTrue(StepJournal.bytes(event) <= AiAgentContract.MAX_EVENT_JSON_BYTES)
+        assertTrue(StepJournal.bytes(event) <= ThreeStoveAgentContract.MAX_EVENT_JSON_BYTES)
         assertEquals(value, event.getAsJsonObject("arguments").getAsJsonObject("parameters").string("value"))
         assertTrue(event.string("description")!!.endsWith("...")); s.run.cancel(); s.scheduler.drain()
     }

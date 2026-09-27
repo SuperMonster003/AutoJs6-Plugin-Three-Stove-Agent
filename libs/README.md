@@ -7,10 +7,10 @@ Before any Gradle configuration, stage the audited **release** artifacts named e
 
 - `common-plugin-api.aar` (host module `plugin-api/common-plugin-api`: `PluginInfo`, `IPluginInfoProvider`, shared plugin constants)
 - `host-capability-api.aar` (host module `plugin-api/host-capability-api`, shared capability broker contract V1)
-- `ai-agent-api.aar` (host module `plugin-api/ai-agent-api`, AI Agent control plane and model broker contract V1)
+- `three-stove-agent-api.aar` (host module `plugin-api/three-stove-agent-api`, Three Stove Agent control plane and model broker contract V2)
 
-Current provenance: all three release AARs were assembled together from AutoJs6 6.8.0 / 5297,
-host commit `3cdf7de13c`, on 2026-09-26. License and individual hashes are in
+Current provenance: all three release AARs were assembled together from AutoJs6 6.8.0 / 5298,
+host commit `86d9bfa26b`, on 2026-09-27. License and individual hashes are in
 `../THIRD_PARTY_NOTICES.md` and `../locks/host-api-aars.lock`.
 
 Record the lowercase SHA-256 of every staged artifact in `../locks/host-api-aars.lock`.

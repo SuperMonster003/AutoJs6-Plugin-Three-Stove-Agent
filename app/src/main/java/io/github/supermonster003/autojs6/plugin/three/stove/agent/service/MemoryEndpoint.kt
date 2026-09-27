@@ -4,7 +4,7 @@ import android.os.*
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 

@@ -12,6 +12,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.CiUiDiagnostics
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentPlugin
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.AgentWire
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.IAgentSettings
@@ -33,8 +34,8 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.MemoryEn
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.IMemoryStore
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.IMemoryStoreCallback
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.MemoryEndpoint
-import org.autojs.plugin.ai.agent.api.*
-import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import org.autojs.plugin.three.stove.agent.api.*
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import org.autojs.plugin.host.capability.api.*
 import org.autojs.plugin.host.capability.api.HostCapabilityContract as H
 import org.autojs.plugin.common.api.AutoJs6HostSettingsContract as S
@@ -51,21 +52,21 @@ class WorkbenchActivityTest {
     private val context = instrumentation.targetContext
     private fun bundle(key: String, json: String = "{}") = AgentWire.envelope(key, json)
     private val completed = """{"kind":"done","done":{"status":"completed","summary":"Workbench fixture complete","evidence":["Fixture answer received"]}}"""
-    private inner class Model(private val holdEveryCall: Boolean = false, private val displayName: String = "Workbench fixture model") : IAiAgentModelBroker.Stub() {
+    private inner class Model(private val holdEveryCall: Boolean = false, private val displayName: String = "Workbench fixture model") : IThreeStoveAgentModelBroker.Stub() {
         @Volatile var offerSecond = false
         val calls = AtomicInteger()
         val requests = java.util.concurrent.CopyOnWriteArrayList<JSONObject>()
-        @Volatile var held: Pair<String, IAiAgentModelCallback>? = null
+        @Volatile var held: Pair<String, IThreeStoveAgentModelCallback>? = null
         /** Completion reports the model that was asked, as a real broker does. */
         private val targets = java.util.concurrent.ConcurrentHashMap<String, String>()
         override fun getBrokerInfo() = bundle(C.KEY_MODEL_BROKER_INFO_JSON,
             """{"available":true,"providerId":"workbench","maximumInputBytes":131072,"maximumOutputBytes":65536,"maximumResponseSchemaBytes":16384}""").apply {
             putString(H.KEY_GRANT_JSON, """{"maxInputBytesPerRequest":131072,"maxTotalTokens":1000000,"consumedTokens":0}""")
         }
-        private fun emit(cb: IAiAgentModelCallback, id: String, type: String, sequence: Int, data: JSONObject = JSONObject()) {
+        private fun emit(cb: IThreeStoveAgentModelCallback, id: String, type: String, sequence: Int, data: JSONObject = JSONObject()) {
             cb.onEvent(bundle(C.KEY_MODEL_EVENT_JSON, data.put("requestId", id).put("type", type).put("sequence", sequence).toString()))
         }
-        override fun listTargets(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun listTargets(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val id = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!).getString("requestId")
             emit(callback, id, "started", 1)
             val targets = JSONArray("""[{"targetId":"workbench:fixture","locality":2,"configured":true,"available":true,"maximumContextBytes":131072,"capabilityIds":[],"supportedControls":["maximum-output-tokens"]}]""")
@@ -74,7 +75,7 @@ class WorkbenchActivityTest {
                 .put("targetId", "workbench:second").put("displayName", "Second online model"))
             emit(callback, id, "completed", 2, JSONObject().put("targets", targets))
         }
-        override fun generate(request: Bundle, callback: IAiAgentModelCallback) {
+        override fun generate(request: Bundle, callback: IThreeStoveAgentModelCallback) {
             val json = JSONObject(request.getString(C.KEY_MODEL_REQUEST_JSON)!!)
             requests.add(json)
             val id = json.getString("requestId")
@@ -98,11 +99,11 @@ class WorkbenchActivityTest {
         override fun dispatch(request: Bundle?, callback: IHostCapabilityCallback?) { error("Fixture must not operate the device") }
         override fun destroy(reason: Bundle?) = Unit
     }
-    private var fixtureApi: IAiAgentPlugin? = null
-    private fun withFixture(model: Model = Model(), groups: List<String> = listOf("observe"), action: (IAiAgentLink, Model) -> Unit) {
-        val connected = CountDownLatch(1); var plugin: IAiAgentPlugin? = null
+    private var fixtureApi: IThreeStoveAgentPlugin? = null
+    private fun withFixture(model: Model = Model(), groups: List<String> = listOf("observe"), action: (IThreeStoveAgentLink, Model) -> Unit) {
+        val connected = CountDownLatch(1); var plugin: IThreeStoveAgentPlugin? = null
         val connection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { plugin = IAiAgentPlugin.Stub.asInterface(service); connected.countDown() }
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) { plugin = IThreeStoveAgentPlugin.Stub.asInterface(service); connected.countDown() }
             override fun onServiceDisconnected(name: ComponentName?) = Unit
         }
         val prefs = context.getSharedPreferences("workbench", Context.MODE_PRIVATE)
@@ -114,12 +115,12 @@ class WorkbenchActivityTest {
         val oldSelection = selectionFile.takeIf { it.exists() }?.readBytes()
         selectionFile.delete(); java.io.File(context.filesDir, "model-selection.json.bak").delete()
         check(context.bindService(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connection, Context.BIND_AUTO_CREATE))
-        var link: IAiAgentLink? = null
+        var link: IThreeStoveAgentLink? = null
         try {
             assertTrue(connected.await(15, TimeUnit.SECONDS))
             fixtureApi = plugin
             link = plugin!!.attach(bundle(C.KEY_LINK_CONFIG_JSON, JSONObject().put("grantSummary", JSONObject().put("toolGroups", JSONArray(groups))).toString()), model, capabilities,
-                object : IAiAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
+                object : IThreeStoveAgentLinkCallback.Stub() { override fun onStatus(status: Bundle?) = Unit; override fun onEvent(event: Bundle?) = Unit })
             action(link, model)
         } finally {
             fixtureApi = null
@@ -374,7 +375,7 @@ class WorkbenchActivityTest {
                 // Apply this test's package fixture to the current instance, including that replacement.
                 it.hostReader = { null }
                 !it.findViewById<Button>(R.id.workbench_send).isEnabled &&
-                    it.findViewById<TextView>(R.id.launcher_host_status).text == it.getString(R.string.launcher_host_missing, 5289L)
+                    it.findViewById<TextView>(R.id.launcher_host_status).text == it.getString(R.string.launcher_host_missing, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
             }
             scenario.recreate()
             scenario.onActivity { assertEquals("Draft only", it.findViewById<EditText>(R.id.workbench_goal).text.toString()) }
