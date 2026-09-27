@@ -46,7 +46,9 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
     val state: TextView = kit.text("", Ui.TEXT_BODY, kit.palette.accent, medium = true).apply {
         id = R.id.workbench_state; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
-    private val meta = kit.text("", Ui.TEXT_SECONDARY, kit.palette.muted).apply { tag = "current-meta"; textAlignment = View.TEXT_ALIGNMENT_VIEW_START }
+    private val meta = kit.text("", Ui.TEXT_SECONDARY, kit.palette.muted).apply {
+        tag = "current-meta"; textAlignment = View.TEXT_ALIGNMENT_VIEW_START; maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END; Ui.truncatable(this)
+    }
     val access: TextView = kit.badge(kit.string(R.string.settings_full_access), Tone.DANGER).apply { id = R.id.workbench_current_access; visibility = View.GONE }
     val progress = LinearProgressIndicator(context).apply {
         id = R.id.workbench_progress; trackCornerRadius = kit.dp(4); trackThickness = kit.dp(6)
@@ -92,12 +94,13 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         view.addView(recent, LinearLayout.LayoutParams(-1, -2))
         with(current) {
             addView(goal, LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.END; marginStart = kit.dp(Ui.SPACE_XXXL) })
+            // One status row: the state in its tone colour, then model and preset, then the full access marker.
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
                 addView(state)
+                addView(meta, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = kit.dp(Ui.SPACE_SM) })
                 addView(access, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
-            addView(meta, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(2) })
             addView(progress, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
             addView(budget, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
             addView(timeline.view, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
@@ -146,8 +149,10 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         val active = WorkbenchText.active(value)
         set(goal, value.string("goal").orEmpty())
         set(state, WorkbenchText.state(context, value))
+        state.setTextColor(kit.toneColors(WorkbenchText.tone(value).first).second)
         set(meta, listOfNotNull(value.getAsJsonObject("model")?.string("name"),
             value.string("preset")?.let { if (it == "default") kit.string(R.string.workbench_default_preset) else it }).joinToString(" · "))
+        meta.contentDescription = meta.text
         meta.visibility = if (meta.text.isEmpty()) View.GONE else View.VISIBLE
         access.visibility = if (value.flag("fullAccess") == true) View.VISIBLE else View.GONE
         val maximum = value.getAsJsonObject("budget")?.number("maxSteps")?.toInt() ?: 40

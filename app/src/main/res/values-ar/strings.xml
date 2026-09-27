@@ -351,7 +351,7 @@
     <string name="workbench_access">وضع الوصول: %1$s</string>
     <string name="workbench_answer_required">أدخل إجابة.</string>
     <string name="workbench_back">رجوع</string>
-    <string name="workbench_budget">الخطوات: %1$d / %2$d. الحدود: %3$d استدعاء للنموذج, %4$d دقيقة, %5$d رمز.</string>
+    <string name="workbench_budget">الخطوة %1$d/%2$d · %3$d استدعاءات للنموذج · %4$d دقيقة · %5$d رمز</string>
     <string name="workbench_default_preset">الافتراضي</string>
     <string name="workbench_details">تفاصيل المهمة</string>
     <string name="workbench_example_notifications">لخص الإشعارات على الشاشة</string>

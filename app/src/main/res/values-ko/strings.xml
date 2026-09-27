@@ -351,7 +351,7 @@
     <string name="workbench_access">작업 권한: %1$s</string>
     <string name="workbench_answer_required">답변을 입력하세요.</string>
     <string name="workbench_back">뒤로</string>
-    <string name="workbench_budget">단계: %1$d / %2$d. 한도: 모델 호출 %3$d회, %4$d분, %5$d토큰.</string>
+    <string name="workbench_budget">단계 %1$d/%2$d · 모델 호출 %3$d회 · %4$d분 · %5$d 토큰</string>
     <string name="workbench_default_preset">기본</string>
     <string name="workbench_details">작업 상세 정보</string>
     <string name="workbench_example_notifications">화면의 알림 요약</string>
