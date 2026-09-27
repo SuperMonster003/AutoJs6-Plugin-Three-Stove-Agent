@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.security
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.graphics.Rect
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
@@ -150,17 +151,29 @@ class AdversarialInputDeviceTest {
             "truncated" to false.json(), "text" to ("window: $fixturePackage/AdversarialScreenActivity\n" + rows.joinToString("\n")).json())
     }
 
+    /**
+     * Roots of the active window and of every interactive window. On a slow CI emulator a launcher
+     * ANR dialog can sit above the fixture and own the active window (run 36323445813), while the
+     * fixture window itself stays visible and clickable through accessibility actions.
+     */
+    @Suppress("DEPRECATION") private fun windowRoots(): List<AccessibilityNodeInfo> {
+        val automation = instrumentation.uiAutomation
+        val roots = mutableListOf<AccessibilityNodeInfo>()
+        automation.rootInActiveWindow?.let(roots::add)
+        automation.windows.forEach { window -> window.root?.let(roots::add); window.recycle() }
+        return roots
+    }
     private fun screenNode(text: String): AccessibilityNodeInfo {
         val deadline = SystemClock.uptimeMillis() + 5000
         while (SystemClock.uptimeMillis() < deadline) {
-            val root = instrumentation.uiAutomation.rootInActiveWindow
-            if (root != null) {
-                val matches = root.findAccessibilityNodeInfosByText(text)
+            var selected: AccessibilityNodeInfo? = null
+            for (root in windowRoots()) {
+                val matches = if (selected == null) root.findAccessibilityNodeInfosByText(text) else emptyList()
                 recycle(root)
-                val selected = matches.firstOrNull { it.text?.toString() == text && it.packageName?.toString() == fixturePackage }
+                selected = selected ?: matches.firstOrNull { it.text?.toString() == text && it.packageName?.toString() == fixturePackage }
                 matches.filter { it !== selected }.forEach(::recycle)
-                if (selected != null) return selected
             }
+            if (selected != null) return selected
             SystemClock.sleep(50)
         }
         CiUiDiagnostics.capture("injection-node-missing")
@@ -170,6 +183,9 @@ class AdversarialInputDeviceTest {
         // Connect UiAutomation before starting the separate test APK, then wait for
         // ActivityManager's launch completion before budgeting node visibility time.
         val component = "$fixturePackage/${AdversarialScreenActivity::class.java.name}"
+        instrumentation.uiAutomation.serviceInfo = instrumentation.uiAutomation.serviceInfo.apply {
+            flags = flags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+        }
         val launch = ParcelFileDescriptor.AutoCloseInputStream(
             instrumentation.uiAutomation.executeShellCommand("am start -W -n $component")
         ).bufferedReader().use { it.readText() }
@@ -181,10 +197,9 @@ class AdversarialInputDeviceTest {
             // performAction acknowledges dispatch, not Activity destruction. The next test
             // must not read or click this closing window instead of its newly created one.
             val deadline = SystemClock.elapsedRealtime() + 15_000
-            fun stillVisible(): Boolean {
-                val root = instrumentation.uiAutomation.rootInActiveWindow ?: return false
-                return try { root.refresh() && root.packageName?.toString() == fixturePackage } finally { recycle(root) }
-            }
+            fun stillVisible(): Boolean = windowRoots().map { root ->
+                try { root.refresh() && root.packageName?.toString() == fixturePackage } finally { recycle(root) }
+            }.any { it }
             while (stillVisible() && SystemClock.elapsedRealtime() < deadline) SystemClock.sleep(50)
             assertFalse("Previous injection window has closed", stillVisible())
         }

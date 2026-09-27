@@ -113,7 +113,8 @@ android {
         targetSdk = versions.sdkVersionTarget
         versionCode = versions.appVersionCode
         versionName = versions.appVersionName
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Reserves a native accounting cushion on Android 7 before the suite starts (see the runner).
+        testInstrumentationRunner = "io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentTestRunner"
 
         resValue("string", "plugin_author", "SuperMonster003")
         resValue("string", "plugin_engine", "three-stove-agent")

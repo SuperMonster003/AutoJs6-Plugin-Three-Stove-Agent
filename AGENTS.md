@@ -234,6 +234,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 - 路线图 P2.5 起还 MUST 覆盖: 真实 `IThreeStoveAgentPlugin` 的 `getInfo` / `getCapabilities` 能力键, 非宿主调用 `attach` 得到 `SecurityException`, 假代理下的 attach -> startRun -> 事件 -> detach 往返, 宿主 death 时任务转入 `blocked`.
 - 宿主仓库的假插件 (`test-apps:three-stove-agent-conformance`, P7) 是宿主契约变更时的往返证据, 宿主契约变更时 MUST 重跑.
 - 本仓库 `test-apps:fake-host` 使用真实宿主包名检验现有身份校验, 禁止装到真机或覆盖真实 AutoJs6. 使用独立数据目录的一次性 `Three_Stove_Agent_Conformance_*` AVD 和模块的 `run_conformance.py`, 验证 attach / grant 拒绝 / 真实代理进程 death; 不给生产代码增加身份绕过.
+- androidTest 的 runner 是 `ThreeStoveAgentTestRunner` (继承 `AndroidJUnitRunner`): Android 7.0 / 7.1 的框架类 (`Parcel`, `VectorDrawable`) 会让进程级本机内存计数漂移, 触底后任意 `Paint` 被回收即由 Cleaner 以 `System.exit(1)` 终止进程, 因此 runner 在 API <= 25 上先预留 64 MiB 计数缓冲; 生产代码不做此处理. 用 `am instrument` 手动运行主套件时 MUST 使用该 runner 类名.
 - 有设备或模拟器时执行 `:app:connectedDebugAndroidTest`; E4 级真实任务验收 (D32) 与正确性测试分开记录.
 
 ## 16. CI 基线
