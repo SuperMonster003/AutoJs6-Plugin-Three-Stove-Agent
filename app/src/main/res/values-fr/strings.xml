@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">Aucune version n\'est ignorée</string>
     <string name="app_update_release_history_summary">Consulter l\'historique intégré à l\'application</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">Paramètre</string>
-    <string name="confirmation_value">Valeur</string>
     <string name="entry_invalid">Impossible d\'ouvrir ce brouillon ou de créer son raccourci.</string>
     <string name="floating_collapse">Réduire la carte. Faire glisser pour déplacer</string>
+    <string name="floating_model">Modèle</string>
     <string name="floating_open">Ouvrir la carte. Faire glisser pour déplacer</string>
     <string name="floating_permission_required">Autorisez la superposition pour activer la bulle flottante.</string>
     <string name="floating_setting_note">Désactivée par défaut. Nécessite l\'autorisation de superposition. La bulle apparaît lorsque AutoJs6 est connecté et se masque à la déconnexion ou au verrouillage. Aucun service de premier plan au repos.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">Répondre plus tard</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">Chargement de la demande...</string>
     <string name="interaction_memory_disabled">La mémoire est désactivée pour cette tâche. La réponse sert uniquement à cette tâche.</string>
+    <string name="interaction_no_parameters">Aucun paramètre</string>
+    <string name="interaction_parameters">Paramètres</string>
     <string name="interaction_question">Votre réponse est attendue</string>
     <string name="interaction_remaining">Temps restant: %1$d s</string>
     <string name="interaction_remember">Mémoriser cette réponse</string>
     <string name="interaction_remember_review">Après la réponse, examinez et confirmez séparément la proposition de mémoire.</string>
-    <string name="interaction_risk">Risque: %1$s</string>
     <string name="interaction_risk_normal">Normal</string>
     <string name="interaction_risk_read_only">Lecture seule</string>
     <string name="interaction_risk_sensitive">Sensible</string>

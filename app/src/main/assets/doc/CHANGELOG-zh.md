@@ -18,6 +18,7 @@
 * `修复` AutoJs6 无障碍服务停止时, 模型收到 A11Y_SERVICE_NOT_RUNNING, 而不是参数错误
 * `优化` 模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.
 * `优化` 统一独立应用的导航, 卡片, 任务时间线, 分区清晰的设置与明暗外观, 预算输入提供就地校验
+* `优化` 确认卡片以可读表格展示风险等级, 工具组和全部参数, 不再显示原始 JSON; 允许一次, 当前会话始终允许与拒绝三个操作清晰区分. 悬浮球采用相同的 Material 设计, 预设在卡片内直接选择, 模型一行可打开共用的模型切换器
 * `依赖` 附加 AndroidX AppCompat 1.7.1 与 Material Components for Android 1.13.0 及其 AndroidX 运行时依赖, 用于 Material 3 界面
 
 # v1.1.0

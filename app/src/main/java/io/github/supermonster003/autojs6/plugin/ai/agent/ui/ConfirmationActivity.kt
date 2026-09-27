@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.*
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
 import io.github.supermonster003.autojs6.plugin.ai.agent.model.*
 import org.autojs.plugin.ai.agent.api.AiAgentContract as C
@@ -33,14 +34,27 @@ class ConfirmationActivity : HostAppearanceActivity() {
         requestId = (savedInstanceState?.getString("currentRequest") ?: intent.getStringExtra(EXTRA_REQUEST_ID))?.takeIf { it.length in 1..128 }
         content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; layoutDirection = resources.configuration.layoutDirection
-            val padding = (20 * resources.displayMetrics.density).toInt(); setPadding(padding, padding, padding, padding)
+            setPaddingRelative(kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_XL), kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_MD))
         }
-        message = TextView(this).apply { setText(R.string.interaction_loading); content.addView(this) }
+        content.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(android.widget.ImageView(context).apply {
+                setImageResource(R.mipmap.ic_launcher); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(kit.dp(28), kit.dp(28)).apply { marginEnd = kit.dp(Ui.SPACE_MD) })
+            addView(kit.text(getString(R.string.app_name), Ui.TEXT_TITLE, medium = true).apply {
+                if (android.os.Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
+            })
+        })
+        message = kit.text(getString(R.string.interaction_loading), Ui.TEXT_BODY, palette.muted).apply {
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            content.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
+        }
         val pending = LinearLayout(this).apply { id = R.id.workbench_pending; orientation = LinearLayout.VERTICAL; content.addView(this) }
-        content.addView(Button(this).apply { setText(R.string.interaction_later); isAllCaps = false; setOnClickListener { finish() } })
-        setContentView(ScrollView(this).apply { isFillViewport = true; addView(content) })
+        content.addView(kit.textButton(getString(R.string.interaction_later), "interaction-later") { finish() },
+            LinearLayout.LayoutParams(-2, -2).apply { gravity = android.view.Gravity.END; topMargin = kit.dp(Ui.SPACE_SM) })
+        setContentView(androidx.core.widget.NestedScrollView(this).apply { isFillViewport = true; addView(content) })
         agent = AgentConnection(this, ::render).apply { selectedId = runId; preferRunning = false }
-        card = PendingCard(pending) { body, complete ->
+        card = PendingCard(pending, kit, framed = false) { body, complete ->
             if (body.flag("remember") == true) memoryAfterStep = displayedStep + 1
             val submit = {
                 agent.command({ it.respond(AgentConnection.request(C.KEY_RUN_RESPONSE_JSON, body)) }, completeWhileStopped = true) { result ->
@@ -68,7 +82,6 @@ class ConfirmationActivity : HostAppearanceActivity() {
         card.restore(savedInstanceState)
         memoryAfterStep = savedInstanceState?.getLong("memoryAfterStep", Long.MAX_VALUE) ?: Long.MAX_VALUE
         if (savedInstanceState?.getBoolean("awaitingMemory") == true) requestId = null
-        tint(content)
         if (runId == null || intent.getStringExtra(EXTRA_REQUEST_ID)?.takeIf { it.length in 1..128 } == null) finish()
     }
     override fun onStart() { super.onStart(); agent.start() }
@@ -102,7 +115,6 @@ class ConfirmationActivity : HostAppearanceActivity() {
         message.visibility = if (display == null) View.VISIBLE else View.GONE
         if (display == null) message.setText(if (requestId == null && row != null && WorkbenchText.active(row))
             R.string.interaction_loading else R.string.interaction_expired)
-        tint(content)
     }
     companion object {
         private const val EXTRA_RUN_ID = "runId"

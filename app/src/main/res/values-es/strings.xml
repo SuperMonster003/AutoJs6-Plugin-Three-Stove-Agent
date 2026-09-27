@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">No hay versiones ignoradas</string>
     <string name="app_update_release_history_summary">Consultar el historial incluido en la app</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
-    <string name="confirmation_parameter">Parámetro</string>
-    <string name="confirmation_value">Valor</string>
     <string name="entry_invalid">No se puede abrir este borrador ni crear su acceso directo.</string>
     <string name="floating_collapse">Contraer tarjeta. Arrastra para mover</string>
+    <string name="floating_model">Modelo</string>
     <string name="floating_open">Abrir tarjeta. Arrastra para mover</string>
     <string name="floating_permission_required">Permite mostrar sobre otras aplicaciones para activar la burbuja flotante.</string>
     <string name="floating_setting_note">Desactivada por defecto. Requiere permiso de superposición. La burbuja aparece con AutoJs6 conectado y se oculta al desconectar o bloquear. No mantiene un servicio en primer plano en reposo.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">Responder después</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">Cargando solicitud...</string>
     <string name="interaction_memory_disabled">La memoria está desactivada para esta tarea. La respuesta solo se usa en esta tarea.</string>
+    <string name="interaction_no_parameters">Sin parámetros</string>
+    <string name="interaction_parameters">Parámetros</string>
     <string name="interaction_question">Se necesita su respuesta</string>
     <string name="interaction_remaining">Tiempo restante: %1$d s</string>
     <string name="interaction_remember">Recordar esta respuesta</string>
     <string name="interaction_remember_review">Después de responder, revise y confirme una propuesta de memoria por separado.</string>
-    <string name="interaction_risk">Riesgo: %1$s</string>
     <string name="interaction_risk_normal">Normal</string>
     <string name="interaction_risk_read_only">Solo lectura</string>
     <string name="interaction_risk_sensitive">Sensible</string>

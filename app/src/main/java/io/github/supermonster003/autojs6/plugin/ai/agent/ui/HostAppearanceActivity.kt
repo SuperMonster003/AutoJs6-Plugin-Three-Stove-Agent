@@ -84,7 +84,10 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
         // Materialize it before querying the controller, even before setContentView().
         val decor = window.decorView
         val background = if (dialogTheme) palette.surface else palette.background
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
+        // Dialog screens get a rounded, inset surface like Material dialogs; full screens a flat background.
+        window.setBackgroundDrawable(if (dialogTheme) android.graphics.drawable.InsetDrawable(
+            kit.roundedFill(palette.surface, io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.Ui.RADIUS_SHEET), kit.dp(16))
+            else android.graphics.drawable.ColorDrawable(palette.background))
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = background
         if (Build.VERSION.SDK_INT >= 26) window.navigationBarColor = background

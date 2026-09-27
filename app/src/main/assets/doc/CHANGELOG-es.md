@@ -18,6 +18,7 @@
 * `Corrección` Un servicio de accesibilidad de AutoJs6 detenido se comunica al modelo como A11Y_SERVICE_NOT_RUNNING en lugar de un error de argumentos
 * `Mejora` Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.
 * `Mejora` Navegación, tarjetas, cronología de tareas, ajustes organizados en secciones claras y apariencia clara/oscura coherentes, con validación de límites junto a cada campo
+* `Mejora` Las confirmaciones muestran el nivel de riesgo, el grupo de herramientas y cada parámetro en una tabla legible en lugar de JSON sin procesar, con acciones claras: permitir una vez, permitir siempre en esta sesión y denegar. La burbuja flotante usa el mismo diseño Material, elige el preajuste dentro de la tarjeta y su fila de modelo abre el selector de modelo compartido
 * `Dependencia` Adición de AndroidX AppCompat 1.7.1 y Material Components for Android 1.13.0 con sus dependencias AndroidX de ejecución para la interfaz Material 3
 
 # v1.1.0

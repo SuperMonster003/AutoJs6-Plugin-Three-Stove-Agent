@@ -18,6 +18,7 @@
 * `Correctif` Un service d'accessibilité AutoJs6 arrêté est signalé au modèle par A11Y_SERVICE_NOT_RUNNING au lieu d'une erreur d'arguments
 * `Amélioration` Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 * `Amélioration` Navigation, cartes, chronologie, paramètres organisés en sections claires et apparence claire/sombre cohérents, avec validation des limites près des champs
+* `Amélioration` Les confirmations affichent le niveau de risque, le groupe d'outils et chaque paramètre dans un tableau lisible au lieu du JSON brut, avec des actions distinctes: autoriser une fois, toujours autoriser pour cette session et refuser. La bulle flottante adopte le même design Material, choisit le préréglage directement dans la carte et sa ligne Modèle ouvre le sélecteur de modèle partagé
 * `Dépendance` Ajout d'AndroidX AppCompat 1.7.1 et de Material Components for Android 1.13.0 avec leurs dépendances AndroidX d'exécution pour l'interface Material 3
 
 # v1.1.0

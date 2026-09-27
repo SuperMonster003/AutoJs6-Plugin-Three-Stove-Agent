@@ -43,10 +43,9 @@
     <string name="app_update_no_ignored">当前没有已忽略的发行版</string>
     <string name="app_update_release_history_summary">查看应用内置的版本历史</string>
     <string name="app_update_stop_ignoring">不再忽略</string>
-    <string name="confirmation_parameter">参数</string>
-    <string name="confirmation_value">值</string>
     <string name="entry_invalid">无法打开此任务草稿或创建快捷方式.</string>
     <string name="floating_collapse">收起任务卡片, 拖动可移动</string>
+    <string name="floating_model">模型</string>
     <string name="floating_open">展开任务卡片, 拖动可移动</string>
     <string name="floating_permission_required">请允许显示在其他应用上层以启用悬浮球.</string>
     <string name="floating_setting_note">默认关闭. 需要显示在其他应用上层的权限. 仅在 AutoJs6 已连接时显示, 断开或锁屏时隐藏. 空闲时不维持前台服务.</string>
@@ -98,11 +97,12 @@
     <string name="interaction_later">稍后处理</string>
     <string name="interaction_loading" tools:ignore="TypographyEllipsis">正在读取请求...</string>
     <string name="interaction_memory_disabled">本次任务已禁用记忆. 回答仅用于当前任务.</string>
+    <string name="interaction_no_parameters">无参数</string>
+    <string name="interaction_parameters">参数</string>
     <string name="interaction_question">需要你的回答</string>
     <string name="interaction_remaining">剩余时间: %1$d 秒</string>
     <string name="interaction_remember">记住此答案</string>
     <string name="interaction_remember_review">回答后需另行审阅并确认记忆提议.</string>
-    <string name="interaction_risk">风险: %1$s</string>
     <string name="interaction_risk_normal">普通</string>
     <string name="interaction_risk_read_only">只读</string>
     <string name="interaction_risk_sensitive">敏感</string>

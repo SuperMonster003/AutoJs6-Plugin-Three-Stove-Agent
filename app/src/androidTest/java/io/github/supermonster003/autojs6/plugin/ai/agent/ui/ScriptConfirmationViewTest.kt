@@ -32,23 +32,27 @@ class ScriptConfirmationViewTest {
         }
     }
 
-    @Test fun tablePreservesTypesMarkupAndLongValuesInsideAScrollView() {
+    @Test fun tableShowsExactTextMarksLiteralsAndSortsNamesWithoutNestedScrolling() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             val value = "<b>Office</b>\n\"quoted\"" + "x".repeat(5000)
             val pending = jsonObject("description" to "Prepare a coffee order".json(), "arguments" to jsonObject("parameters" to
-                jsonObject("count" to 1.json(), "address" to value.json(), "enabled" to false.json())))
+                jsonObject("count" to 1.json(), "address" to value.json(), "enabled" to false.json(), "note" to "false".json())))
             val view = ScriptConfirmationView.create(instrumentation.targetContext, pending)
-            assertTrue(view is ScrollView)
-            fun texts(view: View): List<String> = when (view) {
-                is TextView -> listOf(view.text.toString())
+            assertFalse("The card scrolls as a whole; no nested scroll view", view is ScrollView)
+            fun texts(view: View): List<TextView> = when (view) {
+                is TextView -> listOf(view)
                 is ViewGroup -> (0 until view.childCount).flatMap { texts(view.getChildAt(it)) }
                 else -> emptyList()
             }
             val labels = texts(view)
-            assertTrue(labels.contains("Prepare a coffee order")); assertTrue(labels.contains(value.json().toString()))
-            assertTrue(labels.contains("1")); assertTrue(labels.contains("false"))
-            assertTrue(labels.indexOf("address") < labels.indexOf("count"))
+            fun label(text: String) = labels.filter { it.text.toString() == text }
+            assertTrue(label("Prepare a coffee order").isNotEmpty()); assertTrue("Full, unescaped value", label(value).single().isTextSelectable)
+            assertTrue(label("1").isNotEmpty())
+            val (literal, text) = label("false").partition { it.typeface == android.graphics.Typeface.MONOSPACE }
+            assertEquals("Boolean false is marked as a literal", 1, literal.size); assertEquals("String \"false\" is plain text", 1, text.size)
+            val names = labels.map { it.text.toString() }
+            assertTrue(names.indexOf("address") < names.indexOf("count"))
         }
     }
 }

@@ -249,7 +249,7 @@ class SettingsActivity : HostAppearanceActivity() {
         groupRows.clear()
         val handle = kit.bottomSheet(getString(R.string.presets_tools), onDismiss = { groupRows.clear() })
         ToolGroup.entries.forEach { group ->
-            val row = kit.switchRow(getString(groupLabels.getValue(group)), null, null, group.id in draft.settings.toolGroups, "group-${group.id}") { enabled ->
+            val row = kit.switchRow(ToolPresentation.groupLabel(this@SettingsActivity, group), null, null, group.id in draft.settings.toolGroups, "group-${group.id}") { enabled ->
                 if (!updater.apply { it.withGroup(group.id, enabled) }) groupRows[group.id]?.switch?.isChecked = !enabled
             }
             groupRows[group.id] = row; handle.content.addView(row.view)
@@ -313,10 +313,5 @@ class SettingsActivity : HostAppearanceActivity() {
             R.string.app_settings_always_light, R.string.app_settings_always_dark)
         private val limitLabels = mapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             SettingsDraft.DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
-        internal val groupLabels = mapOf(ToolGroup.OBSERVE to R.string.presets_group_observe, ToolGroup.ACT to R.string.presets_group_act,
-            ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.OCR to R.string.presets_group_ocr, ToolGroup.SCRIPT to R.string.presets_group_script,
-            ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic, ToolGroup.MCP to R.string.presets_group_mcp,
-            ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory,
-            ToolGroup.USER to R.string.presets_group_user)
     }
 }
