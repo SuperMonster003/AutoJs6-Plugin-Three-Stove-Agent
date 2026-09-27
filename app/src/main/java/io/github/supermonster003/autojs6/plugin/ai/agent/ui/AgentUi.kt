@@ -12,7 +12,13 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.textfield.TextInputEditText
 import io.github.supermonster003.autojs6.plugin.ai.agent.R
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.AgentColorPolicy
+import io.github.supermonster003.autojs6.plugin.ai.agent.ui.kit.AgentPalette
 
 /** Shared spacing, surfaces, typography and navigation for every standalone screen. */
 internal object AgentUi {
@@ -24,32 +30,11 @@ internal object AgentUi {
         is android.content.ContextWrapper -> context.baseContext.takeIf { it !== context }?.let(::appearanceOf)
         else -> null
     }
+    /** Legacy view of [AgentPalette] kept until the last screen moves to the kit (roadmap D45). */
     fun palette(context: Context, appearance: HostAppearance? = appearanceOf(context)): Palette {
-        val dark = appearance?.dark ?: (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
-        val seed = appearance?.accent ?: AppearancePreferences.DEFAULT_COLOR
-        val background = if (dark) 0xff111318.toInt() else 0xfff5f6fa.toInt()
-        val surface = if (dark) 0xff1c1f27.toInt() else Color.WHITE
-        val text = if (dark) 0xffeef0f7.toInt() else 0xff232735.toInt()
-        val accent = readable(seed, surface)
-        return Palette(background, surface, if (dark) 0xff252936.toInt() else 0xfff0f1f7.toInt(), text,
-            if (dark) 0xffb2b8ca.toInt() else 0xff616b80.toInt(),
-            if (dark) 0xff383d4d.toInt() else 0xffdce0eb.toInt(), accent,
-            if (Color.luminance(accent) > .179) Color.BLACK else Color.WHITE, blend(surface, accent, .09f),
-            if (dark) 0xffffb4ab.toInt() else 0xffaf303d.toInt())
-    }
-    private fun blend(a: Int, b: Int, fraction: Float) = Color.rgb(
-        (Color.red(a) + (Color.red(b) - Color.red(a)) * fraction).toInt(),
-        (Color.green(a) + (Color.green(b) - Color.green(a)) * fraction).toInt(),
-        (Color.blue(a) + (Color.blue(b) - Color.blue(a)) * fraction).toInt())
-    private fun readable(seed: Int, surface: Int): Int {
-        var result = seed or -0x1000000
-        val destination = if (Color.luminance(surface) < .5) Color.WHITE else Color.BLACK
-        repeat(24) {
-            val a = Color.luminance(result); val b = Color.luminance(surface)
-            if ((maxOf(a, b) + .05) / (minOf(a, b) + .05) >= 4.5) return result
-            result = blend(result, destination, .1f)
-        }
-        return result
+        val p = AgentPalette.resolve(context, appearance)
+        return Palette(p.background, p.surface, p.surfaceVariant, p.text, p.muted, p.outline, p.accent,
+            AgentColorPolicy.onFilledColor(p.accent), AgentColorPolicy.blend(p.surface, p.accent, .09), p.danger)
     }
     fun shape(context: Context, fill: Int, radius: Int = 16, stroke: Int? = null) = GradientDrawable().apply {
         setColor(fill); cornerRadius = dp(context, radius).toFloat()
@@ -161,6 +146,8 @@ internal object AgentUi {
         val role = view.getTag(R.id.ui_role) as? String
         val minimum = dp(view.context, 48)
         when (view) {
+            // Kit-built Material widgets carry their own palette styling.
+            is MaterialButton, is MaterialSwitch, is Chip, is TextInputEditText -> Unit
             is CompoundButton -> {
                 view.minHeight = minimum; view.minWidth = minimum; view.textSize = 15f; view.setTextColor(p.text)
                 val colors = ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(p.accent, p.muted))

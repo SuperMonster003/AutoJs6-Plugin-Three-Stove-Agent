@@ -42,7 +42,7 @@ internal class AppearanceSettings(private val activity: HostAppearanceActivity) 
             .onFailure { android.widget.Toast.makeText(activity, R.string.settings_error, android.widget.Toast.LENGTH_LONG).show() }
     }
     private fun colors() {
-        val seeds = listOf<Int?>(null, AppearancePreferences.DEFAULT_COLOR, 0xff007c8a.toInt(), 0xff2e7d32.toInt(), 0xff7e57c2.toInt(), 0xffc86b0a.toInt())
+        val seeds = listOf<Int?>(null) + AppearancePreferences.CURATED_COLORS
         val labels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_theme_blue, R.string.app_settings_theme_teal,
             R.string.app_settings_theme_green, R.string.app_settings_theme_purple, R.string.ui_theme_amber, R.string.app_settings_theme_custom)
         choices(R.string.app_settings_theme_color, labels, seeds.indexOf(settings.color).let { if (it < 0) seeds.size else it }) {

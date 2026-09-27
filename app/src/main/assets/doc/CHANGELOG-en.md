@@ -18,6 +18,7 @@
 * `Fix` A stopped AutoJs6 accessibility service is reported to the model as A11Y_SERVICE_NOT_RUNNING instead of an argument error
 * `Improvement` Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 * `Improvement` Unified navigation, readable cards, task timelines, collapsible settings, validated budget fields and consistent light/dark appearance across the standalone app
+* `Dependency` Add AndroidX AppCompat 1.7.1 and Material Components for Android 1.13.0 with their AndroidX runtime dependencies for the Material 3 interface
 
 # v1.1.0
 

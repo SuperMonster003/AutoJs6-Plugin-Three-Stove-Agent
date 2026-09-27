@@ -302,6 +302,7 @@ _2026/09/27_
 - `修正` AutoJs6 のユーザー補助サービスが停止している場合, 引数エラーではなく A11Y_SERVICE_NOT_RUNNING をモデルに伝えます
 - `改善` モデル認証情報は Provider が保持し, モデル呼び出しは AutoJs6 を経由します. MCP Bearer トークンは Android Keystore で暗号化して専用領域に保存し, プロンプトや履歴エクスポートに含めません. INTERNET は設定済み MCP サーバーにも使用します. Android 17+ のローカルネットワーク権限は MCP 設定から要求します. サーバー別リスクの初期値は SENSITIVE です. キャンセルは遠隔操作を元に戻さず, 失敗した呼び出しを自動再実行しません.
 - `改善` ナビゲーション, カード, タスク履歴, 折りたたみ設定, 明暗テーマを統一し, 予算入力欄に検証結果を表示
+- `依存関係` Material 3 画面のため AndroidX AppCompat 1.7.1 と Material Components for Android 1.13.0 および AndroidX 実行時依存関係を追加
 
 #### v1.1.0
 

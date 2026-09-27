@@ -102,6 +102,8 @@ val hostApiAars = hostApiIds.map(::lockedHostApiAar)
 android {
     // The host can select any bundled locale independently of the Android system language.
     bundle { language { enableSplit = false } }
+    // Keep only the app's 10 languages (res/xml/locales_config.xml) from AndroidX/Material resources.
+    androidResources { localeFilters += setOf("en", "ar", "es", "fr", "ja", "ko", "ru", "zh", "zh-rCN", "zh-rHK", "zh-rTW") }
     namespace = globalApplicationId
     compileSdk = versions.sdkVersionCompile
 
@@ -124,6 +126,8 @@ android {
         abortOnError = true
         // Product text intentionally uses ASCII punctuation in every locale.
         disable += "TypographyEllipsis"
+        // core-ktx arrives only transitively with AppCompat; the code base keeps plain platform APIs.
+        disable += "UseKtx"
     }
 
     signingConfigs {
@@ -206,6 +210,9 @@ dependencies {
     // PluginInfo, IPluginInfoProvider and the shared plugin constants (host module plugin-api/common-plugin-api).
     implementation(files(hostApiAars))
     implementation(libs.gson)
+    // Material 3 widgets and AppCompat theming for the standalone app, aligned with 3-Stone AI (roadmap D45).
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
 
     testImplementation(libs.junit)
 

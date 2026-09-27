@@ -24,6 +24,9 @@
       "improvement": [
         "Las credenciales del modelo permanecen en su proveedor; AutoJs6 transmite sus llamadas. Los tokens MCP Bearer se cifran con Android Keystore en almacenamiento privado y no se incluyen en prompts ni exportaciones del historial. INTERNET también conecta los servidores MCP configurados; Android 17+ solicita acceso a la red local desde Ajustes de MCP. El riesgo por servidor empieza en SENSITIVE. Cancelar no revierte acciones remotas; las llamadas fallidas no se repiten automáticamente.",
         "Navegación, tarjetas, cronología de tareas, ajustes plegables y apariencia clara/oscura coherentes, con validación de límites junto a cada campo"
+      ],
+      "dependency": [
+        "Adición de AndroidX AppCompat 1.7.1 y Material Components for Android 1.13.0 con sus dependencias AndroidX de ejecución para la interfaz Material 3"
       ]
     },
     "v1.1.0": {

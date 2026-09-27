@@ -1,21 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The host snapshot wraps the resource context; unavailable settings follow the system. -->
-    <style name="Theme.AiAgent" parent="Theme.AiAgent.Light" />
-    <style name="Theme.AiAgent.Light" parent="@android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:colorAccent">#4F46E5</item>
+    <!-- Material 3 themes (roadmap D45). The host snapshot wraps the resource context; screens pick
+         Light or Dark explicitly and the runtime palette tints controls with the chosen theme color. -->
+    <style name="Base.Theme.AiAgent" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceContainerLowest">@color/surface</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_variant</item>
+        <item name="colorOnSurface">@color/text_color_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_color_secondary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/divider</item>
+        <item name="colorError">@color/status_danger</item>
+        <item name="android:colorBackground">@color/window_background</item>
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
-    <style name="Theme.AiAgent.Dark" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:colorAccent">#B7B2FF</item>
+    <style name="Theme.AiAgent" parent="Base.Theme.AiAgent">
+        <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="Theme.AiAgent.Dialog.Light" parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
-        <item name="android:colorAccent">#4F46E5</item>
+    <!-- Explicit variants: the base activity and the :agent overlay choose the mode themselves. -->
+    <style name="Theme.AiAgent.Light" parent="Base.Theme.AiAgent" />
+    <style name="Theme.AiAgent.Dark" parent="Base.Theme.AiAgent" />
+    <style name="Theme.AiAgent.Dialog.Light" parent="Theme.Material3.DayNight.Dialog">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface</item>
+        <item name="colorOnSurface">@color/text_color_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_color_secondary</item>
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
         <item name="android:windowMinWidthMajor">85%</item>
         <item name="android:windowMinWidthMinor">95%</item>
     </style>
-    <style name="Theme.AiAgent.Dialog.Dark" parent="@android:style/Theme.Material.Dialog.NoActionBar">
-        <item name="android:colorAccent">#B7B2FF</item>
-        <item name="android:windowMinWidthMajor">85%</item>
-        <item name="android:windowMinWidthMinor">95%</item>
+    <style name="Theme.AiAgent.Dialog.Dark" parent="Theme.AiAgent.Dialog.Light" />
+
+    <style name="AppToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="AppToolbarSubtitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">13sp</item>
     </style>
 </resources>
