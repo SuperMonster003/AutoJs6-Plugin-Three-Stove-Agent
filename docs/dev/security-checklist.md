@@ -1,11 +1,11 @@
 # P7 安全审计清单
 
-审计日期: 2026-09-25. 范围为 AI Agent 1.0.0 的生产代码, 合并清单, 本地存储, 导出和宿主边界. 真实模型能力, 界面可用性和整库宿主 lint 分别保留在对应 gate, 不由本清单替代.
+审计日期: 2026-09-25. 范围为 Three Stove Agent 1.0.0 的生产代码, 合并清单, 本地存储, 导出和宿主边界. 真实模型能力, 界面可用性和整库宿主 lint 分别保留在对应 gate, 不由本清单替代.
 
 ## 权限和入口
 
 - [x] 权限仅为 PLUGIN, INTERNET, FOREGROUND_SERVICE, FOREGROUND_SERVICE_SPECIAL_USE, POST_NOTIFICATIONS, SYSTEM_ALERT_WINDOW. INTERNET 只供用户主动检查固定 GitHub 发行接口; 无模型 HTTP 接入, 无存储/麦克风/无障碍/安装/开机广播权限.
-- [x] 导出组件枚举: WakeActivity, AiAgentPluginInfoService, AiAgentPluginService 受 PLUGIN 权限保护; LauncherActivity 和 ShareTargetActivity 只接受待审核草稿. 其余 Activity, 本地 Binder 服务和任务前台服务全部不导出. 无 Provider 或清单 Receiver. `ManifestContractTest` 增加完整导出集合断言.
+- [x] 导出组件枚举: WakeActivity, ThreeStoveAgentPluginInfoService, ThreeStoveAgentPluginService 受 PLUGIN 权限保护; LauncherActivity 和 ShareTargetActivity 只接受待审核草稿. 其余 Activity, 本地 Binder 服务和任务前台服务全部不导出. 无 Provider 或清单 Receiver. `ManifestContractTest` 增加完整导出集合断言.
 - [x] Launcher/分享/快捷方式只读取有限字段, 严格限制纯文本大小, 去除 spans, 不转发 ClipData 和任意 extras, 不自动开始任务或接受外部确认回复. 已删除预设不会静默回退. 既有 TaskEntry/Workbench 测试覆盖非法入口和一次手动开始只产生一个任务.
 - [x] 宿主接口每次核对调用 UID, 实际安装的宿主包名/最低版本/当前签名集合; 链路再核对所属 UID. 私有管理端点只接受同 UID. 权限声明本身不替代身份校验.
 - [x] 宿主附着广播核对 action, 显式宿主包名及不可变 PendingIntent 的 creatorPackage/creatorUid/可信签名. 缺失/错误类型/外来身份拒绝, 正向生产广播已在六台设备通过. 身份令牌不发送执行, 不存储. 详见 P7 conformance 和 compatibility 证据.

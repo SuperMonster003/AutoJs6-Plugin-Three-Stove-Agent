@@ -1,4 +1,4 @@
-# AutoJs6-Plugin-AI-Agent AGENTS.md
+# AutoJs6-Plugin-Three-Stove-Agent AGENTS.md
 
 本文件是本仓库的工程约定, 由 `AUTOJS6_PLUGIN_NEW_REPO_AGENTS.md` (AutoJs6 新插件仓库参考规范) 裁剪而来, 只保留对本仓库真实有效的条款. 路线图与阶段性决策见 `ROADMAP.md`; 本文件描述的是 "怎样改仓库", 路线图描述的是 "改什么".
 
@@ -12,23 +12,24 @@
 
 ## 2. 仓库身份
 
-下列值在 Gradle, Manifest, Kotlin 常量 (`AiAgentPlugin`), 资源, 文档, 测试和宿主注册信息中 MUST 完全一致. 修改任一值时同步修改全部位置, 并运行 `ManifestContractTest` 与 `AiAgentPluginRuntimeInfoTest`.
+下列值在 Gradle, Manifest, Kotlin 常量 (`ThreeStoveAgentPlugin`), 资源, 文档, 测试和宿主注册信息中 MUST 完全一致. 修改任一值时同步修改全部位置, 并运行 `ManifestContractTest` 与 `ThreeStoveAgentPluginRuntimeInfoTest`.
 
 | 项目 | 值 |
 |---|---|
-| 仓库与目录名 | `AutoJs6-Plugin-AI-Agent` |
-| `rootProject.name` | `autojs6-plugin-ai-agent` |
-| 应用标题 (不可翻译) | `AI Agent` |
-| `applicationId` / namespace | `io.github.supermonster003.autojs6.plugin.ai.agent` |
+| 仓库与目录名 | `AutoJs6-Plugin-Three-Stove-Agent` |
+| `rootProject.name` | `autojs6-plugin-three-stove-agent` |
+| 应用标题 (不可翻译) | `Three Stove Agent` |
+| `applicationId` / namespace | `io.github.supermonster003.autojs6.plugin.three.stove.agent` |
 | 插件 ID / engine / variant | `ai-agent` / `ai-agent` / `default` |
-| Binder 服务类 | `AiAgentPluginService` (进程 `:agent`) |
+| Binder 服务类 | `ThreeStoveAgentPluginService` (进程 `:agent`) |
 | 服务发现 action / category | `org.autojs.plugin.AI_AGENT` / `ai-agent` |
-| INFO 服务 | `AiAgentPluginInfoService`, action `org.autojs.plugin.INFO`, category `ai-agent` |
+| INFO 服务 | `ThreeStoveAgentPluginInfoService`, action `org.autojs.plugin.INFO`, category `ai-agent` |
+| 宿主契约标识 (不随本仓库改名) | 插件 ID / engine / category `ai-agent`, action `org.autojs.plugin.AI_AGENT`, AIDL 包 `org.autojs.plugin.ai.agent.api` 与契约类 `AiAgentContract` / `AiAgentIds` / `AiAgentActions` / `AiAgentCapabilityKeys` / `IAiAgent*` 由宿主 `ai-agent-api` AAR 决定, 随宿主改名并换锁后一并替换 (路线图 D50) |
 | 启动器入口 | `ui.LauncherActivity` (`MAIN` / `LAUNCHER`, 主进程) |
 | 专用 API | `ai-agent-api` (宿主 `plugin-api/ai-agent-api`, AIDL 包 `org.autojs.plugin.ai.agent.api`) 与共享能力契约 `host-capability-api` (宿主 `plugin-api/host-capability-api`, 路线图 D33); 路线图 P1.1 落地后以 AAR 形式进入 `libs/` |
-| 最低宿主 versionCode | `AiAgentPlugin.REQUIRED_HOST_VERSION` = 5289 (AutoJs6 6.8.0, P4.2 动作节点检查与执行绑定) |
+| 最低宿主 versionCode | `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` = 5289 (AutoJs6 6.8.0, P4.2 动作节点检查与执行绑定) |
 | 平台版本插件 | `io.github.supermonster003.autojs6-platform-versions` 1.8.3 |
-| 发布文件名 | `autojs6-plugin-ai-agent-v{VERSION_NAME}-{CRC32}.apk` (单 APK) |
+| 发布文件名 | `autojs6-plugin-three-stove-agent-v{VERSION_NAME}-{CRC32}.apk` (单 APK) |
 
 ## 3. 工作区与提交
 
@@ -75,7 +76,7 @@ sed -i "s/^VERSION_BUILD=.*/VERSION_BUILD=$next/" version.properties
 ## 4. 仓库结构
 
 ```text
-AutoJs6-Plugin-AI-Agent/
+AutoJs6-Plugin-Three-Stove-Agent/
 |-- .changelog/                 lang_*.json x 10 + template_changelog.md (文案源)
 |-- .github/workflows/          build.yml, markdown.yml
 |-- .python/                    generate_markdown.py (+ .bat), check_markdown.bat, generate_launcher_icons.py
@@ -124,7 +125,7 @@ AutoJs6-Plugin-AI-Agent/
 
 - `sign.properties` 与 `app/sm003.jks` 从宿主复制到相同相对路径, MUST 保持被 Git 忽略 (`git check-ignore` 验证). 仓库中不得出现密码, token, 私钥或开发者绝对路径.
 - 保留 `org.autojs.build.signs`, `signingConfigs` 与 release 签名选择逻辑.
-- `appendDigestToReleasedFiles` 任务 MUST 保留该名称, 依赖 `assembleRelease`, 在签名缺失时失败, 校验实际 APK 集合恰为 `autojs6-plugin-ai-agent-v{VERSION_NAME}.apk`, 并追加 CRC32 生成 `autojs6-plugin-ai-agent-v{VERSION_NAME}-{CRC32}.apk` 到 `releases/` (不入库).
+- `appendDigestToReleasedFiles` 任务 MUST 保留该名称, 依赖 `assembleRelease`, 在签名缺失时失败, 校验实际 APK 集合恰为 `autojs6-plugin-three-stove-agent-v{VERSION_NAME}.apk`, 并追加 CRC32 生成 `autojs6-plugin-three-stove-agent-v{VERSION_NAME}-{CRC32}.apk` 到 `releases/` (不入库).
 
 ### 5.4 不启用 ABI 拆分的理由
 
@@ -138,20 +139,20 @@ AutoJs6-Plugin-AI-Agent/
 
 - Manifest MUST 声明 `org.autojs.permission.PLUGIN`, `<queries>` 宿主包名, `org.autojs.plugin.WAKE_ACTIVITY`, `org.autojs.plugin.info.AUTHOR` 与 `org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT=0` meta-data.
 - `WakeActivity` MUST 为 `exported=true`, `Theme.NoDisplay`, `excludeFromRecents`, `finishOnTaskLaunch`, 受 PLUGIN 权限保护, 响应 `org.autojs.plugin.action.WAKE` + DEFAULT category, 启动后立即结束, 不做任何副作用.
-- `AiAgentPluginInfoService` 与 `AiAgentPluginService` MUST `exported=true`, 受 PLUGIN 权限保护, 声明 `requiresHostVersion` meta-data (与 `AiAgentPlugin.REQUIRED_HOST_VERSION` 一致); 后者固定运行在 `:agent` 进程, Agent 循环与任务前台服务都放在该进程.
+- `ThreeStoveAgentPluginInfoService` 与 `ThreeStoveAgentPluginService` MUST `exported=true`, 受 PLUGIN 权限保护, 声明 `requiresHostVersion` meta-data (与 `ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION` 一致); 后者固定运行在 `:agent` 进程, Agent 循环与任务前台服务都放在该进程.
 - `ui.LauncherActivity` 是唯一不受 PLUGIN 权限保护的导出组件 (launcher 入口); 所有其他对外组件逐项审查 `android:exported`, 除契约入口外不得导出. 分享目标与快捷方式 (P6.7) 若需导出, 使用显式 intent-filter 并在 README 安全章节说明.
 - 权限清单按路线图 D28 分阶段加入: P0 只有 PLUGIN; P2.5 加 FOREGROUND_SERVICE / FOREGROUND_SERVICE_SPECIAL_USE / POST_NOTIFICATIONS; P6.7 加 SYSTEM_ALERT_WINDOW (运行时请求); P6.6 更新检查加 INTERNET; P10 用户配置的 MCP 服务器复用 INTERNET, 并在 Android 17+ 从 MCP 设置主动请求 ACCESS_LOCAL_NETWORK. `ManifestContractTest` 断言当前阶段的精确权限集合; 新增权限必须在 README 安全章节与 changelog 说明理由. 不申请无障碍, 存储或麦克风权限.
 - 在 ColorOS 等会保持新装应用停止状态的设备上 SHOULD 做真实激活验收; 未执行时在路线图如实记录 `未执行真实设备激活验证`.
 
 ## 7. PluginInfo 与能力协商
 
-- `AiAgentPluginRuntimeInfo` 是纯数据映射, `AiAgentPluginInfo.kt` 负责 Android 侧读取 (包版本, 本地化描述, `@raw/plugin_instruction`, 构建日期), 二者的分离 MUST 保持, 以便 JVM 测试覆盖映射.
+- `ThreeStoveAgentPluginRuntimeInfo` 是纯数据映射, `ThreeStoveAgentPluginInfo.kt` 负责 Android 侧读取 (包版本, 本地化描述, `@raw/plugin_instruction`, 构建日期), 二者的分离 MUST 保持, 以便 JVM 测试覆盖映射.
 - `name` 与不可翻译的 `app_name` 一致; `description` 来自当前 locale 的 `plugin_description`; `versionName` / `versionCode` 来自 `PackageInfo`; `versionDate` 来自 `plugin_version_date` (`MMM d, yyyy`, `GMT+08:00`); `id` / `engine` / `variant` 与第 2 节一致.
 - `capabilities` 至少包含 `PluginCapabilityKeys.REQUIRES_HOST_VERSION` (Long). 路线图 P2.5 起追加 `AiAgentCapabilityKeys.CONTRACT_VERSION`, `TOOL_GROUPS`, `FEATURES`; 宿主先读取能力再调用新方法, 不通过捕获异常猜测协议版本.
 
 ## 8. Binder 与公共 API
 
-- 公共常量, Bundle key, capability key, ID, action 和 category MUST 集中在宿主契约模块 (`ai-agent-api`, `host-capability-api`) 与 `AiAgentPlugin` 中, 禁止散落字符串字面量. 路线图 P2.5 前, `AiAgentPluginService` 只暴露携带 `SERVICE_DESCRIPTOR` 的占位 Binder, 不伪造任何事务.
+- 公共常量, Bundle key, capability key, ID, action 和 category MUST 集中在宿主契约模块 (`ai-agent-api`, `host-capability-api`) 与 `ThreeStoveAgentPlugin` 中, 禁止散落字符串字面量. 路线图 P2.5 前, `ThreeStoveAgentPluginService` 只暴露携带 `SERVICE_DESCRIPTOR` 的占位 Binder, 不伪造任何事务.
 - 宿主到插件的能力代理与模型代理使用 Bundle + JSON 请求 / 响应 (路线图 D14 / D18); 所有 Binder 输入 MUST 做边界校验 (长度, 大小, key, 枚举, 索引), 上限常量集中定义并与路线图附录 B.5 一致.
 - 已发布 AIDL 演进时保持旧 transaction 顺序, 末尾追加, 通过契约版本协商; 破坏性重设计同步升级宿主与插件.
 - 不在 Binder 主路径执行不可取消的长耗时初始化; 非 oneway 方法 200 ms 内返回 (附录 B.3); 服务被回收, 首次绑定, 重复绑定和并发调用都应保持确定行为.
@@ -167,7 +168,7 @@ AutoJs6-Plugin-AI-Agent/
 - 模型调用一律经 `model/ModelClient` -> `IAiAgentModelBroker`, 内置设备操作经 `catalog/ToolHandlers` -> `IHostCapabilityBroker`; MUST NOT 在插件内直接绑定 Provider, 读取宿主文件系统或复制宿主功能. P10 的可选 MCP 来源执行用户配置的服务器工具, 沿用目录校验, 确认和预算; 不得自动重放工具调用. 若独立 MCP Client 能力代理落地, 优先替换内部来源适配层.
 - 宿主代理死亡时运行中的任务转入 `blocked` (D15), 不自动续跑; 插件进程重建后不恢复运行中任务, 只保留历史记录.
 - 普通日志不得含目标文本, 模型提示词 / 输出, 节点树, 屏幕文字, 脚本参数或结果; 只记录工具名, 错误分类, 大小与耗时.
-- 任务前台服务 (`AiAgentTaskForegroundService`) 只在有运行中或排队任务时存在, 通知显示当前步骤与 "停止"; 两侧都不做开机自启.
+- 任务前台服务 (`ThreeStoveAgentTaskForegroundService`) 只在有运行中或排队任务时存在, 通知显示当前步骤与 "停止"; 两侧都不做开机自启.
 
 ## 10. 主项目职责
 
@@ -183,7 +184,7 @@ AutoJs6-Plugin-AI-Agent/
 
 - 用户可见字符串 MUST 覆盖 `values`, `values-en`, `values-ar`, `values-es`, `values-fr`, `values-ja`, `values-ko`, `values-ru`, `values-zh`, `values-zh-rHK`, `values-zh-rTW`; `values` 与 `values-en` 共有条目内容一致, 各语言占位符与转义一致.
 - `app_name` 位于 `strings_donottranslate.xml` 且 `translatable="false"`; `plugin_author`, `plugin_id`, `plugin_engine`, `plugin_variant`, `plugin_version_date` 由 Gradle `resValue` 生成.
-- 每个 locale MUST 有 `plugin_description`: 简洁说明能力, 句尾不加终止标点, 不写 "AI Agent 插件" 前缀, 不写 "适用于 AutoJs6" 等限定表述.
+- 每个 locale MUST 有 `plugin_description`: 简洁说明能力, 句尾不加终止标点, 不写 "Three Stove Agent 插件" 前缀, 不写 "适用于 AutoJs6" 等限定表述.
 - `<string>` 按 `name` 升序; plurals 与数组放入各自文件.
 - 所有资源与文档字符串使用 ASCII 标点 (`, . : ; ! ? ( ) [ ] / -`), 省略号用 `...` 并加 `tools:ignore="TypographyEllipsis"`; 禁止全角标点, 顿号, 弯引号. `ApplicationTextPunctuationTest` 会扫描 `app/src/main`, `.readme`, `.changelog`, `README.md`, `ROADMAP.md` 与 `AGENTS.md`.
 - 模型消费的提示词与工具描述 (P2 起, `assets/prompts/{en,zh}/`) 以英文为主并提供 zh 版本, 不进入 10 语言资源.
@@ -220,24 +221,24 @@ AutoJs6-Plugin-AI-Agent/
 
 ### 15.1 JVM 单元测试 (`app/src/test`)
 
-- `AiAgentPluginRuntimeInfoTest`: PluginInfo 纯数据映射与身份常量.
-- `ManifestContractTest`: Manifest 与 `AiAgentPlugin` 常量一致 (权限精确集合, queries, Wake Activity, launcher, 两个服务的 action / category / process / requiresHostVersion, 无其它导出组件).
+- `ThreeStoveAgentPluginRuntimeInfoTest`: PluginInfo 纯数据映射与身份常量.
+- `ManifestContractTest`: Manifest 与 `ThreeStoveAgentPlugin` 常量一致 (权限精确集合, queries, Wake Activity, launcher, 两个服务的 action / category / process / requiresHostVersion, 无其它导出组件).
 - `ApplicationTextPunctuationTest`: 打包与生成文本只使用 ASCII 标点.
 - `HostPresenceTest`: 启动页宿主状态的纯分类.
 - 路线图 P2 起补充: 工具目录快照, JSON Schema, 决策解析 (严格 + 退化), 状态机, 预算, 确认门, 上下文编译, 节点引用重定位, store codec, 上限与错误映射.
 
 ### 15.2 Android instrumentation (`app/src/androidTest`)
 
-- `AiAgentPluginContractTest` MUST 覆盖: Wake Activity 契约, launcher 唯一入口, INFO 服务发现与真实 `getInfo()` 往返 (包版本, 本地化描述, ID / engine / variant, 显式空 `supportedAbis`, `REQUIRES_HOST_VERSION`), `AiAgentPluginService` 发现, `:agent` 进程, 显式绑定与 Binder descriptor.
+- `ThreeStoveAgentPluginContractTest` MUST 覆盖: Wake Activity 契约, launcher 唯一入口, INFO 服务发现与真实 `getInfo()` 往返 (包版本, 本地化描述, ID / engine / variant, 显式空 `supportedAbis`, `REQUIRES_HOST_VERSION`), `ThreeStoveAgentPluginService` 发现, `:agent` 进程, 显式绑定与 Binder descriptor.
 - 路线图 P2.5 起还 MUST 覆盖: 真实 `IAiAgentPlugin` 的 `getInfo` / `getCapabilities` 能力键, 非宿主调用 `attach` 得到 `SecurityException`, 假代理下的 attach -> startRun -> 事件 -> detach 往返, 宿主 death 时任务转入 `blocked`.
 - 宿主仓库的假插件 (`test-apps:ai-agent-conformance`, P7) 是宿主契约变更时的往返证据, 宿主契约变更时 MUST 重跑.
-- 本仓库 `test-apps:fake-host` 使用真实宿主包名检验现有身份校验, 禁止装到真机或覆盖真实 AutoJs6. 使用独立数据目录的一次性 `AI_Agent_Conformance_*` AVD 和模块的 `run_conformance.py`, 验证 attach / grant 拒绝 / 真实代理进程 death; 不给生产代码增加身份绕过.
+- 本仓库 `test-apps:fake-host` 使用真实宿主包名检验现有身份校验, 禁止装到真机或覆盖真实 AutoJs6. 使用独立数据目录的一次性 `Three_Stove_Agent_Conformance_*` AVD 和模块的 `run_conformance.py`, 验证 attach / grant 拒绝 / 真实代理进程 death; 不给生产代码增加身份绕过.
 - 有设备或模拟器时执行 `:app:connectedDebugAndroidTest`; E4 级真实任务验收 (D32) 与正确性测试分开记录.
 
 ## 16. CI 基线
 
 - `build.yml`: push, pull request 与手动触发; `contents: read`; JDK 21 Temurin; 运行单元测试, 组装 debug / androidTest / release APK 与 lint, 上传产物; 在 API 24 (x86) 与 API 35 (x86_64) 模拟器上执行 instrumentation 契约测试.
-- CI 全量 instrumentation 使用一次性 `AI_Agent_Conformance_CI_*` AVD, 通过 `test-apps/fake-host/run_conformance.py --prepare-only` 校验环境并安装宿主夹具, 唤醒解锁和准备通知权限. 禁止覆盖真实宿主或绕过生产身份/版本检查.
+- CI 全量 instrumentation 使用一次性 `Three_Stove_Agent_Conformance_CI_*` AVD, 通过 `test-apps/fake-host/run_conformance.py --prepare-only` 校验环境并安装宿主夹具, 唤醒解锁和准备通知权限. 禁止覆盖真实宿主或绕过生产身份/版本检查.
 - `markdown.yml`: Windows 环境运行 `.python\check_markdown.bat`, 阻止生成文档漂移.
 - CI action 使用固定大版本并定期更新; timeout 与真实构建时长匹配.
 

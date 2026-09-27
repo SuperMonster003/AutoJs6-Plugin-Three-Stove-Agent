@@ -1,0 +1,133 @@
+package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
+
+import android.app.PendingIntent
+import android.content.*
+import android.net.Uri
+import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
+import android.widget.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
+import org.autojs.plugin.ai.agent.api.AiAgentContract as C
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolNames
+
+/** A request-specific entry shared by notifications and the later opt-in floating card. */
+class ConfirmationActivity : HostAppearanceActivity() {
+    override val dialogTheme = true
+    private lateinit var agent: AgentConnection
+    private lateinit var card: PendingCard
+    private lateinit var content: LinearLayout
+    private lateinit var message: TextView
+    private val visibility by lazy { InteractionVisibility(this) }
+    private var runId: String? = null
+    private var requestId: String? = null
+    private var displayedStep = 0L
+    private var memoryAfterStep = Long.MAX_VALUE
+    private var afterStop: (() -> Unit)? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        setFinishOnTouchOutside(false)
+        title = getString(R.string.app_name)
+        runId = intent.getStringExtra(EXTRA_RUN_ID)?.takeIf { it.length in 1..128 }
+        requestId = (savedInstanceState?.getString("currentRequest") ?: intent.getStringExtra(EXTRA_REQUEST_ID))?.takeIf { it.length in 1..128 }
+        content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; layoutDirection = resources.configuration.layoutDirection
+            setPaddingRelative(kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_XL), kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_MD))
+        }
+        content.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(android.widget.ImageView(context).apply {
+                setImageResource(R.mipmap.ic_launcher); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(kit.dp(28), kit.dp(28)).apply { marginEnd = kit.dp(Ui.SPACE_MD) })
+            addView(kit.text(getString(R.string.app_name), Ui.TEXT_TITLE, medium = true).apply {
+                if (android.os.Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
+            })
+        })
+        message = kit.text(getString(R.string.interaction_loading), Ui.TEXT_BODY, palette.muted).apply {
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            content.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
+        }
+        val pending = LinearLayout(this).apply { id = R.id.workbench_pending; orientation = LinearLayout.VERTICAL }
+        content.addView(pending, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
+        content.addView(kit.textButton(getString(R.string.interaction_later), "interaction-later") { finish() },
+            LinearLayout.LayoutParams(-2, -2).apply { gravity = android.view.Gravity.END; topMargin = kit.dp(Ui.SPACE_SM) })
+        setContentView(androidx.core.widget.NestedScrollView(this).apply { isFillViewport = true; addView(content) })
+        agent = AgentConnection(this, ::render).apply { selectedId = runId; preferRunning = false }
+        card = PendingCard(pending, kit, framed = false) { body, complete ->
+            if (body.flag("remember") == true) memoryAfterStep = displayedStep + 1
+            val submit = {
+                agent.command({ it.respond(AgentConnection.request(C.KEY_RUN_RESPONSE_JSON, body)) }, completeWhileStopped = true) { result ->
+                    complete(result.isSuccess)
+                    if (result.isSuccess) {
+                        // A checked answer creates a fresh request; follow its separate memory confirmation.
+                        if (body.flag("remember") == true) requestId = null else finish()
+                    } else if (body.flag("remember") == true) {
+                        message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE
+                    } else {
+                        // The activity finishes at once, so a snackbar anchored to it would vanish; a toast outlives it.
+                        Toast.makeText(applicationContext, R.string.workbench_request_failed, Toast.LENGTH_LONG).show(); finish()
+                    }
+                }
+            }
+            if (body.flag("remember") == true) submit() else {
+                // Restore the target application's window before the runner resumes a bound action.
+                // onStop runs after the underlying activity resumes; acknowledgement then closes us.
+                afterStop = submit
+                if (!moveTaskToBack(true)) {
+                    afterStop = null; complete(false)
+                    message.setText(R.string.workbench_request_failed); message.visibility = View.VISIBLE
+                }
+            }
+        }
+        card.restore(savedInstanceState)
+        memoryAfterStep = savedInstanceState?.getLong("memoryAfterStep", Long.MAX_VALUE) ?: Long.MAX_VALUE
+        if (savedInstanceState?.getBoolean("awaitingMemory") == true) requestId = null
+        if (runId == null || intent.getStringExtra(EXTRA_REQUEST_ID)?.takeIf { it.length in 1..128 } == null) finish()
+    }
+    override fun onStart() { super.onStart(); agent.start() }
+    override fun onResume() { super.onResume(); visibility.start() }
+    override fun onPause() { visibility.stop(); super.onPause() }
+    override fun onStop() {
+        val submit = afterStop; afterStop = null; submit?.invoke()
+        agent.stop(); super.onStop()
+    }
+    override fun onDestroy() { agent.close(); super.onDestroy() }
+    override fun onSaveInstanceState(outState: Bundle) {
+        card.save(outState); outState.putBoolean("awaitingMemory", requestId == null)
+        outState.putString("currentRequest", requestId)
+        outState.putLong("memoryAfterStep", memoryAfterStep)
+        super.onSaveInstanceState(outState)
+    }
+    private fun render(snapshot: WorkbenchSnapshot) {
+        val row = snapshot.run?.takeIf { it.string("runId") == runId }
+        displayedStep = row?.number("step") ?: 0L
+        val pending = row?.getAsJsonObject("pending")
+        // If preparation rejected the user proposal, there is no confirmation to follow.
+        if (requestId == null && row?.getAsJsonArray("steps")?.lastOrNull()?.asJsonObject?.let {
+                (it.number("index") ?: 0) > memoryAfterStep && it.string("tool") == ToolNames.MEMORY_PROPOSE &&
+                    it.getAsJsonObject("decision")?.string("source") == "user"
+            } == true) { finish(); return }
+        if (requestId == null && pending?.string("tool") == ToolNames.MEMORY_PROPOSE && pending.flag("submitted") != true)
+            requestId = pending.string("requestId")
+        val matches = pending != null && pending.string("requestId") == requestId && pending.flag("submitted") != true
+        val display = row?.takeIf { matches }
+        card.render(display); visibility.render(display)
+        message.visibility = if (display == null) View.VISIBLE else View.GONE
+        if (display == null) message.setText(if (requestId == null && row != null && WorkbenchText.active(row))
+            R.string.interaction_loading else R.string.interaction_expired)
+    }
+    companion object {
+        private const val EXTRA_RUN_ID = "runId"
+        private const val EXTRA_REQUEST_ID = "requestId"
+        internal fun intent(context: Context, runId: String, requestId: String) = Intent(context, ConfirmationActivity::class.java)
+            // Finishing must return to the target app, not resurrect the workbench's task.
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            .setData(Uri.Builder().scheme("agent-interaction").authority("request").appendPath(runId).appendPath(requestId).build())
+            .putExtra(EXTRA_RUN_ID, runId).putExtra(EXTRA_REQUEST_ID, requestId)
+        internal fun pendingIntent(context: Context, runId: String, requestId: String): PendingIntent = PendingIntent.getActivity(context, 0,
+            intent(context, runId, requestId), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    }
+}

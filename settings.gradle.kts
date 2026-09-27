@@ -1,6 +1,6 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "autojs6-plugin-ai-agent"
+rootProject.name = "autojs6-plugin-three-stove-agent"
 
 pluginManagement {
     providers.gradleProperty("autojs.buildPlugins.includeBuild").orNull?.let { includeBuild(it) }

@@ -101,7 +101,7 @@ jobs:
           target: google_apis
           arch: ${{ matrix.arch }}
           profile: ${{ matrix.profile }}
-          avd-name: AI_Agent_Conformance_CI_${{ matrix.api-level }}
+          avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
             chmod +x gradlew
             ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
@@ -109,7 +109,7 @@ jobs:
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554
             # Then the same guards reinstall both APKs and prepare the device for the main suite.
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only
-            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ai.agent.ciDiagnostics=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.ai.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.three.stove.agent.ciDiagnostics=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.three.stove.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
 
       - name: Upload instrumentation reports after failure
         if: failure()

@@ -26,14 +26,14 @@ def main():
 
     if not args.serial.startswith("emulator-") or adb("shell", "getprop", "ro.kernel.qemu").strip() != "1":
         raise SystemExit("Fake host requires a disposable emulator, never a physical device")
-    if not adb("emu", "avd", "name").splitlines()[0].startswith("AI_Agent_Conformance_"):
-        raise SystemExit("Use a disposable AVD named AI_Agent_Conformance_*, with its own data directory")
+    if not adb("emu", "avd", "name").splitlines()[0].startswith("Three_Stove_Agent_Conformance_"):
+        raise SystemExit("Use a disposable AVD named Three_Stove_Agent_Conformance_*, with its own data directory")
     installed = adb("shell", "dumpsys", "package", "org.autojs.autojs6")
     if "versionName=" in installed and "versionName=conformance" not in installed:
         raise SystemExit("Refusing to replace a real AutoJs6 installation")
     variant = "release" if args.release_plugin else "debug"
     apks = [root / "test-apps/fake-host/build/outputs/apk/debug/fake-host-debug.apk",
-            root / f"app/build/outputs/apk/{variant}/autojs6-plugin-ai-agent-v{version}.apk"]
+            root / f"app/build/outputs/apk/{variant}/autojs6-plugin-three-stove-agent-v{version}.apk"]
     if not args.prepare_only:
         apks.append(root / "test-apps/fake-host/build/outputs/apk/androidTest/debug/fake-host-debug-androidTest.apk")
     for apk in apks:
@@ -50,12 +50,12 @@ def main():
         adb("shell", "settings", "put", "system", "screen_off_timeout", "1800000")
         adb("shell", "svc", "power", "stayon", "true")
         if int(adb("shell", "getprop", "ro.build.version.sdk").strip()) >= 33:
-            adb("shell", "pm", "grant", "io.github.supermonster003.autojs6.plugin.ai.agent",
+            adb("shell", "pm", "grant", "io.github.supermonster003.autojs6.plugin.three.stove.agent",
                 "android.permission.POST_NOTIFICATIONS")
         print("FAKE_HOST_READY main instrumentation prerequisites installed")
         return
     result = adb("shell", "am", "instrument", "-w", "-r",
-                 "org.autojs.plugin.ai.agent.fakehost.test/androidx.test.runner.AndroidJUnitRunner", timeout=180)
+                 "org.autojs.plugin.three.stove.agent.fakehost.test/androidx.test.runner.AndroidJUnitRunner", timeout=180)
     output = root / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result, encoding="utf-8")

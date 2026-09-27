@@ -1,6 +1,6 @@
 # Third-party notices
 
-This file records third-party components shipped with or consumed by the AI Agent plugin. The
+This file records third-party components shipped with or consumed by the Three Stove Agent plugin. The
 plugin itself is licensed under the Mozilla Public License 2.0; the components below retain their
 own licenses. Runtime dependencies are added to this list in the same commit that introduces them.
 

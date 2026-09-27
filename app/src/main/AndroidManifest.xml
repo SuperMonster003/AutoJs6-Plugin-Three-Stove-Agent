@@ -31,7 +31,7 @@
         android:localeConfig="@xml/locales_config"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AiAgent"
+        android:theme="@style/Theme.ThreeStoveAgent"
         tools:targetApi="33">
 
         <meta-data
@@ -78,7 +78,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.VoiceInputActivity" android:exported="false" android:excludeFromRecents="true"
-            android:theme="@style/Theme.AiAgent.Dialog.Light" />
+            android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />
 
         <activity android:name=".ui.ScriptRootsActivity" android:exported="false" />
         <activity android:name=".ui.RunDetailActivity" android:exported="false" />
@@ -90,10 +90,10 @@
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
         <activity android:name=".ui.AboutActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
-            android:theme="@style/Theme.AiAgent.Dialog.Light" />
+            android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />
 
         <service
-            android:name=".AiAgentTaskForegroundService"
+            android:name=".ThreeStoveAgentTaskForegroundService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
             android:process=":agent">
@@ -107,7 +107,7 @@
             android:process=":agent" />
 
         <service
-            android:name=".AiAgentPluginInfoService"
+            android:name=".ThreeStoveAgentPluginInfoService"
             android:enabled="true"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN">
@@ -125,7 +125,7 @@
             task foreground service all live in the :agent process next to this service.
         -->
         <service
-            android:name=".AiAgentPluginService"
+            android:name=".ThreeStoveAgentPluginService"
             android:enabled="true"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN"

@@ -2,7 +2,7 @@
 <resources>
     <!-- Material 3 themes (roadmap D45). The host snapshot wraps the resource context; screens pick
          Light or Dark explicitly and the runtime palette tints controls with the chosen theme color. -->
-    <style name="Base.Theme.AiAgent" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ThreeStoveAgent" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorSurfaceContainerLowest">@color/surface</item>
@@ -18,14 +18,14 @@
         <item name="android:colorBackground">@color/window_background</item>
         <item name="android:windowBackground">@color/window_background</item>
     </style>
-    <style name="Theme.AiAgent" parent="Base.Theme.AiAgent">
+    <style name="Theme.ThreeStoveAgent" parent="Base.Theme.ThreeStoveAgent">
         <item name="android:windowLightStatusBar">true</item>
     </style>
     <!-- Explicit aliases for setTheme: HostAppearanceActivity and the :agent overlay force night mode on the
          AppCompat delegate, so night resources apply through the base theme and the aliases stay empty. -->
-    <style name="Theme.AiAgent.Light" parent="Base.Theme.AiAgent" />
-    <style name="Theme.AiAgent.Dark" parent="Base.Theme.AiAgent" />
-    <style name="Theme.AiAgent.Dialog.Light" parent="Theme.Material3.DayNight.Dialog">
+    <style name="Theme.ThreeStoveAgent.Light" parent="Base.Theme.ThreeStoveAgent" />
+    <style name="Theme.ThreeStoveAgent.Dark" parent="Base.Theme.ThreeStoveAgent" />
+    <style name="Theme.ThreeStoveAgent.Dialog.Light" parent="Theme.Material3.DayNight.Dialog">
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorSurfaceContainerHigh">@color/surface</item>
@@ -37,7 +37,7 @@
         <item name="android:windowMinWidthMajor">85%</item>
         <item name="android:windowMinWidthMinor">95%</item>
     </style>
-    <style name="Theme.AiAgent.Dialog.Dark" parent="Theme.AiAgent.Dialog.Light" />
+    <style name="Theme.ThreeStoveAgent.Dialog.Dark" parent="Theme.ThreeStoveAgent.Dialog.Light" />
 
     <style name="AppToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">20sp</item>
