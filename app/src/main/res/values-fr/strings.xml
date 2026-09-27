@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">Association requise. Approuvez ce client dans l\'application du serveur MCP, puis relancez la découverte.</string>
     <string name="mcp_probe">Découvrir les outils du serveur enregistré</string>
     <string name="mcp_probe_error">Échec de la découverte. Vérifiez le serveur, le réseau, les autorisations et les limites du catalogue.</string>
+    <string name="mcp_risk">Niveau de risque</string>
     <string name="mcp_risk_note">La politique de risque locale couvre tous les outils sélectionnés. Sensible par défaut. Les descriptions et annotations du serveur ne réduisent jamais cette politique.</string>
     <string name="mcp_save_before_probe">Enregistrez les changements d\'adresse ou de jeton avant la découverte.</string>
     <string name="mcp_selection_note">Sélectionnez les outils individuellement. Maximum de 32 outils pour tous les serveurs. Les schémas non pris en charge ne sont pas sélectionnables.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">Serveurs MCP</string>
     <string name="mcp_setup_note">Les serveurs et le groupe MCP sont désactivés par défaut. Configurez les jetons et l\'association dans l\'application serveur. La découverte lit seulement le catalogue enregistré, sans appeler de modèle.</string>
+    <string name="mcp_state_off">Désactivé</string>
+    <string name="mcp_state_on">Activé</string>
     <string name="mcp_token">Jeton Bearer</string>
     <string name="mcp_token_empty">Aucun jeton enregistré</string>
     <string name="mcp_token_note">Laissez vide pour conserver le jeton. Cochez Effacer pour le supprimer. Le jeton ne sera jamais réaffiché. Toute saisie non enregistrée est supprimée en quittant cet écran.</string>
     <string name="mcp_token_saved">Jeton enregistré (masqué)</string>
+    <string name="mcp_tools">Outils</string>
     <string name="mcp_unsupported">%1$s - Outil non pris en charge</string>
     <string name="memory_accept">Confirmer cette entrée</string>
     <string name="memory_cancel_import">Annuler le reste</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">Impossible de lire ou enregistrer la mémoire. Vérifiez le fichier, les limites, les restrictions sur les secrets et la portée, ou actualisez si l\'entrée a changé.</string>
     <string name="memory_export">Exporter en JSON</string>
     <string name="memory_export_notice">Le JSON contient les valeurs et les ID des tâches sources. Choisissez un emplacement privé.</string>
-    <string name="memory_identity">Clé: %1$s\nPortée: %2$s</string>
     <string name="memory_import">Importer du JSON</string>
     <string name="memory_import_progress">Vérifier l\'importation %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">Cette valeur enregistrée sera remplacée:</string>
     <string name="memory_save">Enregistrer</string>
     <string name="memory_save_confirm">Enregistrer la valeur modifiée?</string>
-    <string name="memory_scope">Portée</string>
     <string name="memory_scope_missing">Créez le préréglage correspondant avant d\'importer dans cette portée, ou ignorez cette entrée.</string>
+    <string name="memory_search">Rechercher dans la mémoire</string>
     <string name="memory_skip">Ignorer cette entrée</string>
     <string name="memory_source">ID de la tâche source: %1$s</string>
     <string name="memory_title">Mémoire</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6 ne propose plus ce modèle. Choisissez-en un autre avant de lancer une tâche.</string>
     <string name="model_unpin">Désépingler %1$s</string>
     <string name="plugin_description">Exécute des tâches en langage naturel en choisissant des scripts enregistrés et en manipulant l\'écran étape par étape</string>
+    <string name="presets_actions">Actions pour %1$s</string>
     <string name="presets_budget_note">Laisser vide pour hériter des limites. Les valeurs ne peuvent que les réduire. Par défaut: 40 étapes, 60 appels, 600000 ms (1800000 ms pour les tâches détachées), 300000 jetons, sous réserve des limites de l\'hôte.</string>
     <string name="presets_calls">Nombre maximal d\'appels au modèle</string>
     <string name="presets_cautious">Prudente (confirmer toute modification)</string>
     <string name="presets_confirmation">Politique de confirmation</string>
     <string name="presets_context">Contexte fixe (8 KiB maximum avec le contexte de la tâche)</string>
     <string name="presets_copy">Dupliquer le préréglage</string>
-    <string name="presets_default_item">%1$s (par défaut)</string>
+    <string name="presets_default_badge">Par défaut</string>
     <string name="presets_delete">Supprimer le préréglage</string>
     <string name="presets_delete_confirm">Supprimer %1$s? Les tâches et l\'historique sont conservés. Si ce préréglage est celui par défaut, les nouvelles tâches utiliseront default.</string>
-    <string name="presets_duration">Durée maximale (ms)</string>
     <string name="presets_edit">Modifier le préréglage</string>
     <string name="presets_error">Lecture ou enregistrement impossible. Vérifiez le nom unique, les budgets, la taille du contexte et les groupes ou dossiers autorisés, puis réessayez.</string>
     <string name="presets_group_act">Actions sur l\'écran</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">Limites de tâche</string>
     <string name="ui_budget_invalid">Saisissez un entier entre 1 et %1$d, ou laissez vide pour la valeur par défaut.</string>
     <string name="ui_choose_model">Choisir un modèle</string>
-    <string name="ui_collapse">Réduire</string>
-    <string name="ui_expand">Développer</string>
+    <string name="ui_discard">Abandonner les modifications</string>
     <string name="ui_home_subtitle">Choisissez un modèle, décrivez votre objectif et suivez la progression.</string>
     <string name="ui_home_title">De l\'idée à l\'action</string>
     <string name="ui_model_note">S\'applique aux nouvelles tâches du plan de travail et de la bulle flottante. Les préréglages et les tâches en cours ne changent pas.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">Modèles de configuration facultatifs pour les outils, limites et contexte. Changez de modèle depuis l\'accueil.</string>
     <string name="ui_task_section">Tâches et capacités</string>
     <string name="ui_theme_amber">Ambre</string>
+    <string name="ui_unsaved_note">Quitter sans enregistrer? Les modifications de cette page seront perdues.</string>
+    <string name="ui_unsaved_title">Modifications non enregistrées</string>
     <string name="update_available">Mise à jour disponible: %1$s</string>
     <string name="update_check">Rechercher les mises à jour</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">Recherche de mises à jour...</string>

@@ -146,7 +146,7 @@ class RunDetailActivity : HostAppearanceActivity() {
             if (value.flag("fullAccess") == true) addView(kit.badge(getString(R.string.settings_full_access), Tone.DANGER).apply { tag = "full-access" },
                 LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_XS) })
             addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
-            addView(kit.text(HistoryViews.date(context, value.number("startedAt") ?: 0), Ui.TEXT_CAPTION, palette.muted))
+            addView(kit.text(Formats.date(context, value.number("startedAt") ?: 0), Ui.TEXT_CAPTION, palette.muted))
         })
         summary.addView(kit.text(value.string("goal").orEmpty(), Ui.TEXT_TITLE, medium = true).apply {
             setTextIsSelectable(true); textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_MD), 0, kit.dp(Ui.SPACE_XS))
@@ -181,8 +181,8 @@ class RunDetailActivity : HostAppearanceActivity() {
             result.addView(kit.text(getString(title), Ui.TEXT_SECTION, palette.muted, medium = true).apply { setPaddingRelative(0, kit.dp(Ui.SPACE_MD), 0, 0) })
             when {
                 item.isJsonArray -> item.asJsonArray.forEach { result.addView(body("- " + it.asString)) }
-                field == "script" -> result.addView(body(HistoryViews.pretty(item.asJsonObject["result"] ?: JsonNull.INSTANCE)).apply { typeface = Ui.monospace })
-                else -> result.addView(body(if (item.isJsonPrimitive) item.asString else HistoryViews.pretty(item)))
+                field == "script" -> result.addView(body(Formats.pretty(item.asJsonObject["result"] ?: JsonNull.INSTANCE)).apply { typeface = Ui.monospace })
+                else -> result.addView(body(if (item.isJsonPrimitive) item.asString else Formats.pretty(item)))
             }
         }
         WorkbenchText.usage(this, data.getAsJsonObject("usage"))?.let { result.addView(caption(it)) }
@@ -310,7 +310,7 @@ class RunDetailActivity : HostAppearanceActivity() {
             .addCategory(Intent.CATEGORY_OPENABLE).setType("text/javascript").putExtra(Intent.EXTRA_TITLE, fileName)
         internal fun writeExport(output: OutputStream, redacted: JsonObject) {
             require(redacted.flag("redacted") == true)
-            output.write(HistoryViews.pretty(redacted).toByteArray(Charsets.UTF_8)); output.flush()
+            output.write(Formats.pretty(redacted).toByteArray(Charsets.UTF_8)); output.flush()
         }
     }
 }

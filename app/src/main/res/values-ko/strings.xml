@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">페어링이 필요합니다. MCP 서버 앱에서 이 클라이언트를 승인한 뒤 다시 검색하세요.</string>
     <string name="mcp_probe">저장된 서버에서 도구 검색</string>
     <string name="mcp_probe_error">검색에 실패했습니다. 서버, 네트워크, 권한, 목록 한도를 확인하세요.</string>
+    <string name="mcp_risk">위험 수준</string>
     <string name="mcp_risk_note">선택한 모든 도구에 로컬 위험 정책이 적용됩니다. 기본값은 민감입니다. 서버 설명과 주석으로 이 정책을 완화할 수 없습니다.</string>
     <string name="mcp_save_before_probe">검색 전에 엔드포인트나 토큰 변경 사항을 저장하세요.</string>
     <string name="mcp_selection_note">도구를 개별적으로 선택하세요. 모든 서버에서 합계 32개까지 선택할 수 있습니다. 지원하지 않는 입력 스키마는 선택할 수 없습니다.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">MCP 서버</string>
     <string name="mcp_setup_note">서버와 MCP 도구 그룹은 기본적으로 꺼져 있습니다. 서버 앱에서 토큰과 페어링을 설정하세요. 검색은 저장된 서버 목록만 읽으며 모델을 호출하지 않습니다.</string>
+    <string name="mcp_state_off">꺼짐</string>
+    <string name="mcp_state_on">사용 중</string>
     <string name="mcp_token">Bearer 토큰</string>
     <string name="mcp_token_empty">저장된 토큰 없음</string>
     <string name="mcp_token_note">비워 두면 기존 토큰을 유지합니다. 삭제를 선택하면 제거됩니다. 토큰은 다시 표시되지 않으며 저장하지 않은 입력은 화면을 떠날 때 폐기됩니다.</string>
     <string name="mcp_token_saved">토큰 저장됨 (숨김)</string>
+    <string name="mcp_tools">도구</string>
     <string name="mcp_unsupported">%1$s - 지원하지 않는 도구</string>
     <string name="memory_accept">이 항목 확인</string>
     <string name="memory_cancel_import">나머지 가져오기 취소</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">메모리를 읽거나 저장할 수 없습니다. 파일, 크기 제한, 인증 정보 제한, 범위를 확인하세요. 항목이 바뀌었다면 새로고침하세요.</string>
     <string name="memory_export">JSON 내보내기</string>
     <string name="memory_export_notice">JSON에는 설정값과 출처 작업 ID가 포함됩니다. 비공개 저장 위치를 선택하세요.</string>
-    <string name="memory_identity">키: %1$s\n범위: %2$s</string>
     <string name="memory_import">JSON 가져오기</string>
     <string name="memory_import_progress">가져오기 검토 %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">다음 저장된 값을 바꿉니다:</string>
     <string name="memory_save">변경 저장</string>
     <string name="memory_save_confirm">수정한 설정값을 저장할까요?</string>
-    <string name="memory_scope">범위</string>
     <string name="memory_scope_missing">해당 프리셋을 만든 후 가져오거나 이 항목을 건너뛰세요.</string>
+    <string name="memory_search">메모리 검색</string>
     <string name="memory_skip">항목 건너뛰기</string>
     <string name="memory_source">출처 작업 ID: %1$s</string>
     <string name="memory_title">메모리</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6에서 더 이상 이 모델을 제공하지 않습니다. 작업을 시작하기 전에 다른 모델을 선택하세요.</string>
     <string name="model_unpin">%1$s 고정 해제</string>
     <string name="plugin_description">등록된 스크립트를 선택하고 화면을 단계별로 조작하여 자연어 작업을 실행</string>
+    <string name="presets_actions">%1$s 작업</string>
     <string name="presets_budget_note">비워 두면 작업 제한을 따릅니다. 값을 줄일 수만 있습니다. 기본값: 40단계, 모델 호출 60회, 600000 ms (분리된 작업은 1800000 ms), 300000토큰. 호스트 제한도 적용됩니다.</string>
     <string name="presets_calls">최대 모델 호출 수</string>
     <string name="presets_cautious">신중 (상태를 바꾸는 모든 작업 확인)</string>
     <string name="presets_confirmation">확인 정책</string>
     <string name="presets_context">고정 문맥 (작업 문맥과 합해 최대 8 KiB)</string>
     <string name="presets_copy">프리셋 복사</string>
-    <string name="presets_default_item">%1$s (기본값)</string>
+    <string name="presets_default_badge">기본</string>
     <string name="presets_delete">프리셋 삭제</string>
     <string name="presets_delete_confirm">프리셋 %1$s을(를) 삭제할까요? 기존 작업과 기록은 유지됩니다. 기본 프리셋이면 새 작업에 default가 사용됩니다.</string>
-    <string name="presets_duration">최대 실행 시간 (ms)</string>
     <string name="presets_edit">프리셋 편집</string>
     <string name="presets_error">프리셋을 읽거나 저장하지 못했습니다. 이름 중복, 예산, 문맥 크기, 허용된 도구 그룹과 경로를 확인하고 다시 시도하세요.</string>
     <string name="presets_group_act">화면 조작</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">작업 제한</string>
     <string name="ui_budget_invalid">1에서 %1$d 사이의 정수를 입력하거나 기본값을 사용하려면 비워 두세요.</string>
     <string name="ui_choose_model">모델 선택</string>
-    <string name="ui_collapse">접기</string>
-    <string name="ui_expand">펼치기</string>
+    <string name="ui_discard">변경 사항 버리기</string>
     <string name="ui_home_subtitle">모델을 선택하고 목표를 설명한 뒤 진행 상황을 확인하세요.</string>
     <string name="ui_home_title">아이디어를 행동으로</string>
     <string name="ui_model_note">작업 화면과 플로팅 볼의 새 작업에 적용됩니다. 프리셋과 실행 중인 작업은 바뀌지 않습니다.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">도구, 제한, 컨텍스트를 위한 선택적 템플릿입니다. 홈 화면에서 모델을 바로 전환할 수 있습니다.</string>
     <string name="ui_task_section">작업 및 기능</string>
     <string name="ui_theme_amber">호박색</string>
+    <string name="ui_unsaved_note">저장하지 않고 나갈까요? 이 페이지의 변경 사항이 사라집니다.</string>
+    <string name="ui_unsaved_title">저장하지 않은 변경 사항</string>
     <string name="update_available">업데이트 가능: %1$s</string>
     <string name="update_check">업데이트 확인</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">업데이트 확인 중...</string>

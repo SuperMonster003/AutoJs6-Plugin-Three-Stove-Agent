@@ -142,12 +142,14 @@ internal data class AgentPalette(
     val isDark: Boolean,
 ) {
     /** Translucent accent fills for tonal controls and ripples. */
-    val accentTone: Int get() = AgentColorPolicy.withAlpha(accent, 0x1C)
+    val accentTone: Int get() = AgentColorPolicy.withAlpha(accent, TONE_ALPHA)
     val accentRipple: Int get() = AgentColorPolicy.withAlpha(accent, 0x2E)
 
     internal class Neutrals(val values: IntArray)
 
     companion object {
+        /** Alpha of [accentTone]; accent text must stay readable on this fill. */
+        const val TONE_ALPHA = 0x1C
         private val neutrals = ConcurrentHashMap<Boolean, Neutrals>()
         private val cache = ConcurrentHashMap<Long, AgentPalette>()
 
@@ -185,9 +187,14 @@ internal data class AgentPalette(
                 if (curated) color else AgentColorPolicy.harmonizeSurface(color, seedAccent, text, if (dark) night else light)
             val tonedBackground = tone(background, 0.02, 0.035)
             val tonedSurface = tone(n[1], 0.025, 0.055)
-            // Accent text sits on both the window and on cards; keep 4.5:1 against the tinted versions of each.
+            // Accent text sits on the window, on cards and on its own tonal fill (tonal buttons, chips);
+            // keep 4.5:1 against each. The tonal fill depends on the accent, so settle over a few rounds.
             var accent = seedAccent
-            repeat(2) { for (reference in listOf(tonedBackground, tonedSurface)) accent = AgentColorPolicy.readableAccent(accent, reference) }
+            repeat(4) {
+                val tonal = { reference: Int -> AgentColorPolicy.blend(reference, accent, TONE_ALPHA / 255.0) }
+                for (reference in listOf(tonedBackground, tonedSurface, tonal(tonedSurface), tonal(tonedBackground)))
+                    accent = AgentColorPolicy.readableAccent(accent, reference)
+            }
             return AgentPalette(
                 primary = primary,
                 onPrimary = AgentColorPolicy.onFilledColor(primary),

@@ -32,14 +32,6 @@ internal class UiAccessibilityAudit {
         try { action() } finally { HostAppearance.cached = previous; release.countDown() }
     }
 
-    fun expandSections(activity: Activity) {
-        fun visit(view: View) {
-            if (view is Button && (view.tag as? String)?.startsWith("section-") == true && !view.isActivated) view.performClick()
-            if (view is ViewGroup) for (index in 0 until view.childCount) visit(view.getChildAt(index))
-        }
-        visit(activity.findViewById(android.R.id.content))
-    }
-
     fun inspect(activity: Activity, name: String) {
         val configuration = activity.resources.configuration
         assertEquals(language, configuration.locales[0].language)

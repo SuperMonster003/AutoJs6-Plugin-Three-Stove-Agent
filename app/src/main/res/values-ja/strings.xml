@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">ペアリングが必要です. MCP サーバーアプリでこのクライアントを承認してから再検出してください.</string>
     <string name="mcp_probe">保存済みサーバーからツールを検出</string>
     <string name="mcp_probe_error">検出に失敗しました. サーバー, ネットワーク, 権限, 一覧の上限を確認してください.</string>
+    <string name="mcp_risk">リスクレベル</string>
     <string name="mcp_risk_note">選択した全ツールにローカルのリスク方針を適用します. 既定は機密です. サーバーの説明や注釈はこの方針を緩和しません.</string>
     <string name="mcp_save_before_probe">検出の前にエンドポイントやトークンの変更を保存してください.</string>
     <string name="mcp_selection_note">ツールを個別に選択してください. 全サーバー合計32個までです. 未対応の入力スキーマは選択できません.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">MCP サーバー</string>
     <string name="mcp_setup_note">サーバーと MCP ツール群は既定で無効です. サーバーアプリでトークンとペアリングを設定してください. 検出は保存済みサーバーの一覧を読み取るだけでモデルを呼びません.</string>
+    <string name="mcp_state_off">オフ</string>
+    <string name="mcp_state_on">有効</string>
     <string name="mcp_token">Bearer トークン</string>
     <string name="mcp_token_empty">トークン未保存</string>
     <string name="mcp_token_note">空欄で保存済みトークンを保持します. 消去を選ぶと削除します. トークンは再表示せず, 未保存の入力は画面を離れると破棄します.</string>
     <string name="mcp_token_saved">トークン保存済み (非表示)</string>
+    <string name="mcp_tools">ツール</string>
     <string name="mcp_unsupported">%1$s - 未対応のツール</string>
     <string name="memory_accept">この項目を確認</string>
     <string name="memory_cancel_import">残りのインポートを中止</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">メモリを読み込みまたは保存できません. ファイル, 上限, 認証情報の制限, スコープを確認してください. 項目が変更された場合は更新してください.</string>
     <string name="memory_export">JSON をエクスポート</string>
     <string name="memory_export_notice">JSON には設定値と元のタスク ID が含まれます. 非公開の保存先を選んでください.</string>
-    <string name="memory_identity">キー: %1$s\nスコープ: %2$s</string>
     <string name="memory_import">JSON をインポート</string>
     <string name="memory_import_progress">インポートを確認 %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">次の保存済みの値を置き換えます:</string>
     <string name="memory_save">変更を保存</string>
     <string name="memory_save_confirm">編集した設定値を保存しますか?</string>
-    <string name="memory_scope">スコープ</string>
     <string name="memory_scope_missing">対応するプリセットを作成してからインポートするか, この項目をスキップしてください.</string>
+    <string name="memory_search">メモリを検索</string>
     <string name="memory_skip">項目をスキップ</string>
     <string name="memory_source">元のタスク ID: %1$s</string>
     <string name="memory_title">メモリ</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6 はこのモデルを提供しなくなりました. タスクを開始する前に別のモデルを選んでください.</string>
     <string name="model_unpin">%1$s の固定を解除</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
+    <string name="presets_actions">%1$s の操作</string>
     <string name="presets_budget_note">空欄はタスクの制限を継承します. 値は制限を縮小する場合のみ指定できます. 既定: 40 ステップ, 60 回, 600000 ms (切り離したタスクは 1800000 ms), 300000 トークン. ホストの制限も適用されます.</string>
     <string name="presets_calls">最大モデル呼び出し数</string>
     <string name="presets_cautious">慎重 (状態を変更する操作をすべて確認)</string>
     <string name="presets_confirmation">確認方針</string>
     <string name="presets_context">固定コンテキスト (タスク分と合わせて最大 8 KiB)</string>
     <string name="presets_copy">プリセットを複製</string>
-    <string name="presets_default_item">%1$s (既定)</string>
+    <string name="presets_default_badge">既定</string>
     <string name="presets_delete">プリセットを削除</string>
     <string name="presets_delete_confirm">プリセット %1$s を削除しますか? 既存のタスクと履歴は保持されます. 既定の場合, 新規タスクは default を使用します.</string>
-    <string name="presets_duration">最大実行時間 (ms)</string>
     <string name="presets_edit">プリセットを編集</string>
     <string name="presets_error">プリセットの読み込みまたは保存に失敗しました. 名前の重複, 予算, コンテキストのサイズ, ツールとディレクトリの許可を確認して再試行してください.</string>
     <string name="presets_group_act">画面操作</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">タスクの制限</string>
     <string name="ui_budget_invalid">1 から %1$d までの整数を入力するか, 空欄で既定値を使用します.</string>
     <string name="ui_choose_model">モデルを選択</string>
-    <string name="ui_collapse">折りたたむ</string>
-    <string name="ui_expand">展開</string>
+    <string name="ui_discard">変更を破棄</string>
     <string name="ui_home_subtitle">モデルを選び, 目標を伝え, 進捗を確認できます.</string>
     <string name="ui_home_title">アイデアを行動に</string>
     <string name="ui_model_note">タスク画面とフローティングボールの新しいタスクに適用されます. プリセットや実行中のタスクは変更されません.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">ツール, 制限, コンテキストを保存する任意のテンプレートです. モデルはホームから直接切り替えられます.</string>
     <string name="ui_task_section">タスクと機能</string>
     <string name="ui_theme_amber">アンバー</string>
+    <string name="ui_unsaved_note">保存せずに移動しますか? このページの変更は失われます.</string>
+    <string name="ui_unsaved_title">未保存の変更</string>
     <string name="update_available">更新があります: %1$s</string>
     <string name="update_check">更新を確認</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">更新を確認中...</string>

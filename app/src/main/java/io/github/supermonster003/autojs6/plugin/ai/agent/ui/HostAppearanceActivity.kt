@@ -54,7 +54,6 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
     protected open val dialogTheme = false
     private var applied: HostAppearance? = null
     internal val appearance get() = applied
-    internal val sectionState = mutableMapOf<Int, Boolean>()
     /** Runtime palette and component builders for this screen. */
     internal val kit: Kit by lazy { Kit(this, AgentPalette.resolve(this, applied)) }
     internal val palette: AgentPalette get() = kit.palette
@@ -77,9 +76,6 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { navigateBack() }
         })
-        savedInstanceState?.getBundle("sectionState")?.let { saved ->
-            saved.keySet().forEach { key -> key.toIntOrNull()?.let { sectionState[it] = saved.getBoolean(key) } }
-        }
         // PhoneWindow.getInsetsController() on Android 13 dereferences its decor directly.
         // Materialize it before querying the controller, even before setContentView().
         val decor = window.decorView
@@ -113,14 +109,4 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
     override fun onStop() { appearanceGeneration++; super.onStop() }
     /** Toolbar navigation and system back both land here; screens with drafts override it. */
     open fun navigateBack() { finish() }
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBundle("sectionState", Bundle().apply { sectionState.forEach { (key, value) -> putBoolean(key.toString(), value) } })
-        super.onSaveInstanceState(outState)
-    }
-    internal fun tint(view: View) = styleHostControls(view, applied)
-}
-
-/** Apply touch targets even when the host appearance provider is unavailable. */
-internal fun styleHostControls(view: View, appearance: HostAppearance?) {
-    AgentUi.style(view, appearance)
 }

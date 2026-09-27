@@ -506,8 +506,8 @@ class WorkbenchActivityTest {
                         if (view is ViewGroup) for (index in 0 until view.childCount) enlarge(view.getChildAt(index))
                     }
                     enlarge(root)
-                    val width = AgentUi.dp(activity, 360)
-                    val height = AgentUi.dp(activity, 640)
+                    val width = activity.kit.dp(360)
+                    val height = activity.kit.dp(640)
                     root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
                     root.layout(0, 0, width, height)
                     audit.inspect(activity, "workbench-large")
@@ -562,23 +562,23 @@ class WorkbenchActivityTest {
                         root.findViewWithTag<EditText>("preset-maxSteps").setText("3")
                         root.findViewWithTag<EditText>("preset-maxTotalTokens").setText("10000")
                         root.findViewWithTag<CheckBox>("preset-inherit-groups").isChecked = false
-                        root.findViewWithTag<Spinner>("preset-confirm").setSelection(1)
-                        root.findViewWithTag<Spinner>("preset-memory").setSelection(3)
+                        activity.confirmation.choose(1)
+                        activity.scope.choose(3)
                     }
                     instrumentation.waitForIdleSync(); scenario.recreate()
                     ready("Editor draft restored") { activity ->
                         val root = activity.findViewById<ViewGroup>(android.R.id.content)
                         root.findViewWithTag<EditText>("preset-context")?.text?.toString() == "P63 fixture fixed context" &&
-                            root.findViewWithTag<Spinner>("preset-confirm")?.selectedItemPosition == 1
+                            activity.confirmation.selectedIndex == 1
                     }
                     scenario.onActivity { activity ->
                         val root = activity.findViewById<ViewGroup>(android.R.id.content)
                         assertEquals("3", root.findViewWithTag<EditText>("preset-maxSteps").text.toString())
-                        assertEquals(3, root.findViewWithTag<Spinner>("preset-memory").selectedItemPosition)
+                        assertEquals(3, activity.scope.selectedIndex)
                         assertFalse(root.findViewWithTag<CheckBox>("preset-group-shell").isEnabled)
                         root.findViewWithTag<Button>("preset-save").performClick()
                     }
-                    ready("Saved preset appears") { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-$key") != null }
+                    ready("Saved preset appears") { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>("preset-$key") != null }
                 }
                 val saved = PresetCodec.decodePreset(client.named("get", key).getOrThrow())
                 assertNull(saved.targetId); assertEquals("none", saved.memoryScope)
@@ -1140,7 +1140,7 @@ class WorkbenchActivityTest {
                 ActivityScenario.launch(MemoryActivity::class.java).use { scenario ->
                     fun ready(message: String, tag: String) = waitFor(message) { var found = false; scenario.onActivity {
                         found = it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>(tag)?.isEnabled == true }; found }
-                    fun click(tag: String) = scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>(tag).performClick() }
+                    fun click(tag: String) = scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>(tag).performClick() }
                     ready("Entry listed", "memory-entry-global:$key"); click("memory-entry-global:$key")
                     scenario.onActivity { it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<EditText>("memory-value").setText("Draft fixture") }
                     scenario.recreate(); ready("Editor restored", "memory-value")
@@ -1512,7 +1512,6 @@ class WorkbenchActivityTest {
                          after: (ActivityScenario<android.app.Activity>) -> Unit = {}) {
                     val intent = Intent(context, type).putExtra("runId", runId).putExtra("rerunPreset", preset).putExtra("rerunGoal", "Layout inspection fixture")
                     ActivityScenario.launch<android.app.Activity>(intent).use { scenario ->
-                        scenario.onActivity { audit.expandSections(it) }
                         waitFor("$name laid out") { var ready = false; scenario.onActivity {
                             val root = it.findViewById<ViewGroup>(android.R.id.content)
                             ready = root.width > 0 && (readyTag == null || root.findViewWithTag<View>(readyTag)?.isLaidOut == true) &&
@@ -1520,7 +1519,6 @@ class WorkbenchActivityTest {
                                 (type != LauncherActivity::class.java || (it as LauncherActivity).presetsLoaded)
                         }; ready }
                         instrumentation.waitForIdleSync()
-                        scenario.onActivity { audit.expandSections(it) }
                         instrumentation.waitForIdleSync()
                         scenario.onActivity { audit.inspect(it, name) }
                         after(scenario)
@@ -1538,7 +1536,7 @@ class WorkbenchActivityTest {
                     scenario.onActivity { audit.inspect(it, "preset-editor") }
                 }
                 page(MemoryActivity::class.java, "memory", "memory-import") { scenario ->
-                    scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<Button>("memory-entry-$preset:layout-drink").performClick() }
+                    scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<View>("memory-entry-$preset:layout-drink").performClick() }
                     instrumentation.waitForIdleSync()
                     scenario.onActivity { audit.inspect(it, "memory-editor") }
                     scenario.onActivity { (it as MemoryActivity).beginImport(listOf(memory.copy(key = "layout-import"))) }

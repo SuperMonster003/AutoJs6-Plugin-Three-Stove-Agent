@@ -134,16 +134,20 @@
     <string name="mcp_pairing_required">Требуется сопряжение. Одобрите клиент в приложении сервера MCP и повторите поиск.</string>
     <string name="mcp_probe">Найти инструменты сохраненного сервера</string>
     <string name="mcp_probe_error">Поиск не удался. Проверьте сервер, сеть, разрешения и лимиты каталога.</string>
+    <string name="mcp_risk">Уровень риска</string>
     <string name="mcp_risk_note">Локальная политика риска действует для всех выбранных инструментов. По умолчанию риск высокий. Описания и аннотации сервера не ослабляют политику.</string>
     <string name="mcp_save_before_probe">Сохраните изменения адреса или токена перед поиском.</string>
     <string name="mcp_selection_note">Выбирайте инструменты явно. Не более 32 для всех серверов. Неподдерживаемые схемы ввода выбрать нельзя.</string>
     <string name="mcp_server_label">%1$s [%2$s]</string>
     <string name="mcp_servers">Серверы MCP</string>
     <string name="mcp_setup_note">Серверы и группа MCP по умолчанию выключены. Настройте токены и сопряжение в приложении сервера. Поиск только читает каталог сохраненного сервера, без вызова модели.</string>
+    <string name="mcp_state_off">Выключен</string>
+    <string name="mcp_state_on">Включен</string>
     <string name="mcp_token">Токен Bearer</string>
     <string name="mcp_token_empty">Токен не сохранен</string>
     <string name="mcp_token_note">Пустое поле сохраняет прежний токен. Отметьте удаление, чтобы стереть его. Токены не отображаются повторно. Несохраненный ввод удаляется при выходе с экрана.</string>
     <string name="mcp_token_saved">Токен сохранен (скрыт)</string>
+    <string name="mcp_tools">Инструменты</string>
     <string name="mcp_unsupported">%1$s - Неподдерживаемый инструмент</string>
     <string name="memory_accept">Подтвердить запись</string>
     <string name="memory_cancel_import">Отменить остаток импорта</string>
@@ -154,7 +158,6 @@
     <string name="memory_error">Не удалось прочитать или сохранить память. Проверьте файл, ограничения, запрет учетных данных и область. Если запись изменилась, обновите список.</string>
     <string name="memory_export">Экспорт JSON</string>
     <string name="memory_export_notice">JSON содержит значения и ID исходных задач. Выберите защищенное место сохранения.</string>
-    <string name="memory_identity">Ключ: %1$s\nОбласть: %2$s</string>
     <string name="memory_import">Импорт JSON</string>
     <string name="memory_import_progress">Проверка импорта %1$d / %2$d</string>
     <string name="memory_item">%1$s [%2$s]\n%3$s</string>
@@ -163,8 +166,8 @@
     <string name="memory_replace">Будет заменено следующее значение:</string>
     <string name="memory_save">Сохранить</string>
     <string name="memory_save_confirm">Сохранить измененное значение?</string>
-    <string name="memory_scope">Область</string>
     <string name="memory_scope_missing">Создайте соответствующий пресет перед импортом в эту область или пропустите запись.</string>
+    <string name="memory_search">Поиск в памяти</string>
     <string name="memory_skip">Пропустить запись</string>
     <string name="memory_source">ID исходной задачи: %1$s</string>
     <string name="memory_title">Память</string>
@@ -183,16 +186,16 @@
     <string name="model_unavailable_note">AutoJs6 больше не предоставляет эту модель. Выберите другую перед запуском задачи.</string>
     <string name="model_unpin">Открепить %1$s</string>
     <string name="plugin_description">Выполняет задачи на естественном языке, выбирая зарегистрированные скрипты и пошагово управляя экраном</string>
+    <string name="presets_actions">Действия для %1$s</string>
     <string name="presets_budget_note">Пустое поле наследует лимит задачи. Значения могут только уменьшать его. По умолчанию: 40 шагов, 60 вызовов, 600000 мс (1800000 мс для автономных задач), 300000 токенов, с учетом ограничений хоста.</string>
     <string name="presets_calls">Максимум вызовов модели</string>
     <string name="presets_cautious">Осторожные (подтверждать все изменения)</string>
     <string name="presets_confirmation">Правила подтверждения</string>
     <string name="presets_context">Постоянный контекст (до 8 KiB вместе с контекстом задачи)</string>
     <string name="presets_copy">Копировать предустановку</string>
-    <string name="presets_default_item">%1$s (по умолчанию)</string>
+    <string name="presets_default_badge">По умолчанию</string>
     <string name="presets_delete">Удалить предустановку</string>
     <string name="presets_delete_confirm">Удалить %1$s? Задачи и история сохранятся. Если это предустановка по умолчанию, новые задачи будут использовать default.</string>
-    <string name="presets_duration">Максимальная длительность (мс)</string>
     <string name="presets_edit">Изменить предустановку</string>
     <string name="presets_error">Не удалось прочитать или сохранить предустановку. Проверьте уникальность имени, лимиты, размер контекста и разрешенные группы и каталоги, затем повторите.</string>
     <string name="presets_group_act">Действия на экране</string>
@@ -305,8 +308,7 @@
     <string name="ui_budget">Лимиты задачи</string>
     <string name="ui_budget_invalid">Введите целое число от 1 до %1$d или оставьте поле пустым для значения по умолчанию.</string>
     <string name="ui_choose_model">Выбрать модель</string>
-    <string name="ui_collapse">Свернуть</string>
-    <string name="ui_expand">Развернуть</string>
+    <string name="ui_discard">Отменить изменения</string>
     <string name="ui_home_subtitle">Выберите модель, опишите цель и следите за ходом задачи.</string>
     <string name="ui_home_title">От замысла к действию</string>
     <string name="ui_model_note">Применяется к новым задачам с экрана задач и плавающей кнопки. Предустановки и выполняемые задачи не меняются.</string>
@@ -319,6 +321,8 @@
     <string name="ui_preset_optional">Необязательные шаблоны инструментов, лимитов и контекста. Переключайте модели прямо на главном экране.</string>
     <string name="ui_task_section">Задачи и возможности</string>
     <string name="ui_theme_amber">Янтарный</string>
+    <string name="ui_unsaved_note">Выйти без сохранения? Изменения на этой странице будут потеряны.</string>
+    <string name="ui_unsaved_title">Несохраненные изменения</string>
     <string name="update_available">Доступно обновление: %1$s</string>
     <string name="update_check">Проверить обновления</string>
     <string name="update_checking" tools:ignore="TypographyEllipsis">Проверка обновлений...</string>

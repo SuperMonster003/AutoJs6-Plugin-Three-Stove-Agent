@@ -155,7 +155,7 @@ class HistoryActivity : HostAppearanceActivity() {
         presetChip.text = filter.preset?.let(::presetLabel) ?: getString(R.string.history_all_presets)
         presetChip.isChecked = filter.preset != null
         val from = filter.from; val until = filter.until
-        dateChip.text = if (from != null && until != null) "${HistoryViews.day(this, from)} - ${HistoryViews.day(this, until - 1)}" else getString(R.string.history_dates)
+        dateChip.text = if (from != null && until != null) "${Formats.day(this, from)} - ${Formats.day(this, until - 1)}" else getString(R.string.history_dates)
         dateChip.isCloseIconVisible = from != null
         list.removeAllViews()
         val matching = rows.filter(filter::matches)
@@ -173,7 +173,7 @@ class HistoryActivity : HostAppearanceActivity() {
                 if (row.flag("fullAccess") == true) addView(kit.badge(getString(R.string.settings_full_access), Tone.DANGER),
                     LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_XS) })
                 addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
-                addView(kit.text(HistoryViews.date(context, row.number("startedAt") ?: 0), Ui.TEXT_CAPTION, palette.muted))
+                addView(kit.text(Formats.date(context, row.number("startedAt") ?: 0), Ui.TEXT_CAPTION, palette.muted))
             })
             addView(kit.text(row.string("goal").orEmpty(), Ui.TEXT_ITEM, medium = true).apply {
                 textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(0, kit.dp(Ui.SPACE_SM), 0, 0)

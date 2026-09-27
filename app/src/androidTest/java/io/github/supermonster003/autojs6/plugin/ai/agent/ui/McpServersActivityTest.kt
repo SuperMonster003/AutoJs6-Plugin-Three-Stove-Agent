@@ -51,8 +51,8 @@ class McpServersActivityTest {
         var result = false; scenario.onActivity { result = condition(it) }; result
     }
     private fun open(scenario: ActivityScenario<McpServersActivity>) {
-        ui(scenario, "Saved server") { it.view<Button>("mcp-server-local") != null }
-        scenario.onActivity { it.view<Button>("mcp-server-local")!!.performClick() }
+        ui(scenario, "Saved server") { it.view<View>("mcp-server-local") != null }
+        scenario.onActivity { it.view<View>("mcp-server-local")!!.performClick() }
         ui(scenario, "Credential editor") { it.view<EditText>("mcp-token") != null }
     }
     private fun isolated(action: (Endpoint) -> Unit) {
@@ -66,8 +66,8 @@ class McpServersActivityTest {
                 assertTrue(activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0)
                 val token = activity.view<EditText>("mcp-token")!!
                 assertEquals("", token.text.toString()); assertFalse(token.isSaveEnabled)
-                assertFalse(activity.view<CheckBox>("mcp-enabled")!!.isChecked)
-                assertEquals(0, activity.view<Spinner>("mcp-risk")!!.selectedItemPosition)
+                assertFalse(activity.view<ViewGroup>("mcp-enabled")!!.findSwitch()!!.isChecked)
+                assertEquals(0, activity.risk.selectedIndex)
                 activity.view<EditText>("mcp-name")!!.setText("Retained metadata")
                 token.setText("unsaved-private-token")
             }
@@ -121,7 +121,7 @@ class McpServersActivityTest {
             }
             waitFor("Write submitted") { endpoint.requests.any { it.string("operation") == "save" } }
             scenario.recreate()
-            ui(scenario, "Server metadata reloaded") { it.view<Button>("mcp-server-local") != null && it.view<EditText>("mcp-token") == null }
+            ui(scenario, "Server metadata reloaded") { it.view<View>("mcp-server-local") != null && it.view<EditText>("mcp-token") == null }
         }
     }
     @Test fun arabicDarkEditorWrapsWithinNarrowWidthAndMaintainsTouchTargets() = isolated { endpoint ->

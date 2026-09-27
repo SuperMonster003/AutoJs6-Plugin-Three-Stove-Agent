@@ -29,7 +29,8 @@ class ScriptRootsActivityTest {
                 val save = views(first.window.decorView).filterIsInstance<Button>().single { it.text == first.getString(R.string.script_roots_save) }
                 field.setText("/sdcard/../data")
                 save.performClick()
-                assertNotNull(field.error); assertFalse(first.isFinishing)
+                val layout = generateSequence(field.parent) { it.parent }.filterIsInstance<com.google.android.material.textfield.TextInputLayout>().first()
+                assertNotNull(layout.error); assertFalse(first.isFinishing)
                 assertFalse(ScriptRootSettings(context).configured)
                 field.setText("/sdcard/AgentSamples/\n/sdcard/OtherScripts")
                 save.performClick()
