@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about_license_name" translatable="false">Mozilla Public License 2.0</string>
-    <string name="app_name" translatable="false">Three Stove Agent</string>
+    <string name="app_name" translatable="false">3-Stove Agent</string>
     <string name="floating_monogram" translatable="false">AI</string>
 </resources>

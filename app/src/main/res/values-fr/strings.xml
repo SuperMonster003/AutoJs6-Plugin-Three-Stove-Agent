@@ -109,10 +109,10 @@
     <string name="launcher_connect">Connecter AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 est installé mais désactivé. Activez-le dans les paramètres d\'applications du système, puis revenez ici.</string>
     <string name="launcher_host_incompatible">La build %1$d d\'AutoJs6 est installée, mais ce plugin nécessite la build %2$d ou ultérieure. Mettez d\'abord AutoJs6 à jour.</string>
-    <string name="launcher_host_missing">AutoJs6 n\'est pas installé. Installez AutoJs6 build %1$d ou ultérieure, puis activez Three Stove Agent dans son centre de plugins.</string>
-    <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) est installé. Activez Three Stove Agent dans le centre de plugins d\'AutoJs6.</string>
+    <string name="launcher_host_missing">AutoJs6 n\'est pas installé. Installez AutoJs6 build %1$d ou ultérieure, puis activez 3-Stove Agent dans son centre de plugins.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) est installé. Activez 3-Stove Agent dans le centre de plugins d\'AutoJs6.</string>
     <string name="launcher_link_connecting">Connexion à AutoJs6 en attente (15 secondes maximum).</string>
-    <string name="launcher_link_timeout">Aucune connexion après 15 secondes. Ouvrez AutoJs6, activez Three Stove Agent dans le centre de plugins et autorisez la connexion.</string>
+    <string name="launcher_link_timeout">Aucune connexion après 15 secondes. Ouvrez AutoJs6, activez 3-Stove Agent dans le centre de plugins et autorisez la connexion.</string>
     <string name="launcher_open_host">Ouvrir AutoJs6</string>
     <string name="mcp_add">Ajouter un serveur</string>
     <string name="mcp_auth_required">Authentification requise. Vérifiez le jeton dans l\'application du serveur MCP.</string>
@@ -290,7 +290,7 @@
     <string name="shortcut_goal">Objectif fixe (facultatif)</string>
     <string name="shortcut_new_task">Nouvelle tâche</string>
     <string name="shortcut_pin">Épingler sur l\'écran d\'accueil</string>
-    <string name="shortcut_preset">Three Stove Agent: %1$s</string>
+    <string name="shortcut_preset">3-Stove Agent: %1$s</string>
     <string name="shortcut_review">Le raccourci ouvre ce préréglage et un objectif facultatif pour vérification. Appuyez sur Démarrer pour exécuter.</string>
     <string name="step_ask">Question posée</string>
     <string name="step_done">Terminé</string>

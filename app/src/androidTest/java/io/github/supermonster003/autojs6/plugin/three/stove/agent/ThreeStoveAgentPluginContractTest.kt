@@ -99,7 +99,7 @@ class ThreeStoveAgentPluginContractTest {
                 packageInfo.versionCode.toLong()
             }
 
-            assertEquals("Three Stove Agent", info.name)
+            assertEquals("3-Stove Agent", info.name)
             assertEquals(context.getString(R.string.app_name), info.name)
             assertEquals(context.getString(R.string.plugin_description), info.description)
             assertTrue("instruction must be read from the raw resource", info.instruction?.isNotBlank() == true)

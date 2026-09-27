@@ -1286,7 +1286,7 @@ class WorkbenchActivityTest {
     private fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command))
         .bufferedReader().use { it.readText() }
     private fun floatingWindowDump(card: Boolean): String {
-        val title = if (card) "Three Stove Agent floating card" else "Three Stove Agent floating ball"
+        val title = if (card) "3-Stove Agent floating card" else "3-Stove Agent floating ball"
         val dump = shell("dumpsys window windows")
         return dump.lineSequence().dropWhile { !it.contains("Window #") || !it.contains(title) }.drop(1).takeWhile { !it.contains("Window #") }.joinToString("\n")
     }
@@ -1374,7 +1374,7 @@ class WorkbenchActivityTest {
             automation.serviceInfo = automation.serviceInfo.apply { this.flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS }
             fun overlayRoot() = automation.windows.firstOrNull {
                 // TYPE_PHONE windows are reported as application windows on API 24/25.
-                it.root?.packageName == context.packageName && (it.title == "Three Stove Agent floating card" ||
+                it.root?.packageName == context.packageName && (it.title == "3-Stove Agent floating card" ||
                     it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM)
             }?.root ?: automation.rootInActiveWindow?.takeIf { it.packageName == context.packageName }
             try {
@@ -1440,7 +1440,7 @@ class WorkbenchActivityTest {
                     // API 24/25 expose TYPE_PHONE overlays as application windows.
                     // Match the actual card title as the other floating-window test does.
                     fun root() = automation.windows.firstOrNull {
-                        it.root?.packageName == context.packageName && (it.title == "Three Stove Agent floating card" ||
+                        it.root?.packageName == context.packageName && (it.title == "3-Stove Agent floating card" ||
                             it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM)
                     }?.root ?: automation.rootInActiveWindow?.takeIf { it.packageName == context.packageName }
                     waitFor("Real confirmation buttons in overlay") { root()?.findAccessibilityNodeInfosByText(labels.getString(R.string.task_deny))?.any { it.isClickable } == true }

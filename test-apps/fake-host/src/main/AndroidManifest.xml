@@ -2,7 +2,7 @@
     <permission android:name="org.autojs.permission.PLUGIN" android:protectionLevel="signature" />
     <uses-permission android:name="org.autojs.permission.PLUGIN" />
     <queries><package android:name="io.github.supermonster003.autojs6.plugin.three.stove.agent" /></queries>
-    <application android:allowBackup="false" android:testOnly="true" android:label="Three Stove Agent Fake Host" android:supportsRtl="true">
+    <application android:allowBackup="false" android:testOnly="true" android:label="3-Stove Agent Fake Host" android:supportsRtl="true">
         <service android:name=".FakeHostService" android:exported="false" android:process=":broker" />
     </application>
 </manifest>

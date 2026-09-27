@@ -26,7 +26,7 @@ import com.google.android.material.progressindicator.BaseProgressIndicator
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.AppearancePreferences
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.HostAppearanceActivity
 
-/** Design tokens shared by every standalone surface (3-Stone AI scale, Three Stove Agent palette). */
+/** Design tokens shared by every standalone surface (3-Stone AI scale, 3-Stove Agent palette). */
 internal object Ui {
     /** Role of a single-line label allowed to ellipsize; its full text must be in a content description. */
     const val TRUNCATABLE = "truncatable"
