@@ -239,6 +239,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 插件遵循明确的边界:
 
+- 权限清单: org.autojs.permission.PLUGIN (宿主契约入口), FOREGROUND_SERVICE 与 FOREGROUND_SERVICE_SPECIAL_USE (任务运行期间的前台服务), POST_NOTIFICATIONS (后台确认与进度通知), INTERNET (手动或自动检查 GitHub 发行版本, 以及连接用户配置的 MCP 服务器), ACCESS_LOCAL_NETWORK (Android 17+ 仅从 MCP 设置主动申请), SYSTEM_ALERT_WINDOW (仅在设置中开启悬浮球时申请). 不申请无障碍, 存储或麦克风权限, 模型流量不经过插件.
 - Binder 契约入口受 org.autojs.permission.PLUGIN 签名权限保护. 启动器 (也用于快捷方式) 和 text/plain ACTION_SEND 分享目标为公开入口, 只接受有界的目标/预设草稿. 外部 Intent 不能执行任务, 提交确认或改变授权. 设置, 语音结果与任务控制入口均不导出.
 - AI Agent 既是独立任务台, 也是通过 ai.agent 调用的 AutoJs6 插件. 内置设备操作和模型调用由宿主代理; 可选 MCP 工具仅连接用户配置的服务器. 不直接绑定模型 Provider, 不申请无障碍权限.
 - 模型凭据仍由模型 Provider 保管, 模型调用经 AutoJs6. MCP Bearer 令牌使用 Android Keystore 加密后存于私有目录, 不进入提示词或历史导出. INTERNET 也用于连接已配置的 MCP 服务器; Android 17+ 本地网络权限仅从 MCP 设置主动申请. 远端工具使用用户为服务器指定的风险等级, 初始为 SENSITIVE. 取消不回滚远端操作, 调用失败不自动重放.
@@ -309,12 +310,14 @@ _2026/09/27_
 - `优化` 确认卡片以可读表格展示风险等级, 工具组和全部参数, 不再显示原始 JSON; 允许一次, 当前会话始终允许与拒绝三个操作清晰区分. 悬浮球采用相同的 Material 设计, 预设在卡片内直接选择, 模型一行可打开共用的模型切换器
 - `优化` 任务历史新增搜索, 状态标签, 预设与日期范围筛选, 可从菜单清除已结束的任务. 任务详情显示所用模型, 带参数表格与可展开观察内容的步骤时间线, 提供再次运行与换个模型重试, 菜单中可导出诊断, 删除记录或将该任务的模型用于新任务
 - `优化` 预设, 记忆, MCP 服务器与脚本目录采用统一设计: 预设以卡片呈现并提供行菜单, 编辑器为整页 (时长以分钟计, 保存按钮固定在底部); 记忆支持搜索与作用域标签; MCP 提供启用开关, 风险选择与工具清单; 离开未保存的修改前会先确认
+- `依赖` 升级三份宿主 API release 制品至 AutoJs6 3cdf7de13c / build 5297 (P10 的 mcp 工具组选项与 TOOL_FAILED 常量), 基础契约仍为 V1
 - `依赖` 附加 AndroidX AppCompat 1.7.1 与 Material Components for Android 1.13.0 及其 AndroidX 运行时依赖, 用于 Material 3 界面
 
 #### v1.1.0
 
 _2026/09/26_
 
+- `提示` 1.1.0 未单独发布, 其全部内容随 1.2.0 一并发布
 - `提示` 原生调用需要 AutoJs6 build 5297+ 和具备 tools 能力的目标, 如 3-Stone AI 1.2.0 开发候选的在线目标. 旧宿主和不支持的目标保留 JSON 决策. 每个原生会话保留初始超时, 上下文/输出上限及最多 16 个工具轮次; 工具执行后发生错误不会改走 JSON 重启
 - `提示` 图片输入要求兼容宿主, observe 工具组和显式启用图片输入的视觉模型. 实现与确定性测试已完成, 真实在线视觉验收仍待补测. 旧系统和纯文本目标继续使用文本观察. 见 ROADMAP.md
 - `提示` 生成的脚本以 AutoJs6 权限运行, 不受 JavaScript 沙箱隔离, 可执行已启用工具组之外的操作. 完整源码保存在私有步骤中, 仍遵守既有密码脱敏及历史保留规则. 后续密码脱敏改变的源码无法作为原始脚本保存. 分享 .js 前请检查内容.

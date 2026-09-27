@@ -6,6 +6,8 @@
 *.log
 *.ffs_db
 *.patch
+# Evidence patches under docs/dev are tracked on purpose (roadmap P4.3).
+!docs/dev/*.patch
 *.salive
 .tmp_*.txt
 *.py[cod]

@@ -23,7 +23,7 @@ class ManifestContractTest {
     }
 
     @Test
-    fun `manifest declares only task foreground and plugin permissions and queries the host package`() {
+    fun `manifest declares the seven D28 permissions and queries the host package and speech recognizers`() {
         val permissions = manifest.children("uses-permission").map { it.androidAttribute("name") }
         assertEquals(listOf(PLUGIN_PERMISSION, "android.permission.FOREGROUND_SERVICE",
             "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS", "android.permission.INTERNET",
@@ -31,6 +31,8 @@ class ManifestContractTest {
 
         val queried = manifest.child("queries").children("package").map { it.androidAttribute("name") }
         assertEquals(listOf(AiAgentPlugin.HOST_PACKAGE_NAME), queried)
+        val intents = manifest.child("queries").children("intent").map { it.child("action").androidAttribute("name") }
+        assertEquals(listOf("android.speech.action.RECOGNIZE_SPEECH"), intents)
     }
 
     @Test
@@ -39,6 +41,7 @@ class ManifestContractTest {
         assertEquals("false", application.androidAttribute("allowBackup"))
         assertEquals("@string/app_name", application.androidAttribute("label"))
         assertEquals("@mipmap/ic_launcher", application.androidAttribute("icon"))
+        assertEquals("@mipmap/ic_launcher_round", application.androidAttribute("roundIcon"))
         assertEquals("@style/Theme.AiAgent", application.androidAttribute("theme"))
         assertEquals("@xml/data_extraction_rules", application.androidAttribute("dataExtractionRules"))
         assertEquals("@xml/locales_config", application.androidAttribute("localeConfig"))

@@ -258,7 +258,7 @@ Release 前额外执行 `.\gradlew.bat :app:appendDigestToReleasedFiles`, 检查
 
 ## 18. 许可证, 安全, 隐私与第三方内容
 
-- 根目录 `LICENSE` 为 Mozilla Public License 2.0, README 徽章与源码头保持一致.
+- 根目录 `LICENSE` 为 Mozilla Public License 2.0, README 徽章与之一致; 与其他官方插件仓库一样, 源码文件不加许可证头注释.
 - `android:allowBackup="false"` 与 `data_extraction_rules.xml` 全量排除保持不变; 任务历史, 预设与记忆只在插件私有存储.
 - 不记录目标文本, 提示词, 模型输出, 节点树, 屏幕文字, 脚本参数 / 结果或私有路径到普通日志; 更新检查只获取公开发行信息, 不发送上述任务数据, 一切模型流量在宿主.
 - 第三方代码与 AAR 必须记录来源, 版本, 校验值与许可证 (`THIRD_PARTY_NOTICES.md`); 引入运行时依赖时同一提交更新该文件.

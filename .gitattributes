@@ -1,0 +1,8 @@
+# Bundled legal texts and generated assets are packaged from the working tree; keep their line
+# endings identical on Windows and CI so a release APK does not differ by build platform.
+LICENSE text eol=lf
+THIRD_PARTY_NOTICES.md text eol=lf
+app/src/main/assets/**/*.json text eol=lf
+app/src/main/assets/**/*.md text eol=lf
+app/src/main/res/raw*/*.md text eol=lf
+app/src/main/res/raw*/*.xml text eol=lf

@@ -239,6 +239,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 
 外掛遵循明確的邊界:
 
+- 權限清單: org.autojs.permission.PLUGIN (宿主契約入口), FOREGROUND_SERVICE 與 FOREGROUND_SERVICE_SPECIAL_USE (任務執行期間的前景服務), POST_NOTIFICATIONS (背景確認與進度通知), INTERNET (手動或自動檢查 GitHub 發行版本, 以及連線使用者設定的 MCP 伺服器), ACCESS_LOCAL_NETWORK (Android 17+ 僅從 MCP 設定主動申請), SYSTEM_ALERT_WINDOW (僅在設定中開啟懸浮球時申請). 不申請無障礙, 儲存或麥克風權限, 模型流量不經過外掛.
 - Binder 契約入口受 org.autojs.permission.PLUGIN 簽章權限保護. 啟動器 (也用於捷徑) 和 text/plain ACTION_SEND 分享目標為公開入口, 只接受有大小限制的目標/預設草稿. 外部 Intent 不能執行任務, 提交確認或改變授權. 設定, 語音結果與任務控制入口均不匯出.
 - AI Agent 既是獨立任務台, 也是透過 ai.agent 呼叫的 AutoJs6 外掛. 內建裝置操作及模型呼叫由宿主代理; 可選 MCP 工具只連接使用者配置的伺服器. 不直接繫結模型 Provider, 不申請無障礙權限.
 - 模型憑證仍由模型 Provider 保管, 模型呼叫經 AutoJs6. MCP Bearer 權杖使用 Android Keystore 加密後存於私人目錄, 不進入提示詞或歷史匯出. INTERNET 亦用於連接已配置的 MCP 伺服器; Android 17+ 本地網路權限僅從 MCP 設定主動申請. 遠端工具使用使用者為伺服器指定的風險等級, 初始為 SENSITIVE. 取消不回復遠端操作, 呼叫失敗不自動重放.
@@ -309,12 +310,14 @@ _2026/09/27_
 - `優化` 確認卡片以可讀表格顯示風險等級, 工具群組和全部參數, 不再顯示原始 JSON; 允許一次, 目前工作階段一律允許與拒絕三個操作清楚區分. 懸浮球採用相同的 Material 設計, 預設在卡片內直接選擇, 模型一列可開啟共用的模型切換器
 - `優化` 任務歷史新增搜尋, 狀態標籤, 預設與日期範圍篩選, 可從選單清除已結束的任務. 任務詳情顯示所用模型, 附參數表格與可展開觀察內容的步驟時間軸, 提供再次執行與換個模型重試, 選單中可匯出診斷, 刪除記錄或將該任務的模型用於新任務
 - `優化` 預設, 記憶, MCP 伺服器與腳本目錄採用統一設計: 預設以卡片呈現並提供列選單, 編輯器為整頁 (時長以分鐘計, 儲存按鈕固定在底部); 記憶支援搜尋與作用域標籤; MCP 提供啟用開關, 風險選擇與工具清單; 離開未儲存的修改前會先確認
+- `相依性` 升級三份宿主 API release 製品至 AutoJs6 3cdf7de13c / build 5297 (P10 的 mcp 工具群組選項與 TOOL_FAILED 常數), 基礎契約仍為 V1
 - `相依性` 附加 AndroidX AppCompat 1.7.1 與 Material Components for Android 1.13.0 及其 AndroidX 執行時相依套件, 用於 Material 3 介面
 
 #### v1.1.0
 
 _2026/09/26_
 
+- `提示` 1.1.0 未單獨發佈, 其全部內容隨 1.2.0 一併發佈
 - `提示` 原生呼叫需要 AutoJs6 build 5297+ 及具備 tools 能力的目標, 例如 3-Stone AI 1.2.0 開發候選的線上目標. 舊主程式和不支援的目標保留 JSON 決策. 每個原生工作階段保留初始逾時, 上下文/輸出上限及最多 16 個工具輪次; 工具執行後發生錯誤不會改用 JSON 重新啟動
 - `提示` 圖片輸入要求相容宿主, observe 工具群組和明確啟用圖片輸入的視覺模型. 實作與確定性測試已完成, 真實線上視覺驗收仍待補測. 舊系統和純文字目標繼續使用文字觀察. 見 ROADMAP.md
 - `提示` 生成的指令碼以 AutoJs6 權限執行, 不受 JavaScript 沙箱隔離, 可執行已啟用工具群組以外的操作. 完整原始碼保存在私有步驟中, 仍遵守既有密碼遮蔽及歷史保留規則. 後續密碼遮蔽改變的原始碼無法作為原始指令碼儲存. 分享 .js 前請檢查內容.

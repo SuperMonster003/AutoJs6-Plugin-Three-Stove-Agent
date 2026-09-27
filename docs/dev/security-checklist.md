@@ -60,3 +60,9 @@ Temurin JDK 21 的 debug/androidTest/release R8 构建通过. 最终 release APK
 - [x] 完全访问只来自插件私有设置 (设置格式 v3, 与审慎模式互斥, 损坏或未来版本失败关闭). 公开启动请求的 `confirm` 只接受 default/cautious, 显式 cautious 仍优先; 模型输出, 页面内容, 外部 Intent 无法开启. 它只跳过确认, 不改变工具组, 预算, 宿主 grant 与参数校验. 任务台, 悬浮球, 当前任务与历史详情持续以文字标注; 私有历史字段 `fullAccess` 不进入宿主/脚本查询投影, 诊断导出保留该标记.
 - [x] 每个确认都可选择当前会话始终允许; 授权键为 (工具, 风险等级, 是否付款), 仅限本次任务. 其他敏感操作的会话授权不能覆盖付款, 付款须在付款确认上单独选择. 确认超时仍视为拒绝, 旧请求仍无法回答新请求.
 - [x] 需要无障碍的工具在风险准入前调用宿主 `accessibility.ensureEnabled` (宿主按用户配置的 Root / 安全设置 / Shizuku 启动, 不打开设置页), 受原始工具期限与取消约束, 迟到结果被丢弃. 插件仍不申请无障碍. 失败以 `A11Y_SERVICE_NOT_RUNNING` 回送模型, 任务卡片提供系统无障碍设置入口.
+
+## P10 补充 (2026-09-26 落地, 2026-09-27 审查回填)
+
+- [x] 权限增加 `ACCESS_LOCAL_NETWORK`: 仅在 Android 17+ 从 MCP 设置页主动申请, 用于连接用户配置的本机或局域网 MCP 服务器. Manifest 精确权限集合为 PLUGIN, FOREGROUND_SERVICE, FOREGROUND_SERVICE_SPECIAL_USE, POST_NOTIFICATIONS, INTERNET, ACCESS_LOCAL_NETWORK, SYSTEM_ALERT_WINDOW, 由 `ManifestContractTest` 断言, README 安全章节逐项说明用途.
+- [x] INTERNET 的第二用途: 除固定的 GitHub 发行接口外, 连接用户显式配置的 MCP 服务器 (本机 `http://127.0.0.1:9637/mcp` 或 HTTPS 外部地址, 拒绝重定向, 响应有界, 只使用固定错误分类). Bearer 令牌以 Android Keystore AES-GCM 加密存于私有目录, 界面不可读回, 不进入提示词, 历史或诊断导出.
+- [x] 远端工具结果标记为不可信数据, 服务器 Schema 只在可准入时进入每次任务冻结的目录, 风险等级由用户按服务器指定 (默认 SENSITIVE), 沿用确认门, 预算与步骤记录; 调用失败不自动重放, 取消不回滚远端副作用, MCP 发现限时 8 秒.

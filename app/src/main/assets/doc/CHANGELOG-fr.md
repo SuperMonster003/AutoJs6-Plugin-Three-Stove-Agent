@@ -25,12 +25,14 @@
 * `Amélioration` Les confirmations affichent le niveau de risque, le groupe d'outils et chaque paramètre dans un tableau lisible au lieu du JSON brut, avec des actions distinctes: autoriser une fois, toujours autoriser pour cette session et refuser. La bulle flottante adopte le même design Material, choisit le préréglage directement dans la carte et sa ligne Modèle ouvre le sélecteur de modèle partagé
 * `Amélioration` L'historique ajoute la recherche, des puces d'état et des filtres par préréglage et par période, et efface les tâches terminées depuis son menu. Les détails d'une tâche montrent le modèle, une chronologie des étapes avec tableaux de paramètres et observations dépliables, Relancer ou Réessayer avec un autre modèle, et un menu pour exporter le diagnostic, supprimer l'enregistrement ou utiliser le modèle de la tâche pour les nouvelles tâches
 * `Amélioration` Préréglages, mémoire, serveurs MCP et dossiers de scripts partagent le même design: cartes de préréglages avec menu de ligne et éditeur plein écran (durée en minutes, bouton Enregistrer fixe), recherche et puces de portée pour la mémoire, liste d'outils MCP avec interrupteur d'activation et choix du risque, et confirmation avant d'abandonner des modifications non enregistrées
+* `Dépendance` Mettre a niveau les trois artefacts release de l'API hote vers AutoJs6 3cdf7de13c / build 5297 (option du groupe mcp de P10 et constante TOOL_FAILED); le contrat de base reste en V1
 * `Dépendance` Ajout d'AndroidX AppCompat 1.7.1 et de Material Components for Android 1.13.0 avec leurs dépendances AndroidX d'exécution pour l'interface Material 3
 
 # v1.1.0
 
 ###### 2026/09/26
 
+* `Note` 1.1.0 n'a pas ete publie separement; tous ses changements sont livres avec 1.2.0
 * `Note` Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action
 * `Note` Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md
 * `Note` Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
