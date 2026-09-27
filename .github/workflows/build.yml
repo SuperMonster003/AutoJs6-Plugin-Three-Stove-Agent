@@ -33,10 +33,10 @@ jobs:
         run: |
           chmod +x gradlew
           # JVM test compilation must work before any APK exists.
-          # The aggregate verifier must assemble its own debug and release inputs.
+          # The release APK is built explicitly: R8 missing-class failures only surface there.
           ./gradlew :app:assembleDebugUnitTest \
             :app:verifyNativePageAlignment :app:testDebugUnitTest \
-            :app:assembleDebugAndroidTest :app:lintDebug \
+            :app:assembleDebugAndroidTest :app:assembleRelease :app:lintDebug \
             :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest \
             :test-apps:fake-host:lintDebug --console=plain --stacktrace
 
@@ -104,7 +104,10 @@ jobs:
           avd-name: AI_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
             chmod +x gradlew
-            ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug --console=plain --stacktrace
+            ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
+            # The twelve independent broker-conformance tests run first; the script asserts "OK (12 tests)".
+            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554
+            # Then the same guards reinstall both APKs and prepare the device for the main suite.
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ai.agent.ciDiagnostics=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.ai.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
 
