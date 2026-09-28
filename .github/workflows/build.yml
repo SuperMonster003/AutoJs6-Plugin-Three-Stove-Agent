@@ -72,12 +72,17 @@ jobs:
         include:
           - api-level: 24
             arch: x86
+            target: google_apis
             profile: Nexus 5
           - api-level: 35
             arch: x86_64
+            target: google_apis
             profile: pixel_7
+          # Android 17 (API 37.1) only ships the 16 KB page size Google APIs image; the plugin has no native
+          # libraries, so the page size does not change what the suite exercises.
           - api-level: 37.1
             arch: x86_64
+            target: google_apis_ps16k
             profile: pixel_7
 
     steps:
@@ -101,7 +106,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: ${{ matrix.api-level }}
-          target: google_apis
+          target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: ${{ matrix.profile }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
