@@ -74,7 +74,8 @@ class FloatingAccessibilityTest {
                 instrumentation.runOnMainSync {
                     call(floating!!, "removeWindow")
                     field(floating, "snapshot").set(floating, WorkbenchSnapshot(
-                        jsonObject("state" to C.LINK_STATE_ATTACHED.json(), "voiceEnabled" to true.json(), "accessMode" to "full".json()),
+                        // The audit keeps the danger tone of full access; the README capture shows the ordinary standard mode.
+                        jsonObject("state" to C.LINK_STATE_ATTACHED.json(), "voiceEnabled" to true.json(), "accessMode" to (if (capture) "standard" else "full").json()),
                         listOfNotNull(run), run, listOf(if (capture) "default" else "A preset with a long display name"),
                         if (capture) "default" else "A preset with a long display name"))
                     field(floating, "expanded").setBoolean(floating, expanded)
