@@ -140,7 +140,7 @@
     <string name="mcp_empty">No MCP servers configured.</string>
     <string name="mcp_enabled">Enable this server for new tasks</string>
     <string name="mcp_endpoint">Endpoint URL</string>
-    <string name="mcp_endpoint_note">HTTPS required outside loopback. Changing the endpoint clears selected tools. The old token is removed unless you enter a replacement.</string>
+    <string name="mcp_endpoint_note">HTTPS required outside loopback. Changing the endpoint clears selected tools. The old token is removed unless you enter a replacement. OAuth sign-in and the older HTTP+SSE transport are not supported; the server must offer a Streamable HTTP endpoint.</string>
     <string name="mcp_error">Unable to read or save. Check the fields, limits and active tasks. Reopen the server if its settings changed.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">Server ID (1-12 lowercase letters, digits or underscores; start with a letter)</string>
     <string name="mcp_local_permission">Allow local network access</string>

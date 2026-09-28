@@ -92,7 +92,7 @@ class McpToolSourceTest {
             } finally { snapshot.close.cancel() }
         }
     }
-    @Test fun listChangedNotificationInvalidatesSessionAndDoesNotReplayCompletedAction() {
+    @Test fun listChangedNotificationReverifiesTheFrozenSelectionInsteadOfFailingUnchangedTools() {
         McpFixture().use { fixture ->
             fixture.onRequest = { exchange, request ->
                 if (request.string("method") == "tools/call") {
@@ -103,8 +103,19 @@ class McpToolSourceTest {
             val snapshot = snapshot(fixture)
             try {
                 assertNull(execute(snapshot, "echo").error)
+                assertTrue(snapshot.sessions.values.single().changeAnnounced()); assertFalse(snapshot.sessions.values.single().catalogChanged())
+                // The announced change is checked against the frozen definitions before the next action; unchanged tools keep working.
+                val listings = fixture.methods.count { it == "tools/list" }
+                assertNull(execute(snapshot, "echo").error)
+                assertEquals(2, fixture.calls.size); assertTrue(fixture.methods.count { it == "tools/list" } > listings)
+                assertEquals(1, fixture.methods.count { it == "initialize" })
+                // A definition that really changed after the notification fails the action and never rebinds.
+                fixture.tools = listOf(McpFixture.tool("echo").apply { addProperty("description", "changed") })
+                val reply = execute(snapshot, "echo")
+                assertEquals(RunError.TOOL_FAILED, reply.error); assertEquals("MCP_CATALOG_CHANGED", reply.result.asJsonObject.string("reason"))
+                assertEquals(2, fixture.calls.size); assertTrue(snapshot.sessions.values.single().catalogChanged())
                 val failure = awaitPort<PreparedTool> { snapshot.wrap(NoDelegate).prepare(invocation("echo"), 3000, it) } as PortResult.Failure
-                assertEquals("MCP_CATALOG_CHANGED", failure.mcpReason); assertEquals(1, fixture.calls.size)
+                assertEquals("MCP_CATALOG_CHANGED", failure.mcpReason)
             } finally { snapshot.close.cancel() }
         }
     }

@@ -398,6 +398,8 @@ class AgentRunner internal constructor(
             if (error == RunError.A11Y_SERVICE_NOT_RUNNING) addProperty("hint",
                 "AutoJs6 accessibility is not running and automatic startup failed or is not configured. Ask the user to enable it, then observe again before acting.")
             mcpReason?.let { addProperty("reason", it) }
+            if (mcpReason == "MCP_CATALOG_CHANGED") addProperty("hint",
+                "The MCP server changed a selected tool definition, so its tools stay unavailable for the rest of this task. Ask the user to refresh the server's tool selection in MCP settings and start a new task; do not retry the call.")
         }.toString()
         observationImages = emptyList()
         record(observation, error)

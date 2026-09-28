@@ -140,7 +140,7 @@
     <string name="mcp_empty">MCP サーバーは未設定です.</string>
     <string name="mcp_enabled">新しいタスクでこのサーバーを有効にする</string>
     <string name="mcp_endpoint">エンドポイント URL</string>
-    <string name="mcp_endpoint_note">ループバック以外は HTTPS が必要です. エンドポイントの変更で以前のトークンとツール選択を消去します. 新しいトークンは入力できます.</string>
+    <string name="mcp_endpoint_note">ループバック以外は HTTPS が必要です. エンドポイントの変更で以前のトークンとツール選択を消去します. 新しいトークンは入力できます. OAuth ログインと従来の HTTP+SSE トランスポートには対応していません. サーバーは Streamable HTTP エンドポイントを提供する必要があります.</string>
     <string name="mcp_error">読み込みまたは保存に失敗しました. 項目, 上限, 実行中タスクを確認してください. 設定が変わった場合は開き直してください.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">サーバー ID (小文字で始まる1-12文字の小文字英数字または下線)</string>
     <string name="mcp_local_permission">ローカルネットワークへのアクセスを許可</string>

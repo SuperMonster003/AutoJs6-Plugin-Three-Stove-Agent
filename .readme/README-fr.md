@@ -304,6 +304,7 @@ _2026/09/28_
 - `Fonctionnalité` Partage du résultat d'une tâche: le menu des détails gagne Partager le résumé, qui remet à la feuille de partage du système un texte brut avec l'objectif, l'état et le résumé, les preuves et le travail inachevé; les observations, arguments, résultats de scripts et détails d'erreur ne quittent jamais l'historique privé, et l'entrée reste désactivée tant que la tâche s'exécute
 - `Correctif` Le bouton d'envoi ne reste plus sur la première ligne d'un objectif multiligne: il se cale en bas comme le bouton micro
 - `Amélioration` Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard
+- `Amélioration` Après un tools/list_changed envoyé par un serveur MCP, les définitions d'outils gelées sont revérifiées avant l'appel suivant: les définitions inchangées continuent de fonctionner, et seule une définition modifiée échoue avec MCP_CATALOG_CHANGED en indiquant au modèle de faire actualiser la sélection d'outils dans les réglages MCP par l'utilisateur puis de relancer une tâche; la note du point de terminaison précise désormais que la connexion OAuth et l'ancien transport HTTP+SSE ne sont pas pris en charge
 
 #### v1.2.0
 
