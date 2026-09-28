@@ -27,11 +27,38 @@ internal fun Kit.emptyState(title: CharSequence, @DrawableRes icon: Int? = null)
         }, LinearLayout.LayoutParams(-1, -2))
     }
 
+/**
+ * End-aligned action buttons that sit side by side while they fit and stack vertically otherwise, so a
+ * large text size on a narrow screen never squeezes a button into one character per line.
+ */
+internal class ActionRow(context: android.content.Context) : LinearLayout(context) {
+    private val gap = (Ui.SPACE_XS * context.resources.displayMetrics.density + 0.5f).toInt()
+    init { orientation = HORIZONTAL; gravity = Gravity.END }
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val available = MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight
+        var needed = 0
+        for (index in 0 until childCount) {
+            val child = getChildAt(index)
+            if (child.visibility == View.GONE) continue
+            val params = child.layoutParams as MarginLayoutParams
+            child.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
+            needed += child.measuredWidth + params.leftMargin + params.rightMargin
+        }
+        val stacked = MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED && needed > available
+        val wanted = if (stacked) VERTICAL else HORIZONTAL
+        if (orientation != wanted) {
+            orientation = wanted
+            for (index in 0 until childCount) (getChildAt(index).layoutParams as MarginLayoutParams).topMargin = if (stacked && index > 0) gap else 0
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+}
+
 /** Inline notice with a tone, an optional icon and optional actions; announced politely. */
 internal class Banner(private val kit: Kit) {
     val message: TextView = kit.text("", Ui.TEXT_BODY)
     private val icon = ImageView(kit.context).apply { importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
-    val actions: LinearLayout = LinearLayout(kit.context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.END }
+    val actions: LinearLayout = ActionRow(kit.context)
     val view: LinearLayout = LinearLayout(kit.context).apply {
         orientation = LinearLayout.VERTICAL
         setPaddingRelative(kit.dp(Ui.SPACE_LG), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_SM))
