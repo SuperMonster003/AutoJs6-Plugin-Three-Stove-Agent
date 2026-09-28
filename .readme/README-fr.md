@@ -70,7 +70,7 @@ L'implémentation actuelle propose les fonctions suivantes:
 - Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs
 - JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel montre un résumé du code extensible au texte complet, à approuver une fois ou pour la tâche en cours; l'accès complet saute cette revue. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB.
 - Outils MCP de serveurs locaux ou externes choisis, avec un niveau de risque par serveur et le groupe mcp désactivé par défaut
-- Application autonome repensée en Material 3: l'accueil est un fil de tâches avec la zone de saisie ancrée au-dessus du clavier, une barre supérieure avec la capsule de modèle, l'historique et un menu (Nouvelle tâche, Préréglages, Mémoire, Dossiers de scripts, Serveurs MCP, Paramètres), un bandeau seulement tant qu'AutoJs6 n'est pas connecté, une chronologie des étapes mise à jour par étape, et Relancer ou Réessayer avec un autre modèle qui remplissent la saisie sans démarrer. Paramètres organisés en sections claires et apparence claire/sombre cohérente
+- Application autonome repensée en Material 3: l'accueil est un fil de tâches avec la zone de saisie ancrée au-dessus du clavier, une barre supérieure avec la capsule de modèle, l'historique et un menu (Nouvelle tâche, Préréglages, Mémoire, Dossiers de scripts, Serveurs MCP, Paramètres), un bandeau seulement tant qu'AutoJs6 n'est pas connecté, une chronologie des étapes mise à jour par étape, et Relancer, qui remplit la saisie sans démarrer. Paramètres organisés en sections claires et apparence claire/sombre cohérente
 
 ### Captures
 
@@ -294,6 +294,9 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 _2026/09/28_
 
 - `Fonctionnalité` Reconnaissance des risques configurable: un nouvel écran de réglages Reconnaissance des risques ajoute vos propres noms de paquets et mots-clés en plus de la liste intégrée d'applications de paiement (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) et de la table de mots-clés sensibles en dix langues; les ajouts ne font qu'élargir les listes et s'appliquent immédiatement, et les actions à l'écran correspondantes deviennent sensibles et passent par la confirmation
+- `Fonctionnalité` Refonte de la bulle flottante: en mode réduit, la tâche et son étape en cours s'affichent sur deux lignes et un appui sur le texte ouvre une carte de chronologie des étapes; la carte de contrôle est condensée sur les deux mêmes rangées que l'espace de travail (préréglage, modèle et accès au-dessus du champ, voix et démarrage), le modèle et le mode d'accès se changent dans la superposition et sont partagés avec l'application; la chronologie suit les nouvelles étapes tant que vous êtes en bas, s'arrête quand vous remontez et reprend en bas, comme l'écran des détails de la tâche
+- `Correctif` Le bouton d'envoi ne reste plus sur la première ligne d'un objectif multiligne: il se cale en bas comme le bouton micro
+- `Amélioration` Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard
 
 #### v1.2.0
 

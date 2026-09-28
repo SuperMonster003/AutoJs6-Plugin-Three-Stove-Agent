@@ -70,7 +70,7 @@ La implementación actual ofrece estas funciones:
 - Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
 - JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada muestra un resumen ampliable al código completo para aprobarlo una vez o durante la tarea actual; el acceso completo omite esta revisión. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
 - Herramientas MCP de servidores locales o externos seleccionados, con riesgo por servidor y el grupo mcp desactivado inicialmente
-- Aplicación independiente rediseñada con Material 3: el inicio es un flujo de tareas con el área de escritura fija sobre el teclado, una barra superior con la cápsula de modelo, el historial y un menú (Nueva tarea, Preajustes, Memoria, Carpetas de scripts, Servidores MCP, Ajustes), un aviso solo mientras AutoJs6 no está conectado, una cronología de pasos que se actualiza por paso, y Ejecutar de nuevo o Reintentar con otro modelo que rellenan la escritura sin iniciar. Ajustes organizados en secciones claras y apariencia clara/oscura coherente
+- Aplicación independiente rediseñada con Material 3: el inicio es un flujo de tareas con el área de escritura fija sobre el teclado, una barra superior con la cápsula de modelo, el historial y un menú (Nueva tarea, Preajustes, Memoria, Carpetas de scripts, Servidores MCP, Ajustes), un aviso solo mientras AutoJs6 no está conectado, una cronología de pasos que se actualiza por paso, y Ejecutar de nuevo, que rellena la escritura sin iniciar. Ajustes organizados en secciones claras y apariencia clara/oscura coherente
 
 ### Capturas de pantalla
 
@@ -294,6 +294,9 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 _2026/09/28_
 
 - `Función` Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación
+- `Función` Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea
+- `Corrección` El botón de envío ya no se queda en la primera línea de un objetivo de varias líneas: se alinea abajo como el botón del micrófono
+- `Mejora` Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar
 
 #### v1.2.0
 
