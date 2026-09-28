@@ -239,7 +239,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 
 ## 16. CI 基线
 
-- `build.yml`: push, pull request 与手动触发; `contents: read`; JDK 21 Temurin; 运行单元测试, 组装 debug / androidTest / release APK 与 lint, 上传产物; 在 API 24 (x86) 与 API 35 (x86_64) 模拟器上执行 instrumentation 契约测试.
+- `build.yml`: push, pull request 与手动触发; `contents: read`; JDK 21 Temurin; 运行单元测试, 组装 debug / androidTest / release APK 与 lintDebug / lintRelease, 上传产物; 在 API 24 (x86) 与 API 35 (x86_64) 模拟器上执行 instrumentation 契约测试 (阻断), 另在 API 37.1 (x86_64, `google_apis_ps16k`) 上执行同一套件, 该作业在 CI 镜像的安装缺陷复现并修复前为非阻断 (`experimental`).
 - CI 全量 instrumentation 使用一次性 `Three_Stove_Agent_Conformance_CI_*` AVD, 通过 `test-apps/fake-host/run_conformance.py --prepare-only` 校验环境并安装宿主夹具, 唤醒解锁和准备通知权限. 禁止覆盖真实宿主或绕过生产身份/版本检查.
 - `markdown.yml`: Windows 环境运行 `.python\check_markdown.bat`, 阻止生成文档漂移.
 - CI action 使用固定大版本并定期更新; timeout 与真实构建时长匹配.
