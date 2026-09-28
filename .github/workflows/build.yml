@@ -66,6 +66,8 @@ jobs:
     needs: verify-build
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Only the experimental (preview image) entry may fail without failing the workflow.
+    continue-on-error: ${{ matrix.experimental == true }}
     strategy:
       fail-fast: false
       matrix:
@@ -81,11 +83,15 @@ jobs:
           # Android 17 (API 37.1) only ships the 16 KB page size Google APIs image; the plugin has no native
           # libraries, so the page size does not change what the suite exercises. Its default data partition
           # is too small for the fake host ("Requested internal only, but not enough space"), hence disk-size.
+          # With the larger partition the first install still dies inside the image
+          # (StorageManagerService.allocateBytes -> PackageManagerInternal null); until that is reproduced
+          # locally the job stays in the matrix as non-blocking (ROADMAP session record 2026-09-28, P12).
           - api-level: 37.1
             arch: x86_64
             target: google_apis_ps16k
             profile: pixel_7
             disk-size: 4096M
+            experimental: true
 
     steps:
       - name: Check out repository
