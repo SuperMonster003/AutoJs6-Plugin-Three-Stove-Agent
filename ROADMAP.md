@@ -1807,3 +1807,4 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 厂商 ROM 与 D42 的结果见 P11 两项的勾选说明. 横幅修复 `5a9aef2` (build 143) 随本记录提交; 其余界面在五台设备上未发现新的布局缺陷.
 - 本机 AAPT2 daemon 启动失败在本会话仍多次出现 (含 `--max-workers=2`), 以 `--max-workers=1` 重跑通过; 正式包 143 由该方式构建.
 - 未做: XQ-AT72 的宿主插件中心启用与附着 (仅界面检查); G8441 上的 uiautomator 第二轮不可用; P11 可选的 Scaffold / Activity 拆分条目保持未勾选.
+- 远程 CI (`6f2e000`, build 144): Build integrity run 36366057585: 单元 / APK 与 API 35 作业通过 (含 `ConnectionBannerTest`); API 24 作业首次在 127 项测试全部完成后模拟器不再响应 adb (`failed due to timeout` x3), 45 分钟到点被取消, 仅重跑该作业后通过 (run 最终 success); Markdown integrity run 36366057582 通过.
