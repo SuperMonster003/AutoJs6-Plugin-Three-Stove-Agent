@@ -51,6 +51,8 @@ class RunDetailActivity : HostAppearanceActivity() {
     private var scriptDestination: Uri? = null
     internal var scriptStep: Int? = null
     private var savedScroll = 0
+    /** Follows new steps of a running task while the reader stays at the end of the page (roadmap P16). */
+    private var follow: AutoScroll? = null
     private var id = ""
     private val poll = Runnable { refresh() }
     private val exportDocument = registerForActivityResult(SaveDocument { exportDocumentIntent(it) }) { uri ->
@@ -83,6 +85,7 @@ class RunDetailActivity : HostAppearanceActivity() {
         truncated = caption(getString(R.string.history_truncated)).apply { visibility = View.GONE }
         page.addView(truncated)
         setContentView(scaffold.root)
+        follow = scaffold.scroll?.let { AutoScroll(it) }
         history = HistoryConnection(this) { refresh() }
         if (id.isEmpty()) finish()
     }
@@ -138,6 +141,8 @@ class RunDetailActivity : HostAppearanceActivity() {
         truncated.visibility = if (value.flag("truncated") == true) View.VISIBLE else View.GONE
         invalidateOptionsMenu()
         if (savedScroll > 0) { val position = savedScroll; savedScroll = 0; scaffold.scroll?.post { scaffold.scroll?.scrollTo(0, position) } }
+        // A running task keeps the newest step in view unless the reader scrolled up to read earlier steps.
+        else if (WorkbenchText.active(value)) follow?.contentChanged()
     }
 
     /** Prefills the workbench with this task's goal and preset; the model stays the shared current choice. */

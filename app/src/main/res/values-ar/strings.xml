@@ -57,6 +57,8 @@
     <string name="floating_open">فتح بطاقة المهمة. اسحب للتحريك</string>
     <string name="floating_permission_required">اسمح بالظهور فوق التطبيقات الأخرى لتفعيل الكرة العائمة.</string>
     <string name="floating_setting_note">معطلة افتراضيا. تتطلب إذن الظهور فوق التطبيقات الأخرى. تظهر الكرة عند اتصال AutoJs6 وتختفي عند الانقطاع أو القفل. لا تبقى خدمة أمامية أثناء الخمول.</string>
+    <string name="floating_timeline_close">إغلاق الجدول الزمني للخطوات</string>
+    <string name="floating_timeline_open">فتح الجدول الزمني للخطوات</string>
     <string name="floating_workbench">فتح لوحة المهام</string>
     <string name="history_all">الكل</string>
     <string name="history_all_presets">كل الإعدادات المسبقة</string>

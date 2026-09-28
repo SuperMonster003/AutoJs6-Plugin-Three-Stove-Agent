@@ -57,6 +57,8 @@
     <string name="floating_open">Открыть карточку. Перетащите для перемещения</string>
     <string name="floating_permission_required">Разрешите показ поверх других приложений для плавающей кнопки.</string>
     <string name="floating_setting_note">По умолчанию выключена. Нужно разрешение на показ поверх других приложений. Кнопка видна при подключении AutoJs6 и скрыта при отключении или блокировке. Служба переднего плана не работает в простое.</string>
+    <string name="floating_timeline_close">Свернуть хронологию шагов</string>
+    <string name="floating_timeline_open">Открыть хронологию шагов</string>
     <string name="floating_workbench">Открыть задачи</string>
     <string name="history_all">Все</string>
     <string name="history_all_presets">Все предустановки</string>

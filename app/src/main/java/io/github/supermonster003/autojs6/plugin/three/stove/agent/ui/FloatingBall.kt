@@ -12,17 +12,29 @@ import android.text.*
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import com.google.android.material.chip.Chip
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.Cancellation
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.PortResult
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.ModelRef
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.ModelSelectionState
 import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
-/** Event-driven window owned by the attached runtime, never by an idle foreground service. */
+/**
+ * Event-driven window owned by the attached runtime, never by an idle foreground service.
+ *
+ * Three shapes (roadmap P16): the compact ball (with the task and its latest step beside the handle
+ * while a task runs), the step timeline card opened by tapping that text, and the control card with
+ * the same two-row composer as the workbench (preset, model and access chips above the goal field,
+ * voice and start). Every choice is inline: an overlay cannot host dialogs, menus or sheets.
+ */
 internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private val app = runtime.context
     private val main = Handler(Looper.getMainLooper())
@@ -47,25 +59,36 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var unlocked = power.isInteractive && !keyguard.isKeyguardLocked
     private var wakeGeneration = 0
     private var expanded = false
+    /** The step timeline card over the compact ball; never combined with the control card. */
+    private var timelineOpen = false
+    private enum class Panel { NONE, MORE, PRESETS, MODELS, ACCESS }
+    private var panel = Panel.NONE
     private var sending = false
     private var snapshot: WorkbenchSnapshot? = null
     private var root: LinearLayout? = null
     private var layout: WindowManager.LayoutParams? = null
     private var goalField: EditText? = null
-    private var fullAccessLabel: TextView? = null
     private var pending: PendingCard? = null
     private var pendingDraft = Bundle()
-    private var statusLabel: TextView? = null
+    private var goalLabel: TextView? = null
+    private var stepLabel: TextView? = null
+    private var textColumn: LinearLayout? = null
     private var stopButton: View? = null
     private var sendButton: Button? = null
-    private var presetRow: SettingRow? = null
+    private var presetChip: Chip? = null
+    private var modelChip: Chip? = null
+    private var accessChip: Chip? = null
     private var presetPanel: LinearLayout? = null
-    private var presetPanelOpen = false
+    private var modelPanel: LinearLayout? = null
+    private var accessPanel: LinearLayout? = null
     private var morePanel: LinearLayout? = null
-    private var morePanelOpen = false
-    private var modelRow: SettingRow? = null
-    /** The shared model choice (null means Automatic), read off the UI thread with each snapshot. */
-    private var modelName: String? = null
+    private var timeline: RunTimeline? = null
+    private var timelineFollow: AutoScroll? = null
+    /** The shared model choice, read off the UI thread with each snapshot (null current means Automatic). */
+    private var selection: ModelSelectionState = ModelSelectionState.AUTOMATIC
+    private var models: List<ModelEntry> = emptyList()
+    private var modelsStatus = ModelCatalog.Status.IDLE
+    private var modelsLoad: Cancellation? = null
     private var voiceButton: View? = null
     private var message: TextView? = null
     private var cardScroll: ScrollView? = null
@@ -79,7 +102,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private val events = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_SCREEN_OFF -> { wakeGeneration++; unlocked = false; expanded = false; removeWindow() }
+                Intent.ACTION_SCREEN_OFF -> { wakeGeneration++; unlocked = false; expanded = false; timelineOpen = false; removeWindow() }
                 Intent.ACTION_USER_PRESENT, Intent.ACTION_SCREEN_ON -> reconcileWake(++wakeGeneration, 20)
                 Intent.ACTION_CONFIGURATION_CHANGED -> { readAppearance = true; removeWindow(); changed() }
             }
@@ -110,6 +133,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         if (closed || !queued.compareAndSet(false, true)) return
         val expected = revision
         val refreshAppearance = readAppearance; readAppearance = false
+        val steps = if (timelineOpen) 50 else 1
         worker.execute {
             // No idle timer, model call or provider binding. Archive access stays off the UI thread.
             val nextAppearance = if (refreshAppearance) AppearancePreferences.resolve(app, HostAppearance.read(app)) else appearance
@@ -118,17 +142,19 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                 val status = link?.let { AgentConnection.decode(it.status(), C.KEY_STATUS_JSON) } ?: JsonObject()
                 val active = link?.liveRuns().orEmpty()
                 val id = status.string("runningRunId") ?: active.firstOrNull()?.string("runId")
-                val run = id?.let { runtime.archive.get(it, 1, presentation = true) }
+                val run = id?.let { runtime.archive.get(it, steps, presentation = true) }
                 val presets = runtime.presets.snapshot()
-                runtime.settings.snapshot().let { status.addProperty("voiceEnabled", it.voice); status.addProperty("fullAccessEnabled", it.fullAccess) }
+                runtime.settings.snapshot().let {
+                    status.addProperty("voiceEnabled", it.voice); status.addProperty("fullAccessEnabled", it.fullAccess); status.addProperty("accessMode", it.accessMode)
+                }
                 WorkbenchSnapshot(status, active, run, presets.presets.map { it.name }, presets.defaultName)
             }.getOrNull()
-            val model = runCatching { ModelSelection.read(app).current?.name }.getOrNull()
+            val chosen = runCatching { ModelSelection.read(app) }.getOrDefault(ModelSelectionState.AUTOMATIC)
             main.post {
                 queued.set(false)
                 if (closed) return@post
                 if (appearance != nextAppearance) { appearance = nextAppearance; removeWindow(); context = themed() }
-                snapshot = value; modelName = model
+                snapshot = value; selection = chosen
                 publish()
                 if (revision != expected) changed()
             }
@@ -143,23 +169,29 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         Settings.canDrawOverlays(app) && runCatching { runtime.settings.snapshot().floating }.getOrDefault(false)
     private fun publish() {
         if (!permitted() || snapshot?.status?.string("state") != C.LINK_STATE_ATTACHED) {
-            expanded = false; removeWindow(); return
+            expanded = false; timelineOpen = false; removeWindow(); return
         }
-        if (root == null) createWindow()
         val value = snapshot ?: return
         val run = value.run
-        statusLabel?.visibility = if (!expanded && run == null) View.GONE else View.VISIBLE
-        statusLabel?.text = if (run == null) context.getString(R.string.app_name) else
-            WorkbenchText.state(context, run) + " " + (run.string("progress") ?: run.string("goal").orEmpty())
-        statusLabel?.contentDescription = statusLabel?.text // The single-line label may ellipsize; readers get the full text.
+        // The timeline card has nothing to show once the task left the live set.
+        if (timelineOpen && run == null) { timelineOpen = false; rebuildWindow() }
+        if (root == null) createWindow()
+        textColumn?.visibility = if (!expanded && run == null) View.GONE else View.VISIBLE
+        goalLabel?.text = run?.string("goal")?.takeIf { it.isNotBlank() } ?: context.getString(R.string.app_name)
+        val step = run?.let(::stepText)
+        stepLabel?.text = step.orEmpty()
+        stepLabel?.visibility = if (step.isNullOrEmpty()) View.GONE else View.VISIBLE
+        // The single-line labels may ellipsize; readers get the full text plus what a tap does.
+        textColumn?.contentDescription = listOfNotNull(goalLabel?.text, step, if (run == null) null else
+            context.getString(if (timelineOpen) R.string.floating_timeline_close else R.string.floating_timeline_open)).joinToString(", ")
         stopButton?.visibility = if (run != null) View.VISIBLE else View.GONE
+        if (timelineOpen && run != null) { timeline?.render(run.getAsJsonArray("steps")); timelineFollow?.contentChanged() }
         if (expanded) {
             if (selectedPreset == null) selectedPreset = value.defaultPreset
             val names = (value.presets + requireNotNull(selectedPreset)).distinct()
             if (names != presetNames) { presetNames = names; renderPresets() }
-            modelRow?.setSummary(modelName ?: context.getString(R.string.model_automatic))
+            renderModelChip(); renderAccess(value.status.string("accessMode") ?: if (value.status.flag("fullAccessEnabled") == true) "full" else "standard")
             voiceButton?.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(context)) View.VISIBLE else View.GONE
-            fullAccessLabel?.visibility = if (value.status.flag("fullAccessEnabled") == true) View.VISIBLE else View.GONE
             pending?.render(run)
             if (selectedPreset !in value.presets) message?.setText(R.string.history_preset_unavailable)
             val request = run?.getAsJsonObject("pending")?.takeIf { run.string("interaction") == "plugin" && it.flag("submitted") != true }
@@ -168,26 +200,141 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         } else runtime.interactions.present(visibilityOwner, null, null)
         updateSend(); reposition()
     }
+    /** The latest step as the timeline names it: "Screen observation · ui_dump", a question, the finish. */
+    private fun stepText(run: JsonObject): String? {
+        val last = run.getAsJsonArray("steps")?.lastOrNull { it.isJsonObject }?.asJsonObject ?: return run.string("progress")
+        return when (last.string("kind")) {
+            "ask" -> context.getString(R.string.step_ask)
+            "done" -> context.getString(R.string.step_done)
+            "repair" -> context.getString(R.string.step_repair)
+            "error" -> context.getString(R.string.step_error)
+            else -> last.string("tool")?.let { ToolPresentation.label(context, it) } ?: run.string("progress")
+        }
+    }
     private fun presetLabel(name: String) = if (name == "default") context.getString(R.string.workbench_default_preset) else name
+    private fun accessLabel(mode: String) = context.getString(when (mode) {
+        "full" -> R.string.settings_full_access; "cautious" -> R.string.access_cautious_short; else -> R.string.access_standard_short
+    })
+    private fun showPanel(next: Panel) {
+        panel = if (panel == next) Panel.NONE else next
+        morePanel?.visibility = if (panel == Panel.MORE) View.VISIBLE else View.GONE
+        presetPanel?.visibility = if (panel == Panel.PRESETS) View.VISIBLE else View.GONE
+        modelPanel?.visibility = if (panel == Panel.MODELS) View.VISIBLE else View.GONE
+        accessPanel?.visibility = if (panel == Panel.ACCESS) View.VISIBLE else View.GONE
+        if (panel == Panel.MODELS && modelsStatus != ModelCatalog.Status.LOADING) loadModels()
+        reposition()
+    }
     /** Inline choices: an overlay window cannot host popups, dialogs or bottom sheets. */
     private fun renderPresets() {
-        presetRow?.setSummary(selectedPreset?.let(::presetLabel))
-        val panel = presetPanel ?: return
-        panel.removeAllViews()
+        val chip = presetChip
+        if (chip != null) { chip.text = selectedPreset?.let(::presetLabel).orEmpty(); chip.contentDescription = context.getString(R.string.workbench_preset) + ", " + chip.text }
+        val list = presetPanel ?: return
+        list.removeAllViews()
         presetNames.forEach { name ->
             val selected = name == selectedPreset
-            panel.addView(kit.settingRow(presetLabel(name), null, if (selected) R.drawable.ic_check else null, "floating-preset-$name", chevron = false,
-                titleColor = if (selected) kit.palette.accent else kit.palette.text) {
-                selectedPreset = name; presetPanelOpen = false; panel.visibility = View.GONE; renderPresets(); updateSend(); saveDraft()
-            }.view.apply { setPaddingRelative(kit.dp(Ui.SPACE_SM), paddingTop, kit.dp(Ui.SPACE_SM), paddingBottom); minimumHeight = kit.dp(52) })
+            list.addView(choiceRow(presetLabel(name), null, selected, "floating-preset-$name") {
+                selectedPreset = name; showPanel(Panel.NONE); renderPresets(); updateSend(); saveDraft()
+            })
         }
-        panel.visibility = if (presetPanelOpen) View.VISIBLE else View.GONE
     }
-    private fun pickerRow(parent: LinearLayout, title: Int, icon: Int, tag: String, onClick: () -> Unit): SettingRow =
-        kit.settingRow(context.getString(title), null, icon, tag, onClick = onClick).also { row ->
-            row.view.setPaddingRelative(kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_XS), 0, kit.dp(Ui.SPACE_XS)); row.view.minimumHeight = kit.dp(56)
-            parent.addView(row.view, LinearLayout.LayoutParams(-1, -2))
+    private fun renderModelChip() {
+        val chip = modelChip ?: return
+        val current = selection.current
+        val automatic = AutomaticTarget.pick(models) { it.locality }
+        chip.text = current?.name ?: automatic?.let { context.getString(R.string.model_automatic_with, it.name) } ?: context.getString(R.string.model_automatic)
+        chip.contentDescription = context.getString(R.string.floating_model) + ", " + chip.text
+    }
+    private fun loadModels() {
+        val link = runtime.current ?: run { modelsStatus = ModelCatalog.Status.FAILED; renderModels(); return }
+        modelsLoad?.cancel()
+        modelsStatus = ModelCatalog.Status.LOADING; renderModels()
+        modelsLoad = link.targets { result ->
+            main.post {
+                if (closed) return@post
+                when (result) {
+                    is PortResult.Success -> {
+                        models = result.value.map { ModelEntry(it.target.targetId, it.displayName.take(ModelRef.MAX_NAME), it.target.providerId,
+                            it.target.locality, it.target.nativeTools != null, it.target.vision != null) }.distinctBy { it.targetId }
+                        modelsStatus = ModelCatalog.Status.READY
+                    }
+                    is PortResult.Failure -> modelsStatus = ModelCatalog.Status.FAILED
+                }
+                renderModelChip(); renderModels()
+            }
         }
+    }
+    private fun renderModels() {
+        val list = modelPanel ?: return
+        list.removeAllViews()
+        val current = selection.current
+        val ready = modelsStatus == ModelCatalog.Status.READY
+        val note = kit.text(context.getString(when (modelsStatus) {
+            ModelCatalog.Status.LOADING -> R.string.interaction_loading
+            ModelCatalog.Status.READY -> if (models.isEmpty()) R.string.ui_models_empty else R.string.ui_model_note
+            else -> R.string.presets_models_unavailable
+        }), Ui.TEXT_CAPTION, kit.palette.muted).apply {
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START; accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS))
+        }
+        list.addView(LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+            addView(note, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(kit.iconButton(R.drawable.ic_restart, context.getString(R.string.presets_refresh_models), "floating-refresh-models", kit.palette.muted) { loadModels() },
+                LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)))
+        }, LinearLayout.LayoutParams(-1, -2))
+        val automatic = AutomaticTarget.pick(models) { it.locality }
+        list.addView(choiceRow(context.getString(R.string.model_automatic), automatic?.let { context.getString(R.string.model_automatic_current, it.name) },
+            current == null, "floating-model-automatic") { chooseModel(null) })
+        if (ready && current != null && models.none { it.targetId == current.targetId }) {
+            list.addView(choiceRow(current.name, context.getString(R.string.model_unavailable), true, "floating-model-unavailable", enabled = false) {})
+        }
+        for ((locality, title) in listOf(ModelLocality.REMOTE to R.string.presets_remote, ModelLocality.ON_DEVICE to R.string.presets_local, ModelLocality.HYBRID to R.string.presets_hybrid)) {
+            val group = models.filter { it.locality == locality }
+            if (group.isEmpty()) continue
+            list.addView(kit.text(context.getString(title), Ui.TEXT_CAPTION, kit.palette.accent, medium = true).apply {
+                textAlignment = View.TEXT_ALIGNMENT_VIEW_START; setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS))
+            })
+            group.forEach { entry ->
+                list.addView(choiceRow(entry.name, entry.providerId.takeIf { it.isNotBlank() }, current?.targetId == entry.targetId, "floating-model-${entry.targetId}") { chooseModel(entry.ref) })
+            }
+        }
+    }
+    /** Writes the shared choice; the workbench reads the same file when it next starts. */
+    private fun chooseModel(model: ModelRef?) {
+        runCatching { ModelSelection.update(app) { it.choose(model) } }.onSuccess { selection = it }.onFailure { showError() }
+        showPanel(Panel.NONE); renderModelChip()
+    }
+    private fun renderAccess(mode: String) {
+        val chip = accessChip ?: return
+        val danger = mode == "full"
+        chip.text = accessLabel(mode)
+        chip.contentDescription = context.getString(R.string.workbench_access, chip.text) + if (danger) ". " + context.getString(R.string.settings_full_access_note) else ""
+        val (fill, foreground) = if (danger) kit.toneColors(Tone.DANGER) else kit.palette.surface to kit.palette.text
+        chip.chipBackgroundColor = android.content.res.ColorStateList.valueOf(fill)
+        chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(if (danger) foreground else kit.palette.outline)
+        chip.setTextColor(foreground)
+        chip.chipIcon = kit.tintedDrawable(R.drawable.ic_shield, if (danger) foreground else kit.palette.muted)
+        val list = accessPanel ?: return
+        list.removeAllViews()
+        for ((value, label) in listOf("standard" to R.string.presets_standard, "cautious" to R.string.presets_cautious, "full" to R.string.settings_full_access)) {
+            list.addView(choiceRow(context.getString(label), if (value == "full") context.getString(R.string.settings_full_access_note) else null, mode == value, "floating-access-$value") {
+                showPanel(Panel.NONE)
+                runCatching { runtime.settings.query(runtime.settings.snapshot().copy(cautious = value == "cautious", fullAccess = value == "full")) { changed() } }
+                    .onFailure { showError() }
+            })
+        }
+    }
+    private fun choiceRow(title: String, summary: String?, selected: Boolean, tag: String, enabled: Boolean = true, onClick: () -> Unit): View =
+        kit.settingRow(title, summary, if (selected) R.drawable.ic_check else null, tag, chevron = false,
+            titleColor = if (!enabled) kit.palette.danger else if (selected) kit.palette.accent else kit.palette.text, onClick = if (enabled) onClick else null).view.apply {
+            setPaddingRelative(kit.dp(Ui.SPACE_SM), paddingTop, kit.dp(Ui.SPACE_SM), paddingBottom); minimumHeight = kit.dp(52)
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
+        }
+    private fun inlinePanel(parent: LinearLayout, tag: String): LinearLayout = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL; this.tag = tag; visibility = View.GONE
+        background = kit.roundedFill(kit.palette.surfaceVariant, Ui.RADIUS_CONTROL)
+        parent.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
+    }
     // RtlHardcoded: x/y are physical display coordinates; content still follows RTL.
     // ClickableViewAccessibility: the body's touch listener only consumes ACTION_OUTSIDE (a tap beyond the window), never a click on the view.
     @android.annotation.SuppressLint("RtlHardcoded", "ClickableViewAccessibility")
@@ -196,7 +343,8 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         context = themed()
         kit = Kit(context, AgentPalette.resolve(context, appearance))
         val palette = kit.palette
-        val compact = !expanded && snapshot?.run == null
+        val active = snapshot?.run != null
+        val compact = !expanded && !timelineOpen && !active
         val body = (reuse ?: LinearLayout(context)).apply {
             orientation = LinearLayout.VERTICAL; layoutDirection = context.resources.configuration.layoutDirection
             background = kit.roundedFill(palette.surface, if (compact) Ui.RADIUS_PILL else Ui.RADIUS_BUBBLE + 2, palette.outline)
@@ -217,21 +365,57 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         }
         header.addView(handle, LinearLayout.LayoutParams(kit.dp(56), kit.dp(56)))
         drag(handle)
-        statusLabel = TextView(context).apply {
-            tag = "floating-step"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END; Ui.truncatable(this)
+        // Task and latest step beside the handle; tapping the text opens or closes the step timeline.
+        goalLabel = TextView(context).apply {
+            tag = "floating-goal-label"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END; Ui.truncatable(this)
             textSize = Ui.TEXT_BODY; setTextColor(palette.text); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        stepLabel = TextView(context).apply {
+            tag = "floating-step"; isSingleLine = true; ellipsize = TextUtils.TruncateAt.END; Ui.truncatable(this)
+            textSize = Ui.TEXT_SECONDARY; setTextColor(palette.muted); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            setPaddingRelative(0, kit.dp(1), 0, 0); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        textColumn = LinearLayout(context).apply {
+            tag = "floating-text"; orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_VERTICAL; minimumHeight = kit.dp(Ui.TOUCH_TARGET)
             setPaddingRelative(kit.dp(Ui.SPACE_MD), 0, kit.dp(Ui.SPACE_XS), 0)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            addView(goalLabel, LinearLayout.LayoutParams(-1, -2)); addView(stepLabel, LinearLayout.LayoutParams(-1, -2))
+            if (!expanded) {
+                isClickable = true; isFocusable = true; kit.selectableBackground(this)
+                setOnClickListener { toggleTimeline() }
+                accessibilityDelegate = object : View.AccessibilityDelegate() {
+                    override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
+                        super.onInitializeAccessibilityNodeInfo(host, info); info.className = Button::class.java.name
+                    }
+                }
+            }
             header.addView(this, LinearLayout.LayoutParams(0, -2, 1f))
         }
         stopButton = kit.iconButton(R.drawable.ic_stop, context.getString(R.string.task_stop), "floating-stop", palette.danger) {
             snapshot?.run?.string("runId")?.let { runtime.current?.cancelLocal(it) }
         }.also { header.addView(it, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET))) }
+        if (timelineOpen && !expanded) {
+            // Any tap outside the card returns to the compact ball.
+            body.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_OUTSIDE && timelineOpen) { timelineOpen = false; rebuildWindow(); publish(); true } else false
+            }
+            val scroll = ScrollView(context).apply { tag = "floating-timeline"; isVerticalScrollBarEnabled = true }
+            val list = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPaddingRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_MD))
+            }
+            list.addView(kit.text(context.getString(R.string.history_timeline), Ui.TEXT_CAPTION, palette.accent, medium = true).apply {
+                textAlignment = View.TEXT_ALIGNMENT_VIEW_START; if (Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
+            }, LinearLayout.LayoutParams(-1, -2))
+            timeline = RunTimeline(kit).also { list.addView(it.view, LinearLayout.LayoutParams(-1, -2)) }
+            scroll.addView(list); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
+            cardScroll = scroll; timelineFollow = AutoScroll(scroll)
+        }
         if (expanded) {
-            // More: an inline panel (an overlay cannot host popup menus) with Minimize and Turn off.
-            header.addView(kit.iconButton(R.drawable.ic_more, context.getString(R.string.floating_more), "floating-more", palette.muted) {
-                morePanelOpen = !morePanelOpen; morePanel?.visibility = if (morePanelOpen) View.VISIBLE else View.GONE
-            }, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)))
+            // More: an inline panel (an overlay cannot host popup menus) with history, workbench, minimize and turn off.
+            header.addView(kit.iconButton(R.drawable.ic_more, context.getString(R.string.floating_more), "floating-more", palette.muted) { showPanel(Panel.MORE) },
+                LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)))
             // Any tap outside the card minimizes it, like dismissing a sheet.
             body.setOnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_OUTSIDE && expanded) { expanded = false; rebuildWindow(); publish(); true } else false
@@ -244,15 +428,21 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
             }
             scroll.addView(card); body.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
             morePanel = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL; tag = "floating-more-panel"; visibility = if (morePanelOpen) View.VISIBLE else View.GONE
+                orientation = LinearLayout.VERTICAL; tag = "floating-more-panel"; visibility = if (panel == Panel.MORE) View.VISIBLE else View.GONE
                 background = kit.roundedFill(palette.surfaceVariant, Ui.RADIUS_CONTROL)
+                addView(kit.settingRow(context.getString(R.string.history_title), null, R.drawable.ic_history, "floating-history", chevron = false) {
+                    showPanel(Panel.NONE); open(HistoryActivity::class.java)
+                }.view, LinearLayout.LayoutParams(-1, -2))
+                addView(kit.settingRow(context.getString(R.string.floating_workbench), null, R.drawable.ic_task, "floating-workbench", chevron = false) {
+                    showPanel(Panel.NONE); open(LauncherActivity::class.java)
+                }.view, LinearLayout.LayoutParams(-1, -2))
                 addView(kit.settingRow(context.getString(R.string.floating_minimize), null, R.drawable.ic_expand, "floating-minimize", chevron = false) {
-                    morePanelOpen = false; expanded = false; rebuildWindow(); publish()
+                    panel = Panel.NONE; expanded = false; rebuildWindow(); publish()
                 }.view, LinearLayout.LayoutParams(-1, -2))
                 addView(kit.settingRow(context.getString(R.string.floating_exit), null, R.drawable.ic_block, "floating-exit", chevron = false,
                     titleColor = palette.danger) {
                     // Turning the ball off is the same private setting as the settings screen switch; the runtime closes the window.
-                    morePanelOpen = false
+                    panel = Panel.NONE
                     runCatching { runtime.settings.query(runtime.settings.snapshot().copy(floating = false)) {} }.onFailure { showError() }
                 }.view, LinearLayout.LayoutParams(-1, -2))
                 card.addView(this, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = kit.dp(Ui.SPACE_XS) })
@@ -269,11 +459,35 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                     }
                 }
             }.apply { restore(pendingDraft) }
-            // The goal field sits directly under the header so it is reachable without scrolling.
+            message = kit.text("", Ui.TEXT_SECONDARY, palette.danger).apply {
+                accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+                card.addView(this, LinearLayout.LayoutParams(-1, -2))
+            }
+            // Options row, like the workbench composer: preset (may use the spare width), model, access.
+            presetChip = kit.chip("", "floating-preset", icon = R.drawable.ic_layers) { showPanel(Panel.PRESETS) }.apply { Ui.truncatable(this) }
+            modelChip = kit.chip("", "floating-model", icon = R.drawable.ic_spark) { showPanel(Panel.MODELS) }.apply {
+                Ui.truncatable(this); ellipsize = TextUtils.TruncateAt.END; maxWidth = kit.dp(150)
+            }
+            accessChip = kit.chip("", "floating-access", icon = R.drawable.ic_shield) { showPanel(Panel.ACCESS) }.apply {
+                contentDescription = context.getString(R.string.settings_access_mode)
+            }
+            card.addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+                addView(FrameLayout(context).apply {
+                    addView(presetChip, FrameLayout.LayoutParams(-2, -2, Gravity.START or Gravity.CENTER_VERTICAL))
+                }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = kit.dp(Ui.SPACE_XS) })
+                addView(modelChip, LinearLayout.LayoutParams(-2, -2).apply { marginEnd = kit.dp(Ui.SPACE_XS) })
+                addView(accessChip, LinearLayout.LayoutParams(-2, -2))
+            }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
+            presetPanel = inlinePanel(card, "floating-presets")
+            modelPanel = inlinePanel(card, "floating-models")
+            accessPanel = inlinePanel(card, "floating-access-panel")
+            renderPresets(); renderModels()
+            // Input row: the goal field grows to four lines; voice and start keep their targets at the bottom.
             val (goalLayout, goal) = kit.textField(draft, context.getString(R.string.workbench_goal_hint),
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 4096, singleLine = false, tag = "floating-goal")
             goalField = goal.apply {
-                id = R.id.workbench_goal; maxLines = 5; minLines = 2
+                id = R.id.workbench_goal; minLines = 1; maxLines = 4; gravity = Gravity.CENTER_VERTICAL or Gravity.START
                 if (Build.VERSION.SDK_INT >= 26) importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
                 addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -281,44 +495,28 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
                     override fun afterTextChanged(s: Editable?) = Unit
                 })
             }
-            card.addView(goalLayout, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
-            modelRow = pickerRow(card, R.string.floating_model, R.drawable.ic_spark, "floating-model") { open(LauncherActivity::class.java, models = true) }
-            presetRow = pickerRow(card, R.string.workbench_preset, R.drawable.ic_layers, "floating-preset") {
-                presetPanelOpen = !presetPanelOpen; renderPresets()
-            }
-            presetPanel = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL; tag = "floating-presets"; visibility = View.GONE
-                background = kit.roundedFill(palette.surfaceVariant, Ui.RADIUS_CONTROL)
-                card.addView(this, LinearLayout.LayoutParams(-1, -2))
-            }
-            renderPresets()
-            fullAccessLabel = kit.badge(context.getString(R.string.settings_full_access), Tone.DANGER).apply {
-                tag = "floating-full-access"; visibility = View.GONE
-                card.addView(this, LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
-            }
-            message = kit.text("", Ui.TEXT_SECONDARY, palette.danger).apply {
-                accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE; textAlignment = View.TEXT_ALIGNMENT_VIEW_START
-                card.addView(this, LinearLayout.LayoutParams(-1, -2))
-            }
-            val actions = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-            card.addView(actions, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_SM) })
             voiceButton = kit.iconButton(R.drawable.ic_mic, context.getString(R.string.workbench_voice), "floating-voice", palette.accent, ::voice)
-                .also { actions.addView(it, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)).apply { marginEnd = kit.dp(Ui.SPACE_SM) }) }
-            sendButton = kit.filledButton(context.getString(R.string.workbench_send), "floating-send", ::send)
-                .also { actions.addView(it, LinearLayout.LayoutParams(0, -2, 1f)) }
-            val links = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
-            card.addView(links, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
-            links.addView(kit.textButton(context.getString(R.string.history_title), "floating-history") { open(HistoryActivity::class.java) },
-                LinearLayout.LayoutParams(0, -2, 1f))
-            links.addView(kit.textButton(context.getString(R.string.floating_workbench), "floating-workbench") { open(LauncherActivity::class.java) },
-                LinearLayout.LayoutParams(0, -2, 1f))
+            sendButton = kit.filledButton("", "floating-send", ::send).apply {
+                contentDescription = context.getString(R.string.workbench_send)
+                setIconResource(R.drawable.ic_send); iconPadding = 0; iconSize = kit.dp(22)
+                iconGravity = com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START
+                setPaddingRelative(0, 0, 0, 0); minWidth = kit.dp(Ui.TOUCH_TARGET); minimumWidth = kit.dp(Ui.TOUCH_TARGET)
+            }
+            card.addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL; gravity = Gravity.BOTTOM; isBaselineAligned = false
+                addView(goalLayout, LinearLayout.LayoutParams(0, -2, 1f))
+                addView(voiceButton, LinearLayout.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET)).apply { marginStart = kit.dp(Ui.SPACE_XS); bottomMargin = kit.dp(4) })
+                addView(sendButton, LinearLayout.LayoutParams(kit.dp(52), kit.dp(52)).apply { marginStart = kit.dp(Ui.SPACE_XS); bottomMargin = kit.dp(2) })
+            }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
         }
-        val flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-            (if (expanded) WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-            else WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        val flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or when {
+            expanded -> WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+            timelineOpen -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+            else -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        }
         layout = WindowManager.LayoutParams(-2, -2, type, flags, PixelFormat.TRANSLUCENT).apply {
             gravity = Gravity.TOP or Gravity.LEFT
-            title = if (expanded) "3-Stove Agent floating card" else "3-Stove Agent floating ball"
+            title = when { expanded -> "3-Stove Agent floating card"; timelineOpen -> "3-Stove Agent floating timeline"; else -> "3-Stove Agent floating ball" }
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         }
         measureWindow()
@@ -360,12 +558,16 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         }
     }
     private fun showError() { message?.setText(R.string.workbench_request_failed) }
-    private fun toggle() { expanded = !expanded; readAppearance = true; rebuildWindow(); publish(); changed() }
-    private fun open(type: Class<*>, models: Boolean = false) {
+    private fun toggle() { expanded = !expanded; timelineOpen = false; panel = Panel.NONE; readAppearance = true; rebuildWindow(); publish(); changed() }
+    private fun toggleTimeline() {
+        if (expanded) return
+        timelineOpen = !timelineOpen; rebuildWindow(); publish()
+        if (timelineOpen) changed() // The compact snapshot carries one step; the card needs the window of steps.
+    }
+    private fun open(type: Class<*>) {
         saveDraft()
         runCatching {
-            val intent = if (type == LauncherActivity::class.java) TaskEntries.intent(app, TaskEntry(draft, selectedPreset))
-                .putExtra(LauncherActivity.EXTRA_OPEN_MODELS, models) else Intent(app, type)
+            val intent = if (type == LauncherActivity::class.java) TaskEntries.intent(app, TaskEntry(draft, selectedPreset)) else Intent(app, type)
             app.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }.onSuccess { expanded = false; rebuildWindow(); publish() }.onFailure { showError() }
     }
@@ -425,17 +627,17 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val params = layout ?: return
         val bounds = usableBounds()
         val active = snapshot?.run != null
-        params.width = (if (expanded) kit.dp(360) else if (active) kit.dp(280) else kit.dp(64)).coerceAtMost(bounds.width())
-        params.height = if (expanded) {
-            // Size the card to its content up to 72% of the usable height; taller content scrolls inside.
-            val cap = (bounds.height() * 0.72f).toInt()
+        params.width = (when { expanded || timelineOpen -> kit.dp(360); active -> kit.dp(320); else -> kit.dp(64) }).coerceAtMost(bounds.width())
+        params.height = if (expanded || timelineOpen) {
+            // Size the card to its content up to a share of the usable height; taller content scrolls inside.
+            val cap = (bounds.height() * (if (expanded) 0.72f else 0.6f)).toInt()
             val content = cardScroll?.getChildAt(0)?.also {
                 it.measure(View.MeasureSpec.makeMeasureSpec((params.width - kit.dp(8)).coerceAtLeast(1), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
             }?.measuredHeight ?: cap
             (content + kit.dp(56 + 8 + 8)).coerceIn(kit.dp(160), cap)
         } else {
-            // A fixed 64dp window clips the stop label when the system font is enlarged.
+            // A fixed 64dp window clips the labels when the system font is enlarged.
             root?.measure(View.MeasureSpec.makeMeasureSpec(params.width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
             maxOf(kit.dp(64), root?.measuredHeight ?: 0).coerceAtMost(bounds.height())
@@ -450,8 +652,10 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private fun saveDraft() { prefs.edit().putString("goal", draft).putString("preset", selectedPreset).putFloat("x", xFraction).putFloat("y", yFraction).apply() }
     private fun clearVisibility() { runtime.interactions.present(visibilityOwner, null, null) }
     private fun clearCard() {
-        goalField = null; pending = null; statusLabel = null; stopButton = null; cardScroll = null; visibleRequest = null
-        sendButton = null; presetRow = null; presetPanel = null; modelRow = null; voiceButton = null; fullAccessLabel = null; message = null; morePanel = null
+        goalField = null; pending = null; goalLabel = null; stepLabel = null; textColumn = null; stopButton = null; cardScroll = null; visibleRequest = null
+        sendButton = null; presetChip = null; modelChip = null; accessChip = null; presetPanel = null; modelPanel = null; accessPanel = null; morePanel = null
+        voiceButton = null; message = null; timeline = null; timelineFollow = null
+        modelsLoad?.cancel(); modelsLoad = null; if (modelsStatus == ModelCatalog.Status.LOADING) modelsStatus = ModelCatalog.Status.IDLE
         presetNames = emptyList(); dimensions = null
     }
     private fun rebuildWindow() {

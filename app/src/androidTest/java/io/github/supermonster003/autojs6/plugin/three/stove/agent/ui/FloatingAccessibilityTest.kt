@@ -70,14 +70,15 @@ class FloatingAccessibilityTest {
                 field(floating, "readAppearance").setBoolean(floating, false)
             }
             val runId = UUID.randomUUID().toString()
-            fun show(name: String, expanded: Boolean, run: JsonObject?) {
+            fun show(name: String, expanded: Boolean, run: JsonObject?, timeline: Boolean = false) {
                 instrumentation.runOnMainSync {
                     call(floating!!, "removeWindow")
                     field(floating, "snapshot").set(floating, WorkbenchSnapshot(
-                        jsonObject("state" to C.LINK_STATE_ATTACHED.json(), "voiceEnabled" to true.json()),
+                        jsonObject("state" to C.LINK_STATE_ATTACHED.json(), "voiceEnabled" to true.json(), "accessMode" to "full".json()),
                         listOfNotNull(run), run, listOf(if (capture) "default" else "A preset with a long display name"),
                         if (capture) "default" else "A preset with a long display name"))
                     field(floating, "expanded").setBoolean(floating, expanded)
+                    field(floating, "timelineOpen").setBoolean(floating, timeline)
                     call(floating, "publish")
                 }
                 waitFor { var ready = false; instrumentation.runOnMainSync {
@@ -91,14 +92,39 @@ class FloatingAccessibilityTest {
                 }
             }
             val active = jsonObject("runId" to runId.json(), "state" to "running".json(),
-                "goal" to "Layout inspection with a long progress label".json(), "interaction" to "plugin".json())
+                "goal" to "Layout inspection with a long progress label".json(), "interaction" to "plugin".json(),
+                "steps" to com.google.gson.JsonArray().apply {
+                    add(jsonObject("index" to 1.json(), "tool" to "ui_dump".json(), "decision" to jsonObject("reasoning" to "Observe the current screen first".json())))
+                    add(jsonObject("index" to 2.json(), "tool" to "ui_click".json(), "confirmation" to "allowed".json()))
+                })
             if (capture) {
                 show("entry", true, null)
                 return
             }
             show("idle", false, null)
             show("running", false, active)
+            instrumentation.runOnMainSync {
+                val root = field(floating!!, "root").get(floating) as LinearLayout
+                val step = root.findViewWithTag<android.widget.TextView>("floating-step")!!
+                assertEquals(View.VISIBLE, step.visibility)
+                assertTrue("The compact ball names the latest step", step.text.toString().endsWith("ui_click"))
+                assertFalse("No running prefix before the goal", root.findViewWithTag<android.widget.TextView>("floating-goal-label")!!.text.startsWith("Running"))
+            }
+            show("timeline", false, active, timeline = true)
+            instrumentation.runOnMainSync {
+                val root = field(floating!!, "root").get(floating) as LinearLayout
+                assertNotNull("Timeline rows are shown", root.findViewWithTag<View>("step-2"))
+            }
             show("entry", true, null)
+            instrumentation.runOnMainSync {
+                val root = field(floating!!, "root").get(floating) as LinearLayout
+                assertNotNull("Model chip sits in the options row", root.findViewWithTag<View>("floating-model"))
+                assertNotNull("Access chip sits in the options row", root.findViewWithTag<View>("floating-access"))
+                assertSame("History moved into the more panel", root.findViewWithTag<View>("floating-more-panel"), root.findViewWithTag<View>("floating-history")!!.parent)
+                assertSame("Workbench moved into the more panel", root.findViewWithTag<View>("floating-more-panel"), root.findViewWithTag<View>("floating-workbench")!!.parent)
+                val send = root.findViewWithTag<View>("floating-send")!!; val row = send.parent as View
+                assertTrue("Send keeps the bottom of the input row", row.height - send.bottom <= 4 * root.resources.displayMetrics.density.toInt())
+            }
             for (kind in listOf("text", "choice", "confirm", "payment", "script")) {
                 val pending = jsonObject("requestId" to UUID.randomUUID().toString().json(),
                     "deadlineMs" to (java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + 120000).json())

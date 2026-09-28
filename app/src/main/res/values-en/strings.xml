@@ -57,6 +57,8 @@
     <string name="floating_open">Open task card; drag to move</string>
     <string name="floating_permission_required">Allow display over other apps to enable the floating ball.</string>
     <string name="floating_setting_note">Off by default. Requires permission to display over other apps. Shown only while AutoJs6 is connected; hidden when disconnected or locked. No foreground service is kept while idle.</string>
+    <string name="floating_timeline_close">Close the step timeline</string>
+    <string name="floating_timeline_open">Open the step timeline</string>
     <string name="floating_workbench">Open workbench</string>
     <string name="history_all">All</string>
     <string name="history_all_presets">All presets</string>

@@ -57,6 +57,8 @@
     <string name="floating_open">작업 카드 열기. 드래그하여 이동</string>
     <string name="floating_permission_required">플로팅 볼을 사용하려면 다른 앱 위에 표시를 허용하세요.</string>
     <string name="floating_setting_note">기본적으로 꺼져 있습니다. 다른 앱 위에 표시 권한이 필요합니다. AutoJs6 연결 중에만 표시되고 연결 해제나 잠금 시 숨겨집니다. 대기 중에는 포그라운드 서비스를 유지하지 않습니다.</string>
+    <string name="floating_timeline_close">단계 타임라인 닫기</string>
+    <string name="floating_timeline_open">단계 타임라인 열기</string>
     <string name="floating_workbench">작업 화면 열기</string>
     <string name="history_all">전체</string>
     <string name="history_all_presets">모든 프리셋</string>

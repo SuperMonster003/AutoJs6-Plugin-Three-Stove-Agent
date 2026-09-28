@@ -57,6 +57,8 @@
     <string name="floating_open">Abrir tarjeta. Arrastra para mover</string>
     <string name="floating_permission_required">Permite mostrar sobre otras aplicaciones para activar la burbuja flotante.</string>
     <string name="floating_setting_note">Desactivada por defecto. Requiere permiso de superposición. La burbuja aparece con AutoJs6 conectado y se oculta al desconectar o bloquear. No mantiene un servicio en primer plano en reposo.</string>
+    <string name="floating_timeline_close">Cerrar la cronología de pasos</string>
+    <string name="floating_timeline_open">Abrir la cronología de pasos</string>
     <string name="floating_workbench">Abrir tareas</string>
     <string name="history_all">Todos</string>
     <string name="history_all_presets">Todos los preajustes</string>
