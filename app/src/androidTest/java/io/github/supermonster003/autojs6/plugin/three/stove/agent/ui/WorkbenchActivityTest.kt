@@ -1596,6 +1596,25 @@ class WorkbenchActivityTest {
         } }
     }
 
+    @Test fun sendAndVoiceButtonsStayAtTheBottomOfAMultiLineGoal() = withFixture { _, _ ->
+        ActivityScenario.launch(LauncherActivity::class.java).use { scenario ->
+            waitUi(scenario, "Composer laid out") { it.findViewById<View>(R.id.workbench_send).isLaidOut }
+            scenario.onActivity { it.findViewById<EditText>(R.id.workbench_goal).setText("Line one\nLine two\nLine three\nLine four") }
+            waitUi(scenario, "Field grew to four lines") {
+                it.findViewById<EditText>(R.id.workbench_goal).lineCount >= 4 && !it.findViewById<View>(R.id.workbench_send).isLayoutRequested
+            }
+            scenario.onActivity {
+                val send = it.findViewById<View>(R.id.workbench_send); val voice = it.findViewById<View>(R.id.workbench_voice)
+                val row = send.parent as ViewGroup; val field = row.getChildAt(0)
+                assertTrue("The field is taller than its single-line box", field.height > it.kit.dp(56) + it.kit.dp(8))
+                // Bottom gravity, not the first-line baseline: the 52dp send button ends 2dp above the row bottom.
+                assertEquals("Send is bottom aligned", row.height - it.kit.dp(2), send.bottom)
+                assertTrue("Send ends with the field, not with its first line", send.bottom >= field.bottom - it.kit.dp(4) && send.top > field.top + it.kit.dp(24))
+                if (voice.visibility == View.VISIBLE) assertEquals("Voice is bottom aligned", row.height - it.kit.dp(4), voice.bottom)
+            }
+        }
+    }
+
     @Test fun captureReadmeScreens() {
         ReadmeCapture.requireOptIn()
         check(listOf("runs", "agent-runs").all { java.io.File(context.filesDir, it).listFiles().isNullOrEmpty() }) {

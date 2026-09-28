@@ -381,7 +381,6 @@
     <string name="workbench_preset">Preset</string>
     <string name="workbench_recent">Recent tasks</string>
     <string name="workbench_request_failed">Request failed. Check the connection and task state, then try again.</string>
-    <string name="workbench_retry_model">Retry with another model</string>
     <string name="workbench_run_again">Run again</string>
     <string name="workbench_script_interaction">The calling script handles this response.</string>
     <string name="workbench_send">Start task</string>

@@ -381,7 +381,6 @@
     <string name="workbench_preset">إعداد مسبق</string>
     <string name="workbench_recent">المهام الأخيرة</string>
     <string name="workbench_request_failed">فشل الطلب. تحقق من الاتصال وحالة المهمة ثم أعد المحاولة.</string>
-    <string name="workbench_retry_model">إعادة المحاولة بنموذج آخر</string>
     <string name="workbench_run_again">تشغيل مرة أخرى</string>
     <string name="workbench_script_interaction">يتولى السكربت المستدعي معالجة هذه الإجابة.</string>
     <string name="workbench_send">بدء المهمة</string>

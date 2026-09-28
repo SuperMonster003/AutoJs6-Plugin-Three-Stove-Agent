@@ -381,7 +381,6 @@
     <string name="workbench_preset">プリセット</string>
     <string name="workbench_recent">最近のタスク</string>
     <string name="workbench_request_failed">要求に失敗しました. 接続とタスクの状態を確認してください.</string>
-    <string name="workbench_retry_model">別のモデルで再試行</string>
     <string name="workbench_run_again">もう一度実行</string>
     <string name="workbench_script_interaction">この回答は呼び出し元スクリプトが処理します.</string>
     <string name="workbench_send">タスクを開始</string>

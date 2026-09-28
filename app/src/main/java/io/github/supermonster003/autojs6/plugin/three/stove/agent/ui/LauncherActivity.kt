@@ -160,11 +160,10 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         goal.setText(""); views.composer.error.visibility = View.GONE
         agent.refresh(); focusComposer()
     }
-    override fun prefill(goal: String, preset: String?, chooseModel: Boolean) {
+    override fun prefill(goal: String, preset: String?) {
         this.goal.setText(goal); this.goal.setSelection(this.goal.length())
         preset?.let { selectedPreset = it; followDefault = false; renderPreset() }
         updateSend(); focusComposer()
-        if (chooseModel) models.open()
     }
     override fun openDetail(runId: String) { startActivity(Intent(this, RunDetailActivity::class.java).putExtra("runId", runId)) }
     override fun stop(runId: String) {

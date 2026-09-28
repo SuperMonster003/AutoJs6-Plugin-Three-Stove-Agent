@@ -381,7 +381,6 @@
     <string name="workbench_preset">Набор настроек</string>
     <string name="workbench_recent">Недавние задачи</string>
     <string name="workbench_request_failed">Запрос не выполнен. Проверьте соединение и состояние задачи.</string>
-    <string name="workbench_retry_model">Повторить с другой моделью</string>
     <string name="workbench_run_again">Запустить снова</string>
     <string name="workbench_script_interaction">Ответ обрабатывает вызывающий скрипт.</string>
     <string name="workbench_send">Начать задачу</string>

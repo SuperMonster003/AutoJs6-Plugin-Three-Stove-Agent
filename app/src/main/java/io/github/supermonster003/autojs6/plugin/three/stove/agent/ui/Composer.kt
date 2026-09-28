@@ -61,6 +61,9 @@ internal class Composer(private val kit: Kit, onPreset: () -> Unit, onAccess: ()
         // Input row: the goal field grows; voice and send keep fixed 48dp targets beside it.
         addView(LinearLayout(kit.context).apply {
             orientation = LinearLayout.HORIZONTAL; gravity = Gravity.BOTTOM
+            // Without this the send button (a text button with a baseline) would follow the field's first-line
+            // baseline and stay at the top once the goal wraps, while the icon-only voice button sits at the bottom.
+            isBaselineAligned = false
             addView(fieldPair.first, LinearLayout.LayoutParams(0, -2, 1f))
             // The field box is 56dp tall on one line: 48dp and 52dp buttons sit 4dp and 2dp above the row bottom so all three
             // centres coincide, and with more lines the row keeps its bottom gravity.

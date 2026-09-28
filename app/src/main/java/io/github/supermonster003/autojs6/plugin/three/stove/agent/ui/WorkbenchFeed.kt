@@ -17,8 +17,8 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 internal interface FeedActions {
     fun openDetail(runId: String)
     fun stop(runId: String)
-    /** Fill the composer with [goal] and [preset]; with [chooseModel] also open the model switcher. Never starts. */
-    fun prefill(goal: String, preset: String?, chooseModel: Boolean = false)
+    /** Fill the composer with [goal] and [preset]. Never starts. */
+    fun prefill(goal: String, preset: String?)
 }
 
 /**
@@ -78,9 +78,6 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
     private val runAgain = kit.tonalButton(kit.string(R.string.workbench_run_again), "rerun") {
         row?.let { actions.prefill(it.string("goal").orEmpty(), it.string("preset")) }
     }
-    private val retryModel = kit.textButton(kit.string(R.string.workbench_retry_model), "retry-model") {
-        row?.let { actions.prefill(it.string("goal").orEmpty(), it.string("preset"), chooseModel = true) }
-    }
     private var row: JsonObject? = null
     private var runId: String? = null
     /** Null until the first render, so an empty history still hides the section header. */
@@ -114,7 +111,6 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
                 addView(runAgain, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
                 addView(details, LinearLayout.LayoutParams(0, -2, 1f))
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_LG) })
-            addView(retryModel, LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.END })
         }
         view.addView(current, kit.cardParams(topDp = Ui.SPACE_LG, bottomDp = Ui.SPACE_LG))
     }
@@ -172,7 +168,6 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         if (WorkbenchText.accessibilityBlocked(value)) accessibilityBanner.view.visibility = View.VISIBLE else accessibilityBanner.hide()
         stopButton.visibility = if (active) View.VISIBLE else View.GONE
         runAgain.visibility = if (active) View.GONE else View.VISIBLE
-        retryModel.visibility = if (active) View.GONE else View.VISIBLE
     }
 
     private fun renderRecent(runs: List<JsonObject>) {
