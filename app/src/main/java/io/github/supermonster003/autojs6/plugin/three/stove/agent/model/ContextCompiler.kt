@@ -17,7 +17,7 @@ data class ContextLimits(
     }
 }
 
-class ContextLimitExceeded : IllegalArgumentException("Context cannot retain the mandatory task, rules and observation within the input budget")
+open class ContextLimitExceeded : IllegalArgumentException("Context cannot retain the mandatory task, rules and observation within the input budget")
 
 /** Deterministic byte packing. The goal and rules are never silently shortened to make a request fit. */
 class ContextCompiler(

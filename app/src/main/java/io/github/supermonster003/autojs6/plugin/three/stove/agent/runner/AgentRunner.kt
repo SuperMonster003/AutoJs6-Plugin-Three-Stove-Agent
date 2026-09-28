@@ -55,6 +55,8 @@ class AgentRunner internal constructor(
     private var format = options.format
     private var formatFallbacks = 0
     private var nativeTurn: NativeToolTurn? = null
+    private var nativeDeadlineMs: Long? = null
+    private var nativeContextRebuilt = false
     private val nativeQueue = ArrayDeque<AgentDecision.Tool>()
     private val nativeResults = mutableListOf<NativeToolResult>()
     private var activeNativeCall: NativeToolCall? = null
@@ -196,11 +198,29 @@ class AgentRunner internal constructor(
         val b = checkNotNull(budget)
         if (policy.isOrderGoal(options.goal)) doneRules.requireOrderStatus()
         val guidance = verificationGuidance()
-        val continuation = nativeTurn?.continuation
-        val results = if (continuation == null) emptyList() else nativeResults.toList()
+        var continuation = nativeTurn?.continuation
+        var results = if (continuation == null) emptyList() else nativeResults.toList()
+        val continuedBytes = try { continuation?.inputBytes(results) } catch (_: NativeContextLimitExceeded) {
+            // Every call in the paused batch already has a journaled outcome. End only this
+            // append-only conversation, then repack that history with the latest observation.
+            // Keep the native format, repair allowance, run budget and original model deadline.
+            check(nativeQueue.isEmpty() && activeNativeCall == null)
+            val progress = closeNative()
+            if (progress != null && progress.error != RunError.CANCELLED) {
+                finishError(progress.error); return
+            }
+            nativeContextRebuilt = true
+            continuation = null; results = emptyList()
+            null
+        }
+        b.check()
         val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance, observationImages))
-        val inputBytes = continuation?.inputBytes(results) ?: checkNotNull(input).inputBytes
+        val inputBytes = continuedBytes ?: checkNotNull(input).inputBytes
         if (!canContinue()) return
+        if (format.nativeTools && nativeDeadlineMs == null) nativeDeadlineMs = scheduler.nowMs() + options.modelTimeoutMs
+        val timeoutMs = minOf(options.modelTimeoutMs, b.remainingMs,
+            nativeDeadlineMs?.let { it - scheduler.nowMs() } ?: Long.MAX_VALUE)
+        if (timeoutMs <= 0 || (format.nativeTools && timeoutMs < 1000)) { finishError(RunError.MODEL_TIMEOUT); return }
         val imageTokens = continuation?.imageTokens(results) ?: checkNotNull(input).imageTokens
         val reservation = b.reserveModel(inputBytes, minOf(options.maximumOutputTokens, input?.maximumOutputTokens ?: options.maximumOutputTokens), imageTokens)
         var settled = false
@@ -209,9 +229,10 @@ class AgentRunner internal constructor(
             b.settleModel(reservation, usage, outputBytes); settled = true
             stepEstimated = stepEstimated || usage?.inputTokens == null || usage.outputTokens == null
         }
-        beginOperation(minOf(options.modelTimeoutMs, b.remainingMs), RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
-            { callback -> if (continuation == null) model.generate(checkNotNull(input), reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback)
-                else continuation.resume(results, reservation.maximumOutputTokens, minOf(options.modelTimeoutMs, b.remainingMs), callback) },
+        val admittedContinuation = continuation
+        beginOperation(timeoutMs, RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
+            { callback -> if (admittedContinuation == null) model.generate(checkNotNull(input), reservation.maximumOutputTokens, timeoutMs, callback)
+                else admittedContinuation.resume(results, reservation.maximumOutputTokens, timeoutMs, callback) },
             onCancelled = { handle -> (handle as? ModelCallCancellation)?.progress()?.let { settle(it.usage, it.outputBytes) } }) { outcome ->
             when (outcome) {
                 is PortResult.Failure -> {
@@ -219,9 +240,10 @@ class AgentRunner internal constructor(
                     settle(outcome.usage, outcome.outputBytes)
                     if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
                     b.check()
-                    val next = if (continuation == null && formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
+                    val next = if (continuation == null && !nativeContextRebuilt && formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
                     if (next == null) finishError(outcome.error, detail = if (outcome.error == RunError.LIMIT_EXCEEDED) "key:limit_response" else outcome.reason) else {
                         formatFallbacks++; format = next
+                        nativeDeadlineMs = null
                         checkNotNull(repairSession).switchFormat(next)
                         requestModel(repair) // New admission and usage ticket, same step and repair allowance.
                     }
@@ -229,6 +251,7 @@ class AgentRunner internal constructor(
                 is PortResult.Success -> {
                     val reply = outcome.value
                     nativeTurn = reply.nativeTurn; nativeResults.clear(); activeNativeCall = null
+                    if (nativeTurn == null) { nativeDeadlineMs = null; nativeContextRebuilt = false }
                     nativeTurn?.continuation?.claim()
                     val outputBytes = maxOf(reply.outputBytes, if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.utf8Size() else AgentJson.MAX_MODEL_BYTES + 1)
                     responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
@@ -560,13 +583,14 @@ class AgentRunner internal constructor(
         }
         throw ContextLimitExceeded()
     }
-    private fun closeNative() {
+    private fun closeNative(): PortResult.Failure? {
         val current = nativeTurn?.continuation
         nativeTurn = null; nativeQueue.clear(); nativeResults.clear(); activeNativeCall = null
-        current?.let {
+        return current?.let {
             safely(it::cancel)
             val progress = it.takeProgress()
             budget?.settleProgress(progress.usage, progress.outputBytes)
+            progress
         }
     }
     private fun protectText() {

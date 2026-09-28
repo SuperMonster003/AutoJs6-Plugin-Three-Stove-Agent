@@ -1810,3 +1810,10 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 远程 CI (`6f2e000`, build 144): Build integrity run 36366057585: 单元 / APK 与 API 35 作业通过 (含 `ConnectionBannerTest`); API 24 作业首次在 127 项测试全部完成后模拟器不再响应 adb (`failed due to timeout` x3), 45 分钟到点被取消, 仅重跑该作业后通过 (run 最终 success); Markdown integrity run 36366057582 通过.
 - P11 可选结构条目 `7d50030` (build 146): 见 P11 节该条; 验证为本地 API 36.1 一次性 AVD 全量 instrumentation 与 12 张截图逐字节比对, 详见条目.
 - 远程 CI (`a84549a`, build 147): Build integrity run 36375881376 通过 (单元 / lint / release APK, API 24 与 API 35 全量 instrumentation 含拆分后的六个页面与 `awaitReply` 夹具), Markdown integrity run 36375881363 通过; 一次性 AVD 与其目录已删除.
+
+### 2026-09-28: 真机任务中途停止与原生工具上下文恢复
+
+- 现场: QV770340J7 / XQ-DQ72 / API 33, 插件 1.2.0 build 143, AIGoCode. 已有任务在第 6 个工具步骤后以 `LIMIT_EXCEEDED` 结束, 详情明确指向上下文输入上限. 调试升级后读取的 5 条历史中共有 3 条同码失败, 分别发生在 6, 6, 9 个工具步骤后. 私人测试目标及联系人标识不进入文档或回归夹具.
+- 修复: 原生工具续轮一直追加旧页面而未重新经过 `ContextCompiler`. 现在在完整工具批次耗尽输入空间或协商轮数时, 关闭原请求, 结算用量, 用已完成步骤和最新观察重新编译上下文并继续原生调用. 保留原模型截止时间, 全局预算, 确认策略, 决策修复次数与循环证据; 不自动重放已执行动作, 也不在恢复后的代理错误上回退 JSON.
+- 验证: 原生模型与执行器定向测试 39 项通过, 含 7 项新回归; 全量 JVM 627 项, 0 失败 / 0 错误 / 1 项既有性能开关跳过; 独立 API 33 AVD 全量 instrumentation `OK (129 tests)`, 125 通过 / 4 项可选测试跳过, 428.015 s; debug / androidTest / release APK, fake-host debug APK 与 lintDebug 通过, lint 0 错误 / 6 条既有警告; 十语言 36 份生成产物 `--check` 通过. 本机 Gradle 文件系统监视器阻塞用 `--no-watch-fs` 避开, AAPT2 启动超时以单 worker 重试通过, 项目构建配置未改动.
+- 交付与边界: build 152 调试包已覆盖安装到目标设备, 数据保留; 同版正式包已构建. 维护者确认设备还有其他测试或人工操作, 其中一个 UI Automation 连接曾暂停普通无障碍服务, 因此本次不把并行任务的结果作为验收证据. 原私人测试指令及实际消息发送未执行, 真机完整导航验收待独占设备窗口. 独立 API 33 AVD 的 instrumentation 结果与完整证据见 [修复记录](docs/dev/native-context-recovery-2026-09-28.md).

@@ -47,7 +47,7 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
     override fun inputBytes(results: List<NativeToolResult>): Int = synchronized(lock) {
         resultEnvelope(results) // Bound and correlate before the runner admits another model call.
         val size = initialBytes.toLong() + events.retainedBytes + resultBytes + results.sumOf { StepJournal.bytes(it.wire()).toLong() }
-        if (size > maximumInputBytes) throw ContextLimitExceeded()
+        if (size > maximumInputBytes || events.round >= limits.rounds) throw NativeContextLimitExceeded()
         size.toInt()
     }
     override fun imageTokens(results: List<NativeToolResult>): Long = synchronized(lock) {
