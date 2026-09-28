@@ -36,7 +36,7 @@ jobs:
           # The release APK is built explicitly: R8 missing-class failures only surface there.
           ./gradlew :app:assembleDebugUnitTest \
             :app:verifyNativePageAlignment :app:testDebugUnitTest \
-            :app:assembleDebugAndroidTest :app:assembleRelease :app:lintDebug \
+            :app:assembleDebugAndroidTest :app:assembleRelease :app:lintDebug :app:lintRelease \
             :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest \
             :test-apps:fake-host:lintDebug --console=plain --stacktrace
 
@@ -74,6 +74,9 @@ jobs:
             arch: x86
             profile: Nexus 5
           - api-level: 35
+            arch: x86_64
+            profile: pixel_7
+          - api-level: 37
             arch: x86_64
             profile: pixel_7
 
