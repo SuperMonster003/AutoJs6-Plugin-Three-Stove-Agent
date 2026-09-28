@@ -20,7 +20,7 @@
     "Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments",
     "Generated JavaScript through script_run_source: the script_dynamic group is off by default. Each call shows a source summary with expandable full text for approval once or for the current task; full access skips this review. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.",
     "MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default",
-    "Redesigned standalone app on Material 3: the home screen is a task feed with the composer docked above the keyboard, a top bar with the model capsule, history and a menu (New task, Presets, Memory, Script directories, MCP servers, Settings), a connection banner only while AutoJs6 is not connected, a keyed step timeline, and Run again or Retry with another model that fill the composer without starting. Settings are grouped into clear sections and light/dark appearance is consistent"
+    "Redesigned standalone app on Material 3: the home screen is a task feed with the composer docked above the keyboard, a top bar with the model capsule, history and a menu (New task, Presets, Memory, Script directories, MCP servers, Settings), a connection banner only while AutoJs6 is not connected, a keyed step timeline, and Run again, which fills the composer without starting. Settings are grouped into clear sections and light/dark appearance is consistent"
   ],
   "h3_usage": "Usage",
   "usage_steps": [

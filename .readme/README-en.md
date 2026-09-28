@@ -70,7 +70,7 @@ The current implementation provides these capabilities:
 - Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
 - Generated JavaScript through script_run_source: the script_dynamic group is off by default. Each call shows a source summary with expandable full text for approval once or for the current task; full access skips this review. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.
 - MCP tools from selected local or external servers, with per-server risk settings and the mcp group disabled by default
-- Redesigned standalone app on Material 3: the home screen is a task feed with the composer docked above the keyboard, a top bar with the model capsule, history and a menu (New task, Presets, Memory, Script directories, MCP servers, Settings), a connection banner only while AutoJs6 is not connected, a keyed step timeline, and Run again or Retry with another model that fill the composer without starting. Settings are grouped into clear sections and light/dark appearance is consistent
+- Redesigned standalone app on Material 3: the home screen is a task feed with the composer docked above the keyboard, a top bar with the model capsule, history and a menu (New task, Presets, Memory, Script directories, MCP servers, Settings), a connection banner only while AutoJs6 is not connected, a keyed step timeline, and Run again, which fills the composer without starting. Settings are grouped into clear sections and light/dark appearance is consistent
 
 ### Screenshots
 
@@ -294,6 +294,9 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 _2026/09/28_
 
 - `Feature` Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation
+- `Feature` Floating ball redesign: the compact ball shows the task and its current step on two lines and tapping the text opens a step timeline card; the control card is condensed to the same two rows as the workbench (preset, model and access above the goal field, voice and start), with the model and access mode switched inside the overlay and shared with the app; the timeline follows new steps while you are at the end, pauses when you scroll up and resumes at the end, as does the task details screen
+- `Fix` The send button no longer stays on the first line of a multi-line goal; it sits at the bottom like the microphone button
+- `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
 
 #### v1.2.0
 
