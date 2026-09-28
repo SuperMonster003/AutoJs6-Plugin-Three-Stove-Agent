@@ -22,18 +22,16 @@ internal class WorkbenchViews(
 )
 
 /**
- * Home: a top bar with the model capsule, history and the overflow menu; the connection banner;
- * the task feed; and the composer docked above the keyboard.
+ * Home: the kit scaffold shell (status-bar spacer and toolbar) carrying the model capsule, history and the
+ * overflow menu; then the connection banner, the task feed and the composer docked above the keyboard.
  */
 internal object WorkbenchLayout {
     fun create(activity: LauncherActivity, actions: FeedActions, onConnect: () -> Unit, onOpenHost: () -> Unit,
                onPreset: () -> Unit, onAccess: () -> Unit, onVoice: () -> Unit, onSend: () -> Unit, onMore: (View) -> Unit, onJump: () -> Unit): WorkbenchViews {
         val kit = activity.kit
-        val root = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(kit.palette.background) }
-        val statusBar = View(activity).apply { setBackgroundColor(kit.palette.background) }
-        root.addView(statusBar, LinearLayout.LayoutParams(-1, 0))
-
-        val toolbar = activity.createToolbar("", showBack = false)
+        val shell = activity.scaffoldShell("", showBack = false)
+        val root = shell.root
+        val toolbar = shell.toolbar
         activity.supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setContentInsetsRelative(kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XS))
         // End-gravity custom views are laid out from the end: the first one added sits outermost.
@@ -44,15 +42,14 @@ internal object WorkbenchLayout {
             activity.startActivity(android.content.Intent(activity, HistoryActivity::class.java))
         }.apply { id = R.id.workbench_history }, Toolbar.LayoutParams(kit.dp(Ui.TOUCH_TARGET), kit.dp(Ui.TOUCH_TARGET), Gravity.END or Gravity.CENTER_VERTICAL))
         toolbar.addView(activity.models.capsule.view, Toolbar.LayoutParams(-2, -2, Gravity.START or Gravity.CENTER_VERTICAL))
-        root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
 
         val banner = ConnectionBanner(kit, onConnect, onOpenHost)
-        root.addView(bounded(activity, banner.view, Ui.SPACE_LG, 0, Ui.SPACE_SM), LinearLayout.LayoutParams(-1, -2))
+        root.addView(activity.boundedRow(banner.view, Ui.SPACE_LG, 0, Ui.SPACE_SM), LinearLayout.LayoutParams(-1, -2))
 
         val feed = WorkbenchFeed(kit, actions)
         val scroll = NestedScrollView(activity).apply {
             isFillViewport = true; clipToPadding = false
-            addView(bounded(activity, feed.view, Ui.SPACE_LG, Ui.SPACE_XS, Ui.SPACE_LG), android.view.ViewGroup.LayoutParams(-1, -2))
+            addView(activity.boundedRow(feed.view, Ui.SPACE_LG, Ui.SPACE_XS, Ui.SPACE_LG), android.view.ViewGroup.LayoutParams(-1, -2))
         }
         val jump = kit.chip(kit.string(R.string.workbench_jump_latest), "jump-latest", icon = R.drawable.ic_expand) { onJump() }.apply {
             visibility = View.GONE; elevation = kit.dp(4).toFloat()
@@ -63,18 +60,8 @@ internal object WorkbenchLayout {
         }, LinearLayout.LayoutParams(-1, 0, 1f))
 
         val composer = Composer(kit, onPreset, onAccess, onVoice, onSend)
-        root.addView(bounded(activity, composer.view, Ui.SPACE_MD, Ui.SPACE_XS, Ui.SPACE_MD), LinearLayout.LayoutParams(-1, -2))
-        activity.applySystemBarInsets(root, statusBar)
+        root.addView(activity.boundedRow(composer.view, Ui.SPACE_MD, Ui.SPACE_XS, Ui.SPACE_MD), LinearLayout.LayoutParams(-1, -2))
+        activity.applySystemBarInsets(root, shell.statusBar)
         return WorkbenchViews(root, toolbar, banner, scroll, feed, composer, jump, more)
-    }
-
-    /** Centers [child] within the 840dp content width. Vertical space is a margin, so a hidden child takes none. */
-    private fun bounded(activity: LauncherActivity, child: View, horizontal: Int, top: Int, bottom: Int): FrameLayout {
-        val kit = activity.kit
-        val column = BoundedColumn(activity).apply {
-            setPaddingRelative(kit.dp(horizontal), 0, kit.dp(horizontal), 0)
-            addView(child, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(top); bottomMargin = kit.dp(bottom) })
-        }
-        return FrameLayout(activity).apply { addView(column, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL)) }
     }
 }

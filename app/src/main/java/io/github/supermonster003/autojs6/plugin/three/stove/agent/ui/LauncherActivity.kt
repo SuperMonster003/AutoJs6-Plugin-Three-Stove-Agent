@@ -30,40 +30,40 @@ import java.util.UUID
 
 /** Standalone task workbench: a task feed with a docked composer. Model/device work stays in the agent process. */
 class LauncherActivity : HostAppearanceActivity(), FeedActions {
-    private lateinit var agent: AgentConnection
-    private lateinit var pending: PendingCard
-    private lateinit var views: WorkbenchViews
-    private val visibility by lazy { InteractionVisibility(this, followsRun = true) }
-    private val goal get() = views.composer.goal
+    internal lateinit var agent: AgentConnection
+    internal lateinit var pending: PendingCard
+    internal lateinit var views: WorkbenchViews
+    internal val visibility by lazy { InteractionVisibility(this, followsRun = true) }
+    internal val goal get() = views.composer.goal
     internal lateinit var models: ModelSwitcher; private set
-    internal var overflowMenu: PopupMenu? = null; private set
-    internal var presetDialog: AlertDialog? = null; private set
-    internal var accessDialog: AlertDialog? = null; private set
-    internal var presetSheet: SheetHandle? = null; private set
-    internal var presetMenu: PopupMenu? = null; private set
-    private val presetStore by lazy { PresetConnection(this) {} }
-    private var defaultPresetName = "default"
+    internal var overflowMenu: PopupMenu? = null
+    internal var presetDialog: AlertDialog? = null
+    internal var accessDialog: AlertDialog? = null
+    internal var presetSheet: SheetHandle? = null
+    internal var presetMenu: PopupMenu? = null
+    internal val presetStore by lazy { PresetConnection(this) {} }
+    internal var defaultPresetName = "default"
     private val settings by lazy { SettingsConnection(this) {} }
-    private var accessMode = "standard"
-    private var floatingEnabled = false
+    internal var accessMode = "standard"
+    internal var floatingEnabled = false
     private var awaitingOverlayPermission = false
     private lateinit var updates: AppUpdateCoordinator
     private val scriptRoots by lazy { ScriptRootSettings(this) }
     private val drafts by lazy { getSharedPreferences("workbench", MODE_PRIVATE) }
     private val speech = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { onSpeechResult(it.resultCode, it.data) }
-    private var currentId: String? = null
-    private var attached = false
+    internal var currentId: String? = null
+    internal var attached = false
     private var sending = false
     private var requested = false
     private var deadline = 0L
     private var requestId: String? = null
-    private var availablePresets = emptyList<String>()
-    private var selectedPreset = "default"
-    private var followDefault = true
+    internal var availablePresets = emptyList<String>()
+    internal var selectedPreset = "default"
+    internal var followDefault = true
     /** A finished task the user dismissed with New task; the feed shows the welcome state instead. */
-    private var hiddenRunId: String? = null
-    private var revealCurrent = false
-    private var lastPendingId: String? = null
+    internal var hiddenRunId: String? = null
+    internal var revealCurrent = false
+    internal var lastPendingId: String? = null
     internal var hostReader: () -> HostPackageSnapshot? = { readHostPackage() }
     internal val selectedPresetName get() = selectedPreset
     internal val presetChoices get() = (availablePresets + selectedPreset).distinct()
@@ -73,11 +73,11 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         super.onCreate(savedInstanceState)
         models = ModelSwitcher(this, ::updateSend)
         views = WorkbenchLayout.create(this, this, onConnect = { requested = false; requestAttachment() }, onOpenHost = ::openHost,
-            onPreset = ::choosePreset, onAccess = ::chooseAccess, onVoice = ::voice, onSend = ::launchRun, onMore = ::showMenu, onJump = { scrollToEnd(true) })
+            onPreset = this::choosePreset, onAccess = this::chooseAccess, onVoice = ::voice, onSend = ::launchRun, onMore = this::showMenu, onJump = { scrollToEnd(true) })
         setContentView(views.root)
         updates = AppUpdateCoordinator(this, threeStoveAgentPluginRuntimeInfo().versionName)
         views.root.layoutDirection = resources.configuration.layoutDirection
-        agent = AgentConnection(this, ::render)
+        agent = AgentConnection(this, this::render)
         agent.selectedId = savedInstanceState?.getString("selectedId")
         hiddenRunId = savedInstanceState?.getString("hiddenRunId")
         val entry = TaskEntries.read(intent)
@@ -134,32 +134,9 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             runCatching { startActivity(intent) }.onFailure { showError() }
         }
     }
-    private fun showMenu(anchor: View) {
-        overflowMenu = PopupMenu(this, anchor).apply {
-            menu.add(0, R.id.workbench_new_task, 0, R.string.workbench_new_task)
-            menu.add(0, R.id.workbench_presets, 1, R.string.presets_title)
-            menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)
-            menu.add(0, R.id.launcher_script_roots, 3, R.string.script_roots_title)
-            menu.add(0, R.id.workbench_mcp, 4, R.string.mcp_servers)
-            menu.add(0, R.id.workbench_floating, 5, R.string.settings_floating).setCheckable(true).isChecked = floatingEnabled
-            menu.add(0, R.id.workbench_settings, 6, R.string.settings_title)
-            setOnMenuItemClickListener { item ->
-                val screen = when (item.itemId) {
-                    R.id.workbench_new_task -> { newTask(); return@setOnMenuItemClickListener true }
-                    R.id.workbench_floating -> { toggleFloating(!floatingEnabled); return@setOnMenuItemClickListener true }
-                    R.id.workbench_settings -> SettingsActivity::class.java
-                    R.id.workbench_presets -> PresetsActivity::class.java
-                    R.id.workbench_memory -> MemoryActivity::class.java
-                    R.id.workbench_mcp -> McpServersActivity::class.java
-                    else -> ScriptRootsActivity::class.java
-                }
-                startActivity(Intent(this@LauncherActivity, screen)); true
-            }; show()
-        }
-    }
-    private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+    internal fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
     /** Whole-object save of the private settings, the same path as the settings screen. */
-    private fun saveSettings(change: (SettingsDraft) -> SettingsDraft) {
+    internal fun saveSettings(change: (SettingsDraft) -> SettingsDraft) {
         settings.query(jsonObject("operation" to "get".json())) { loaded ->
             val draft = loaded.mapCatching { SettingsDraft(SettingsCodec.decode(it.getAsJsonObject("settings").toString())) }.getOrNull()
             if (draft == null) { showError(); return@query }
@@ -168,80 +145,17 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             }
         }
     }
-    private fun chooseAccess() {
-        val modes = AccessMode.entries
-        val labels = listOf(R.string.presets_standard, R.string.presets_cautious, R.string.settings_full_access).map(::getString)
-        val current = when (accessMode) { "full" -> AccessMode.FULL; "cautious" -> AccessMode.CAUTIOUS; else -> AccessMode.STANDARD }
-        accessDialog = kit.singleChoiceDialog(getString(R.string.settings_access_mode), labels, modes.indexOf(current)) { index ->
-            if (modes[index] != current) saveSettings { it.withAccess(modes[index]) }
-        }
-    }
     /** The floating ball needs the overlay permission first; the toggle completes when the user returns with it. */
-    private fun toggleFloating(enabled: Boolean) {
+    internal fun toggleFloating(enabled: Boolean) {
         if (enabled && !Settings.canDrawOverlays(this)) {
             awaitingOverlayPermission = true
             runCatching { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) }
                 .onFailure { awaitingOverlayPermission = false; showError() }
         } else saveSettings { it.withFloating(enabled) }
     }
-    private fun renderPreset() { views.composer.showPreset(presetLabel(selectedPreset), !attached || selectedPreset in availablePresets) }
-    /** Preset sheet: pick a preset for the next task, or manage presets without leaving the workbench. */
-    private fun choosePreset() {
-        presetSheet?.dialog?.dismiss()
-        val handle = kit.bottomSheet(getString(R.string.workbench_preset), minHeightFraction = 0.3f, onDismiss = { presetSheet = null })
-        presetSheet = handle
-        renderPresetSheet(handle)
-    }
-    private fun renderPresetSheet(handle: SheetHandle) {
-        handle.content.removeAllViews()
-        presetChoices.forEach { name ->
-            val selected = name == selectedPreset
-            val row = kit.settingRow(presetLabel(name), if (name == defaultPresetName) getString(R.string.presets_default_badge) else null,
-                if (selected) R.drawable.ic_check else R.drawable.ic_layers, "preset-choice-$name", chevron = false,
-                titleColor = if (selected) palette.accent else palette.text) {
-                if (name != selectedPreset) followDefault = false
-                selectedPreset = name; renderPreset(); updateSend(); handle.dialog.dismiss()
-            }
-            val more = kit.iconButton(R.drawable.ic_more, getString(R.string.presets_actions, presetLabel(name)), "preset-actions-$name", palette.muted) {}
-            more.setOnClickListener { presetActions(name, more, handle) }
-            row.view.addView(more)
-            handle.content.addView(row.view)
-        }
-        handle.content.addView(LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
-            setPaddingRelative(kit.dp(Ui.SCREEN_MARGIN), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SCREEN_MARGIN), 0)
-            addView(kit.tonalButton(getString(R.string.presets_new), "preset-sheet-new") { openPresets(PresetsIntents.NEW); handle.dialog.dismiss() },
-                LinearLayout.LayoutParams(-2, -2).apply { marginEnd = kit.dp(Ui.SPACE_SM) })
-            addView(kit.textButton(getString(R.string.presets_manage), "preset-sheet-manage") { openPresets(null); handle.dialog.dismiss() })
-        }, LinearLayout.LayoutParams(-1, -2))
-    }
-    private fun openPresets(extra: String?, name: String = "") {
-        startActivity(Intent(this, PresetsActivity::class.java).apply { extra?.let { putExtra(it, name) } })
-    }
-    private fun presetActions(name: String, anchor: View, handle: SheetHandle) {
-        presetMenu = PopupMenu(this, anchor).apply {
-            menu.add(0, 1, 0, R.string.presets_edit); menu.add(0, 2, 1, R.string.presets_copy)
-            if (name != defaultPresetName) menu.add(0, 3, 2, R.string.presets_set_default)
-            if (name != "default") menu.add(0, 4, 3, R.string.presets_delete)
-            setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    1 -> { openPresets(PresetsIntents.EDIT, name); handle.dialog.dismiss() }
-                    2 -> { openPresets(PresetsIntents.COPY, name); handle.dialog.dismiss() }
-                    3 -> presetStore.query(jsonObject("operation" to "default".json(), "name" to name.json())) { if (it.isFailure) showError() else agent.refresh() }
-                    4 -> presetDialog = kit.confirmDialog(getString(R.string.presets_delete), getString(R.string.presets_delete_confirm, name),
-                        getString(R.string.presets_delete), destructive = true) {
-                        presetStore.query(jsonObject("operation" to "delete".json(), "name" to name.json())) { result ->
-                            if (result.isFailure) showError() else { if (selectedPreset == name) { selectedPreset = "default"; followDefault = true }; agent.refresh() }
-                        }
-                    }
-                }
-                true
-            }
-            show()
-        }
-    }
+    internal fun renderPreset() { views.composer.showPreset(presetLabel(selectedPreset), !attached || selectedPreset in availablePresets) }
     /** New task: clear the composer and set a finished task aside; a running task stays visible. */
-    private fun newTask() {
+    internal fun newTask() {
         currentId?.takeIf { views.feed.stopButton.visibility != View.VISIBLE }?.let { hiddenRunId = it }
         goal.setText(""); views.composer.error.visibility = View.GONE
         agent.refresh(); focusComposer()
@@ -287,65 +201,10 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             updateSend()
         }
     }
-    private fun updateSend() {
+    internal fun updateSend() {
         views.composer.send.isEnabled = attached && !sending && !goal.text.isNullOrBlank() && selectedPreset in availablePresets && models.available
     }
-    private fun render(value: WorkbenchSnapshot) {
-        renderLink(value.status)
-        accessMode = value.status.string("accessMode") ?: if (value.status.flag("fullAccessEnabled") == true) "full" else "standard"
-        views.composer.showAccess(accessMode)
-        floatingEnabled = value.status.flag("floatingEnabled") == true
-        views.composer.voice.visibility = if (value.status.flag("voiceEnabled") == true && SpeechInput.available(this)) View.VISIBLE else View.GONE
-        val presetsChanged = availablePresets != value.presets || defaultPresetName != value.defaultPreset
-        availablePresets = value.presets; defaultPresetName = value.defaultPreset
-        if (followDefault && attached && value.defaultPreset in availablePresets && selectedPreset != value.defaultPreset) selectedPreset = value.defaultPreset
-        renderPreset()
-        if (presetsChanged) presetSheet?.let(::renderPresetSheet)
-        // Preserve a historical preset that has since disappeared. Never silently rerun with default.
-        views.composer.error.apply {
-            if (attached && selectedPreset !in availablePresets) { setText(R.string.history_preset_unavailable); visibility = View.VISIBLE }
-            else if (text == getString(R.string.history_preset_unavailable)) visibility = View.GONE
-        }
-        val row = value.run?.takeIf { it.string("runId") != hiddenRunId }
-        currentId = row?.string("runId")
-        val wasAtEnd = atEnd()
-        val before = views.feed.view.height
-        views.feed.render(value.copy(run = row))
-        pending.render(row)
-        visibility.render(row)
-        val request = row?.getAsJsonObject("pending")?.string("requestId")
-        val revealQuestion = request != null && request != lastPendingId
-        lastPendingId = request
-        views.scroll.post {
-            // Sticky scrolling follows a task; the welcome state and first load keep their position.
-            when {
-                row == null -> views.jump.visibility = View.GONE
-                revealCurrent -> { revealCurrent = false; reveal(views.feed.current) }
-                revealQuestion -> reveal(views.feed.pending)
-                wasAtEnd -> scrollToEnd(false)
-                before > 0 && views.feed.view.height > before && !atEnd() -> views.jump.visibility = View.VISIBLE
-            }
-        }
-        updateSend()
-    }
-    private fun atEnd(): Boolean {
-        val content = views.scroll.getChildAt(0) ?: return true
-        return content.bottom - (views.scroll.height + views.scroll.scrollY) <= kit.dp(48)
-    }
-    private fun scrollToEnd(animated: Boolean) {
-        val bottom = (views.scroll.getChildAt(0)?.height ?: 0) - views.scroll.height
-        if (animated) views.scroll.smoothScrollTo(0, bottom.coerceAtLeast(0)) else views.scroll.scrollTo(0, bottom.coerceAtLeast(0))
-        views.jump.visibility = View.GONE
-    }
-    /** Brings [target] to the top of the feed viewport (a new task or a new question). */
-    private fun reveal(target: View) {
-        val content = views.scroll.getChildAt(0) ?: return
-        val rect = Rect(0, 0, target.width, target.height)
-        runCatching { (content as android.view.ViewGroup).offsetDescendantRectToMyCoords(target, rect) }.onFailure { return }
-        views.scroll.smoothScrollTo(0, (rect.top - kit.dp(Ui.SPACE_LG)).coerceAtLeast(0))
-        views.jump.visibility = View.GONE
-    }
-    private fun renderLink(status: JsonObject) {
+    internal fun renderLink(status: JsonObject) {
         val host = hostReader()
         val presence = classifyHostPresence(host, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
         val rootsAccepted = !scriptRoots.configured || runCatching {
@@ -375,7 +234,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         val intent = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         identify(intent); sendBroadcast(intent, ThreeStoveAgentActions.PLUGIN_PERMISSION)
     }
-    private fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
+    internal fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
     private fun readHostPackage(): HostPackageSnapshot? {
         val info = try { packageManager.getPackageInfo(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME, PackageManager.MATCH_DISABLED_COMPONENTS) }
             catch (_: PackageManager.NameNotFoundException) { return null }

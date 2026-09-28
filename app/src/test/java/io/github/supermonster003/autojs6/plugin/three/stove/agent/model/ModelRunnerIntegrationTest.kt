@@ -15,7 +15,7 @@ class ModelRunnerIntegrationTest {
         val target = ModelTarget("provider", if (protocol == ModelProtocol.LOCAL) "local:test" else "profile:test",
             if (protocol == ModelProtocol.LOCAL) ModelLocality.ON_DEVICE else ModelLocality.REMOTE, protocol, true, 64 * 1024, supportsStreaming = true)
         val broker = TestModelBroker()
-        val client = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler) { true }
+        val client = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler)
         val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, format, ContextLimits(maximumBytes = contextLimit))
         val events = mutableListOf<RunEvent>()
         val queue = RunQueue(scheduler, catalog, policy, compiler, client, FakeTools()) { RunnerText(F.asset("runner/texts.json"), it) }

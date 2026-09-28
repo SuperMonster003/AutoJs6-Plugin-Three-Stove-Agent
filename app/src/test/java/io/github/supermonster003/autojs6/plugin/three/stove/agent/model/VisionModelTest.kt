@@ -104,14 +104,14 @@ class VisionModelTest {
     }
     @Test fun jsonRequestAssociatesImageWithObservationAndPreservesTextOnlyCompatibility() {
         val broker = Broker(); val replies = mutableListOf<PortResult<ModelReply>>()
-        val client = ModelClient(broker, target(), policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler()) { true }
+        val client = ModelClient(broker, target(), policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler())
         client.generate(compiler().compile(context(listOf(image()))), 100, 3000, replies::add)
         assertEquals(1, broker.initial.single().size); assertTrue(broker.call.request.flag("vision")!!)
         assertEquals(1, broker.call.request.getAsJsonArray("imageRefs").size())
         assertTrue(replies.single() is PortResult.Success)
         val old = TestModelBroker().apply { script = { it.started(); it.done() } }
         val plainTarget = ModelTarget("p", "profile:test", ModelLocality.REMOTE, ModelProtocol.UNKNOWN, false, 128 * 1024)
-        ModelClient(old, plainTarget, ToolPolicy(), SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler()) { true }
+        ModelClient(old, plainTarget, ToolPolicy(), SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler())
             .generate(compiler(plainTarget, ToolPolicy()).compile(context()), 100, 3000, replies::add)
         assertFalse(old.calls.single().request.has("vision")); assertFalse(old.calls.single().request.has("imageRefs"))
     }
@@ -119,7 +119,7 @@ class VisionModelTest {
         val broker = Broker().apply { start = { it.started(); NativeTestBroker.tools(it, 1,
             NativeTestBroker.call("a", "screen_capture"), NativeTestBroker.call("b"), NativeTestBroker.call("c", "screen_capture")) } }
         val replies = mutableListOf<PortResult<ModelReply>>()
-        ModelClient(broker, target(true), policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler()) { true }
+        ModelClient(broker, target(true), policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler())
             .generate(compiler(target(true)).compile(context()), 100, 3000, replies::add)
         val turn = (replies.last() as PortResult.Success).value.nativeTurn!!.continuation
         val images = listOf(image(), image(1000))
@@ -142,7 +142,7 @@ class VisionModelTest {
         val target = target(true, VisionLimits(sessionImages = 1))
         val broker = Broker().apply { start = { it.started(); NativeTestBroker.tools(it, 1, NativeTestBroker.call("a", "screen_capture")) } }
         val replies = mutableListOf<PortResult<ModelReply>>()
-        ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler()) { true }
+        ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), VirtualScheduler())
             .generate(compiler(target).compile(context()), 100, 3000, replies::add)
         val first = (replies.last() as PortResult.Success).value.nativeTurn!!.continuation
         broker.resumed = { c, _ -> NativeTestBroker.tools(c, 2, NativeTestBroker.call("b", "screen_capture")) }

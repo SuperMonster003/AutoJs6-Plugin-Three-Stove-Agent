@@ -43,6 +43,36 @@ internal class BoundedColumn(context: Context) : LinearLayout(context) {
     }
 }
 
+/** The top of every screen: the background column, the status-bar spacer and the toolbar, before any content. */
+internal class ScaffoldShell(val root: LinearLayout, val statusBar: View, val toolbar: Toolbar)
+
+/**
+ * Builds the shell shared by [buildScaffold] and the home screen, which adds its own banner, feed and docked
+ * composer below the toolbar. The caller applies [applySystemBarInsets] once its content is attached.
+ */
+internal fun HostAppearanceActivity.scaffoldShell(title: CharSequence, showBack: Boolean = true, subtitle: CharSequence? = null): ScaffoldShell {
+    val kit = kit
+    val root = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setBackgroundColor(kit.palette.background)
+    }
+    val statusBar = View(this).apply { setBackgroundColor(kit.palette.background) }
+    root.addView(statusBar, LinearLayout.LayoutParams(-1, 0))
+    val toolbar = createToolbar(title, showBack, subtitle)
+    root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
+    return ScaffoldShell(root, statusBar, toolbar)
+}
+
+/** Centers [child] within the 840 dp content width; vertical space is a margin, so a hidden child takes none. */
+internal fun HostAppearanceActivity.boundedRow(child: View, horizontalDp: Int, topDp: Int, bottomDp: Int): FrameLayout {
+    val kit = kit
+    val column = BoundedColumn(this).apply {
+        setPaddingRelative(kit.dp(horizontalDp), 0, kit.dp(horizontalDp), 0)
+        addView(child, LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(topDp); bottomMargin = kit.dp(bottomDp) })
+    }
+    return FrameLayout(this).apply { addView(column, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL)) }
+}
+
 /**
  * Shared screen shell: status-bar spacer, toolbar and a scrolling content column with edge-to-edge
  * insets (system bars, cutout and keyboard). The toolbar is the support action bar so screens can
@@ -56,14 +86,8 @@ internal fun HostAppearanceActivity.buildScaffold(
     contentPadding: ContentPadding = ContentPadding.NONE,
 ): Scaffold {
     val kit = kit
-    val root = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setBackgroundColor(kit.palette.background)
-    }
-    val statusBar = View(this).apply { setBackgroundColor(kit.palette.background) }
-    root.addView(statusBar, LinearLayout.LayoutParams(-1, 0))
-    val toolbar = createToolbar(title, showBack, subtitle)
-    root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
+    val shell = scaffoldShell(title, showBack, subtitle)
+    val root = shell.root
     val content = BoundedColumn(this).apply {
         setPaddingRelative(kit.dp(contentPadding.horizontalDp), kit.dp(contentPadding.topDp),
             kit.dp(contentPadding.horizontalDp), kit.dp(contentPadding.bottomDp))
@@ -79,8 +103,8 @@ internal fun HostAppearanceActivity.buildScaffold(
     } else {
         root.addView(centered, LinearLayout.LayoutParams(-1, 0, 1f))
     }
-    applySystemBarInsets(root, statusBar)
-    return Scaffold(root, toolbar, scroll, content)
+    applySystemBarInsets(root, shell.statusBar)
+    return Scaffold(root, shell.toolbar, scroll, content)
 }
 
 internal fun HostAppearanceActivity.createToolbar(title: CharSequence, showBack: Boolean, subtitle: CharSequence? = null): Toolbar =

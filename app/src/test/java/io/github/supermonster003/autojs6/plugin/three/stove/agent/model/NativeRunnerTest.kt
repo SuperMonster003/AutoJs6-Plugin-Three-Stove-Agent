@@ -14,7 +14,7 @@ class NativeRunnerTest {
         val target = ModelTarget("p", "profile:test", ModelLocality.REMOTE, ModelProtocol.UNKNOWN, false, 128 * 1024,
             supportsStreaming = true, nativeTools = nativeLimits)
         val broker = NativeTestBroker()
-        val client = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler) { true }
+        val client = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler)
         val format = client.initialFormat(DecisionSchema.degraded())
         val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, format)
         val tools = FakeTools()
