@@ -64,6 +64,13 @@ class PresetCodecTest {
         assertThrows(IllegalArgumentException::class.java) { PresetCodec.encodeExport((0..32).map { Preset("p$it") }) }
         assertThrows(IllegalArgumentException::class.java) { PresetCodec.encodeExport((1..6).map { Preset("p$it", context = "\u0000".repeat(8192)) }) }
     }
+    @Test fun planModeIsOptionalAndTravelsThroughExport() {
+        val planned = Preset("planned", planMode = true)
+        assertEquals(planned, PresetCodec.decodePreset(PresetCodec.encodePreset(planned)))
+        assertFalse(PresetCodec.encodePreset(Preset("plain")).has("planMode")); assertTrue(PresetCodec.encodePreset(planned).flag("planMode")!!)
+        assertEquals(listOf(planned), PresetCodec.decodeExport(PresetCodec.encodeExport(listOf(planned))))
+        assertThrows(IllegalArgumentException::class.java) { PresetCodec.decodePreset(AgentJson.objectOf("{\"name\":\"x\",\"planMode\":\"yes\"}")) }
+    }
     @Test fun countAndFileSizeAreBounded() {
         val rows = listOf(Preset("default")) + (1..32).map { Preset("p$it") }
         assertThrows(IllegalArgumentException::class.java) { PresetCodec.encode(PresetSnapshot("default", rows)) }

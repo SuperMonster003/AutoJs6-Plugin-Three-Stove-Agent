@@ -29,20 +29,20 @@ class ModelClient(
     private var toolsUnsupported = false
 
     @Synchronized override fun initialFormat(proposed: DecisionFormat): DecisionFormat =
-        if (target.nativeTools != null && !toolsUnsupported) DecisionSchema.native(target.protocol)
-        else if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED") else fallbacks.select(target.schemaTarget, policy)
+        if (target.nativeTools != null && !toolsUnsupported) DecisionSchema.native(target.protocol, proposed.planMode)
+        else if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED", proposed.planMode) else fallbacks.select(target.schemaTarget, policy, proposed.planMode)
 
     @Synchronized override fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? {
         if (previous.degraded || previous.protocol != target.protocol || !target.supportsOutputLimit) return null
         if (previous.nativeTools) {
             if (failure.error != RunError.TARGET_UNSUPPORTED && !(failure.error == RunError.MODEL_FAILED && failure.reason == "REQUEST_REJECTED")) return null
             toolsUnsupported = true
-            return fallbacks.select(target.schemaTarget, policy)
+            return fallbacks.select(target.schemaTarget, policy, previous.planMode)
         }
         return when {
             failure.error == RunError.TARGET_UNSUPPORTED && !structuredUnsupported -> {
                 structuredUnsupported = true
-                DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED")
+                DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED", previous.planMode)
             }
             failure.error == RunError.MODEL_FAILED && failure.reason == "REQUEST_REJECTED" ->
                 fallbacks.onRejected(target.schemaTarget, previous, failure.reason, policy)

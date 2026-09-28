@@ -73,10 +73,10 @@ internal class FakeTools : RunTools {
     }
 }
 
-internal class RunnerFixture(policy: ToolPolicy = ToolPolicy.fromAssets(F::asset, ToolGroup.entries.associateWith { true }, true)) {
+internal class RunnerFixture(policy: ToolPolicy = ToolPolicy.fromAssets(F::asset, ToolGroup.entries.associateWith { true }, true), planMode: Boolean = false) {
     val scheduler = VirtualScheduler()
     val catalog = F.catalog()
-    val format = DecisionSchema(catalog).generate(ModelProtocol.LOCAL, policy)
+    val format = DecisionSchema(catalog).generate(ModelProtocol.LOCAL, policy, planMode = planMode)
     val model = FakeModel()
     val tools = FakeTools()
     val contexts = mutableListOf<RunContext>()
@@ -103,6 +103,7 @@ internal class RunnerFixture(policy: ToolPolicy = ToolPolicy.fromAssets(F::asset
             jsonObject("kind" to "done".json(), "done" to jsonObject("status" to status.json(), "summary" to summary.json(),
                 "evidence" to JsonArray().apply { evidence.forEach(::add) },
                 "unfinished" to JsonArray().apply { unfinished.forEach(::add) }).apply { orderStatus?.let { addProperty("orderStatus", it) } }).toString()
+        fun plan(vararg steps: String) = jsonObject("kind" to "plan".json(), "plan" to jsonObject("steps" to JsonArray().apply { steps.forEach(::add) })).toString()
         fun ask(kind: String = "text", memoryKey: String? = null) = jsonObject("kind" to "ask".json(),
             "ask" to jsonObject("kind" to kind.json(), "question" to "Which value?".json()).apply {
                 if (kind == "choice") add("choices", jsonArray("one".json(), "two".json()))

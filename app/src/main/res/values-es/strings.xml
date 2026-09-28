@@ -109,6 +109,11 @@
     <string name="interaction_memory_disabled">La memoria está desactivada para esta tarea. La respuesta solo se usa en esta tarea.</string>
     <string name="interaction_no_parameters">Sin parámetros</string>
     <string name="interaction_parameters">Parámetros</string>
+    <string name="interaction_plan">Revisar el plan</string>
+    <string name="interaction_plan_execute">Ejecutar este plan</string>
+    <string name="interaction_plan_invalid">Introduzca de 1 a 8 pasos de como máximo 200 caracteres cada uno</string>
+    <string name="interaction_plan_note">Un paso por línea, como máximo 8 pasos de 200 caracteres. Edítelos si es necesario y luego ejecute; el agente sigue los pasos aprobados en orden y propone un plan nuevo para revisar cuando dejan de encajar.</string>
+    <string name="interaction_plan_steps">Pasos del plan</string>
     <string name="interaction_question">Se necesita su respuesta</string>
     <string name="interaction_remaining">Tiempo restante: %1$d s</string>
     <string name="interaction_remember">Recordar esta respuesta</string>
@@ -240,6 +245,8 @@
     <string name="presets_name">Nombre</string>
     <string name="presets_name_note">El nombre identifica el preajuste en los scripts y la memoria. Queda fijo al guardar; copie el preajuste para cambiarlo.</string>
     <string name="presets_new">Nuevo preajuste</string>
+    <string name="presets_plan_mode">Modo plan</string>
+    <string name="presets_plan_mode_note">El modelo propone primero de 3 a 8 pasos que usted revisa, y puede editar, antes de que se ejecute nada. Cuando el plan deja de encajar, propone uno nuevo para revisar. Los scripts pueden anularlo con options.plan.</string>
     <string name="presets_refresh_models">Actualizar modelos</string>
     <string name="presets_remote">En línea</string>
     <string name="presets_replace">Se reemplazará la configuración actual del preajuste con el mismo nombre.</string>
@@ -337,6 +344,7 @@
     <string name="step_ask">Hizo una pregunta</string>
     <string name="step_done">Finalizado</string>
     <string name="step_error">Se detuvo por un error</string>
+    <string name="step_plan">Plan</string>
     <string name="step_repair">Corrigió su decisión</string>
     <string name="task_allow">Permitir una vez</string>
     <string name="task_channel">Tareas del Agent</string>

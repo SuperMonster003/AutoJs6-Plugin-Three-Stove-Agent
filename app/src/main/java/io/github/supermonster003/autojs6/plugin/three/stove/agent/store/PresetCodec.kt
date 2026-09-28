@@ -10,6 +10,7 @@ internal data class Preset(
     val name: String, val targetId: String? = null, val toolGroups: Set<String>? = null,
     val budget: Map<String, Long> = emptyMap(), val confirmPolicy: String = "default",
     val context: String = "", val scriptRoots: Set<String>? = null, val memoryScope: String = "global_and_preset",
+    val planMode: Boolean = false,
 ) {
     fun groups(allowed: Set<String>) = toolGroups?.intersect(allowed) ?: allowed
 }
@@ -41,7 +42,7 @@ internal object PresetCodec {
         return array.map { require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString }.toSet().also { require(it.size == array.size()) }
     }
     fun decodePreset(value: JsonObject): Preset {
-        require(value.keySet().all { it in setOf("name", "targetId", "toolGroups", "budget", "confirmPolicy", "context", "scriptRoots", "memoryScope") })
+        require(value.keySet().all { it in setOf("name", "targetId", "toolGroups", "budget", "confirmPolicy", "context", "scriptRoots", "memoryScope", "planMode") })
         val groups = strings(value, "toolGroups")?.also { require(it.all { id -> ToolGroup.entries.any { group -> group.id == id } }) }
         val rawBudget = if (value.has("budget")) requireNotNull(value["budget"].takeIf { it.isJsonObject }?.asJsonObject) else JsonObject()
         val budget = rawBudget.keySet().associateWith { key ->
@@ -52,13 +53,14 @@ internal object PresetCodec {
         val roots = strings(value, "scriptRoots")?.let(ScriptRoots::validate)
         return Preset(name(requireNotNull(value.string("name"))), if (value.has("targetId")) target(requireNotNull(value.string("targetId"))) else null,
             groups, budget, text("confirmPolicy", "default").also { require(it in setOf("default", "cautious")) }, context, roots,
-            text("memoryScope", "global_and_preset").also { require(it in scopes) })
+            text("memoryScope", "global_and_preset").also { require(it in scopes) }, if (value.has("planMode")) requireNotNull(value.flag("planMode")) else false)
     }
     fun encodePreset(preset: Preset): JsonObject = jsonObject("name" to preset.name.json(), "confirmPolicy" to preset.confirmPolicy.json(),
         "context" to preset.context.json(), "memoryScope" to preset.memoryScope.json(), "budget" to JsonObject().apply {
             preset.budget.forEach { (key, value) -> addProperty(key, value) }
         }).apply {
         preset.targetId?.let { addProperty("targetId", it) }
+        if (preset.planMode) addProperty("planMode", true)
         preset.toolGroups?.let { add("toolGroups", JsonArray().apply { it.sorted().forEach(::add) }) }
         preset.scriptRoots?.let { add("scriptRoots", JsonArray().apply { it.sorted().forEach(::add) }) }
     }

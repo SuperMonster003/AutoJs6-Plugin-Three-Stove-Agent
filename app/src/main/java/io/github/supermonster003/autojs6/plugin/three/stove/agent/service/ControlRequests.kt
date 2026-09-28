@@ -73,10 +73,11 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             closed(value, setOf("goal", "options", "origin"))
             require(text(value, "origin", "script", 16) in setOf("script", "ui"))
             val opts = obj(value, "options")
-            closed(opts, setOf("preset", "target", "tools", "budget", "confirm", "interaction", "detached", "context", "parameters", "memory", "scriptRoots", "locale"))
+            closed(opts, setOf("preset", "target", "tools", "budget", "confirm", "interaction", "detached", "context", "parameters", "memory", "scriptRoots", "locale", "plan"))
             val preset = presets.resolve(text(opts, "preset"))
             val detached = flag(opts, "detached", false)
             val memory = flag(opts, "memory", true)
+            val plan = flag(opts, "plan", preset.planMode)
             val allowedRoots = preset.scriptRoots?.intersect(config.roots) ?: config.roots
             val root = ScriptRoots.validate(strings(opts, "scriptRoots", allowedRoots))
             require(allowedRoots.containsAll(root))
@@ -122,7 +123,7 @@ internal class StartRequest(val options: RunOptions, val target: String?, val gr
             require(parameters.toString().utf8Size() <= 16 * 1024)
             val context = if (parameters.size() == 0) fixed else jsonObject("context" to fixed.json(), "parameters" to parameters).toString()
             require(context.utf8Size() <= 8192)
-            StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(), detached, limits,
+            StartRequest(RunOptions(requireNotNull(text(value, "goal", maximum = 4096)), DecisionSchema.degraded(planMode = plan), detached, limits,
                 when {
                     // Under full access "cautious" can only come from the caller, which may still narrow its own run.
                     confirm == "cautious" -> ConfirmationMode.CAUTIOUS

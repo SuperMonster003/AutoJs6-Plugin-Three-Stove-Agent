@@ -1143,6 +1143,41 @@ class WorkbenchActivityTest {
             } finally { client.named("delete", prefix); client.named("delete", "$prefix-x") }
         }
     }
+    @Test fun planModePresetShowsAnEditableReviewCardBeforeTheFirstToolRuns() = withFixture(Model(true)) { link, model ->
+        PresetsClient().use { presets ->
+            val name = "plan-${java.util.UUID.randomUUID()}"
+            presets.save(Preset(name, planMode = true)).getOrThrow()
+            try {
+                ActivityScenario.launch<LauncherActivity>(Intent(context, LauncherActivity::class.java).putExtra("rerunPreset", name)).use { scenario ->
+                    enter(scenario, "P13 plan fixture goal")
+                    waitFor("Plan requested first") { model.calls.get() == 1 && model.held != null }
+                    // The guidance JSON travels inside the system message, so it is escaped once in the broker request.
+                    assertTrue(model.requests[0].toString().contains("\\\"planRequired\\\":true"))
+                    model.finish("""{"kind":"plan","plan":{"steps":["Open the settings app","Find the fixture switch","Report the observed value"]}}""")
+                    waitUi(scenario, "Plan review card") { it.findViewById<LinearLayout>(R.id.workbench_pending).findViewById<EditText>(R.id.workbench_answer) != null }
+                    scenario.onActivity { activity ->
+                        val card = activity.findViewById<LinearLayout>(R.id.workbench_pending)
+                        val editor = card.findViewById<EditText>(R.id.workbench_answer)
+                        assertTrue(editor.text.toString().startsWith("1. Open the settings app"))
+                        assertTrue(texts(card).contains(activity.getString(R.string.interaction_plan)))
+                        editor.setText("1. Open the settings app\n2. Report the observed value")
+                        (0 until card.childCount).map { card.getChildAt(it) }.filterIsInstance<Button>().single().performClick()
+                    }
+                    waitFor("Model asked to execute the reviewed plan") { model.calls.get() == 2 && model.held != null }
+                    val second = model.requests[1].toString()
+                    assertTrue(second.contains("Report the observed value")); assertTrue(second.contains("edited")); assertFalse(second.contains("\\\"planRequired\\\":true"))
+                    model.finish(completed)
+                    val id = AgentConnection.decode(link.listRuns(bundle(C.KEY_RUN_REQUEST_JSON))).getAsJsonArray("runs")
+                        .first { it.asJsonObject.string("preset") == name }.asJsonObject.string("runId")!!
+                    fun run() = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+                    waitFor("Plan task settled") { run().string("state") == "completed" }
+                    val steps = run().getAsJsonArray("steps")
+                    assertEquals("plan", steps[0].asJsonObject.string("kind"))
+                    assertEquals(3, steps[0].asJsonObject.getAsJsonObject("decision").getAsJsonObject("plan").getAsJsonArray("steps").size())
+                }
+            } finally { presets.named("delete", name) }
+        }
+    }
     @Test fun credentialMemoryWritesAreRejectedAcrossPrivateBinder() {
         MemoriesClient().use { memory ->
             val key = "audit-${java.util.UUID.randomUUID()}"

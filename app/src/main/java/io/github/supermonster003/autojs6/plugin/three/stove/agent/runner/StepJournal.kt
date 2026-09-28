@@ -37,7 +37,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
         require(record.rejections.size <= DecisionRepairSession.MAX_REPAIRS + 1)
         fun decision(limit: Int) = clipped(redactDecision(record.decision), limit).asJsonObject.apply {
             // Keep bounded runtime attribution even when a long source or observation is clipped.
-            for ((key, choices) in mapOf("kind" to setOf("tool", "ask", "done", "error", "repair"),
+            for ((key, choices) in mapOf("kind" to setOf("tool", "ask", "done", "plan", "error", "repair"),
                 "source" to setOf("user", "validator", "runtime"), "parseMode" to ParseMode.entries.map { it.name }.toSet())) {
                 record.decision.string(key)?.takeIf { it in choices }?.let { addProperty(key, it) }
             }
@@ -156,6 +156,7 @@ class StepJournal(private val maxBytes: Int = RunLimits.JOURNAL_BYTES, private v
             is AgentDecision.Done -> jsonObject("kind" to "done".json(), "done" to jsonObject("status" to value.status.json(), "summary" to value.summary.json(),
                 "evidence" to JsonArray().apply { value.evidence.forEach(::add) }, "unfinished" to JsonArray().apply { value.unfinished.forEach(::add) })
                 .apply { value.orderStatus?.let { addProperty("orderStatus", it) } })
+            is AgentDecision.Plan -> jsonObject("kind" to "plan".json(), "plan" to jsonObject("steps" to JsonArray().apply { value.steps.forEach(::add) }))
         }.apply { value.reasoning?.let { addProperty("reasoning", it) } }
     }
 }

@@ -24,6 +24,22 @@ class DecisionSchemaTest {
         checkSnapshot("decision-schemas.snapshot.json", snapshots)
     }
 
+    @Test fun planModeAddsThePlanBranchOnlyWhenRequested() {
+        for (protocol in listOf(ModelProtocol.LOCAL, ModelProtocol.OPENAI, ModelProtocol.ANTHROPIC, ModelProtocol.GEMINI)) {
+            val plain = AgentJson.objectOf(schema.generate(protocol, ToolPolicy()).responseSchemaJson!!)
+            val planned = schema.generate(protocol, ToolPolicy(), planMode = true)
+            val withPlan = AgentJson.objectOf(planned.responseSchemaJson!!)
+            assertTrue(planned.planMode); assertFalse(plain.getAsJsonObject("properties").has("plan")); assertTrue(withPlan.getAsJsonObject("properties").has("plan"))
+            assertEquals(listOf("tool", "ask", "done", "plan"), withPlan.getAsJsonObject("properties").getAsJsonObject("kind").getAsJsonArray("enum").map { it.asString })
+            assertFalse(plain.getAsJsonObject("properties").getAsJsonObject("kind").getAsJsonArray("enum").map { it.asString }.contains("plan"))
+        }
+        val local = AgentJson.objectOf(schema.generate(ModelProtocol.LOCAL, ToolPolicy(), planMode = true).responseSchemaJson!!)
+        assertEquals(jsonArray("steps".json()), local.getAsJsonObject("properties").getAsJsonObject("plan").getAsJsonArray("required"))
+        assertTrue(DecisionSchema.promptContract(schema.generate(ModelProtocol.LOCAL, ToolPolicy(), planMode = true)).contains("\"plan\""))
+        assertFalse(DecisionSchema.promptContract(schema.generate(ModelProtocol.LOCAL, ToolPolicy())).contains("\"plan\""))
+        assertTrue(DecisionSchema.degraded(planMode = true).planMode && DecisionSchema.native(ModelProtocol.OPENAI, planMode = true).planMode)
+        assertFalse(DecisionSchema.degraded().planMode || DecisionSchema.native(ModelProtocol.OPENAI).planMode)
+    }
     @Test fun dynamicScriptParametersUseStringOnlyForOnlineProtocols() {
         for (protocol in listOf(ModelProtocol.OPENAI, ModelProtocol.ANTHROPIC, ModelProtocol.GEMINI)) {
             val format = schema.generate(protocol, ToolPolicy())

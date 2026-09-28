@@ -113,10 +113,12 @@ internal class PendingCard(
             button(kit.outlinedButton(context.getString(R.string.task_deny), danger = true) { send(allowed = false) })
             if (session) add(caption(context.getString(R.string.interaction_allow_run_note)))
         } else {
+            val plan = pending.string("kind") == "plan"
             frame(Tone.ACCENT)
-            header(null, Tone.ACCENT, R.drawable.ic_help)
-            add(title(context.getString(R.string.interaction_question)))
-            add(body(pending.string("question").orEmpty()).apply { textSize = Ui.TEXT_ITEM })
+            header(null, Tone.ACCENT, if (plan) R.drawable.ic_layers else R.drawable.ic_help)
+            add(title(context.getString(if (plan) R.string.interaction_plan else R.string.interaction_question)))
+            if (plan) add(body(context.getString(R.string.interaction_plan_note)))
+            else add(body(pending.string("question").orEmpty()).apply { textSize = Ui.TEXT_ITEM })
             if (pending.has("memoryKey")) {
                 remember = MaterialCheckBox(kit.context).apply {
                     id = R.id.interaction_remember; setText(R.string.interaction_remember)
@@ -128,6 +130,20 @@ internal class PendingCard(
                 add(caption(context.getString(if (remember.isEnabled) R.string.interaction_remember_review else R.string.interaction_memory_disabled)))
             }
             when (pending.string("kind")) {
+                "plan" -> {
+                    // One step per line, numbered for reading; numbering and bullets are stripped before the reply.
+                    val steps = pending.getAsJsonArray("steps")?.map { it.asString }.orEmpty()
+                    val (field, edit) = kit.textField(if (key == restoredKey) restoredAnswer else steps.mapIndexed { index, step -> "${index + 1}. $step" }.joinToString("\n"),
+                        context.getString(R.string.interaction_plan_steps), InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, 2048, singleLine = false)
+                    edit.id = R.id.workbench_answer; edit.minLines = 3; edit.maxLines = 10
+                    edit.filters = arrayOf(InputFilter.LengthFilter(2048))
+                    add(field, top = Ui.SPACE_MD)
+                    button(kit.filledButton(context.getString(R.string.interaction_plan_execute)) {
+                        val lines = edit.text.toString().lines().map { it.trim().replace(Regex("^(?:\\d+[.)]|[-*])\\s*"), "").trim() }.filter { it.isNotEmpty() }
+                        if (lines.isNotEmpty() && lines.size <= 8 && lines.all { it.codePointCount(0, it.length) <= 200 }) { field.error = null; send(JsonArray().apply { lines.forEach(::add) }) }
+                        else field.error = context.getString(R.string.interaction_plan_invalid)
+                    }, first = true)
+                }
                 "choice" -> pending.getAsJsonArray("choices").forEachIndexed { index, choice ->
                     button(kit.tonalButton(choice.asString) { send(choice) }.apply { gravity = Gravity.START or Gravity.CENTER_VERTICAL }, first = index == 0)
                 }
