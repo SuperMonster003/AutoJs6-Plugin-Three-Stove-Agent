@@ -1,6 +1,6 @@
 3-Stove Agent 把一句自然语言目标变成运行 AutoJs6 的 Android 设备上的实际操作. 它或者从用户登记给智能体使用的脚本中挑选一个, 补全参数并运行; 或者通过无障碍节点树观察屏幕, 按观察, 决策, 操作, 校验的循环逐步操作, 直到达成目标, 需要用户确认, 或预算用尽. 它回应 [AutoJs6 讨论 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
 
-1.2.0 开发版本提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本. AiGoCode gpt-5.6-sol 已通过 P9.2 初始图片与工具结果图片探针. P9.1 JSON/原生路径均已完成 Wi-Fi 开启与状态回读: 测试时临时关闭当前热点的自动连接, 模型经蜂窝网络和 VPN 联网. 默认自动连接时 VPN 跨网络切换后的失败仍未解决. 证据见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
+1.2.0 提供可选 MCP 工具, 原生工具调用, 截图观察和动态脚本, 并在五台真机与 API 24 / 35 / 36.1 模拟器上完成验收. 已知限制: 本地小模型 (Gemma 4 E2B / E4B) 的决策质量有限; 默认自动连网时 VPN 跨网络切换后的失败尚未解决; 视觉跨 UID 的完整任务未验收, AiGoCode gpt-5.6-sol 只通过了初始图片与工具结果图片探针. 证据见 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
 
 ### 使用方法
 
@@ -20,6 +20,6 @@
 
 安装并启用 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), 在其中配置在线模型或导入受支持的本地模型. 当前宿主模型代理选择 3-Stone AI, 其他 Provider 需要宿主完成接入后才能使用. 在 3-Stove Agent 主页点击模型胶囊选择模型. 仅在未连接 AutoJs6 时, 主页才会显示连接提示.
 
-支持 Android 7.0+ (API 24). 宿主附着要求 AutoJs6 6.8.0 / build 5298+, 完整任务 API 与本快速开始要求 build 5293+. 请使用包含 Agent 改动的宿主构建. 屏幕操作需要宿主的无障碍服务; Agent 会先通过 AutoJs6 已配置的免打扰方式 (Root, 安全设置或 Shizuku) 自动启动, 仅在失败时提示手动开启. OCR 为可选能力, 需要安装并授权 OCR 插件, 且宿主报告其可用. 3-Stove Agent 本身不保存模型凭据, 不提供独立无障碍服务.
+支持 Android 7.0+ (API 24). 要求 AutoJs6 6.8.0 / build 5298+ 的宿主, 该版本已包含任务 API (build 5293+) 以及原生工具调用与图片输入 (build 5297+) 所需的全部宿主改动. 屏幕操作需要宿主的无障碍服务; Agent 会先通过 AutoJs6 已配置的免打扰方式 (Root, 安全设置或 Shizuku) 自动启动, 仅在失败时提示手动开启. OCR 为可选能力, 需要安装并授权 OCR 插件, 且宿主报告其可用. 3-Stove Agent 本身不保存模型凭据, 不提供独立无障碍服务.
 
 连接指南与当前进度请参阅 [项目 README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent) 与 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).

@@ -1,6 +1,6 @@
 3-Stove Agent는 자연어 목표를 AutoJs6가 실행되는 Android 기기의 실제 동작으로 바꿉니다. 사용자가 에이전트용으로 등록한 스크립트를 골라 매개변수를 채우고 실행하거나, 접근성 노드 트리로 화면을 관찰하고 관찰, 결정, 실행, 검증의 순환으로 단계별로 조작합니다. 목표를 달성하거나 확인이 필요하거나 예산이 소진될 때까지 계속됩니다. [AutoJs6 토론 #577](https://github.com/SuperMonster003/AutoJs6/discussions/577)에 대한 답입니다.
 
-개발 버전 1.2.0은 선택적 MCP 도구, 네이티브 호출, 스크린샷, 생성 스크립트를 제공합니다. AiGoCode gpt-5.6-sol은 P9.2 초기 이미지와 도구 결과 이미지 검증을 통과했습니다. P9.1 JSON/네이티브 경로 모두 현재 액세스 포인트의 자동 연결을 일시적으로 끄고 모바일 데이터와 VPN으로 모델에 접속하는 조건에서 Wi-Fi 켜기와 상태 다시 읽기를 완료했습니다. 기본 자동 연결 시 VPN의 기반 네트워크 전환 후 발생하는 실패는 아직 해결되지 않았습니다. 증거는 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)를 참고하세요.
+1.2.0은 선택적 MCP 도구, 네이티브 호출, 스크린샷 관찰, 생성 스크립트를 제공하며 실제 기기 5 대와 API 24 / 35 / 36.1 에뮬레이터에서 검수를 마쳤습니다. 알려진 제한: 소형 온디바이스 모델 (Gemma 4 E2B / E4B) 의 판단 품질이 낮고, 기본 자동 연결 시 VPN의 기반 네트워크 전환 후 발생하는 실패는 아직 해결되지 않았으며, UID 를 넘나드는 완전한 시각 작업은 검수되지 않았습니다 (AiGoCode gpt-5.6-sol 은 초기 이미지와 도구 결과 이미지 검증만 통과). 증거는 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)를 참고하세요.
 
 ### 사용 방법
 
@@ -20,6 +20,6 @@
 
 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI)를 설치하고 활성화한 뒤 온라인 모델을 설정하거나 지원되는 로컬 모델을 가져오세요. 현재 호스트 모델 중개자는 3-Stone AI를 선택합니다. 다른 Provider는 호스트 통합이 필요합니다. 3-Stove Agent 홈의 모델 캡슐에서 모델을 선택하세요. AutoJs6에 연결되지 않은 동안에만 홈에 연결 안내가 표시됩니다.
 
-Android 7.0+ (API 24). 연결에는 AutoJs6 6.8.0 / build 5298+가 필요하고 전체 작업 API 및 이 예제에는 build 5293+가 필요합니다. Agent 변경이 포함된 호스트 빌드를 사용하세요. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. 3-Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
+Android 7.0+ (API 24). AutoJs6 6.8.0 / build 5298+ 호스트가 필요하며, 이 빌드에는 작업 API (build 5293+) 와 네이티브 호출 및 이미지 입력 (build 5297+) 에 필요한 호스트 변경이 모두 포함되어 있습니다. 화면 조작에는 호스트 접근성 서비스가 필요합니다. Agent는 먼저 AutoJs6에 설정된 자동 시작 방식 (Root, 보안 설정 또는 Shizuku)으로 켜고, 실패한 경우에만 직접 켜도록 안내합니다. OCR은 선택 사항이며 설치 및 승인되었고 호스트가 사용 가능하다고 보고한 OCR 플러그인이 필요합니다. 3-Stove Agent는 모델 자격 증명을 저장하거나 자체 접근성 서비스를 제공하지 않습니다.
 
 연결 안내와 현재 진행 상황은 [프로젝트 README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent)와 [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md)를 참고하세요.

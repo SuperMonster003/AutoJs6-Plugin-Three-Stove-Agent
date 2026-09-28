@@ -1,6 +1,6 @@
 3-Stove Agent は自然言語の目標を, AutoJs6 が動作する Android デバイス上の実際の操作に変えます. ユーザーがエージェント用に登録したスクリプトを選んでパラメーターを補い実行するか, アクセシビリティのノードツリーを通じて画面を観察し, 観察, 判断, 操作, 検証の循環で段階的に操作します. 目標を達成するか, 確認が必要になるか, 予算を使い切るまで続けます. [AutoJs6 ディスカッション #577](https://github.com/SuperMonster003/AutoJs6/discussions/577) への回答です.
 
-開発版 1.2.0 は任意の MCP ツール, ネイティブ呼び出し, スクリーンショット, 生成スクリプトを提供します. AiGoCode gpt-5.6-sol は P9.2 の初期画像とツール結果画像の検証に合格しました. P9.1 の JSON/ネイティブ経路は, 現在のアクセスポイントへの自動接続を一時的に無効にし, モバイルデータと VPN 経由でモデルに接続する条件で, Wi-Fi の有効化と状態の再読み取りを完了しました. 既定の自動接続で VPN の接続先ネットワークが切り替わった後の失敗は未解決です. 証拠は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) を参照してください.
+1.2.0 は任意の MCP ツール, ネイティブ呼び出し, スクリーンショット観察, 生成スクリプトを提供し, 実機 5 台と API 24 / 35 / 36.1 のエミュレーターで受け入れ検証を終えました. 既知の制限: 小型のローカルモデル (Gemma 4 E2B / E4B) は判断品質が低いこと, 既定の自動接続で VPN の接続先ネットワークが切り替わった後の失敗が未解決であること, UID をまたぐ視覚タスク全体は未検証で AiGoCode gpt-5.6-sol は初期画像とツール結果画像の検証のみ合格していることです. 証拠は [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) を参照してください.
 
 ### 使い方
 
@@ -20,6 +20,6 @@
 
 [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI) をインストールして有効にし, オンラインモデルを設定するか対応するローカルモデルを取り込んでください. 現在のホスト仲介は 3-Stone AI を選択します. 別の Provider にはホスト側の対応が必要です. モデルは 3-Stove Agent のホームにあるモデルカプセルで選択します. AutoJs6 に接続していない間だけ, ホームに接続の案内が表示されます.
 
-Android 7.0+ (API 24). 接続には AutoJs6 6.8.0 / build 5298+, 完全なタスク API とこの手順には build 5293+ が必要です. Agent の変更を含むホストを使用してください. 画面操作にはホストのユーザー補助サービスが必要です. Agent はまず AutoJs6 で設定済みの自動起動方法 (Root, セキュア設定または Shizuku) で起動し, 失敗した場合のみ手動での有効化を求めます. OCR は任意で, インストールと認可が済み, ホストが利用可能と報告する OCR プラグインが必要です. 3-Stove Agent 自体はモデル認証情報や独立したユーザー補助サービスを持ちません.
+Android 7.0+ (API 24). AutoJs6 6.8.0 / build 5298+ のホストが必要です. このビルドにはタスク API (build 5293+) とネイティブ呼び出しおよび画像入力 (build 5297+) に必要なホスト側の変更がすべて含まれています. 画面操作にはホストのユーザー補助サービスが必要です. Agent はまず AutoJs6 で設定済みの自動起動方法 (Root, セキュア設定または Shizuku) で起動し, 失敗した場合のみ手動での有効化を求めます. OCR は任意で, インストールと認可が済み, ホストが利用可能と報告する OCR プラグインが必要です. 3-Stove Agent 自体はモデル認証情報や独立したユーザー補助サービスを持ちません.
 
 接続ガイドと現在の進捗は [プロジェクトの README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent) と [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) を参照してください.
