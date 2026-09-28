@@ -100,6 +100,12 @@ class WorkbenchActivityTest {
         override fun destroy(reason: Bundle?) = Unit
     }
     private var fixtureApi: IThreeStoveAgentPlugin? = null
+    /**
+     * Keeps the debug-only opaque [BackdropActivity] beneath dialogs that open in their own task
+     * (ConfirmationActivity): a finishing translucent activity is destroyed only once the activity
+     * under it has resumed, and over the API 24 emulator's home screen that outlasted the 45 s close.
+     */
+    private fun <T> overBackdrop(block: () -> T): T = ActivityScenario.launch(BackdropActivity::class.java).use { block() }
     private fun withFixture(model: Model = Model(), groups: List<String> = listOf("observe"), action: (IThreeStoveAgentLink, Model) -> Unit) {
         val connected = CountDownLatch(1); var plugin: IThreeStoveAgentPlugin? = null
         val connection = object : ServiceConnection {
@@ -907,7 +913,7 @@ class WorkbenchActivityTest {
             val pending = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}"""))).getAsJsonObject("pending")
             request = pending?.string("requestId").orEmpty(); request.isNotEmpty()
         }
-        ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, request)).use { scenario ->
+        overBackdrop { ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, id, request)).use { scenario ->
             waitFor("Script ownership shown") { var ready = false; scenario.onActivity {
                 ready = texts(it.findViewById(android.R.id.content)).contains(it.getString(R.string.workbench_script_interaction))
                 assertTrue(cardButtons(it.findViewById(R.id.workbench_pending)).isEmpty())
@@ -915,7 +921,7 @@ class WorkbenchActivityTest {
             assertNull(interactionNotification())
             assertEquals(C.ERROR_RUN_NOT_INTERACTIVE, link.respond(bundle(C.KEY_RUN_RESPONSE_JSON,
                 """{"runId":"$id","requestId":"$request","value":true}""")).getString(C.KEY_ERROR_CODE))
-        }
+        } }
     }
     @Test fun questionKindsAndRunScopeCardRespectRememberAndPaymentFlags() {
         instrumentation.runOnMainSync {
@@ -1560,7 +1566,8 @@ class WorkbenchActivityTest {
 
     @Test fun confirmationQuestionsHaveAccessibleControlsAndUnclippedText() = withFixture(Model(true), listOf("memory")) { link, model ->
         val audit = UiAccessibilityAudit()
-        audit.themed {
+        // Each dialog opens in its own task; the backdrop underneath lets every close finish promptly on API 24.
+        audit.themed { overBackdrop {
             for (kind in listOf("text", "choice", "confirm", "memory")) {
                 val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON,
                     io.github.supermonster003.autojs6.plugin.three.stove.agent.service.RunLauncher.uiRequest("Interaction layout fixture", "default", audit.language)), null)).string("runId")!!
@@ -1586,7 +1593,7 @@ class WorkbenchActivityTest {
                 }
             }
             audit.finish()
-        }
+        } }
     }
 
     @Test fun captureReadmeScreens() {
@@ -1631,14 +1638,14 @@ class WorkbenchActivityTest {
                     model.finish("""{"kind":"tool","tool":"memory_propose","arguments":{"key":"report_language","value":"English"}}""")
                     waitFor("Demo confirmation ready") { run().getAsJsonObject("pending") != null }
                     val request = run().getAsJsonObject("pending").string("requestId")!!
-                    ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, checkNotNull(id), request)).use { scenario ->
+                    overBackdrop { ActivityScenario.launch<ConfirmationActivity>(ConfirmationActivity.intent(context, checkNotNull(id), request)).use { scenario ->
                         waitFor("Demo card ready") { var ready = false; scenario.onActivity {
                             val card = it.findViewById<ViewGroup>(R.id.workbench_pending)
                             ready = card.childCount > 2 && card.getChildAt(card.childCount - 1).isLaidOut
                         }; ready }
                         instrumentation.waitForIdleSync()
                         scenario.onActivity { ReadmeCapture.save(it.window.decorView, "confirmation") }
-                    }
+                    } }
                 } finally {
                     id?.let { runId ->
                         link.cancelRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$runId"}"""))

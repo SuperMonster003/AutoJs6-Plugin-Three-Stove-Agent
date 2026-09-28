@@ -2,5 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <service android:name=".service.WorkbenchFixtureService" android:exported="false" android:process=":agent" />
+        <!-- Opaque backdrop that instrumentation keeps beneath dialog activities opening in their own task. -->
+        <activity android:name=".ui.BackdropActivity" android:exported="false" android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
     </application>
 </manifest>
