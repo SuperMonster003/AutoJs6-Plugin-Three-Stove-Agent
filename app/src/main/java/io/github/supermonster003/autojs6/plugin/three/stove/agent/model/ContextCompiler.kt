@@ -9,11 +9,11 @@ data class ContextLimits(
     val maximumBytes: Int = 64 * 1024,
     val grantMaximumBytes: Int = 128 * 1024,
     val recentPairs: Int = 8,
-    val localInputTokens: Int = 3000,
+    val localInputTokens: Int = 3200,
 ) {
     init {
         require(maximumBytes in 1..128 * 1024 && grantMaximumBytes in 1..2 * 1024 * 1024)
-        require(recentPairs in 0..32 && localInputTokens in 1..3000)
+        require(recentPairs in 0..32 && localInputTokens in 1..3200)
     }
 }
 

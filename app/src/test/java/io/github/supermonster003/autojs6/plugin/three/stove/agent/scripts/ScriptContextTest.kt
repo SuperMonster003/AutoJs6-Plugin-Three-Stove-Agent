@@ -30,7 +30,7 @@ class ScriptContextTest {
             val target = ModelTarget("test", "local:test", ModelLocality.ON_DEVICE, ModelProtocol.LOCAL, true, 128 * 1024)
             val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, DecisionSchema(catalog).generate(ModelProtocol.LOCAL, policy), scripts = scripts)
             val input = compiler.compile(RunContext(goal, emptyList(), ToolObservation.success(jsonObject("value" to "observed-marker".json())), null, JsonObject()))
-            assertTrue(input.inputBytes <= 7500)
+            assertTrue(input.inputBytes <= 8000)
             assertTrue(Budget.estimate(input.inputBytes) + input.maximumOutputTokens!! <= 4096)
             assertTrue(input.messages.toString().contains(goal)); assertTrue(input.messages.toString().contains("observed-marker"))
             val data = AgentJson.objectOf(input.messages[0].asJsonObject.string("content")!!.lines().last { it.startsWith('{') })

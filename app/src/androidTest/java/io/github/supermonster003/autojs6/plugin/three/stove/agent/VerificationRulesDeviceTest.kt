@@ -21,7 +21,7 @@ class VerificationRulesDeviceTest {
         val calls = AtomicInteger(); val actions = AtomicInteger()
         val model = object : RunModel {
             override fun generate(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long, callback: (PortResult<ModelReply>) -> Unit): Cancellation {
-                check(input.inputBytes <= 7500 && Budget.estimate(input.inputBytes) + maximumOutputTokens <= 4096)
+                check(input.inputBytes <= 8000 && Budget.estimate(input.inputBytes) + maximumOutputTokens <= 4096)
                 check(input.messages.first().asJsonObject.string("content")!!.contains("orderStatusRequired"))
                 callback(PortResult.Success(ModelReply(decisions[calls.getAndIncrement()], ModelUsage(20, 10))))
                 return Cancellation.NONE

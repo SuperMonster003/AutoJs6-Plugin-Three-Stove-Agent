@@ -187,6 +187,8 @@ La tabla se genera desde el ToolCatalog incluido. El objetivo real de pantalla p
 | `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | Check whether an application package is installed. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | List installed applications, optionally filtered by a package name or label fragment; the result is bounded. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
@@ -196,6 +198,7 @@ La tabla se genera desde el ToolCatalog incluido. El objetivo real de pantalla p
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_list` | `script` | `READ_ONLY` | `on` | List script executions currently running in AutoJs6 with their ids and states. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `Función` Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación
 - `Función` Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea
 - `Función` Importación / exportación de preajustes: la pantalla de preajustes añade Importar JSON y Exportar JSON; el archivo exportado contiene la configuración de cada preajuste pero ningún modelo, cada preajuste importado se revisa uno por uno con un aviso de reemplazo para un nombre existente, los grupos de herramientas o directorios de scripts ausentes en este dispositivo se descartan, y una revisión pendiente se restaura tras salir de la pantalla
+- `Función` Herramientas de observación completadas: las herramientas de solo lectura app_list (aplicaciones instaladas, filtrables por un fragmento del nombre de paquete o de la etiqueta, como máximo 200 filas), app_installed (si un paquete está instalado) y script_list (ejecuciones de scripts en curso en AutoJs6 con sus identificadores y estados, para usar con script_stop) corresponden a package_manager.listApps, app.isInstalled y engines.list, que la concesión del anfitrión ya permitía; se suman a los grupos de observación y scripts y están habilitadas de forma predeterminada
 - `Corrección` El botón de envío ya no se queda en la primera línea de un objetivo de varias líneas: se alinea abajo como el botón del micrófono
 - `Mejora` Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar
 

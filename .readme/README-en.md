@@ -187,6 +187,8 @@ This table is generated from the packaged ToolCatalog. Risk can be raised by the
 | `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | Check whether an application package is installed. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | List installed applications, optionally filtered by a package name or label fragment; the result is bounded. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
@@ -196,6 +198,7 @@ This table is generated from the packaged ToolCatalog. Risk can be raised by the
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_list` | `script` | `READ_ONLY` | `on` | List script executions currently running in AutoJs6 with their ids and states. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `Feature` Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation
 - `Feature` Floating ball redesign: the compact ball shows the task and its current step on two lines and tapping the text opens a step timeline card; the control card is condensed to the same two rows as the workbench (preset, model and access above the goal field, voice and start), with the model and access mode switched inside the overlay and shared with the app; the timeline follows new steps while you are at the end, pauses when you scroll up and resumes at the end, as does the task details screen
 - `Feature` Preset import / export: the presets screen gains Import JSON and Export JSON; the exported file carries every preset's configuration but no model, each imported preset is reviewed one by one with a replace notice for an existing name, tool groups or script directories missing on this device are dropped, and a pending review survives leaving the screen
+- `Feature` Observation tools completed: the read-only tools app_list (installed applications, optionally filtered by a package name or label fragment, at most 200 rows), app_installed (whether a package is installed) and script_list (script executions currently running in AutoJs6 with their ids and states, for use with script_stop) map to package_manager.listApps, app.isInstalled and engines.list, which the host grant already allowed; they join the observation and script groups and are enabled by default
 - `Fix` The send button no longer stays on the first line of a multi-line goal; it sits at the bottom like the microphone button
 - `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
 

@@ -52,6 +52,8 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             ToolNames.UI_FIND -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Call(call("accessibility.findAll", selector), num("limit").toInt()) }
             ToolNames.UI_WAIT_FOR -> { val selector = args.getAsJsonObject("selector"); validateSelector(selector); ToolPlan.Poll(call("accessibility.findOne", selector, timeout = minOf(num("timeoutMs"), 5000)), str("state"), num("timeoutMs")) }
             ToolNames.APP_CURRENT -> ToolPlan.Call(call("app.currentWindow"))
+            ToolNames.APP_LIST -> ToolPlan.Call(call("package_manager.listApps", jsonObject("query" to (args.string("query") ?: "").json())))
+            ToolNames.APP_INSTALLED -> ToolPlan.Call(call("app.isInstalled", str("packageName").json()))
             ToolNames.SCREEN_STATE -> ToolPlan.Call(call("device.isScreenOn"))
             ToolNames.SCREEN_CAPTURE -> ToolPlan.Call(call("accessibility.screenshot", jsonObject("format" to "png".json())))
             ToolNames.DEVICE_INFO -> ToolPlan.Call(call("device.info"))
@@ -82,6 +84,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
             ToolNames.UI_SWIPE -> ToolPlan.Call(call("accessibility.swipe", num("x1").json(), num("y1").json(), num("x2").json(), num("y2").json(), num("durationMs").json(), timeout = num("durationMs") + 5000))
             ToolNames.UI_GESTURE -> ToolPlan.Call(call("accessibility.gesture", num("durationMs").json(), args["points"], timeout = num("durationMs") + 5000))
             ToolNames.SCRIPT_CATALOG -> ToolPlan.Call(call("agent.listScripts", args))
+            ToolNames.SCRIPT_LIST -> ToolPlan.Call(call("engines.list"))
             ToolNames.SCRIPT_RUN -> {
                 if (args["parameters"].toString().utf8Size() > 16 * 1024) invalid("Script parameters exceed the byte limit.")
                 ToolPlan.RegisteredScript(call("agent.readManifest", str("id").json()), call("agent.execRegistered", str("id").json(), args["parameters"], jsonObject("captureConsole" to true.json()), timeout = ThreeStoveAgentContract.MAX_TOOL_TIMEOUT_MS))
@@ -125,7 +128,7 @@ class ToolHandlers(private val catalog: ToolCatalog) {
                     else -> listOf("accessibility")
                 }
                 "agent" -> if (operation == "execRegistered") listOf("agent", "agent.exec", "engines", "engines.exec") else listOf("agent")
-                "app" -> if (operation == "currentWindow") listOf("app.query", "accessibility") else listOf("app.launch")
+                "app" -> when (operation) { "currentWindow" -> listOf("app.query", "accessibility"); "isInstalled" -> listOf("app.query"); else -> listOf("app.launch") }
                 "files" -> if (operation == "write") listOf("files", "files.write") else listOf("files")
                 "shell" -> listOf("shell")
                 "engines" -> if (operation == "execScript") listOf("engines", "engines.exec", "agent", "agent.exec") else listOf("engines")

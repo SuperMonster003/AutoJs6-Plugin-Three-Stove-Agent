@@ -187,6 +187,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `memory_get` | `memory` | `READ_ONLY` | `on` | 读取当前作用域可用的偏好记忆. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | 提议由用户确认保存偏好, 不保存凭据. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | 读取当前窗口与应用. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | 检查应用包名是否已安装. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | 列出已安装应用, 可按包名或名称片段过滤; 结果有界. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | 读取有界控制台尾部, 其中可能包含无关脚本. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | 读取设备信息. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | 文本节点不足时为所选视觉模型捕获已解锁屏幕. 返回缩放后的 JPEG 观察, 不可直接作为设备坐标. |
@@ -196,6 +198,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | 在时限内等待选择器目标出现或消失. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | 通过宿主 OCR 插件读取屏幕文字. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | 查找明确登记供智能体使用的脚本. |
+| `script_list` | `script` | `READ_ONLY` | `on` | 列出 AutoJs6 中正在运行的脚本执行及其 ID 与状态. |
 | `script_run` | `script` | `NORMAL` | `on` | 按 ID 执行登记脚本, 校验参数并采用登记风险. |
 | `script_stop` | `script` | `NORMAL` | `on` | 停止所属脚本执行. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | 逐次确认源码后以宿主脚本权限运行生成的 Rhino JavaScript. 无沙箱隔离. 源码含 JSON 转义最多 8192 UTF-8 字节. 使用 ai.agent.result(value) 返回结果. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `新增` 風險識別可配置: 設定頁新增風險識別子頁, 可在內置支付應用列表 (支付寶, 支付寶香港, 雲閃付, PayPal, Google 錢包, Samsung Pay, 華為錢包, Mi Pay) 與十語言敏感關鍵詞表之外添加自訂套件名稱和關鍵詞, 只增不刪且即時生效; 命中的屏幕操作提升為敏感操作並進入確認
 - `新增` 懸浮球改版: 最小化時顯示任務描述與當前步驟兩行, 點擊文字打開步驟時間線卡; 展開的控制頁與主頁一致地壓縮為兩行 (預設 / 模型 / 訪問權限, 輸入欄 / 語音 / 開始), 模型與訪問權限直接在懸浮窗內切換並與主應用共用同一選擇; 時間線在讀者位於底部時自動跟隨新步驟, 上滑查看歷史時暫停, 回到底部後恢復, 任務詳情頁同樣如此
 - `新增` 預設匯入 / 匯出: 預設頁新增 "匯入 JSON" 與 "匯出 JSON", 匯出檔案包含全部預設的設定但不含模型; 匯入時逐個審閱, 同名預設顯示取代提示, 此裝置沒有的工具組或腳本目錄在匯入時移除, 審閱中途離開後可恢復
+- `新增` 觀察工具補齊: 新增唯讀工具 app_list (列出已安裝應用, 可按套件名稱或名稱片段過濾, 最多回傳 200 條), app_installed (檢查套件名稱是否已安裝) 與 script_list (列出 AutoJs6 中正在執行的腳本執行及其 ID 與狀態, 配合 script_stop 使用); 三者分別對應宿主 grant 早已允許的 package_manager.listApps, app.isInstalled 與 engines.list, 歸入觀察與腳本工具組並預設開啟
 - `修復` 輸入欄多於一行時發送按鈕不再停在首行, 與麥克風按鈕一樣貼底對齊
 - `優化` 去除換個模型重試按鈕 (模型統一在任務台頂部或懸浮球內切換); 懸浮球的任務歷史與打開任務台收進更多選單; 歷史圖標改為標準樣式
 
