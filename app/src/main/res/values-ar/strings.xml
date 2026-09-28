@@ -140,7 +140,7 @@
     <string name="mcp_empty">لم يتم إعداد خوادم MCP.</string>
     <string name="mcp_enabled">تفعيل هذا الخادم للمهام الجديدة</string>
     <string name="mcp_endpoint">عنوان URL للخادم</string>
-    <string name="mcp_endpoint_note">يلزم HTTPS خارج عنوان الاسترجاع المحلي. تغيير العنوان يمسح الرمز القديم واختيار الأدوات. يمكنك إدخال رمز جديد.</string>
+    <string name="mcp_endpoint_note">يلزم HTTPS خارج عنوان الاسترجاع المحلي. تغيير العنوان يمسح الرمز القديم واختيار الأدوات. يمكنك إدخال رمز جديد. لا يدعم تسجيل الدخول عبر OAuth ولا نقل HTTP+SSE القديم; يجب أن يوفر الخادم نقطة نهاية Streamable HTTP.</string>
     <string name="mcp_error">تعذرت القراءة أو الحفظ. تحقق من الحقول والحدود والمهام النشطة. أعد فتح الخادم إذا تغيرت إعداداته.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">معرف الخادم (1-12 حرفا لاتينيا صغيرا أو رقما أو شرطة سفلية, يبدأ بحرف)</string>
     <string name="mcp_local_permission">السماح بالوصول إلى الشبكة المحلية</string>

@@ -140,7 +140,7 @@
     <string name="mcp_empty">No hay servidores MCP configurados.</string>
     <string name="mcp_enabled">Activar este servidor para tareas nuevas</string>
     <string name="mcp_endpoint">URL del servidor</string>
-    <string name="mcp_endpoint_note">Se requiere HTTPS fuera de loopback. Cambiar la URL borra el token anterior y la selección de herramientas. Puedes introducir un token nuevo.</string>
+    <string name="mcp_endpoint_note">Se requiere HTTPS fuera de loopback. Cambiar la URL borra el token anterior y la selección de herramientas. Puedes introducir un token nuevo. El inicio de sesión OAuth y el transporte HTTP+SSE antiguo no son compatibles; el servidor debe ofrecer un punto de conexión Streamable HTTP.</string>
     <string name="mcp_error">No se pudo leer o guardar. Revisa los campos, límites y tareas activas. Vuelve a abrir el servidor si cambió su configuración.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">ID del servidor (1-12 minúsculas, dígitos o guiones bajos; empieza por una letra)</string>
     <string name="mcp_local_permission">Permitir acceso a la red local</string>

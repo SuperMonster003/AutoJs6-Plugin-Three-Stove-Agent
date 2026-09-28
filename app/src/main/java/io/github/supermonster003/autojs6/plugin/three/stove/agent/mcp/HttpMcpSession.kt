@@ -65,7 +65,10 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
     private var frozenTools: Map<String, JsonObject>? = null
     private val sequence = AtomicLong()
     private val closed = AtomicBoolean()
+    /** Set only once a selected definition was seen to differ (or the session is gone); the tools stay unavailable for this run. */
     private val changed = AtomicBoolean()
+    /** A notifications/tools/list_changed arrived; the next listing re-verifies the frozen selection instead of failing (roadmap P13). */
+    private val notified = AtomicBoolean()
     @Volatile private var sessionId: String? = null
     @Volatile private var version = VERSIONS.first()
     @Volatile private var initialized = false
@@ -84,6 +87,7 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
 
     fun list(operation: McpOperation): List<JsonObject> {
         if (!initialized || changed.get()) mcpFail("MCP_CATALOG_CHANGED")
+        notified.set(false)
         val values = mutableListOf<JsonObject>()
         val names = mutableSetOf<String>()
         val cursors = mutableSetOf<String>()
@@ -92,7 +96,8 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
         repeat(MAX_PAGES) {
             val params = jsonObject().apply { cursor?.let { addProperty("cursor", it) } }
             val result = request("tools/list", params, operation)
-            if (changed.get()) mcpFail("MCP_CATALOG_CHANGED")
+            // A change announced while paging makes this listing untrustworthy; the caller sees the failure and never acts on it.
+            if (changed.get() || notified.get()) mcpFail("MCP_CATALOG_CHANGED")
             bytes += result.toString().utf8Size()
             if (bytes > MAX_RESPONSE_BYTES) mcpFail("MCP_LIMIT_EXCEEDED")
             val tools = result["tools"]?.takeIf { it.isJsonArray }?.asJsonArray ?: mcpFail()
@@ -148,6 +153,7 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
     }
     fun discard() { closed.set(true); token = null; sessionId = null }
     fun catalogChanged() = changed.get()
+    fun changeAnnounced() = notified.get()
 
     fun redact(text: String): String = redactionSecret?.let { Redaction.replaceSecret(text, it, "[credential redacted]") } ?: text
     private fun containsSecret(text: String): Boolean = token?.let { Redaction.containsSecret(text, it) } == true
@@ -255,7 +261,7 @@ internal class HttpMcpSession(profile: McpServerProfile, private val clientVersi
         if (value.has("method")) {
             if (value.has("id")) mcpFail() // Server-initiated requests/sampling are not supported.
             when (value.string("method") ?: mcpFail()) {
-                "notifications/tools/list_changed" -> changed.set(true)
+                "notifications/tools/list_changed" -> notified.set(true)
                 "notifications/progress", "notifications/message" -> Unit
                 else -> Unit // Unsolicited notifications never trigger actions.
             }

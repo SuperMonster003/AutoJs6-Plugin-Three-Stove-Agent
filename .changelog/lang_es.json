@@ -19,7 +19,8 @@
         "El botón de envío ya no se queda en la primera línea de un objetivo de varias líneas: se alinea abajo como el botón del micrófono"
       ],
       "improvement": [
-        "Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar"
+        "Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar",
+        "Tras un tools/list_changed enviado por un servidor MCP, las definiciones de herramientas congeladas se vuelven a verificar antes de la siguiente llamada: las que no cambiaron siguen funcionando, y solo una definición cambiada falla con MCP_CATALOG_CHANGED indicando al modelo que pida al usuario actualizar la selección de herramientas en los ajustes de MCP y comenzar una tarea nueva; la nota del punto de conexión ahora indica que el inicio de sesión OAuth y el transporte HTTP+SSE antiguo no son compatibles"
       ]
     },
     "v1.2.0": {

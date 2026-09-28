@@ -140,7 +140,7 @@
     <string name="mcp_empty">Серверы MCP не настроены.</string>
     <string name="mcp_enabled">Включить сервер для новых задач</string>
     <string name="mcp_endpoint">URL сервера</string>
-    <string name="mcp_endpoint_note">Вне loopback требуется HTTPS. Смена адреса удаляет прежний токен и выбор инструментов. Можно ввести новый токен.</string>
+    <string name="mcp_endpoint_note">Вне loopback требуется HTTPS. Смена адреса удаляет прежний токен и выбор инструментов. Можно ввести новый токен. Вход через OAuth и старый транспорт HTTP+SSE не поддерживаются; сервер должен предоставлять конечную точку Streamable HTTP.</string>
     <string name="mcp_error">Не удалось прочитать или сохранить. Проверьте поля, лимиты и активные задачи. Откройте сервер заново, если настройки изменились.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">ID сервера (1-12 строчных латинских букв, цифр или знаков _; начинается с буквы)</string>
     <string name="mcp_local_permission">Разрешить доступ к локальной сети</string>

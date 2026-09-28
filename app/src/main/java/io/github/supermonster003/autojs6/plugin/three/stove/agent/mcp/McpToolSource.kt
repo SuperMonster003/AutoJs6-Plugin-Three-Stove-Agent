@@ -115,7 +115,7 @@ class McpToolSource(private val executor: Executor, private val clientVersion: S
     }
 }
 
-class McpSnapshot internal constructor(val catalog: ToolCatalog, private val sessions: Map<String, HttpMcpSession>, private val executor: Executor) {
+class McpSnapshot internal constructor(val catalog: ToolCatalog, internal val sessions: Map<String, HttpMcpSession>, private val executor: Executor) {
     private val disposed = AtomicBoolean()
     private val operations = ConcurrentHashMap.newKeySet<McpOperation>()
     val close = Cancellation {

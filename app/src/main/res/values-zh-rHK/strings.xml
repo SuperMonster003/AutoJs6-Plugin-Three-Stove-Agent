@@ -140,7 +140,7 @@
     <string name="mcp_empty">尚未設定 MCP 伺服器.</string>
     <string name="mcp_enabled">為新工作啟用此伺服器</string>
     <string name="mcp_endpoint">端點 URL</string>
-    <string name="mcp_endpoint_note">非迴路位址必須使用 HTTPS. 修改端點會清除工具選擇. 未輸入新權杖時也會清除舊權杖.</string>
+    <string name="mcp_endpoint_note">非迴路位址必須使用 HTTPS. 修改端點會清除工具選擇. 未輸入新權杖時也會清除舊權杖. 不支援 OAuth 登入與舊的 HTTP+SSE 傳輸; 伺服器須提供 Streamable HTTP 端點.</string>
     <string name="mcp_error">無法讀取或儲存. 請檢查欄位, 限額和執行中的工作. 若設定已變更, 請重新開啟伺服器.</string>
     <string name="mcp_id" tools:ignore="TypographyDashes">伺服器 ID (1-12 位小寫字母, 數字或底線, 以字母開頭)</string>
     <string name="mcp_local_permission">允許存取區域網絡</string>

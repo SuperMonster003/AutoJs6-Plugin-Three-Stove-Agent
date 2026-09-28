@@ -304,6 +304,7 @@ _2026/09/28_
 - `Feature` Task result sharing: the task detail menu gains Share summary, which hands the system share sheet plain text with the goal, the state and summary, the evidence and the unfinished work; observations, arguments, script results and error details never leave the private history, and the item stays disabled while a task is still running
 - `Fix` The send button no longer stays on the first line of a multi-line goal; it sits at the bottom like the microphone button
 - `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
+- `Improvement` After an MCP server sends tools/list_changed, the frozen tool definitions are re-verified before the next call: unchanged definitions keep working, and only a changed one fails with MCP_CATALOG_CHANGED and tells the model to have the user refresh the tool selection in MCP settings and start a new task; the endpoint note now says OAuth sign-in and the older HTTP+SSE transport are not supported
 
 #### v1.2.0
 

@@ -271,7 +271,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P15 | 界面第三次改版: 各页面一致性与易用性 | 插件 | P14 |
 | P16 | 维护者体验反馈第二批: 去除换模型按钮, 悬浮球两行信息与步骤时间线自动滚动, 发送按钮底部对齐, 悬浮球菜单收纳与控制页两行重排及内联模型选择 | 插件 | P15 |
 
-当前验收状态 (2026-09-27): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). 1.1.0 与 1.2.0 均为未发布的开发候选 (GitHub 最新 release 仍为 v1.0.0), 1.2.0 的发布 gate 见 P12, 后续能力见 P13. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
+当前验收状态 (2026-09-29): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). v1.2.0 已于 2026-09-28 发布 (P12), 1.3.0 为开发候选: P13 的风险识别配置, 预设导入导出, 观察工具补齐与任务结果分享已落地, 计划模式与 MCP 目录变更复核已实现但各缺一项真机 / 真实服务器证据, 其余为在线协议, 视觉, 语音与 ColorOS 的真机验收; 维护者体验反馈见 P14-P16. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
 建议会话切分: P0 一次; P1 两到三次 (契约 + 代理 + 共享核心为一次, bridge 新方法 + 脚本登记解析为一次, 抽屉 / 注册 / 文档为一次); P2 两到三次 (目录 + 协议 + 解析; 状态机 + 预算 + 确认; 上下文 + 链路 + 前台服务); P3 一次; P4 两次 (工具面; 用例与校验); P5 一到两次; P6 三次 (任务台 + 详情 + 历史; 预设 + 记忆 + 确认; 设置 + 悬浮球 + 其它入口); P7 一到两次; P8 一次.
 
@@ -704,7 +704,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [ ] (插件 + 模型) 在线协议变体真实验证: Anthropic 与 Gemini profile 各 20 轮 `AgentDecision` Schema 合规率 (P0.2 只测了 OpenAI 兼容). 证据 E4.
 - [ ] (插件) 视觉跨 UID 真实任务: `screen_capture` 参与的 D32 用例 (2) 在真机 + 图片模型 completed 一次 (P9.2 只验了 Provider 探针). 证据 E4.
 - [x] (插件) 任务结果分享 (build 166): 任务详情页菜单新增 "分享摘要" (`detail_share`, 位于导出之前), `ShareSummary.text` 只从记录的 `goal` 与终态 `result` 组装纯文本: 目标, "状态: 摘要", 证据与未完成项各一段 (每项一行), 末尾 "来自 3-Stove Agent"; 观察内容, 参数, 脚本结果, 错误详情与任务 ID 都不进入分享文本, 摘要与证据沿用日志已脱敏的值; 任务未结束或没有结果时菜单项禁用. 经 `ACTION_SEND` (`text/plain`, 主题为应用名) 的系统选择器发出. 十一语言 2 条字符串, 十语言 changelog `feature` 与 README 历史步骤补句. 证据 E2: 一次性 API 24 x86 AVD (`Three_Stove_Agent_Conformance_24`, Nexus 5): 新增 `WorkbenchActivityTest.shareSummaryOffersOnlyTheRedactedResultThroughTheSystemShareSheet` (经真实链路启动任务并以 partial 结束后打开详情页, 分享文本含目标 / 摘要 / 证据 / 未完成项且不含决策 JSON, 任务 ID 或观察; `share()` 发出的 `ACTION_CHOOSER` 被阻断式 ActivityMonitor 截获一次, 未结束的任务返回 null), 同批 `fullHistoryCrossesBinderReplaysExportsAndRerunsWithoutExecuting` 与 `planModePresetShowsAnEditableReviewCardBeforeTheFirstToolRuns` 通过 (首轮因 action-only 过滤器也匹配组件 Intent 而阻断了详情页启动, 监视器改为只围绕分享调用安装后单项重跑通过).
-- [ ] (插件) MCP: `notifications/tools/list_changed` 后提示重新冻结目录而非直接以 `MCP_CATALOG_CHANGED` 失败; OAuth 与旧 HTTP+SSE 保持不支持并在设置页说明. 证据 E1 + 真实 MCP Server.
+- [ ] (插件) MCP: `notifications/tools/list_changed` 后提示重新冻结目录而非直接以 `MCP_CATALOG_CHANGED` 失败; OAuth 与旧 HTTP+SSE 保持不支持并在设置页说明 (实现见 build 167, 真实 MCP Server 待验收): `HttpMcpSession` 把通知记为 `notified` 而不再直接作废会话, 每次动作前既有的 "重新列出并与冻结定义比对" 即成为重新核对: 已选工具定义未变则继续执行 (会话保持, 不重新 initialize), 变了才置 `changed` 并以 `MCP_CATALOG_CHANGED` 失败且此后不再绑定; 分页列出期间收到通知则该次列出不可信, 同样失败. 运行器给 `MCP_CATALOG_CHANGED` 的工具失败观察附 `hint`, 让模型请用户在 MCP 设置中刷新工具选择后重新开始任务而不是重试. 设置页 `mcp_endpoint_note` 十一语言补充 "不支持 OAuth 登录与旧的 HTTP+SSE 传输; 服务器须提供 Streamable HTTP 端点". 十语言 changelog `improvement`. 证据 E1: JVM 640 项 (1 项性能开关跳过, 0 失败) (`McpToolSourceTest.listChangedNotificationReverifiesTheFrozenSelectionInsteadOfFailingUnchangedTools`: 夹具服务器随 tools/call 回 list_changed 后第二次调用重新列出并成功, 定义改动后第三次调用以 MCP_CATALOG_CHANGED 失败且 prepare 不再绑定, initialize 只发生一次; `ExternalToolRunnerTest.catalogChangeFailuresCarryAReselectionHintForTheModel`). 未做: 真实 MCP Server 上的 list_changed 往返 (本机无可用的真实服务器, `RealMcpInteropAndroidTest` 为 opt-in), 条目保持未勾选.
 - [ ] (插件) 移除首轮重设计遗留的 `"workbench"` SharedPreferences 迁移 (`ModelSelection`, `LauncherActivity` 草稿), 1.2.0 发布并经过一个版本后执行. 证据 E1.
 - [ ] (插件) 语音识别准确率与 ColorOS 激活: 各一次真机记录 (缺席设备写 "未执行"). 证据 E3.
 
@@ -1872,3 +1872,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 
 - 分享摘要按路线图只输出 status / summary / evidence (加上用户自己写的目标与未完成项), 不含观察正文; 实现为纯函数 `ShareSummary.text` 加详情页菜单项, 见 P13 第七项.
 - 验证: 一次性 API 24 x86 AVD (`Three_Stove_Agent_Conformance_24`, Nexus 5): 新增 `WorkbenchActivityTest.shareSummaryOffersOnlyTheRedactedResultThroughTheSystemShareSheet` (经真实链路启动任务并以 partial 结束后打开详情页, 分享文本含目标 / 摘要 / 证据 / 未完成项且不含决策 JSON, 任务 ID 或观察; `share()` 发出的 `ACTION_CHOOSER` 被阻断式 ActivityMonitor 截获一次, 未结束的任务返回 null), 同批 `fullHistoryCrossesBinderReplaysExportsAndRerunsWithoutExecuting` 与 `planModePresetShowsAnEditableReviewCardBeforeTheFirstToolRuns` 通过 (首轮因 action-only 过滤器也匹配组件 Intent 而阻断了详情页启动, 监视器改为只围绕分享调用安装后单项重跑通过). JVM 639 项 (0 失败); lint 0 错误 / 6 条既有警告; 十语言 36 份生成产物 `--check` 通过 (日文文案中的全角引号被生成器拦下后改为不加引号). 模拟器用后关闭并删除 AVD 目录.
+
+### 2026-09-29: P13 第八项, MCP 目录变更复核 (build 167)
+
+- `list_changed` 不再直接作废会话: 通知只要求下一次动作前重新核对冻结的定义, 未变的工具继续可用, 变了的才失败并附提示; 设置页补充 OAuth / 旧 SSE 不支持的说明. 真实 MCP Server 的往返留待有服务器的验收会话, 条目未勾选. 见 P13 第八项.
+- 验证: JVM 640 项 (1 项性能开关跳过, 0 失败); lint 0 错误 / 6 条既有警告; 十语言 36 份生成产物 `--check` 通过; 未启动模拟器 (改动不涉及界面与 Binder 契约).
+- 远程 CI: build 165 (run 36446810413) 的模拟器作业被 166 的推送取消 (单元 / APK 已通过, Markdown 通过); build 166 (run 36447817751): 单元 / APK 通过, API 35 通过 (138 项完成, 3 项 opt-in 跳过, 0 失败, 含计划审阅卡与分享摘要用例), API 24 在安装 debug APK 时 adb 无响应 (`ShellCommandUnresponsiveException`, `Failed to install split APK`), 套件未开始, 记为 CI 基础设施偶发 (同一 APK 在本地 API 24 AVD 安装并通过 51 项), API 37.1 既有非阻断失败, Markdown 通过; build 167 的结果在推送后记录.
