@@ -57,6 +57,8 @@
     <string name="floating_open">タスクカードを開く. ドラッグで移動</string>
     <string name="floating_permission_required">フローティングボールを有効にするには他のアプリの上への表示を許可してください.</string>
     <string name="floating_setting_note">初期状態では無効です. 他のアプリの上への表示の許可が必要です. AutoJs6 の接続中のみ表示し, 切断時とロック時は非表示になります. 待機中のフォアグラウンドサービスは使用しません.</string>
+    <string name="floating_timeline_close">ステップのタイムラインを閉じる</string>
+    <string name="floating_timeline_open">ステップのタイムラインを開く</string>
     <string name="floating_workbench">タスク画面を開く</string>
     <string name="history_all">すべて</string>
     <string name="history_all_presets">すべてのプリセット</string>

@@ -269,7 +269,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P13 (1.3.0) | 能力扩展: 风险识别配置, 预设导入导出, 观察工具补齐, 计划模式, 协议与视觉验收 | 插件 + 模型 | P12 |
 | P14 | 维护者体验反馈: 异常提醒, 停止原因, 预算放宽, 权限与预设的界面入口, 悬浮球控制, 输入区对齐 | 插件 + 文档 | P11 |
 | P15 | 界面第三次改版: 各页面一致性与易用性 | 插件 | P14 |
-| P16 | 维护者体验反馈第二批: 去除换模型按钮, 悬浮球两行信息与步骤时间线自动滚动, 发送按钮底部对齐 | 插件 | P15 |
+| P16 | 维护者体验反馈第二批: 去除换模型按钮, 悬浮球两行信息与步骤时间线自动滚动, 发送按钮底部对齐, 悬浮球菜单收纳与控制页两行重排及内联模型选择 | 插件 | P15 |
 
 当前验收状态 (2026-09-27): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). 1.1.0 与 1.2.0 均为未发布的开发候选 (GitHub 最新 release 仍为 v1.0.0), 1.2.0 的发布 gate 见 P12, 后续能力见 P13. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
@@ -742,9 +742,12 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 维护者在 P13 会话中提出的三项改进 (原文见同日会话记录), 每项独立落地并附证据.
 
-- [ ] (插件) 去除项目中所有 "换个模型重试" 按钮 (主页当前任务卡与任务详情页的次要动作; 相关字符串, 测试与截图说明同步).
-- [ ] (插件) 悬浮球最小化态: 任务描述一行加长以容纳更多内容, 去掉 "运行中" 前缀直接显示任务描述; 新增字号稍小的第二行显示当前步骤描述 (如 "屏幕观察 · ui_dump"); 点击 AI 图标仍展开控制窗口 (与现有行为一致), 点击右侧文字打开当前任务的 "步骤时间线"; 时间线列表自动滚动到底部, 用户上滑查看历史内容时暂停自动滚动, 再次向下滑到列表底部后恢复; 同一机制用于主应用的任务详情页.
-- [ ] (插件) 主页右下角 "发送" 按钮在输入框内容多于一行时保持 top gravity 而不是底部对齐 (一旁的麦克风按钮行为正常, 始终位于底部); 应与麦克风按钮一致, 不论输入框多高都位于底部.
+- [x] (插件) 去除所有 "换个模型重试" 按钮 (build 160): 主页当前任务卡与任务详情页只保留 "再次运行"; `FeedActions.prefill` 去掉 `chooseModel` 参数, `RunDetailActivity.rerun` 不再携带打开模型面板的 extra (`EXTRA_OPEN_MODELS` 仍是任务台的合法入口, 由既有测试覆盖); 十一语言删除 `workbench_retry_model`. README 截图 `docs/images/detail.png` / `workbench.png` 仍显示旧按钮, 待下次统一重拍.
+- [x] (插件) 悬浮球最小化态 (build 161): 运行中宽度 280 -> 320 dp, 手柄右侧改为两行 (任务描述 + 当前步骤, 步骤行用次级字号与静音色, 无 "运行中" 前缀; 步骤文本与时间线同源: 工具组 · 工具名 / 提问 / 完成 / 纠正 / 出错), 完整文本进入内容描述; 点击文字区打开 "步骤时间线" 卡 (360 dp, 高度按内容至可用高度 60%, `RunTimeline` 同一渲染, 卡外点击收起), 打开后快照改取 50 步. 新的 `ui/AutoScroll` 实现 "在底部时跟随, 上滑后停止, 回到底部后恢复" (只在读者已在底部时把新内容滚入视野, 程序滚动不改变跟随状态), 悬浮时间线与任务详情页 (`RunDetailActivity`, 仅运行中的任务, 进程恢复的保存位置优先) 共用. 证据见下.
+- [x] (插件) 发送按钮底部对齐 (build 160): 原因是横向 `LinearLayout` 默认按基线对齐, 带文字基线的发送按钮跟随输入框首行基线, 无基线的麦克风图标按钮才按 bottom gravity; 输入行加 `isBaselineAligned = false` (悬浮球新控制区同样设置). 证据: `WorkbenchActivityTest.sendAndVoiceButtonsStayAtTheBottomOfAMultiLineGoal` (四行文本时发送按钮距行底 2 dp, 不在首行).
+- [x] (插件) 悬浮球更多菜单 (build 161): 内联 "更多" 面板依次为 任务历史 / 打开任务台 / 最小化 / 退出悬浮球, 卡片底部的两个文字链接移除.
+- [x] (插件) 悬浮球控制页两行重排 (build 161): 与主页 composer 同构, 第一行 预设 chip (可占满余宽并省略) / 模型 chip / 访问权限 chip, 第二行 输入框 (1 到 4 行) / 麦克风 / 圆形发送按钮 (底部对齐); 三个 chip 各自展开内联面板 (预设列表; 模型列表: 自动 + 按在线 / 本地 / 混合分组的宿主目录, 刷新按钮, 不可用的当前模型以危险色标注; 访问权限: 标准 / 审慎 / 完全访问, 经私有设置保存). 模型目录直接经运行时的 `HostLink.targets` 读取, 选择写入与主应用同一个 `model-selection.json` (`ModelSelection.update`), 任务台在下次 `onStart` 读回, 悬浮球每次快照读回主应用的选择, 不再跳转任务台的模型页.
+- [x] (插件) 历史图标 (build 160): `drawable/ic_history.xml` 的路径改为 3-Stone AI `ic_history_24` 的同一 Material "history" 字形 (保留 `autoMirrored`), 任务台工具栏, 设置数据行与悬浮球更多面板同时生效.
 
 ## 附录 A: 脚本 API 草案
 
@@ -1842,3 +1845,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 风险识别配置见 P13 第一项. 设计取舍: 内置支付应用列表刻意只收纯支付类应用 (不含微信等即时通讯应用, 以免其中的每次点击都进入确认), 用户可自行添加; 内置条目不可移除, 与附录 C.3 "可在设置中扩展" 一致. 调试期发现 `AgentRuntime.policy` 此前从未传入支付包名, 所以内置列表在本条之前实际为空, 现在与用户列表一并生效.
 - 验证: JVM 629 项 (1 项性能开关跳过, 0 失败; 新增 `SettingsCodecTest.riskListsWidenPackagedTablesRoundTripAndStayBounded` 与 `ToolCatalogTest.userRiskAdditionsWidenThePackagedTablesWithoutRemovingBuiltIns`, `ManifestContractTest` 活动清单更新); 一次性 API 24 x86 AVD: `SettingsActivityTest` 16/16 (新增 `riskRecognitionListsApplyImmediatelyAndKeepPackagedEntries`: 内置条目无移除控件, 非法包名 / 与内置重复 / 关键词大小写重复保持对话框打开, 添加后即时落盘并在重建后保留, 移除后设置页摘要计数同步), `AgentRuntimePolicyAndroidTest` 1/1 (内置支付宝包名与自定义包名 / 关键词经运行时策略生效), `ThreeStoveAgentPluginContractTest` 4/4; lint 0 错误 / 6 条既有警告 (两条计数字符串改写为数字结尾以避免新增 PluralsCandidate); 十语言 36 份生成产物 `--check` 通过. 一次性 API 24 AVD 与之前相同 (`Three_Stove_Agent_Conformance_24`, 用后删除). 未在真机安装 1.3.0 开发版本.
 - 维护者提示将在会话中陆续提出体验类需求与反馈, 按 P14 的形式记录并实现 (未能当场完成的留待后续会话). 本会话已收到三项 (去除 "换个模型重试" 按钮; 悬浮球最小化态改为任务描述 + 步骤两行并可打开带自动滚动的步骤时间线, 任务详情页同机制; 发送按钮多行输入时底部对齐), 记为 P16, 在本条之后逐项实现.
+
+### 2026-09-28: 维护者体验反馈第二批 (P16)
+
+- 六项反馈在 P13 会话中陆续提出, 已全部落地: 见 P16 各条. 提交: 去除换模型按钮 / 发送按钮底部对齐 / 历史图标 (build 160), 悬浮球最小化两行与步骤时间线 / 更多菜单收纳 / 控制页两行重排与内联模型选择 (build 161).
+- 验证: JVM 629 项 (1 项性能开关跳过, 0 失败); 一次性 API 24 x86 AVD (`Three_Stove_Agent_Conformance_24`): `WorkbenchActivityTest` 全类 43 项 (41 通过, 2 项 opt-in 截图用例跳过; 新增的 `sendAndVoiceButtonsStayAtTheBottomOfAMultiLineGoal` 首次运行时断言过严, 放宽为 "按钮下沿与输入框下沿对齐且不在首行" 后单独重跑通过), `FloatingAccessibilityTest` 2/2 (新增断言: 最小化态显示任务描述与 "... · ui_click" 步骤行且无 "运行中" 前缀, 时间线卡渲染 `step-2` 行, 控制页含模型 / 权限 chip, 任务历史与打开任务台位于更多面板, 发送按钮贴行底), 新增 `AutoScrollTest` 1/1 (在底部时跟随新内容, 上滑后不动, 回到底部后恢复), `SettingsActivityTest` 16/16 (上一笔提交); lint 0 错误 / 6 条既有警告; `ApplicationTextPunctuationTest` 与 `ManifestContractTest` 通过.
+- 未做: README 的 12 张截图未随本批重拍 (主页与详情页仍显示 "换个模型重试", 悬浮球截图仍是旧布局), 留到下一次界面稳定后统一重拍; 真机未安装 1.3.0 开发版本.

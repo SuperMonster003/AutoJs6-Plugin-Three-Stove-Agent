@@ -57,6 +57,8 @@
     <string name="floating_open">展開任務卡片, 拖動可移動</string>
     <string name="floating_permission_required">請允許顯示在其他應用程式上層以啟用懸浮球.</string>
     <string name="floating_setting_note">預設關閉. 需要顯示在其他應用程式上層的權限. 僅在 AutoJs6 已連線時顯示, 中斷或鎖屏時隱藏. 閒置時不維持前景服務.</string>
+    <string name="floating_timeline_close">收起步驟時間線</string>
+    <string name="floating_timeline_open">打開步驟時間線</string>
     <string name="floating_workbench">開啟任務台</string>
     <string name="history_all">全部</string>
     <string name="history_all_presets">全部預設</string>
