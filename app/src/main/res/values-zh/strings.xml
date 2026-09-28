@@ -91,6 +91,8 @@
     <string name="history_retention">最多 200 条任务 / 32 MiB. 优先清理最久未查看的已结束任务.</string>
     <string name="history_script_result">脚本结果</string>
     <string name="history_search">搜索任务</string>
+    <string name="history_share">分享摘要</string>
+    <string name="history_share_footer">来自 %1$s</string>
     <string name="history_timeline">步骤时间线</string>
     <string name="history_title">任务历史</string>
     <string name="history_truncated">原始日志已达到上限. 此处显示全部保留步骤.</string>

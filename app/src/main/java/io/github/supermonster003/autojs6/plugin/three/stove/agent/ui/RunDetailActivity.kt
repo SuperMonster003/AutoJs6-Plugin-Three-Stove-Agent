@@ -101,13 +101,15 @@ class RunDetailActivity : HostAppearanceActivity() {
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(0, R.id.detail_use_model, 0, R.string.history_use_model).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-        menu.add(0, R.id.detail_export, 1, R.string.history_export).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-        menu.add(0, R.id.detail_delete, 2, R.string.history_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(0, R.id.detail_share, 1, R.string.history_share).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(0, R.id.detail_export, 2, R.string.history_export).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(0, R.id.detail_delete, 3, R.string.history_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
     }
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val value = row
         menu.findItem(R.id.detail_use_model)?.isVisible = value?.getAsJsonObject("model") != null
+        menu.findItem(R.id.detail_share)?.isEnabled = value?.let { ShareSummary.text(this, it) } != null
         menu.findItem(R.id.detail_export)?.isEnabled = value != null && !writing
         menu.findItem(R.id.detail_delete)?.isEnabled = value != null && !WorkbenchText.active(value)
         return super.onPrepareOptionsMenu(menu)
@@ -115,6 +117,7 @@ class RunDetailActivity : HostAppearanceActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.detail_use_model -> useModel()
+            R.id.detail_share -> share()
             R.id.detail_export -> prompt = kit.confirmDialog(getString(R.string.history_export), getString(R.string.history_export_note),
                 getString(R.string.history_export)) { runCatching { exportDocument.launch("agent-$id.json") }.onFailure { showError() } }
             R.id.detail_delete -> prompt = kit.confirmDialog(getString(R.string.history_delete), getString(R.string.history_delete_confirm),
@@ -148,6 +151,12 @@ class RunDetailActivity : HostAppearanceActivity() {
     /** Prefills the workbench with this task's goal and preset; the model stays the shared current choice. */
     internal fun rerun(value: JsonObject) {
         startActivity(Intent(this, LauncherActivity::class.java).putExtra("rerunGoal", value.string("goal")).putExtra("rerunPreset", value.string("preset")))
+    }
+    /** The system share sheet receives only the redacted result text; a missing result leaves the item disabled. */
+    internal fun share(): Boolean {
+        val text = row?.let { ShareSummary.text(this, it) } ?: return false
+        val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text).putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
+        return runCatching { startActivity(Intent.createChooser(send, getString(R.string.history_share))) }.onFailure { showError() }.isSuccess
     }
     private fun useModel() {
         val model = row?.getAsJsonObject("model") ?: return

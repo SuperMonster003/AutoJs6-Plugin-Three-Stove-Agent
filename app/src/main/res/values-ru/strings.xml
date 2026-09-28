@@ -91,6 +91,8 @@
     <string name="history_retention">До 200 задач / 32 MiB. Сначала удаляются завершенные задачи, которые дольше всего не просматривались.</string>
     <string name="history_script_result">Результат скрипта</string>
     <string name="history_search">Поиск задач</string>
+    <string name="history_share">Поделиться сводкой</string>
+    <string name="history_share_footer">Отправлено из %1$s</string>
     <string name="history_timeline">История шагов</string>
     <string name="history_title">История задач</string>
     <string name="history_truncated">Исходный журнал достиг лимита. Показаны все сохраненные шаги.</string>

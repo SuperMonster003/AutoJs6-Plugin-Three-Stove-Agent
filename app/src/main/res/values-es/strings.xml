@@ -91,6 +91,8 @@
     <string name="history_retention">Hasta 200 tareas / 32 MiB. Se eliminan primero las tareas terminadas consultadas hace más tiempo.</string>
     <string name="history_script_result">Resultado del script</string>
     <string name="history_search">Buscar tareas</string>
+    <string name="history_share">Compartir resumen</string>
+    <string name="history_share_footer">Compartido desde %1$s</string>
     <string name="history_timeline">Cronología de pasos</string>
     <string name="history_title">Historial de tareas</string>
     <string name="history_truncated">El registro original alcanzó su límite. Se muestran todos los pasos conservados.</string>

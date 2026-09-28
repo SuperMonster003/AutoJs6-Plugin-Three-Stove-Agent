@@ -91,6 +91,8 @@
     <string name="history_retention">حتى 200 مهمة / 32 MiB. تحذف أولا المهام المنتهية التي لم تعرض منذ أطول وقت.</string>
     <string name="history_script_result">نتيجة البرنامج النصي</string>
     <string name="history_search">البحث في المهام</string>
+    <string name="history_share">مشاركة الملخص</string>
+    <string name="history_share_footer">مشاركة من %1$s</string>
     <string name="history_timeline">تسلسل الخطوات</string>
     <string name="history_title">سجل المهام</string>
     <string name="history_truncated">بلغ السجل الأصلي الحد. تعرض جميع الخطوات المحفوظة.</string>

@@ -91,6 +91,8 @@
     <string name="history_retention">최대 200개 작업 / 32 MiB. 종료된 작업 중 가장 오래 조회하지 않은 항목부터 제거합니다.</string>
     <string name="history_script_result">스크립트 결과</string>
     <string name="history_search">작업 검색</string>
+    <string name="history_share">요약 공유</string>
+    <string name="history_share_footer">%1$s에서 공유</string>
     <string name="history_timeline">단계별 기록</string>
     <string name="history_title">작업 기록</string>
     <string name="history_truncated">원래 로그가 한도에 도달했습니다. 보존된 모든 단계를 표시합니다.</string>

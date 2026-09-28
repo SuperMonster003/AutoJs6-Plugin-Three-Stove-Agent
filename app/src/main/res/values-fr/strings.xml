@@ -91,6 +91,8 @@
     <string name="history_retention">200 tâches / 32 MiB au maximum. Les tâches terminées consultées le moins récemment sont supprimées en premier.</string>
     <string name="history_script_result">Résultat du script</string>
     <string name="history_search">Rechercher des tâches</string>
+    <string name="history_share">Partager le résumé</string>
+    <string name="history_share_footer">Partagé depuis %1$s</string>
     <string name="history_timeline">Chronologie des étapes</string>
     <string name="history_title">Historique des tâches</string>
     <string name="history_truncated">Le journal a atteint sa limite. Toutes les étapes conservées sont affichées.</string>
