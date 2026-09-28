@@ -25,6 +25,8 @@ internal object PresetCodec {
     const val MAX_COUNT = 32
     const val MAX_ROW_BYTES = 96 * 1024
     const val MAX_FILE_BYTES = 1024 * 1024
+    /** A portable file is reviewed row by row and travels through saved state, so it stays well below the private file limit. */
+    const val MAX_EXPORT_BYTES = 256 * 1024
     val scopes = listOf("global_and_preset", "global", "preset", "none")
     val ceilings = SettingsCodec.ceilings
     fun name(text: String) = text.also {
@@ -59,6 +61,21 @@ internal object PresetCodec {
         preset.targetId?.let { addProperty("targetId", it) }
         preset.toolGroups?.let { add("toolGroups", JsonArray().apply { it.sorted().forEach(::add) }) }
         preset.scriptRoots?.let { add("scriptRoots", JsonArray().apply { it.sorted().forEach(::add) }) }
+    }
+    /** Portable presets (roadmap I.3): no default selection and no model target, which is a device choice (D46). */
+    fun decodeExport(text: String): List<Preset> {
+        val root = AgentJson.objectOf(text, MAX_EXPORT_BYTES)
+        require(root.keySet() == setOf("version", "presets") && root.number("version") == 1L)
+        val raw = requireNotNull(root["presets"]?.takeIf { it.isJsonArray }?.asJsonArray)
+        require(raw.size() in 1..MAX_COUNT)
+        val rows = raw.map { value -> decodePreset(AgentJson.objectOf(value.toString(), MAX_ROW_BYTES)).copy(targetId = null) }
+        require(rows.map { it.name }.toSet().size == rows.size)
+        return rows
+    }
+    fun encodeExport(presets: List<Preset>): String {
+        val text = jsonObject("version" to 1.json(), "presets" to JsonArray().apply { presets.forEach { add(encodePreset(it.copy(targetId = null))) } }).toString()
+        decodeExport(text) // A written file must always import under exactly the same limits.
+        return text
     }
     fun decode(text: String): PresetSnapshot {
         val root = AgentJson.objectOf(text, MAX_FILE_BYTES)

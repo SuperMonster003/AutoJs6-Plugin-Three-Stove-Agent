@@ -196,6 +196,7 @@
     <string name="model_unavailable_note">لم يعد AutoJs6 يوفر هذا النموذج. اختر نموذجا آخر قبل بدء مهمة.</string>
     <string name="model_unpin">إلغاء تثبيت %1$s</string>
     <string name="plugin_description">ينفذ مهاما بلغة طبيعية عبر اختيار السكربتات المسجلة وتشغيل الشاشة خطوة بخطوة</string>
+    <string name="presets_accept">استيراد هذا الإعداد المسبق</string>
     <string name="presets_actions">إجراءات %1$s</string>
     <string name="presets_budget_note">اترك الحقول فارغة لوراثة حدود المهمة. يمكن تقليلها فقط. القيم الافتراضية: 60 خطوة, 90 استدعاء, 15 دقيقة (30 دقيقة للمهام المستقلة), 500000 رمز, مع مراعاة حدود المضيف.</string>
     <string name="presets_calls">الحد الأقصى لاستدعاءات النموذج</string>
@@ -210,6 +211,8 @@
     <string name="presets_delete_confirm">حذف %1$s? ستبقى المهام والسجل. إذا كان هو الإعداد الافتراضي, فستستخدم المهام الجديدة default.</string>
     <string name="presets_edit">تعديل الإعداد المسبق</string>
     <string name="presets_error">تعذر قراءة الإعداد أو حفظه. تحقق من عدم تكرار الاسم والحدود وحجم السياق والمجموعات والمجلدات المسموح بها ثم أعد المحاولة.</string>
+    <string name="presets_export">تصدير JSON</string>
+    <string name="presets_export_notice">يتضمن JSON لكل إعداد مسبق الاسم ومجموعات الأدوات وحدود المهمة وسياسة التأكيد والسياق الثابت وأدلة السكربتات ونطاق الذاكرة, دون أي نموذج. اختر موقع الحفظ.</string>
     <string name="presets_group_act">إجراءات الشاشة</string>
     <string name="presets_group_files">الملفات</string>
     <string name="presets_group_gesture">إيماءات الإحداثيات</string>
@@ -222,6 +225,9 @@
     <string name="presets_group_shell">أوامر Shell</string>
     <string name="presets_group_user">تفاعل المستخدم</string>
     <string name="presets_hybrid">هجين</string>
+    <string name="presets_import">استيراد JSON</string>
+    <string name="presets_import_dropped">غير متاح على هذا الجهاز ولن يحتفظ به بعد الاستيراد: %1$s</string>
+    <string name="presets_import_full">احذف إعدادا مسبقا أولا أو تخط هذا الإدخال. حد الإعدادات المسبقة: %1$d</string>
     <string name="presets_inherit">استخدام الإعدادات العامة</string>
     <string name="presets_local">على الجهاز</string>
     <string name="presets_manage">إدارة الإعدادات المسبقة</string>
@@ -236,8 +242,10 @@
     <string name="presets_new">إعداد مسبق جديد</string>
     <string name="presets_refresh_models">تحديث النماذج</string>
     <string name="presets_remote">عبر الإنترنت</string>
+    <string name="presets_replace">سيتم استبدال التكوين الحالي للإعداد المسبق الذي يحمل الاسم نفسه.</string>
     <string name="presets_save">حفظ الإعداد المسبق</string>
     <string name="presets_set_default">تعيين كافتراضي</string>
+    <string name="presets_skip">تخطي الإعداد المسبق</string>
     <string name="presets_standard">افتراضية (تأكيد الإجراءات الحساسة)</string>
     <string name="presets_steps">الحد الأقصى للخطوات</string>
     <string name="presets_title">الإعدادات المسبقة</string>

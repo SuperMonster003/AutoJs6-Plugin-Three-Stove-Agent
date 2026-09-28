@@ -1,8 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.text.Editable
@@ -15,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.chip.Chip
@@ -27,8 +23,6 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.ByteBuffer
-import java.nio.charset.CodingErrorAction
 import java.util.Locale
 import java.util.concurrent.Executors
 
@@ -174,20 +168,8 @@ class MemoryActivity : HostAppearanceActivity() {
             }
         }
     }
-    /** A new JSON document chosen by the user; only content URIs are accepted. */
-    private class CreateJsonDocument : ActivityResultContract<String, Uri?>() {
-        override fun createIntent(context: Context, input: String) = Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json")
-            .addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE, input)
-        override fun parseResult(resultCode: Int, intent: Intent?): Uri? = intent?.data?.takeIf { resultCode == Activity.RESULT_OK && it.scheme == "content" }
-    }
     companion object {
-        internal fun readImport(input: InputStream): List<MemoryEntry> {
-            val output = java.io.ByteArrayOutputStream(); val buffer = ByteArray(4096)
-            while (true) { val count = input.read(buffer); if (count < 0) break; require(output.size() + count <= MemoryCodec.MAX_BYTES); output.write(buffer, 0, count) }
-            val json = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
-                .decode(ByteBuffer.wrap(output.toByteArray())).toString()
-            return MemoryCodec.decode(json)
-        }
+        internal fun readImport(input: InputStream): List<MemoryEntry> = MemoryCodec.decode(readJsonDocument(input, MemoryCodec.MAX_BYTES))
         internal fun writeExport(output: OutputStream, data: JsonObject) {
             output.write(MemoryCodec.encode(MemoryCodec.decode(data.toString())).toByteArray(Charsets.UTF_8)); output.flush()
         }

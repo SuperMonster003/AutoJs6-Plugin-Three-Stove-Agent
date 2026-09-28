@@ -196,6 +196,7 @@
     <string name="model_unavailable_note">AutoJs6 はこのモデルを提供しなくなりました. タスクを開始する前に別のモデルを選んでください.</string>
     <string name="model_unpin">%1$s の固定を解除</string>
     <string name="plugin_description">登録済みスクリプトの選択と画面の段階的な操作により自然言語のタスクを実行</string>
+    <string name="presets_accept">このプリセットをインポート</string>
     <string name="presets_actions">%1$s の操作</string>
     <string name="presets_budget_note">空欄はタスクの制限を継承します. 値は制限を縮小する場合のみ指定できます. 既定: 60 ステップ, 90 回, 15 分 (切り離したタスクは 30 分), 500000 トークン. ホストの制限も適用されます.</string>
     <string name="presets_calls">最大モデル呼び出し数</string>
@@ -210,6 +211,8 @@
     <string name="presets_delete_confirm">プリセット %1$s を削除しますか? 既存のタスクと履歴は保持されます. 既定の場合, 新規タスクは default を使用します.</string>
     <string name="presets_edit">プリセットを編集</string>
     <string name="presets_error">プリセットの読み込みまたは保存に失敗しました. 名前の重複, 予算, コンテキストのサイズ, ツールとディレクトリの許可を確認して再試行してください.</string>
+    <string name="presets_export">JSON をエクスポート</string>
+    <string name="presets_export_notice">JSON にはすべてのプリセットの名前, ツールグループ, タスクの制限, 確認ポリシー, 固定コンテキスト, スクリプトディレクトリ, 記憶の範囲が含まれ, モデルは含まれません. 保存先を選択してください.</string>
     <string name="presets_group_act">画面操作</string>
     <string name="presets_group_files">ファイル</string>
     <string name="presets_group_gesture">座標ジェスチャー</string>
@@ -222,6 +225,9 @@
     <string name="presets_group_shell">シェルコマンド</string>
     <string name="presets_group_user">ユーザーとの対話</string>
     <string name="presets_hybrid">ハイブリッド</string>
+    <string name="presets_import">JSON をインポート</string>
+    <string name="presets_import_dropped">このデバイスでは利用不可のため, インポート後に保持されません: %1$s</string>
+    <string name="presets_import_full">先にプリセットを削除するか, この項目をスキップしてください. プリセットの上限: %1$d</string>
     <string name="presets_inherit">全体設定を使用</string>
     <string name="presets_local">端末内</string>
     <string name="presets_manage">プリセットを管理</string>
@@ -236,8 +242,10 @@
     <string name="presets_new">新規プリセット</string>
     <string name="presets_refresh_models">モデル一覧を更新</string>
     <string name="presets_remote">オンライン</string>
+    <string name="presets_replace">同名のプリセットの現在の設定を置き換えます.</string>
     <string name="presets_save">プリセットを保存</string>
     <string name="presets_set_default">既定に設定</string>
+    <string name="presets_skip">プリセットをスキップ</string>
     <string name="presets_standard">標準 (機密操作を確認)</string>
     <string name="presets_steps">最大ステップ数</string>
     <string name="presets_title">プリセット</string>
