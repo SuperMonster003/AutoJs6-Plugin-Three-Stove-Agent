@@ -76,7 +76,7 @@ jobs:
           - api-level: 35
             arch: x86_64
             profile: pixel_7
-          - api-level: 37
+          - api-level: 37.1
             arch: x86_64
             profile: pixel_7
 
