@@ -91,6 +91,8 @@
     <string name="history_retention">最多 200 條任務 / 32 MiB. 優先清理最久未查看的已結束任務.</string>
     <string name="history_script_result">腳本結果</string>
     <string name="history_search">搜尋任務</string>
+    <string name="history_share">分享摘要</string>
+    <string name="history_share_footer">來自 %1$s</string>
     <string name="history_timeline">步驟時間線</string>
     <string name="history_title">任務歷史</string>
     <string name="history_truncated">原始日誌已達到上限. 此處顯示全部保留步驟.</string>

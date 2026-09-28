@@ -91,6 +91,8 @@
     <string name="history_retention">Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first.</string>
     <string name="history_script_result">Script result</string>
     <string name="history_search">Search tasks</string>
+    <string name="history_share">Share summary</string>
+    <string name="history_share_footer">Shared from %1$s</string>
     <string name="history_timeline">Step timeline</string>
     <string name="history_title">Task history</string>
     <string name="history_truncated">The original journal reached its limit. All retained steps are shown.</string>

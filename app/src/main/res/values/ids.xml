@@ -2,6 +2,7 @@
 <resources>
     <item name="detail_delete" type="id" />
     <item name="detail_export" type="id" />
+    <item name="detail_share" type="id" />
     <item name="detail_use_model" type="id" />
     <item name="history_clear" type="id" />
     <item name="interaction_countdown" type="id" />

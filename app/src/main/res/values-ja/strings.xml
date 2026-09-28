@@ -91,6 +91,8 @@
     <string name="history_retention">最大 200 件 / 32 MiB. 終了済みタスクのうち最も長く閲覧されていないものから削除されます.</string>
     <string name="history_script_result">スクリプト結果</string>
     <string name="history_search">タスクを検索</string>
+    <string name="history_share">要約を共有</string>
+    <string name="history_share_footer">%1$s から共有</string>
     <string name="history_timeline">ステップの履歴</string>
     <string name="history_title">タスク履歴</string>
     <string name="history_truncated">元のログが上限に達しました. 保持されたすべてのステップを表示しています.</string>

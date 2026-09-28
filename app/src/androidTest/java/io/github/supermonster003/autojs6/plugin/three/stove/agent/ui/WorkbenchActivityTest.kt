@@ -1178,6 +1178,30 @@ class WorkbenchActivityTest {
             } finally { presets.named("delete", name) }
         }
     }
+    @Test fun shareSummaryOffersOnlyTheRedactedResultThroughTheSystemShareSheet() = withFixture(Model(true)) { link, model ->
+        val id = AgentConnection.decode(link.startRun(bundle(C.KEY_RUN_REQUEST_JSON, """{"goal":"Share fixture goal","options":{"interaction":"plugin"}}"""), null)).string("runId")!!
+        waitFor("Share fixture model asked") { model.calls.get() == 1 && model.held != null }
+        model.finish("""{"kind":"done","done":{"status":"partial","summary":"Share fixture summary","evidence":["Observed the fixture screen"],"unfinished":["Second half"]}}""")
+        fun run() = AgentConnection.decode(link.getRun(bundle(C.KEY_RUN_REF_JSON, """{"runId":"$id"}""")))
+        waitFor("Share fixture settled") { run().string("state") == "partial" }
+        val snapshot = run()
+        ActivityScenario.launch<RunDetailActivity>(Intent(context, RunDetailActivity::class.java).putExtra("runId", id)).use { detail ->
+            waitFor("Share fixture details loaded") { var found = false; detail.onActivity { found = texts(it.findViewById(android.R.id.content)).contains("Share fixture summary") }; found }
+            // An action-only filter also matches component intents, so the blocking monitor is installed only around the share call.
+            val monitor = instrumentation.addMonitor(IntentFilter(Intent.ACTION_CHOOSER), null, true)
+            try {
+                var text: String? = null; var shared = false
+                detail.onActivity { activity -> text = ShareSummary.text(activity, snapshot); shared = activity.share() }
+                assertTrue(shared)
+                val expected = checkNotNull(text)
+                assertTrue(expected, expected.contains("Share fixture goal") && expected.contains("Share fixture summary") &&
+                    expected.contains("- Observed the fixture screen") && expected.contains("- Second half"))
+                assertFalse(expected, expected.contains("\"kind\"") || expected.contains(id) || expected.contains("observation"))
+                waitFor("Share sheet intercepted") { monitor.hits == 1 }
+            } finally { instrumentation.removeMonitor(monitor) }
+        }
+        assertNull(ShareSummary.text(context, AgentJson.objectOf("""{"runId":"x","goal":"g","state":"running"}""")))
+    }
     @Test fun credentialMemoryWritesAreRejectedAcrossPrivateBinder() {
         MemoriesClient().use { memory ->
             val key = "audit-${java.util.UUID.randomUUID()}"
