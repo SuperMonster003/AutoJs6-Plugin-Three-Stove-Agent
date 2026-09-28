@@ -742,7 +742,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 维护者在 P13 会话中提出的三项改进 (原文见同日会话记录), 每项独立落地并附证据.
 
-- [x] (插件) 去除所有 "换个模型重试" 按钮 (build 160): 主页当前任务卡与任务详情页只保留 "再次运行"; `FeedActions.prefill` 去掉 `chooseModel` 参数, `RunDetailActivity.rerun` 不再携带打开模型面板的 extra (`EXTRA_OPEN_MODELS` 仍是任务台的合法入口, 由既有测试覆盖); 十一语言删除 `workbench_retry_model`. README 截图 `docs/images/detail.png` / `workbench.png` 仍显示旧按钮, 待下次统一重拍.
+- [x] (插件) 去除所有 "换个模型重试" 按钮 (build 160): 主页当前任务卡与任务详情页只保留 "再次运行"; `FeedActions.prefill` 去掉 `chooseModel` 参数, `RunDetailActivity.rerun` 不再携带打开模型面板的 extra (`EXTRA_OPEN_MODELS` 仍是任务台的合法入口, 由既有测试覆盖); 十一语言删除 `workbench_retry_model`. README 截图 `docs/images/detail.png` / `workbench.png` 仍显示旧按钮, 待下次统一重拍 (2026-09-29 已重拍, build 169).
 - [x] (插件) 悬浮球最小化态 (build 161): 运行中宽度 280 -> 320 dp, 手柄右侧改为两行 (任务描述 + 当前步骤, 步骤行用次级字号与静音色, 无 "运行中" 前缀; 步骤文本与时间线同源: 工具组 · 工具名 / 提问 / 完成 / 纠正 / 出错), 完整文本进入内容描述; 点击文字区打开 "步骤时间线" 卡 (360 dp, 高度按内容至可用高度 60%, `RunTimeline` 同一渲染, 卡外点击收起), 打开后快照改取 50 步. 新的 `ui/AutoScroll` 实现 "在底部时跟随, 上滑后停止, 回到底部后恢复" (只在读者已在底部时把新内容滚入视野, 程序滚动不改变跟随状态), 悬浮时间线与任务详情页 (`RunDetailActivity`, 仅运行中的任务, 进程恢复的保存位置优先) 共用. 证据见下.
 - [x] (插件) 发送按钮底部对齐 (build 160): 原因是横向 `LinearLayout` 默认按基线对齐, 带文字基线的发送按钮跟随输入框首行基线, 无基线的麦克风图标按钮才按 bottom gravity; 输入行加 `isBaselineAligned = false` (悬浮球新控制区同样设置). 证据: `WorkbenchActivityTest.sendAndVoiceButtonsStayAtTheBottomOfAMultiLineGoal` (四行文本时发送按钮距行底 2 dp, 不在首行).
 - [x] (插件) 悬浮球更多菜单 (build 161): 内联 "更多" 面板依次为 任务历史 / 打开任务台 / 最小化 / 退出悬浮球, 卡片底部的两个文字链接移除.
@@ -1878,3 +1878,7 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - `list_changed` 不再直接作废会话: 通知只要求下一次动作前重新核对冻结的定义, 未变的工具继续可用, 变了的才失败并附提示; 设置页补充 OAuth / 旧 SSE 不支持的说明. 真实 MCP Server 的往返留待有服务器的验收会话, 条目未勾选. 见 P13 第八项.
 - 验证: JVM 640 项 (1 项性能开关跳过, 0 失败); lint 0 错误 / 6 条既有警告; 十语言 36 份生成产物 `--check` 通过; 未启动模拟器 (改动不涉及界面与 Binder 契约).
 - 远程 CI: build 165 (run 36446810413) 的模拟器作业被 166 的推送取消 (单元 / APK 已通过, Markdown 通过); build 166 (run 36447817751): 单元 / APK 通过, API 35 通过 (138 项完成, 3 项 opt-in 跳过, 0 失败, 含计划审阅卡与分享摘要用例), API 24 在安装 debug APK 时 adb 无响应 (`ShellCommandUnresponsiveException`, `Failed to install split APK`), 套件未开始, 记为 CI 基础设施偶发 (同一 APK 在本地 API 24 AVD 安装并通过 51 项), API 37.1 既有非阻断失败, Markdown 通过; build 167 (run 36450414564): 单元 / APK 通过, API 35 通过 (138 项完成, 3 项 opt-in 跳过, 0 失败), API 24 首轮在第 111 项后因模拟器系统进程死亡 (`DeadSystemException`, `managementScreensHaveAccessibleControlsAndUnclippedText` 被记为失败) 中断, 用 `gh run rerun --failed` 重跑后通过 (132 项完成, 3 项 opt-in 跳过, 0 失败), API 37.1 既有非阻断失败, 重跑后的运行结论 success, Markdown 通过.
+
+### 2026-09-29: README 截图重拍 (build 169)
+
+- 按 `docs/images/README.md` 的复现步骤, 在一次性 API 36.1 google_apis x86_64 pixel_7 AVD (`Three_Stove_Agent_Conformance_36`, 1080 x 2400, 420 dpi, 字号 1.0) 上以 build 168 的 debug / androidTest APK 重拍 12 张图: `captureReadmeScreens` / `captureReadmeFloating` (en, 亮色) 与 `captureRedesignedScreens` (zh-Hans, 亮 / 暗) 均 OK; `app-models-*.png` 与上次逐字节相同 (模型面板未变), 其余 10 张更新并重算 SHA-256. 悬浮球截图的夹具快照在截图路径改为 `accessMode: standard` (审计路径仍用 full 检查危险色调), 避免 README 展示红色的完全访问标签; `FloatingAccessibilityTest` 2/2 通过. 模拟器用后关闭并删除 AVD 目录.

@@ -1,7 +1,7 @@
 # Interface captures
 
-Captured on 2026-09-28 from production views after the third UI pass,
-version 1.2.0 / build 140. Android API 36.1 (google_apis, x86_64), disposable
+Captured on 2026-09-29 from production views after the P13 additions
+(preset import / export, plan mode, share summary), version 1.3.0 / build 168. Android API 36.1 (google_apis, x86_64), disposable
 pixel_7 emulator, 1080 x 2400, density 420, font scale 1.0. These are interface
 examples with synthetic tasks and scripted replies, not real-model acceptance
 results.
@@ -15,18 +15,18 @@ the bottom of the settings page after scrolling has finished.
 
 | File | Pixels | SHA-256 |
 | --- | --- | --- |
-| app-home-dark.png | 1080 x 2400 | ae4bb556092a4e80508092f562cf2f55959d3bb3aa9d98349d82f89975aaed20 |
-| app-home-light.png | 1080 x 2400 | 27f0a57e1ec91573a560e3479cea68e158992234385c928710dbce240562b49d |
+| app-home-dark.png | 1080 x 2400 | 10b15266291d6c03ed89703342aa6c3a069c2b5c24de8f179ced11c40f9a9ffe |
+| app-home-light.png | 1080 x 2400 | 8fa4c689f03d3af162b0398ed0e381f930e40d8881de2a8e5d018c1d51a8a2bd |
 | app-models-dark.png | 1080 x 1503 | 69e5bf7ebbc3765c2a5a96ee58cea6ad0f2de4f42c84c5c88426d251208e3b89 |
 | app-models-light.png | 1080 x 1503 | fe3fe8c85076cc1f15816f8d74bb3eff59a21318191c5935e4bdc7ce6200ac99 |
-| app-settings-dark.png | 1080 x 2400 | 95a3d91a0e57de51437d80d1ca091580ac4a43f50aa32eb5c57c59c9d11429f4 |
-| app-settings-light.png | 1080 x 2400 | 95b40aa8cd693b5c35ad77efafd3d374da6194dcaed778d6f28db48da79ec7c6 |
-| app-settings-more-dark.png | 1080 x 2400 | 65d8842881a0204233be0c5e4b259b794e786638ea00e9d2840d7cd5861b6998 |
-| app-settings-more-light.png | 1080 x 2400 | 9a0df9ae35720af8200760c569e1ca1b319842fcc66a8cd2ed7a7b301baf53f0 |
-| confirmation.png | 1024 x 1965 | 8591e4bc2ff5af4b3cec629685e31b9ae9d4ad61d6b3fb30ec47a5b3b0fdf22d |
-| detail.png | 1080 x 2400 | 077815d7790ae8fbe0ce193391d9db89cccb85d001fea67c162a5f50da0b7547 |
-| floating.png | 945 x 1062 | 203069549a9a874038a54e1f1941a348567e1019d1c922d64b8863954d7bf6bb |
-| workbench.png | 1080 x 2400 | e604495df8633ac735d237611923de4eb6caa92dfa92cbc06585fcc586e35122 |
+| app-settings-dark.png | 1080 x 2400 | 594c3e91fc266397d30eb3b0be8ba1422ca6d7307e25f42e5a84680306ea7b9b |
+| app-settings-light.png | 1080 x 2400 | 7b892b3dda69cc85f1e3d6a9d38fc34b9deaa98a609a7530bfb01e0f6c064c78 |
+| app-settings-more-dark.png | 1080 x 2400 | 754c4c6ec13d8706f562030d1efd05a7b9a5621f2830a33a8708b89fa794ed59 |
+| app-settings-more-light.png | 1080 x 2400 | 92bd8920296a843773a0a34a8bf0a7355d34e0c0e96848b92427a01808aebfeb |
+| confirmation.png | 1024 x 1965 | 3df03d92e44f68467bb61312ca52a962659996b263af9b167620e1e995d8d75d |
+| detail.png | 1080 x 2400 | 68ecfba199ff2aaddec6b4948beeab4fe7e2b488c3a24db1e47e75e7df09f382 |
+| floating.png | 945 x 621 | 0e531e62f1c15e0e79272ff55b37feb1183f3697ba502b98ae1cb9ff519b95df |
+| workbench.png | 1080 x 2400 | 2decdde14c9342b6da2f7d93ade213a1af9f81f3b8b8c06749fdc1b1a20c5ede |
 
 ## Reproduce
 
