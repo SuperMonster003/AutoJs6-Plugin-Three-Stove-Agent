@@ -35,7 +35,7 @@ class NativeModelTest {
     private val broker = NativeTestBroker()
     private fun target(limits: NativeToolLimits? = NativeToolLimits()) = ModelTarget("p", "profile:test", ModelLocality.REMOTE,
         ModelProtocol.UNKNOWN, false, 128 * 1024, supportsStreaming = true, nativeTools = limits)
-    private fun client(selected: ModelTarget = target()) = ModelClient(broker, selected, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler) { true }
+    private fun client(selected: ModelTarget = target()) = ModelClient(broker, selected, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler)
     private fun input(maximum: Int = 128 * 1024) = ModelInput(jsonArray(jsonObject("role" to "user".json(), "content" to "Test".json())),
         format = DecisionSchema.native(ModelProtocol.UNKNOWN), tools = catalog.nativeDefinitions(policy, "en"), maximumContextBytes = maximum)
     private fun begin(timeout: Long = 3000, maximum: Int = 128 * 1024): Pair<NativeToolTurn, MutableList<PortResult<ModelReply>>> {

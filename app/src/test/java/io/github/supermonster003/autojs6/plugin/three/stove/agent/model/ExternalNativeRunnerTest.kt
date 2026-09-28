@@ -14,7 +14,7 @@ class ExternalNativeRunnerTest {
         val policy = ToolPolicy(enabledGroups = ToolGroup.entries.associateWith { it == ToolGroup.MCP })
         val scheduler = VirtualScheduler(); val broker = NativeTestBroker(); val tools = FakeTools().apply { autoExecute = false }
         val target = ModelTarget("fixture", "profile:test", ModelLocality.REMOTE, ModelProtocol.UNKNOWN, false, 128 * 1024, nativeTools = NativeToolLimits())
-        val model = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler) { true }
+        val model = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler)
         val format = model.initialFormat(DecisionSchema.degraded())
         val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, format)
         val events = mutableListOf<RunEvent>()

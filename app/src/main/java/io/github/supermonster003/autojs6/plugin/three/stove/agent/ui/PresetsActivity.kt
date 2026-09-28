@@ -26,29 +26,29 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 class PresetsActivity : HostAppearanceActivity() {
     private lateinit var connection: PresetConnection
     private lateinit var scaffold: Scaffold
-    private lateinit var page: LinearLayout
-    private lateinit var bar: LinearLayout
+    internal lateinit var page: LinearLayout
+    internal lateinit var bar: LinearLayout
     private lateinit var message: TextView
-    private var configuration = JsonObject()
-    private var draft: JsonObject? = null
+    internal var configuration = JsonObject()
+    internal var draft: JsonObject? = null
     /** The editor's starting point, to detect unsaved changes. */
-    private var initial: JsonObject? = null
-    private var editing: String? = null
+    internal var initial: JsonObject? = null
+    internal var editing: String? = null
     /** A legacy preset model is kept for scripts only; the plugin UI uses the shared model choice. */
-    private var targetId: String? = null
-    private lateinit var name: TextInputEditText
-    private lateinit var fixedContext: TextInputEditText
-    private lateinit var inheritGroups: MaterialCheckBox
-    private lateinit var inheritRoots: MaterialCheckBox
-    internal lateinit var confirmation: ChoiceRow; private set
-    internal lateinit var scope: ChoiceRow; private set
-    private val groups = linkedMapOf<String, MaterialCheckBox>()
-    private val roots = linkedMapOf<String, MaterialCheckBox>()
-    private val budgets = linkedMapOf<String, TextInputEditText>()
+    internal var targetId: String? = null
+    internal lateinit var name: TextInputEditText
+    internal lateinit var fixedContext: TextInputEditText
+    internal lateinit var inheritGroups: MaterialCheckBox
+    internal lateinit var inheritRoots: MaterialCheckBox
+    internal lateinit var confirmation: ChoiceRow
+    internal lateinit var scope: ChoiceRow
+    internal val groups = linkedMapOf<String, MaterialCheckBox>()
+    internal val roots = linkedMapOf<String, MaterialCheckBox>()
+    internal val budgets = linkedMapOf<String, TextInputEditText>()
     /** The last opened dialog or menu, exposed for instrumentation. */
     internal var prompt: AlertDialog? = null; private set
     internal var menu: PopupMenu? = null; private set
-    private var editorVisible = false
+    internal var editorVisible = false
     private var busy = false
     /** An editor requested by the launching intent: name to edit or copy, or "" for a new preset. */
     private var pendingOpen: Pair<String, Boolean>? = null
@@ -106,7 +106,7 @@ class PresetsActivity : HostAppearanceActivity() {
             }
         }
     }
-    private fun reset(title: Int) {
+    internal fun reset(title: Int) {
         page.removeAllViews(); groups.clear(); roots.clear(); budgets.clear()
         supportActionBar?.title = getString(title)
         message = kit.text("", Ui.TEXT_BODY, palette.danger).apply {
@@ -114,46 +114,14 @@ class PresetsActivity : HostAppearanceActivity() {
         }
         page.addView(message, LinearLayout.LayoutParams(-1, -2))
     }
-    private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+    internal fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
 
-    private fun showList() {
-        editorVisible = false; bar.visibility = View.GONE; reset(R.string.presets_title)
-        kit.caption(page, getString(R.string.ui_preset_optional))
-        page.addView(kit.tonalButton(getString(R.string.presets_new), "preset-new") {
-            editing = null; val row = PresetCodec.encodePreset(Preset("")); showEditor(row, row)
-        }.apply { isEnabled = configuration.getAsJsonArray("presets").size() < PresetCodec.MAX_COUNT },
-            LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_MD); bottomMargin = kit.dp(Ui.SPACE_MD) })
-        val defaultName = configuration.string("defaultName")
-        configuration.getAsJsonArray("presets").forEach { item ->
-            val key = item.asString
-            page.addView(kit.card(interactive = true).apply {
-                tag = "preset-$key"
-                orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
-                setPaddingRelative(kit.dp(Ui.SPACE_LG), kit.dp(Ui.SPACE_SM), kit.dp(Ui.SPACE_XS), kit.dp(Ui.SPACE_SM))
-                addView(icon(R.drawable.ic_layers), LinearLayout.LayoutParams(kit.dp(Ui.ICON_SIZE), kit.dp(Ui.ICON_SIZE)).apply { marginEnd = kit.dp(Ui.SPACE_LG) })
-                addView(LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    addView(kit.text(presetLabel(key), Ui.TEXT_ITEM, medium = true).apply { textAlignment = View.TEXT_ALIGNMENT_VIEW_START })
-                    if (key == defaultName) addView(kit.badge(getString(R.string.presets_default_badge), Tone.ACCENT),
-                        LinearLayout.LayoutParams(-2, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
-                }, LinearLayout.LayoutParams(0, -2, 1f))
-                val more = kit.iconButton(R.drawable.ic_more, getString(R.string.presets_actions, presetLabel(key)), "preset-menu-$key", palette.muted) {}
-                more.setOnClickListener { actions(key, more) }
-                addView(more)
-                contentDescription = presetLabel(key) + if (key == defaultName) ", " + getString(R.string.presets_default_badge) else ""
-                setOnClickListener { edit(key, copy = false) }
-            }, kit.cardParams(bottomDp = Ui.SPACE_SM))
-        }
-    }
-    private fun icon(icon: Int) = android.widget.ImageView(this).apply {
-        setImageDrawable(kit.tintedDrawable(icon, palette.accent)); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-    }
-    private fun edit(key: String, copy: Boolean) = request("get", jsonObject("name" to key.json())) { row ->
+    internal fun edit(key: String, copy: Boolean) = request("get", jsonObject("name" to key.json())) { row ->
         editing = key.takeUnless { copy }
         if (copy) row.addProperty("name", "")
         showEditor(row, row.deepCopy())
     }
-    private fun actions(key: String, anchor: View) {
+    internal fun actions(key: String, anchor: View) {
         menu = PopupMenu(this, anchor).apply {
             menu.add(0, 1, 0, R.string.presets_edit); menu.add(0, 2, 1, R.string.presets_copy)
             if (configuration.string("defaultName") != key) menu.add(0, 3, 2, R.string.presets_set_default)
@@ -182,59 +150,6 @@ class PresetsActivity : HostAppearanceActivity() {
         }
     }
 
-    private fun showEditor(row: JsonObject, start: JsonObject) {
-        draft = row; initial = start; editorVisible = true; bar.visibility = View.VISIBLE
-        reset(if (editing == null) R.string.presets_new else R.string.presets_edit)
-        name = kit.formField(page, getString(R.string.presets_name), row.string("name").orEmpty(), "preset-name", maxLength = 128,
-            helper = getString(R.string.presets_name_note)).apply { isEnabled = editing == null }
-        targetId = row.string("targetId")
-
-        kit.formSection(page, getString(R.string.presets_tools))
-        val allowed = configuration.getAsJsonArray("toolGroups").map { it.asString }.toSet()
-        val selectedGroups = row.getAsJsonArray("toolGroups")?.map { it.asString }?.toSet() ?: allowed
-        inheritGroups = kit.checkRow(page, getString(R.string.presets_inherit), "preset-inherit-groups", !row.has("toolGroups"))
-        ToolGroup.entries.forEach { group ->
-            val label = ToolPresentation.groupLabel(this, group)
-            groups[group.id] = kit.checkRow(page, if (group.id in allowed) label else getString(R.string.presets_unavailable, label),
-                "preset-group-${group.id}", group.id in selectedGroups).apply { (layoutParams as ViewGroup.MarginLayoutParams).marginStart = kit.dp(Ui.SPACE_LG) }
-        }
-        fun enableGroups() { groups.forEach { (id, box) -> box.isEnabled = !inheritGroups.isChecked && (id in allowed || box.isChecked) } }
-        inheritGroups.setOnCheckedChangeListener { _, _ -> enableGroups() }; enableGroups()
-
-        kit.formSection(page, getString(R.string.ui_budget))
-        kit.caption(page, getString(R.string.presets_budget_note))
-        val saved = row.getAsJsonObject("budget")
-        for ((key, label) in BUDGET_LABELS) {
-            val value = saved?.get(key)?.asString?.let { text -> if (key == DURATION) text.toLongOrNull()?.let { ((it + 59_999) / 60_000).toString() } ?: text else text }
-            budgets[key] = kit.formField(page, getString(label), value.orEmpty(), if (key == DURATION) "preset-maxDuration" else "preset-$key",
-                InputType.TYPE_CLASS_NUMBER, 12, helper = getString(R.string.history_auto))
-        }
-
-        kit.formSection(page, getString(R.string.presets_confirmation))
-        confirmation = kit.choiceRow(getString(R.string.presets_confirmation), listOf(getString(R.string.presets_standard), getString(R.string.presets_cautious)),
-            if (row.string("confirmPolicy") == "cautious") 1 else 0, R.drawable.ic_shield, "preset-confirm") {}
-        page.addView(confirmation.view.apply { setPaddingRelative(0, paddingTop, 0, paddingBottom) }, LinearLayout.LayoutParams(-1, -2))
-        kit.caption(page, getString(R.string.presets_confirmation_note))
-
-        kit.formSection(page, getString(R.string.presets_context_section))
-        fixedContext = kit.formField(page, getString(R.string.presets_context), row.string("context").orEmpty(), "preset-context", maxLength = 8192, multiline = true)
-
-        kit.formSection(page, getString(R.string.script_roots_title))
-        inheritRoots = kit.checkRow(page, getString(R.string.presets_inherit), "preset-inherit-roots", !row.has("scriptRoots"))
-        val allowedRoots = configuration.getAsJsonArray("scriptRoots").map { it.asString }.toSet()
-        val selectedRoots = row.getAsJsonArray("scriptRoots")?.map { it.asString }?.toSet() ?: allowedRoots
-        (allowedRoots + selectedRoots).sorted().forEach { path ->
-            roots[path] = kit.checkRow(page, if (path in allowedRoots) path else getString(R.string.presets_unavailable, path), "preset-root-$path", path in selectedRoots)
-                .apply { (layoutParams as ViewGroup.MarginLayoutParams).marginStart = kit.dp(Ui.SPACE_LG); textDirection = View.TEXT_DIRECTION_LTR }
-        }
-        fun enableRoots() { roots.forEach { (path, box) -> box.isEnabled = !inheritRoots.isChecked && (path in allowedRoots || box.isChecked) } }
-        inheritRoots.setOnCheckedChangeListener { _, _ -> enableRoots() }; enableRoots()
-
-        kit.formSection(page, getString(R.string.presets_memory))
-        scope = kit.choiceRow(getString(R.string.presets_memory), SCOPE_LABELS.map(::getString), PresetCodec.scopes.indexOf(row.string("memoryScope")).coerceAtLeast(0),
-            R.drawable.ic_lightbulb, "preset-memory") {}
-        page.addView(scope.view.apply { setPaddingRelative(0, paddingTop, 0, paddingBottom) }, LinearLayout.LayoutParams(-1, -2))
-    }
     private fun readDraft(): JsonObject = jsonObject("name" to name.text.toString().json(), "context" to fixedContext.text.toString().json(),
         "confirmPolicy" to (if (confirmation.selectedIndex == 1) "cautious" else "default").json(),
         "memoryScope" to PresetCodec.scopes[scope.selectedIndex.coerceAtLeast(0)].json(),
@@ -275,7 +190,7 @@ class PresetsActivity : HostAppearanceActivity() {
         message.setText(R.string.presets_error); message.visibility = View.VISIBLE
         scaffold.scroll?.smoothScrollTo(0, 0)
     }
-    private companion object {
+    internal companion object {
         const val DURATION = "maxDurationMs"
         val BUDGET_LABELS = linkedMapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)

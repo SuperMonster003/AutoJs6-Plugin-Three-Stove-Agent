@@ -3,9 +3,6 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolPolicy
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 
 /** Implemented by the Binder adapter (BinderModelBroker) over IThreeStoveAgentModelBroker, including Bundle/FD ownership and death.
  * Both calls must return promptly. Events contain complete bounded JSON, never partial FD reads.
@@ -27,7 +24,6 @@ interface ModelBrokerTransport {
 class ModelClient(
     private val broker: ModelBrokerTransport, private val target: ModelTarget, private val policy: ToolPolicy,
     private val fallbacks: SchemaFallbacks, private val scheduler: RunScheduler,
-    private val blockingAllowed: () -> Boolean,
 ) : RunModel {
     private var structuredUnsupported = false
     private var toolsUnsupported = false
@@ -95,31 +91,6 @@ class ModelClient(
             minOf(maximumOutputTokens, input.maximumOutputTokens ?: maximumOutputTokens),
             input.tools.map { requireNotNull(it.asJsonObject.string("name")) }.toSet(), callback,
             input.vision, input.imageTokens, input.images.size, input.images.sumOf { it.byteCount }).dispatch(request, timeoutMs, input.images)
-    }
-
-    /** Synchronous wrapper used by JVM tests only; production always calls [generate] with a callback and the
-     * Binder adapter passes blockingAllowed = false, so this throws there. The callback and timeout paths do not
-     * depend on the waiting thread. */
-    fun await(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long): PortResult<ModelReply> {
-        check(blockingAllowed()) { "Model wait requires an independent worker thread" }
-        val latch = CountDownLatch(1)
-        val result = AtomicReference<PortResult<ModelReply>?>(null)
-        val started = System.nanoTime()
-        val cancellation = generate(input, maximumOutputTokens, timeoutMs) {
-            if (result.compareAndSet(null, it)) latch.countDown()
-        }
-        try {
-            val remaining = (timeoutMs - TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)).coerceAtLeast(0)
-            if (!latch.await(remaining, TimeUnit.MILLISECONDS)) {
-                if (cancellation is Invocation) cancellation.timeout() else cancellation.cancel()
-                result.compareAndSet(null, (cancellation as? Invocation)?.outcome() ?: PortResult.Failure(RunError.MODEL_TIMEOUT))
-            }
-        } catch (_: InterruptedException) {
-            cancellation.cancel()
-            result.compareAndSet(null, (cancellation as? Invocation)?.outcome() ?: PortResult.Failure(RunError.CANCELLED))
-            Thread.currentThread().interrupt()
-        }
-        return checkNotNull(result.get())
     }
 
     private inner class Invocation(private val id: String, private val callback: (PortResult<ModelReply>) -> Unit) : ModelCallCancellation {

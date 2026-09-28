@@ -190,7 +190,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                             val client = synchronized(clients) {
                                 clients.getOrPut(key) {
                                     if (clients.size >= 32) clients.remove(clients.keys.first())
-                                    ModelClient(model, target, policy, catalogFallbacks, scheduler) { false }
+                                    ModelClient(model, target, policy, catalogFallbacks, scheduler)
                                 }
                             }
                             val format = client.initialFormat(request.options.format)

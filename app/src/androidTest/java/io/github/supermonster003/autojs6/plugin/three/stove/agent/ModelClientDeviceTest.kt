@@ -46,7 +46,7 @@ class ModelClientDeviceTest {
         }
         SerialRunScheduler().use { scheduler ->
             val compiler = ContextCompiler(PromptCatalog(::asset, catalog), catalog, policy, target, format)
-            val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler) { Looper.myLooper() != Looper.getMainLooper() }
+            val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler)
             val queue = RunQueue(scheduler, catalog, policy, compiler, client, noTools()) { RunnerText(asset("runner/texts.json"), it) }
             val done = CountDownLatch(1)
             val run = queue.submit(RunOptions("验证任务结果", format)) { if (it.type == "done") done.countDown() }
@@ -66,14 +66,14 @@ class ModelClientDeviceTest {
             override fun cancel(requestId: String) { cancels.incrementAndGet() }
         }
         SerialRunScheduler().use { scheduler ->
-            val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler) { Looper.myLooper() != Looper.getMainLooper() }
+            val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler)
             val compiler = ContextCompiler(PromptCatalog(::asset, catalog), catalog, policy, target, format)
             val input = compiler.compile(RunContext("Test timeout", emptyList(), null, null, com.google.gson.JsonObject()))
             InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                assertThrows(IllegalStateException::class.java) { client.await(input, 20, 1000) }
+                assertThrows(IllegalStateException::class.java) { client.awaitReply(input, 20, 1000) }
             }
             assertEquals(0, calls.get())
-            assertEquals(RunError.MODEL_TIMEOUT, (client.await(input, 20, 1000) as PortResult.Failure).error)
+            assertEquals(RunError.MODEL_TIMEOUT, (client.awaitReply(input, 20, 1000) as PortResult.Failure).error)
             assertEquals(1, calls.get())
             // The cancel is dispatched on the scheduler after the timeout settles; a loaded CI emulator needs a moment (run 36334996089).
             val deadline = android.os.SystemClock.uptimeMillis() + 5000

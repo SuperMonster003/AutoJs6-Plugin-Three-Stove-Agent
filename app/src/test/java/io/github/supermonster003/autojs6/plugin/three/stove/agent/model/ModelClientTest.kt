@@ -42,8 +42,8 @@ class ModelClientTest {
     private fun input(format: DecisionFormat = schema.generate(ModelProtocol.LOCAL, policy), maxOutput: Int? = null) =
         ModelInput(jsonArray(jsonObject("role" to "user".json(), "content" to "Test".json())),
             format.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0, format, maxOutput)
-    private fun client(broker: TestModelBroker, scheduler: RunScheduler = VirtualScheduler(), blocking: () -> Boolean = { true }) =
-        ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler, blocking)
+    private fun client(broker: TestModelBroker, scheduler: RunScheduler = VirtualScheduler()) =
+        ModelClient(broker, target, policy, SchemaFallbacks(schema), scheduler)
 
     @Test fun successfulStreamMatchesFullTextAndPreservesUsage() {
         val broker = TestModelBroker().apply { script = { call ->
@@ -66,7 +66,7 @@ class ModelClientTest {
 
     @Test fun plainNonStreamingResponseCanOmitUsage() {
         val broker = TestModelBroker().apply { script = { it.started(); it.done("Text") } }
-        val value = client(broker).await(input(DecisionSchema.degraded(ModelProtocol.LOCAL)), 20, 1000)
+        val value = client(broker).awaitReply(input(DecisionSchema.degraded(ModelProtocol.LOCAL)), 20, 1000)
         assertNull((value as PortResult.Success).value.usage)
         assertFalse(broker.calls.single().request.has("responseSchema"))
     }
@@ -84,7 +84,7 @@ class ModelClientTest {
         )
         scripts.forEach { script ->
             val broker = TestModelBroker().apply { this.script = script }
-            assertEquals(RunError.INVALID_REQUEST, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
+            assertEquals(RunError.INVALID_REQUEST, (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).error)
             assertEquals(listOf(broker.calls.single().request.string("requestId")), broker.cancels)
         }
     }
@@ -109,10 +109,10 @@ class ModelClientTest {
         )
         payloads.forEach { payload ->
             val broker = TestModelBroker().apply { script = { it.started(); it.send("usage", AgentJson.objectOf(payload)) } }
-            assertEquals(RunError.INVALID_REQUEST, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
+            assertEquals(RunError.INVALID_REQUEST, (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).error)
         }
         val broker = TestModelBroker().apply { script = { it.callback("""{"type":"started","type":"completed"}""") } }
-        assertEquals(RunError.INVALID_REQUEST, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
+        assertEquals(RunError.INVALID_REQUEST, (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).error)
     }
 
     @Test fun outputBytesAreBoundedBeforeAccumulatingOrAcceptingCompletion() {
@@ -121,20 +121,20 @@ class ModelClientTest {
                 if (stream) it.send("chunk", jsonObject("chunkSequence" to 1.json(), "text" to "中".repeat(22_000).json()))
                 else it.done("中".repeat(22_000))
             } }
-            assertEquals(RunError.LIMIT_EXCEEDED, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
+            assertEquals(RunError.LIMIT_EXCEEDED, (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).error)
         }
     }
 
     @Test fun failureRetainsUsageAndOnlyAllowsStableFallbackReason() {
         val broker = TestModelBroker().apply { script = { it.started(); it.usage(); it.fail(RunError.MODEL_FAILED, "REQUEST_REJECTED") } }
-        val failure = client(broker).await(input(), 20, 1000) as PortResult.Failure
+        val failure = client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure
         assertEquals(RunError.MODEL_FAILED, failure.error); assertEquals("REQUEST_REJECTED", failure.reason)
         assertEquals(ModelUsage(10, 5, 15), failure.usage)
         broker.script = { it.started(); it.fail(RunError.MODEL_FAILED, "PROVIDER_FAILED") }
         // Fixed host reasons other than REQUEST_REJECTED are kept for the terminal summary; only REQUEST_REJECTED drives a format fallback.
-        assertEquals("PROVIDER_FAILED", (client(broker).await(input(), 20, 1000) as PortResult.Failure).reason)
+        assertEquals("PROVIDER_FAILED", (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).reason)
         broker.script = { it.started(); it.fail(RunError.MODEL_FAILED, "private error body") }
-        assertEquals(RunError.INVALID_REQUEST, (client(broker).await(input(), 20, 1000) as PortResult.Failure).error)
+        assertEquals(RunError.INVALID_REQUEST, (client(broker).awaitReply(input(), 20, 1000) as PortResult.Failure).error)
     }
 
     @Test fun timeoutAndExplicitCancellationEachSettleOnceAndIgnoreLateEvents() {
@@ -155,28 +155,28 @@ class ModelClientTest {
     @Test fun requestValidationHappensBeforeDispatchAndShortDeadlineIsNotRoundedUp() {
         val broker = TestModelBroker()
         val client = client(broker)
-        assertEquals(RunError.MODEL_TIMEOUT, (client.await(input(), 20, 999) as PortResult.Failure).error)
-        assertEquals(RunError.INVALID_REQUEST, (client.await(input(), 0, 1000) as PortResult.Failure).error)
+        assertEquals(RunError.MODEL_TIMEOUT, (client.awaitReply(input(), 20, 999) as PortResult.Failure).error)
+        assertEquals(RunError.INVALID_REQUEST, (client.awaitReply(input(), 0, 1000) as PortResult.Failure).error)
         val bad = ModelInput(jsonArray(jsonObject("role" to "assistant".json(), "content" to "x".json())), format = DecisionSchema.degraded(ModelProtocol.LOCAL))
-        assertEquals(RunError.INVALID_REQUEST, (client.await(bad, 20, 1000) as PortResult.Failure).error)
+        assertEquals(RunError.INVALID_REQUEST, (client.awaitReply(bad, 20, 1000) as PortResult.Failure).error)
         assertTrue(broker.calls.isEmpty())
     }
 
-    @Test fun synchronousWaitSupportsWorkerInterruptionAndThreadAdmission() {
+    @Test fun interruptedWaiterCancelsTheCallAndKeepsItsInterruptFlag() {
         val ready = CountDownLatch(1)
         val broker = TestModelBroker().apply { script = { it.started(); ready.countDown() } }
-        assertThrows(IllegalStateException::class.java) { client(broker, blocking = { false }).await(input(), 20, 1000) }
         val result = AtomicReference<PortResult<ModelReply>>()
         val restored = AtomicReference<Boolean>()
-        val worker = Thread { result.set(client(broker).await(input(), 20, 30_000)); restored.set(Thread.currentThread().isInterrupted) }
+        val worker = Thread { result.set(client(broker).awaitReply(input(), 20, 30_000)); restored.set(Thread.currentThread().isInterrupted) }
         worker.start(); assertTrue(ready.await(3, TimeUnit.SECONDS)); worker.interrupt(); worker.join(3000)
         assertFalse(worker.isAlive); assertEquals(true, restored.get())
         assertEquals(RunError.CANCELLED, (result.get() as PortResult.Failure).error); assertEquals(1, broker.cancels.size)
     }
 
-    @Test fun awaitHasIndependentTimeoutWhenSchedulerCannotMakeProgress() {
+    @Test fun deadlineTimeoutKeepsObservedUsageAndCancelsTheBroker() {
         val broker = TestModelBroker().apply { script = { it.started(); it.usage() } }
-        val result = client(broker).await(input(), 20, 1000) as PortResult.Failure
+        val scheduler = VirtualScheduler()
+        val result = client(broker, scheduler).awaitReply(input(), 20, 1000, graceMs = 200) { scheduler.advance(1000) } as PortResult.Failure
         assertEquals(RunError.MODEL_TIMEOUT, result.error); assertEquals(ModelUsage(10, 5, 15), result.usage)
         assertEquals(1, broker.cancels.size)
     }
@@ -186,8 +186,8 @@ class ModelClientTest {
             override fun generate(requestJson: String, onEvent: (String) -> Unit) { error("private exception") }
             override fun cancel(requestId: String) { error("another private exception") }
         }
-        val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), VirtualScheduler()) { true }
-        assertEquals(RunError.HOST_UNAVAILABLE, (client.await(input(), 20, 1000) as PortResult.Failure).error)
+        val client = ModelClient(broker, target, policy, SchemaFallbacks(schema), VirtualScheduler())
+        assertEquals(RunError.HOST_UNAVAILABLE, (client.awaitReply(input(), 20, 1000) as PortResult.Failure).error)
     }
 
     @Test fun concurrentCancellationAndTerminalEventsPublishExactlyOnce() {
@@ -210,12 +210,12 @@ class ModelClientTest {
     @Test fun nonStreamingTargetsUseAskAndMissingOutputControlIsNotMisclassifiedAsSchemaFailure() {
         val broker = TestModelBroker().apply { script = { it.started(); it.done("ok") } }
         val singleShot = ModelTarget("provider", "local:test", ModelLocality.ON_DEVICE, ModelProtocol.LOCAL, true, 65536)
-        val client = ModelClient(broker, singleShot, policy, SchemaFallbacks(schema), VirtualScheduler()) { true }
-        assertTrue(client.await(input(), 20, 1000) is PortResult.Success)
+        val client = ModelClient(broker, singleShot, policy, SchemaFallbacks(schema), VirtualScheduler())
+        assertTrue(client.awaitReply(input(), 20, 1000) is PortResult.Success)
         assertEquals(false, broker.calls.single().request.flag("stream"))
         val unbounded = ModelTarget("provider", "local:test", ModelLocality.ON_DEVICE, ModelProtocol.LOCAL, true, 65536, supportsOutputLimit = false)
-        val unavailable = ModelClient(broker, unbounded, policy, SchemaFallbacks(schema), VirtualScheduler()) { true }
-        val failure = unavailable.await(input(), 20, 1000) as PortResult.Failure
+        val unavailable = ModelClient(broker, unbounded, policy, SchemaFallbacks(schema), VirtualScheduler())
+        val failure = unavailable.awaitReply(input(), 20, 1000) as PortResult.Failure
         assertEquals(RunError.TARGET_UNSUPPORTED, failure.error)
         assertNull(unavailable.fallbackFormat(input().format!!, failure)); assertEquals(1, broker.calls.size)
     }
