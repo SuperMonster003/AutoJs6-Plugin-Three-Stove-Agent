@@ -187,6 +187,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | Check whether an application package is installed. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | List installed applications, optionally filtered by a package name or label fragment; the result is bounded. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
@@ -196,6 +198,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_list` | `script` | `READ_ONLY` | `on` | List script executions currently running in AutoJs6 with their ids and states. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `Функция` Настраиваемое распознавание рисков: новый экран настроек Распознавание рисков добавляет собственные имена пакетов и ключевые слова поверх встроенного списка платежных приложений (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) и таблицы чувствительных ключевых слов на десяти языках; дополнения только расширяют списки и применяются сразу, а совпавшие действия на экране становятся чувствительными и требуют подтверждения
 - `Функция` Обновление плавающего шара: в свернутом виде показываются задача и текущий шаг в две строки, касание текста открывает карточку хронологии шагов; карточка управления сжата до тех же двух строк, что и рабочее место (пресет / модель / доступ, поле цели / голос / запуск), модель и режим доступа переключаются внутри наложения и разделяются с приложением; хронология следует за новыми шагами, пока вы в конце, останавливается при прокрутке вверх и возобновляется в конце, как и экран сведений о задаче
 - `Функция` Импорт / экспорт предустановок: на экране предустановок появились Импорт JSON и Экспорт JSON; экспортированный файл содержит настройки всех предустановок, но не модель; при импорте каждая предустановка проверяется по отдельности, для существующего имени показывается предупреждение о замене, отсутствующие на этом устройстве группы инструментов и каталоги скриптов отбрасываются, а незавершенная проверка восстанавливается после ухода с экрана
+- `Функция` Дополнены инструменты наблюдения: инструменты только для чтения app_list (установленные приложения, при необходимости отфильтрованные по фрагменту имени пакета или названия, не более 200 строк), app_installed (установлен ли пакет) и script_list (выполнения скриптов, идущие в AutoJs6, с их идентификаторами и состояниями, для использования вместе со script_stop) соответствуют методам package_manager.listApps, app.isInstalled и engines.list, которые грант хоста уже разрешал; они входят в группы наблюдения и скриптов и включены по умолчанию
 - `Исправление` Кнопка отправки больше не остается на первой строке многострочной цели: она прижата к низу, как кнопка микрофона
 - `Улучшение` Кнопки Повторить с другой моделью убраны (модель переключается вверху рабочего места или внутри плавающего шара); История задач и Открыть рабочее место плавающего шара перенесены в меню Еще; значок истории заменен стандартным
 

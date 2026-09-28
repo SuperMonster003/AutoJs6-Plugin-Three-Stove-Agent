@@ -16,7 +16,7 @@ class ToolCatalogTest {
     @Test fun catalogAndKeywordSnapshotsFreezeTheApprovedSurface() {
         val snapshot = JsonArray().apply { catalog.tools.forEach { add(it.snapshot()) } }
         assertEquals(AgentJson.parse(F.snapshot("tool-catalog.snapshot.json"), 256 * 1024), snapshot)
-        assertEquals(32, catalog.tools.size)
+        assertEquals(35, catalog.tools.size)
         assertNull(catalog["ask_user"])
         assertNotNull(catalog["script_run_source"])
         assertNotNull(catalog["screen_capture"])
@@ -47,9 +47,24 @@ class ToolCatalogTest {
         assertEquals(catalog.tools.map { it.name }.toSet(), ToolNames.ALL)
         assertEquals(setOf(ToolNames.MEMORY_PROPOSE, ToolNames.SCRIPT_RUN_SOURCE), catalog.tools.filter { it.confirmAlways }.map { it.name }.toSet())
         assertTrue(catalog.tools.filter { it.confirmAlways }.all { it.risk == RiskLevel.SENSITIVE && it.external == null })
-        assertEquals(28, ToolNames.HOST_DISPATCHED.size); assertEquals(32, ToolNames.ALL.size)
+        assertEquals(31, ToolNames.HOST_DISPATCHED.size); assertEquals(35, ToolNames.ALL.size)
     }
 
+    @Test fun applicationAndExecutionObservationsMapToReadOnlyHostQueries() {
+        val policy = F.policy()
+        val apps = handler.prepare("app_list", AgentJson.objectOf("{\"query\":\"Pay\"}"), policy) as ToolPlan.Call
+        assertEquals("package_manager.listApps", apps.request.module + "." + apps.request.method)
+        assertEquals(jsonArray(jsonObject("query" to "Pay".json())), apps.request.args); assertEquals(listOf("package_manager"), apps.request.permissions)
+        assertEquals(jsonArray(jsonObject("query" to "".json())), (handler.prepare("app_list", JsonObject(), policy) as ToolPlan.Call).request.args)
+        val installed = handler.prepare("app_installed", AgentJson.objectOf("{\"packageName\":\"com.example\"}"), policy) as ToolPlan.Call
+        assertEquals("app.isInstalled", installed.request.module + "." + installed.request.method); assertEquals(listOf("app.query"), installed.request.permissions)
+        val executions = handler.prepare("script_list", JsonObject(), policy) as ToolPlan.Call
+        assertEquals("engines.list", executions.request.module + "." + executions.request.method); assertEquals(listOf("engines"), executions.request.permissions)
+        for (name in listOf("app_list", "app_installed", "script_list")) { val spec = catalog[name]!!; assertEquals(RiskLevel.READ_ONLY, spec.risk); assertTrue(spec.defaultEnabled) }
+        assertEquals(setOf("app_list", "app_installed"), ToolNames.OBSERVATIONS - ToolNames.SCREEN_OBSERVATIONS - setOf(ToolNames.DEVICE_INFO, ToolNames.CONSOLE_TAIL))
+        F.fails("TOOL_ARGUMENTS_INVALID") { handler.prepare("app_list", AgentJson.objectOf("{\"limit\":201}"), policy) }
+        F.fails("TOOL_ARGUMENTS_INVALID") { handler.prepare("app_installed", JsonObject(), policy) }
+    }
     @Test fun disabledGroupsAreHiddenAndRejectedBeforeArgumentValidation() {
         val policy = ToolPolicy()
         val visible = AgentJson.parse(catalog.render(policy)).asJsonArray.map { it.asJsonObject.string("name") }
@@ -58,7 +73,7 @@ class ToolCatalogTest {
             F.fails("TOOL_DISABLED") { handler.prepare(name, JsonObject(), policy) }
         }
         F.fails("TOOL_UNKNOWN") { handler.prepare("unknown_tool", JsonObject(), F.policy()) }
-        assertTrue(AgentJson.parse(catalog.render(F.policy())).asJsonArray.size() == 31)
+        assertTrue(AgentJson.parse(catalog.render(F.policy())).asJsonArray.size() == 34)
     }
 
     @Test fun riskOverridesCannotLowerSensitiveToolsOrRegisteredScriptRisk() {

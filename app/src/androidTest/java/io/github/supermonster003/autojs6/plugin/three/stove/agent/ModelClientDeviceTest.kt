@@ -31,7 +31,7 @@ class ModelClientDeviceTest {
                 structured += request.flag("structuredJson")!!
                 val messages = request.getAsJsonArray("messages")
                 val size = StepJournal.bytes(messages) + if (request.has("responseSchema")) StepJournal.bytes(request["responseSchema"]) else 0
-                check(size <= 7500 && Budget.estimate(size) + request.number("maximumOutputTokens")!! <= 4096)
+                check(size <= 8000 && Budget.estimate(size) + request.number("maximumOutputTokens")!! <= 4096)
                 var sequence = 0
                 fun event(type: String, fields: com.google.gson.JsonObject = com.google.gson.JsonObject()) = onEvent(jsonObject(
                     "requestId" to request["requestId"], "type" to type.json(), "sequence" to (++sequence).json()

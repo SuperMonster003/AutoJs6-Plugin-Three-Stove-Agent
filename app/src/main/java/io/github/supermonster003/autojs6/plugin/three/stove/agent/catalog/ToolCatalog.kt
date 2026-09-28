@@ -52,7 +52,8 @@ class ToolCatalog private constructor(specifications: List<ToolSpec>) {
     val tools: List<ToolSpec> = specifications.toList()
     private val byName: Map<String, ToolSpec>
     init {
-        require(tools.isNotEmpty() && tools.size <= 64)
+        // 35 packaged definitions plus up to 32 selected external tools, with room for later packaged additions.
+        require(tools.isNotEmpty() && tools.size <= 96)
         require(tools.count { it.external != null } <= 32)
         require(tools.all { it.name.matches(Regex("[a-z][a-z0-9_]{1,63}")) && it.defaultEnabled == it.group.defaultEnabled })
         require(tools.all { if (it.external == null) it.group != ToolGroup.MCP && it.inputSchema["additionalProperties"] == false.json() && it.bridgeMapping.isNotEmpty()

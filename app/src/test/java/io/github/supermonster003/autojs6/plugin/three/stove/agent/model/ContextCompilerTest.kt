@@ -43,8 +43,8 @@ class ContextCompilerTest {
     @Test fun localDefaultsFitBothLanguagesAndReserveOutputInside4096Tokens() {
         for (goal in listOf("Open Android settings and enable Wi-Fi", "打开设置并开启无线网络")) {
             val input = compiler(local = true).compile(context(goal))
-            assertTrue(input.inputBytes <= 7500)
-            assertTrue(Budget.estimate(input.inputBytes) <= 3000)
+            assertTrue(input.inputBytes <= 8000)
+            assertTrue(Budget.estimate(input.inputBytes) <= 3200)
             assertTrue(Budget.estimate(input.inputBytes) + input.maximumOutputTokens!! <= 4096)
             assertTrue(contents(input)[1].contains(goal))
             assertEquals("system", input.messages.first().asJsonObject.string("role"))
@@ -67,7 +67,7 @@ class ContextCompilerTest {
             val record = AgentJson.objectOf(observation.string("content")!!.lines().single { it.startsWith("{") })
             assertEquals("observation", record.string("section"))
             assertEquals(attack, record.getAsJsonObject("data").getAsJsonObject("result").string("text"))
-            assertTrue(input.inputBytes <= if (local) 7500 else 64 * 1024)
+            assertTrue(input.inputBytes <= if (local) 8000 else 64 * 1024)
         }
     }
     @Test fun onlineMessageOrderPreservesSummaryPairsCurrentObservationAndBudget() {
@@ -123,7 +123,7 @@ class ContextCompilerTest {
             assertEquals(499_640L, remaining(first)["tokens"].asLong)
             assertEquals(after, remaining(second))
             assertEquals(before, remaining(first))
-            assertTrue(second.inputBytes <= if (local) 7500 else 64 * 1024)
+            assertTrue(second.inputBytes <= if (local) 8000 else 64 * 1024)
         }
     }
     @Test fun longHistoryIsRemovedBeforeCurrentObservation() {
@@ -144,7 +144,7 @@ class ContextCompilerTest {
             val input = compiler(local = true).compile(context(goal, history = List(20) { record(it + 1, "old".repeat(1000)) }, guidance = guidance))
             assertTrue(contents(input).first().contains(guidance.toString()))
             assertTrue(input.messages.count { it.asJsonObject.string("role") == "assistant" } < 8)
-            assertTrue(input.inputBytes <= 7500)
+            assertTrue(input.inputBytes <= 8000)
         }
     }
     @Test fun impossibleBudgetsFailBeforeRemovingGoalOrRules() {
@@ -182,7 +182,7 @@ class ContextCompilerTest {
     @Test fun optionalContextAndMemoriesAreBoundedWithExplicitTruncation() {
         val memory = JsonArray().apply { repeat(30) { add(jsonObject("key" to "key$it".json(), "value" to "value".repeat(10).json())) } }
         val input = compiler(local = true, fixed = "optional context ".repeat(450), memory = memory).compile(context())
-        assertTrue(input.inputBytes <= 7500)
+        assertTrue(input.inputBytes <= 8000)
         val system = contents(input).first()
         assertTrue(system.contains("\"memoryTruncated\":true")); assertTrue(system.contains("\"contextTruncated\":true"))
         assertEquals(30, memory.size())

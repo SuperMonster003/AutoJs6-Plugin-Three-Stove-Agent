@@ -86,6 +86,20 @@ class ObservationToolsTest {
         assertEquals(jsonArray("new".json(), "token=***".json()), result["lines"]); assertTrue(result.flag("truncated")!!)
         assertEquals("global-window", result.string("consoleCaptureMode"))
     }
+    @Test fun applicationAndExecutionListsAreBoundedAndInstallationIsExplicit() {
+        val apps = JsonArray().apply { repeat(60) { add(jsonObject("packageName" to "com.example.app$it".json(), "appName" to "App $it".json(), "enabled" to true.json(), "system" to false.json())) } }
+        val source = jsonObject("schema" to "autojs6-bridge-android-apps-v1".json(), "query" to "app".json(), "count" to 60.json(), "truncated" to false.json(), "apps" to apps)
+        val listed = transform("app_list", source, jsonObject("limit" to 5.json())).asJsonObject
+        assertEquals(5, listed.getAsJsonArray("apps").size()); assertEquals(60L, listed.number("count")); assertEquals(5L, listed.number("returned")); assertTrue(listed.flag("truncated")!!)
+        assertEquals("com.example.app0", listed.getAsJsonArray("apps")[0].asJsonObject.string("packageName"))
+        assertFalse(transform("app_list", source, jsonObject("limit" to 60.json())).asJsonObject.flag("truncated")!!)
+        val executions = JsonArray().apply { repeat(201) { add(jsonObject("id" to it.json(), "sourceName" to "s$it".json(), "state" to "running".json())) } }
+        val running = transform("script_list", jsonObject("count" to 201.json(), "executions" to executions)).asJsonObject
+        assertEquals(200, running.getAsJsonArray("executions").size()); assertTrue(running.flag("truncated")!!)
+        assertEquals(jsonObject("installed" to true.json()), transform("app_installed", true.json()))
+        assertThrows(IllegalArgumentException::class.java) { transform("app_installed", "true".json()) }
+        assertThrows(IllegalArgumentException::class.java) { transform("app_list", jsonObject("apps" to 1.json())) }
+    }
     @Test fun waitResultAndScreenStateHaveExplicitMeanings() {
         val found = jsonObject("matched" to true.json(), "state" to "appear".json(), "node" to node("seen"))
         assertEquals("seen", transform("ui_wait_for", found).asJsonObject.getAsJsonObject("node").string("text"))

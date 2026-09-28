@@ -13,7 +13,7 @@ class ExternalToolCatalogTest {
 
     @Test fun externallySelectedToolsExtendOneImmutableCatalogAndRemainDisabledByDefault() {
         val base = F.catalog(); val spec = tool(); val catalog = base.withExternal(listOf(spec))
-        assertEquals(32, base.tools.size); assertEquals(33, catalog.tools.size); assertNull(base[spec.name])
+        assertEquals(35, base.tools.size); assertEquals(36, catalog.tools.size); assertNull(base[spec.name])
         assertFalse(ToolPolicy().isEnabled(spec))
         val policy = ToolPolicy(enabledGroups = mapOf(ToolGroup.MCP to true), availableTools = base.tools.map { it.name }.toSet())
         assertFalse(policy.isEnabled(spec))
@@ -27,7 +27,7 @@ class ExternalToolCatalogTest {
 
     @Test fun externalNamesCannotCollideOrExceedTheExistingDefinitionLimit() {
         val base = F.catalog()
-        assertEquals(64, base.withExternal((1..32).map { tool("mcp_local_t$it") }).tools.size)
+        assertEquals(67, base.withExternal((1..32).map { tool("mcp_local_t$it") }).tools.size)
         assertThrows(IllegalArgumentException::class.java) { base.withExternal((1..33).map { tool("mcp_local_t$it") }) }
         for (name in listOf("mcp_Local_echo", "mcp_" + "x".repeat(61), "device_info")) {
             assertThrows(IllegalArgumentException::class.java) { base.withExternal(listOf(tool(name))) }

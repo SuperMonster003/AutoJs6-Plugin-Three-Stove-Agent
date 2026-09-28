@@ -187,6 +187,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | Check whether an application package is installed. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | List installed applications, optionally filtered by a package name or label fragment; the result is bounded. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
@@ -196,6 +198,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_list` | `script` | `READ_ONLY` | `on` | List script executions currently running in AutoJs6 with their ids and states. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `기능` 위험 인식 설정 가능: 설정에 위험 인식 화면을 추가하여 기본 제공 결제 앱 목록 (Alipay, AlipayHK, UnionPay, PayPal, Google 월렛, Samsung Pay, Huawei Wallet, Mi Pay)과 10개 언어 민감 키워드 표에 사용자 패키지 이름과 키워드를 추가할 수 있습니다. 추가는 목록을 넓히기만 하며 즉시 적용되고, 일치하는 화면 동작은 민감한 동작으로 확인을 거칩니다
 - `기능` 플로팅 볼 개편: 최소화 시 작업과 현재 단계를 두 줄로 표시하고 텍스트를 누르면 단계 타임라인 카드가 열립니다. 제어 카드는 작업대와 같은 두 줄 (프리셋 / 모델 / 접근 권한, 입력란 / 음성 / 시작)로 줄였고, 모델과 접근 권한은 오버레이 안에서 전환하며 앱과 같은 선택을 공유합니다. 타임라인은 끝에 있을 때 새 단계를 따라가고, 위로 스크롤하면 멈추며, 끝으로 돌아오면 다시 따라갑니다 (작업 세부 정보 화면도 동일)
 - `기능` 프리셋 가져오기 / 내보내기: 프리셋 화면에 JSON 가져오기와 JSON 내보내기를 추가. 내보낸 파일에는 모든 프리셋의 구성이 포함되며 모델은 포함되지 않습니다. 가져올 때는 프리셋을 하나씩 검토하고, 같은 이름의 프리셋에는 대체 안내를 표시하며, 이 기기에 없는 도구 그룹이나 스크립트 디렉터리는 가져올 때 제외되고, 검토 도중 화면을 떠나도 이어서 진행할 수 있습니다
+- `기능` 관찰 도구 보완: 읽기 전용 도구 app_list (설치된 앱 목록, 패키지 이름이나 이름 일부로 필터링 가능, 최대 200개), app_installed (패키지 설치 여부 확인), script_list (AutoJs6에서 실행 중인 스크립트 실행과 그 ID 및 상태 목록, script_stop과 함께 사용)를 추가. 각각 호스트 grant가 이미 허용하던 package_manager.listApps, app.isInstalled, engines.list에 대응하며 관찰 그룹과 스크립트 그룹에 속하고 기본으로 켜져 있습니다
 - `수정` 입력란이 여러 줄일 때 보내기 버튼이 첫 줄에 머물지 않고 마이크 버튼처럼 아래쪽에 정렬됩니다
 - `개선` 다른 모델로 다시 시도 버튼 제거 (모델은 작업대 상단 또는 플로팅 볼 안에서 전환). 플로팅 볼의 작업 기록과 작업대 열기는 더보기 메뉴로 이동했고, 기록 아이콘을 표준 모양으로 변경
 

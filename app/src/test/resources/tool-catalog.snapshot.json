@@ -382,6 +382,69 @@
     "destructiveHint": false
   },
   {
+    "name": "app_list",
+    "group": "observe",
+    "risk": "READ_ONLY",
+    "description": {
+      "en": "List installed applications, optionally filtered by a package name or label fragment; the result is bounded.",
+      "zh": "列出已安装应用, 可按包名或名称片段过滤; 结果有界."
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "outputHint": "count, returned, truncated and the first apps (packageName, appName, enabled, system) up to limit",
+    "bridgeMapping": [
+      "package_manager.listApps"
+    ],
+    "defaultEnabled": true,
+    "readOnlyHint": true,
+    "destructiveHint": false
+  },
+  {
+    "name": "app_installed",
+    "group": "observe",
+    "risk": "READ_ONLY",
+    "description": {
+      "en": "Check whether an application package is installed.",
+      "zh": "检查应用包名是否已安装."
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "packageName": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        }
+      },
+      "required": [
+        "packageName"
+      ],
+      "additionalProperties": false
+    },
+    "outputHint": "installed boolean",
+    "bridgeMapping": [
+      "app.isInstalled"
+    ],
+    "defaultEnabled": true,
+    "readOnlyHint": true,
+    "destructiveHint": false
+  },
+  {
     "name": "screen_state",
     "group": "observe",
     "risk": "READ_ONLY",
@@ -1474,6 +1537,28 @@
     "outputHint": "JSON observation",
     "bridgeMapping": [
       "agent.listScripts"
+    ],
+    "defaultEnabled": true,
+    "readOnlyHint": true,
+    "destructiveHint": false
+  },
+  {
+    "name": "script_list",
+    "group": "script",
+    "risk": "READ_ONLY",
+    "description": {
+      "en": "List script executions currently running in AutoJs6 with their ids and states.",
+      "zh": "列出 AutoJs6 中正在运行的脚本执行及其 ID 与状态."
+    },
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "outputHint": "count, returned, truncated and bounded executions (id, engineName, sourceName, sourcePath, workingDirectory, state, startedAt, uptimeMs)",
+    "bridgeMapping": [
+      "engines.list"
     ],
     "defaultEnabled": true,
     "readOnlyHint": true,

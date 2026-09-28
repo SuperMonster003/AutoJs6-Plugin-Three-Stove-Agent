@@ -45,6 +45,9 @@ class ObservationTools {
         ToolNames.OCR_SCREEN -> OcrScreenObservation.normalize(value)
         ToolNames.APP_CURRENT, ToolNames.DEVICE_INFO -> ObservationCompactor.compact(ScriptOutputRedactor.redact(value), MAX_BYTES, false)
         ToolNames.SCREEN_STATE -> { require(value.isJsonPrimitive && value.asJsonPrimitive.isBoolean); jsonObject("screenOn" to value) }
+        ToolNames.APP_INSTALLED -> { require(value.isJsonPrimitive && value.asJsonPrimitive.isBoolean); jsonObject("installed" to value) }
+        ToolNames.APP_LIST -> bounded(value, "apps", invocation.arguments.number("limit")?.toInt() ?: 50)
+        ToolNames.SCRIPT_LIST -> bounded(value, "executions", MAX_ROWS)
         else -> value
     }
     private fun node(value: JsonElement): JsonObject = JsonObject().apply {
@@ -62,6 +65,18 @@ class ObservationTools {
         // observed text and raw rectangle without presenting it as an actionable location.
         if (coordinates[0] >= coordinates[2] || coordinates[1] >= coordinates[3]) addProperty("boundsUsable", false)
         add("bounds", rawBounds.deepCopy())
+    }
+    /** Keeps the host object but caps its [key] rows, so a device with many apps or executions cannot flood the observation budget. */
+    private fun bounded(value: JsonElement, key: String, limit: Int): JsonElement {
+        require(value.isJsonObject)
+        val source = value.asJsonObject
+        val rows = requireNotNull(source[key]?.takeIf { it.isJsonArray }?.asJsonArray)
+        require(limit in 1..MAX_ROWS)
+        val result = source.deepCopy()
+        result.add(key, JsonArray().apply { rows.take(limit).forEach(::add) })
+        result.addProperty("count", rows.size()); result.addProperty("returned", minOf(limit, rows.size()))
+        result.addProperty("truncated", rows.size() > limit || source.flag("truncated") == true)
+        return ObservationCompactor.compact(ScriptOutputRedactor.redact(result), MAX_BYTES, false)
     }
     private fun console(value: JsonElement, count: Int): JsonElement {
         // The host console window is process-wide; never imply engine-exclusive ownership.
@@ -87,6 +102,8 @@ class ObservationTools {
     }
     companion object {
         const val MAX_BYTES = 20 * 1024
+        /** Rows of app or execution lists kept in one observation (roadmap P13). */
+        const val MAX_ROWS = 200
         internal fun bounds(value: JsonObject): CompactNodeText.Bounds {
             val (left, top, right, bottom) = coordinates(value)
             return CompactNodeText.Bounds(left, top, right, bottom)

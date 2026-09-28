@@ -187,6 +187,8 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `memory_get` | `memory` | `READ_ONLY` | `on` | Read available preference memory in the current scope. |
 | `memory_propose` | `memory` | `SENSITIVE` | `on` | Propose a preference for user-approved storage; never store credentials. |
 | `app_current` | `observe` | `READ_ONLY` | `on` | Read the current window and application. |
+| `app_installed` | `observe` | `READ_ONLY` | `on` | Check whether an application package is installed. |
+| `app_list` | `observe` | `READ_ONLY` | `on` | List installed applications, optionally filtered by a package name or label fragment; the result is bounded. |
 | `console_tail` | `observe` | `READ_ONLY` | `on` | Read bounded recent console lines; they may include unrelated scripts. |
 | `device_info` | `observe` | `READ_ONLY` | `on` | Read device information. |
 | `screen_capture` | `observe` | `READ_ONLY` | `auto (vision)` | Capture the unlocked screen for the selected vision model when text nodes are insufficient. Returns a scaled JPEG observation, not device coordinates. |
@@ -196,6 +198,7 @@ ai.agent.result({ characters: text.codePointCount(0, text.length()) });
 | `ui_wait_for` | `observe` | `READ_ONLY` | `on` | Wait for a selector to appear or disappear within a deadline. |
 | `ocr_screen` | `ocr` | `READ_ONLY` | `auto (OCR)` | Read screen text through the host OCR plugin. |
 | `script_catalog` | `script` | `READ_ONLY` | `on` | Find scripts explicitly registered for Agent use. |
+| `script_list` | `script` | `READ_ONLY` | `on` | List script executions currently running in AutoJs6 with their ids and states. |
 | `script_run` | `script` | `NORMAL` | `on` | Run a registered script by id with validated parameters and its registered risk. |
 | `script_stop` | `script` | `NORMAL` | `on` | Stop an owned script execution. |
 | `script_run_source` | `script_dynamic` | `SENSITIVE` | `off` | Run generated Rhino JavaScript with host script privileges after individual source approval. No sandbox. Source including JSON escaping <=8192 UTF-8 bytes. Use ai.agent.result(value) for results. |
@@ -296,6 +299,7 @@ _2026/09/28_
 - `ميزة` التعرف على المخاطر قابل للتخصيص: شاشة إعدادات جديدة للتعرف على المخاطر تضيف أسماء حزم وكلمات مفتاحية خاصة بك فوق قائمة تطبيقات الدفع المضمنة (Alipay و AlipayHK و UnionPay و PayPal و Google Wallet و Samsung Pay و Huawei Wallet و Mi Pay) وجدول الكلمات المفتاحية الحساسة بعشر لغات; الإضافات توسع القوائم فقط وتسري فورا, وتصبح إجراءات الشاشة المطابقة حساسة وتمر عبر التأكيد
 - `ميزة` إعادة تصميم الكرة العائمة: في الوضع المصغر تظهر المهمة وخطوتها الحالية في سطرين ويفتح النقر على النص بطاقة الجدول الزمني للخطوات; بطاقة التحكم مضغوطة في الصفين نفسيهما كما في مساحة العمل (الإعداد المسبق والنموذج والوصول فوق حقل الهدف, ثم الصوت والبدء), ويتم تبديل النموذج ووضع الوصول داخل التراكب ومشاركتهما مع التطبيق; يتابع الجدول الزمني الخطوات الجديدة ما دمت في النهاية, ويتوقف عند التمرير لأعلى ويستأنف عند النهاية, وكذلك شاشة تفاصيل المهمة
 - `ميزة` استيراد / تصدير الإعدادات المسبقة: تضيف شاشة الإعدادات المسبقة استيراد JSON وتصدير JSON; يحتوي الملف المصدر على تكوين كل إعداد مسبق دون أي نموذج, ويراجع كل إعداد مستورد واحدا تلو الآخر مع تنبيه استبدال للاسم الموجود, وتحذف مجموعات الأدوات أو أدلة السكربتات غير المتوفرة على هذا الجهاز, وتستعاد المراجعة المعلقة بعد مغادرة الشاشة
+- `ميزة` استكمال أدوات الملاحظة: أدوات القراءة فقط app_list (التطبيقات المثبتة, مع تصفية اختيارية بجزء من اسم الحزمة أو التسمية, بحد أقصى 200 صف) و app_installed (هل الحزمة مثبتة) و script_list (تنفيذات السكربتات الجارية في AutoJs6 مع معرفاتها وحالاتها, للاستخدام مع script_stop) تقابل package_manager.listApps و app.isInstalled و engines.list التي كان منح المضيف يسمح بها بالفعل; وتنضم إلى مجموعتي الملاحظة والسكربتات وهي مفعلة افتراضيا
 - `إصلاح` لم يعد زر الإرسال يبقى في السطر الأول عند تعدد أسطر الهدف; بل يستقر في الأسفل مثل زر الميكروفون
 - `تحسين` أزيلت أزرار إعادة المحاولة بنموذج آخر (يبدل النموذج أعلى مساحة العمل أو داخل الكرة العائمة); انتقل سجل المهام وفتح مساحة العمل في الكرة العائمة إلى قائمة المزيد; أيقونة السجل تستخدم الشكل القياسي
 
