@@ -79,11 +79,13 @@ jobs:
             target: google_apis
             profile: pixel_7
           # Android 17 (API 37.1) only ships the 16 KB page size Google APIs image; the plugin has no native
-          # libraries, so the page size does not change what the suite exercises.
+          # libraries, so the page size does not change what the suite exercises. Its default data partition
+          # is too small for the fake host ("Requested internal only, but not enough space"), hence disk-size.
           - api-level: 37.1
             arch: x86_64
             target: google_apis_ps16k
             profile: pixel_7
+            disk-size: 4096M
 
     steps:
       - name: Check out repository
@@ -109,6 +111,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: ${{ matrix.profile }}
+          disk-size: ${{ matrix.disk-size }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
             chmod +x gradlew
