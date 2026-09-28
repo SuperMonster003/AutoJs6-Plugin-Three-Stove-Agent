@@ -381,7 +381,6 @@
     <string name="workbench_preset">프리셋</string>
     <string name="workbench_recent">최근 작업</string>
     <string name="workbench_request_failed">요청에 실패했습니다. 연결 및 작업 상태를 확인한 후 다시 시도하세요.</string>
-    <string name="workbench_retry_model">다른 모델로 다시 시도</string>
     <string name="workbench_run_again">다시 실행</string>
     <string name="workbench_script_interaction">호출한 스크립트가 이 응답을 처리합니다.</string>
     <string name="workbench_send">작업 시작</string>

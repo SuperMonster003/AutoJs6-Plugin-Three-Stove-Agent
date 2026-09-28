@@ -140,9 +140,9 @@ class RunDetailActivity : HostAppearanceActivity() {
         if (savedScroll > 0) { val position = savedScroll; savedScroll = 0; scaffold.scroll?.post { scaffold.scroll?.scrollTo(0, position) } }
     }
 
-    internal fun rerun(value: JsonObject, chooseModel: Boolean) {
-        startActivity(Intent(this, LauncherActivity::class.java).putExtra("rerunGoal", value.string("goal")).putExtra("rerunPreset", value.string("preset"))
-            .putExtra(LauncherActivity.EXTRA_OPEN_MODELS, chooseModel))
+    /** Prefills the workbench with this task's goal and preset; the model stays the shared current choice. */
+    internal fun rerun(value: JsonObject) {
+        startActivity(Intent(this, LauncherActivity::class.java).putExtra("rerunGoal", value.string("goal")).putExtra("rerunPreset", value.string("preset")))
     }
     private fun useModel() {
         val model = row?.getAsJsonObject("model") ?: return

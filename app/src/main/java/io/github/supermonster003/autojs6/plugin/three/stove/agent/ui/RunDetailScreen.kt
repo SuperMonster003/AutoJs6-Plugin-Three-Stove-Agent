@@ -48,11 +48,8 @@ internal fun RunDetailActivity.renderSummary(value: JsonObject) {
         value.getAsJsonObject("result")?.number("durationMs")?.let { getString(R.string.history_elapsed_label) to getString(R.string.history_elapsed_ms, it) },
         getString(R.string.ui_budget) to WorkbenchText.budget(this, value))), LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_XS) })
     val active = WorkbenchText.active(value)
-    summary.addView(kit.tonalButton(getString(R.string.workbench_run_again), "rerun") { rerun(value, false) }.apply { isEnabled = !active },
+    summary.addView(kit.tonalButton(getString(R.string.workbench_run_again), "rerun") { rerun(value) }.apply { isEnabled = !active },
         LinearLayout.LayoutParams(-1, -2).apply { topMargin = kit.dp(Ui.SPACE_MD) })
-    // The secondary label is long in several languages; a full-width text button never wraps or competes with the primary one.
-    summary.addView(kit.textButton(getString(R.string.workbench_retry_model), "retry-model") { rerun(value, true) }.apply { isEnabled = !active },
-        LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.END; topMargin = kit.dp(Ui.SPACE_XS) })
 }
 
 internal fun RunDetailActivity.renderResult(value: JsonObject) {

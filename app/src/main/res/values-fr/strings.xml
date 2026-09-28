@@ -381,7 +381,6 @@
     <string name="workbench_preset">Préréglage</string>
     <string name="workbench_recent">Tâches récentes</string>
     <string name="workbench_request_failed">Échec de la demande. Vérifiez la connexion et la tâche, puis réessayez.</string>
-    <string name="workbench_retry_model">Réessayer avec un autre modèle</string>
     <string name="workbench_run_again">Relancer</string>
     <string name="workbench_script_interaction">Le script appelant gère cette réponse.</string>
     <string name="workbench_send">Démarrer la tâche</string>

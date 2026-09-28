@@ -381,7 +381,6 @@
     <string name="workbench_preset">預設</string>
     <string name="workbench_recent">最近任務</string>
     <string name="workbench_request_failed">請求失敗. 請檢查連接與任務狀態後重試.</string>
-    <string name="workbench_retry_model">換個模型重試</string>
     <string name="workbench_run_again">再次執行</string>
     <string name="workbench_script_interaction">此任務由呼叫指令碼處理回答.</string>
     <string name="workbench_send">開始任務</string>

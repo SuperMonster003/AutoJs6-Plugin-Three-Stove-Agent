@@ -381,7 +381,6 @@
     <string name="workbench_preset">Preajuste</string>
     <string name="workbench_recent">Tareas recientes</string>
     <string name="workbench_request_failed">La solicitud falló. Revisa la conexión y el estado de la tarea e inténtalo de nuevo.</string>
-    <string name="workbench_retry_model">Reintentar con otro modelo</string>
     <string name="workbench_run_again">Ejecutar de nuevo</string>
     <string name="workbench_script_interaction">El script que inició la tarea gestiona esta respuesta.</string>
     <string name="workbench_send">Iniciar tarea</string>
