@@ -3,6 +3,9 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 
+/** A valid paused batch has outgrown its append-only conversation. No new model request was sent. */
+internal class NativeContextLimitExceeded : ContextLimitExceeded()
+
 /** Optional V1 extension, negotiated independently of the base Agent contract. */
 data class NativeToolLimits(val rounds: Int = 16, val resultBytes: Int = 64 * 1024, val batchBytes: Int = 128 * 1024) {
     init { require(rounds in 1..16 && resultBytes in 128..64 * 1024 && batchBytes in 128..128 * 1024) }
