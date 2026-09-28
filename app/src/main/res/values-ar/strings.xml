@@ -109,6 +109,11 @@
     <string name="interaction_memory_disabled">الذاكرة معطلة لهذه المهمة. تستخدم الإجابة في المهمة الحالية فقط.</string>
     <string name="interaction_no_parameters">لا توجد معلمات</string>
     <string name="interaction_parameters">المعلمات</string>
+    <string name="interaction_plan">مراجعة الخطة</string>
+    <string name="interaction_plan_execute">تنفيذ هذه الخطة</string>
+    <string name="interaction_plan_invalid">أدخل من 1 إلى 8 خطوات, كل خطوة 200 حرف على الأكثر</string>
+    <string name="interaction_plan_note">خطوة واحدة في كل سطر, 8 خطوات على الأكثر بحد 200 حرف لكل منها. عدلها عند الحاجة ثم نفذ; يتبع الوكيل الخطوات المعتمدة بالترتيب ويقترح خطة جديدة للمراجعة عندما لا تعود مناسبة.</string>
+    <string name="interaction_plan_steps">خطوات الخطة</string>
     <string name="interaction_question">إجابتك مطلوبة</string>
     <string name="interaction_remaining">الوقت المتبقي: %1$d ثانية</string>
     <string name="interaction_remember">تذكر هذه الإجابة</string>
@@ -240,6 +245,8 @@
     <string name="presets_name">الاسم</string>
     <string name="presets_name_note">يستخدم الاسم في السكربتات ونطاق الذاكرة ويثبت بعد الحفظ. انسخ الإعداد لاستخدام اسم آخر.</string>
     <string name="presets_new">إعداد مسبق جديد</string>
+    <string name="presets_plan_mode">وضع الخطة</string>
+    <string name="presets_plan_mode_note">يقترح النموذج أولا من 3 إلى 8 خطوات تراجعها, ويمكنك تعديلها, قبل تنفيذ أي شيء. وعندما لا تعود الخطة مناسبة يقترح خطة جديدة للمراجعة. يمكن للسكربتات تجاوز ذلك عبر options.plan.</string>
     <string name="presets_refresh_models">تحديث النماذج</string>
     <string name="presets_remote">عبر الإنترنت</string>
     <string name="presets_replace">سيتم استبدال التكوين الحالي للإعداد المسبق الذي يحمل الاسم نفسه.</string>
@@ -337,6 +344,7 @@
     <string name="step_ask">طرح سؤالا</string>
     <string name="step_done">انتهى</string>
     <string name="step_error">توقف بسبب خطأ</string>
+    <string name="step_plan">خطة</string>
     <string name="step_repair">صحح قراره</string>
     <string name="task_allow">السماح مرة واحدة</string>
     <string name="task_channel">مهام Agent</string>

@@ -109,6 +109,11 @@
     <string name="interaction_memory_disabled">このタスクでは記憶が無効です. 回答は現在のタスクでのみ使用されます.</string>
     <string name="interaction_no_parameters">パラメーターなし</string>
     <string name="interaction_parameters">パラメーター</string>
+    <string name="interaction_plan">計画を確認</string>
+    <string name="interaction_plan_execute">この計画で実行</string>
+    <string name="interaction_plan_invalid">1 から 8 個の手順を入力してください. 各手順は 200 文字以内です</string>
+    <string name="interaction_plan_note">1 行に 1 手順, 最大 8 手順, 各 200 文字以内. 必要なら編集してから実行してください. エージェントは承認された手順を順に実行し, 計画が合わなくなると新しい計画を提案して確認を求めます.</string>
+    <string name="interaction_plan_steps">計画の手順</string>
     <string name="interaction_question">回答が必要です</string>
     <string name="interaction_remaining">残り時間: %1$d 秒</string>
     <string name="interaction_remember">この回答を記憶</string>
@@ -240,6 +245,8 @@
     <string name="presets_name">名前</string>
     <string name="presets_name_note">名前はスクリプトと記憶の範囲に使用され, 保存後は変更できません. 別名にするには複製してください.</string>
     <string name="presets_new">新規プリセット</string>
+    <string name="presets_plan_mode">計画モード</string>
+    <string name="presets_plan_mode_note">オンにすると, モデルはまず 3 から 8 個の手順を提案し, あなたが確認 (編集可) してから実行します. 計画が合わなくなると新しい計画を提案します. スクリプトは options.plan で上書きできます.</string>
     <string name="presets_refresh_models">モデル一覧を更新</string>
     <string name="presets_remote">オンライン</string>
     <string name="presets_replace">同名のプリセットの現在の設定を置き換えます.</string>
@@ -337,6 +344,7 @@
     <string name="step_ask">質問しました</string>
     <string name="step_done">完了</string>
     <string name="step_error">エラーで停止</string>
+    <string name="step_plan">計画</string>
     <string name="step_repair">判断を修正しました</string>
     <string name="task_allow">今回のみ許可</string>
     <string name="task_channel">Agent タスク</string>

@@ -205,6 +205,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         val last = run.getAsJsonArray("steps")?.lastOrNull { it.isJsonObject }?.asJsonObject ?: return run.string("progress")
         return when (last.string("kind")) {
             "ask" -> context.getString(R.string.step_ask)
+            "plan" -> context.getString(R.string.step_plan)
             "done" -> context.getString(R.string.step_done)
             "repair" -> context.getString(R.string.step_repair)
             "error" -> context.getString(R.string.step_error)

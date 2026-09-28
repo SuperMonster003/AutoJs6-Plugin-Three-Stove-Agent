@@ -96,6 +96,10 @@ internal fun PresetsActivity.showEditor(row: JsonObject, start: JsonObject) {
     page.addView(confirmation.view.apply { setPaddingRelative(0, paddingTop, 0, paddingBottom) }, LinearLayout.LayoutParams(-1, -2))
     kit.caption(page, getString(R.string.presets_confirmation_note))
 
+    kit.formSection(page, getString(R.string.presets_plan_mode))
+    planMode = kit.checkRow(page, getString(R.string.presets_plan_mode), "preset-plan", row.flag("planMode") == true)
+    kit.caption(page, getString(R.string.presets_plan_mode_note))
+
     kit.formSection(page, getString(R.string.presets_context_section))
     fixedContext = kit.formField(page, getString(R.string.presets_context), row.string("context").orEmpty(), "preset-context", maxLength = 8192, multiline = true)
 
@@ -153,6 +157,7 @@ internal fun PresetsActivity.showImport() {
         row.budget[key]?.let { value -> getString(label) + ": " + (if (key == PresetsActivity.DURATION) (value + 59_999) / 60_000 else value) }
     }.joinToString("\n"))
     section(R.string.presets_confirmation, getString(if (row.confirmPolicy == "cautious") R.string.presets_cautious else R.string.presets_standard))
+    section(R.string.presets_plan_mode, getString(if (row.planMode) R.string.mcp_state_on else R.string.mcp_state_off))
     if (row.context.isNotBlank()) section(R.string.presets_context_section, row.context)
     section(R.string.script_roots_title, row.scriptRoots?.let { paths -> paths.sorted().joinToString("\n") { mark(it, it in allowedRoots) }.ifEmpty { "-" } }
         ?: getString(R.string.presets_inherit), ltr = true)

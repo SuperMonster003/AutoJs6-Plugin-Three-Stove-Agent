@@ -12,7 +12,7 @@ class AgentCoreDeviceTest {
         val catalog = ToolCatalog(assets.open("catalog/tools.json").bufferedReader().use { it.readText() })
         val keywords = ToolPolicy.readKeywords(assets.open("catalog/sensitive-keywords.json").bufferedReader().use { it.readText() })
         val policy = ToolPolicy(keywords = keywords)
-        assertEquals(32, catalog.tools.size)
+        assertEquals(35, catalog.tools.size)
         assertEquals(RiskLevel.SENSITIVE, policy.risk(catalog["ui_click"]!!, RiskContext(nodeText = "确认订单")))
         val request = (ToolHandlers(catalog).prepare("ui_dump", AgentJson.objectOf("{}"), policy) as ToolPlan.Call).request
         assertEquals("compact", request.args[0].asJsonObject.string("format"))

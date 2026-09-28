@@ -109,6 +109,11 @@
     <string name="interaction_memory_disabled">本次任务已禁用记忆. 回答仅用于当前任务.</string>
     <string name="interaction_no_parameters">无参数</string>
     <string name="interaction_parameters">参数</string>
+    <string name="interaction_plan">审阅计划</string>
+    <string name="interaction_plan_execute">按此计划执行</string>
+    <string name="interaction_plan_invalid">请输入 1 到 8 个步骤, 每步不超过 200 字</string>
+    <string name="interaction_plan_note">每行一个步骤, 最多 8 步, 每步不超过 200 字. 可修改后执行; 智能体将按批准的步骤顺序执行, 计划不再适用时会提出新计划供审阅.</string>
+    <string name="interaction_plan_steps">计划步骤</string>
     <string name="interaction_question">需要你的回答</string>
     <string name="interaction_remaining">剩余时间: %1$d 秒</string>
     <string name="interaction_remember">记住此答案</string>
@@ -240,6 +245,8 @@
     <string name="presets_name">名称</string>
     <string name="presets_name_note">名称用于脚本调用和记忆作用域, 保存后保持不变; 如需换名, 请复制预设.</string>
     <string name="presets_new">新建预设</string>
+    <string name="presets_plan_mode">计划模式</string>
+    <string name="presets_plan_mode_note">开启后, 模型先给出 3 到 8 步计划, 你审阅 (可修改) 后再执行; 计划不再适用时模型会提出新计划供审阅. 脚本可用 options.plan 覆盖.</string>
     <string name="presets_refresh_models">刷新模型列表</string>
     <string name="presets_remote">在线</string>
     <string name="presets_replace">将替换同名预设的当前配置.</string>
@@ -337,6 +344,7 @@
     <string name="step_ask">提出了问题</string>
     <string name="step_done">已完成</string>
     <string name="step_error">因错误停止</string>
+    <string name="step_plan">计划</string>
     <string name="step_repair">修正了决策</string>
     <string name="task_allow">允许一次</string>
     <string name="task_channel">Agent 任务</string>

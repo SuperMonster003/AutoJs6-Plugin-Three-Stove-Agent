@@ -80,6 +80,7 @@ internal class RunTimeline(
         val confirmation = step.string("confirmation")
         val (title, icon, tone) = when (step.string("kind")) {
             "ask" -> Triple(context.getString(R.string.step_ask), R.drawable.ic_help, Tone.ACCENT)
+            "plan" -> Triple(context.getString(R.string.step_plan), R.drawable.ic_layers, Tone.ACCENT)
             "done" -> Triple(context.getString(R.string.step_done), R.drawable.ic_check, Tone.SUCCESS)
             "repair" -> Triple(context.getString(R.string.step_repair), R.drawable.ic_restart, Tone.WARNING)
             "error" -> Triple(context.getString(R.string.step_error), R.drawable.ic_block, Tone.DANGER)
@@ -91,7 +92,8 @@ internal class RunTimeline(
         row.disc.background = kit.roundedFill(fill, Ui.RADIUS_PILL)
         row.icon.setImageDrawable(kit.tintedDrawable(icon, foreground))
         row.title.text = title
-        val detail = decision?.getAsJsonObject("ask")?.string("question")
+        val detail = decision?.getAsJsonObject("plan")?.getAsJsonArray("steps")?.mapIndexed { index, step -> "${index + 1}. ${step.asString}" }?.joinToString("\n")
+            ?: decision?.getAsJsonObject("ask")?.string("question")
             ?: decision?.getAsJsonObject("done")?.string("summary")?.takeIf { showDoneSummary }
             ?: decision?.string("reasoning")
         row.detail.text = detail.orEmpty()

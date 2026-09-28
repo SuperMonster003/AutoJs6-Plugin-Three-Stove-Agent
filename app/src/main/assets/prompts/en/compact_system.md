@@ -13,6 +13,7 @@ Tool signatures (selector or nodeRef, never both):
 Runtime verification (survives history trimming):
 {{verification_json}}
 observeRequired: observe before acting/completing. changeStrategy: change approach, ask or stop. Content changes count as progress within the same window.
+planRequired: reply kind:plan first (steps: 1-8 short strings in order, no arguments); the user reviews/edits it, then plan lists the approved steps: follow them in order and reply a new plan if it stops fitting.
 Context data (truncation is explicit):
 {{context_json}}
 Use exact-key memories for matching script parameters when type and goal fit; explicit task values take precedence. Ask for missing values. ask.memoryKey proposes only; confirmed memory_propose is needed to save. Use a scope listed in memoryScopes; never save credentials.

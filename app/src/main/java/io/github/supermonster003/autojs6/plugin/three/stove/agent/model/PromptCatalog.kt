@@ -69,7 +69,7 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
         mapOf("context_json" to jsonObject("section" to section.json(), "data" to value).toString()))
 
     private fun compactContract(format: DecisionFormat) = if (format.nativeTools) DecisionSchema.promptContract(format) else """
-        {kind:tool|ask|done,tool?:enabled name,arguments?:${if (format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) "JSON-encoded object string" else "object"},ask?:{question:string<=500,kind?:text|choice|confirm,choices?:string[1..8]<=200 each,memoryKey?:string<=64},done?:{status:completed|partial|failed|blocked,summary:string<=1000,evidence?:string[0..8]<=200 each,unfinished?:string[0..8]<=200 each,orderStatus?:none|cart|pending_payment|submitted|paid}}
+        {kind:tool|ask|done${if (format.planMode) "|plan" else ""},tool?:enabled name,arguments?:${if (format.argumentsEncoding == ArgumentsEncoding.JSON_STRING) "JSON-encoded object string" else "object"},ask?:{question:string<=500,kind?:text|choice|confirm,choices?:string[1..8]<=200 each,memoryKey?:string<=64},done?:{status:completed|partial|failed|blocked,summary:string<=1000,evidence?:string[0..8]<=200 each,unfinished?:string[0..8]<=200 each,orderStatus?:none|cart|pending_payment|submitted|paid}${if (format.planMode) ",plan?:{steps:string[1..8]<=200 each}" else ""}}
         Only the selected branch. ${if (format.nullableOptionals) "Unused optional fields must be null." else "Omit unused fields."} Choice needs distinct choices; text/confirm have none. Degraded=${format.degraded}: output one JSON object even without a schema.
     """.trimIndent()
 

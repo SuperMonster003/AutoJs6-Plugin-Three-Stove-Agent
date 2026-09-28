@@ -33,6 +33,9 @@ class AgentRunner internal constructor(
     private var durationTimer = Cancellation.NONE
     private var operation: Operation? = null
     private var interaction: Interaction? = null
+    /** Plan mode: the first accepted decision must be a plan; the approved (possibly edited) steps then ride along in the guidance. */
+    private var planRequired = false
+    private var approvedPlan: List<String>? = null
     private var eventSequence = 0L
     private var requestSequence = 0
     private var decision: AgentDecision? = null
@@ -67,7 +70,7 @@ class AgentRunner internal constructor(
         var cancellation = Cancellation.NONE
     }
     private class Interaction(val id: String, val deadlineMs: Long, val ask: AgentDecision.Ask? = null,
-                              val tool: PreparedTool? = null, val assessment: ConfirmationAssessment? = null) {
+                              val tool: PreparedTool? = null, val assessment: ConfirmationAssessment? = null, val plan: AgentDecision.Plan? = null) {
         var timer = Cancellation.NONE
     }
 
@@ -77,7 +80,7 @@ class AgentRunner internal constructor(
             budget = Budget(options.limits, scheduler.nowMs(), scheduler::nowMs)
             durationTimer = scheduler.schedule(options.limits.maxDurationMs) { guarded { throw BudgetExceeded("duration") } }
             transition(RunState.RUNNING)
-            if (preparation == null) { format = model.initialFormat(options.format); nextStep() }
+            if (preparation == null) { format = model.initialFormat(options.format); planRequired = format.planMode; nextStep() }
             else beginOperation(minOf(RunLimits.PREPARATION_MS, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
                 { callback -> preparation.prepare(callback) }, onDiscard = { outcome ->
                     if (outcome is PortResult.Success && outcome.value !== acceptedComponents) safely(outcome.value.cleanup::cancel)
@@ -91,7 +94,7 @@ class AgentRunner internal constructor(
                         compiler = outcome.value.compiler; model = outcome.value.model; tools = outcome.value.tools
                         outcome.value.policy?.let { policy = it; gate = ConfirmationGate(it, options.confirmationMode) }
                         outcome.value.maximumTokens?.let { checkNotNull(budget).narrowTokens(it) }
-                        format = model.initialFormat(options.format); nextStep()
+                        format = model.initialFormat(options.format); planRequired = format.planMode; nextStep()
                     }
                 }
             }
@@ -114,7 +117,9 @@ class AgentRunner internal constructor(
         dispatchReply(callback) {
             val waiting = currentInteraction(requestId)
             val ask = waiting?.ask
+            val plan = waiting?.plan
             val status = when {
+                plan != null -> if (copy == null || rememberScope != null || !validPlan(copy)) ReplyStatus.INVALID else { acceptPlan(plan, copy.asJsonArray); ReplyStatus.ACCEPTED }
                 ask == null -> ReplyStatus.NOT_WAITING
                 copy == null || !validAnswer(ask, copy) -> ReplyStatus.INVALID
                 rememberScope != null && (ask.memoryKey == null || !policy.isEnabled(checkNotNull(catalog[ToolNames.MEMORY_PROPOSE]))) -> ReplyStatus.INVALID
@@ -183,7 +188,10 @@ class AgentRunner internal constructor(
             // Explicit UI intent is charged as a tool step and still passes preparation and ConfirmationGate.
             repairSession = null; decision = userProposal; prepareTool(userProposal); return
         }
-        repairSession = DecisionRepairSession(validator, policy, format, doneRules::validate)
+        repairSession = DecisionRepairSession(validator, policy, format) { proposed ->
+            doneRules.validate(proposed)
+            if (planRequired && proposed is AgentDecision.Tool) throw DecisionFailure("DECISION_UNPARSABLE", "Plan mode: respond with kind plan (1 to 8 short steps in execution order) before the first tool decision.")
+        }
         if (nativeQueue.isNotEmpty()) {
             val accepted = nativeQueue.removeFirst()
             activeNativeCall = checkNotNull(nativeTurn).calls[nativeResults.size]
@@ -281,6 +289,7 @@ class AgentRunner internal constructor(
                             when (val accepted = attempt.decision) {
                                 is AgentDecision.Tool -> prepareTool(accepted)
                                 is AgentDecision.Ask -> waitForInput(accepted)
+                                is AgentDecision.Plan -> waitForPlan(accepted)
                                 is AgentDecision.Done -> {
                                     val checked = doneRules.normalize(accepted)
                                     val final = checked.decision
@@ -301,6 +310,8 @@ class AgentRunner internal constructor(
     // The default policy is implied, which keeps the compact local-model prompt inside its budget.
     private fun verificationGuidance() = loopRules.guidance().apply {
         addProperty("orderStatusRequired", doneRules.orderStatusRequired)
+        if (planRequired) addProperty("planRequired", true)
+        approvedPlan?.let { steps -> add("plan", JsonArray().apply { steps.forEach(::add) }) }
         if (options.confirmationMode != ConfirmationMode.DEFAULT) addProperty("confirmationMode", options.confirmationMode.name.lowercase(Locale.ROOT))
     }
 
@@ -402,6 +413,29 @@ class AgentRunner internal constructor(
             "choices" to JsonArray().apply { ask.choices.forEach(::add) }, "timeoutMs" to timeout.json())
             .apply { ask.memoryKey?.let { addProperty("memoryKey", it) } })
     }
+    private fun waitForPlan(plan: AgentDecision.Plan) {
+        if (!canContinue()) return
+        val timeout = minOf(options.limits.askTimeoutMs, checkNotNull(budget).remainingMs)
+        val waiting = installInteraction(timeout, plan = plan)
+        transition(RunState.WAITING_INPUT)
+        emit("input", jsonObject("requestId" to waiting.id.json(), "kind" to "plan".json(), "question" to text.rule("plan_question").json(),
+            "steps" to JsonArray().apply { plan.steps.forEach(::add) }, "timeoutMs" to timeout.json()))
+    }
+    /** The reviewed plan, possibly edited by the user, replaces the proposal; nothing was executed meanwhile. */
+    private fun acceptPlan(proposed: AgentDecision.Plan, value: JsonArray) {
+        clearInteraction()
+        transition(RunState.RUNNING)
+        val steps = value.map { it.asString.trim() }
+        approvedPlan = steps; planRequired = false
+        observation = ToolObservation.success(jsonObject("plan" to JsonArray().apply { steps.forEach(::add) }, "approved" to true.json(),
+            "edited" to (steps != proposed.steps).json()))
+        observationImages = emptyList()
+        record(observation)
+        guarded { nextStep() }
+    }
+    private fun validPlan(value: JsonElement): Boolean = value.isJsonArray && value.asJsonArray.size() in 1..AgentDecision.Plan.MAX_STEPS &&
+        value.asJsonArray.all { item -> item.isJsonPrimitive && item.asJsonPrimitive.isString && item.asString.isNotBlank() &&
+            item.asString.trim().let { it.codePointCount(0, it.length) <= AgentDecision.Plan.MAX_STEP_CHARACTERS && runCatching { AgentJson.checkUnicode(it) }.isSuccess } }
     private fun waitForConfirmation(prepared: PreparedTool, spec: ToolSpec, assessment: ConfirmationAssessment) {
         if (!canContinue()) return
         val proposed = gate.arguments(prepared.invocation.arguments, prepared.metadata)
@@ -420,8 +454,8 @@ class AgentRunner internal constructor(
             "arguments" to summary, "allowRunScope" to assessment.allowRunScope.json(), "timeoutMs" to timeout.json()))
     }
     private fun installInteraction(timeout: Long, ask: AgentDecision.Ask? = null, tool: PreparedTool? = null,
-                                   assessment: ConfirmationAssessment? = null): Interaction {
-        val waiting = Interaction("$id:${++requestSequence}", scheduler.nowMs() + timeout, ask, tool, assessment)
+                                   assessment: ConfirmationAssessment? = null, plan: AgentDecision.Plan? = null): Interaction {
+        val waiting = Interaction("$id:${++requestSequence}", scheduler.nowMs() + timeout, ask, tool, assessment, plan)
         interaction = waiting
         waiting.timer = scheduler.schedule(timeout) { guarded { if (interaction === waiting) interactionTimedOut() } }
         return waiting

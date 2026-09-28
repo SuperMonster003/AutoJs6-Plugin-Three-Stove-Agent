@@ -18,6 +18,21 @@ class DecisionValidatorTest {
         assertEquals(code, assertThrows(DecisionFailure::class.java) { validate(text, format, policy) }.code)
     }
 
+    @Test fun planDecisionsAreAcceptedOnlyInPlanModeWithinBounds() {
+        val planFormat = DecisionSchema(catalog).generate(ModelProtocol.LOCAL, F.policy(), planMode = true)
+        fun plan(vararg steps: String) = jsonObject("kind" to "plan".json(), "reasoning" to "ordered".json(),
+            "plan" to jsonObject("steps" to JsonArray().apply { steps.forEach(::add) })).toString()
+        val accepted = validate(plan("Open settings", "Find Wi-Fi", "Toggle it"), planFormat) as AgentDecision.Plan
+        assertEquals(listOf("Open settings", "Find Wi-Fi", "Toggle it"), accepted.steps); assertEquals("ordered", accepted.reasoning)
+        assertEquals(listOf("only"), (validate(plan("only"), planFormat) as AgentDecision.Plan).steps)
+        fails(plan("Open settings"))
+        fails(plan(), format = planFormat)
+        fails(plan(*Array(9) { "step $it" }), format = planFormat)
+        fails(plan("x".repeat(201)), format = planFormat)
+        fails("""{"kind":"plan","plan":{"steps":["a"],"extra":1}}""", format = planFormat)
+        fails("""{"kind":"plan","plan":{"steps":["a"]},"tool":"ui_dump"}""", format = planFormat)
+        fails("""{"kind":"tool","tool":"ui_dump","arguments":{},"plan":{"steps":["a"]}}""", format = planFormat)
+    }
     @Test fun everyCatalogSchemaAcceptsItsToolDecisionInBothEncodings() {
         for ((name, args, _) in ToolHandlersTest.cases()) {
             for (format in listOf(objectFormat, stringFormat)) {

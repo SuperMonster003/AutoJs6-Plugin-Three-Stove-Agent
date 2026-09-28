@@ -309,6 +309,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 "confirm" -> require(answer.isJsonPrimitive && answer.asJsonPrimitive.isBoolean)
                 "choice" -> require(answer.isJsonPrimitive && answer.asJsonPrimitive.isString && pending.getAsJsonArray("choices").contains(answer))
                 "text" -> require(answer.isJsonPrimitive && answer.asJsonPrimitive.isString && answer.asString.isNotBlank())
+                "plan" -> require(answer.isJsonArray && answer.asJsonArray.size() in 1..AgentDecision.Plan.MAX_STEPS &&
+                    answer.asJsonArray.all { it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString.isNotBlank() })
                 else -> throw WireFailure(C.ERROR_RUN_NOT_INTERACTIVE)
             }
             val remember = if (value.has("remember")) requireNotNull(value.flag("remember")) else false

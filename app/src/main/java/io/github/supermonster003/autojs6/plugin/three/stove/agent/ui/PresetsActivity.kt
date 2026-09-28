@@ -48,6 +48,7 @@ class PresetsActivity : HostAppearanceActivity() {
     internal lateinit var inheritGroups: MaterialCheckBox
     internal lateinit var inheritRoots: MaterialCheckBox
     internal lateinit var confirmation: ChoiceRow
+    internal lateinit var planMode: MaterialCheckBox
     internal lateinit var scope: ChoiceRow
     internal val groups = linkedMapOf<String, MaterialCheckBox>()
     internal val roots = linkedMapOf<String, MaterialCheckBox>()
@@ -198,6 +199,7 @@ class PresetsActivity : HostAppearanceActivity() {
             if (text.isNotEmpty()) addProperty(key, if (key == DURATION) text.toLongOrNull()?.let { (it * 60_000).toString() } ?: text else text)
         } }).apply {
         targetId?.let { addProperty("targetId", it) }
+        if (planMode.isChecked) addProperty("planMode", true)
         if (!inheritGroups.isChecked) add("toolGroups", JsonArray().apply { groups.filterValues { it.isChecked }.keys.forEach(::add) })
         if (!inheritRoots.isChecked) add("scriptRoots", JsonArray().apply { roots.filterValues { it.isChecked }.keys.forEach(::add) })
     }

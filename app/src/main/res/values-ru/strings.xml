@@ -109,6 +109,11 @@
     <string name="interaction_memory_disabled">Память отключена для этой задачи. Ответ используется только в текущей задаче.</string>
     <string name="interaction_no_parameters">Нет параметров</string>
     <string name="interaction_parameters">Параметры</string>
+    <string name="interaction_plan">Проверка плана</string>
+    <string name="interaction_plan_execute">Выполнить этот план</string>
+    <string name="interaction_plan_invalid">Введите от 1 до 8 шагов, каждый не длиннее 200 символов</string>
+    <string name="interaction_plan_note">Один шаг в строке, не более 8 шагов по 200 символов. При необходимости измените их, затем выполните; агент следует утвержденным шагам по порядку и предлагает новый план на проверку, когда они перестают подходить.</string>
+    <string name="interaction_plan_steps">Шаги плана</string>
     <string name="interaction_question">Требуется ваш ответ</string>
     <string name="interaction_remaining">Осталось: %1$d с</string>
     <string name="interaction_remember">Запомнить этот ответ</string>
@@ -240,6 +245,8 @@
     <string name="presets_name">Имя</string>
     <string name="presets_name_note">Имя используется в скриптах и областях памяти. После сохранения оно неизменно; для другого имени создайте копию.</string>
     <string name="presets_new">Новая предустановка</string>
+    <string name="presets_plan_mode">Режим плана</string>
+    <string name="presets_plan_mode_note">Модель сначала предлагает от 3 до 8 шагов, которые вы проверяете и можете изменить до начала выполнения. Когда план перестает подходить, модель предлагает новый на проверку. Скрипты могут переопределить это через options.plan.</string>
     <string name="presets_refresh_models">Обновить модели</string>
     <string name="presets_remote">Онлайн</string>
     <string name="presets_replace">Текущие настройки предустановки с таким же именем будут заменены.</string>
@@ -337,6 +344,7 @@
     <string name="step_ask">Задан вопрос</string>
     <string name="step_done">Завершено</string>
     <string name="step_error">Остановлено из-за ошибки</string>
+    <string name="step_plan">План</string>
     <string name="step_repair">Решение исправлено</string>
     <string name="task_allow">Разрешить один раз</string>
     <string name="task_channel">Задачи Agent</string>

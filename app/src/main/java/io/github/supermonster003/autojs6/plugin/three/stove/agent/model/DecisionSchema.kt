@@ -13,6 +13,8 @@ data class DecisionFormat(
     val responseSchemaJson: String?,
     val reason: String,
     val nativeTools: Boolean = false,
+    /** Plan mode (roadmap P13): the plan branch exists and a reviewed plan precedes the first tool. */
+    val planMode: Boolean = false,
 ) {
     init { require(!nativeTools || (responseSchemaJson == null && argumentsEncoding == ArgumentsEncoding.OBJECT)) }
     val degraded: Boolean get() = responseSchemaJson == null && !nativeTools
@@ -20,11 +22,11 @@ data class DecisionFormat(
 }
 
 class DecisionSchema(private val catalog: ToolCatalog) {
-    fun generate(protocol: ModelProtocol, policy: ToolPolicy, forceString: Boolean = false): DecisionFormat {
-        if (protocol == ModelProtocol.UNKNOWN) return degraded(protocol, "PROTOCOL_UNKNOWN")
+    fun generate(protocol: ModelProtocol, policy: ToolPolicy, forceString: Boolean = false, planMode: Boolean = false): DecisionFormat {
+        if (protocol == ModelProtocol.UNKNOWN) return degraded(protocol, "PROTOCOL_UNKNOWN", planMode)
         val enabled = catalog.tools.filter(policy::isEnabled).sortedBy { it.name }
         if (protocol == ModelProtocol.LOCAL) {
-            return encoded(protocol, ArgumentsEncoding.OBJECT, envelope(schemaType("object"), enabled), "LOCAL_OBJECT")
+            return encoded(protocol, ArgumentsEncoding.OBJECT, envelope(schemaType("object"), enabled, planMode), "LOCAL_OBJECT", planMode)
         }
         // Dynamic manifest parameter names cannot be represented by a closed online object schema.
         val closed = enabled.all { closedObjects(it.inputSchema) }
@@ -35,32 +37,33 @@ class DecisionSchema(private val catalog: ToolCatalog) {
                 1 -> alternatives.single()
                 else -> jsonObject("anyOf" to JsonArray().apply { alternatives.forEach(::add) })
             }
-            val candidate = online(envelope(arguments, enabled), protocol)
+            val candidate = online(envelope(arguments, enabled, planMode), protocol)
             if (candidate.toString().utf8Size() <= MAX_SCHEMA_BYTES &&
                 (protocol != ModelProtocol.ANTHROPIC || withinAnthropicComplexity(candidate))) {
-                return encoded(protocol, ArgumentsEncoding.OBJECT, candidate, "ONLINE_OBJECT")
+                return encoded(protocol, ArgumentsEncoding.OBJECT, candidate, "ONLINE_OBJECT", planMode)
             }
         }
         return encoded(protocol, ArgumentsEncoding.JSON_STRING,
-            online(envelope(schemaType("string"), enabled), protocol),
-            if (forceString) "REQUEST_REJECTED" else if (!closed) "DYNAMIC_PARAMETERS" else "SCHEMA_COMPLEXITY")
+            online(envelope(schemaType("string"), enabled, planMode), protocol),
+            if (forceString) "REQUEST_REJECTED" else if (!closed) "DYNAMIC_PARAMETERS" else "SCHEMA_COMPLEXITY", planMode)
     }
 
-    private fun encoded(protocol: ModelProtocol, encoding: ArgumentsEncoding, schema: JsonObject, reason: String): DecisionFormat {
+    private fun encoded(protocol: ModelProtocol, encoding: ArgumentsEncoding, schema: JsonObject, reason: String, planMode: Boolean): DecisionFormat {
         val text = schema.toString()
         check(text.utf8Size() <= MAX_SCHEMA_BYTES)
-        return DecisionFormat(protocol, encoding, text, reason)
+        return DecisionFormat(protocol, encoding, text, reason, planMode = planMode)
     }
 
-    private fun envelope(arguments: JsonObject, enabled: List<ToolSpec>): JsonObject {
+    private fun envelope(arguments: JsonObject, enabled: List<ToolSpec>, planMode: Boolean): JsonObject {
         val tool = schemaType("string").apply {
             if (enabled.isNotEmpty()) add("enum", JsonArray().apply { enabled.forEach { add(it.name) } })
         }
+        val kinds = (if (enabled.isEmpty()) listOf("ask", "done") else listOf("tool", "ask", "done")) + if (planMode) listOf("plan") else emptyList()
         return objectSchema(jsonObject(
-            "kind" to enumSchema(if (enabled.isEmpty()) listOf("ask", "done") else listOf("tool", "ask", "done")),
+            "kind" to enumSchema(kinds),
             "reasoning" to schemaType("string"), "tool" to tool, "arguments" to arguments,
             "ask" to ASK_SCHEMA.deepCopy(), "done" to DONE_SCHEMA.deepCopy(),
-        ), "kind")
+        ).apply { if (planMode) add("plan", PLAN_SCHEMA.deepCopy()) }, "kind")
     }
 
     private fun closedObjects(schema: JsonObject): Boolean {
@@ -124,9 +127,9 @@ class DecisionSchema(private val catalog: ToolCatalog) {
 
     companion object {
         const val MAX_SCHEMA_BYTES = 16 * 1024
-        fun degraded(protocol: ModelProtocol = ModelProtocol.UNKNOWN, reason: String = "STRUCTURED_JSON_UNAVAILABLE") =
-            DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, reason)
-        fun native(protocol: ModelProtocol) = DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, "NATIVE_TOOLS", nativeTools = true)
+        fun degraded(protocol: ModelProtocol = ModelProtocol.UNKNOWN, reason: String = "STRUCTURED_JSON_UNAVAILABLE", planMode: Boolean = false) =
+            DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, reason, planMode = planMode)
+        fun native(protocol: ModelProtocol, planMode: Boolean = false) = DecisionFormat(protocol, ArgumentsEncoding.OBJECT, null, "NATIVE_TOOLS", nativeTools = true, planMode = planMode)
 
         private fun schemaType(type: String) = jsonObject("type" to type.json())
         private fun enumSchema(values: List<String>) = schemaType("string").apply {
@@ -146,14 +149,16 @@ class DecisionSchema(private val catalog: ToolCatalog) {
             "evidence" to strings(), "unfinished" to strings(),
             "orderStatus" to enumSchema(listOf("none", "cart", "pending_payment", "submitted", "paid")),
         ), "status", "summary")
+        /** Plan mode: an ordered list of short steps the user reviews before any tool runs. */
+        private val PLAN_SCHEMA = objectSchema(jsonObject("steps" to strings()), "steps")
 
         /** Small prompt contract; actual tool parameter schemas come only from ToolCatalog. */
         fun promptContract(format: DecisionFormat): String = jsonObject(
-            "kind" to jsonArray("tool".json(), "ask".json(), "done".json()),
+            "kind" to JsonArray().apply { (listOf("tool", "ask", "done") + if (format.planMode) listOf("plan") else emptyList()).forEach(::add) },
             "argumentsEncoding" to format.argumentsEncoding.name.json(),
             "nullableOptionals" to format.nullableOptionals.json(), "degraded" to format.degraded.json(),
             "reasoningMaxCharacters" to 600.json(), "ask" to ASK_SCHEMA.deepCopy(), "done" to DONE_SCHEMA.deepCopy(),
-        ).toString()
+        ).apply { if (format.planMode) add("plan", PLAN_SCHEMA.deepCopy()) }.toString()
     }
 }
 
@@ -162,10 +167,10 @@ data class SchemaTarget(val providerId: String, val targetId: String, val protoc
 /** Per-link bounded memory. P2.4 will perform the actual broker retry and account for its model call. */
 class SchemaFallbacks(private val schema: DecisionSchema) {
     private val rejected = LinkedHashSet<SchemaTarget>()
-    @Synchronized fun select(target: SchemaTarget, policy: ToolPolicy): DecisionFormat {
+    @Synchronized fun select(target: SchemaTarget, policy: ToolPolicy, planMode: Boolean = false): DecisionFormat {
         require(target.providerId.length in 1..256 && target.targetId.length in 1..256)
-        return if (!target.structuredJson) DecisionSchema.degraded(target.protocol)
-        else schema.generate(target.protocol, policy, target in rejected)
+        return if (!target.structuredJson) DecisionSchema.degraded(target.protocol, planMode = planMode)
+        else schema.generate(target.protocol, policy, target in rejected, planMode)
     }
 
     @Synchronized fun onRejected(target: SchemaTarget, previous: DecisionFormat, reason: String, policy: ToolPolicy): DecisionFormat? {
@@ -174,7 +179,7 @@ class SchemaFallbacks(private val schema: DecisionSchema) {
             !target.structuredJson || target in rejected) return null
         if (rejected.size == 32) rejected.remove(rejected.first())
         rejected.add(target)
-        return select(target, policy)
+        return select(target, policy, previous.planMode)
     }
 
 }

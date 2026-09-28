@@ -9,6 +9,10 @@ sealed interface AgentDecision {
     data class Tool(val name: String, val arguments: JsonObject, override val reasoning: String?) : AgentDecision
     data class Ask(val question: String, val kind: String, val choices: List<String>, val memoryKey: String?, override val reasoning: String?) : AgentDecision
     data class Done(val status: String, val summary: String, val evidence: List<String>, val unfinished: List<String>, val orderStatus: String?, override val reasoning: String?) : AgentDecision
+    /** Plan mode: ordered short steps that the user reviews, and may edit, before any tool runs. */
+    data class Plan(val steps: List<String>, override val reasoning: String?) : AgentDecision {
+        companion object { const val MAX_STEPS = 8; const val MAX_STEP_CHARACTERS = 200 }
+    }
 }
 
 class DecisionValidator(private val catalog: ToolCatalog) {
@@ -21,7 +25,7 @@ class DecisionValidator(private val catalog: ToolCatalog) {
 
     fun validate(parsed: ParsedDecision, policy: ToolPolicy, format: DecisionFormat): AgentDecision {
         val root = parsed.value
-        closed(root, setOf("kind", "reasoning", "tool", "arguments", "ask", "done"))
+        closed(root, setOf("kind", "reasoning", "tool", "arguments", "ask", "done", "plan"))
         val kind = text(root, "kind", 8, required = true)
         val reasoning = optional(root, "reasoning")?.let {
             if (!it.isJsonPrimitive || !it.asJsonPrimitive.isString) invalid("reasoning must be a string.")
@@ -33,9 +37,10 @@ class DecisionValidator(private val catalog: ToolCatalog) {
             "tool" -> setOf("tool", "arguments")
             "ask" -> setOf("ask")
             "done" -> setOf("done")
-            else -> invalid("kind must be tool, ask or done.")
+            "plan" -> setOf("plan")
+            else -> invalid("kind must be tool, ask, done or plan.")
         }
-        if (setOf("tool", "arguments", "ask", "done").any { it !in allowed && optional(root, it) != null }) {
+        if (setOf("tool", "arguments", "ask", "done", "plan").any { it !in allowed && optional(root, it) != null }) {
             invalid("Only the branch selected by kind may contain values.")
         }
         return when (kind) {
@@ -74,6 +79,14 @@ class DecisionValidator(private val catalog: ToolCatalog) {
                 if (askKind != "choice" && choices.isNotEmpty()) invalid("choices are only valid for a choice question.")
                 if (choices.distinct().size != choices.size) invalid("Choices must be distinct.")
                 AgentDecision.Ask(question, askKind, choices, text(ask, "memoryKey", 64), reasoning)
+            }
+            "plan" -> {
+                if (!format.planMode) invalid("plan decisions are only accepted when the task runs in plan mode.")
+                val plan = branch(root, "plan")
+                closed(plan, setOf("steps"))
+                val steps = strings(plan, "steps")
+                if (steps.isEmpty()) invalid("A plan needs 1 to 8 steps.")
+                AgentDecision.Plan(steps, reasoning)
             }
             else -> {
                 val done = branch(root, "done")

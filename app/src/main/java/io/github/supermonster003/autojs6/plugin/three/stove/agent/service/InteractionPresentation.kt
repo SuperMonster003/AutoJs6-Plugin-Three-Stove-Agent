@@ -51,7 +51,7 @@ internal class InteractionPresentation(private val runtime: AgentRuntime) : IInt
             CHANNEL_ID, context.getString(R.string.interaction_channel), NotificationManager.IMPORTANCE_HIGH))
         fun builder() = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(context, CHANNEL_ID) else Notification.Builder(context)
         val confirmation = pending.string("type") == "confirmation"
-        val title = context.getString(if (confirmation) R.string.interaction_confirmation else R.string.interaction_question)
+        val title = context.getString(if (confirmation) R.string.interaction_confirmation else if (pending.string("kind") == "plan") R.string.interaction_plan else R.string.interaction_question)
         val content = AgentJson.truncate(pending.string(if (confirmation) "description" else "question").orEmpty(), 160)
         val view = ConfirmationActivity.pendingIntent(context, id, request)
         val public = builder().setSmallIcon(R.drawable.ic_task).setContentTitle(context.getString(R.string.app_name))
