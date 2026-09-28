@@ -87,6 +87,7 @@
         <activity android:name=".ui.MemoryActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.McpServersActivity" android:exported="false" />
+        <activity android:name=".ui.RiskRecognitionActivity" android:exported="false" />
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
         <activity android:name=".ui.AboutActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""

@@ -163,14 +163,36 @@ class ToolPolicy(
         private fun word(point: Int) = Character.isLetterOrDigit(point) || point == '_'.code
     }
     companion object {
+        const val PAYMENT_PACKAGES_ASSET = "catalog/payment-packages.json"
+        const val SENSITIVE_KEYWORDS_ASSET = "catalog/sensitive-keywords.json"
+        /**
+         * Built-in tables plus the user's additions (roadmap P13 risk recognition): [paymentPackages] and
+         * [extraKeywords] only ever widen the packaged lists, never remove a built-in entry.
+         */
         fun fromAssets(readAsset: (String) -> String, enabledGroups: Map<ToolGroup, Boolean> = emptyMap(),
-                       ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet(), availableTools: Set<String>? = null) =
-            ToolPolicy(enabledGroups, ocrAvailable, riskOverrides, readKeywords(readAsset("catalog/sensitive-keywords.json")),
-                paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")), availableTools,
+                       ocrAvailable: Boolean = false, riskOverrides: Map<String, RiskLevel> = emptyMap(), paymentPackages: Set<String> = emptySet(),
+                       availableTools: Set<String>? = null, extraKeywords: Set<String> = emptySet()) =
+            ToolPolicy(enabledGroups, ocrAvailable, riskOverrides, readKeywords(readAsset(SENSITIVE_KEYWORDS_ASSET)) + extraKeywords,
+                readPackages(readAsset(PAYMENT_PACKAGES_ASSET)) + paymentPackages, readKeywords(readAsset("catalog/payment-keywords.json")), availableTools,
                 readKeywords(readAsset("catalog/order-intent-keywords.json")))
         fun readKeywords(json: String): Set<String> = AgentJson.objectOf(json).entrySet()
             .flatMap { it.value.asJsonArray.map(JsonElement::getAsString) }.onEach { require(it.isNotBlank()) }.toSet()
+        /** The packaged payment application list: a flat array of package names. */
+        fun readPackages(json: String): Set<String> = AgentJson.parse(json).asJsonArray.map(JsonElement::getAsString)
+            .onEach { require(RiskRules.isPackage(it)) { "Invalid packaged payment package: $it" } }.toSet()
     }
+}
+
+/** Shape limits shared by the private settings codec and the risk recognition screen (roadmap P13). */
+object RiskRules {
+    const val MAX_ENTRIES = 32
+    const val MAX_PACKAGE_LENGTH = 128
+    const val MAX_KEYWORD_LENGTH = 32
+    private val packageShape = Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+")
+    /** Android package name: dotted identifiers, at least two segments, ASCII only. */
+    fun isPackage(value: String): Boolean = value.length <= MAX_PACKAGE_LENGTH && packageShape.matches(value)
+    /** A keyword is matched as a lower-cased substring; it must be trimmed, single-line and short. */
+    fun isKeyword(value: String): Boolean = value.isNotEmpty() && value.length <= MAX_KEYWORD_LENGTH && value == value.trim() && value.none { it == '\n' || it == '\r' }
 }
 
 class ToolFailure(val code: String, val hint: String) : IllegalArgumentException("$code: $hint")

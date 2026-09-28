@@ -65,7 +65,8 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
         marginStart = dp(Ui.SCREEN_MARGIN); marginEnd = dp(Ui.SCREEN_MARGIN); bottomMargin = dp(Ui.SPACE_SM)
     })
     add(page, "tool-groups", settingRow(getString(R.string.presets_tools), null, R.drawable.ic_tune, "tool-groups") { toolGroups() })
-    add(page, "limits", settingRow(getString(R.string.ui_budget), null, R.drawable.ic_timer, "limits") { limits() }, divider = false)
+    add(page, "limits", settingRow(getString(R.string.ui_budget), null, R.drawable.ic_timer, "limits") { limits() })
+    add(page, "risk", settingRow(getString(R.string.risk_title), null, R.drawable.ic_warning, "risk") { open(RiskRecognitionActivity::class.java) }, divider = false)
     page.addView(pageCaption(getString(R.string.settings_policy_note)))
 
     page.addView(sectionHeader(getString(R.string.settings_section_tools)))

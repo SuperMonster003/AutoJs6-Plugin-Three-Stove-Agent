@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.RiskRules
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.AgentSettings
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.SettingsCodec
@@ -46,6 +47,16 @@ internal data class SettingsDraft(val settings: AgentSettings) {
         return copy(settings = settings.copy(failureAlerts = if (enabled) settings.failureAlerts + channel else settings.failureAlerts - channel))
     }
     fun withFloating(enabled: Boolean) = copy(settings = settings.copy(floating = enabled))
+
+    /** Adds or removes one user payment package; the packaged list is not editable here. */
+    fun withRiskPackage(value: String, present: Boolean): SettingsDraft {
+        require(RiskRules.isPackage(value))
+        return copy(settings = settings.copy(riskPackages = if (present) settings.riskPackages + value else settings.riskPackages - value))
+    }
+    fun withRiskKeyword(value: String, present: Boolean): SettingsDraft {
+        require(RiskRules.isKeyword(value))
+        return copy(settings = settings.copy(riskKeywords = if (present) settings.riskKeywords + value else settings.riskKeywords - value))
+    }
 
     companion object {
         const val DURATION = "maxDurationMs"

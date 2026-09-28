@@ -97,6 +97,54 @@ class SettingsActivityTest {
         }
     }
 
+    @Test fun riskRecognitionListsApplyImmediatelyAndKeepPackagedEntries() = isolated { _, endpoint, directory ->
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Risk row summary") { it.ready() && it.rows.getValue("risk").summary.text == it.getString(R.string.settings_risk_summary, 0, 0) }
+        }
+        ActivityScenario.launch(RiskRecognitionActivity::class.java).use { scenario ->
+            fun content(activity: RiskRecognitionActivity) = activity.findViewById<ViewGroup>(android.R.id.content)
+            fun shown(label: String, tag: String, expected: Boolean) = waitFor(label) {
+                var result = false; scenario.onActivity { result = (content(it).findViewWithTag<View>(tag) != null) == expected }; result
+            }
+            waitFor("Risk screen loaded") { var ready = false; scenario.onActivity { ready = it.rows.getValue("risk-add-package").view.isEnabled }; ready }
+            scenario.onActivity {
+                assertNotNull("Packaged apps are listed", content(it).findViewWithTag<View>("risk-builtin-packages"))
+                assertTrue(it.builtInPackages.contains("com.unionpay"))
+                assertNull("Packaged apps have no remove control", content(it).findViewWithTag<View>("risk-package-remove-com.unionpay"))
+                it.addPackage()
+            }
+            // The dialog installs its validating click handler when shown, so the clicks come in a later main-loop turn.
+            scenario.onActivity {
+                val field = (it.prompt!!.window!!.decorView as ViewGroup).findEditText()!!
+                field.setText("nodots"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                assertTrue("Invalid package keeps the dialog open", it.prompt!!.isShowing)
+                field.setText("com.unionpay"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                assertTrue("Packaged duplicate keeps the dialog open", it.prompt!!.isShowing)
+                field.setText(" com.example.pay "); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            }
+            waitFor("Package stored trimmed") { stored(directory)?.riskPackages == setOf("com.example.pay") }
+            shown("Package row shown", "risk-package-com.example.pay", true)
+            scenario.onActivity { it.addKeyword() }
+            scenario.onActivity {
+                val field = (it.prompt!!.window!!.decorView as ViewGroup).findEditText()!!
+                field.setText("Pay"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                assertTrue("Packaged keyword (any case) keeps the dialog open", it.prompt!!.isShowing)
+                field.setText("remit"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+            }
+            waitFor("Keyword stored") { stored(directory)?.riskKeywords == setOf("remit") }
+            scenario.recreate()
+            shown("Rows restored after recreation", "risk-keyword-remit", true)
+            scenario.onActivity { content(it).findViewWithTag<View>("risk-package-remove-com.example.pay")!!.performClick() }
+            waitFor("Package removed") { stored(directory)?.riskPackages?.isEmpty() == true }
+            shown("Removed row disappears", "risk-package-com.example.pay", false)
+            val saved = SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString())
+            assertEquals(setOf("remit"), saved.riskKeywords); assertTrue(saved.riskPackages.isEmpty())
+        }
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Summary counts the additions") { it.ready() && it.rows.getValue("risk").summary.text == it.getString(R.string.settings_risk_summary, 0, 1) }
+        }
+    }
+
     @Test fun fullAccessShowsOnlyAnInlineWarningAndPersists() = isolated { _, endpoint, directory ->
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
             ui(scenario, "Settings loaded") { it.ready() }

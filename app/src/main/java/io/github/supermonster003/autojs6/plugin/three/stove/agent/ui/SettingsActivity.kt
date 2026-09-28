@@ -130,6 +130,7 @@ class SettingsActivity : HostAppearanceActivity() {
             count("maxModelCalls", defaults.maxModelCalls.toLong()), getString(R.string.settings_minutes, draft.durationMinutes() ?: defaults.maxDurationMs / 60_000),
             count("maxTotalTokens", defaults.maxTotalTokens)))
         limitRows.forEach { (key, row) -> row.setSummary(limitSummary(draft, key)) }
+        rows.getValue("risk").setSummary(getString(R.string.settings_risk_summary, settings.riskPackages.size, settings.riskKeywords.size))
         rows.getValue("voice").switch!!.isChecked = settings.voice
         for (channel in AgentSettings.ALERT_CHANNELS) rows.getValue("alert-$channel").switch!!.isChecked = channel in settings.failureAlerts
         rows.getValue("floating").switch!!.isChecked = settings.floating && Settings.canDrawOverlays(this)
@@ -216,5 +217,5 @@ class SettingsActivity : HostAppearanceActivity() {
 }
 
 /** Rows that follow the private settings snapshot; disabled until it loads. */
-internal val SETTING_KEYS = listOf("default", "confirmation-mode", "tool-groups", "limits", "voice", "floating",
+internal val SETTING_KEYS = listOf("default", "confirmation-mode", "tool-groups", "limits", "risk", "voice", "floating",
     "alert-" + AgentSettings.ALERT_NOTIFICATION, "alert-" + AgentSettings.ALERT_TOAST, "alert-" + AgentSettings.ALERT_DIALOG)

@@ -5,6 +5,12 @@
   "changelog_label_improvement": "優化",
   "changelog_label_dependency": "依賴",
   "$data": {
+    "v1.3.0": {
+      "released_date": "2026/09/28",
+      "feature": [
+        "風險識別可配置: 設定頁新增風險識別子頁, 可在內置支付應用列表 (支付寶, 支付寶香港, 雲閃付, PayPal, Google 錢包, Samsung Pay, 華為錢包, Mi Pay) 與十語言敏感關鍵詞表之外添加自訂套件名稱和關鍵詞, 只增不刪且即時生效; 命中的屏幕操作提升為敏感操作並進入確認"
+      ]
+    },
     "v1.2.0": {
       "released_date": "2026/09/28",
       "hint": [

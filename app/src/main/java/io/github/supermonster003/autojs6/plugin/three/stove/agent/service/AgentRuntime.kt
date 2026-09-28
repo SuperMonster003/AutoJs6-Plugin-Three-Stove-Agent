@@ -5,6 +5,7 @@ import android.os.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentTaskForegroundService
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.AgentSettings
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import org.autojs.plugin.three.stove.agent.api.*
 import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
@@ -21,9 +22,12 @@ internal class AgentRuntime internal constructor(val context: Context) {
     val catalog = ToolCatalog.fromAssets(::asset)
     val prompts = PromptCatalog(::asset, catalog)
     val runnerText = asset("runner/texts.json")
-    private val policyAssets = listOf("catalog/sensitive-keywords.json", "catalog/payment-keywords.json", "catalog/order-intent-keywords.json").associateWith(::asset)
-    fun policy(groups: Set<String>) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
-        ToolGroup.entries.associateWith { it.id in groups }, availableTools = ToolNames.ALL)
+    private val policyAssets = listOf(ToolPolicy.SENSITIVE_KEYWORDS_ASSET, "catalog/payment-keywords.json", "catalog/order-intent-keywords.json",
+        ToolPolicy.PAYMENT_PACKAGES_ASSET).associateWith(::asset)
+    /** Packaged tables widened by the private risk recognition settings (P13); nothing here can remove a built-in entry. */
+    fun policy(groups: Set<String>, settings: AgentSettings) = ToolPolicy.fromAssets({ checkNotNull(policyAssets[it]) },
+        ToolGroup.entries.associateWith { it.id in groups }, paymentPackages = settings.riskPackages, availableTools = ToolNames.ALL,
+        extraKeywords = settings.riskKeywords)
     val archive by lazy { RunArchive(File(context.filesDir, "runs"), File(context.filesDir, "agent-runs")) }
     val memories = MemoryRepository(File(context.filesDir, "memories"), File(context.filesDir, "agent-memory.json"))
     val presets by lazy { PresetRepository(File(context.filesDir, "agent-presets.json"), ::presentationChanged) }
