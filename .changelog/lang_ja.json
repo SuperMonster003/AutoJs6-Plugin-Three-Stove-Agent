@@ -5,6 +5,12 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v1.3.0": {
+      "released_date": "2026/09/28",
+      "feature": [
+        "リスク認識を設定可能に: 設定にリスク認識画面を追加し, 組み込みの決済アプリ一覧 (Alipay, AlipayHK, UnionPay, PayPal, Google ウォレット, Samsung Pay, Huawei Wallet, Mi Pay) と 10 言語の機微なキーワード表に独自のパッケージ名とキーワードを追加できます. 追加は一覧を広げるだけで即時に反映され, 一致した画面操作は機微な操作として確認を経ます"
+      ]
+    },
     "v1.2.0": {
       "released_date": "2026/09/28",
       "hint": [

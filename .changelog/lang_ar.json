@@ -5,6 +5,12 @@
   "changelog_label_improvement": "تحسين",
   "changelog_label_dependency": "تبعية",
   "$data": {
+    "v1.3.0": {
+      "released_date": "2026/09/28",
+      "feature": [
+        "التعرف على المخاطر قابل للتخصيص: شاشة إعدادات جديدة للتعرف على المخاطر تضيف أسماء حزم وكلمات مفتاحية خاصة بك فوق قائمة تطبيقات الدفع المضمنة (Alipay و AlipayHK و UnionPay و PayPal و Google Wallet و Samsung Pay و Huawei Wallet و Mi Pay) وجدول الكلمات المفتاحية الحساسة بعشر لغات; الإضافات توسع القوائم فقط وتسري فورا, وتصبح إجراءات الشاشة المطابقة حساسة وتمر عبر التأكيد"
+      ]
+    },
     "v1.2.0": {
       "released_date": "2026/09/28",
       "hint": [

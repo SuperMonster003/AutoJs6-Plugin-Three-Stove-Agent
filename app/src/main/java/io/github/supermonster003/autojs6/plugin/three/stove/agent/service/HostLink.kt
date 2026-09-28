@@ -258,7 +258,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         }
     }
     private fun admit(request: StartRequest, configuration: LinkConfiguration, callback: IThreeStoveAgentRunCallback?): Bundle {
-        val policy = runtime.policy(request.groups)
+        val policy = runtime.policy(request.groups, runtime.settings.snapshot())
         val sink = RunSink(callback)
         val admittedId = AtomicReference<String>()
         val run = try { queue.submitPrepared(request.options, policy, prepare(request, policy, configuration) { checkNotNull(admittedId.get()) }, { admitted ->

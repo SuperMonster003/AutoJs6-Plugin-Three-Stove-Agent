@@ -4,6 +4,12 @@
 
 ******
 
+# v1.3.0
+
+###### 2026/09/28
+
+* `Feature` Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation
+
 # v1.2.0
 
 ###### 2026/09/28

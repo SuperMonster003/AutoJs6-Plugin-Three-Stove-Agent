@@ -22,6 +22,25 @@ class ToolCatalogTest {
         assertNotNull(catalog["screen_capture"])
         assertEquals(AgentJson.parse(F.snapshot("sensitive-keywords.snapshot.json")), AgentJson.parse(F.asset("catalog/sensitive-keywords.json")))
         assertEquals(10, AgentJson.objectOf(F.asset("catalog/sensitive-keywords.json")).size())
+        assertEquals(AgentJson.parse(F.snapshot("payment-packages.snapshot.json")), AgentJson.parse(F.asset(ToolPolicy.PAYMENT_PACKAGES_ASSET)))
+        assertEquals(8, ToolPolicy.readPackages(F.asset(ToolPolicy.PAYMENT_PACKAGES_ASSET)).size)
+    }
+
+    @Test fun userRiskAdditionsWidenThePackagedTablesWithoutRemovingBuiltIns() {
+        val stock = ToolPolicy.fromAssets(F::asset)
+        val widened = ToolPolicy.fromAssets(F::asset, paymentPackages = setOf("com.example.pay"), extraKeywords = setOf("Remit"))
+        val click = catalog["ui_click"]!!
+        // Packaged payment applications promote actions and count as payment for the session-scope rules.
+        assertEquals(RiskLevel.SENSITIVE, stock.risk(click, RiskContext(packageName = "com.eg.android.AlipayGphone")))
+        assertTrue(stock.isPayment(RiskContext(packageName = "com.unionpay")))
+        assertEquals(RiskLevel.NORMAL, stock.risk(click, RiskContext(packageName = "com.example.pay", nodeText = "Remit now")))
+        assertEquals(RiskLevel.SENSITIVE, widened.risk(click, RiskContext(packageName = "com.example.pay")))
+        assertTrue(widened.isPayment(RiskContext(packageName = "com.example.pay")))
+        assertEquals(RiskLevel.SENSITIVE, widened.risk(click, RiskContext(nodeText = "please remit today")))
+        assertEquals(RiskLevel.SENSITIVE, widened.risk(click, RiskContext(packageName = "com.eg.android.AlipayGphone")))
+        assertEquals(RiskLevel.READ_ONLY, widened.risk(catalog["ui_dump"]!!, RiskContext(packageName = "com.example.pay", nodeText = "remit")))
+        assertTrue(RiskRules.isPackage("com.example.pay_2")); assertFalse(RiskRules.isPackage("nodots")); assertFalse(RiskRules.isPackage("1.bad"))
+        assertTrue(RiskRules.isKeyword("汇款")); assertFalse(RiskRules.isKeyword(" padded")); assertFalse(RiskRules.isKeyword("x".repeat(33)))
     }
 
     @Test fun toolNameConstantsAndConfirmAlwaysMatchThePackagedCatalog() {

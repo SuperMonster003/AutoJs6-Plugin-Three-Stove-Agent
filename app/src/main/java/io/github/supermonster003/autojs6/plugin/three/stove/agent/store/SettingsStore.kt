@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.store
 
 import com.google.gson.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.RiskRules
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.RunLimits
@@ -13,8 +14,16 @@ internal data class AgentSettings(
     val floating: Boolean = false, val fullAccess: Boolean = false,
     /** Channels that report a task stopped by an error, a budget limit or a lost host (P14.1). */
     val failureAlerts: Set<String> = setOf(ALERT_NOTIFICATION),
+    /** User additions to the packaged payment application list (P13 risk recognition); built-ins stay. */
+    val riskPackages: Set<String> = emptySet(),
+    /** User additions to the packaged sensitive keyword table; matched case-insensitively as substrings. */
+    val riskKeywords: Set<String> = emptySet(),
 ) {
-    init { require(!cautious || !fullAccess); require(failureAlerts.all { it in ALERT_CHANNELS }) }
+    init {
+        require(!cautious || !fullAccess); require(failureAlerts.all { it in ALERT_CHANNELS })
+        require(riskPackages.size <= RiskRules.MAX_ENTRIES && riskPackages.all(RiskRules::isPackage))
+        require(riskKeywords.size <= RiskRules.MAX_ENTRIES && riskKeywords.all(RiskRules::isKeyword))
+    }
     /** Wire value of the global access mode shown on the workbench: standard, cautious or full. */
     val accessMode: String get() = when { fullAccess -> "full"; cautious -> "cautious"; else -> "standard" }
     companion object {
@@ -27,17 +36,19 @@ internal data class AgentSettings(
 
 /** Private format; a corrupt or future version never silently restores a more permissive policy. */
 internal object SettingsCodec {
-    const val MAX_BYTES = 4096
+    /** Version 5 adds two bounded lists (32 x 128 chars), which no longer fit the former 4 KiB cap. */
+    const val MAX_BYTES = 16384
     val ceilings = mapOf("maxSteps" to RunLimits.STEPS.toLong(), "maxModelCalls" to RunLimits.MODEL_CALLS.toLong(),
         "maxDurationMs" to RunLimits.DETACHED_DURATION_MS, "maxTotalTokens" to RunLimits.TOKENS)
     fun decode(text: String): AgentSettings {
         val root = AgentJson.objectOf(text, MAX_BYTES)
         val version = requireNotNull(root.number("version"))
-        require(version in 1L..4L)
+        require(version in 1L..5L)
         require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") +
             (if (version >= 2L) setOf("floating") else emptySet()) +
             (if (version >= 3L) setOf("fullAccess") else emptySet()) +
-            (if (version >= 4L) setOf("failureAlerts") else emptySet()))
+            (if (version >= 4L) setOf("failureAlerts") else emptySet()) +
+            (if (version >= 5L) setOf("riskPackages", "riskKeywords") else emptySet()))
         val groups = requireNotNull(root["toolGroups"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }
@@ -50,15 +61,20 @@ internal object SettingsCodec {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }.also { require(it.toSet().size == it.size && it.all { channel -> channel in AgentSettings.ALERT_CHANNELS }) }.toSet()
         else setOf(AgentSettings.ALERT_NOTIFICATION)
+        fun strings(key: String): Set<String> = if (version < 5L) emptySet() else requireNotNull(root[key]?.takeIf { it.isJsonArray }?.asJsonArray).map {
+            require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
+        }.also { require(it.toSet().size == it.size) }.toSet()
         return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
             if (version >= 2L) requireNotNull(root.flag("floating")) else false,
-            if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts)
+            if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts, strings("riskPackages"), strings("riskKeywords"))
     }
-    fun json(value: AgentSettings) = jsonObject("version" to 4.json(), "toolGroups" to JsonArray().apply {
+    fun json(value: AgentSettings) = jsonObject("version" to 5.json(), "toolGroups" to JsonArray().apply {
         value.toolGroups.sorted().forEach(::add)
     }, "budget" to JsonObject().apply { value.budget.forEach { (key, number) -> addProperty(key, number) } },
         "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json(), "fullAccess" to value.fullAccess.json(),
-        "failureAlerts" to JsonArray().apply { value.failureAlerts.sorted().forEach(::add) })
+        "failureAlerts" to JsonArray().apply { value.failureAlerts.sorted().forEach(::add) },
+        "riskPackages" to JsonArray().apply { value.riskPackages.sorted().forEach(::add) },
+        "riskKeywords" to JsonArray().apply { value.riskKeywords.sorted().forEach(::add) })
     fun encode(value: AgentSettings): String = json(value).toString().also { decode(it) }
 }
 

@@ -4,6 +4,12 @@
 
 ******
 
+# v1.3.0
+
+###### 2026/09/28
+
+* `Fonctionnalité` Reconnaissance des risques configurable: un nouvel écran de réglages Reconnaissance des risques ajoute vos propres noms de paquets et mots-clés en plus de la liste intégrée d'applications de paiement (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) et de la table de mots-clés sensibles en dix langues; les ajouts ne font qu'élargir les listes et s'appliquent immédiatement, et les actions à l'écran correspondantes deviennent sensibles et passent par la confirmation
+
 # v1.2.0
 
 ###### 2026/09/28

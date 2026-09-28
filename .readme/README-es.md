@@ -64,7 +64,7 @@ La implementación actual ofrece estas funciones:
 
 - Selección de scripts: los scripts registrados mediante `project.json` o un comentario de cabecera `@agent` se presentan al modelo con sus descripciones y esquemas de parámetros; el agente elige uno, completa los parámetros, pide confirmación cuando hace falta, lo ejecuta dentro de AutoJs6 y lee su resultado estructurado.
 - Manejo de la pantalla paso a paso: el agente observa el árbol de nodos de accesibilidad en forma de texto compacto (y el texto de la pantalla mediante un plugin OCR cuando está instalado), y luego pulsa, escribe, desplaza y presiona teclas a través del intermediario de capacidades de AutoJs6 hasta poder verificar el objetivo.
-- Seguridad por diseño: las herramientas de solo lectura se ejecutan automáticamente, las acciones sensibles (pago, envío, borrado, escritura de archivos, shell, gestos por coordenadas, scripts registrados como sensibles) requieren confirmación de forma predeterminada, y cada ejecución tiene presupuestos de pasos, llamadas al modelo, duración y tokens. Una confirmación puede valer una vez o hasta que termine la tarea; Ajustes también ofrece el modo prudente y el acceso completo, que omite las confirmaciones y queda claramente señalado.
+- Seguridad por diseño: las herramientas de solo lectura se ejecutan automáticamente, las acciones sensibles (pago, envío, borrado, escritura de archivos, shell, gestos por coordenadas, scripts registrados como sensibles) requieren confirmación de forma predeterminada, y cada ejecución tiene presupuestos de pasos, llamadas al modelo, duración y tokens. Una confirmación puede valer una vez o hasta que termine la tarea; Ajustes también ofrece el modo prudente y el acceso completo, que omite las confirmaciones y queda claramente señalado. La lista de aplicaciones de pago y la tabla de palabras clave sensibles se pueden ampliar en la pantalla de ajustes Reconocimiento de riesgos; las entradas integradas no se pueden quitar.
 - API de script e interfaz de usuario: `ai.agent.run(goal, options)` devuelve un manejador `AgentRun` con eventos, respuestas y cancelación; la aplicación independiente ofrece un espacio de tareas con historial, preajustes, memoria de preferencias, ajustes e historial de versiones.
 - Llamadas nativas mediante el host: esquemas del catálogo, validación del lote completo, ejecución secuencial, confirmaciones individuales, devolución de resultados y registro compartido
 - Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
@@ -289,6 +289,12 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 ******
 
+#### v1.3.0
+
+_2026/09/28_
+
+- `Función` Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación
+
 #### v1.2.0
 
 _2026/09/28_
@@ -341,49 +347,6 @@ _2026/09/26_
 - `Función` Observación de capturas mediante AutoJs6 en Android 11+: screen_capture limita el lado mayor a 1280 y usa JPEG de calidad 70, con instrucciones visuales, presupuesto de tokens de imagen e imágenes en resultados de herramientas nativas
 - `Función` JavaScript generado mediante script_run_source: el grupo script_dynamic está desactivado inicialmente. Cada llamada exige revisar un resumen ampliable al código completo y dar aprobación individual. La ejecución ofrece plazo, cancelación, resultados estructurados y código en el historial privado. Tanto el UTF-8 como su cadena JSON tienen un límite de 8 KiB.
 - `Dependencia` Actualización de los tres artefactos API del host release a AutoJs6 52ce694f92 / build 5297 para imágenes negociadas, manteniendo el contrato de conexión build 5289+
-
-#### v1.0.0
-
-_2026/09/25_
-
-- `Aviso` La versión 1.0.0 ofrece tareas en lenguaje natural, ejecución de scripts registrados y acciones del dispositivo con confirmación según el riesgo. Consulte [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) para los casos verificados, las limitaciones de los modelos y las comprobaciones de dispositivos pendientes. Las llamadas nativas a herramientas, la entrada visual y la generación dinámica de scripts están previstas para 1.1.0.
-- `Aviso` Requiere Android 7+, AutoJs6 6.8.0 / build 5293+ para las API de tareas y 3-Stone AI habilitado con un modelo configurado. OCR es opcional. El protocolo de conexión por sí solo requiere build 5289+.
-- `Aviso` Compatibilidad: la extensión nativa de herramientas de AutoJs6 build 5297 es compatible con esta versión. La versión candidata de desarrollo 3-Stone AI 1.2.0 implementa la continuación de herramientas en línea para tres protocolos. Este Agent sigue usando decisiones JSON estructuradas; la integración del bucle nativo y las comparaciones siguen en [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md).
-- `Función` Panel de tareas en lenguaje natural con preguntas, progreso, parada y resultados; entrada flotante opcional, texto compartido, accesos a preajustes y borradores de voz
-- `Función` API ai.agent para crear tareas, eventos, consultas, respuestas y cancelación, incluidas tareas detached y resultados/contexto de scripts registrados
-- `Función` Scripts project.json / @agent con búsqueda, validación y valores predeterminados de parámetros, preguntas por valores ausentes, confirmación, ejecución limitada y resultados estructurados
-- `Función` Observación mediante nodos de texto y OCR autorizado opcional, clics por referencia, entrada, desplazamiento y teclas, con verificación de cambios y evidencia de finalización
-- `Función` Modelos en línea y locales mediante AutoJs6 sin guardar credenciales; un objetivo seleccionado ausente falla sin cambiar de modelo silenciosamente
-- `Función` Presupuestos de pasos, llamadas, duración y tokens, plazos de herramientas, hasta dos reintentos de reparación por paso y protección ante acciones repetidas sin efecto
-- `Función` Preajustes con nombre y ajustes globales de modelo, contexto, herramientas, presupuestos, cautela, carpetas y memoria; gesture/files/shell desactivados inicialmente
-- `Función` Memoria de preferencias por ámbito con aprobación individual de propuestas/importaciones, edición, borrado y copia JSON, hasta 500 entradas / 256 KiB; inyección automática hasta 4 KiB
-- `Función` Detalles y cronologías, filtros, borradores de repetición y exportación JSON depurada, con historial privado de hasta 200 tareas / 32 MiB
-- `Función` Confirmación según riesgo en panel, notificaciones y tarjeta flotante; pagos y memoria siempre con aprobación individual; perder el anfitrión bloquea tareas y reiniciar no las reanuda
-- `Función` Ajustes, historial sin conexión y avisos legales en diez idiomas; consulta manual de GitHub con cancelación, caché diaria y versiones ignoradas, sin descarga automática de APK
-- `Corrección` Finalización prematura de tareas al interpretar el presupuesto restante como consumido
-- `Corrección` Áreas táctiles de formularios y filtros, ajuste de textos y columnas de parámetros, y controles flotantes con fuentes grandes y en Android 7
-- `Corrección` Omisiones en la validación de credenciales de la memoria de preferencias con caracteres de ancho completo, caracteres de ancho cero y otros nombres de credenciales
-- `Corrección` La burbuja de tareas podía permanecer oculta al activar un dispositivo sin bloqueo seguro mientras se estabilizaba el estado de la pantalla
-- `Corrección` Las tareas interrumpidas al terminar el proceso del plugin se registran como fallidas al reiniciar; la pantalla bloqueada detiene las acciones posteriores
-- `Corrección` Las herramientas de archivos rechazan rutas con recorrido, absolutas o no válidas antes de la confirmación o el envío al anfitrión; el historial guarda categorías limitadas de rechazo sin el texto rechazado del modelo
-- `Corrección` La confirmación vuelve a la app de destino antes de reanudar acciones, procesa la respuesta aunque se detenga la pantalla y contrae la tarjeta flotante antes de ejecutar
-- `Corrección` El inicio en Android 13 ya no falla al consultar el controlador de las barras del sistema antes de crear la vista de la ventana
-- `Corrección` El historial se ordena y conserva por el inicio de las tareas para que reescribir archivos al reiniciar no elimine las más recientes
-- `Corrección` Las respuestas y confirmaciones verifican el propietario interaction para impedir que un script responda por la interfaz del complemento
-- `Corrección` Los botones de confirmar transacción requieren una confirmación de pago separada y no reutilizan permisos de toda la tarea
-- `Corrección` Las coincidencias fuera de pantalla con límites vacíos o invertidos conservan el texto e indican coordenadas no utilizables en vez de errores de argumentos
-- `Corrección` La relocalización de nodos distingue límites y capacidades de acción para no confundir contenedores anidados con el objetivo
-- `Corrección` Indicaciones precisas para corregir destinos de nodos: conservar el prefijo # y omitir snapshotId con selector
-- `Corrección` La admisión precarga las reglas de pedido y evita una compilación costosa de reglas
-- `Corrección` La verificación distingue nodos de ventanas distintas, mantiene la observación de pantalla tras leer el portapapeles y no confunde transferencias de archivos con pagos
-- `Corrección` La lectura de pantalla sin respuesta tras una acción ya no supera el plazo de estabilización
-- `Corrección` Ocultación de parámetros multilínea antes de dividir la consola, sin omitir credenciales cuando un parámetro coincide con su etiqueta
-- `Corrección` Un servicio en primer plano que se está cerrando ya no rechaza el inicio de la siguiente tarea
-- `Mejora` El ajuste de historiales largos reutiliza fragmentos de instrucciones y observaciones sin cambios para reducir el tiempo de procesamiento por paso
-- `Mejora` Los límites de las descripciones de confirmación incluyen el escape JSON para mantener tablas grandes dentro del límite de eventos Binder
-- `Mejora` El anfitrión mínimo es AutoJs6 6.8.0 / compilación 5289 para inspeccionar nodos de acción y vincular la confirmación a la ejecución
-- `Dependencia` Añadidos common-plugin-api, host-capability-api y ai-agent-api de una misma compilación release de AutoJs6 6.8.0 / 5289 (MPL 2.0), fijados con SHA-256
-- `Dependencia` Se añadió Gson 2.13.2 para el análisis JSON estricto con límites y árboles de esquemas
 
 ##### Para más historial de versiones
 

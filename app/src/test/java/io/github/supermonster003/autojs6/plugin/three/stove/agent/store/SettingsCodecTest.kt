@@ -13,7 +13,9 @@ class SettingsCodecTest {
     @Test fun fullAccessRequiresExplicitPrivateSettingsAndPreservesToolAndBudgetLimits() {
         val chosen = AgentSettings(fullAccess = true, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
         assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
-        val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply { addProperty("version", 2); remove("fullAccess"); remove("failureAlerts") }
+        val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply {
+            addProperty("version", 2); remove("fullAccess"); remove("failureAlerts"); remove("riskPackages"); remove("riskKeywords")
+        }
         assertFalse(SettingsCodec.decode(legacy.toString()).fullAccess)
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("cautious", true) }.toString()) }
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("fullAccess", "true") }.toString()) }
@@ -41,17 +43,37 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 5.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
-            "failureAlerts" to AgentJson.parse("[\"email\"]"), "failureAlerts" to AgentJson.parse("[\"toast\",\"toast\"]")))
+        for ((key, value) in listOf("version" to 6.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
+            "failureAlerts" to AgentJson.parse("[\"email\"]"), "failureAlerts" to AgentJson.parse("[\"toast\",\"toast\"]"),
+            "riskPackages" to AgentJson.parse("[\"nodots\"]"), "riskPackages" to AgentJson.parse("[\"a.b\",\"a.b\"]"), "riskPackages" to "a.b".json(),
+            "riskKeywords" to AgentJson.parse("[\" padded\"]"), "riskKeywords" to AgentJson.parse("[\"\"]"), "riskKeywords" to AgentJson.parse("[\"${"x".repeat(33)}\"]")))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add(key, value) }.toString()) }
         for (budget in listOf("""{"maxSteps":201}""", """{"maxSteps":1.5}""", """{"maxSteps":0}""", """{"unknown":1}"""))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add("budget", AgentJson.parse(budget)) }.toString()) }
         reject { SettingsCodec.decode(valid.deepCopy().apply { add("toolGroups", AgentJson.parse("[\"shell\",\"shell\"]")) }.toString()) }
-        reject { SettingsCodec.decode(" ".repeat(4097)) }
+        reject { SettingsCodec.decode(" ".repeat(SettingsCodec.MAX_BYTES + 1)) }
+    }
+    @Test fun riskListsWidenPackagedTablesRoundTripAndStayBounded() {
+        val chosen = AgentSettings(riskPackages = setOf("com.example.pay", "org.bank.app_2"), riskKeywords = setOf("remit", "汇款", "Wire Money"))
+        assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
+        val encoded = SettingsCodec.json(chosen)
+        assertEquals(5L, encoded.number("version")); assertEquals(listOf("com.example.pay", "org.bank.app_2"), encoded.getAsJsonArray("riskPackages").map { it.asString })
+        // Version 4 files carry no lists; decoding them never invents entries.
+        val legacy = encoded.deepCopy().apply { addProperty("version", 4); remove("riskPackages"); remove("riskKeywords") }
+        assertEquals(chosen.copy(riskPackages = emptySet(), riskKeywords = emptySet()), SettingsCodec.decode(legacy.toString()))
+        reject { SettingsCodec.decode(legacy.deepCopy().apply { add("riskPackages", AgentJson.parse("[\"a.b\"]")) }.toString()) }
+        reject { AgentSettings(riskPackages = setOf("bad name")) }
+        reject { AgentSettings(riskPackages = setOf("com.example.pay" + ".x".repeat(64))) }
+        reject { AgentSettings(riskKeywords = setOf("two\nlines")) }
+        reject { AgentSettings(riskPackages = (1..33).map { "com.example.pay$it" }.toSet()) }
+        val full = AgentSettings(riskPackages = (1..32).map { "com.example.pay$it" }.toSet(), riskKeywords = (1..32).map { "keyword-$it" }.toSet())
+        assertEquals(full, SettingsCodec.decode(SettingsCodec.encode(full)))
     }
     @Test fun oldSettingsMigrateWithoutEnablingAnOverlayOrChangingAuthority() {
         val chosen = AgentSettings(cautious = true, voice = false, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
-        val legacy = SettingsCodec.json(chosen).apply { addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts") }
+        val legacy = SettingsCodec.json(chosen).apply {
+            addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts"); remove("riskPackages"); remove("riskKeywords")
+        }
         assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
         assertFalse(SettingsCodec.decode(legacy.toString()).floating)
         assertEquals(setOf(AgentSettings.ALERT_NOTIFICATION), SettingsCodec.decode(legacy.toString()).failureAlerts)
