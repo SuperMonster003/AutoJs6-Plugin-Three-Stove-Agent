@@ -196,6 +196,7 @@
     <string name="model_unavailable_note">AutoJs6 ya no ofrece este modelo. Elige otro antes de iniciar una tarea.</string>
     <string name="model_unpin">Dejar de fijar %1$s</string>
     <string name="plugin_description">Ejecuta tareas en lenguaje natural eligiendo scripts registrados y manejando la pantalla paso a paso</string>
+    <string name="presets_accept">Importar este preajuste</string>
     <string name="presets_actions">Acciones de %1$s</string>
     <string name="presets_budget_note">Deje en blanco para heredar límites. Solo se pueden reducir. Valores iniciales: 60 pasos, 90 llamadas, 15 minutos (30 minutos en tareas independientes), 500000 tokens, sujetos al host.</string>
     <string name="presets_calls">Máximo de llamadas al modelo</string>
@@ -210,6 +211,8 @@
     <string name="presets_delete_confirm">Eliminar %1$s? Se conservan las tareas y el historial. Si es el predeterminado, las nuevas tareas usarán default.</string>
     <string name="presets_edit">Editar preajuste</string>
     <string name="presets_error">No se pudo leer o guardar el preajuste. Revise el nombre único, los límites, el tamaño del contexto y los grupos o carpetas permitidos e inténtelo de nuevo.</string>
+    <string name="presets_export">Exportar JSON</string>
+    <string name="presets_export_notice">El JSON incluye el nombre, los grupos de herramientas, los límites de tarea, la política de confirmación, el contexto fijo, los directorios de scripts y el ámbito de memoria de cada preajuste, pero ningún modelo. Elija un destino.</string>
     <string name="presets_group_act">Acciones en pantalla</string>
     <string name="presets_group_files">Archivos</string>
     <string name="presets_group_gesture">Gestos por coordenadas</string>
@@ -222,6 +225,9 @@
     <string name="presets_group_shell">Comandos de shell</string>
     <string name="presets_group_user">Interacción con el usuario</string>
     <string name="presets_hybrid">Híbrido</string>
+    <string name="presets_import">Importar JSON</string>
+    <string name="presets_import_dropped">No disponible en este dispositivo y no se conserva tras la importación: %1$s</string>
+    <string name="presets_import_full">Elimine primero un preajuste u omita esta entrada. Límite de preajustes: %1$d</string>
     <string name="presets_inherit">Usar ajustes globales</string>
     <string name="presets_local">En el dispositivo</string>
     <string name="presets_manage">Gestionar preajustes</string>
@@ -236,8 +242,10 @@
     <string name="presets_new">Nuevo preajuste</string>
     <string name="presets_refresh_models">Actualizar modelos</string>
     <string name="presets_remote">En línea</string>
+    <string name="presets_replace">Se reemplazará la configuración actual del preajuste con el mismo nombre.</string>
     <string name="presets_save">Guardar preajuste</string>
     <string name="presets_set_default">Establecer como predeterminado</string>
+    <string name="presets_skip">Omitir preajuste</string>
     <string name="presets_standard">Normal (confirmar acciones sensibles)</string>
     <string name="presets_steps">Máximo de pasos</string>
     <string name="presets_title">Preajustes</string>

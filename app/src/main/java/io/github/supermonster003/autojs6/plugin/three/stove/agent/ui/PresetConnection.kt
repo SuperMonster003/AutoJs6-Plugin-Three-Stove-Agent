@@ -13,6 +13,7 @@ internal class PresetConnection(private val context: Context, private val ready:
     private val main = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor()
     private var endpoint: IPresetStore? = null
+    val connected get() = endpoint != null
     private var bound = false
     private var generation = 0
     private val connection = object : ServiceConnection {

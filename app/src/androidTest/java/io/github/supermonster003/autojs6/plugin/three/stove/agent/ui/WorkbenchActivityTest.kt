@@ -13,6 +13,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.CiUiDiagnostics
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentPlugin
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.AgentWire
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.service.IAgentSettings
@@ -1098,6 +1099,48 @@ class WorkbenchActivityTest {
                 assertEquals(client.rows().toSet(), MemoryActivity.readImport(output.toByteArray().inputStream()).toSet())
                 assertTrue(runCatching { MemoryActivity.readImport(byteArrayOf(0xc3.toByte(), 0x28).inputStream()) }.isFailure)
             } finally { client.rows().filter { it.key.startsWith(prefix) }.forEach { client.delete(it) } }
+        }
+    }
+    @Test fun presetImportReviewsEachRowDropsUnavailableEntriesAndRestoresPendingReviewWithoutWriting() {
+        PresetsClient().use { client ->
+            val prefix = "import-${java.util.UUID.randomUUID()}"
+            val allowed = client.query("list").getOrThrow().getAsJsonArray("toolGroups").map { it.asString }.toSet(); assertTrue("observe" in allowed)
+            val unavailable = ToolGroup.entries.map { it.id }.filter { it !in allowed }.take(1)
+            val root = "/nonexistent/$prefix"
+            val first = Preset(prefix, "profile:legacy", setOf("observe") + unavailable, mapOf("maxSteps" to 4L), "cautious", "Imported fixture context", setOf(root), "preset")
+            val second = Preset("$prefix-x", context = "Skipped fixture context")
+            try {
+                ActivityScenario.launch(PresetsActivity::class.java).use { scenario ->
+                    fun ready(message: String, tag: String) = waitFor(message) { var found = false; scenario.onActivity {
+                        found = it.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<View>(tag)?.isEnabled == true }; found }
+                    ready("Preset list loaded", "preset-import")
+                    val input = PresetCodec.encodeExport(listOf(first, second)).byteInputStream()
+                    scenario.onActivity { it.beginImport(PresetsActivity.readImport(input)) }
+                    ready("First import review", "preset-accept"); assertTrue(client.named("get", prefix).isFailure)
+                    scenario.onActivity { activity ->
+                        val shown = texts(activity.findViewById(android.R.id.content))
+                        assertTrue(shown.any { it.contains("Imported fixture context") })
+                        assertTrue("The unavailable directory is named before anything is written", shown.any { it.contains(root) })
+                        activity.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-accept").performClick()
+                    }
+                    waitFor("First row saved") { client.named("get", prefix).isSuccess }
+                    ready("Second review", "preset-accept"); instrumentation.waitForIdleSync(); scenario.recreate()
+                    ready("Pending review restored", "preset-skip")
+                    scenario.onActivity { activity ->
+                        assertTrue(texts(activity.findViewById(android.R.id.content)).any { it.contains("Skipped fixture context") })
+                        activity.findViewById<ViewGroup>(android.R.id.content).findViewWithTag<Button>("preset-skip").performClick()
+                    }
+                    ready("Import finished", "preset-import"); assertTrue(client.named("get", "$prefix-x").isFailure)
+                }
+                val saved = PresetCodec.decodePreset(client.named("get", prefix).getOrThrow())
+                assertNull("A model never travels in a file", saved.targetId)
+                assertEquals(setOf("observe"), saved.toolGroups); assertEquals(emptySet<String>(), saved.scriptRoots)
+                assertEquals("cautious", saved.confirmPolicy); assertEquals(mapOf("maxSteps" to 4L), saved.budget); assertEquals("preset", saved.memoryScope)
+                val output = java.io.ByteArrayOutputStream(); PresetsActivity.writeExport(output, client.query("export").getOrThrow())
+                val exported = PresetsActivity.readImport(output.toByteArray().inputStream())
+                assertEquals(saved, exported.single { it.name == prefix }); assertTrue(exported.any { it.name == "default" } && exported.none { it.targetId != null })
+                assertTrue(runCatching { PresetsActivity.readImport(byteArrayOf(0xc3.toByte(), 0x28).inputStream()) }.isFailure)
+            } finally { client.named("delete", prefix); client.named("delete", "$prefix-x") }
         }
     }
     @Test fun credentialMemoryWritesAreRejectedAcrossPrivateBinder() {

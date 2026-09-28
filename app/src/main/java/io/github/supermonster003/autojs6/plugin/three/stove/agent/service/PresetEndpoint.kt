@@ -61,6 +61,7 @@ internal class PresetEndpoint(private val runtime: AgentRuntime, private val cac
                         "scriptRoots" to JsonArray().apply { config.roots.sorted().forEach(::add) })
                 }
                 "get" -> { fields("name"); PresetCodec.encodePreset(snapshot.resolve(name())) }
+                "export" -> { fields(); AgentJson.objectOf(PresetCodec.encodeExport(snapshot.presets), PresetCodec.MAX_EXPORT_BYTES) }
                 "save" -> {
                     fields("preset", "create")
                     val config = configuration()
@@ -88,6 +89,6 @@ internal class PresetEndpoint(private val runtime: AgentRuntime, private val cac
     }
     companion object {
         const val ACTION = "io.github.supermonster003.autojs6.plugin.three.stove.agent.PRESETS"
-        const val MAX_RESPONSE_BYTES = 256 * 1024
+        const val MAX_RESPONSE_BYTES = PresetCodec.MAX_EXPORT_BYTES + 16 * 1024
     }
 }

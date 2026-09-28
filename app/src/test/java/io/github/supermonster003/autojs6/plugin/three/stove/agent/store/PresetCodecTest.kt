@@ -47,6 +47,23 @@ class PresetCodecTest {
             assertNotNull(extra, runCatching { PresetCodec.decodePreset(AgentJson.objectOf("{\"name\":\"test\",$extra}")) }.exceptionOrNull())
         }
     }
+    @Test fun portableExportDropsTheModelTargetAndImportsUnderTheSameLimits() {
+        val office = Preset("office", "profile:online", setOf("observe"), mapOf("maxSteps" to 5L), "cautious", "ctx", setOf("/sdcard/scripts"), "preset")
+        val text = PresetCodec.encodeExport(listOf(Preset("default", targetId = "workbench:legacy"), office))
+        assertFalse(text.contains("targetId") || text.contains("defaultName"))
+        assertEquals(listOf(Preset("default"), office.copy(targetId = null)), PresetCodec.decodeExport(text))
+        // A hand-written file may still name a model; the device choice wins, so the field is ignored rather than refused.
+        val handWritten = AgentJson.objectOf(text).apply { getAsJsonArray("presets")[1].asJsonObject.addProperty("targetId", "profile:other") }
+        assertNull(PresetCodec.decodeExport(handWritten.toString())[1].targetId)
+        val good = AgentJson.objectOf(text)
+        for (mutate in listOf<(com.google.gson.JsonObject) -> Unit>({ it.addProperty("version", 2) }, { it.addProperty("defaultName", "office") },
+            { it.getAsJsonArray("presets").add(PresetCodec.encodePreset(office)) }, { it.remove("presets"); it.add("presets", com.google.gson.JsonArray()) },
+            { it.getAsJsonArray("presets")[1].asJsonObject.addProperty("riskOverrides", "x") }, { it.getAsJsonArray("presets")[1].asJsonObject.addProperty("targetId", "bad target") })) {
+            assertThrows(IllegalArgumentException::class.java) { PresetCodec.decodeExport(good.deepCopy().also(mutate).toString()) }
+        }
+        assertThrows(IllegalArgumentException::class.java) { PresetCodec.encodeExport((0..32).map { Preset("p$it") }) }
+        assertThrows(IllegalArgumentException::class.java) { PresetCodec.encodeExport((1..6).map { Preset("p$it", context = "\u0000".repeat(8192)) }) }
+    }
     @Test fun countAndFileSizeAreBounded() {
         val rows = listOf(Preset("default")) + (1..32).map { Preset("p$it") }
         assertThrows(IllegalArgumentException::class.java) { PresetCodec.encode(PresetSnapshot("default", rows)) }

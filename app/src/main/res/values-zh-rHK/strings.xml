@@ -196,6 +196,7 @@
     <string name="model_unavailable_note">AutoJs6 已不再提供此模型. 開始任務前請選擇其他模型.</string>
     <string name="model_unpin">取消置頂 %1$s</string>
     <string name="plugin_description">按自然語言目標選擇已登記指令碼並逐步操作介面完成任務</string>
+    <string name="presets_accept">匯入此預設</string>
     <string name="presets_actions">%1$s 的操作</string>
     <string name="presets_budget_note">留空沿用任務限制, 填寫值只能收緊. 預設: 60 步, 90 次模型調用, 15 分鐘 (託管任務 30 分鐘), 500000 token, 同時受宿主限制.</string>
     <string name="presets_calls">最大模型調用次數</string>
@@ -210,6 +211,8 @@
     <string name="presets_delete_confirm">刪除預設 %1$s? 已有任務和歷史記錄會保留. 若它是預設值, 新任務將使用 default.</string>
     <string name="presets_edit">編輯預設</string>
     <string name="presets_error">無法讀取或儲存預設. 請檢查名稱是否重複, 預算和上下文大小是否合規, 工具群組及目錄是否已獲准, 然後重試.</string>
+    <string name="presets_export">匯出 JSON</string>
+    <string name="presets_export_notice">JSON 包含全部預設的名稱, 工具組, 任務預算, 確認策略, 固定上下文, 腳本目錄與記憶範圍, 不包含模型. 請選擇儲存位置.</string>
     <string name="presets_group_act">螢幕操作</string>
     <string name="presets_group_files">檔案</string>
     <string name="presets_group_gesture">座標手勢</string>
@@ -222,6 +225,9 @@
     <string name="presets_group_shell">Shell 指令</string>
     <string name="presets_group_user">使用者互動</string>
     <string name="presets_hybrid">混合</string>
+    <string name="presets_import">匯入 JSON</string>
+    <string name="presets_import_dropped">此裝置上無法使用, 匯入後不保留: %1$s</string>
+    <string name="presets_import_full">請先刪除預設或略過此項目. 預設上限: %1$d</string>
     <string name="presets_inherit">使用全域設定</string>
     <string name="presets_local">本機</string>
     <string name="presets_manage">管理預設</string>
@@ -236,8 +242,10 @@
     <string name="presets_new">新增預設</string>
     <string name="presets_refresh_models">重新整理模型清單</string>
     <string name="presets_remote">線上</string>
+    <string name="presets_replace">將取代同名預設的目前設定.</string>
     <string name="presets_save">儲存預設</string>
     <string name="presets_set_default">設為預設值</string>
+    <string name="presets_skip">略過預設</string>
     <string name="presets_standard">標準 (敏感操作需確認)</string>
     <string name="presets_steps">最大步數</string>
     <string name="presets_title">預設</string>
