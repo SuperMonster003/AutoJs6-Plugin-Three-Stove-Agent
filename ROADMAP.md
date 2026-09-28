@@ -1882,3 +1882,4 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 ### 2026-09-29: README 截图重拍 (build 169)
 
 - 按 `docs/images/README.md` 的复现步骤, 在一次性 API 36.1 google_apis x86_64 pixel_7 AVD (`Three_Stove_Agent_Conformance_36`, 1080 x 2400, 420 dpi, 字号 1.0) 上以 build 168 的 debug / androidTest APK 重拍 12 张图: `captureReadmeScreens` / `captureReadmeFloating` (en, 亮色) 与 `captureRedesignedScreens` (zh-Hans, 亮 / 暗) 均 OK; `app-models-*.png` 与上次逐字节相同 (模型面板未变), 其余 10 张更新并重算 SHA-256. 悬浮球截图的夹具快照在截图路径改为 `accessMode: standard` (审计路径仍用 full 检查危险色调), 避免 README 展示红色的完全访问标签; `FloatingAccessibilityTest` 2/2 通过. 模拟器用后关闭并删除 AVD 目录.
+- 远程 CI: build 168 (仅路线图, run 36454407083, 结论 cancelled); build 169 (run 36456523646): 单元 / APK 通过, API 35 通过, API 24 套件跑完 (132 项完成, 0 失败) 后 adb 在收尾阶段持续超时, 作业达到时限被取消 (记为 CI 模拟器收尾偶发, 套件本身通过), API 37.1 既有非阻断失败.
