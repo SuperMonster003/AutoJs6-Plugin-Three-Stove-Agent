@@ -21,7 +21,8 @@
       ],
       "improvement": [
         "Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard",
-        "Après un tools/list_changed envoyé par un serveur MCP, les définitions d'outils gelées sont revérifiées avant l'appel suivant: les définitions inchangées continuent de fonctionner, et seule une définition modifiée échoue avec MCP_CATALOG_CHANGED en indiquant au modèle de faire actualiser la sélection d'outils dans les réglages MCP par l'utilisateur puis de relancer une tâche; la note du point de terminaison précise désormais que la connexion OAuth et l'ancien transport HTTP+SSE ne sont pas pris en charge"
+        "Après un tools/list_changed envoyé par un serveur MCP, les définitions d'outils gelées sont revérifiées avant l'appel suivant: les définitions inchangées continuent de fonctionner, et seule une définition modifiée échoue avec MCP_CATALOG_CHANGED en indiquant au modèle de faire actualiser la sélection d'outils dans les réglages MCP par l'utilisateur puis de relancer une tâche; la note du point de terminaison précise désormais que la connexion OAuth et l'ancien transport HTTP+SSE ne sont pas pris en charge",
+        "La migration ponctuelle introduite en 1.2.0 est supprimée: un ancien choix de modèle dans les préférences de brouillon de l'atelier n'est plus déplacé vers model-selection.json, un choix enregistré par une version antérieure doit donc être refait dans l'atelier"
       ]
     },
     "v1.2.0": {

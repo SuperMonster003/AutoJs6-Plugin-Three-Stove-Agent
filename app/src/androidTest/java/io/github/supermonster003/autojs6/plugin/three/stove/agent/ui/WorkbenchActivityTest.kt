@@ -115,8 +115,6 @@ class WorkbenchActivityTest {
         }
         val prefs = context.getSharedPreferences("workbench", Context.MODE_PRIVATE)
         val oldGoal = prefs.getString("goal", null); val oldPreset = prefs.getString("preset", null)
-        val oldTarget = prefs.getString("target", null); val oldTargetName = prefs.getString("targetName", null)
-        prefs.edit().remove("target").remove("targetName").commit()
         // Every fixture starts from Automatic; the user's own model choice is restored afterwards.
         val selectionFile = java.io.File(context.filesDir, "model-selection.json")
         val oldSelection = selectionFile.takeIf { it.exists() }?.readBytes()
@@ -133,8 +131,7 @@ class WorkbenchActivityTest {
             fixtureApi = null
             link?.detach(bundle(H.KEY_REASON_JSON, """{"reason":"workbench-test-finished"}"""))
             context.unbindService(connection)
-            prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset)
-                .putString("target", oldTarget).putString("targetName", oldTargetName).commit()
+            prefs.edit().putString("goal", oldGoal).putString("preset", oldPreset).commit()
             if (oldSelection != null) selectionFile.writeBytes(oldSelection) else selectionFile.delete()
         }
     }
@@ -1301,8 +1298,8 @@ class WorkbenchActivityTest {
         } finally { HostAppearance.cached = original; release.countDown() }
     }
     @Test fun shareAndShortcutOpenDraftsAndEachStartExactlyOneTask() = withFixture(Model().apply { offerSecond = true }) { link, model ->
-        // A choice saved by an earlier version migrates once into the shared model selection.
-        context.getSharedPreferences("workbench", Context.MODE_PRIVATE).edit().putString("target", "workbench:second").commit()
+        // The shared model selection is the only source of the quick model; the workbench draft preferences hold no model any more.
+        ModelSelection.choose(context, io.github.supermonster003.autojs6.plugin.three.stove.agent.store.ModelRef("workbench:second", "Second online model"))
         val automation = instrumentation.uiAutomation
         val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
         try {
