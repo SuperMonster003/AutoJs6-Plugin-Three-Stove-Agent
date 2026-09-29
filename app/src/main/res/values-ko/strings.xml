@@ -338,6 +338,8 @@
     <string name="settings_title">설정</string>
     <string name="settings_tool_groups_summary">사용: %1$d / %2$d</string>
     <string name="settings_voice">음성 입력 사용</string>
+    <string name="settings_voice_note">목표 입력란 옆에 마이크를 표시합니다. 인식은 이 기기의 음성 인식 앱이 수행하며 이 플러그인은 녹음하지 않습니다.</string>
+    <string name="settings_voice_unavailable">이 기기에는 음성 인식 앱이 설치되어 있지 않아 이 스위치를 켜도 마이크가 표시되지 않습니다. 시스템 음성 인식을 제공하는 앱 (예: Google)을 설치한 뒤 작업대를 다시 여세요.</string>
     <string name="shortcut_goal">고정 목표 (선택)</string>
     <string name="shortcut_new_task">새 작업</string>
     <string name="shortcut_pin">홈 화면에 고정</string>

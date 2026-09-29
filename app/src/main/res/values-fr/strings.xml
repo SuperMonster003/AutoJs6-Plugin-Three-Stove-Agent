@@ -338,6 +338,8 @@
     <string name="settings_title">Paramètres</string>
     <string name="settings_tool_groups_summary">Activés: %1$d / %2$d</string>
     <string name="settings_voice">Activer la saisie vocale</string>
+    <string name="settings_voice_note">Affiche un microphone à côté du champ d\'objectif. La reconnaissance est effectuée par une application de reconnaissance vocale de cet appareil; ce plugin n\'enregistre rien.</string>
+    <string name="settings_voice_unavailable">Aucune application de reconnaissance vocale n\'est installée sur cet appareil, le microphone reste donc masqué même si cet interrupteur est activé. Installez une application offrant la reconnaissance vocale du système (par exemple Google) et rouvrez l\'atelier.</string>
     <string name="shortcut_goal">Objectif fixe (facultatif)</string>
     <string name="shortcut_new_task">Nouvelle tâche</string>
     <string name="shortcut_pin">Épingler sur l\'écran d\'accueil</string>

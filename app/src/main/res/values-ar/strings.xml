@@ -338,6 +338,8 @@
     <string name="settings_title">الإعدادات</string>
     <string name="settings_tool_groups_summary">المفعلة: %1$d / %2$d</string>
     <string name="settings_voice">تفعيل الإدخال الصوتي</string>
+    <string name="settings_voice_note">يعرض ميكروفونا بجانب حقل الهدف. يتم التعرف بواسطة تطبيق التعرف على الكلام في هذا الجهاز; لا يسجل هذا المكون الإضافي شيئا.</string>
+    <string name="settings_voice_unavailable">لا يوجد تطبيق للتعرف على الكلام مثبت على هذا الجهاز, لذا يبقى الميكروفون مخفيا حتى مع تشغيل هذا المفتاح. ثبت تطبيقا يوفر التعرف على الكلام للنظام (مثل Google) ثم أعد فتح طاولة العمل.</string>
     <string name="shortcut_goal">هدف ثابت (اختياري)</string>
     <string name="shortcut_new_task">مهمة جديدة</string>
     <string name="shortcut_pin">تثبيت على الشاشة الرئيسية</string>

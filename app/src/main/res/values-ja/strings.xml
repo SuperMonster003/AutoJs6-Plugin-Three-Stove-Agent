@@ -338,6 +338,8 @@
     <string name="settings_title">設定</string>
     <string name="settings_tool_groups_summary">有効: %1$d / %2$d</string>
     <string name="settings_voice">音声入力を有効にする</string>
+    <string name="settings_voice_note">目標入力欄の横にマイクを表示します. 認識はこの端末の音声認識アプリが行い, このプラグインは録音しません.</string>
+    <string name="settings_voice_unavailable">この端末には音声認識アプリがないため, このスイッチをオンにしてもマイクは表示されません. システム音声認識を提供するアプリ (Google など) をインストールしてからワークベンチを開き直してください.</string>
     <string name="shortcut_goal">固定の目標 (任意)</string>
     <string name="shortcut_new_task">新規タスク</string>
     <string name="shortcut_pin">ホーム画面に固定</string>

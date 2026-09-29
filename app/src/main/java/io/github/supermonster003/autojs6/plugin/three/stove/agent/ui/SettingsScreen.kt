@@ -76,7 +76,9 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     add(page, "mcp-servers", settingRow(getString(R.string.mcp_servers), null, R.drawable.ic_hub, "mcp-servers") { open(McpServersActivity::class.java) }, divider = false)
 
     page.addView(sectionHeader(getString(R.string.settings_section_quick)))
-    add(page, "voice", switchRow(getString(R.string.settings_voice), null, R.drawable.ic_mic, false, "voice") { enabled ->
+    // The microphone only appears when a speech recognizer app exists; say so here instead of leaving the switch silent (maintainer feedback, 2026-09-29).
+    add(page, "voice", switchRow(getString(R.string.settings_voice),
+        getString(if (SpeechInput.available(this@buildPage)) R.string.settings_voice_note else R.string.settings_voice_unavailable), R.drawable.ic_mic, false, "voice") { enabled ->
         updater.apply { it.withVoice(enabled) }
     })
     add(page, "floating", switchRow(getString(R.string.settings_floating), getString(R.string.floating_setting_note), R.drawable.ic_bubble, false, "floating") { enabled ->

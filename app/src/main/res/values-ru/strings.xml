@@ -338,6 +338,8 @@
     <string name="settings_title">Настройки</string>
     <string name="settings_tool_groups_summary">Включено: %1$d / %2$d</string>
     <string name="settings_voice">Включить голосовой ввод</string>
+    <string name="settings_voice_note">Показывает микрофон рядом с полем цели. Распознавание выполняет приложение распознавания речи на этом устройстве; плагин ничего не записывает.</string>
+    <string name="settings_voice_unavailable">На этом устройстве нет приложения распознавания речи, поэтому микрофон не отображается даже при включенном переключателе. Установите приложение с системным распознаванием речи (например Google) и откройте рабочий стол заново.</string>
     <string name="shortcut_goal">Фиксированная цель (необязательно)</string>
     <string name="shortcut_new_task">Новая задача</string>
     <string name="shortcut_pin">Закрепить на главном экране</string>

@@ -211,7 +211,7 @@ class AgentRunner internal constructor(
         val continuedBytes = try { continuation?.inputBytes(results) } catch (_: NativeContextLimitExceeded) {
             // Every call in the paused batch already has a journaled outcome. End only this
             // append-only conversation, then repack that history with the latest observation.
-            // Keep the native format, repair allowance, run budget and original model deadline.
+            // Keep the native format, repair allowance and run budget; the rebuilt request is a new round.
             check(nativeQueue.isEmpty() && activeNativeCall == null)
             val progress = closeNative()
             if (progress != null && progress.error != RunError.CANCELLED) {
@@ -225,7 +225,9 @@ class AgentRunner internal constructor(
         val input = if (continuation != null) null else compiler.compile(RunContext(options.goal, journal.history(), observation, repair?.deepCopy(), b.remainingJson(), format, options.locale, guidance, observationImages))
         val inputBytes = continuedBytes ?: checkNotNull(input).inputBytes
         if (!canContinue()) return
-        if (format.nativeTools && nativeDeadlineMs == null) nativeDeadlineMs = scheduler.nowMs() + options.modelTimeoutMs
+        // Every native round (the first request and each continuation after tool results) gets the full model
+        // timeout; the run budget bounds the whole turn. Maintainer decision of 2026-09-29 (roadmap P13).
+        if (format.nativeTools) nativeDeadlineMs = scheduler.nowMs() + options.modelTimeoutMs
         val timeoutMs = minOf(options.modelTimeoutMs, b.remainingMs,
             nativeDeadlineMs?.let { it - scheduler.nowMs() } ?: Long.MAX_VALUE)
         if (timeoutMs <= 0 || (format.nativeTools && timeoutMs < 1000)) { finishError(RunError.MODEL_TIMEOUT); return }

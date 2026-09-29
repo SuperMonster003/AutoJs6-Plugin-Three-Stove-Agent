@@ -83,16 +83,19 @@ class NativeContextRecoveryTest {
         assertEquals(7L, run.result!!.getAsJsonObject("usage").number("modelCalls"))
     }
 
-    @Test fun rebuildingPreservesTheOriginalModelDeadline() {
+    @Test fun rebuildingStartsANewRoundWithTheFullModelTimeout() {
         val f = Fixture(rounds = 1)
         f.batchObservation()
         f.tools.autoExecute = false
         val run = f.start(timeout = 3000)
         f.scheduler.advance(2000)
         f.tools.executions.single().second.succeed(ToolReply(true.json())); f.scheduler.drain()
+        // The rebuilt request is a new round: it carries the full model timeout, not the leftover of the first request (P13).
         assertEquals(2, f.broker.calls.size)
-        assertEquals(1000L, f.broker.calls.last().request.number("timeoutMs"))
-        f.scheduler.advance(1000)
+        assertEquals(3000L, f.broker.calls.last().request.number("timeoutMs"))
+        f.scheduler.advance(2999)
+        assertNull(run.result)
+        f.scheduler.advance(1)
         assertEquals("MODEL_TIMEOUT", f.error(run))
         assertEquals(1, f.tools.executions.size)
         assertEquals(2, f.broker.cancels.size)

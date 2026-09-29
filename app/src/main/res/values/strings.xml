@@ -338,6 +338,8 @@
     <string name="settings_title">Settings</string>
     <string name="settings_tool_groups_summary">Enabled: %1$d / %2$d</string>
     <string name="settings_voice">Enable voice input</string>
+    <string name="settings_voice_note">Shows a microphone next to the goal field. Recognition runs in a speech recognizer app on this device; nothing is recorded by this plugin.</string>
+    <string name="settings_voice_unavailable">No speech recognizer app is installed on this device, so the microphone stays hidden even when this switch is on. Install an app that offers system speech recognition (for example Google) and reopen the workbench.</string>
     <string name="shortcut_goal">Fixed goal (optional)</string>
     <string name="shortcut_new_task">New task</string>
     <string name="shortcut_pin">Pin to home screen</string>
