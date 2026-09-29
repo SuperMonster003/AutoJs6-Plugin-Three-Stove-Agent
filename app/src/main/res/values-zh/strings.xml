@@ -130,6 +130,15 @@
     <string name="launcher_host_incompatible">已安装 AutoJs6 构建 %1$d, 但此插件需要构建 %2$d 或更高版本. 请先更新 AutoJs6.</string>
     <string name="launcher_host_missing">尚未安装 AutoJs6. 请安装 AutoJs6 构建 %1$d 或更高版本, 然后在其插件中心启用 3-Stove Agent.</string>
     <string name="launcher_host_ready">已安装 AutoJs6 %1$s (构建 %2$d). 请在 AutoJs6 插件中心启用 3-Stove Agent.</string>
+    <string name="launcher_icon_applied_note">启动器可能需要几秒钟刷新. 部分主屏幕快捷方式可能需要重新添加.</string>
+    <string name="launcher_icon_auto">自适应自动</string>
+    <string name="launcher_icon_auto_note">尝试跟随系统主题. 部分启动器会缓存图标或只使用一种配色.</string>
+    <string name="launcher_icon_dark">自适应暗色</string>
+    <string name="launcher_icon_failed">无法切换启动器图标, 请重试.</string>
+    <string name="launcher_icon_light">自适应亮色</string>
+    <string name="launcher_icon_title">启动器图标</string>
+    <string name="launcher_icon_transparent">透明背景</string>
+    <string name="launcher_icon_transparent_note">部分启动器会自行添加背景或遮罩, 透明效果可能无法保留.</string>
     <string name="launcher_link_connecting">正在等待 AutoJs6 连接 (最多 15 秒).</string>
     <string name="launcher_link_timeout">15 秒内未建立连接. 请打开 AutoJs6, 在插件中心启用 3-Stove Agent 并授权连接.</string>
     <string name="launcher_open_host">打开 AutoJs6</string>

@@ -130,6 +130,15 @@
     <string name="launcher_host_incompatible">La build %1$d d\'AutoJs6 est installée, mais ce plugin nécessite la build %2$d ou ultérieure. Mettez d\'abord AutoJs6 à jour.</string>
     <string name="launcher_host_missing">AutoJs6 n\'est pas installé. Installez AutoJs6 build %1$d ou ultérieure, puis activez 3-Stove Agent dans son centre de plugins.</string>
     <string name="launcher_host_ready">AutoJs6 %1$s (build %2$d) est installé. Activez 3-Stove Agent dans le centre de plugins d\'AutoJs6.</string>
+    <string name="launcher_icon_applied_note">Le lanceur peut prendre quelques secondes pour se rafraîchir. Certains raccourcis peuvent devoir être ajoutés a nouveau.</string>
+    <string name="launcher_icon_auto">Adaptative automatique</string>
+    <string name="launcher_icon_auto_note">Tente de suivre le thème du système. Certains lanceurs gardent les icônes en cache ou utilisent une seule palette.</string>
+    <string name="launcher_icon_dark">Adaptative sombre</string>
+    <string name="launcher_icon_failed">Impossible de changer l\'icône du lanceur. Veuillez réessayer.</string>
+    <string name="launcher_icon_light">Adaptative claire</string>
+    <string name="launcher_icon_title">Icône du lanceur</string>
+    <string name="launcher_icon_transparent">Fond transparent</string>
+    <string name="launcher_icon_transparent_note">Certains lanceurs ajoutent un fond ou un masque. La transparence peut ne pas être conservée.</string>
     <string name="launcher_link_connecting">Connexion à AutoJs6 en attente (15 secondes maximum).</string>
     <string name="launcher_link_timeout">Aucune connexion après 15 secondes. Ouvrez AutoJs6, activez 3-Stove Agent dans le centre de plugins et autorisez la connexion.</string>
     <string name="launcher_open_host">Ouvrir AutoJs6</string>

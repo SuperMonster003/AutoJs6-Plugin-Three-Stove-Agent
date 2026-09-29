@@ -192,11 +192,13 @@ AutoJs6-Plugin-Three-Stove-Agent/
 ### 11.1 图标
 
 - 维护者提供的 `.python/icons/three-stove-ic-launcher-light.png` 与 `three-stove-ic-launcher-dark.png` (1254 x 1254, 透明背景) 均保留. 生成器统一取 light 源图的 alpha 作为形状, 亮色应用主题图案归一为 `#272727`, 暗色应用主题图案为 `#D8D8D8`. 修改源图或脚本后重新生成, 不手工编辑输出 PNG.
-- `.python/generate_launcher_icons.py` 确定性生成 5 张 432 px PNG, 1 份自适应 XML 与 1 份背景颜色 XML; `--check` 只读校验全部字节与旧冲突资源. UI 图案宽度占 66%, 自适应前景占 44%, 生成器按源图实际宽高比验证 66 dp 安全圆.
+- `.python/generate_launcher_icons.py` 确定性生成 7 张 432 px PNG, 2 份自适应 XML, 2 份背景颜色 XML 与 2 份 Auto 资源别名; `--check` 只读校验全部字节与旧冲突资源. UI 图案宽度占 66%, 自适应前景占 44%, 生成器按源图实际宽高比验证 66 dp 安全圆.
 - `mipmap/ic_launcher.png` 与 `mipmap-night/ic_launcher.png` 专用于应用内, 插件中心和 README 的透明图案, 不得再以同名自适应 XML 覆盖. 应用内用 `R.mipmap.ic_launcher`, 插件中心由宿主自己的配置加载.
-- Manifest 的 `icon` 与 `roundIcon`, 静态和动态主屏幕快捷方式都使用 `ic_launcher_system`. API 26+ 为自适应图标, 旧系统为圆盘 PNG; 所有配置固定采用浅灰图案 `#D8D8D8` 与深灰背景 `#212121`, 避免不随系统模式刷新图标的启动器保留亮色配色. 应用内图案仍跟随应用主题. 系统主题图标的最终着色由启动器决定.
-- 自适应 XML 直接引用 `ic_launcher_system_foreground`, 唯一的黑色 `ic_launcher_monochrome` 与 `ic_launcher_background`, 不使用 inset drawable 或带圆盘前景. 不添加 night/notnight 系统图标变体, 不通过重复 Activity alias 或清除启动器数据刷新图标.
+- Manifest 的 `icon` 与 `roundIcon`, 静态和动态主屏幕快捷方式都使用 `ic_launcher_system`. API 26+ 为自适应图标, 旧系统为圆盘 PNG; 该默认资源在所有配置固定采用浅灰图案 `#D8D8D8` 与深灰背景 `#212121`; 用户可由下述四个 launcher alias 显式选择其他模式. 应用内图案仍跟随应用主题. 系统主题图标的最终着色由启动器决定.
+- 自适应 XML 直接引用 `ic_launcher_system_foreground`, 唯一的黑色 `ic_launcher_monochrome` 与 `ic_launcher_background`, 不使用 inset drawable 或带圆盘前景. 固定 Light / Dark 资源不添加 night/notnight 变体; Auto 用独立资源别名选择它们. 不清除启动器数据刷新图标.
 - `LauncherIconResourceTest` 在不修改偏好与系统模式的前提下验证 UI 透明位图, 精确颜色, 自适应与传统资源选择, 深色默认方案和 Manifest 接线. 真机启动器缓存与遮罩仍需目视验收. 工作区 `AUTOJS6_PLUGIN_BLACK_N_WHITE_ADAPTIVE_ICON_AGENTS.md` 为当前资源规范; D50 的旧背景色和共用资源名已被本方案替代.
+- 维护者随后明确要求四种启动器图标选项, 取代前轮固定单一启动器图标的决定: 设置提供自适应亮色 / 自适应暗色 / 自适应自动 / 透明背景, 默认暗色. `.launcher.{AdaptiveLight,AdaptiveDark,AdaptiveAuto,Transparent}IconAlias` 指向始终启用的真实 `LauncherActivity`, 稳态只启用一个 alias, PackageManager 状态持久保存选择; 切换使用 `DONT_KILL_APP`, 先启目标并迁移可变快捷方式归属, 再禁用旧项, 失败回滚. 四个 alias 各自声明相同静态快捷方式, 任务 / 分享 / 已有显式 Intent 仍指向真实 Activity.
+- 生成器当前生成 7 张 PNG, 2 份自适应 XML, 2 份背景颜色 XML 与 2 份 Auto 资源别名. `ic_launcher_system_light` 固定 `#272727` 图案 / `#FAFAFA` 背景, 原 `ic_launcher_system` 固定暗色. Auto 在默认 values 引用 Dark, values-notnight 引用 Light, 再由目标解析 API 26+ 自适应或旧系统回退资源, 避免 night PNG 抢占 v26 XML. 透明选项直接引用 `ic_launcher`. Auto 与透明选项须说明系统缓存 / 配色 / 遮罩限制, 不承诺所有启动器实时跟随主题或保留透明效果; 不清除启动器数据.
 
 ## 12. README 与多语言生成
 

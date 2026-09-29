@@ -74,9 +74,21 @@ class ManifestContractTest {
         assertEquals("true", launcher.androidAttribute("exported"))
         assertNull(launcher.androidAttributeOrNull("permission"))
         assertNull(launcher.androidAttributeOrNull("process"))
-        val launcherFilter = launcher.child("intent-filter")
-        assertEquals(listOf("android.intent.action.MAIN"), launcherFilter.children("action").map { it.androidAttribute("name") })
-        assertEquals(listOf("android.intent.category.LAUNCHER"), launcherFilter.children("category").map { it.androidAttribute("name") })
+        assertTrue(launcher.children("intent-filter").isEmpty())
+        val aliases = manifest.child("application").children("activity-alias")
+        assertEquals(listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").map { ".launcher.${it}IconAlias" },
+            aliases.map { it.androidAttribute("name") })
+        assertEquals(listOf("@mipmap/ic_launcher_system_light", "@mipmap/ic_launcher_system", "@mipmap/ic_launcher_system_auto", "@mipmap/ic_launcher"),
+            aliases.map { it.androidAttribute("icon") })
+        for ((index, alias) in aliases.withIndex()) {
+            assertEquals((index == 1).toString(), alias.androidAttribute("enabled"))
+            assertEquals("true", alias.androidAttribute("exported"))
+            assertEquals(".ui.LauncherActivity", alias.androidAttribute("targetActivity"))
+            assertEquals("@xml/shortcuts", alias.child("meta-data").androidAttribute("resource"))
+            val launcherFilter = alias.child("intent-filter")
+            assertEquals(listOf("android.intent.action.MAIN"), launcherFilter.children("action").map { it.androidAttribute("name") })
+            assertEquals(listOf("android.intent.category.LAUNCHER"), launcherFilter.children("category").map { it.androidAttribute("name") })
+        }
 
         val share = activities[2]
         assertEquals("true", share.androidAttribute("exported"))
@@ -84,7 +96,6 @@ class ManifestContractTest {
         val filter = share.child("intent-filter")
         assertEquals(listOf("android.intent.action.SEND"), filter.children("action").map { it.androidAttribute("name") })
         assertEquals("text/plain", filter.child("data").androidAttribute("mimeType"))
-        assertEquals("@xml/shortcuts", launcher.child("meta-data").androidAttribute("resource"))
         for (settings in activities.drop(3)) {
         assertEquals("false", settings.androidAttribute("exported"))
         assertNull(settings.androidAttributeOrNull("process"))
@@ -129,7 +140,8 @@ class ManifestContractTest {
     fun `only discovery activation and draft entry components are exported`() {
         val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
             ".ui.ShareTargetActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
-            ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION)
+            ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION) +
+            listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").associate { ".launcher.${it}IconAlias" to null }
         val components = listOf("activity", "activity-alias", "service", "receiver", "provider")
             .flatMap { manifest.child("application").children(it) }
         val exported = components.filter { it.androidAttribute("exported") == "true" }
