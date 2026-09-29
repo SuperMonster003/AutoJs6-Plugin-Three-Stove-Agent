@@ -17,12 +17,14 @@
       ],
       "fix": [
         "The send button no longer stays on the first line of a multi-line goal; it sits at the bottom like the microphone button",
-        "In plan mode the plan request no longer offers tool definitions to online models with native tool calling, so the model can only return a plan instead of calling a tool (on a real device a Codex-style model answered with tool calls three times in a row and the task failed with DECISION_UNPARSABLE); native tool calling resumes once the plan is approved"
+        "In plan mode the plan request no longer offers tool definitions to online models with native tool calling, so the model can only return a plan instead of calling a tool (on a real device a Codex-style model answered with tool calls three times in a row and the task failed with DECISION_UNPARSABLE); native tool calling resumes once the plan is approved",
+        "Native tool-calling continuation rounds no longer inherit the remainder of the first request's model timeout: every round (the model returns tool calls, the tools run, the next request goes out) gets the full model timeout again, and the whole turn is bounded only by the run duration budget and the round cap. On a real device, native tasks longer than 5 minutes (for example reading a calculator after several screen captures) ended at exactly 300 s with MODEL_TIMEOUT. Needs a host newer than AutoJs6 5298 and a 3-Stone AI newer than 1.2.1, which reset per round the same way"
       ],
       "improvement": [
         "The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph",
         "After an MCP server sends tools/list_changed, the frozen tool definitions are re-verified before the next call: unchanged definitions keep working, and only a changed one fails with MCP_CATALOG_CHANGED and tells the model to have the user refresh the tool selection in MCP settings and start a new task; the endpoint note now says OAuth sign-in and the older HTTP+SSE transport are not supported",
-        "The one-time migration introduced in 1.2.0 is gone: an old model choice in the workbench draft preferences is no longer moved into model-selection.json, so a choice saved by an earlier version has to be picked again on the workbench"
+        "The one-time migration introduced in 1.2.0 is gone: an old model choice in the workbench draft preferences is no longer moved into model-selection.json, so a choice saved by an earlier version has to be picked again on the workbench",
+        "The \"Enable voice input\" switch in Settings now explains itself: the microphone appears only when a speech recognizer app is installed, recognition runs in that app and this plugin records nothing; on devices without one (some Chinese ROMs, for example) the reason is shown right there instead of the workbench silently lacking the microphone after the switch is turned on"
       ]
     },
     "v1.2.0": {

@@ -338,6 +338,8 @@
     <string name="settings_title">设置</string>
     <string name="settings_tool_groups_summary">已启用 %1$d / %2$d</string>
     <string name="settings_voice">启用语音输入</string>
+    <string name="settings_voice_note">在目标输入框旁显示麦克风. 识别由本机的语音识别应用完成, 本插件不录音.</string>
+    <string name="settings_voice_unavailable">此设备没有安装语音识别应用, 即使打开此开关也不会显示麦克风. 安装提供系统语音识别的应用 (例如 Google) 后重新打开任务台.</string>
     <string name="shortcut_goal">固定目标 (可选)</string>
     <string name="shortcut_new_task">新建任务</string>
     <string name="shortcut_pin">固定到主屏幕</string>

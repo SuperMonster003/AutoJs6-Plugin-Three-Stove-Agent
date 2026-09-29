@@ -103,14 +103,22 @@ class NativeModelTest {
         turn.continuation.resume(listOf(NativeToolResult("one", "{}", false)), 100, 3000, replies::add)
         assertEquals(RunnerFixture.done(), (replies.last() as PortResult.Success).value.text)
     }
-    @Test fun originalDeadlineIncludesTimeWaitingForResults() {
+    @Test fun waitingForResultsStillExpiresOnTheOriginalDeadlineButASubmissionStartsAFreshOne() {
         val (turn, replies) = begin()
         val failures = mutableListOf<RunError>(); turn.continuation.onFailure(failures::add)
         scheduler.advance(2999)
         turn.continuation.resume(listOf(NativeToolResult("one", "{}", false)), 100, 3000, replies::add)
         scheduler.advance(1)
+        // Submitted at 2999 ms: the accepted batch re-armed the deadline, so nothing has expired yet.
+        assertEquals(1, replies.size); assertTrue(broker.cancels.isEmpty())
+        scheduler.advance(2999)
         assertEquals(RunError.MODEL_TIMEOUT, (replies.last() as PortResult.Failure).error)
         assertEquals(1, broker.cancels.size); assertTrue(failures.isEmpty())
+        // Idle waiting for results, on the other hand, expires exactly on the request deadline.
+        val (idle, more) = begin()
+        val idleFailures = mutableListOf<RunError>(); idle.continuation.onFailure(idleFailures::add)
+        scheduler.advance(3000)
+        assertEquals(listOf(RunError.MODEL_TIMEOUT), idleFailures); assertEquals(2, broker.cancels.size)
     }
     @Test fun pausedTimeoutAndLateHostFailureReachTheRunListenerExactlyOnce() {
         val (turn, _) = begin()
@@ -156,6 +164,24 @@ class NativeModelTest {
         val (turn, _) = begin(maximum = limit)
         assertThrows(ContextLimitExceeded::class.java) { turn.continuation.inputBytes(listOf(NativeToolResult("one", "x".repeat(30), false))) }
         turn.continuation.cancel(); assertTrue(broker.submissions.isEmpty())
+    }
+    @Test fun anAcceptedContinuationRoundGetsItsOwnDeadlineInsteadOfTheFirstRequestsRemainder() {
+        val (turn, replies) = begin(timeout = 3000)
+        // Tools ran for almost the whole first deadline; the next round still gets a full window.
+        scheduler.advance(2_500)
+        turn.continuation.resume(listOf(NativeToolResult("one", "{}", false)), 100, 3000, replies::add)
+        scheduler.advance(2_000)
+        assertEquals(1, replies.size); assertTrue(broker.cancels.isEmpty())
+        broker.resume = { call, _ -> call.usage(25, 9); call.done() }
+        // The provider answers inside the new window, so the round completes after the original deadline has long passed.
+        broker.resume(broker.calls.single(), broker.submissions.single())
+        assertTrue(replies.last() is PortResult.Success)
+        // Idle for the whole new window and the round times out on its own deadline.
+        broker.resume = { _, _ -> }
+        val (later, more) = begin(timeout = 3000)
+        later.continuation.resume(listOf(NativeToolResult("one", "{}", false)), 100, 3000, more::add)
+        scheduler.advance(3_000)
+        assertEquals(RunError.MODEL_TIMEOUT, (more.last() as PortResult.Failure).error)
     }
     @Test fun idleUsageCanBeConsumedOnceWithoutRechargingEarlierRounds() {
         val (turn, _) = begin()

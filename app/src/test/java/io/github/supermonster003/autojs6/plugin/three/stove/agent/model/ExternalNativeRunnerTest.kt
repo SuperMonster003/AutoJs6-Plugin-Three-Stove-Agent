@@ -7,6 +7,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ExternalNativeRunnerTest {
+    @Test fun aLongToolPauseDoesNotEatTheNextNativeRoundsModelTimeout() {
+        val catalog = F.catalog(); val policy = ToolPolicy()
+        val scheduler = VirtualScheduler(); val broker = NativeTestBroker(); val tools = FakeTools().apply { autoExecute = false }
+        val target = ModelTarget("fixture", "profile:test", ModelLocality.REMOTE, ModelProtocol.UNKNOWN, false, 128 * 1024, nativeTools = NativeToolLimits())
+        val model = ModelClient(broker, target, policy, SchemaFallbacks(DecisionSchema(catalog)), scheduler)
+        val format = model.initialFormat(DecisionSchema.degraded())
+        val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, format)
+        val events = mutableListOf<RunEvent>()
+        val queue = RunQueue(scheduler, catalog, policy, compiler, model, tools) { RunnerText(F.asset("runner/texts.json"), it) }
+        broker.start = { it.started(); NativeTestBroker.tools(it, 1, NativeTestBroker.call("one", "device_info")) }
+        broker.resume = { call, _ -> call.usage(25, 9); call.done(RunnerFixture.done()) }
+        val run = queue.submit(RunOptions("Wait for a slow tool", format, modelTimeoutMs = 10_000), events::add); scheduler.drain()
+        assertEquals(1, tools.executions.size)
+        // The tool takes almost the whole model timeout; the continuation that follows must not inherit the leftover.
+        scheduler.advance(9_500)
+        tools.executions.single().second.succeed(ToolReply(true.json())); scheduler.drain()
+        assertEquals(1, broker.submissions.size)
+        assertEquals(RunState.COMPLETED, run.state)
+        assertTrue(events.none { it.type == "step" && it.payload.string("error") == "MODEL_TIMEOUT" })
+    }
+
     @Test fun externalErrorTravelsThroughTheSameNativeContinuationWithoutReplayingActions() {
         val name = "mcp_local_echo"
         val catalog = F.catalog().withExternal(listOf(ToolSpec.external(name, "External echo", AgentJson.objectOf("{\"type\":\"object\"}"),

@@ -3,7 +3,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
 import com.google.gson.JsonArray
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 
-/** One host request, multiple independently admitted model rounds, one immutable overall deadline. */
+/** One host request, multiple independently admitted model rounds; every admitted round re-arms the model deadline (roadmap P13). */
 internal class NativeModelInvocation(private val broker: ModelBrokerTransport, private val target: ModelTarget,
                                       private val scheduler: RunScheduler, private val id: String,
                                       private val initialBytes: Int, private val maximumInputBytes: Int, private val outputLimit: Int,
@@ -73,6 +73,8 @@ internal class NativeModelInvocation(private val broker: ModelBrokerTransport, p
                 imageCount += results.sumOf { it.images.size }
                 imageBytes += results.sumOf { result -> result.images.sumOf { it.byteCount } }
                 events.resume(); pendingCalls = emptyList()
+                // The accepted batch starts a new round with the full timeout; the host re-arms its own deadline the same way.
+                deadline.cancel(); deadline = scheduler.schedule(timeoutMs) { abort(RunError.MODEL_TIMEOUT) }
                 Round(callback).also { current = it }
             } catch (_: ContextLimitExceeded) { error = RunError.LIMIT_EXCEEDED; null }
             catch (_: Exception) { error = RunError.INVALID_REQUEST; null }

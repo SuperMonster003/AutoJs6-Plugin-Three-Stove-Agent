@@ -338,6 +338,8 @@
     <string name="settings_title">Ajustes</string>
     <string name="settings_tool_groups_summary">Activados: %1$d / %2$d</string>
     <string name="settings_voice">Activar entrada de voz</string>
+    <string name="settings_voice_note">Muestra un micrófono junto al campo del objetivo. El reconocimiento lo realiza una aplicación de reconocimiento de voz de este dispositivo; este plugin no graba nada.</string>
+    <string name="settings_voice_unavailable">Este dispositivo no tiene instalada ninguna aplicación de reconocimiento de voz, por lo que el micrófono permanece oculto aunque este interruptor esté activado. Instale una aplicación que ofrezca reconocimiento de voz del sistema (por ejemplo Google) y vuelva a abrir el banco de trabajo.</string>
     <string name="shortcut_goal">Objetivo fijo (opcional)</string>
     <string name="shortcut_new_task">Nueva tarea</string>
     <string name="shortcut_pin">Fijar en pantalla de inicio</string>
