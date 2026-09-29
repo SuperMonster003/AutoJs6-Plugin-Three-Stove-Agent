@@ -35,8 +35,12 @@ class LauncherIconSelectionTest {
                 for (mode in LauncherIconMode.entries) {
                     scenario.onActivity { activity ->
                         activity.rows.getValue("launcher-icon").view.performClick()
+                    }
+                    androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                    scenario.onActivity { activity ->
                         val dialog = activity.prompt!!
                         assertEquals(4, dialog.listView.adapter.count)
+                        assertEquals("All four options start at the top of the list", 0, dialog.listView.firstVisiblePosition)
                         assertTrue(dialog.listView.adapter.getItem(LauncherIconMode.AUTO.ordinal).toString().contains(activity.getString(R.string.launcher_icon_auto_note)))
                         assertTrue(dialog.listView.adapter.getItem(LauncherIconMode.TRANSPARENT.ordinal).toString().contains(activity.getString(R.string.launcher_icon_transparent_note)))
                         dialog.listView.performItemClick(null, mode.ordinal, dialog.listView.adapter.getItemId(mode.ordinal))

@@ -1941,3 +1941,12 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 图标生成器现在校验 7 份 PNG, 2 份自适应 XML, 2 份背景色 XML 与 2 份自动模式资源别名. 透明图案与启动器资源继续分离, 插件中心和应用内引用不受启动器选择影响. AGENTS 第 11.1 节已按本轮授权修订 Activity aliases 规则.
 - 本地验证: JVM 647 项, 0 失败 / 0 错误 / 1 项既有 opt-in 跳过; lint 0 错误 / 5 条既有警告; debug 与 androidTest APK 构建通过, 主 APK 1.3.0 / 180. 图标生成器与十语言 36 份文档产物检查通过, `git diff --check` 通过.
 - API 24 (`emulator-5556`) 与 API 37 (`emulator-5554`) 各 5 项通过: `LauncherIconSelectionTest` 点击实际设置行与四个选项, 验证唯一入口, 进程不变, Activity 重建后选择与摘要保留, API 25+ 动态快捷方式归属迁移而显式目标不变; `LauncherIconResourceTest` 3 项覆盖透明图案, 默认 Manifest 图标和亮 / 暗 / 未定义配置下三套启动器资源; 契约测试验证唯一启动入口仍指向真实任务台. 测试结束恢复原始 alias 状态并删除测试快捷方式, 未运行真实任务或模型. 本轮新四模式尚未宣称在全部真机启动器验证视觉效果.
+
+### 2026-09-29: 自动图标保留独立资源 ID (build 181)
+
+- 后续 Sony Android 12 验证发现 build 180 的直接资源测试未覆盖的缺陷: PackageManager 解析 Manifest 时会将 values 中的 mipmap 资源别名解引用, Auto 的 ActivityInfo.icon 因而固定为安装时的 Dark / Light ID. 原先资源矩阵测试通过只证明直接读取 Auto 的行为, 不证明启动器实际收到 Auto ID; build 180 的该项实现说明由本记录取代.
+- Auto 改为独立文件资源: 默认与 notnight 各一个 bitmap XML 包装已有旧系统 PNG, 并配套 anydpi-v26 / notnight-anydpi-v26 两个真实自适应 XML. Manifest 因而保留 Auto ID, 日夜解析留到启动器读取资源时. 不复制图案 PNG, 15 份生成资源统一校验. 是否重新读取仍由启动器决定, 设置中的缓存限制说明继续保留.
+- `LauncherIconResourceTest` 对四个实际安装的 alias 查询 ActivityInfo 并断言其 icon ID, 包含默认禁用项, 同时保留亮 / 暗 / 未定义配置下的 API 24 回退与 API 26+ 自适应矩阵. 十语言 changelog 与仓库图标规范同步.
+- 后续维护者明确要求保留关于图标的圆角矩形外形: 图标仍为 88 dp, 使用圆角透明填充与主题描边, 内部透明图案透出与外部相同的页面背景. 历史 AboutActivity 实际从首次引入就依赖自适应图标的蒙版而无独立容器, 本次将此前视觉外形显式保留; 3-Stone AI 原有容器仅改为透明填充. 两者的标准单选图标对话框强制从第一项展示, 避免默认 Dark 使 Light 滚出首屏, 说明文字缩为标签的 0.8 倍.
+- 最终本地验证: 主 APK 1.3.0 / 181 与 androidTest 构建通过; JVM 647 项, 0 失败 / 0 错误 / 1 项既有 opt-in 跳过; lint 0 错误 / 5 条既有警告. 15 份图标资源与十语言 36 份文档产物检查通过, APK 内 14 份 changelog 与生成源码逐字节一致. 六台真机 (968e9f18, BH900ASK9E, QV710AF65F, QV770340J7, bek749scrwv4wo8h, 63751f63) 最终 build 181 的资源用例各 3 项全部通过, 未切换系统主题或 alias, 未开始任务.
+- 最终 API 24 (`emulator-5556`) 与 API 37 (`emulator-5554`) 各 6 项通过: 四模式实际设置选择 / 首项可见 / 进程与重建 / 快捷方式用例, 3 项资源与真实 Manifest ID 用例, 唯一启动入口契约, 关于页圆角透明容器用例. 关于用例验证 88 dp 尺寸与圆角描边保留, 容器中间和图案背景均为透明. 同批 3-Stone AI 最终 1.3.0 / 226 的两台 AVD 各 5 项与 3-Adapt A11y 1.4.0 / 25 各 4 项通过, 两插件六台真机资源各 18 项亦通过. Stone 首轮用 ActivityScenario 的 class 重载给受严格 Intent 校验的设置 Activity 添加 ACTION_MAIN 导致夹具被关闭, 改为应用内原有的无 action 显式 Intent 后通过, 未放宽生产入口校验.
