@@ -42,6 +42,7 @@ internal object TaskEntries {
         val name = requireNotNull(entry.preset)
         val shortcut = ShortcutInfo.Builder(context, id(entry)).setShortLabel(name)
             .setLongLabel(context.getString(R.string.shortcut_preset, name)).setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher_system))
+            .setActivity(LauncherIcons.current(context).component(context))
             .setIntent(intent(context, entry)).build()
         val manager = context.getSystemService(ShortcutManager::class.java)
         // Also refresh the launcher long-press list. Respect the device's per-activity quota.

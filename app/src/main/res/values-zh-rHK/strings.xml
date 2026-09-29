@@ -130,6 +130,15 @@
     <string name="launcher_host_incompatible">已安裝 AutoJs6 組建 %1$d, 但此外掛需要組建 %2$d 或更高版本. 請先更新 AutoJs6.</string>
     <string name="launcher_host_missing">尚未安裝 AutoJs6. 請安裝 AutoJs6 組建 %1$d 或更高版本, 然後在其外掛中心啟用 3-Stove Agent.</string>
     <string name="launcher_host_ready">已安裝 AutoJs6 %1$s (組建 %2$d). 請在 AutoJs6 外掛中心啟用 3-Stove Agent.</string>
+    <string name="launcher_icon_applied_note">啓動器可能需要幾秒鐘刷新. 部分主畫面快捷方式可能需要重新添加.</string>
+    <string name="launcher_icon_auto">自適應自動</string>
+    <string name="launcher_icon_auto_note">嘗試跟隨系統主題. 部分啓動器會快取圖標或只使用一種配色.</string>
+    <string name="launcher_icon_dark">自適應暗色</string>
+    <string name="launcher_icon_failed">無法切換啓動器圖標, 請重試.</string>
+    <string name="launcher_icon_light">自適應亮色</string>
+    <string name="launcher_icon_title">啓動器圖標</string>
+    <string name="launcher_icon_transparent">透明背景</string>
+    <string name="launcher_icon_transparent_note">部分啓動器會自行添加背景或遮罩, 透明效果可能無法保留.</string>
     <string name="launcher_link_connecting">正在等待 AutoJs6 連接 (最多 15 秒).</string>
     <string name="launcher_link_timeout">15 秒內未建立連接. 請開啟 AutoJs6, 在插件中心啟用 3-Stove Agent 並授權連接.</string>
     <string name="launcher_open_host">開啟 AutoJs6</string>

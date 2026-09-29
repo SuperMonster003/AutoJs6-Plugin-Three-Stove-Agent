@@ -74,7 +74,7 @@ class ThreeStoveAgentPluginContractTest {
         val matches = context.packageManager.queryIntentActivities(launcherIntent, 0)
         assertEquals("Exactly one launcher activity is expected", 1, matches.size)
         val activityInfo = matches.single().activityInfo
-        assertEquals(LauncherActivity::class.java.name, activityInfo.name)
+        assertEquals(LauncherActivity::class.java.name, activityInfo.targetActivity)
         assertTrue(activityInfo.exported)
         assertNull(activityInfo.permission)
         assertEquals(packageName, activityInfo.processName)

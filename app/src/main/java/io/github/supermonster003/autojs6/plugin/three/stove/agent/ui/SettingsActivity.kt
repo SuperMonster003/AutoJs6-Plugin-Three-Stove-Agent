@@ -83,6 +83,18 @@ class SettingsActivity : HostAppearanceActivity() {
     }
     internal fun open(type: Class<*>) { startActivity(Intent(this, type)) }
 
+    internal fun launcherIcons() {
+        val labels = launcherIconLabels.map(::getString).toMutableList()
+        labels[LauncherIconMode.AUTO.ordinal] += "\n" + getString(R.string.launcher_icon_auto_note)
+        labels[LauncherIconMode.TRANSPARENT.ordinal] += "\n" + getString(R.string.launcher_icon_transparent_note)
+        prompt = kit.singleChoiceDialog(getString(R.string.launcher_icon_title), labels, LauncherIcons.current(this).ordinal) { index ->
+            runCatching { LauncherIcons.select(this, LauncherIconMode.entries[index]) }
+                .onSuccess { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_applied_note)) }
+                .onFailure { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_failed)) }
+            rows.getValue("launcher-icon").setSummary(getString(launcherIconLabels[LauncherIcons.current(this).ordinal]))
+        }
+    }
+
     internal fun saveAppearance(value: AppearancePreferences) {
         runCatching { value.save(this) }.onSuccess { appearancePreferences = value; recreate() }
             .onFailure { kit.snackbar(scaffold.root, getString(R.string.settings_error)) }
@@ -235,6 +247,8 @@ class SettingsActivity : HostAppearanceActivity() {
     }
 
     companion object {
+        internal val launcherIconLabels = listOf(R.string.launcher_icon_light, R.string.launcher_icon_dark,
+            R.string.launcher_icon_auto, R.string.launcher_icon_transparent)
         private val alertLabels = linkedMapOf(AgentSettings.ALERT_NOTIFICATION to R.string.settings_alert_notification,
             AgentSettings.ALERT_TOAST to R.string.settings_alert_toast, AgentSettings.ALERT_DIALOG to R.string.settings_alert_dialog)
         internal val languageLabels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_follow_system,

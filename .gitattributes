@@ -6,3 +6,7 @@ app/src/main/assets/**/*.json text eol=lf
 app/src/main/assets/**/*.md text eol=lf
 app/src/main/res/raw*/*.md text eol=lf
 app/src/main/res/raw*/*.xml text eol=lf
+
+# Generated launcher XML is compared byte for byte by the icon generator.
+app/src/main/res/**/ic_launcher_system*.xml text eol=lf
+app/src/main/res/**/ic_launcher_background*.xml text eol=lf

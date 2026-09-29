@@ -49,7 +49,10 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
         background = roundedFill(palette.primary, Ui.RADIUS_PILL, palette.outline)
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }, color.view.childCount - 1, LinearLayout.LayoutParams(dp(20), dp(20)).apply { marginStart = dp(Ui.SPACE_MD) })
-    add(page, "appearance-color", color, divider = false)
+    add(page, "appearance-color", color)
+    add(page, "launcher-icon", settingRow(getString(R.string.launcher_icon_title),
+        getString(SettingsActivity.launcherIconLabels[LauncherIcons.current(this@buildPage).ordinal]),
+        R.drawable.ic_layers, "launcher-icon") { launcherIcons() }, divider = false)
 
     // Tasks: whole-object saves of the private settings.
     page.addView(sectionHeader(getString(R.string.ui_task_section)))
