@@ -306,6 +306,7 @@ _2026/09/29_
 - `Fix` In plan mode the plan request no longer offers tool definitions to online models with native tool calling, so the model can only return a plan instead of calling a tool (on a real device a Codex-style model answered with tool calls three times in a row and the task failed with DECISION_UNPARSABLE); native tool calling resumes once the plan is approved
 - `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
 - `Improvement` After an MCP server sends tools/list_changed, the frozen tool definitions are re-verified before the next call: unchanged definitions keep working, and only a changed one fails with MCP_CATALOG_CHANGED and tells the model to have the user refresh the tool selection in MCP settings and start a new task; the endpoint note now says OAuth sign-in and the older HTTP+SSE transport are not supported
+- `Improvement` The one-time migration introduced in 1.2.0 is gone: an old model choice in the workbench draft preferences is no longer moved into model-selection.json, so a choice saved by an earlier version has to be picked again on the workbench
 
 #### v1.2.0
 

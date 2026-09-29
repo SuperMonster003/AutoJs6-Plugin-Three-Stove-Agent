@@ -306,6 +306,7 @@ _2026/09/29_
 - `Correctif` En mode plan, la demande de plan ne propose plus de définitions d'outils aux modèles en ligne à appel d'outils natif: le modèle ne peut que renvoyer un plan au lieu d'appeler un outil (sur un appareil réel, un modèle de type Codex a répondu trois fois de suite par des appels d'outils et la tâche a échoué avec DECISION_UNPARSABLE); l'appel d'outils natif reprend une fois le plan approuvé
 - `Amélioration` Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard
 - `Amélioration` Après un tools/list_changed envoyé par un serveur MCP, les définitions d'outils gelées sont revérifiées avant l'appel suivant: les définitions inchangées continuent de fonctionner, et seule une définition modifiée échoue avec MCP_CATALOG_CHANGED en indiquant au modèle de faire actualiser la sélection d'outils dans les réglages MCP par l'utilisateur puis de relancer une tâche; la note du point de terminaison précise désormais que la connexion OAuth et l'ancien transport HTTP+SSE ne sont pas pris en charge
+- `Amélioration` La migration ponctuelle introduite en 1.2.0 est supprimée: un ancien choix de modèle dans les préférences de brouillon de l'atelier n'est plus déplacé vers model-selection.json, un choix enregistré par une version antérieure doit donc être refait dans l'atelier
 
 #### v1.2.0
 
