@@ -31,7 +31,7 @@ import java.util.UUID
 /** Home screen construction (roadmap P11): menus, sheets, dialogs and snapshot rendering; LauncherActivity keeps state and events. */
 
 internal fun LauncherActivity.showMenu(anchor: View) {
-    overflowMenu = PopupMenu(this, anchor).apply {
+    overflowMenu = ThemedPopupMenu(kit, anchor).apply {
         menu.add(0, R.id.workbench_new_task, 0, R.string.workbench_new_task)
         menu.add(0, R.id.workbench_presets, 1, R.string.presets_title)
         menu.add(0, R.id.workbench_memory, 2, R.string.memory_title)

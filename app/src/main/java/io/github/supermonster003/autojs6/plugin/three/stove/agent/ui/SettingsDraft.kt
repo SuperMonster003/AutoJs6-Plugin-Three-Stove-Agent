@@ -46,6 +46,10 @@ internal data class SettingsDraft(val settings: AgentSettings) {
         require(channel in AgentSettings.ALERT_CHANNELS)
         return copy(settings = settings.copy(failureAlerts = if (enabled) settings.failureAlerts + channel else settings.failureAlerts - channel))
     }
+    fun withCompletionAlert(channel: String, enabled: Boolean): SettingsDraft {
+        require(channel in AgentSettings.ALERT_CHANNELS)
+        return copy(settings = settings.copy(completionAlerts = if (enabled) settings.completionAlerts + channel else settings.completionAlerts - channel))
+    }
     fun withFloating(enabled: Boolean) = copy(settings = settings.copy(floating = enabled))
 
     /** Adds or removes one user payment package; the packaged list is not editable here. */

@@ -66,6 +66,44 @@ class SettingsActivityTest {
         finally { SettingsConnection.endpointOverride = null; runtime.memories.close(); directory.deleteRecursively() }
     }
 
+    @Test fun compactAlertRowsPersistIndependentChannelsAndSurviveRecreation() = isolated { _, endpoint, directory ->
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Alert settings loaded") { it.ready() }
+            scenario.onActivity {
+                assertNull("Channels are kept in the sheet", it.view<View>("alert-dialog"))
+                it.view<View>("alerts-completion")!!.performClick()
+            }
+            ui(scenario, "Completion alert sheet") { it.sheet?.content?.findViewWithTag<View>("alert-dialog") != null }
+            scenario.onActivity {
+                val content = it.sheet!!.content
+                assertTrue(content.findViewWithTag<ViewGroup>("alert-notification").findSwitch()!!.isChecked)
+                assertTrue(content.findViewWithTag<ViewGroup>("alert-toast").findSwitch()!!.isChecked)
+                assertFalse(content.findViewWithTag<ViewGroup>("alert-dialog").findSwitch()!!.isChecked)
+                content.findViewWithTag<View>("alert-toast").performClick()
+                content.findViewWithTag<View>("alert-dialog").performClick()
+                it.sheet!!.dialog.dismiss()
+                it.view<View>("alerts-failure")!!.performClick()
+                assertTrue(it.sheet!!.content.findViewWithTag<ViewGroup>("alert-dialog").findSwitch()!!.isChecked)
+                it.sheet!!.content.findViewWithTag<View>("alert-dialog").performClick()
+                it.sheet!!.dialog.dismiss()
+            }
+            val completion = setOf("notification", "dialog")
+            val failure = setOf("notification", "toast")
+            waitFor("Both alert settings saved") { stored(directory)?.let { it.completionAlerts == completion && it.failureAlerts == failure } == true }
+            assertEquals(completion, SettingsCodec.decode(query(endpoint, "get").getAsJsonObject("settings").toString()).completionAlerts)
+            scenario.recreate()
+            ui(scenario, "Alert settings reloaded") { it.ready() }
+            scenario.onActivity {
+                it.view<View>("alerts-completion")!!.performClick()
+                assertTrue(it.sheet!!.content.findViewWithTag<ViewGroup>("alert-dialog").findSwitch()!!.isChecked)
+                assertFalse(it.sheet!!.content.findViewWithTag<ViewGroup>("alert-toast").findSwitch()!!.isChecked)
+                it.sheet!!.dialog.dismiss()
+                assertTrue(it.rows.getValue("alerts-failure").summary.text.contains(it.getString(R.string.settings_alert_toast)))
+                assertFalse(it.rows.getValue("alerts-failure").summary.text.contains(it.getString(R.string.settings_alert_dialog)))
+            }
+        }
+    }
+
     @Test fun changesApplyImmediatelyAndSurviveRecreationAndDiskReload() = isolated { _, endpoint, directory ->
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
             ui(scenario, "Settings loaded") { it.ready() }
@@ -357,7 +395,7 @@ class SettingsActivityTest {
                 scenario.onActivity { it.view<View>("default")!!.performClick() }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it.prompt!!.window!!.decorView, "default-dialog"); it.prompt!!.dismiss() }
-                for (tag in listOf("tool-groups", "limits")) {
+                for (tag in listOf("tool-groups", "limits", "alerts-failure", "alerts-completion")) {
                     scenario.onActivity { it.view<View>(tag)!!.performClick() }
                     instrumentation.waitForIdleSync(); SystemClock.sleep(400)
                     scenario.onActivity { audit.inspect(it.sheet!!.dialog.window!!.decorView, "sheet-$tag"); it.sheet!!.dialog.dismiss() }

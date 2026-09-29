@@ -14,7 +14,7 @@ class SettingsCodecTest {
         val chosen = AgentSettings(fullAccess = true, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
         assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
         val legacy = SettingsCodec.json(AgentSettings(cautious = true)).apply {
-            addProperty("version", 2); remove("fullAccess"); remove("failureAlerts"); remove("riskPackages"); remove("riskKeywords")
+            addProperty("version", 2); remove("fullAccess"); remove("failureAlerts"); remove("completionAlerts"); remove("riskPackages"); remove("riskKeywords")
         }
         assertFalse(SettingsCodec.decode(legacy.toString()).fullAccess)
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { addProperty("cautious", true) }.toString()) }
@@ -43,8 +43,10 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 6.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
+        for ((key, value) in listOf("version" to 7.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
             "failureAlerts" to AgentJson.parse("[\"email\"]"), "failureAlerts" to AgentJson.parse("[\"toast\",\"toast\"]"),
+            "completionAlerts" to AgentJson.parse("[\"email\"]"), "completionAlerts" to AgentJson.parse("[\"toast\",\"toast\"]"),
+            "completionAlerts" to true.json(),
             "riskPackages" to AgentJson.parse("[\"nodots\"]"), "riskPackages" to AgentJson.parse("[\"a.b\",\"a.b\"]"), "riskPackages" to "a.b".json(),
             "riskKeywords" to AgentJson.parse("[\" padded\"]"), "riskKeywords" to AgentJson.parse("[\"\"]"), "riskKeywords" to AgentJson.parse("[\"${"x".repeat(33)}\"]")))
             reject { SettingsCodec.decode(valid.deepCopy().apply { add(key, value) }.toString()) }
@@ -57,9 +59,9 @@ class SettingsCodecTest {
         val chosen = AgentSettings(riskPackages = setOf("com.example.pay", "org.bank.app_2"), riskKeywords = setOf("remit", "汇款", "Wire Money"))
         assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
         val encoded = SettingsCodec.json(chosen)
-        assertEquals(5L, encoded.number("version")); assertEquals(listOf("com.example.pay", "org.bank.app_2"), encoded.getAsJsonArray("riskPackages").map { it.asString })
+        assertEquals(6L, encoded.number("version")); assertEquals(listOf("com.example.pay", "org.bank.app_2"), encoded.getAsJsonArray("riskPackages").map { it.asString })
         // Version 4 files carry no lists; decoding them never invents entries.
-        val legacy = encoded.deepCopy().apply { addProperty("version", 4); remove("riskPackages"); remove("riskKeywords") }
+        val legacy = encoded.deepCopy().apply { addProperty("version", 4); remove("completionAlerts"); remove("riskPackages"); remove("riskKeywords") }
         assertEquals(chosen.copy(riskPackages = emptySet(), riskKeywords = emptySet()), SettingsCodec.decode(legacy.toString()))
         reject { SettingsCodec.decode(legacy.deepCopy().apply { add("riskPackages", AgentJson.parse("[\"a.b\"]")) }.toString()) }
         reject { AgentSettings(riskPackages = setOf("bad name")) }
@@ -72,11 +74,11 @@ class SettingsCodecTest {
     @Test fun oldSettingsMigrateWithoutEnablingAnOverlayOrChangingAuthority() {
         val chosen = AgentSettings(cautious = true, voice = false, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
         val legacy = SettingsCodec.json(chosen).apply {
-            addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts"); remove("riskPackages"); remove("riskKeywords")
+            addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts"); remove("completionAlerts"); remove("riskPackages"); remove("riskKeywords")
         }
         assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
         assertFalse(SettingsCodec.decode(legacy.toString()).floating)
-        assertEquals(setOf(AgentSettings.ALERT_NOTIFICATION), SettingsCodec.decode(legacy.toString()).failureAlerts)
+        assertEquals(AgentSettings.ALERT_CHANNELS, SettingsCodec.decode(legacy.toString()).failureAlerts)
         val alerted = chosen.copy(failureAlerts = setOf(AgentSettings.ALERT_TOAST, AgentSettings.ALERT_DIALOG))
         assertEquals(alerted, SettingsCodec.decode(SettingsCodec.encode(alerted)))
         assertEquals(emptySet<String>(), SettingsCodec.decode(SettingsCodec.encode(chosen.copy(failureAlerts = emptySet()))).failureAlerts)
@@ -95,6 +97,19 @@ class SettingsCodecTest {
         assertEquals(chosen, SettingsStore(file).open()); assertFalse(File(file.path + ".bak").exists())
         file.writeText("{\"version\":999}"); reject { SettingsStore(file).open() }
         assertEquals("{\"version\":999}", file.readText())
+    }
+    @Test fun addingCompletionAlertsPreservesEveryExplicitFailureChoice() {
+        for (channels in listOf(emptySet(), setOf("notification"), setOf("toast", "dialog"), AgentSettings.ALERT_CHANNELS)) {
+            val chosen = AgentSettings(failureAlerts = channels, toolGroups = setOf("observe"), cautious = true)
+            val previous = SettingsCodec.json(chosen).apply { addProperty("version", 5); remove("completionAlerts") }
+            val migrated = SettingsCodec.decode(previous.toString())
+            assertEquals(chosen, migrated)
+            assertEquals(AgentSettings.DEFAULT_COMPLETION_ALERTS, migrated.completionAlerts)
+            val customized = migrated.copy(completionAlerts = emptySet())
+            assertEquals(customized, SettingsCodec.decode(SettingsCodec.encode(customized)))
+        }
+        reject { AgentSettings(completionAlerts = setOf("email")) }
+        reject { SettingsCodec.decode(SettingsCodec.json(AgentSettings()).apply { remove("completionAlerts") }.toString()) }
     }
     @Test fun localGroupsCanEnableCatalogToolsButNeverOverrideExplicitHostRestrictions() {
         val settings = AgentSettings(toolGroups = setOf("gesture", "files", "shell"))

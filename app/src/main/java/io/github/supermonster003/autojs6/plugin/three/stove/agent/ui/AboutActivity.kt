@@ -24,7 +24,7 @@ class AboutActivity : HostAppearanceActivity() {
             page.addView(LinearLayout(this@AboutActivity).apply {
                 orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL
                 setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XXL), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XXL))
-                // The adaptive launcher icon already carries the device mask; no extra frame.
+                // In-app branding uses the transparent themed glyph, without a launcher background.
                 addView(ImageView(context).apply {
                     setImageResource(R.mipmap.ic_launcher); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(88), dp(88)))

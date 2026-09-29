@@ -8,6 +8,14 @@ import org.junit.Test
 class SettingsDraftTest {
     private fun reject(block: () -> Unit) { assertThrows(IllegalArgumentException::class.java, block) }
 
+    @Test fun taskAlertEditsComposeWithoutChangingTheOtherEventOrTaskPolicy() {
+        val original = AgentSettings(cautious = true, toolGroups = setOf("observe"), budget = mapOf("maxSteps" to 7))
+        val draft = SettingsDraft(original).withFailureAlert("dialog", false).withCompletionAlert("dialog", true).withCompletionAlert("toast", false)
+        assertEquals(original.copy(failureAlerts = setOf("notification", "toast"), completionAlerts = setOf("notification", "dialog")), draft.settings)
+        reject { draft.withCompletionAlert("email", true) }
+        assertEquals(original, SettingsDraft(original).settings)
+    }
+
     @Test fun accessModesStayMutuallyExclusive() {
         var draft = SettingsDraft(AgentSettings())
         assertEquals(AccessMode.STANDARD, draft.accessMode)

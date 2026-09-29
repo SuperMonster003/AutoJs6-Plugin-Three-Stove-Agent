@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">Автоматический запуск специальных возможностей не удался. Включите службу AutoJs6 в настройках системы и продолжите задачу.</string>
     <string name="alert_channel">Оповещения о сбоях задач</string>
     <string name="alert_close">Закрыть</string>
+    <string name="alert_completion_channel">Уведомления о завершении задач</string>
+    <string name="alert_completion_title">Задача завершена: %1$s</string>
     <string name="alert_title">Задача остановлена: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">Диалог</string>
     <string name="settings_alert_notification">Уведомление</string>
     <string name="settings_alert_toast">Всплывающее сообщение (toast)</string>
+    <string name="settings_alerts_completion">Уведомления о завершении</string>
+    <string name="settings_alerts_failure">Оповещения об ошибках</string>
+    <string name="settings_alerts_none">Выключено</string>
     <string name="settings_alerts_note">Когда задача останавливается из-за ошибки, лимита бюджета или потери соединения с хостом, вы получаете оповещение выбранными способами. Для диалога нужно разрешение наложения или приложение на переднем плане; иначе используется уведомление.</string>
-    <string name="settings_alerts_section">Оповещения о сбоях</string>
+    <string name="settings_alerts_section">Оповещения о задачах</string>
     <string name="settings_clear">Очистить данные</string>
     <string name="settings_clear_confirm">Удалить все записи этой категории? Отмена невозможна. Активных задач быть не должно.</string>
     <string name="settings_clear_presets">Удалить пользовательские профили и сбросить встроенный default? Память сохраняется. Активных задач быть не должно.</string>
+    <string name="settings_completion_alerts_note">При штатном завершении задачи, включая частичный результат без ошибки, используются выбранные способы оповещения. Отмененные задачи не вызывают оповещений. Для диалога нужно разрешение наложения, иначе используется уведомление.</string>
     <string name="settings_data">Управление данными</string>
     <string name="settings_data_summary">Записей: %1$d · %2$s</string>
     <string name="settings_default_preset">Предустановка по умолчанию</string>

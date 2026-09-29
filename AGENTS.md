@@ -174,7 +174,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 
 若改动同时需要修改 `D:/idea-projects/AutoJs6`, MUST 遵循:
 
-- 宿主只保留入口 (抽屉项, 插件中心注册, `ai.agent` augment, 模型代理与能力代理, 脚本登记扫描与结果通道), 插件拥有 Agent 循环的真实实现; 插件未安装或被禁用时宿主不得提供重复的完整实现, `ai.agent.run()` 返回 `PLUGIN_UNAVAILABLE` 并附引导.
+- 宿主只保留入口 (插件中心注册, `ai.agent` augment, 模型代理与能力代理, 脚本登记扫描与结果通道), 插件拥有 Agent 循环的真实实现. 插件中心是唯一启用和禁用入口, 抽屉不再提供 Agent 开关; 官方插件首次安装自动启用, 明确禁用状态在更新后保留. 脚本和插件界面按需建立连接, 不在开机或宿主启动时恢复旧任务; 插件未安装或被禁用时宿主不得提供重复的完整实现, `ai.agent.run()` 返回 `PLUGIN_UNAVAILABLE` 并附插件中心引导.
 - 宿主先区分 `未安装`, `已安装但未激活或禁用`, `版本不兼容`, `调用失败`, `可用`, 各状态有对应提示与引导 (安装来源, 激活按钮, 所需版本).
 - 更新包名, action, category, ID 或 API 时同步检查宿主注册表, ProGuard/R8, 安装 URL, 启用状态缓存和测试夹具.
 - 涉及公开脚本 API 时再同步 `AutoJs6-Documentation`, `AutoJs6-TypeScript-Declarations`, `AutoJs6-Plugin-Offline-Docs`, `AutoJs6-Plugin-Ace-Editor`.
@@ -189,11 +189,14 @@ AutoJs6-Plugin-Three-Stove-Agent/
 - 所有资源与文档字符串使用 ASCII 标点 (`, . : ; ! ? ( ) [ ] / -`), 省略号用 `...` 并加 `tools:ignore="TypographyEllipsis"`; 禁止全角标点, 顿号, 弯引号. `ApplicationTextPunctuationTest` 会扫描 `app/src/main`, `.readme`, `.changelog`, `README.md`, `ROADMAP.md` 与 `AGENTS.md`.
 - 模型消费的提示词与工具描述 (P2 起, `assets/prompts/{en,zh}/`) 以英文为主并提供 zh 版本, 不进入 10 语言资源.
 
-### 11.1 启动器图标
+### 11.1 图标
 
-- 图标源图为维护者提供的 `.python/icons/three-stove-ic-launcher-light.png` (亮色模式前景, 深色图案) 与 `three-stove-ic-launcher-dark.png` (暗色模式前景, 浅色图案), 1254 x 1254, 透明背景. `app/src/main/res/mipmap/` 与 `mipmap-night/` 下的四个 PNG 由 `.python/generate_launcher_icons.py` 从源图确定性合成; 修改图标时替换源图或修改脚本并重新生成, 不手工改 PNG.
-- 合成规则 (路线图 D50): `ic_launcher.png` 只含图案, 背景透明; `ic_launcher_round.png` 为同一图案叠在填充圆盘上, 二者同为 432 px 且图案尺寸与位置一致 (宽度占 66%); `ic_launcher_foreground.png` / `ic_launcher_monochrome.png` 为自适应图层 (图案宽度占 44%, 落在 66 dp 安全区内, 单色层为黑色轮廓). 与 3-Stone AI 相同, `mipmap*-anydpi-v26/ic_launcher*.xml` 直接引用 mipmap 图层与 `@color/ic_launcher_background`, 不使用 inset drawable.
-- 背景色: `values/ic_launcher_background.xml` = `#D8D8D8` (亮色), `values-night/ic_launcher_background.xml` = `#272727` (暗色); 圆形图标与自适应背景使用同一颜色.
+- 维护者提供的 `.python/icons/three-stove-ic-launcher-light.png` 与 `three-stove-ic-launcher-dark.png` (1254 x 1254, 透明背景) 均保留. 生成器统一取 light 源图的 alpha 作为形状, 亮色应用主题图案归一为 `#272727`, 暗色应用主题图案为 `#D8D8D8`. 修改源图或脚本后重新生成, 不手工编辑输出 PNG.
+- `.python/generate_launcher_icons.py` 确定性生成 5 张 432 px PNG, 1 份自适应 XML 与 1 份背景颜色 XML; `--check` 只读校验全部字节与旧冲突资源. UI 图案宽度占 66%, 自适应前景占 44%, 生成器按源图实际宽高比验证 66 dp 安全圆.
+- `mipmap/ic_launcher.png` 与 `mipmap-night/ic_launcher.png` 专用于应用内, 插件中心和 README 的透明图案, 不得再以同名自适应 XML 覆盖. 应用内用 `R.mipmap.ic_launcher`, 插件中心由宿主自己的配置加载.
+- Manifest 的 `icon` 与 `roundIcon`, 静态和动态主屏幕快捷方式都使用 `ic_launcher_system`. API 26+ 为自适应图标, 旧系统为圆盘 PNG; 所有配置固定采用浅灰图案 `#D8D8D8` 与深灰背景 `#212121`, 避免不随系统模式刷新图标的启动器保留亮色配色. 应用内图案仍跟随应用主题. 系统主题图标的最终着色由启动器决定.
+- 自适应 XML 直接引用 `ic_launcher_system_foreground`, 唯一的黑色 `ic_launcher_monochrome` 与 `ic_launcher_background`, 不使用 inset drawable 或带圆盘前景. 不添加 night/notnight 系统图标变体, 不通过重复 Activity alias 或清除启动器数据刷新图标.
+- `LauncherIconResourceTest` 在不修改偏好与系统模式的前提下验证 UI 透明位图, 精确颜色, 自适应与传统资源选择, 深色默认方案和 Manifest 接线. 真机启动器缓存与遮罩仍需目视验收. 工作区 `AUTOJS6_PLUGIN_BLACK_N_WHITE_ADAPTIVE_ICON_AGENTS.md` 为当前资源规范; D50 的旧背景色和共用资源名已被本方案替代.
 
 ## 12. README 与多语言生成
 
@@ -216,6 +219,7 @@ AutoJs6-Plugin-Three-Stove-Agent/
 - 任务台与设置页默认跟随宿主的语言, 夜间模式和主题色 (`AutoJs6HostSettingsContract`), 宿主配置不可用时安全回退. 独立应用允许选择跟随系统或显式覆盖, 只保存插件自身偏好, 不修改宿主设置. 任务台与悬浮球共用同一个模型选择 (私有文件, 与预设无关, 未选择即自动, 路线图 D46), 插件界面发起的任务不得继承预设中的旧模型; 预设只承载可复用的工具, 预算, 确认策略, 上下文, 脚本目录与记忆范围.
 - 独立界面 MUST 基于 AppCompat + Material 3 (路线图 D45), 全部由 Kotlin 代码经 `ui/kit` 构建 (令牌, `AgentPalette`, 行, 按钮, 卡片, 对话框, 底部面板, 表单, 反馈), 不引入 XML 布局或 Compose, 不在界面代码中硬编码颜色; 强调色须同时对窗口, 卡片及自身色调填充保持 4.5:1 (`KitContrastTest`). 设置即时生效且没有保存按钮; 有草稿的编辑页离开前确认未保存修改. 悬浮窗只用内联面板, 不弹对话框, 弹出菜单或底部面板. 仅允许在内容说明中给出完整文本的标签省略显示 (`Ui.truncatable`).
 - 设置页 MUST 提供独立的 `版本历史` 入口 (关于页面同样提供), 按当前 locale 读取 `doc/CHANGELOG-{LANGUAGE_TAG}.md`, 找不到时回退英语.
+- 任务提醒使用两个摘要行分别配置异常与正常完成, 共用通知 / toast / 对话框选择面板且即时保存. 新默认值为异常全部三项, 完成通知和 toast; 存储格式升级 MUST 保留已有显式选择 (包括全关闭). 只消费实时终止事件一次, 取消及历史查询不提醒, 无错误的部分完成按正常结束处理. Android 10+ 后台对话框无悬浮窗权限时回退通知, 通知公开版本不含目标或结果正文.
 - 所有界面覆盖无障碍标签, RTL, 大字体, 夜间模式与进程恢复; 确认对话框与悬浮卡片不在截图或最近任务缩略图中泄露任务内容以外的敏感信息 (记忆条目不含凭据, D29).
 
 ## 15. 测试要求

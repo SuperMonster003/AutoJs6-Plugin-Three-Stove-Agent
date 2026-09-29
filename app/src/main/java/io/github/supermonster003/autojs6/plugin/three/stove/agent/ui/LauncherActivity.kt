@@ -36,7 +36,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     internal val visibility by lazy { InteractionVisibility(this, followsRun = true) }
     internal val goal get() = views.composer.goal
     internal lateinit var models: ModelSwitcher; private set
-    internal var overflowMenu: PopupMenu? = null
+    internal var overflowMenu: ThemedPopupMenu? = null
     internal var presetDialog: AlertDialog? = null
     internal var accessDialog: AlertDialog? = null
     internal var presetSheet: SheetHandle? = null

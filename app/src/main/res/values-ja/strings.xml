@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">ユーザー補助の自動起動に失敗しました. システム設定で AutoJs6 のユーザー補助サービスを有効にしてからタスクを続けてください.</string>
     <string name="alert_channel">タスク異常の通知</string>
     <string name="alert_close">閉じる</string>
+    <string name="alert_completion_channel">タスク完了通知</string>
+    <string name="alert_completion_title">タスク終了: %1$s</string>
     <string name="alert_title">タスクが停止しました: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">ダイアログ</string>
     <string name="settings_alert_notification">通知</string>
     <string name="settings_alert_toast">フローティングメッセージ (toast)</string>
+    <string name="settings_alerts_completion">完了通知</string>
+    <string name="settings_alerts_failure">異常通知</string>
+    <string name="settings_alerts_none">オフ</string>
     <string name="settings_alerts_note">タスクがエラー, 予算上限, ホスト切断で停止したとき, 選んだ方法で通知します. ダイアログにはオーバーレイ権限またはアプリが前面にあることが必要で, それ以外は通知に切り替わります.</string>
-    <string name="settings_alerts_section">異常の通知</string>
+    <string name="settings_alerts_section">タスク通知</string>
     <string name="settings_clear">データを消去</string>
     <string name="settings_clear_confirm">この種類の全項目を削除しますか? 元に戻せません. タスクが停止している必要があります.</string>
     <string name="settings_clear_presets">カスタムプリセットを削除し, 内蔵の default を初期化しますか? 記憶は保持されます. タスクが停止している必要があります.</string>
+    <string name="settings_completion_alerts_note">タスクが正常に終了したとき (エラーのない部分完了を含む) に選択した方法で通知します. キャンセルしたタスクは通知しません. ダイアログにはオーバーレイ権限が必要です. 権限がない場合は通知を使用します.</string>
     <string name="settings_data">データ管理</string>
     <string name="settings_data_summary">%1$d 件 · %2$s</string>
     <string name="settings_default_preset">既定のプリセット</string>

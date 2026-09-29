@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">Automatic accessibility startup failed. Enable the AutoJs6 accessibility service in system settings, then continue the task.</string>
     <string name="alert_channel">Task failure alerts</string>
     <string name="alert_close">Close</string>
+    <string name="alert_completion_channel">Task completion notifications</string>
+    <string name="alert_completion_title">Task finished: %1$s</string>
     <string name="alert_title">Task stopped: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">Dialog</string>
     <string name="settings_alert_notification">Notification</string>
     <string name="settings_alert_toast">Floating message (toast)</string>
+    <string name="settings_alerts_completion">Completion notifications</string>
+    <string name="settings_alerts_failure">Failure alerts</string>
+    <string name="settings_alerts_none">Off</string>
     <string name="settings_alerts_note">When a task stops on an error, a budget limit or a lost host connection, alert you through the selected channels. A dialog needs the overlay permission or the app in the foreground; otherwise a notification is used instead.</string>
-    <string name="settings_alerts_section">Failure alerts</string>
+    <string name="settings_alerts_section">Task alerts</string>
     <string name="settings_clear">Clear data</string>
     <string name="settings_clear_confirm">Delete all entries in this category? This cannot be undone. Tasks must be idle.</string>
     <string name="settings_clear_presets">Delete custom presets and reset the built-in default preset? Saved memory is kept. Tasks must be idle.</string>
+    <string name="settings_completion_alerts_note">When a task finishes normally, including a partial result without an error, alert you through the selected channels. Cancelled tasks stay silent. A dialog needs the overlay permission; otherwise a notification is used.</string>
     <string name="settings_data">Data management</string>
     <string name="settings_data_summary">Items: %1$d · %2$s</string>
     <string name="settings_default_preset">Default preset</string>

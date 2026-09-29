@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">Falló el inicio automático de accesibilidad. Active el servicio de accesibilidad de AutoJs6 en los ajustes del sistema y continúe la tarea.</string>
     <string name="alert_channel">Avisos de fallo de tareas</string>
     <string name="alert_close">Cerrar</string>
+    <string name="alert_completion_channel">Notificaciones de tareas completadas</string>
+    <string name="alert_completion_title">Tarea finalizada: %1$s</string>
     <string name="alert_title">Tarea detenida: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">Dialogo</string>
     <string name="settings_alert_notification">Notificacion</string>
     <string name="settings_alert_toast">Mensaje flotante (toast)</string>
+    <string name="settings_alerts_completion">Notificaciones de finalización</string>
+    <string name="settings_alerts_failure">Alertas de error</string>
+    <string name="settings_alerts_none">Desactivado</string>
     <string name="settings_alerts_note">Cuando una tarea se detiene por un error, un limite de presupuesto o una conexion perdida con el anfitrion, te avisa por los canales elegidos. El dialogo requiere el permiso de superposicion o la app en primer plano; de lo contrario se usa una notificacion.</string>
-    <string name="settings_alerts_section">Avisos de fallo</string>
+    <string name="settings_alerts_section">Avisos de tareas</string>
     <string name="settings_clear">Borrar datos</string>
     <string name="settings_clear_confirm">Borrar todos los elementos de esta categoría? No se puede deshacer. No debe haber tareas activas.</string>
     <string name="settings_clear_presets">Borrar los perfiles personalizados y restablecer el perfil integrado default? La memoria se conserva. No debe haber tareas activas.</string>
+    <string name="settings_completion_alerts_note">Cuando una tarea termina normalmente, incluido un resultado parcial sin error, se avisa por los medios seleccionados. Las tareas canceladas no avisan. El diálogo requiere permiso de superposición; de lo contrario se usa una notificación.</string>
     <string name="settings_data">Gestión de datos</string>
     <string name="settings_data_summary">Elementos: %1$d · %2$s</string>
     <string name="settings_default_preset">Preajuste predeterminado</string>
