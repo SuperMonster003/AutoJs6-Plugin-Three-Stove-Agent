@@ -45,6 +45,10 @@ internal class FakeModel : RunModel {
     val outputLimits = mutableListOf<Int>()
     val replies = ArrayDeque<ModelReply>()
     var onGenerate: (() -> Unit)? = null
+    var initial: ((DecisionFormat) -> DecisionFormat)? = null
+    var planning: ((DecisionFormat) -> DecisionFormat)? = null
+    override fun initialFormat(proposed: DecisionFormat): DecisionFormat = initial?.invoke(proposed) ?: proposed
+    override fun planningFormat(proposed: DecisionFormat): DecisionFormat = planning?.invoke(proposed) ?: initialFormat(proposed)
     override fun generate(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long, callback: (PortResult<ModelReply>) -> Unit): Cancellation {
         val call = Pending(callback); calls += call; inputs += input; timeouts += timeoutMs; outputLimits += maximumOutputTokens
         if (replies.isNotEmpty()) call.succeed(replies.removeFirst())

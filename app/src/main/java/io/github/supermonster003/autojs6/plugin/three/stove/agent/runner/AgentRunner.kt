@@ -80,7 +80,7 @@ class AgentRunner internal constructor(
             budget = Budget(options.limits, scheduler.nowMs(), scheduler::nowMs)
             durationTimer = scheduler.schedule(options.limits.maxDurationMs) { guarded { throw BudgetExceeded("duration") } }
             transition(RunState.RUNNING)
-            if (preparation == null) { format = model.initialFormat(options.format); planRequired = format.planMode; nextStep() }
+            if (preparation == null) { format = startingFormat(); nextStep() }
             else beginOperation(minOf(RunLimits.PREPARATION_MS, checkNotNull(budget).remainingMs), RunError.TARGET_UNAVAILABLE, RunError.HOST_UNAVAILABLE,
                 { callback -> preparation.prepare(callback) }, onDiscard = { outcome ->
                     if (outcome is PortResult.Success && outcome.value !== acceptedComponents) safely(outcome.value.cleanup::cancel)
@@ -94,7 +94,7 @@ class AgentRunner internal constructor(
                         compiler = outcome.value.compiler; model = outcome.value.model; tools = outcome.value.tools
                         outcome.value.policy?.let { policy = it; gate = ConfirmationGate(it, options.confirmationMode) }
                         outcome.value.maximumTokens?.let { checkNotNull(budget).narrowTokens(it) }
-                        format = model.initialFormat(options.format); planRequired = format.planMode; nextStep()
+                        format = startingFormat(); nextStep()
                     }
                 }
             }
@@ -415,6 +415,11 @@ class AgentRunner internal constructor(
             "choices" to JsonArray().apply { ask.choices.forEach(::add) }, "timeoutMs" to timeout.json())
             .apply { ask.memoryKey?.let { addProperty("memoryKey", it) } })
     }
+    /** Plan mode asks for the plan without native tools; once a plan is accepted the model's own format (native tools when offered) takes over. */
+    private fun startingFormat(): DecisionFormat {
+        planRequired = options.format.planMode
+        return if (planRequired) model.planningFormat(options.format) else model.initialFormat(options.format)
+    }
     private fun waitForPlan(plan: AgentDecision.Plan) {
         if (!canContinue()) return
         val timeout = minOf(options.limits.askTimeoutMs, checkNotNull(budget).remainingMs)
@@ -429,6 +434,7 @@ class AgentRunner internal constructor(
         transition(RunState.RUNNING)
         val steps = value.map { it.asString.trim() }
         approvedPlan = steps; planRequired = false
+        format = model.initialFormat(options.format)
         observation = ToolObservation.success(jsonObject("plan" to JsonArray().apply { steps.forEach(::add) }, "approved" to true.json(),
             "edited" to (steps != proposed.steps).json()))
         observationImages = emptyList()

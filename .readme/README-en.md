@@ -294,7 +294,7 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 #### v1.3.0
 
-_2026/09/28_
+_2026/09/29_
 
 - `Feature` Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation
 - `Feature` Floating ball redesign: the compact ball shows the task and its current step on two lines and tapping the text opens a step timeline card; the control card is condensed to the same two rows as the workbench (preset, model and access above the goal field, voice and start), with the model and access mode switched inside the overlay and shared with the app; the timeline follows new steps while you are at the end, pauses when you scroll up and resumes at the end, as does the task details screen
@@ -303,6 +303,7 @@ _2026/09/28_
 - `Feature` Plan mode (a preset switch, off by default; scripts can override it with options.plan): the model first proposes 3 to 8 steps, the workbench, floating ball and confirmation screen show an editable plan review card, and after approval the runtime passes the plan to the model with every prompt and expects it to be followed in order; when the plan stops fitting, the model proposes a new one for another review; the decision schema gains a plan branch accepted only in plan mode, and the timeline and history record the plan steps
 - `Feature` Task result sharing: the task detail menu gains Share summary, which hands the system share sheet plain text with the goal, the state and summary, the evidence and the unfinished work; observations, arguments, script results and error details never leave the private history, and the item stays disabled while a task is still running
 - `Fix` The send button no longer stays on the first line of a multi-line goal; it sits at the bottom like the microphone button
+- `Fix` In plan mode the plan request no longer offers tool definitions to online models with native tool calling, so the model can only return a plan instead of calling a tool (on a real device a Codex-style model answered with tool calls three times in a row and the task failed with DECISION_UNPARSABLE); native tool calling resumes once the plan is approved
 - `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
 - `Improvement` After an MCP server sends tools/list_changed, the frozen tool definitions are re-verified before the next call: unchanged definitions keep working, and only a changed one fails with MCP_CATALOG_CHANGED and tells the model to have the user refresh the tool selection in MCP settings and start a new task; the endpoint note now says OAuth sign-in and the older HTTP+SSE transport are not supported
 

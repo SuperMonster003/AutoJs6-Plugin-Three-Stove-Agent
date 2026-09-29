@@ -77,6 +77,24 @@ class AgentRunnerPlanTest {
         f.reply(done()); assertEquals(RunState.COMPLETED, run.state)
     }
 
+    @Test fun thePlanRequestNeverOffersNativeToolsAndTheAcceptedPlanRestoresThem() {
+        val f = RunnerFixture(planMode = true)
+        val native = DecisionSchema.native(ModelProtocol.LOCAL, planMode = true)
+        f.model.initial = { native }; f.model.planning = { it }
+        val run = f.start()
+        // A native-tool model answers a plan request with tool calls, so the plan is requested in the JSON format without tool definitions.
+        assertFalse(f.contexts.last().format!!.nativeTools); assertTrue(f.contexts.last().format!!.planMode)
+        assertEquals(true, f.contexts.last().guidance.flag("planRequired"))
+        f.reply(plan("One", "Two")); assertEquals(RunState.WAITING_INPUT, run.state)
+        run.respond(f.request("input"), jsonArray("One".json(), "Two".json())); f.scheduler.drain()
+        assertEquals(RunState.RUNNING, run.state)
+        assertSame(native, f.contexts.last().format); assertNull(f.contexts.last().guidance["planRequired"])
+        f.reply(done()); assertEquals(RunState.COMPLETED, run.state)
+        // Without plan mode the model's own format is used from the first request.
+        val plain = RunnerFixture(); plain.model.initial = { DecisionSchema.native(ModelProtocol.LOCAL) }; plain.start()
+        assertTrue(plain.contexts.last().format!!.nativeTools)
+    }
+
     @Test fun askingAndFinishingRemainPossibleBeforeThePlanIsReviewed() {
         val f = RunnerFixture(planMode = true); val run = f.start()
         f.reply(RunnerFixture.ask())

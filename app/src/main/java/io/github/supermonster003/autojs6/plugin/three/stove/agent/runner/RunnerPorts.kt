@@ -108,6 +108,8 @@ class RunComponents(val compiler: RunContextCompiler, val model: RunModel, val t
 fun interface RunPreparation { fun prepare(callback: (PortResult<RunComponents>) -> Unit): Cancellation }
 interface RunModel {
     fun initialFormat(proposed: DecisionFormat): DecisionFormat = proposed
+    /** The plan request in plan mode: never native tools, so the model has to answer with a plan instead of calling a tool (roadmap P13). */
+    fun planningFormat(proposed: DecisionFormat): DecisionFormat = initialFormat(proposed)
     fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? = null
     /** Must return promptly; callbacks may be synchronous, duplicated or late. */
     fun generate(input: ModelInput, maximumOutputTokens: Int, timeoutMs: Long, callback: (PortResult<ModelReply>) -> Unit): Cancellation
