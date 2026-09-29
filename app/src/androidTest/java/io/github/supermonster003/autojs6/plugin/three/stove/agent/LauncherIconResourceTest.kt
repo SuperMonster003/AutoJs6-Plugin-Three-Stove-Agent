@@ -78,5 +78,13 @@ class LauncherIconResourceTest {
 
     @Test fun manifestUsesTheSystemIconInsteadOfTheTransparentUiIcon() {
         assertEquals(R.mipmap.ic_launcher_system, context.applicationInfo.icon)
+        val resources = mapOf("AdaptiveLight" to R.mipmap.ic_launcher_system_light,
+            "AdaptiveDark" to R.mipmap.ic_launcher_system, "AdaptiveAuto" to R.mipmap.ic_launcher_system_auto,
+            "Transparent" to R.mipmap.ic_launcher)
+        for ((name, expected) in resources) {
+            val component = android.content.ComponentName(context.packageName, "${context.packageName}.launcher.${name}IconAlias")
+            val info = context.packageManager.getActivityInfo(component, android.content.pm.PackageManager.MATCH_DISABLED_COMPONENTS)
+            assertEquals("Manifest must preserve the $name icon resource ID", expected, info.icon)
+        }
     }
 }

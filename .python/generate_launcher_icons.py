@@ -91,20 +91,24 @@ def generated_files() -> dict[Path, bytes]:
             '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
             f'    <color name="{name}">{color}</color>\n</resources>\n'
         ).encode("utf-8")
-    # Resource aliases select the theme first, then resolve the target's API 26
-    # adaptive variant. No qualified PNG can accidentally outrank adaptive XML.
-    for directory, target in (("values", "ic_launcher_system"), ("values-notnight", "ic_launcher_system_light")):
+    # A real resource keeps its ID in the parsed Manifest. A values resource alias
+    # is eagerly resolved by PackageManager and freezes the install-time theme.
+    # Each legacy bitmap wrapper has a matching API 26 adaptive configuration.
+    for directory, target in (("mipmap", "ic_launcher_system"), ("mipmap-notnight", "ic_launcher_system_light")):
         result[RES / directory / "ic_launcher_system_auto.xml"] = (
-            '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
-            f'    <item type="mipmap" name="ic_launcher_system_auto">@mipmap/{target}</item>\n</resources>\n'
+            '<?xml version="1.0" encoding="utf-8"?>\n'
+            f'<bitmap xmlns:android="http://schemas.android.com/apk/res/android" android:src="@mipmap/{target}"/>\n'
         ).encode("utf-8")
+    result[RES / "mipmap-anydpi-v26/ic_launcher_system_auto.xml"] = adaptive("ic_launcher_system_foreground", "ic_launcher_background")
+    result[RES / "mipmap-notnight-anydpi-v26/ic_launcher_system_auto.xml"] = adaptive("ic_launcher_system_light_foreground", "ic_launcher_background_light")
     return result
 
 
 def obsolete_files() -> list[Path]:
     # These exact former resources collided with the transparent UI resource or
     # duplicated launcher layers. Never remove arbitrary files/directories.
-    candidates = [RES / "values-night/ic_launcher_background.xml"]
+    candidates = [RES / "values-night/ic_launcher_background.xml",
+                  RES / "values/ic_launcher_system_auto.xml", RES / "values-notnight/ic_launcher_system_auto.xml"]
     for directory in RES.glob("mipmap*"):
         for name in ("ic_launcher.xml", "ic_launcher_round.xml", "ic_launcher_round.png", "ic_launcher_foreground.png"):
             candidates.append(directory / name)

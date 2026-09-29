@@ -24,9 +24,12 @@ class AboutActivity : HostAppearanceActivity() {
             page.addView(LinearLayout(this@AboutActivity).apply {
                 orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL
                 setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XXL), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XXL))
-                // In-app branding uses the transparent themed glyph, without a launcher background.
+                // Keep the rounded frame, with the transparent glyph revealing the surrounding page.
                 addView(ImageView(context).apply {
                     setImageResource(R.mipmap.ic_launcher); importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    tag = "about-icon"
+                    background = roundedFill(android.graphics.Color.TRANSPARENT, Ui.RADIUS_SHEET, palette.outline)
+                    clipToOutline = true
                 }, LinearLayout.LayoutParams(dp(88), dp(88)))
                 addView(text(getString(R.string.app_name), Ui.TEXT_DISPLAY, medium = true).apply {
                     gravity = Gravity.CENTER; setPaddingRelative(0, dp(Ui.SPACE_LG), 0, dp(Ui.SPACE_XS))

@@ -84,15 +84,23 @@ class SettingsActivity : HostAppearanceActivity() {
     internal fun open(type: Class<*>) { startActivity(Intent(this, type)) }
 
     internal fun launcherIcons() {
-        val labels = launcherIconLabels.map(::getString).toMutableList()
-        labels[LauncherIconMode.AUTO.ordinal] += "\n" + getString(R.string.launcher_icon_auto_note)
-        labels[LauncherIconMode.TRANSPARENT.ordinal] += "\n" + getString(R.string.launcher_icon_transparent_note)
+        val labels = launcherIconLabels.mapIndexed { index, resource ->
+            val title = getString(resource)
+            val note = when (LauncherIconMode.entries[index]) {
+                LauncherIconMode.AUTO -> getString(R.string.launcher_icon_auto_note)
+                LauncherIconMode.TRANSPARENT -> getString(R.string.launcher_icon_transparent_note)
+                else -> null
+            }
+            if (note == null) title else android.text.SpannableString("$title\n$note").apply {
+                setSpan(android.text.style.RelativeSizeSpan(0.8f), title.length + 1, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
         prompt = kit.singleChoiceDialog(getString(R.string.launcher_icon_title), labels, LauncherIcons.current(this).ordinal) { index ->
             runCatching { LauncherIcons.select(this, LauncherIconMode.entries[index]) }
                 .onSuccess { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_applied_note)) }
                 .onFailure { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_failed)) }
             rows.getValue("launcher-icon").setSummary(getString(launcherIconLabels[LauncherIcons.current(this).ordinal]))
-        }
+        }.also { dialog -> dialog.listView.post { dialog.listView.setSelection(0) } }
     }
 
     internal fun saveAppearance(value: AppearancePreferences) {
