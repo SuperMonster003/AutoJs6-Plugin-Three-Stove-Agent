@@ -13,14 +13,17 @@ internal data class AgentSettings(
     val budget: Map<String, Long> = emptyMap(), val cautious: Boolean = false, val voice: Boolean = true,
     val floating: Boolean = false, val fullAccess: Boolean = false,
     /** Channels that report a task stopped by an error, a budget limit or a lost host (P14.1). */
-    val failureAlerts: Set<String> = setOf(ALERT_NOTIFICATION),
+    val failureAlerts: Set<String> = ALERT_CHANNELS,
     /** User additions to the packaged payment application list (P13 risk recognition); built-ins stay. */
     val riskPackages: Set<String> = emptySet(),
     /** User additions to the packaged sensitive keyword table; matched case-insensitively as substrings. */
     val riskKeywords: Set<String> = emptySet(),
+    /** Channels for a normal completion, independent of abnormal-stop alerts. */
+    val completionAlerts: Set<String> = DEFAULT_COMPLETION_ALERTS,
 ) {
     init {
         require(!cautious || !fullAccess); require(failureAlerts.all { it in ALERT_CHANNELS })
+        require(completionAlerts.all { it in ALERT_CHANNELS })
         require(riskPackages.size <= RiskRules.MAX_ENTRIES && riskPackages.all(RiskRules::isPackage))
         require(riskKeywords.size <= RiskRules.MAX_ENTRIES && riskKeywords.all(RiskRules::isKeyword))
     }
@@ -31,6 +34,7 @@ internal data class AgentSettings(
         const val ALERT_TOAST = "toast"
         const val ALERT_DIALOG = "dialog"
         val ALERT_CHANNELS = setOf(ALERT_NOTIFICATION, ALERT_TOAST, ALERT_DIALOG)
+        val DEFAULT_COMPLETION_ALERTS = setOf(ALERT_NOTIFICATION, ALERT_TOAST)
     }
 }
 
@@ -43,12 +47,13 @@ internal object SettingsCodec {
     fun decode(text: String): AgentSettings {
         val root = AgentJson.objectOf(text, MAX_BYTES)
         val version = requireNotNull(root.number("version"))
-        require(version in 1L..5L)
+        require(version in 1L..6L)
         require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") +
             (if (version >= 2L) setOf("floating") else emptySet()) +
             (if (version >= 3L) setOf("fullAccess") else emptySet()) +
             (if (version >= 4L) setOf("failureAlerts") else emptySet()) +
-            (if (version >= 5L) setOf("riskPackages", "riskKeywords") else emptySet()))
+            (if (version >= 5L) setOf("riskPackages", "riskKeywords") else emptySet()) +
+            (if (version >= 6L) setOf("completionAlerts") else emptySet()))
         val groups = requireNotNull(root["toolGroups"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }
@@ -57,22 +62,25 @@ internal object SettingsCodec {
         val limits = budget.keySet().associateWith { key ->
             val ceiling = requireNotNull(ceilings[key]); requireNotNull(runCatching { budget.number(key) }.getOrNull()).also { require(it in 1..ceiling) }
         }
-        val alerts = if (version >= 4L) requireNotNull(root["failureAlerts"]?.takeIf { it.isJsonArray }?.asJsonArray).map {
+        fun channels(key: String) = requireNotNull(root[key]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }.also { require(it.toSet().size == it.size && it.all { channel -> channel in AgentSettings.ALERT_CHANNELS }) }.toSet()
-        else setOf(AgentSettings.ALERT_NOTIFICATION)
+        // Preserve every explicit choice, including an empty set. Only absent fields gain defaults.
+        val alerts = if (version >= 4L) channels("failureAlerts") else AgentSettings.ALERT_CHANNELS
+        val completionAlerts = if (version >= 6L) channels("completionAlerts") else AgentSettings.DEFAULT_COMPLETION_ALERTS
         fun strings(key: String): Set<String> = if (version < 5L) emptySet() else requireNotNull(root[key]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }.also { require(it.toSet().size == it.size) }.toSet()
         return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
             if (version >= 2L) requireNotNull(root.flag("floating")) else false,
-            if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts, strings("riskPackages"), strings("riskKeywords"))
+            if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts, strings("riskPackages"), strings("riskKeywords"), completionAlerts)
     }
-    fun json(value: AgentSettings) = jsonObject("version" to 5.json(), "toolGroups" to JsonArray().apply {
+    fun json(value: AgentSettings) = jsonObject("version" to 6.json(), "toolGroups" to JsonArray().apply {
         value.toolGroups.sorted().forEach(::add)
     }, "budget" to JsonObject().apply { value.budget.forEach { (key, number) -> addProperty(key, number) } },
         "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json(), "fullAccess" to value.fullAccess.json(),
         "failureAlerts" to JsonArray().apply { value.failureAlerts.sorted().forEach(::add) },
+        "completionAlerts" to JsonArray().apply { value.completionAlerts.sorted().forEach(::add) },
         "riskPackages" to JsonArray().apply { value.riskPackages.sorted().forEach(::add) },
         "riskKeywords" to JsonArray().apply { value.riskKeywords.sorted().forEach(::add) })
     fun encode(value: AgentSettings): String = json(value).toString().also { decode(it) }

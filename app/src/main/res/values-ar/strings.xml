@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">تعذر بدء خدمة تسهيل الاستخدام تلقائيا. فعل خدمة AutoJs6 من إعدادات النظام ثم تابع المهمة.</string>
     <string name="alert_channel">تنبيهات فشل المهام</string>
     <string name="alert_close">إغلاق</string>
+    <string name="alert_completion_channel">إشعارات اكتمال المهام</string>
+    <string name="alert_completion_title">انتهت المهمة: %1$s</string>
     <string name="alert_title">توقفت المهمة: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">مربع حوار</string>
     <string name="settings_alert_notification">إشعار</string>
     <string name="settings_alert_toast">رسالة عائمة (toast)</string>
+    <string name="settings_alerts_completion">إشعارات الاكتمال</string>
+    <string name="settings_alerts_failure">تنبيهات الأخطاء</string>
+    <string name="settings_alerts_none">متوقف</string>
     <string name="settings_alerts_note">عند توقف مهمة بسبب خطأ أو حد الميزانية أو فقدان الاتصال بالمضيف, يتم تنبيهك عبر القنوات المختارة. يحتاج مربع الحوار إلى إذن التراكب أو وجود التطبيق في المقدمة, وإلا يستخدم الإشعار بدلا منه.</string>
-    <string name="settings_alerts_section">تنبيهات الفشل</string>
+    <string name="settings_alerts_section">تنبيهات المهام</string>
     <string name="settings_clear">مسح البيانات</string>
     <string name="settings_clear_confirm">حذف جميع عناصر هذه الفئة? لا يمكن التراجع. يجب ألا تكون هناك مهام نشطة.</string>
     <string name="settings_clear_presets">حذف الإعدادات المسبقة المخصصة وإعادة ضبط default المدمج? تبقى الذاكرة المحفوظة. يجب ألا تكون هناك مهام نشطة.</string>
+    <string name="settings_completion_alerts_note">عند انتهاء المهمة بشكل طبيعي, بما في ذلك النتيجة الجزئية دون خطأ, يتم التنبيه بالطرق المحددة. لا يتم التنبيه للمهام الملغاة. يتطلب الحوار إذن الظهور فوق التطبيقات, وإلا يستخدم إشعار.</string>
     <string name="settings_data">إدارة البيانات</string>
     <string name="settings_data_summary">العناصر: %1$d · %2$s</string>
     <string name="settings_default_preset">الإعداد المسبق الافتراضي</string>

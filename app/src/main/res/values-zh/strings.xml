@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">无障碍自动启动失败. 请在系统设置中开启 AutoJs6 无障碍服务, 然后继续任务.</string>
     <string name="alert_channel">任务异常提醒</string>
     <string name="alert_close">关闭</string>
+    <string name="alert_completion_channel">任务完成通知</string>
+    <string name="alert_completion_title">任务已完成: %1$s</string>
     <string name="alert_title">任务已停止: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">对话框</string>
     <string name="settings_alert_notification">通知</string>
     <string name="settings_alert_toast">浮动消息 (toast)</string>
+    <string name="settings_alerts_completion">完成通知</string>
+    <string name="settings_alerts_failure">异常提醒</string>
+    <string name="settings_alerts_none">已关闭</string>
     <string name="settings_alerts_note">任务因错误, 预算上限或宿主断开而停止时, 通过所选方式提醒你. 对话框需要悬浮窗权限或应用位于前台, 否则改用通知.</string>
-    <string name="settings_alerts_section">异常提醒</string>
+    <string name="settings_alerts_section">任务提醒</string>
     <string name="settings_clear">清除数据</string>
     <string name="settings_clear_confirm">删除此类全部条目? 此操作无法撤销, 须在任务空闲时进行.</string>
     <string name="settings_clear_presets">删除自定义预设并重置内置 default 预设? 已保存记忆会保留, 须在任务空闲时进行.</string>
+    <string name="settings_completion_alerts_note">任务正常结束时 (包括无错误的部分完成结果), 通过所选方式提醒. 主动取消的任务不提醒. 对话框需要悬浮窗权限, 否则改用通知.</string>
     <string name="settings_data">数据管理</string>
     <string name="settings_data_summary">%1$d 条 · %2$s</string>
     <string name="settings_default_preset">默认预设</string>

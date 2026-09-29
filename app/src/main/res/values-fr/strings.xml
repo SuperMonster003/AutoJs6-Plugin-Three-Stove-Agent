@@ -11,6 +11,8 @@
     <string name="accessibility_start_failed">Le démarrage automatique de l\'accessibilité a échoué. Activez le service AutoJs6 dans les paramètres système, puis continuez la tâche.</string>
     <string name="alert_channel">Alertes d\'echec des taches</string>
     <string name="alert_close">Fermer</string>
+    <string name="alert_completion_channel">Notifications de fin de tâche</string>
+    <string name="alert_completion_title">Tâche terminée: %1$s</string>
     <string name="alert_title">Tache arretee: %1$s</string>
     <string name="app_language_ar">العربية</string>
     <string name="app_language_en">English</string>
@@ -307,11 +309,15 @@
     <string name="settings_alert_dialog">Boite de dialogue</string>
     <string name="settings_alert_notification">Notification</string>
     <string name="settings_alert_toast">Message flottant (toast)</string>
+    <string name="settings_alerts_completion">Notifications de fin</string>
+    <string name="settings_alerts_failure">Alertes en cas d\'échec</string>
+    <string name="settings_alerts_none">Désactivé</string>
     <string name="settings_alerts_note">Quand une tache s\'arrete sur une erreur, une limite de budget ou une connexion hote perdue, vous etes alerte par les canaux choisis. La boite de dialogue requiert la permission de superposition ou l\'application au premier plan; sinon une notification est utilisee.</string>
-    <string name="settings_alerts_section">Alertes d\'echec</string>
+    <string name="settings_alerts_section">Alertes de tâche</string>
     <string name="settings_clear">Effacer les données</string>
     <string name="settings_clear_confirm">Supprimer tous les éléments de cette catégorie? Cette action est irréversible. Aucune tâche ne doit être active.</string>
     <string name="settings_clear_presets">Supprimer les profils personnalisés et réinitialiser le profil intégré default? La mémoire est conservée. Aucune tâche ne doit être active.</string>
+    <string name="settings_completion_alerts_note">Lorsqu\'une tâche se termine normalement, y compris avec un résultat partiel sans erreur, les canaux choisis vous avertissent. Les tâches annulées restent silencieuses. Une boîte de dialogue nécessite l\'autorisation de superposition, sinon une notification est utilisée.</string>
     <string name="settings_data">Gestion des données</string>
     <string name="settings_data_summary">Éléments: %1$d · %2$s</string>
     <string name="settings_default_preset">Préréglage par défaut</string>

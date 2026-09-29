@@ -39,6 +39,9 @@ class SettingsActivity : HostAppearanceActivity() {
     internal val rows = linkedMapOf<String, SettingRow>()
     private val groupRows = linkedMapOf<String, SettingRow>()
     private val limitRows = linkedMapOf<String, SettingRow>()
+    private val alertRows = linkedMapOf<String, SettingRow>()
+    private var editingCompletionAlerts = false
+    private var alertSheetGeneration = 0
     internal val clearButtons = linkedMapOf<String, View>()
     internal lateinit var fullAccessNote: Banner
     internal lateinit var appearancePreferences: AppearancePreferences
@@ -132,11 +135,37 @@ class SettingsActivity : HostAppearanceActivity() {
         limitRows.forEach { (key, row) -> row.setSummary(limitSummary(draft, key)) }
         rows.getValue("risk").setSummary(getString(R.string.settings_risk_summary, settings.riskPackages.size, settings.riskKeywords.size))
         rows.getValue("voice").switch!!.isChecked = settings.voice
-        for (channel in AgentSettings.ALERT_CHANNELS) rows.getValue("alert-$channel").switch!!.isChecked = channel in settings.failureAlerts
+        rows.getValue("alerts-failure").setSummary(alertSummary(settings.failureAlerts))
+        rows.getValue("alerts-completion").setSummary(alertSummary(settings.completionAlerts))
+        val channels = if (editingCompletionAlerts) settings.completionAlerts else settings.failureAlerts
+        alertRows.forEach { (channel, row) -> row.switch!!.isChecked = channel in channels }
         rows.getValue("floating").switch!!.isChecked = settings.floating && Settings.canDrawOverlays(this)
         rows.values.forEach(SettingRow::refreshDescription)
     }
     private fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
+
+    private fun alertSummary(channels: Set<String>): String = alertLabels.filterKeys { it in channels }.values
+        .map(::getString).joinToString(" / ").ifEmpty { getString(R.string.settings_alerts_none) }
+
+    internal fun alertChannels(completion: Boolean) {
+        val settings = updater.current?.settings ?: return
+        val generation = ++alertSheetGeneration
+        sheet?.dialog?.dismiss()
+        editingCompletionAlerts = completion
+        alertRows.clear()
+        val handle = kit.bottomSheet(getString(if (completion) R.string.settings_alerts_completion else R.string.settings_alerts_failure),
+            onDismiss = { if (generation == alertSheetGeneration) alertRows.clear() })
+        val channels = if (completion) settings.completionAlerts else settings.failureAlerts
+        for ((channel, label) in alertLabels) {
+            val row = kit.switchRow(getString(label), null, null, channel in channels, "alert-$channel") { enabled ->
+                if (!updater.apply { if (completion) it.withCompletionAlert(channel, enabled) else it.withFailureAlert(channel, enabled) })
+                    alertRows[channel]?.switch?.isChecked = !enabled
+            }
+            alertRows[channel] = row; handle.content.addView(row.view)
+        }
+        handle.content.addView(kit.pageCaption(getString(if (completion) R.string.settings_completion_alerts_note else R.string.settings_alerts_note)))
+        sheet = handle
+    }
 
     internal fun defaultPreset() {
         val names = snapshot?.getAsJsonArray("presets")?.map { it.asString } ?: return
@@ -206,6 +235,8 @@ class SettingsActivity : HostAppearanceActivity() {
     }
 
     companion object {
+        private val alertLabels = linkedMapOf(AgentSettings.ALERT_NOTIFICATION to R.string.settings_alert_notification,
+            AgentSettings.ALERT_TOAST to R.string.settings_alert_toast, AgentSettings.ALERT_DIALOG to R.string.settings_alert_dialog)
         internal val languageLabels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_follow_system,
             R.string.app_language_zh_hans, R.string.app_language_zh_hant_hk, R.string.app_language_zh_hant_tw, R.string.app_language_en,
             R.string.app_language_fr, R.string.app_language_es, R.string.app_language_ja, R.string.app_language_ko, R.string.app_language_ru, R.string.app_language_ar)
@@ -218,4 +249,4 @@ class SettingsActivity : HostAppearanceActivity() {
 
 /** Rows that follow the private settings snapshot; disabled until it loads. */
 internal val SETTING_KEYS = listOf("default", "confirmation-mode", "tool-groups", "limits", "risk", "voice", "floating",
-    "alert-" + AgentSettings.ALERT_NOTIFICATION, "alert-" + AgentSettings.ALERT_TOAST, "alert-" + AgentSettings.ALERT_DIALOG)
+    "alerts-failure", "alerts-completion")

@@ -91,12 +91,8 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     }, divider = false)
 
     page.addView(sectionHeader(getString(R.string.settings_alerts_section)))
-    val alertRows = listOf(Triple(AgentSettings.ALERT_NOTIFICATION, R.string.settings_alert_notification, R.drawable.ic_task),
-        Triple(AgentSettings.ALERT_TOAST, R.string.settings_alert_toast, R.drawable.ic_bubble), Triple(AgentSettings.ALERT_DIALOG, R.string.settings_alert_dialog, R.drawable.ic_description))
-    for ((channel, label, icon) in alertRows) add(page, "alert-$channel", switchRow(getString(label), null, icon, false, "alert-$channel") { enabled ->
-        updater.apply { it.withFailureAlert(channel, enabled) }
-    }, divider = channel != AgentSettings.ALERT_DIALOG)
-    page.addView(pageCaption(getString(R.string.settings_alerts_note)))
+    add(page, "alerts-failure", settingRow(getString(R.string.settings_alerts_failure), null, R.drawable.ic_warning, "alerts-failure") { alertChannels(false) })
+    add(page, "alerts-completion", settingRow(getString(R.string.settings_alerts_completion), null, R.drawable.ic_check, "alerts-completion") { alertChannels(true) }, divider = false)
 
     page.addView(sectionHeader(getString(R.string.settings_data)))
     for ((kind, title, icon) in listOf(Triple("history", R.string.history_title, R.drawable.ic_history),
