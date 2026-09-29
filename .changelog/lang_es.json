@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.3.0": {
-      "released_date": "2026/09/28",
+      "released_date": "2026/09/29",
       "feature": [
         "Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación",
         "Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea",
@@ -16,7 +16,8 @@
         "Compartir el resultado de una tarea: el menú de detalles gana Compartir resumen, que entrega a la hoja de compartir del sistema texto sin formato con el objetivo, el estado y el resumen, las evidencias y el trabajo pendiente; las observaciones, los argumentos, los resultados de scripts y los detalles de error nunca salen del historial privado, y la opción permanece desactivada mientras la tarea sigue en ejecución"
       ],
       "fix": [
-        "El botón de envío ya no se queda en la primera línea de un objetivo de varias líneas: se alinea abajo como el botón del micrófono"
+        "El botón de envío ya no se queda en la primera línea de un objetivo de varias líneas: se alinea abajo como el botón del micrófono",
+        "En el modo de plan, la solicitud del plan ya no ofrece definiciones de herramientas a los modelos en línea con llamadas nativas a herramientas, de modo que el modelo solo puede devolver un plan en lugar de llamar a una herramienta (en un dispositivo real, un modelo tipo Codex respondió tres veces seguidas con llamadas a herramientas y la tarea falló con DECISION_UNPARSABLE); las llamadas nativas se reanudan cuando el plan se aprueba"
       ],
       "improvement": [
         "Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar",

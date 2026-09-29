@@ -32,6 +32,10 @@ class ModelClient(
         if (target.nativeTools != null && !toolsUnsupported) DecisionSchema.native(target.protocol, proposed.planMode)
         else if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED", proposed.planMode) else fallbacks.select(target.schemaTarget, policy, proposed.planMode)
 
+    /** Online models with native tool calling kept calling tools instead of planning, so the plan request offers no tool definitions at all. */
+    @Synchronized override fun planningFormat(proposed: DecisionFormat): DecisionFormat =
+        if (structuredUnsupported) DecisionSchema.degraded(target.protocol, "TARGET_UNSUPPORTED", proposed.planMode) else fallbacks.select(target.schemaTarget, policy, proposed.planMode)
+
     @Synchronized override fun fallbackFormat(previous: DecisionFormat, failure: PortResult.Failure): DecisionFormat? {
         if (previous.degraded || previous.protocol != target.protocol || !target.supportsOutputLimit) return null
         if (previous.nativeTools) {

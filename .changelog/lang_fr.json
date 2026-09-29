@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dépendance",
   "$data": {
     "v1.3.0": {
-      "released_date": "2026/09/28",
+      "released_date": "2026/09/29",
       "feature": [
         "Reconnaissance des risques configurable: un nouvel écran de réglages Reconnaissance des risques ajoute vos propres noms de paquets et mots-clés en plus de la liste intégrée d'applications de paiement (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) et de la table de mots-clés sensibles en dix langues; les ajouts ne font qu'élargir les listes et s'appliquent immédiatement, et les actions à l'écran correspondantes deviennent sensibles et passent par la confirmation",
         "Refonte de la bulle flottante: en mode réduit, la tâche et son étape en cours s'affichent sur deux lignes et un appui sur le texte ouvre une carte de chronologie des étapes; la carte de contrôle est condensée sur les deux mêmes rangées que l'espace de travail (préréglage, modèle et accès au-dessus du champ, voix et démarrage), le modèle et le mode d'accès se changent dans la superposition et sont partagés avec l'application; la chronologie suit les nouvelles étapes tant que vous êtes en bas, s'arrête quand vous remontez et reprend en bas, comme l'écran des détails de la tâche",
@@ -16,7 +16,8 @@
         "Partage du résultat d'une tâche: le menu des détails gagne Partager le résumé, qui remet à la feuille de partage du système un texte brut avec l'objectif, l'état et le résumé, les preuves et le travail inachevé; les observations, arguments, résultats de scripts et détails d'erreur ne quittent jamais l'historique privé, et l'entrée reste désactivée tant que la tâche s'exécute"
       ],
       "fix": [
-        "Le bouton d'envoi ne reste plus sur la première ligne d'un objectif multiligne: il se cale en bas comme le bouton micro"
+        "Le bouton d'envoi ne reste plus sur la première ligne d'un objectif multiligne: il se cale en bas comme le bouton micro",
+        "En mode plan, la demande de plan ne propose plus de définitions d'outils aux modèles en ligne à appel d'outils natif: le modèle ne peut que renvoyer un plan au lieu d'appeler un outil (sur un appareil réel, un modèle de type Codex a répondu trois fois de suite par des appels d'outils et la tâche a échoué avec DECISION_UNPARSABLE); l'appel d'outils natif reprend une fois le plan approuvé"
       ],
       "improvement": [
         "Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard",

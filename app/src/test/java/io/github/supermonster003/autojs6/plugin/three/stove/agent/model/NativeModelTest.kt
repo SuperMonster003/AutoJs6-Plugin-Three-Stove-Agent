@@ -56,6 +56,17 @@ class NativeModelTest {
         assertTrue(client(target(null)).initialFormat(DecisionSchema.degraded()).degraded)
         assertTrue(client().initialFormat(DecisionSchema.degraded()).nativeTools)
     }
+    @Test fun thePlanRequestNeverOffersNativeToolsWhileTheInitialFormatStillDoes() {
+        val proposed = DecisionSchema.degraded(planMode = true)
+        val planning = client().planningFormat(proposed)
+        assertFalse(planning.nativeTools); assertTrue(planning.planMode); assertTrue(planning.degraded) // The test target has no structured JSON.
+        assertTrue(client().initialFormat(proposed).nativeTools && client().initialFormat(proposed).planMode)
+        assertFalse(client(target(null)).planningFormat(proposed).nativeTools)
+        val structured = ModelTarget("p", "profile:test", ModelLocality.REMOTE, ModelProtocol.OPENAI, true, 128 * 1024, supportsStreaming = true, nativeTools = NativeToolLimits())
+        val format = client(structured).planningFormat(proposed)
+        assertFalse(format.nativeTools || format.degraded); assertTrue(format.planMode)
+        assertTrue(AgentJson.objectOf(format.responseSchemaJson!!).getAsJsonObject("properties").getAsJsonObject("kind").getAsJsonArray("enum").map { it.asString }.contains("plan"))
+    }
     @Test fun toolDefinitionsAndTheirBytesComeFromTheEnabledCatalog() {
         val format = client().initialFormat(DecisionSchema.degraded())
         val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target(), format)
