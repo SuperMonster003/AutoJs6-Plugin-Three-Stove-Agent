@@ -22,7 +22,8 @@
         "In plan mode the plan request no longer offers tool definitions to online models with native tool calling, so the model can only return a plan instead of calling a tool (on a real device a Codex-style model answered with tool calls three times in a row and the task failed with DECISION_UNPARSABLE); native tool calling resumes once the plan is approved",
         "Native tool-calling continuation rounds no longer inherit the remainder of the first request's model timeout: every round (the model returns tool calls, the tools run, the next request goes out) gets the full model timeout again, and the whole turn is bounded only by the run duration budget and the round cap. On a real device, native tasks longer than 5 minutes (for example reading a calculator after several screen captures) ended at exactly 300 s with MODEL_TIMEOUT. Needs a host newer than AutoJs6 5298 and a 3-Stone AI newer than 1.2.1, which reset per round the same way",
         "The Floating ball checkbox in the More menu now follows the app theme color",
-        "Keep the automatic launcher icon resource dynamic after installation so launchers can load the matching light or dark variant."
+        "Keep the automatic launcher icon resource dynamic after installation so launchers can load the matching light or dark variant.",
+        "A run query could briefly report a terminal state without its result while the task was finishing (an occasional failure of the fake-host conformance suite on remote CI): the terminal state is now archived together with the result, so hosts and scripts never see a finished task without one"
       ],
       "improvement": [
         "The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph",
