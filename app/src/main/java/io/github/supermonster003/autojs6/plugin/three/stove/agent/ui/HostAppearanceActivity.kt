@@ -33,7 +33,9 @@ internal data class HostAppearance(val language: String, val dark: Boolean, val 
         fun decode(value: Bundle): HostAppearance? = runCatching {
             require(!value.hasFileDescriptors() && value.getInt(C.KEY_PROTOCOL_VERSION) == C.PROTOCOL_VERSION &&
                 value.getString(C.KEY_HOST_PACKAGE_NAME) == C.HOST_PACKAGE_NAME)
-            require(listOf(C.KEY_DARK_MODE_ACTIVE, C.KEY_THEME_COLOR_PRIMARY, C.KEY_THEME_COLOR_ACCENT).all(value::containsKey))
+            @Suppress("DEPRECATION")
+            val typesValid = value.get(C.KEY_DARK_MODE_ACTIVE) is Boolean && value.get(C.KEY_THEME_COLOR_PRIMARY) is Int && value.get(C.KEY_THEME_COLOR_ACCENT) is Int
+            require(typesValid)
             val tag = requireNotNull(value.getString(C.KEY_RESOLVED_LANGUAGE_TAG))
             require(tag.length in 2..80 && tag.matches(Regex("[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*")) && Locale.forLanguageTag(tag).language.isNotBlank())
             HostAppearance(tag, value.getBoolean(C.KEY_DARK_MODE_ACTIVE), value.getInt(C.KEY_THEME_COLOR_PRIMARY), value.getInt(C.KEY_THEME_COLOR_ACCENT))
@@ -55,6 +57,9 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
     internal val palette: AgentPalette get() = kit.palette
     private lateinit var systemContext: Context
     private var appearanceGeneration = 0
+    private var interacted = false
+    protected open fun hasUnconfirmedDialog(): Boolean = false
+    override fun onUserInteraction() { interacted = true; super.onUserInteraction() }
     override fun attachBaseContext(newBase: Context) {
         systemContext = newBase
         applied = AppearancePreferences.resolve(newBase)
@@ -69,6 +74,7 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
             if (dark) R.style.Theme_ThreeStoveAgent_Dialog_Dark else R.style.Theme_ThreeStoveAgent_Dialog_Light
         } else if (dark) R.style.Theme_ThreeStoveAgent_Dark else R.style.Theme_ThreeStoveAgent_Light)
         super.onCreate(savedInstanceState)
+        LauncherIcons.normalizeAsync(this)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { navigateBack() }
         })
@@ -82,27 +88,32 @@ abstract class HostAppearanceActivity : AppCompatActivity() {
             else android.graphics.drawable.ColorDrawable(palette.background))
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = background
-        if (Build.VERSION.SDK_INT >= 26) window.navigationBarColor = background
+        window.navigationBarColor = if (Build.VERSION.SDK_INT >= 26) background else 0xff121212.toInt()
         if (Build.VERSION.SDK_INT >= 30) window.insetsController?.setSystemBarsAppearance(
             if (dark) 0 else android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
             android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
         else decor.systemUiVisibility = if (dark) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
             if (Build.VERSION.SDK_INT >= 26) View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR else 0
     }
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
+        interacted = false
+        if (!hasUnconfirmedDialog() && applied != AppearancePreferences.resolve(systemContext)) {
+            recreate()
+            return
+        }
         val expected = ++appearanceGeneration
         HostAppearance.worker.execute {
             val next = HostAppearance.read(applicationContext)
             runOnUiThread {
                 if (expected == appearanceGeneration && !isFinishing && !isDestroyed) {
                     HostAppearance.cached = next
-                    if (applied != AppearancePreferences.resolve(systemContext, next)) recreate()
+                    if (!interacted && !hasUnconfirmedDialog() && applied != AppearancePreferences.resolve(systemContext, next)) recreate()
                 }
             }
         }
     }
-    override fun onStop() { appearanceGeneration++; super.onStop() }
+    override fun onPause() { appearanceGeneration++; super.onPause() }
     /** Toolbar navigation and system back both land here; screens with drafts override it. */
     open fun navigateBack() { finish() }
 }

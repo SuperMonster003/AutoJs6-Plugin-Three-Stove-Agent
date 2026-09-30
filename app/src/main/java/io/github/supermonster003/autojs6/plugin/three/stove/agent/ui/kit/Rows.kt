@@ -14,14 +14,14 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 /** Accent-colored group header; exposed to accessibility services as a heading. */
 internal fun Kit.sectionHeader(title: CharSequence): TextView = TextView(context).apply {
     text = title
-    textSize = Ui.TEXT_SECTION
+    textSize = 14f
     typeface = Ui.medium
-    setTextColor(palette.accent)
-    setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SECTION_GAP), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_SM))
+    setTextColor(palette.muted)
+    setPaddingRelative(dp(Ui.SPACE_XXL), dp(Ui.SECTION_GAP), dp(Ui.SPACE_XXL), dp(Ui.SPACE_SM))
     if (Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
 }
 
-internal fun Kit.hairline(insetStartDp: Int = Ui.SCREEN_MARGIN): View = View(context).apply {
+internal fun Kit.hairline(insetStartDp: Int = Ui.SPACE_XXL): View = View(context).apply {
     setBackgroundColor(palette.divider)
     layoutParams = LinearLayout.LayoutParams(-1, dp(1)).apply { marginStart = dp(insetStartDp) }
 }
@@ -46,8 +46,8 @@ internal class SettingRow(val view: LinearLayout, val title: TextView, val summa
 private fun Kit.rowShell(tag: String?): LinearLayout = LinearLayout(context).apply {
     orientation = LinearLayout.HORIZONTAL
     gravity = Gravity.CENTER_VERTICAL
-    minimumHeight = dp(64)
-    setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD))
+    minimumHeight = dp(72)
+    setPaddingRelative(dp(Ui.SPACE_XXL), dp(Ui.SPACE_MD), dp(Ui.SPACE_XXL), dp(Ui.SPACE_MD))
     this.tag = tag
 }
 
@@ -64,8 +64,8 @@ private fun Kit.rowText(title: CharSequence, summary: CharSequence?, titleColor:
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
     val summaryView = TextView(context).apply {
-        text = summary; textSize = Ui.TEXT_SECONDARY; setTextColor(palette.muted)
-        setLineSpacing(0f, 1.1f); setPaddingRelative(0, dp(3), 0, 0)
+        text = summary; textSize = 14f; setTextColor(palette.muted)
+        setLineSpacing(0f, 1.1f); setPaddingRelative(0, dp(4), 0, 0)
         // Follow the layout direction, so a Latin value (a preset name) still aligns with Arabic titles.
         textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         visibility = if (summary.isNullOrEmpty()) View.GONE else View.VISIBLE
@@ -85,14 +85,14 @@ internal fun Kit.settingRow(
     titleColor: Int = palette.text,
     onClick: (() -> Unit)? = null,
 ): SettingRow {
-    val shell = rowShell(tag)
+    val shell = rowShell(tag).apply { minimumHeight = dp(if (summary.isNullOrEmpty()) 56 else 72) }
     icon?.let { shell.addView(rowIcon(it)) }
     val (column, titleView, summaryView) = rowText(title, summary, titleColor)
     shell.addView(column, LinearLayout.LayoutParams(0, -2, 1f))
     if (chevron && onClick != null) shell.addView(ImageView(context).apply {
-        setImageDrawable(tintedDrawable(R.drawable.ic_chevron, palette.muted)); alpha = 0.7f
+        setImageDrawable(tintedDrawable(R.drawable.ic_settings_chevron, palette.muted)); alpha = 0.7f
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        layoutParams = LinearLayout.LayoutParams(dp(Ui.ICON_SIZE), dp(Ui.ICON_SIZE)).apply { marginStart = dp(Ui.SPACE_SM) }
+        layoutParams = LinearLayout.LayoutParams(dp(Ui.ICON_SIZE), dp(Ui.ICON_SIZE)).apply { marginStart = dp(Ui.SPACE_LG) }
     })
     if (onClick != null) {
         shell.isClickable = true; shell.isFocusable = true
@@ -111,7 +111,7 @@ internal fun Kit.switchRow(
     tag: String? = null,
     onToggle: (Boolean) -> Unit,
 ): SettingRow {
-    val shell = rowShell(tag)
+    val shell = rowShell(tag).apply { minimumHeight = dp(if (summary.isNullOrEmpty()) 56 else 72) }
     icon?.let { shell.addView(rowIcon(it)) }
     val (column, titleView, summaryView) = rowText(title, summary, palette.text)
     shell.addView(column, LinearLayout.LayoutParams(0, -2, 1f))
@@ -187,7 +187,7 @@ internal fun Kit.choiceRow(
 internal fun Kit.infoBlock(label: CharSequence, value: CharSequence, tag: String? = null): LinearLayout = LinearLayout(context).apply {
     orientation = LinearLayout.VERTICAL
     this.tag = tag
-    setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_MD))
+    setPaddingRelative(dp(Ui.SPACE_XXL), dp(Ui.SPACE_MD), dp(Ui.SPACE_XXL), dp(Ui.SPACE_MD))
     addView(text(label, Ui.TEXT_SECTION, palette.accent, medium = true).apply { textAlignment = View.TEXT_ALIGNMENT_VIEW_START })
     addView(text(value, Ui.TEXT_BODY + 0.5f).apply {
         setTextIsSelectable(true); setPaddingRelative(0, dp(Ui.SPACE_XS), 0, 0); textAlignment = View.TEXT_ALIGNMENT_VIEW_START

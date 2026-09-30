@@ -29,7 +29,7 @@ internal fun Kit.formField(parent: LinearLayout, label: CharSequence, value: Cha
 internal fun Kit.checkRow(parent: LinearLayout, label: CharSequence, tag: String, checked: Boolean): MaterialCheckBox =
     MaterialCheckBox(context).apply {
         text = label; this.tag = tag; isChecked = checked
-        textSize = Ui.TEXT_BODY; setTextColor(palette.text); buttonTintList = controlTintList()
+        textSize = Ui.TEXT_BODY; setTextColor(palette.text); buttonTintList = controlTintList(); buttonIconTintList = android.content.res.ColorStateList.valueOf(palette.onAccent)
         minHeight = dp(Ui.TOUCH_TARGET); textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         parent.addView(this, LinearLayout.LayoutParams(-1, -2))
     }

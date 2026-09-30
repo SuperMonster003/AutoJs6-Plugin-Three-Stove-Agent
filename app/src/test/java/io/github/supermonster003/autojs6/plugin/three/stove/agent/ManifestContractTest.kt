@@ -81,7 +81,7 @@ class ManifestContractTest {
         assertEquals(listOf("@mipmap/ic_launcher_system_light", "@mipmap/ic_launcher_system", "@mipmap/ic_launcher_system_auto", "@mipmap/ic_launcher"),
             aliases.map { it.androidAttribute("icon") })
         for ((index, alias) in aliases.withIndex()) {
-            assertEquals((index == 1).toString(), alias.androidAttribute("enabled"))
+            assertEquals((index == 2).toString(), alias.androidAttribute("enabled"))
             assertEquals("true", alias.androidAttribute("exported"))
             assertEquals(".ui.LauncherActivity", alias.androidAttribute("targetActivity"))
             assertEquals("@xml/shortcuts", alias.child("meta-data").androidAttribute("resource"))
@@ -102,7 +102,10 @@ class ManifestContractTest {
         assertTrue(settings.children("intent-filter").isEmpty())
         }
 
-        assertTrue(manifest.child("application").children("receiver").isEmpty())
+        val receiver = manifest.child("application").children("receiver").single()
+        assertEquals(".ui.LauncherIconUpdateReceiver", receiver.androidAttribute("name"))
+        assertEquals("false", receiver.androidAttribute("exported"))
+        assertEquals("android.intent.action.MY_PACKAGE_REPLACED", receiver.child("intent-filter").child("action").androidAttribute("name"))
         assertTrue(manifest.child("application").children("provider").isEmpty())
     }
 
@@ -147,7 +150,7 @@ class ManifestContractTest {
         val exported = components.filter { it.androidAttribute("exported") == "true" }
         assertEquals(expected, exported.associate { it.androidAttribute("name") to it.androidAttributeOrNull("permission") })
         components.filterNot { it in exported }.forEach { assertEquals("false", it.androidAttribute("exported")) }
-        assertTrue(manifest.child("application").children("receiver").isEmpty())
+        assertTrue(manifest.child("application").children("receiver").all { it.androidAttribute("exported") == "false" })
         assertTrue(manifest.child("application").children("provider").isEmpty())
     }
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Neutral surfaces shared by the Material theme and ui/kit/AgentPalette.kt; accents come from the chosen theme color. -->
-    <color name="window_background">#F6F7F9</color>
+    <color name="window_background">#F3F4F5</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_variant">#EDEFF3</color>
-    <color name="outline">#D3D8E0</color>
-    <color name="divider">#E5E8ED</color>
-    <color name="text_color_primary">#191C22</color>
-    <color name="text_color_secondary">#5C6472</color>
+    <color name="surface_variant">#EBEDEF</color>
+    <color name="outline">#C5C8CE</color>
+    <color name="divider">#E0E3E7</color>
+    <color name="text_color_primary">#1D1B20</color>
+    <color name="text_color_secondary">#5F6368</color>
     <color name="brand_primary">#4F46E5</color>
     <color name="status_danger">#B3261E</color>
     <color name="status_danger_surface">#FCEEEE</color>

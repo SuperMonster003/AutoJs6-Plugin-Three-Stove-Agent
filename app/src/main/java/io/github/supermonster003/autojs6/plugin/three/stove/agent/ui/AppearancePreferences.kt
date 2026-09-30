@@ -14,9 +14,9 @@ internal data class AppearancePreferences(val language: String = "host", val dar
         return HostAppearance(language, dark, primary or -0x1000000, (color ?: host?.accent ?: DEFAULT_COLOR) or -0x1000000)
     }
     companion object {
-        const val DEFAULT_COLOR = 0xff4f46e5.toInt()
-        /** Offered theme colors (blue, teal, green, purple, amber); they keep the static neutral surfaces. */
-        val CURATED_COLORS = listOf(DEFAULT_COLOR, 0xff007c8a.toInt(), 0xff2e7d32.toInt(), 0xff7e57c2.toInt(), 0xffc86b0a.toInt())
+        const val DEFAULT_COLOR = 0xffffdead.toInt()
+        /** The shared standalone palette; legacy/custom values remain valid saved choices. */
+        val CURATED_COLORS = ThemeColorValue.presets
         val languages = listOf("host", "system", "zh-Hans", "zh-Hant-HK", "zh-Hant-TW", "en", "fr", "es", "ja", "ko", "ru", "ar")
         val modes = listOf("host", "system", "light", "dark")
         fun parseColor(value: String): Int? = value.trim().removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }

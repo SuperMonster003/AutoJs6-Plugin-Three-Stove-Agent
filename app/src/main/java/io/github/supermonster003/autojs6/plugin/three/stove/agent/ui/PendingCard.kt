@@ -122,7 +122,7 @@ internal class PendingCard(
             if (pending.has("memoryKey")) {
                 remember = MaterialCheckBox(kit.context).apply {
                     id = R.id.interaction_remember; setText(R.string.interaction_remember)
-                    textSize = Ui.TEXT_BODY; setTextColor(kit.palette.text); buttonTintList = kit.controlTintList()
+                    textSize = Ui.TEXT_BODY; setTextColor(kit.palette.text); buttonTintList = kit.controlTintList(); buttonIconTintList = android.content.res.ColorStateList.valueOf(kit.palette.onAccent)
                     minHeight = kit.dp(Ui.TOUCH_TARGET)
                     isEnabled = pending.has("rememberScope"); isChecked = isEnabled && key == restoredKey && restoredRemember
                 }

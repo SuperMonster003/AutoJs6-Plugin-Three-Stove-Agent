@@ -89,7 +89,11 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
     fun selectableBackground(view: View, borderless: Boolean = false) {
         val value = TypedValue()
         val attribute = if (borderless) android.R.attr.selectableItemBackgroundBorderless else android.R.attr.selectableItemBackground
-        if (view.context.theme.resolveAttribute(attribute, value, true)) view.setBackgroundResource(value.resourceId)
+        if (view.context.theme.resolveAttribute(attribute, value, true)) {
+            view.background = AppCompatResources.getDrawable(view.context, value.resourceId)?.mutate()?.also {
+                (it as? RippleDrawable)?.setColor(ColorStateList.valueOf(palette.accentRipple))
+            }
+        }
     }
 
     fun tintedDrawable(@DrawableRes resource: Int, color: Int): Drawable? =
@@ -103,6 +107,8 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
             text = value
             textSize = size
             setTextColor(color)
+            setLinkTextColor(palette.accent)
+            highlightColor = AgentColorPolicy.withAlpha(palette.accent, 0x55)
             if (medium) typeface = Ui.medium
             setLineSpacing(0f, Ui.LINE_SPACING_BODY)
         }
@@ -137,6 +143,10 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
     fun applyThemeToControls(root: View) {
         when (root) {
             is SwitchCompat -> { root.thumbTintList = switchThumbTintList(); root.trackTintList = switchTrackTintList() }
+            is com.google.android.material.checkbox.MaterialCheckBox -> {
+                root.buttonTintList = controlTintList()
+                root.buttonIconTintList = ColorStateList.valueOf(palette.onAccent)
+            }
             is CompoundButton -> root.buttonTintList = controlTintList()
             is CheckedTextView -> root.checkMarkTintList = controlTintList()
             is EditText -> tintEditText(root)
@@ -147,6 +157,15 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
             }
             is MaterialButton -> Unit
         }
+        if (root is TextView) {
+            root.setLinkTextColor(palette.accent)
+            root.highlightColor = AgentColorPolicy.withAlpha(palette.accent, 0x55)
+            if (Build.VERSION.SDK_INT >= 29) {
+                root.textSelectHandle?.let { root.setTextSelectHandle(tinted(it, palette.accent)) }
+                root.textSelectHandleLeft?.let { root.setTextSelectHandleLeft(tinted(it, palette.accent)) }
+                root.textSelectHandleRight?.let { root.setTextSelectHandleRight(tinted(it, palette.accent)) }
+            }
+        }
         if (root is ViewGroup) for (index in 0 until root.childCount) applyThemeToControls(root.getChildAt(index))
     }
 
@@ -156,7 +175,10 @@ internal class Kit(val context: Context, val palette: AgentPalette) {
             dialog.getButton(which)?.apply {
                 isAllCaps = false
                 minHeight = dp(Ui.TOUCH_TARGET); minWidth = dp(Ui.TOUCH_TARGET)
-                setTextColor(if (destructive && which == AlertDialog.BUTTON_POSITIVE) palette.danger else palette.accent)
+                val active = if (destructive && which == AlertDialog.BUTTON_POSITIVE) palette.danger else palette.accent
+                setTextColor(ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+                    intArrayOf(AgentColorPolicy.withAlpha(palette.muted, 0x66), active)))
+                if (this is MaterialButton) rippleColor = ColorStateList.valueOf(palette.accentRipple)
             }
         }
     }
