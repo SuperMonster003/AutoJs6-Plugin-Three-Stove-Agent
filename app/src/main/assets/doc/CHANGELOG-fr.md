@@ -28,6 +28,7 @@
 * `Amélioration` L'interrupteur "Activer la saisie vocale" des paramètres s'explique désormais: le microphone n'apparaît que si une application de reconnaissance vocale est installée, la reconnaissance s'y effectue et ce plugin n'enregistre rien; sur les appareils qui n'en ont pas (certaines ROM chinoises, par exemple), la raison est affichée sur place au lieu que l'atelier reste silencieusement sans microphone une fois l'interrupteur activé
 * `Amélioration` Le centre de plugins devient le seul interrupteur. Les paquets officiels s'activent après installation sans confirmation, en conservant une désactivation explicite. Les scripts et l'interface se connectent à la demande, sans lancement au démarrage ni reprise de tâches
 * `Amélioration` Conserver le cadre arrondi de l'icône À propos avec un intérieur transparent laissant voir le fond de la page. Afficher les choix du lanceur depuis le haut avec des notes plus petites.
+* `Amélioration` Lorsqu'une tâche échoue parce que l'hôte a mis la source du modèle en fusible (RATE_LIMITED: FUSED), le résultat explique la cause et la marche à suivre (patienter et réessayer, redémarrer AutoJs6 si l'échec persiste) ; l'hôte lève désormais aussi le fusible automatiquement lorsque la transaction bloquante expirée revient, si bien que les tâches suivantes n'exigent aucun redémarrage
 
 # v1.2.0
 

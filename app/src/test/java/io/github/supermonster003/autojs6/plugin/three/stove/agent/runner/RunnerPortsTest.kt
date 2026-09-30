@@ -57,6 +57,11 @@ class RunnerPortsTest {
                 assertTrue(RunnerText(source, locale).terminal(error).isNotBlank())
             }
         }
+        rows.entrySet().forEach { (locale, _) ->
+            val fused = RunnerText(source, locale).terminal(RunError.RATE_LIMITED, detail = "FUSED")
+            assertTrue(fused, fused.contains("[RATE_LIMITED: FUSED]") && fused.contains("AutoJs6"))
+            assertFalse(RunnerText(source, locale).terminal(RunError.RATE_LIMITED, detail = "QUOTA").contains("AutoJs6"))
+        }
         assertEquals(RunnerText(source, "en").terminal(RunError.CANCELLED), RunnerText(source, "xx").terminal(RunError.CANCELLED))
         assertEquals(RunnerText(source, "zh-Hant-TW").terminal(RunError.CANCELLED), RunnerText(source, "zh-TW").terminal(RunError.CANCELLED))
     }

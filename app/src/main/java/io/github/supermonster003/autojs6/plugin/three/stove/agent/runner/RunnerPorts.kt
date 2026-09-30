@@ -190,7 +190,10 @@ class RunnerText(json: String, locale: String) {
             error == RunError.CANCELLED || error.hostLost -> resolved
             else -> listOfNotNull(error.name, resolved).joinToString(": ")
         }
-        return message + if (cause.isNullOrBlank()) "" else " [$cause]"
+        // A fused Provider component recovers on the host once its timed-out transaction returns (roadmap D52);
+        // until then the summary tells the user what to do instead of leaving a bare code.
+        val hint = if (error == RunError.RATE_LIMITED && detail == "FUSED") strings.string("fused") else null
+        return message + (if (cause.isNullOrBlank()) "" else " [$cause]") + (hint?.let { " $it" } ?: "")
     }
     fun rule(name: String): String = rows.getAsJsonObject(key).string(name) ?: error("Missing rule text")
 }

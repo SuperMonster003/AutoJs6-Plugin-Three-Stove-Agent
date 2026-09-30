@@ -28,6 +28,7 @@
 * `Mejora` El interruptor "Activar entrada de voz" de Ajustes ahora se explica: el micrófono solo aparece cuando hay instalada una aplicación de reconocimiento de voz, el reconocimiento se realiza en ella y este plugin no graba nada; en dispositivos sin una (algunas ROM chinas, por ejemplo) el motivo se muestra ahí mismo en lugar de que el banco de trabajo se quede sin micrófono en silencio tras activar el interruptor
 * `Mejora` El centro de plugins es el único interruptor. Los paquetes oficiales se activan tras instalarlos sin confirmación y se conservan las desactivaciones explícitas. Los scripts y la interfaz se conectan bajo demanda, sin inicio al arrancar ni repetición de tareas
 * `Mejora` Mantener el marco redondeado del icono de Acerca de con el interior transparente sobre el fondo de la página. Mostrar las opciones del lanzador desde arriba con notas más pequeñas.
+* `Mejora` Cuando una tarea falla porque el host fundió la fuente del modelo (RATE_LIMITED: FUSED), el resultado explica la causa y qué hacer (esperar y reintentar, reiniciar AutoJs6 si persiste); el host también levanta ahora el fusible automáticamente cuando vuelve la transacción bloqueante agotada, así que las tareas posteriores no requieren reinicio
 
 # v1.2.0
 
