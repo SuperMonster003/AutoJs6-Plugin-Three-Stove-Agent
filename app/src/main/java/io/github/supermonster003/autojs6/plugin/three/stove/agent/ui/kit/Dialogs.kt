@@ -23,7 +23,7 @@ import com.google.android.material.textfield.TextInputLayout
 
 /** Base builder used by every dialog in the app. */
 internal fun Kit.materialDialog(): MaterialAlertDialogBuilder = MaterialAlertDialogBuilder(context)
-    .setBackground(roundedFill(palette.surface, Ui.RADIUS_SHEET))
+    .setBackground(roundedFill(palette.surface, 24))
 
 /** Plain message with a single acknowledgement. */
 internal fun Kit.messageDialog(title: CharSequence?, message: CharSequence?): AlertDialog = materialDialog()
@@ -114,21 +114,49 @@ internal fun Kit.inputDialog(
 }
 
 /** Single-choice adapter whose rows wrap long labels and keep a 52dp minimum height. */
+private class PaletteChoiceItem(context: android.content.Context) : LinearLayout(context), android.widget.Checkable {
+    val indicator = com.google.android.material.radiobutton.MaterialRadioButton(context).apply {
+        isClickable = false; isFocusable = false
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        minimumWidth = 0; minimumHeight = 0
+    }
+    val label = TextView(context).apply {
+        textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        textSize = 16f
+        isSingleLine = false; maxLines = Int.MAX_VALUE; ellipsize = null
+        setLineSpacing(0f, 1.08f)
+    }
+    init {
+        orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        addView(indicator)
+        addView(label, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+    }
+    override fun isChecked() = indicator.isChecked
+    override fun setChecked(value: Boolean) { indicator.isChecked = value }
+    override fun toggle() { isChecked = !isChecked }
+    override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.className = android.widget.RadioButton::class.java.name
+        info.isCheckable = true; info.isChecked = isChecked
+    }
+}
+
 internal class PaletteChoiceAdapter(private val kit: Kit, labels: List<CharSequence>) :
     ArrayAdapter<CharSequence>(kit.context, android.R.layout.simple_list_item_single_choice, labels) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = super.getView(position, convertView, parent)
-        (view as? CheckedTextView)?.apply {
-            layoutParams = (layoutParams ?: AbsListView.LayoutParams(-1, -2)).apply { height = ViewGroup.LayoutParams.WRAP_CONTENT }
-            minHeight = kit.dp(52)
-            isSingleLine = false; maxLines = Int.MAX_VALUE; ellipsize = null
-            textSize = 15f
-            setLineSpacing(0f, 1.08f)
-            setPaddingRelative(kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_MD), kit.dp(Ui.SPACE_XXL), kit.dp(Ui.SPACE_MD))
-            setTextColor(kit.palette.text)
-            checkMarkTintList = kit.controlTintList()
-        }
-        return view
+        val item = (convertView as? PaletteChoiceItem) ?: PaletteChoiceItem(kit.context)
+        item.layoutParams = android.widget.AbsListView.LayoutParams(-1, -2)
+        item.minimumHeight = kit.dp(if (getItem(position)?.contains('\n') == true) 72 else 56)
+        item.setPaddingRelative(kit.dp(24), kit.dp(12), kit.dp(24), kit.dp(12))
+        item.indicator.layoutParams = LinearLayout.LayoutParams(kit.dp(32), kit.dp(32)).apply { marginEnd = kit.dp(8) }
+        item.indicator.buttonTintList = kit.controlTintList()
+        item.label.text = getItem(position); item.label.setTextColor(kit.palette.text)
+        item.contentDescription = item.label.text
+        item.isChecked = (parent as? android.widget.ListView)?.isItemChecked(position) == true
+        kit.selectableBackground(item)
+        return item
     }
 }
 
@@ -187,4 +215,29 @@ internal fun Kit.bottomSheet(
     dialog.show()
     column.minimumHeight = (context.resources.displayMetrics.heightPixels * minHeightFraction).toInt()
     return SheetHandle(dialog, body)
+}
+
+/** Appearance choice draft. Only the positive action calls [onConfirm]; all dismissal paths discard it. */
+internal fun Kit.confirmedChoiceDialog(title: CharSequence, labels: List<CharSequence>, checked: Int,
+                                          onConfirm: (Int) -> Unit): AlertDialog {
+    var draft = checked
+    return materialDialog().setTitle(title)
+        .setSingleChoiceItems(PaletteChoiceAdapter(this, labels), checked) { _, index -> draft = index }
+        .setNegativeButton(android.R.string.cancel, null)
+        .setPositiveButton(android.R.string.ok) { _, _ -> onConfirm(draft) }
+        .show().also {
+            tintDialogButtons(it)
+            val width = minOf(dp(560), context.resources.displayMetrics.widthPixels - dp(48))
+            it.window?.setBackgroundDrawable(roundedFill(palette.surface, 24))
+            it.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+            it.window?.decorView?.post {
+                val maximum = (context.resources.displayMetrics.heightPixels * 0.85f).toInt()
+                if ((it.window?.decorView?.height ?: 0) > maximum) it.window?.setLayout(width, maximum)
+            }
+            it.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.apply {
+                textSize = 20f
+                setTextColor(palette.text)
+            }
+            it.listView.post { it.listView.setSelection(0) }
+        }
 }

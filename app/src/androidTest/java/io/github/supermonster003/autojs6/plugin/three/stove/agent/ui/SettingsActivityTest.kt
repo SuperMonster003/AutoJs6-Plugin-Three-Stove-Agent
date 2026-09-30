@@ -214,23 +214,25 @@ class SettingsActivityTest {
         }
     }
 
-    @Test fun appearanceChoicesApplyImmediately() = isolated { _, _, _ ->
+    @Test fun appearanceChoicesApplyAfterConfirmation() = isolated { _, _, _ ->
         val original = AppearancePreferences.read(context)
         AppearancePreferences(language = "en", darkMode = "light").save(context)
         try {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
                 ui(scenario, "Appearance ready") { it.view<View>("appearance-language") != null }
-                scenario.onActivity { it.view<View>("appearance-language")!!.performClick(); it.prompt!!.pick(2) }
+                scenario.onActivity { it.view<View>("appearance-language")!!.performClick(); it.prompt!!.pick(2); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick() }
                 ui(scenario, "Chinese applied") { it.resources.configuration.locales[0].language == "zh" }
-                scenario.onActivity { it.view<View>("appearance-dark")!!.performClick(); it.prompt!!.pick(3) }
+                scenario.onActivity { it.view<View>("appearance-dark")!!.performClick(); it.prompt!!.pick(3); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick() }
                 ui(scenario, "Independent dark preference applied") {
                     it.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
                 }
-                scenario.onActivity { it.view<View>("appearance-color")!!.performClick(); it.prompt!!.pick(2) }
+                scenario.onActivity { it.view<View>("appearance-color")!!.performClick() }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { it.prompt!!.window!!.decorView.findViewWithTag<android.widget.EditText>("theme-color-input").setText("#007C8A"); it.prompt!!.getButton(AlertDialog.BUTTON_POSITIVE).performClick() }
                 ui(scenario, "Theme color applied") { it.appearance?.primary == 0xff007c8a.toInt() }
                 assertEquals(AppearancePreferences("zh-Hans", "dark", 0xff007c8a.toInt()), AppearancePreferences.read(context))
             }
-        } finally { original.save(context) }
+        } finally { original.save(context); assertEquals(original, AppearancePreferences.read(context)) }
     }
 
     @Test fun ignoredVersionsMigrateAndCanBeRestoredIndividually() = withUpdatePreferences { preferences ->

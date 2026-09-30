@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.AppearancePreferences
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.HostAppearance
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.ThemeAccentRoles
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
 import kotlin.math.max
@@ -126,6 +127,7 @@ internal data class AgentPalette(
     val primary: Int,
     val onPrimary: Int,
     val accent: Int,
+    val onAccent: Int,
     val background: Int,
     val surface: Int,
     val surfaceVariant: Int,
@@ -151,7 +153,8 @@ internal data class AgentPalette(
         /** Alpha of [accentTone]; accent text must stay readable on this fill. */
         const val TONE_ALPHA = 0x1C
         private val neutrals = ConcurrentHashMap<Boolean, Neutrals>()
-        private val cache = ConcurrentHashMap<Long, AgentPalette>()
+        private data class Key(val seed: Int, val accentSeed: Int, val dark: Boolean)
+        private val cache = ConcurrentHashMap<Key, AgentPalette>()
 
         fun isDark(context: Context, appearance: HostAppearance?): Boolean = appearance?.dark
             ?: (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
@@ -159,8 +162,9 @@ internal data class AgentPalette(
         fun resolve(context: Context, appearance: HostAppearance?): AgentPalette {
             val dark = isDark(context, appearance)
             val seed = (appearance?.primary ?: AppearancePreferences.DEFAULT_COLOR) or -0x1000000
-            val key = (seed.toLong() and 0xFFFFFFFFL) or (if (dark) 1L shl 32 else 0L)
-            return cache.getOrPut(key) { build(neutralColors(context, dark).values, seed, dark) }
+            val accentSeed = (appearance?.accent ?: seed) or -0x1000000
+            val key = Key(seed, accentSeed, dark)
+            return cache.getOrPut(key) { build(neutralColors(context, dark).values, seed, dark, accentSeed) }
         }
 
         /** Static neutrals come from colors.xml in the requested night mode, cached per mode. */
@@ -177,34 +181,31 @@ internal data class AgentPalette(
                 .map(resources::getColor).toIntArray())
         }
 
-        internal fun build(n: IntArray, seed: Int, dark: Boolean): AgentPalette {
-            val curated = seed in AppearancePreferences.CURATED_COLORS
+        internal fun build(n: IntArray, seed: Int, dark: Boolean, accentSeed: Int = seed): AgentPalette {
+            val roles = ThemeAccentRoles.fromSeed(seed, dark)
+            val accentRoles = ThemeAccentRoles.fromSeed(accentSeed, dark)
+            val primary = roles.primary
             val background = n[0]
-            val text = n[5]
-            val primary = if (curated) seed else AgentColorPolicy.dynamicPrimary(seed)
-            val seedAccent = AgentColorPolicy.readableAccent(primary, background)
-            fun tone(color: Int, light: Double, night: Double) =
-                if (curated) color else AgentColorPolicy.harmonizeSurface(color, seedAccent, text, if (dark) night else light)
-            val tonedBackground = tone(background, 0.02, 0.035)
-            val tonedSurface = tone(n[1], 0.025, 0.055)
-            // Accent text sits on the window, on cards and on its own tonal fill (tonal buttons, chips);
-            // keep 4.5:1 against each. The tonal fill depends on the accent, so settle over a few rounds.
-            var accent = seedAccent
-            repeat(4) {
-                val tonal = { reference: Int -> AgentColorPolicy.blend(reference, accent, TONE_ALPHA / 255.0) }
-                for (reference in listOf(tonedBackground, tonedSurface, tonal(tonedSurface), tonal(tonedBackground)))
+            val surface = n[1]
+            var accent = AgentColorPolicy.readableAccent(accentRoles.primary, background)
+            repeat(8) {
+                for (reference in listOf(background, surface, n[2],
+                    AgentColorPolicy.blend(background, accent, TONE_ALPHA / 255.0),
+                    AgentColorPolicy.blend(surface, accent, TONE_ALPHA / 255.0))) {
                     accent = AgentColorPolicy.readableAccent(accent, reference)
+                }
             }
             return AgentPalette(
                 primary = primary,
-                onPrimary = AgentColorPolicy.onFilledColor(primary),
+                onPrimary = roles.onPrimary,
                 accent = accent,
-                background = tonedBackground,
-                surface = tonedSurface,
-                surfaceVariant = tone(n[2], 0.07, 0.11),
-                outline = tone(n[3], 0.13, 0.18),
-                divider = tone(n[4], 0.06, 0.10),
-                text = text,
+                onAccent = accentRoles.onPrimary,
+                background = background,
+                surface = surface,
+                surfaceVariant = n[2],
+                outline = n[3],
+                divider = n[4],
+                text = n[5],
                 muted = n[6],
                 danger = n[7], dangerSurface = n[8],
                 success = n[9], successSurface = n[10],

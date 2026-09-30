@@ -51,12 +51,15 @@ class AgentColorPolicyTest {
         for ((neutrals, isDark) in listOf(light to false, dark to true)) {
             val curated = AgentPalette.build(neutrals, AppearancePreferences.DEFAULT_COLOR, isDark)
             assertEquals(neutrals[0], curated.background); assertEquals(neutrals[1], curated.surface)
-            assertEquals(AppearancePreferences.DEFAULT_COLOR, curated.primary)
+            assertEquals(neutrals[2], curated.surfaceVariant)
             // Tonal buttons and chips put accent text on the accent tone over a card.
             fun tonal(palette: AgentPalette) = P.blend(palette.surface, palette.accent, AgentPalette.TONE_ALPHA / 255.0)
             assertTrue(P.contrastRatio(curated.accent, tonal(curated)) >= 4.5)
             for (seed in listOf(0xFFFFDEAD.toInt(), 0xFFE91E63.toInt(), 0xFF00BCD4.toInt(), 0xFF334455.toInt(), 0xFFEEDDCC.toInt())) {
                 val palette = AgentPalette.build(neutrals, seed, isDark)
+                assertEquals(neutrals[0], palette.background)
+                assertEquals(neutrals[1], palette.surface)
+                assertEquals(neutrals[2], palette.surfaceVariant)
                 assertTrue(P.contrastRatio(palette.accent, palette.background) >= 4.5)
                 assertTrue(P.contrastRatio(palette.accent, palette.surface) >= 4.5)
                 assertTrue(P.contrastRatio(palette.accent, tonal(palette)) >= 4.5)

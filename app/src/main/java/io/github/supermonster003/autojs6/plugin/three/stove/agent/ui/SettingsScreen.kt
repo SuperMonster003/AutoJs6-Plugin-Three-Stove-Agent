@@ -24,19 +24,19 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.update.*
 /** Settings screen construction (roadmap P11): the rows and captions; SettingsActivity keeps state and events. */
 
 internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
-    // Appearance: UI-process preferences, applied immediately by recreating the screen.
+    // Appearance: UI-process preferences, committed only after confirmation, then applied by recreating the screen.
     page.addView(sectionHeader(getString(R.string.app_settings_appearance)))
     val current = appearance!!
     add(page, "appearance-language", settingRow(getString(R.string.app_settings_language), followSummary(appearancePreferences.language,
         SettingsActivity.languageLabels[AppearancePreferences.languages.indexOf(appearancePreferences.language)],
-        java.util.Locale.forLanguageTag(current.language).getDisplayName(resources.configuration.locales[0])), R.drawable.ic_language, "appearance-language") {
+        java.util.Locale.forLanguageTag(current.language).getDisplayName(resources.configuration.locales[0])), R.drawable.ic_settings_language, "appearance-language") {
         choose(R.string.app_settings_language, SettingsActivity.languageLabels, AppearancePreferences.languages.indexOf(appearancePreferences.language)) {
             saveAppearance(appearancePreferences.copy(language = AppearancePreferences.languages[it]))
         }
     })
     add(page, "appearance-dark", settingRow(getString(R.string.app_settings_dark_mode), followSummary(appearancePreferences.darkMode,
         SettingsActivity.modeLabels[AppearancePreferences.modes.indexOf(appearancePreferences.darkMode)],
-        getString(if (current.dark) R.string.app_settings_always_dark else R.string.app_settings_always_light)), R.drawable.ic_dark_mode, "appearance-dark") {
+        getString(if (current.dark) R.string.app_settings_always_dark else R.string.app_settings_always_light)), R.drawable.ic_settings_night, "appearance-dark") {
         choose(R.string.app_settings_dark_mode, SettingsActivity.modeLabels, AppearancePreferences.modes.indexOf(appearancePreferences.darkMode)) {
             saveAppearance(appearancePreferences.copy(darkMode = AppearancePreferences.modes[it]))
         }
@@ -44,7 +44,7 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     val color = settingRow(getString(R.string.app_settings_theme_color),
         appearancePreferences.color?.let(AppearancePreferences::colorHex)
             ?: getString(R.string.app_settings_follow_autojs6_summary, AppearancePreferences.colorHex(current.primary)),
-        R.drawable.ic_palette, "appearance-color") { themeColors() }
+        R.drawable.ic_settings_theme, "appearance-color") { themeColors() }
     color.view.addView(View(this@buildPage).apply {
         background = roundedFill(palette.primary, Ui.RADIUS_PILL, palette.outline)
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -52,7 +52,7 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     add(page, "appearance-color", color)
     add(page, "launcher-icon", settingRow(getString(R.string.launcher_icon_title),
         getString(SettingsActivity.launcherIconLabels[LauncherIcons.current(this@buildPage).ordinal]),
-        R.drawable.ic_layers, "launcher-icon") { launcherIcons() }, divider = false)
+        R.drawable.ic_settings_launcher, "launcher-icon") { launcherIcons() }, divider = false)
 
     // Tasks: whole-object saves of the private settings.
     page.addView(sectionHeader(getString(R.string.ui_task_section)))
@@ -132,7 +132,7 @@ internal fun Kit.pageCaption(value: CharSequence): TextView = text(value, Ui.TEX
 
 internal fun SettingsActivity.add(page: LinearLayout, key: String, row: SettingRow, divider: Boolean = true) {
     rows[key] = row; page.addView(row.view, LinearLayout.LayoutParams(-1, -2))
-    if (divider) page.addView(kit.hairline(Ui.SCREEN_MARGIN + Ui.ICON_SIZE + Ui.SPACE_LG))
+    if (divider) page.addView(kit.hairline(Ui.SPACE_XXL + Ui.ICON_SIZE + Ui.SPACE_LG))
 }
 
 internal fun SettingsActivity.followSummary(mode: String, label: Int, resolved: String) =

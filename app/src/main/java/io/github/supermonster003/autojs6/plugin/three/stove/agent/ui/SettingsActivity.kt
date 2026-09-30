@@ -65,6 +65,7 @@ class SettingsActivity : HostAppearanceActivity() {
         sheet?.dialog?.dismiss(); sheet = null
         super.onStop()
     }
+    override fun hasUnconfirmedDialog() = prompt?.isShowing == true || sheet?.dialog?.isShowing == true
     override fun onDestroy() { updates.close(); super.onDestroy() }
     override fun onResume() {
         super.onResume()
@@ -79,7 +80,7 @@ class SettingsActivity : HostAppearanceActivity() {
     }
 
     internal fun choose(title: Int, labels: List<Int>, selection: Int, selected: (Int) -> Unit) {
-        prompt = kit.singleChoiceDialog(getString(title), labels.map(::getString), selection, selected)
+        prompt = kit.confirmedChoiceDialog(getString(title), labels.map(::getString), selection, selected)
     }
     internal fun open(type: Class<*>) { startActivity(Intent(this, type)) }
 
@@ -92,10 +93,10 @@ class SettingsActivity : HostAppearanceActivity() {
                 else -> null
             }
             if (note == null) title else android.text.SpannableString("$title\n$note").apply {
-                setSpan(android.text.style.RelativeSizeSpan(0.8f), title.length + 1, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(android.text.style.RelativeSizeSpan(14f / 16f), title.length + 1, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
-        prompt = kit.singleChoiceDialog(getString(R.string.launcher_icon_title), labels, LauncherIcons.current(this).ordinal) { index ->
+        prompt = kit.confirmedChoiceDialog(getString(R.string.launcher_icon_title), labels, LauncherIcons.current(this).ordinal) { index ->
             runCatching { LauncherIcons.select(this, LauncherIconMode.entries[index]) }
                 .onSuccess { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_applied_note)) }
                 .onFailure { kit.snackbar(scaffold.root, getString(R.string.launcher_icon_failed)) }
@@ -108,17 +109,12 @@ class SettingsActivity : HostAppearanceActivity() {
             .onFailure { kit.snackbar(scaffold.root, getString(R.string.settings_error)) }
     }
     internal fun themeColors() {
-        val seeds = listOf<Int?>(null) + AppearancePreferences.CURATED_COLORS
-        val labels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_theme_blue, R.string.app_settings_theme_teal,
-            R.string.app_settings_theme_green, R.string.app_settings_theme_purple, R.string.ui_theme_amber, R.string.app_settings_theme_custom)
-        choose(R.string.app_settings_theme_color, labels, seeds.indexOf(appearancePreferences.color).let { if (it < 0) seeds.size else it }) {
-            if (it < seeds.size) saveAppearance(appearancePreferences.copy(color = seeds[it]))
-            else prompt = kit.inputDialog(getString(R.string.app_settings_custom_color_title),
-                AppearancePreferences.colorHex(appearancePreferences.color ?: appearance!!.primary),
-                hint = getString(R.string.app_settings_custom_color_hint), maxLength = 7,
-                validate = { value -> if (AppearancePreferences.parseColor(value) == null) getString(R.string.app_settings_custom_color_error) else null },
-            ) { value -> saveAppearance(appearancePreferences.copy(color = AppearancePreferences.parseColor(value))) }
-        }
+        prompt = ThemeColorChooser.show(this, appearancePreferences.color,
+            HostAppearance.cached?.primary ?: AppearancePreferences.DEFAULT_COLOR,
+            ThemeColorChooser.Palette(palette.accent, palette.surface, palette.text, palette.muted, palette.outline),
+            ThemeColorChooser.Labels(getString(R.string.app_settings_theme_color), getString(R.string.app_settings_follow_autojs6),
+            getString(R.string.theme_picker_presets), getString(R.string.theme_picker_custom),
+            getString(R.string.theme_picker_input), getString(R.string.theme_picker_invalid), getString(R.string.theme_picker_preview))) { color -> saveAppearance(appearancePreferences.copy(color = color)) }
     }
 
     private fun request(operation: String, fields: JsonObject = JsonObject(), complete: (JsonObject) -> Unit) {
