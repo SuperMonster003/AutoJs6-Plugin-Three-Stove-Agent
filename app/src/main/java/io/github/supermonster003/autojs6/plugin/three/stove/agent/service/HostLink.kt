@@ -270,9 +270,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         return AgentWire.envelope(C.KEY_RUN_RESPONSE_JSON, jsonObject("runId" to run.id.json(), "state" to run.state.wire.json()).toString())
     }
     private fun onEvent(event: RunEvent) {
-        archive.event(event)
         val run = active[event.runId]
-        if (event.type in setOf("step", "done", "error")) run?.readJournal { archive.journal(event.runId, it) }
+        archive.record(event, run)
         sinks[event.runId]?.send(event)
         if (event.type == "done" && run?.state?.terminal == true && active.remove(event.runId, run)) {
             runCatching { runtime.alerts.runEnded(event.runId, event.payload) }

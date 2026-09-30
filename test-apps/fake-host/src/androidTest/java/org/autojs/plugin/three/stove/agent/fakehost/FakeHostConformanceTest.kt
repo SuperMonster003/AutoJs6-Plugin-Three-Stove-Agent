@@ -123,6 +123,7 @@ class FakeHostConformanceTest {
             waitFor("Native round trip completed") { row(fixture.link, id).getString("state") in setOf("completed", "failed", "blocked") }
             val result = row(fixture.link, id)
             assertEquals(result.toString(), "completed", result.getString("state"))
+            assertTrue("A terminal row is visible only together with its result: $result", result.has("result"))
             assertEquals(1, fixture.driver.stats().getInt("models")); assertEquals(1, fixture.driver.stats().getInt("continuations"))
             assertEquals(expectedTools, fixture.driver.stats().getInt("tools")); assertTrue(fixture.driver.stats().getBoolean("observedDenial"))
             val usage = result.getJSONObject("result").getJSONObject("usage")

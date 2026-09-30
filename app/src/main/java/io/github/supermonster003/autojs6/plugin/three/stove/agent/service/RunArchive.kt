@@ -70,6 +70,18 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
             "name" to AgentJson.truncate(selected.displayName, 256).json(), "locality" to selected.target.locality.name.json()))
         markDirty(id)
     }
+    /** Applies one runner event and, when the runner journals, the matching journal snapshot.
+     * The runner finishes its journal before it announces a terminal state and emits "done" only afterwards, so a
+     * terminal "state" event is recorded together with that finished journal under the same lock: a reader never
+     * observes a terminal state without its result. */
+    fun record(event: RunEvent, run: AgentRunner?) {
+        var recorded = false
+        if (run != null && event.type == "state" && event.payload.string("to") in TERMINAL) {
+            run.readJournal { snapshot -> synchronized(this) { journal(event.runId, snapshot); event(event) }; recorded = true }
+        }
+        if (!recorded) event(event)
+        if (event.type in setOf("step", "done", "error")) run?.readJournal { journal(event.runId, it) }
+    }
     @Synchronized fun event(event: RunEvent) {
         val row = records[event.runId] ?: return
         when (event.type) {
