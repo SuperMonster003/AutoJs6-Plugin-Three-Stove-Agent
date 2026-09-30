@@ -316,6 +316,7 @@ _2026/09/30_
 - `Improvement` The "Enable voice input" switch in Settings now explains itself: the microphone appears only when a speech recognizer app is installed, recognition runs in that app and this plugin records nothing; on devices without one (some Chinese ROMs, for example) the reason is shown right there instead of the workbench silently lacking the microphone after the switch is turned on
 - `Improvement` The plugin center is the sole enable switch. Official packages enable automatically after installation without a confirmation dialog, while explicit disable choices remain. Script and standalone entry points connect on demand; no boot startup or task replay is added
 - `Improvement` Keep the About icon in a rounded frame while its transparent interior reveals the surrounding page background. Show the launcher icon choices from the top with smaller explanatory notes.
+- `Improvement` When a task fails because the host fused the model source (RATE_LIMITED: FUSED), the result now explains the cause and what to do (wait and retry, restart AutoJs6 if it keeps failing); the host now also lifts the fuse automatically once the timed-out blocking transaction returns, so later tasks need no restart
 
 #### v1.2.0
 
