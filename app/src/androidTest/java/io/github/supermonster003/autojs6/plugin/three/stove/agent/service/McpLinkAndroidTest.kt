@@ -162,7 +162,9 @@ class McpLinkAndroidTest {
             val plugin = IThreeStoveAgentPlugin.Stub.asInterface(bind(Intent().setClassName(context, context.packageName + ".service.WorkbenchFixtureService"), connections))
             settings = IAgentSettings.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(SettingsEndpoint.ACTION), connections))
             originalSettings = query(jsonObject("operation" to "get".json()), checkNotNull(settings)::query).getAsJsonObject("settings").deepCopy()
-            query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(AgentSettings(toolGroups = if (global) setOf("mcp", "user") else setOf("user"), voice = false))), checkNotNull(settings)::query)
+            // Keep the suite-wide settings (silenced task alerts) and only enable the fixture tool groups.
+            query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(SettingsCodec.decode(checkNotNull(originalSettings).toString())
+                .copy(toolGroups = if (global) setOf("mcp", "user") else setOf("user"), voice = false))), checkNotNull(settings)::query)
             mcp = IAgentSettings.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(McpEndpoint.ACTION), connections))
             val revision = query(jsonObject("operation" to "get".json()), checkNotNull(mcp)::query).number("revision")!!
             query(jsonObject("operation" to "save".json(), "revision" to revision.json(), "create" to true.json(),
