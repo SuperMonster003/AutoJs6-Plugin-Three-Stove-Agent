@@ -125,7 +125,8 @@ class DynamicScriptLinkAndroidTest {
             settings = IAgentSettings.Stub.asInterface(bind(Intent(context, AgentLocalService::class.java).setAction(SettingsEndpoint.ACTION), connections))
             val settingsEndpoint = checkNotNull(settings)
             original = query(jsonObject("operation" to "get".json()), settingsEndpoint::query).getAsJsonObject("settings").deepCopy()
-            val enabled = AgentSettings(toolGroups = setOf("script_dynamic", "user"), voice = false)
+            // Keep the suite-wide settings (silenced task alerts) and only enable the fixture tool groups.
+            val enabled = SettingsCodec.decode(checkNotNull(original).toString()).copy(toolGroups = setOf("script_dynamic", "user"), voice = false)
             query(jsonObject("operation" to "save".json(), "settings" to SettingsCodec.json(enabled)), settingsEndpoint::query)
             val model = Model(advertised)
             val capabilities = Capabilities(advertised)

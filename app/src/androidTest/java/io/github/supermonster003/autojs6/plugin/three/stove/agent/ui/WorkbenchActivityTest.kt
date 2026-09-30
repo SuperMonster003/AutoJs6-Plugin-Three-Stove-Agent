@@ -745,7 +745,9 @@ class WorkbenchActivityTest {
                     if (node.text?.toString() == title) nodes += node
                     for (index in 0 until node.childCount) node.getChild(index)?.let(queue::addLast)
                 }
-                diagnostics = "roots=${roots.map { it.packageName.toString() + ":" + it.childCount }}, nodes=$inspected, matches=${nodes.size}, flags=${automation.serviceInfo.flags}, capabilities=${automation.serviceInfo.capabilities}"
+                diagnostics = "roots=${roots.map { it.packageName.toString() + ":" + it.childCount }}, nodes=$inspected, matches=${nodes.size}, flags=${automation.serviceInfo.flags}, capabilities=${automation.serviceInfo.capabilities}, " +
+                    "windows=${automation.windows.map { "${it.type}/${it.title}/${it.root?.packageName}/active=${it.isActive}/focused=${it.isFocused}" }}, " +
+                    "candidates=${nodes.map { "${it.packageName}:${it.className}:visible=${it.isVisibleToUser}:bounds=${android.graphics.Rect().also(it::getBoundsInScreen)}" }}, monitorHits=${monitor.hits}"
                 nodes.any { candidate ->
                     // MIUI's clickable ancestor may expand the notification group without opening
                     // this row. A delivered action alone is not proof that the confirmation opened.
@@ -772,7 +774,17 @@ class WorkbenchActivityTest {
             assertNotNull("Notification tap opens its activity", activity)
             return checkNotNull(activity).also { opened = true }
         } catch (failure: AssertionError) {
-            throw AssertionError("Notification route: $diagnostics", failure)
+            var stages: Map<androidx.test.runner.lifecycle.Stage, List<String>> = emptyMap()
+            instrumentation.runOnMainSync {
+                stages = androidx.test.runner.lifecycle.Stage.values().associateWith { stage ->
+                    androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage).map { it.javaClass.simpleName }
+                }.filterValues { it.isNotEmpty() }
+            }
+            val windows = shell("dumpsys window windows").lineSequence().filter { it.contains("Window #") }.map { it.trim() }.joinToString(" | ")
+            val tasks = shell("dumpsys activity activities").lineSequence()
+                .filter { line -> listOf("Hist #", "Task id", "mResumedActivity", "launchedFrom", "intent={", "realActivity", "baseIntent").any { it in line } }
+                .map { it.trim() }.take(40).joinToString(" | ")
+            throw AssertionError("Notification route: $diagnostics; activities=$stages; notificationStillPosted=${interactionNotification() != null}; windows=$windows; tasks=$tasks", failure)
         } finally {
             if (!opened) automation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
             automation.serviceInfo = automation.serviceInfo.apply { flags = originalFlags }
