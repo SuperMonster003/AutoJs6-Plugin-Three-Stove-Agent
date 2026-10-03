@@ -29,6 +29,7 @@
 * `Mejora` El centro de plugins es el único interruptor. Los paquetes oficiales se activan tras instalarlos sin confirmación y se conservan las desactivaciones explícitas. Los scripts y la interfaz se conectan bajo demanda, sin inicio al arrancar ni repetición de tareas
 * `Mejora` Mantener el marco redondeado del icono de Acerca de con el interior transparente sobre el fondo de la página. Mostrar las opciones del lanzador desde arriba con notas más pequeñas.
 * `Mejora` Cuando una tarea falla porque el host fundió la fuente del modelo (RATE_LIMITED: FUSED), el resultado explica la causa y qué hacer (esperar y reintentar, reiniciar AutoJs6 si persiste); el host también levanta ahora el fusible automáticamente cuando vuelve la transacción bloqueante agotada, así que las tareas posteriores no requieren reinicio
+* `Mejora` Tamaño visual uniforme de los iconos del lanzador y del Centro de complementos, con fondos transparentes y diseños en blanco, negro o grises neutros
 
 # v1.2.0
 
