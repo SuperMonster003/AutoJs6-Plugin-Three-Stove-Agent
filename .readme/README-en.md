@@ -317,6 +317,7 @@ _2026/09/30_
 - `Improvement` The plugin center is the sole enable switch. Official packages enable automatically after installation without a confirmation dialog, while explicit disable choices remain. Script and standalone entry points connect on demand; no boot startup or task replay is added
 - `Improvement` Keep the About icon in a rounded frame while its transparent interior reveals the surrounding page background. Show the launcher icon choices from the top with smaller explanatory notes.
 - `Improvement` When a task fails because the host fused the model source (RATE_LIMITED: FUSED), the result now explains the cause and what to do (wait and retry, restart AutoJs6 if it keeps failing); the host now also lifts the fuse automatically once the timed-out blocking transaction returns, so later tasks need no restart
+- `Improvement` Consistent visual sizing for launcher and Plugin Center icons, with transparent backgrounds and neutral black, white or grayscale artwork
 
 #### v1.2.0
 

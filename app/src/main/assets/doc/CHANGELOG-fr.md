@@ -29,6 +29,7 @@
 * `Amélioration` Le centre de plugins devient le seul interrupteur. Les paquets officiels s'activent après installation sans confirmation, en conservant une désactivation explicite. Les scripts et l'interface se connectent à la demande, sans lancement au démarrage ni reprise de tâches
 * `Amélioration` Conserver le cadre arrondi de l'icône À propos avec un intérieur transparent laissant voir le fond de la page. Afficher les choix du lanceur depuis le haut avec des notes plus petites.
 * `Amélioration` Lorsqu'une tâche échoue parce que l'hôte a mis la source du modèle en fusible (RATE_LIMITED: FUSED), le résultat explique la cause et la marche à suivre (patienter et réessayer, redémarrer AutoJs6 si l'échec persiste) ; l'hôte lève désormais aussi le fusible automatiquement lorsque la transaction bloquante expirée revient, si bien que les tâches suivantes n'exigent aucun redémarrage
+* `Amélioration` Taille visuelle harmonisée des icônes du lanceur et du Centre de plugins, avec des fonds transparents et des motifs noirs, blancs ou gris neutres
 
 # v1.2.0
 
