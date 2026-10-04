@@ -294,7 +294,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 #### v1.3.0
 
-_2026/09/30_
+_2026/10/04_
 
 - `Fonctionnalité` Reconnaissance des risques configurable: un nouvel écran de réglages Reconnaissance des risques ajoute vos propres noms de paquets et mots-clés en plus de la liste intégrée d'applications de paiement (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) et de la table de mots-clés sensibles en dix langues; les ajouts ne font qu'élargir les listes et s'appliquent immédiatement, et les actions à l'écran correspondantes deviennent sensibles et passent par la confirmation
 - `Fonctionnalité` Refonte de la bulle flottante: en mode réduit, la tâche et son étape en cours s'affichent sur deux lignes et un appui sur le texte ouvre une carte de chronologie des étapes; la carte de contrôle est condensée sur les deux mêmes rangées que l'espace de travail (préréglage, modèle et accès au-dessus du champ, voix et démarrage), le modèle et le mode d'accès se changent dans la superposition et sont partagés avec l'application; la chronologie suit les nouvelles étapes tant que vous êtes en bas, s'arrête quand vous remontez et reprend en bas, comme l'écran des détails de la tâche
@@ -318,6 +318,7 @@ _2026/09/30_
 - `Amélioration` Conserver le cadre arrondi de l'icône À propos avec un intérieur transparent laissant voir le fond de la page. Afficher les choix du lanceur depuis le haut avec des notes plus petites.
 - `Amélioration` Lorsqu'une tâche échoue parce que l'hôte a mis la source du modèle en fusible (RATE_LIMITED: FUSED), le résultat explique la cause et la marche à suivre (patienter et réessayer, redémarrer AutoJs6 si l'échec persiste) ; l'hôte lève désormais aussi le fusible automatiquement lorsque la transaction bloquante expirée revient, si bien que les tâches suivantes n'exigent aucun redémarrage
 - `Amélioration` Taille visuelle harmonisée des icônes du lanceur et du Centre de plugins, avec des fonds transparents et des motifs noirs, blancs ou gris neutres
+- `Amélioration` Les icônes du centre de plugins utilisent les tailles, positions, images claires et sombres et fonds circulaires réglés dans Icon Studio, avec les sources et paramètres permettant de les reproduire
 
 #### v1.2.0
 

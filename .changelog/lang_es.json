@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.3.0": {
-      "released_date": "2026/09/30",
+      "released_date": "2026/10/04",
       "feature": [
         "Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación",
         "Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea",
@@ -33,7 +33,8 @@
         "El centro de plugins es el único interruptor. Los paquetes oficiales se activan tras instalarlos sin confirmación y se conservan las desactivaciones explícitas. Los scripts y la interfaz se conectan bajo demanda, sin inicio al arrancar ni repetición de tareas",
         "Mantener el marco redondeado del icono de Acerca de con el interior transparente sobre el fondo de la página. Mostrar las opciones del lanzador desde arriba con notas más pequeñas.",
         "Cuando una tarea falla porque el host fundió la fuente del modelo (RATE_LIMITED: FUSED), el resultado explica la causa y qué hacer (esperar y reintentar, reiniciar AutoJs6 si persiste); el host también levanta ahora el fusible automáticamente cuando vuelve la transacción bloqueante agotada, así que las tareas posteriores no requieren reinicio",
-        "Tamaño visual uniforme de los iconos del lanzador y del Centro de complementos, con fondos transparentes y diseños en blanco, negro o grises neutros"
+        "Tamaño visual uniforme de los iconos del lanzador y del Centro de complementos, con fondos transparentes y diseños en blanco, negro o grises neutros",
+        "Los iconos del centro de plugins usan los tamaños, posiciones, imágenes claras y oscuras y fondos circulares ajustados en Icon Studio, conservando fuentes y parámetros reproducibles"
       ]
     },
     "v1.2.0": {
