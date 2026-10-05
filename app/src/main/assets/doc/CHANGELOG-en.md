@@ -6,7 +6,7 @@
 
 # v1.3.0
 
-###### 2026/10/04
+###### 2026/10/05
 
 * `Feature` Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation
 * `Feature` Floating ball redesign: the compact ball shows the task and its current step on two lines and tapping the text opens a step timeline card; the control card is condensed to the same two rows as the workbench (preset, model and access above the goal field, voice and start), with the model and access mode switched inside the overlay and shared with the app; the timeline follows new steps while you are at the end, pauses when you scroll up and resumes at the end, as does the task details screen
@@ -31,6 +31,7 @@
 * `Improvement` When a task fails because the host fused the model source (RATE_LIMITED: FUSED), the result now explains the cause and what to do (wait and retry, restart AutoJs6 if it keeps failing); the host now also lifts the fuse automatically once the timed-out blocking transaction returns, so later tasks need no restart
 * `Improvement` Consistent visual sizing for launcher and Plugin Center icons, with transparent backgrounds and neutral black, white or grayscale artwork
 * `Improvement` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
+* `Improvement` Android App info icons share Icon Studio artwork and light/dark backgrounds while preserving transparent Plugin Center artwork and existing launcher choices
 
 # v1.2.0
 
