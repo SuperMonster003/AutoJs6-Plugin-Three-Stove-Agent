@@ -60,3 +60,7 @@ build-logic/*/build/
 
 # Local Claude Code session settings.
 .claude/
+
+# Local agent instruction files stay out of the repository.
+AGENTS.md
+CLAUDE.md
