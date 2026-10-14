@@ -7,6 +7,8 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 
 需求来源: GitHub Discussion [#577](https://github.com/SuperMonster003/AutoJs6/discussions/577) (2026-09-21, "可以加入 AI 思考, 自动调用此应用脚本, 自动执行任务, 相当于一个自动 agent") 与维护者 2026-09-22 的需求对话 (见附录 J).
 
+关联记录 (2026-10-15, MCP Server 插件路线图 P11 / P12): MCP Server 插件计划把官方插件能力做成 MCP 工具 (P11: `ocr_recognize`, `barcode_detect`, `opencv_find_image` 等, 宿主改动并入 6.8.0), 它们可经本路线图 P10 的 MCP 工具源被 Agent 使用. P12 新增宿主桥接模块 `plugin_tools` (插件自描述工具) 与脚本 API `plugins.tools`; 是否把 `plugin_tools` 加入 Agent 的 grant (`ThreeStoveAgentGrant`) 由本路线图决定. P11 还会让宿主对插件会话 (`backend=plugin`, 含 Agent) 中接受路径的 `image.readImage` / `mediainfo.*` 等方法实施工作目录范围检查; Agent 当前 grant 不含这些方法, 不受影响. 详见 `D:/idea-projects/AutoJs6-Plugin-MCP-Server/ROADMAP.md` 的 D23 - D42.
+
 使用方式:
 
 1. 每次会话开始时, 从 "阶段总览" 选取一个或多个未完成条目, 优先级按阶段顺序; 单次会话可完成多个小节, 除非单个小节已足够繁杂.
