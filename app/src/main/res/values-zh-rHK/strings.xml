@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">綠色</string>
     <string name="app_settings_theme_purple">紫色</string>
     <string name="app_settings_theme_teal">青色</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">更新</string>
     <string name="app_update_automatic">自動檢查更新</string>
     <string name="app_update_automatic_summary">使用應用程式時檢查, 每 12 小時最多一次</string>
     <string name="app_update_current_version">已安裝版本: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">管理已忽略的更新</string>
     <string name="app_update_no_ignored">目前沒有已忽略的版本</string>
     <string name="app_update_release_history_summary">查看應用程式內置的版本歷史</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">取消忽略</string>
     <string name="entry_invalid">無法開啟此任務草稿或建立捷徑.</string>
     <string name="floating_collapse">收起任務卡片, 拖動可移動</string>
     <string name="floating_exit">退出懸浮球</string>

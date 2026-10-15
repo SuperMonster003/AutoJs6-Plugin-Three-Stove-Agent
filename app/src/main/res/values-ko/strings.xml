@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">초록색</string>
     <string name="app_settings_theme_purple">보라색</string>
     <string name="app_settings_theme_teal">청록색</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">업데이트</string>
     <string name="app_update_automatic">업데이트 자동 확인</string>
     <string name="app_update_automatic_summary">앱 사용 중 12시간마다 최대 한 번 확인</string>
     <string name="app_update_current_version">설치된 버전: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">무시한 업데이트 관리</string>
     <string name="app_update_no_ignored">무시한 릴리스가 없습니다</string>
     <string name="app_update_release_history_summary">앱에 포함된 버전 기록 보기</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">무시 중지</string>
     <string name="entry_invalid">작업 초안을 열거나 바로가기를 만들 수 없습니다.</string>
     <string name="floating_collapse">작업 카드 접기. 드래그하여 이동</string>
     <string name="floating_exit">플로팅 볼 끄기</string>

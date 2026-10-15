@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">Verde</string>
     <string name="app_settings_theme_purple">Morado</string>
     <string name="app_settings_theme_teal">Verde azulado</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">Actualizaciones</string>
     <string name="app_update_automatic">Buscar actualizaciones automáticamente</string>
     <string name="app_update_automatic_summary">Como máximo una vez cada 12 horas mientras usa la app</string>
     <string name="app_update_current_version">Versión instalada: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">Gestionar actualizaciones ignoradas</string>
     <string name="app_update_no_ignored">No hay versiones ignoradas</string>
     <string name="app_update_release_history_summary">Consultar el historial incluido en la app</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">Dejar de ignorar</string>
     <string name="entry_invalid">No se puede abrir este borrador ni crear su acceso directo.</string>
     <string name="floating_collapse">Contraer tarjeta. Arrastra para mover</string>
     <string name="floating_exit">Desactivar la burbuja flotante</string>

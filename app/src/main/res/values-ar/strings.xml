@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">أخضر</string>
     <string name="app_settings_theme_purple">أرجواني</string>
     <string name="app_settings_theme_teal">فيروزي</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">التحديثات</string>
     <string name="app_update_automatic">التحقق من التحديثات تلقائيا</string>
     <string name="app_update_automatic_summary">مرة واحدة كحد أقصى كل 12 ساعة أثناء استخدام التطبيق</string>
     <string name="app_update_current_version">الإصدار المثبت: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">إدارة التحديثات المتجاهلة</string>
     <string name="app_update_no_ignored">لا توجد إصدارات متجاهلة حاليا</string>
     <string name="app_update_release_history_summary">عرض سجل الإصدارات المضمن في التطبيق</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">إيقاف التجاهل</string>
     <string name="entry_invalid">تعذر فتح مسودة المهمة أو إنشاء اختصارها.</string>
     <string name="floating_collapse">طي بطاقة المهمة. اسحب للتحريك</string>
     <string name="floating_exit">إيقاف الكرة العائمة</string>

@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">Зеленый</string>
     <string name="app_settings_theme_purple">Фиолетовый</string>
     <string name="app_settings_theme_teal">Бирюзовый</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">Обновления</string>
     <string name="app_update_automatic">Автоматически проверять обновления</string>
     <string name="app_update_automatic_summary">Не чаще раза в 12 часов во время работы приложения</string>
     <string name="app_update_current_version">Установленная версия: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">Пропущенные обновления</string>
     <string name="app_update_no_ignored">Нет пропущенных версий</string>
     <string name="app_update_release_history_summary">Просмотр истории версий в приложении</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">Не игнорировать</string>
     <string name="entry_invalid">Не удалось открыть черновик или создать ярлык.</string>
     <string name="floating_collapse">Свернуть карточку. Перетащите для перемещения</string>
     <string name="floating_exit">Выключить плавающий шар</string>

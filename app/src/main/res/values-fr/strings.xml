@@ -41,7 +41,7 @@
     <string name="app_settings_theme_green">Vert</string>
     <string name="app_settings_theme_purple">Violet</string>
     <string name="app_settings_theme_teal">Sarcelle</string>
-    <string name="app_settings_updates">Updates</string>
+    <string name="app_settings_updates">Mises à jour</string>
     <string name="app_update_automatic">Rechercher automatiquement les mises à jour</string>
     <string name="app_update_automatic_summary">Au plus une fois toutes les 12 heures pendant l\'utilisation</string>
     <string name="app_update_current_version">Version installée: %1$s</string>
@@ -49,7 +49,7 @@
     <string name="app_update_manage_ignored">Gérer les mises à jour ignorées</string>
     <string name="app_update_no_ignored">Aucune version n\'est ignorée</string>
     <string name="app_update_release_history_summary">Consulter l\'historique intégré à l\'application</string>
-    <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="app_update_stop_ignoring">Ne plus ignorer</string>
     <string name="entry_invalid">Impossible d\'ouvrir ce brouillon ou de créer son raccourci.</string>
     <string name="floating_collapse">Réduire la carte. Faire glisser pour déplacer</string>
     <string name="floating_exit">Desactiver la bulle flottante</string>
