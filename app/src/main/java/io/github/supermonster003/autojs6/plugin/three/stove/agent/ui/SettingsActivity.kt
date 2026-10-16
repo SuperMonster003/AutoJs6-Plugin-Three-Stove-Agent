@@ -44,6 +44,7 @@ class SettingsActivity : HostAppearanceActivity() {
     private var alertSheetGeneration = 0
     internal val clearButtons = linkedMapOf<String, View>()
     internal lateinit var fullAccessNote: Banner
+    internal var voiceMacawDivider: View? = null
     internal lateinit var appearancePreferences: AppearancePreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +70,7 @@ class SettingsActivity : HostAppearanceActivity() {
     override fun onDestroy() { updates.close(); super.onDestroy() }
     override fun onResume() {
         super.onResume()
+        refreshSpeechRows()
         if (awaitingOverlayPermission) {
             awaitingOverlayPermission = false
             if (Settings.canDrawOverlays(this)) updater.apply { it.withFloating(true) }
@@ -77,6 +79,14 @@ class SettingsActivity : HostAppearanceActivity() {
     }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("overlayPermission", awaitingOverlayPermission); super.onSaveInstanceState(outState)
+    }
+
+    /** Recognizers may be installed, removed or switched off while the page is away, so both rows follow on every resume. */
+    internal fun refreshSpeechRows() {
+        rows.getValue("voice").setSummary(getString(if (SpeechInput.available(this)) R.string.settings_voice_note else R.string.settings_voice_unavailable))
+        val macaw = rows.getValue("voice-macaw"); val visibility = if (SpeechInput.macawAvailable(this)) View.VISIBLE else View.GONE
+        macaw.view.visibility = visibility; voiceMacawDivider?.visibility = visibility
+        macaw.switch!!.isChecked = SpeechPreferences(this).preferMacaw; macaw.refreshDescription()
     }
 
     internal fun choose(title: Int, labels: List<Int>, selection: Int, selected: (Int) -> Unit) {

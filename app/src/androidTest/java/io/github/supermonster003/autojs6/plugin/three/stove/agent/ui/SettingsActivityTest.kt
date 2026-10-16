@@ -385,8 +385,9 @@ class SettingsActivityTest {
         } finally { HostAppearance.cached = original; release.countDown() }
     }
 
-    @Test fun settingsDocumentsSheetsAndDialogsHaveAccessibleControlsAndUnclippedText() = isolated { _, _, _ -> withUpdatePreferences {
+    @Test fun settingsDocumentsSheetsAndDialogsHaveAccessibleControlsAndUnclippedText() = isolated { _, _, _ -> withUpdatePreferences { withSpeechPreferences { _ ->
         val audit = UiAccessibilityAudit()
+        SpeechInput.macawOverride = true // The conditional 3-Macaw Speech row is audited too.
         audit.themed {
             ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
                 ui(scenario, "Audit settings ready") { it.ready() && it.view<View>("update")?.isLaidOut == true }
@@ -424,7 +425,48 @@ class SettingsActivityTest {
             }
             audit.finish()
         }
+    } } }
+
+    @Test fun macawPreferenceShowsOnlyWhileItsSheetResolvesAndAppliesAtOnce() = isolated { _, _, _ -> withSpeechPreferences { preferences ->
+        SpeechInput.macawOverride = false
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "Settings loaded") { it.ready() }
+            scenario.onActivity {
+                assertEquals(it.getString(if (SpeechInput.available(it)) R.string.settings_voice_note else R.string.settings_voice_unavailable),
+                    it.rows.getValue("voice").summary.text.toString())
+                assertEquals(View.GONE, it.view<View>("voice-macaw")!!.visibility)
+                assertEquals("No double divider", View.GONE, it.voiceMacawDivider!!.visibility)
+                assertNull(SpeechInput.intent(it).`package`)
+            }
+            // Installing 3-Macaw Speech or turning its system voice input back on happens away from this page.
+            SpeechInput.macawOverride = true
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.STARTED)
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+            scenario.onActivity {
+                val row = it.view<ViewGroup>("voice-macaw")!!
+                assertEquals(View.VISIBLE, row.visibility); assertEquals(View.VISIBLE, it.voiceMacawDivider!!.visibility)
+                assertTrue("Preferred by default", row.findSwitch()!!.isChecked)
+                assertEquals(SpeechInput.MACAW_PACKAGE, SpeechInput.intent(it).`package`)
+                row.performClick()
+                assertFalse(row.findSwitch()!!.isChecked)
+                assertFalse(preferences.getBoolean(SpeechPreferences.PREFER_MACAW, true))
+                assertNull("The system chooses again", SpeechInput.intent(it).`package`)
+            }
+            scenario.recreate()
+            ui(scenario, "Choice survives recreation") { it.view<ViewGroup>("voice-macaw")?.findSwitch()?.isChecked == false }
+            scenario.onActivity { it.view<View>("voice-macaw")!!.performClick() }
+            assertTrue(preferences.getBoolean(SpeechPreferences.PREFER_MACAW, false))
+        }
     } }
+
+    private fun withSpeechPreferences(action: (android.content.SharedPreferences) -> Unit) {
+        val preferences = context.getSharedPreferences(SpeechPreferences.NAME, Context.MODE_PRIVATE); val saved = preferences.all.toMap()
+        preferences.edit().clear().commit()
+        try { action(preferences) } finally {
+            SpeechInput.macawOverride = null
+            preferences.edit().clear().apply { saved.forEach { (key, value) -> if (value is Boolean) putBoolean(key, value) } }.commit()
+        }
+    }
 
     private fun withUpdatePreferences(action: (android.content.SharedPreferences) -> Unit) {
         val preferences = context.getSharedPreferences("updates", Context.MODE_PRIVATE); val saved = preferences.all.toMap()

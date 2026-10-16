@@ -84,6 +84,10 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
         getString(if (SpeechInput.available(this@buildPage)) R.string.settings_voice_note else R.string.settings_voice_unavailable), R.drawable.ic_mic, false, "voice") { enabled ->
         updater.apply { it.withVoice(enabled) }
     })
+    // A UI-process preference shown only while the 3-Macaw Speech sheet resolves; refreshSpeechRows keeps both rows current.
+    val speech = SpeechPreferences(this@buildPage)
+    voiceMacawDivider = add(page, "voice-macaw", switchRow(getString(R.string.settings_voice_macaw), getString(R.string.settings_voice_macaw_note),
+        R.drawable.ic_mic, speech.preferMacaw, "voice-macaw") { speech.preferMacaw = it })
     add(page, "floating", switchRow(getString(R.string.settings_floating), getString(R.string.floating_setting_note), R.drawable.ic_bubble, false, "floating") { enabled ->
         if (enabled && !Settings.canDrawOverlays(this@buildPage)) {
             rows.getValue("floating").switch!!.isChecked = false
@@ -130,9 +134,10 @@ internal fun Kit.pageCaption(value: CharSequence): TextView = text(value, Ui.TEX
     setPaddingRelative(dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_XS), dp(Ui.SCREEN_MARGIN), dp(Ui.SPACE_SM))
 }
 
-internal fun SettingsActivity.add(page: LinearLayout, key: String, row: SettingRow, divider: Boolean = true) {
+/** Adds [row] under [key] and returns its divider, if any, so a conditional row can hide both. */
+internal fun SettingsActivity.add(page: LinearLayout, key: String, row: SettingRow, divider: Boolean = true): View? {
     rows[key] = row; page.addView(row.view, LinearLayout.LayoutParams(-1, -2))
-    if (divider) page.addView(kit.hairline(Ui.SPACE_XXL + Ui.ICON_SIZE + Ui.SPACE_LG))
+    return if (divider) kit.hairline(Ui.SPACE_XXL + Ui.ICON_SIZE + Ui.SPACE_LG).also(page::addView) else null
 }
 
 internal fun SettingsActivity.followSummary(mode: String, label: Int, resolved: String) =

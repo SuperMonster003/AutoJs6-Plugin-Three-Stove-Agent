@@ -33,6 +33,9 @@ class ManifestContractTest {
         assertEquals(listOf(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME), queried)
         val intents = manifest.child("queries").children("intent").map { it.child("action").androidAttribute("name") }
         assertEquals(listOf("android.speech.action.RECOGNIZE_SPEECH"), intents)
+        // The bare action makes every recognizer visible, including the 3-Macaw Speech sheet that the microphone pins with setPackage.
+        val speech = manifest.child("queries").children("intent").single()
+        assertEquals(listOf("action"), (0 until speech.childNodes.length).map { speech.childNodes.item(it) }.filterIsInstance<Element>().map { it.tagName })
     }
 
     @Test

@@ -353,8 +353,10 @@
     <string name="settings_title">Ajustes</string>
     <string name="settings_tool_groups_summary">Activados: %1$d / %2$d</string>
     <string name="settings_voice">Activar entrada de voz</string>
+    <string name="settings_voice_macaw">Preferir el reconocimiento sin conexión de 3-Macaw Speech</string>
+    <string name="settings_voice_macaw_note">El micrófono abre directamente el reconocimiento sin conexión de 3-Macaw Speech en lugar de preguntar qué aplicación de reconocimiento usar. Mientras no haya un modelo de reconocimiento descargado, muestra su guía para instalar uno; desactívelo para que el sistema elija la aplicación de reconocimiento.</string>
     <string name="settings_voice_note">Muestra un micrófono junto al campo del objetivo. El reconocimiento lo realiza una aplicación de reconocimiento de voz de este dispositivo; este plugin no graba nada.</string>
-    <string name="settings_voice_unavailable">Este dispositivo no tiene instalada ninguna aplicación de reconocimiento de voz, por lo que el micrófono permanece oculto aunque este interruptor esté activado. Instale una aplicación que ofrezca reconocimiento de voz del sistema (por ejemplo Google) y vuelva a abrir el banco de trabajo.</string>
+    <string name="settings_voice_unavailable">Este dispositivo no tiene instalada ninguna aplicación de reconocimiento de voz, por lo que el micrófono permanece oculto aunque este interruptor esté activado. Instale una aplicación que ofrezca reconocimiento de voz del sistema (por ejemplo Google) y vuelva a abrir el banco de trabajo. También puede instalar 3-Macaw Speech y descargar un modelo de reconocimiento para reconocer la voz sin conexión.</string>
     <string name="shortcut_goal">Objetivo fijo (opcional)</string>
     <string name="shortcut_new_task">Nueva tarea</string>
     <string name="shortcut_pin">Fijar en pantalla de inicio</string>

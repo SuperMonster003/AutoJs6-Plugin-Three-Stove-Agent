@@ -1358,6 +1358,16 @@ class WorkbenchActivityTest {
             scenario.onActivity {
                 assertEquals(it.resources.configuration.locales[0].toLanguageTag(), SpeechInput.intent(it).getStringExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE))
                 if (!SpeechInput.available(it)) assertEquals(View.GONE, it.findViewById<View>(R.id.workbench_voice).visibility)
+                // Several recognizers: the microphone goes straight to 3-Macaw Speech while that is preferred and resolvable.
+                val speech = SpeechPreferences(it); val preferred = speech.preferMacaw
+                try {
+                    SpeechInput.macawOverride = true; speech.preferMacaw = true
+                    assertEquals(SpeechInput.MACAW_PACKAGE, SpeechInput.intent(it).`package`)
+                    assertEquals("Pinning keeps the extras", it.resources.configuration.locales[0].toLanguageTag(),
+                        SpeechInput.intent(it).getStringExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE))
+                    speech.preferMacaw = false; assertNull(SpeechInput.intent(it).`package`)
+                    SpeechInput.macawOverride = false; speech.preferMacaw = true; assertNull(SpeechInput.intent(it).`package`)
+                } finally { SpeechInput.macawOverride = null; speech.preferMacaw = preferred }
                 it.onSpeechResult(android.app.Activity.RESULT_OK,
                     Intent().putStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS, arrayListOf("Speech draft")))
                 assertEquals("Speech draft", it.findViewById<EditText>(R.id.workbench_goal).text.toString())
