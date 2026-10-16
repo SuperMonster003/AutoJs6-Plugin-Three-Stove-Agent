@@ -94,7 +94,7 @@
     <string name="history_script_result">نتيجة البرنامج النصي</string>
     <string name="history_search">البحث في المهام</string>
     <string name="history_share">مشاركة الملخص</string>
-    <string name="history_share_footer">مشاركة من %1$s</string>
+    <string name="history_share_footer">مشاركة من ⁨%1$s⁩</string>
     <string name="history_timeline">تسلسل الخطوات</string>
     <string name="history_title">سجل المهام</string>
     <string name="history_truncated">بلغ السجل الأصلي الحد. تعرض جميع الخطوات المحفوظة.</string>
@@ -128,8 +128,8 @@
     <string name="launcher_connect">الاتصال بـ AutoJs6</string>
     <string name="launcher_host_disabled">AutoJs6 مثبت لكنه معطل. فعله من إعدادات التطبيقات في النظام ثم عد إلى هنا.</string>
     <string name="launcher_host_incompatible">البناء %1$d من AutoJs6 مثبت, لكن هذا المكون الإضافي يحتاج إلى البناء %2$d أو أحدث. حدث AutoJs6 أولا.</string>
-    <string name="launcher_host_missing">AutoJs6 غير مثبت. ثبت AutoJs6 بالبناء %1$d أو أحدث, ثم فعل 3-Stove Agent من مركز المكونات الإضافية فيه.</string>
-    <string name="launcher_host_ready">AutoJs6 %1$s (البناء %2$d) مثبت. فعل 3-Stove Agent من مركز المكونات الإضافية في AutoJs6.</string>
+    <string name="launcher_host_missing">AutoJs6 غير مثبت. ثبت AutoJs6 بالبناء %1$d أو أحدث, ثم فعل ⁨3-Stove Agent⁩ من مركز المكونات الإضافية فيه.</string>
+    <string name="launcher_host_ready">AutoJs6 %1$s (البناء %2$d) مثبت. فعل ⁨3-Stove Agent⁩ من مركز المكونات الإضافية في AutoJs6.</string>
     <string name="launcher_icon_applied_note">قد يستغرق تحديث المشغل بضع ثوان. قد تحتاج إلى إضافة بعض اختصارات الشاشة الرئيسية مرة أخرى.</string>
     <string name="launcher_icon_auto">أيقونة تكيفية (تلقائية)</string>
     <string name="launcher_icon_auto_note">يحاول اتباع سمة النظام. بعض المشغلات تخزن الرموز مؤقتا أو تستخدم نظام ألوان واحدا فقط.</string>
@@ -140,7 +140,7 @@
     <string name="launcher_icon_transparent">أيقونة بخلفية شفافة</string>
     <string name="launcher_icon_transparent_note">قد تضيف بعض المشغلات خلفية أو قناعا, لذلك قد لا يتم الحفاظ على الشفافية.</string>
     <string name="launcher_link_connecting">بانتظار اتصال AutoJs6 (حتى 15 ثانية).</string>
-    <string name="launcher_link_timeout">لم يتم الاتصال خلال 15 ثانية. افتح AutoJs6 وفعل 3-Stove Agent في مركز الإضافات واسمح بالاتصال.</string>
+    <string name="launcher_link_timeout">لم يتم الاتصال خلال 15 ثانية. افتح AutoJs6 وفعل ⁨3-Stove Agent⁩ في مركز الإضافات واسمح بالاتصال.</string>
     <string name="launcher_open_host">فتح AutoJs6</string>
     <string name="mcp_add">إضافة خادم</string>
     <string name="mcp_auth_required">المصادقة مطلوبة. تحقق من الرمز المحفوظ في تطبيق خادم MCP.</string>
@@ -358,7 +358,7 @@
     <string name="shortcut_goal">هدف ثابت (اختياري)</string>
     <string name="shortcut_new_task">مهمة جديدة</string>
     <string name="shortcut_pin">تثبيت على الشاشة الرئيسية</string>
-    <string name="shortcut_preset">3-Stove Agent: %1$s</string>
+    <string name="shortcut_preset">⁨3-Stove Agent⁩: %1$s</string>
     <string name="shortcut_review">يفتح الاختصار هذا الإعداد المسبق وهدفا اختياريا للمراجعة. اضغط بدء المهمة للتنفيذ.</string>
     <string name="step_ask">طرح سؤالا</string>
     <string name="step_done">انتهى</string>

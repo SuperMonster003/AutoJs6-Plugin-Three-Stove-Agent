@@ -294,7 +294,7 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 #### v1.3.0
 
-_2026/10/15_
+_2026/10/17_
 
 - `Fonctionnalité` Reconnaissance des risques configurable: un nouvel écran de réglages Reconnaissance des risques ajoute vos propres noms de paquets et mots-clés en plus de la liste intégrée d'applications de paiement (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) et de la table de mots-clés sensibles en dix langues; les ajouts ne font qu'élargir les listes et s'appliquent immédiatement, et les actions à l'écran correspondantes deviennent sensibles et passent par la confirmation
 - `Fonctionnalité` Refonte de la bulle flottante: en mode réduit, la tâche et son étape en cours s'affichent sur deux lignes et un appui sur le texte ouvre une carte de chronologie des étapes; la carte de contrôle est condensée sur les deux mêmes rangées que l'espace de travail (préréglage, modèle et accès au-dessus du champ, voix et démarrage), le modèle et le mode d'accès se changent dans la superposition et sont partagés avec l'application; la chronologie suit les nouvelles étapes tant que vous êtes en bas, s'arrête quand vous remontez et reprend en bas, comme l'écran des détails de la tâche
@@ -311,6 +311,7 @@ _2026/10/15_
 - `Correctif` Conserver la ressource automatique dynamique après installation afin que le lanceur puisse charger la variante claire ou sombre correspondante.
 - `Correctif` Une requête sur une exécution pouvait renvoyer brièvement un état terminal sans son résultat pendant la fin de la tâche (échec occasionnel de la suite de conformité du faux hôte sur la CI distante). L'état terminal est désormais archivé avec le résultat, les hôtes et les scripts ne voient donc jamais une tâche terminée sans résultat
 - `Correctif` Compléter les traductions manquantes dans les paramètres de mise à jour
+- `Correctif` Dans l'interface en arabe, 3-Stove Agent ne s'affiche plus à l'envers sous la forme Stove Agent-3
 - `Amélioration` Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard
 - `Amélioration` Après un tools/list_changed envoyé par un serveur MCP, les définitions d'outils gelées sont revérifiées avant l'appel suivant: les définitions inchangées continuent de fonctionner, et seule une définition modifiée échoue avec MCP_CATALOG_CHANGED en indiquant au modèle de faire actualiser la sélection d'outils dans les réglages MCP par l'utilisateur puis de relancer une tâche; la note du point de terminaison précise désormais que la connexion OAuth et l'ancien transport HTTP+SSE ne sont pas pris en charge
 - `Amélioration` La migration ponctuelle introduite en 1.2.0 est supprimée: un ancien choix de modèle dans les préférences de brouillon de l'atelier n'est plus déplacé vers model-selection.json, un choix enregistré par une version antérieure doit donc être refait dans l'atelier

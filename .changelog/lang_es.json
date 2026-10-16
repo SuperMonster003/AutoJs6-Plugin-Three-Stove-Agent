@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.3.0": {
-      "released_date": "2026/10/15",
+      "released_date": "2026/10/17",
       "feature": [
         "Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación",
         "Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea",
@@ -24,7 +24,8 @@
         "La casilla Burbuja flotante del menú Más sigue ahora el color del tema",
         "Mantener dinámico el recurso del icono automático tras la instalación para que el lanzador pueda cargar la variante clara u oscura correspondiente.",
         "Una consulta de ejecución podía devolver brevemente un estado terminal sin su resultado mientras la tarea terminaba (fallo ocasional de la suite de conformidad del host simulado en la CI remota): el estado terminal ahora se archiva junto con el resultado, por lo que hosts y scripts nunca ven una tarea finalizada sin él",
-        "Completar las traducciones que faltaban en los ajustes de actualización"
+        "Completar las traducciones que faltaban en los ajustes de actualización",
+        "En la interfaz en árabe, 3-Stove Agent ya no aparece invertido como Stove Agent-3"
       ],
       "improvement": [
         "Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar",
