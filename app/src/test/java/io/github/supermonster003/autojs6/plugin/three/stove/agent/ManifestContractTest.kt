@@ -23,19 +23,22 @@ class ManifestContractTest {
     }
 
     @Test
-    fun `manifest declares the seven D28 permissions and queries the host package and speech recognizers`() {
+    fun `manifest declares the D28 permissions plus boot and queries the host package and the speech actions`() {
         val permissions = manifest.children("uses-permission").map { it.androidAttribute("name") }
         assertEquals(listOf(PLUGIN_PERMISSION, "android.permission.FOREGROUND_SERVICE",
             "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.POST_NOTIFICATIONS", "android.permission.INTERNET",
-            "android.permission.ACCESS_LOCAL_NETWORK", "android.permission.SYSTEM_ALERT_WINDOW"), permissions)
+            "android.permission.ACCESS_LOCAL_NETWORK", "android.permission.SYSTEM_ALERT_WINDOW",
+            // Only posts "tap to resume" for an enabled resident listener after boot (roadmap D67).
+            "android.permission.RECEIVE_BOOT_COMPLETED"), permissions)
 
         val queried = manifest.child("queries").children("package").map { it.androidAttribute("name") }
         assertEquals(listOf(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME), queried)
         val intents = manifest.child("queries").children("intent").map { it.child("action").androidAttribute("name") }
-        assertEquals(listOf("android.speech.action.RECOGNIZE_SPEECH"), intents)
-        // The bare action makes every recognizer visible, including the 3-Macaw Speech sheet that the microphone pins with setPackage.
-        val speech = manifest.child("queries").children("intent").single()
-        assertEquals(listOf("action"), (0 until speech.childNodes.length).map { speech.childNodes.item(it) }.filterIsInstance<Element>().map { it.tagName })
+        // The speech service of 3-Macaw Speech (roadmap D74) and the other resident listeners (D73) join the recognizers.
+        assertEquals(listOf("android.speech.action.RECOGNIZE_SPEECH", "org.autojs.plugin.SPEECH", ThreeStoveAgentPlugin.RESIDENT_LISTENER_ACTION), intents)
+        // Bare actions make every matching app visible, including the 3-Macaw Speech sheet that the microphone pins with setPackage.
+        for (speech in manifest.child("queries").children("intent"))
+            assertEquals(listOf("action"), (0 until speech.childNodes.length).map { speech.childNodes.item(it) }.filterIsInstance<Element>().map { it.tagName })
     }
 
     @Test
@@ -78,7 +81,14 @@ class ManifestContractTest {
         assertNull(launcher.androidAttributeOrNull("permission"))
         assertNull(launcher.androidAttributeOrNull("process"))
         assertTrue(launcher.children("intent-filter").isEmpty())
-        val aliases = manifest.child("application").children("activity-alias")
+        val allAliases = manifest.child("application").children("activity-alias")
+        // The resident listener settings entry for 3-Stone AI and 3-Macaw Speech (D73): signature protected, no filter.
+        val residentSettings = allAliases.single { it.androidAttribute("name") == ".speech.ResidentListenerSettings" }
+        assertEquals("true", residentSettings.androidAttribute("exported"))
+        assertEquals(PLUGIN_PERMISSION, residentSettings.androidAttribute("permission"))
+        assertEquals(".ui.SettingsActivity", residentSettings.androidAttribute("targetActivity"))
+        assertTrue(residentSettings.children("intent-filter").isEmpty())
+        val aliases = allAliases - residentSettings
         assertEquals(listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").map { ".launcher.${it}IconAlias" },
             aliases.map { it.androidAttribute("name") })
         assertEquals(listOf("@mipmap/ic_launcher_system_light", "@mipmap/ic_launcher_system", "@mipmap/ic_launcher_system_auto", "@mipmap/ic_launcher"),
@@ -122,17 +132,20 @@ class ManifestContractTest {
         assertTrue(settings.children("intent-filter").isEmpty())
         }
 
-        val receiver = manifest.child("application").children("receiver").single()
-        assertEquals(".ui.LauncherIconUpdateReceiver", receiver.androidAttribute("name"))
-        assertEquals("false", receiver.androidAttribute("exported"))
-        assertEquals("android.intent.action.MY_PACKAGE_REPLACED", receiver.child("intent-filter").child("action").androidAttribute("name"))
+        val receivers = manifest.child("application").children("receiver")
+        assertEquals(listOf(".ui.LauncherIconUpdateReceiver", ".speech.ResidentResumeReceiver"), receivers.map { it.androidAttribute("name") })
+        for (receiver in receivers) assertEquals("false", receiver.androidAttribute("exported"))
+        assertEquals(listOf("android.intent.action.MY_PACKAGE_REPLACED"), receivers[0].child("intent-filter").children("action").map { it.androidAttribute("name") })
+        assertEquals(listOf("android.intent.action.BOOT_COMPLETED", "android.intent.action.MY_PACKAGE_REPLACED"),
+            receivers[1].child("intent-filter").children("action").map { it.androidAttribute("name") })
         assertTrue(manifest.child("application").children("provider").isEmpty())
     }
 
     @Test
     fun `info service and agent service match the identity constants`() {
         val services = manifest.child("application").children("service").associateBy { it.androidAttribute("name") }
-        assertEquals(setOf(".ThreeStoveAgentPluginInfoService", ".ThreeStoveAgentPluginService", ".service.AgentLocalService", ".ThreeStoveAgentTaskForegroundService"), services.keys)
+        assertEquals(setOf(".ThreeStoveAgentPluginInfoService", ".ThreeStoveAgentPluginService", ".service.AgentLocalService",
+            ".ThreeStoveAgentTaskForegroundService", ".speech.ResidentListenerService"), services.keys)
         for (name in listOf(".service.AgentLocalService", ".ThreeStoveAgentTaskForegroundService")) {
             assertEquals("false", services.getValue(name).androidAttribute("exported"))
             assertEquals(":agent", services.getValue(name).androidAttribute("process"))
@@ -146,6 +159,20 @@ class ManifestContractTest {
         val agent = services.getValue(".ThreeStoveAgentPluginService")
         assertDiscoveryContract(agent, ThreeStoveAgentPlugin.SERVICE_ACTION)
         assertEquals(ThreeStoveAgentPlugin.SERVICE_PROCESS, agent.androidAttribute("process"))
+
+        // Resident listener (D66, D73): the component state is the switch, so the Manifest keeps it disabled.
+        val resident = services.getValue(".speech.ResidentListenerService")
+        assertEquals("false", resident.androidAttribute("enabled"))
+        assertEquals("true", resident.androidAttribute("exported"))
+        assertEquals(PLUGIN_PERMISSION, resident.androidAttribute("permission"))
+        assertEquals(ThreeStoveAgentPlugin.SERVICE_PROCESS, resident.androidAttribute("process"))
+        assertEquals("specialUse", resident.androidAttribute("foregroundServiceType"))
+        val residentFilter = resident.child("intent-filter")
+        assertEquals(listOf(ThreeStoveAgentPlugin.RESIDENT_LISTENER_ACTION), residentFilter.children("action").map { it.androidAttribute("name") })
+        assertTrue(residentFilter.children("category").isEmpty())
+        val residentMeta = resident.children("meta-data").associate { it.androidAttribute("name") to it.androidAttribute("value") }
+        assertEquals(ThreeStoveAgentPlugin.PACKAGE_NAME + ".speech.ResidentListenerSettings", residentMeta[ThreeStoveAgentPlugin.RESIDENT_LISTENER_SETTINGS])
+        assertTrue(resident.children("property").single().androidAttribute("value").isNotBlank())
     }
 
     private fun assertDiscoveryContract(service: Element, action: String) {
@@ -163,6 +190,7 @@ class ManifestContractTest {
     fun `only discovery activation and draft entry components are exported`() {
         val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
             ".ui.ShareTargetActivity" to null, ".ui.VoiceCommandActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
+            ".speech.ResidentListenerSettings" to PLUGIN_PERMISSION, ".speech.ResidentListenerService" to PLUGIN_PERMISSION,
             ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION) +
             listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").associate { ".launcher.${it}IconAlias" to null }
         val components = listOf("activity", "activity-alias", "service", "receiver", "provider")

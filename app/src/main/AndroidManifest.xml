@@ -9,17 +9,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <queries>
         <package android:name="org.autojs.autojs6" />
         <intent><action android:name="android.speech.action.RECOGNIZE_SPEECH" /></intent>
+        <intent><action android:name="org.autojs.plugin.SPEECH" /></intent>
+        <intent><action android:name="org.autojs.plugin.speech.action.RESIDENT_LISTENER" /></intent>
     </queries>
 
     <!--
         Update checks and explicitly configured MCP tools use the network (roadmap P10).
         Model traffic and built-in device actions go through AutoJs6 over Binder. Local network
         access is requested from MCP settings on Android 17+. Foreground-service and notification
-        permissions keep active tasks visible. Overlay permission is requested only from settings.
+        permissions keep active tasks and the resident listener visible. Overlay permission is requested
+        only from settings. The boot permission only posts "tap to resume" for an enabled resident
+        listener (roadmap D67); 3-Macaw Speech records, never this plugin.
     -->
     <application
         android:allowBackup="false"
@@ -125,6 +130,12 @@
         <activity android:name=".ui.PresetsActivity" android:exported="false" />
         <activity android:name=".ui.MemoryActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
+        <!--
+            "Open 3-Stove Agent settings" for the other resident listeners (roadmap D73, 3-Stone AI D31): the settings
+            screen itself stays private; this alias opens it at the resident listener rows.
+        -->
+        <activity-alias android:name=".speech.ResidentListenerSettings" android:exported="true"
+            android:permission="org.autojs.permission.PLUGIN" android:targetActivity=".ui.SettingsActivity" />
         <activity android:name=".ui.McpServersActivity" android:exported="false" />
         <activity android:name=".ui.RiskRecognitionActivity" android:exported="false" />
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
@@ -141,6 +152,28 @@
             android:process=":agent">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="User-initiated, bounded Agent tasks using the AutoJs6 host; keeps progress, confirmation and stop controls available until task completion." />
+        </service>
+
+        <!--
+            Resident listener (roadmap D66, D73): enabled exactly while the user has it on, which is how 3-Stone AI and
+            3-Macaw Speech see that this plugin listens (3-Stone AI D31). Exported for that query only and protected by
+            the plugin permission. It holds the wake session of 3-Macaw Speech, which records.
+        -->
+        <service
+            android:name=".speech.ResidentListenerService"
+            android:enabled="false"
+            android:exported="true"
+            android:foregroundServiceType="specialUse"
+            android:permission="org.autojs.permission.PLUGIN"
+            android:process=":agent">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.speech.action.RESIDENT_LISTENER" />
+            </intent-filter>
+            <meta-data
+                android:name="org.autojs.plugin.speech.RESIDENT_LISTENER_SETTINGS"
+                android:value="io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentListenerSettings" />
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-enabled resident wake word listener: holds the wake session of the 3-Macaw Speech plugin, which records, and turns the sentence after the wake word into a reviewable task draft." />
         </service>
 
         <service
@@ -183,6 +216,12 @@
 
         <receiver android:name=".ui.LauncherIconUpdateReceiver" android:exported="false">
             <intent-filter><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /></intent-filter>
+        </receiver>
+        <receiver android:name=".speech.ResidentResumeReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
         </receiver>
     </application>
 

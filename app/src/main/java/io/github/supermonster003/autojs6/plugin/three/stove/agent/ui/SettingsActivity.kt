@@ -45,6 +45,7 @@ class SettingsActivity : HostAppearanceActivity() {
     internal val clearButtons = linkedMapOf<String, View>()
     internal lateinit var fullAccessNote: Banner
     internal var voiceMacawDivider: View? = null
+    internal lateinit var resident: ResidentSettingsSection; private set
     internal lateinit var appearancePreferences: AppearancePreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,21 +57,31 @@ class SettingsActivity : HostAppearanceActivity() {
             kit.snackbar(scaffold.root, getString(R.string.settings_error)); refresh()
         }
         scaffold = buildScaffold(getString(R.string.settings_title))
+        resident = ResidentSettingsSection(this).apply { awaitingOverlay = savedInstanceState?.getBoolean("residentOverlay") == true }
         buildPage(scaffold.content)
         setContentView(scaffold.root)
         connection = SettingsConnection(this, ::refresh)
+        // Other resident listeners open this screen through the exported alias (roadmap D73), the notifications with the extra.
+        if (savedInstanceState == null && (intent.getStringExtra(EXTRA_FOCUS) == FOCUS_RESIDENT ||
+                intent.component?.className == packageName + RESIDENT_SETTINGS_ALIAS)) {
+            val row = rows.getValue("resident").view
+            row.post { scaffold.scroll?.scrollTo(0, row.top) }
+        }
     }
-    override fun onStart() { super.onStart(); connection.start() }
+    // A visible settings screen resumes an enabled resident listener (D67).
+    override fun onStart() { super.onStart(); connection.start(); io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentListener.resume(this) }
     override fun onStop() {
+        resident.stop()
         connection.stop(); updates.cancel(); prompt?.dismiss(); prompt = null
         sheet?.dialog?.dismiss(); sheet = null
         super.onStop()
     }
-    override fun hasUnconfirmedDialog() = prompt?.isShowing == true || sheet?.dialog?.isShowing == true
+    override fun hasUnconfirmedDialog() = prompt?.isShowing == true || sheet?.dialog?.isShowing == true || resident.dialog?.isShowing == true
     override fun onDestroy() { updates.close(); super.onDestroy() }
     override fun onResume() {
         super.onResume()
         refreshSpeechRows()
+        resident.resume()
         if (awaitingOverlayPermission) {
             awaitingOverlayPermission = false
             if (Settings.canDrawOverlays(this)) updater.apply { it.withFloating(true) }
@@ -78,7 +89,8 @@ class SettingsActivity : HostAppearanceActivity() {
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean("overlayPermission", awaitingOverlayPermission); super.onSaveInstanceState(outState)
+        outState.putBoolean("overlayPermission", awaitingOverlayPermission); outState.putBoolean("residentOverlay", resident.awaitingOverlay)
+        super.onSaveInstanceState(outState)
     }
 
     /** Recognizers may be installed, removed or switched off while the page is away, so both rows follow on every resume. */
@@ -270,6 +282,11 @@ class SettingsActivity : HostAppearanceActivity() {
             R.string.app_language_fr, R.string.app_language_es, R.string.app_language_ja, R.string.app_language_ko, R.string.app_language_ru, R.string.app_language_ar)
         internal val modeLabels = listOf(R.string.app_settings_follow_autojs6, R.string.app_settings_follow_system,
             R.string.app_settings_always_light, R.string.app_settings_always_dark)
+        /** Opens the screen at the resident listener rows (notifications of roadmap D76). */
+        internal const val EXTRA_FOCUS = "focus"
+        internal const val FOCUS_RESIDENT = "resident"
+        /** The exported alias other resident listeners open (D73). */
+        private const val RESIDENT_SETTINGS_ALIAS = ".speech.ResidentListenerSettings"
         private val limitLabels = mapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             SettingsDraft.DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
     }

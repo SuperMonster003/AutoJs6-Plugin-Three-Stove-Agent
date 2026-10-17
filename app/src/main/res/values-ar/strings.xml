@@ -274,6 +274,33 @@
     <string name="presets_unavailable">%1$s (غير متاح)</string>
     <string name="release_history_error">تعذرت قراءة المستند المدمج.</string>
     <string name="release_history_title">سجل الإصدارات</string>
+    <string name="resident_alert_channel">تنبيهات الاستماع الدائم</string>
+    <string name="resident_conflict_message">يدعم النظام تطبيقا واحدا فقط للاستماع الدائم. أوقف ⁨%1$s⁩ أولا ثم شغّله هنا.</string>
+    <string name="resident_conflict_open">افتح إعدادات ⁨%1$s⁩</string>
+    <string name="resident_conflict_title">استماع دائم واحد فقط</string>
+    <string name="resident_connecting" tools:ignore="TypographyEllipsis">جار الاتصال بـ ⁨3-Macaw Speech⁩...</string>
+    <string name="resident_listening" tools:ignore="TypographyEllipsis">جار الاستماع...</string>
+    <string name="resident_overlay_grant">السماح</string>
+    <string name="resident_overlay_message">مع إذن الظهور فوق التطبيقات الأخرى تفتح المسودة فور انتهائك من الكلام. ومن دونه يصلك إشعار يفتح المسودة.</string>
+    <string name="resident_overlay_skip">ليس الآن</string>
+    <string name="resident_overlay_title">عرض المسودات فوق التطبيقات الأخرى?</string>
+    <string name="resident_resume_text">اضغط لاستئناف الاستماع الدائم</string>
+    <string name="resident_resume_title">الاستماع الدائم متوقف مؤقتا</string>
+    <string name="resident_sensitivity_high">عالية: تستيقظ بسهولة أكبر</string>
+    <string name="resident_sensitivity_low">منخفضة: تنبيهات خاطئة أقل</string>
+    <string name="resident_sensitivity_medium">متوسطة</string>
+    <string name="resident_stopped_busy">ميكروفون ⁨3-Macaw Speech⁩ قيد الاستخدام</string>
+    <string name="resident_stopped_conflict">⁨%1$s⁩ يستمع بشكل دائم بالفعل. أوقفه هناك أولا.</string>
+    <string name="resident_stopped_ended">انتهت جلسة التنبيه بشكل غير متوقع</string>
+    <string name="resident_stopped_incompatible">هذا الإصدار من ⁨3-Macaw Speech⁩ لا يدعم كلمات التنبيه</string>
+    <string name="resident_stopped_keywords">لا يستطيع ⁨3-Macaw Speech⁩ تهجئة إحدى كلمات التنبيه; غيّرها في الإعدادات</string>
+    <string name="resident_stopped_microphone">لا يملك ⁨3-Macaw Speech⁩ إذن الميكروفون</string>
+    <string name="resident_stopped_model">ينقص ⁨3-Macaw Speech⁩ نموذج كلمات التنبيه أو نموذج التعرف</string>
+    <string name="resident_stopped_retry">ستتم المحاولة مجددا عند فتح ⁨3-Stove Agent⁩ في المرة القادمة.</string>
+    <string name="resident_stopped_title">توقف الاستماع الدائم</string>
+    <string name="resident_stopped_unavailable">⁨3-Macaw Speech⁩ غير متاح</string>
+    <string name="resident_turn_off">إيقاف</string>
+    <string name="resident_waiting">قل ⁨%1$s⁩ للتنبيه</string>
     <string name="risk_add_keyword">إضافة كلمة مفتاحية</string>
     <string name="risk_add_package">إضافة اسم حزمة تطبيق دفع</string>
     <string name="risk_builtin">مضمن</string>
@@ -344,6 +371,22 @@
     <string name="settings_ocr_note">يتاح OCR تلقائيا عند تفعيل المجموعة واكتشاف المضيف إضافة تعرف مصرح بها.</string>
     <string name="settings_open_failed">لا يوجد تطبيق لفتح هذا الرابط.</string>
     <string name="settings_policy_note">تسري الإعدادات المحفوظة على المهام الجديدة. يمكن للإعدادات المسبقة والمهام تضييق الحدود فقط مع الالتزام بصلاحيات المضيف.</string>
+    <string name="settings_resident">الاستماع الدائم</string>
+    <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">جار التحقق من ⁨3-Macaw Speech⁩...</string>
+    <string name="settings_resident_conflict">⁨%1$s⁩ يستمع بشكل دائم بالفعل; أوقفه هناك أولا</string>
+    <string name="settings_resident_incompatible">هذا الإصدار من ⁨3-Macaw Speech⁩ لا يدعم كلمات التنبيه; حدّثه</string>
+    <string name="settings_resident_keywords">كلمات التنبيه</string>
+    <string name="settings_resident_keywords_invalid">تحقق من عدد كلمات التنبيه وطولها وتكرارها</string>
+    <string name="settings_resident_keywords_note">واحدة في كل سطر, من 1 إلى %1$d, كل منها حتى %2$d حرفا. يتم التعرف على الصينية عبر البينيين, ويجب أن تكون الكلمات الإنجليزية في قاموس النموذج.</string>
+    <string name="settings_resident_microphone">اسمح أولا لـ ⁨3-Macaw Speech⁩ باستخدام الميكروفون</string>
+    <string name="settings_resident_missing">يتطلب ⁨3-Macaw Speech⁩ (تسجيل وتعرف دون اتصال)</string>
+    <string name="settings_resident_no_recognition_model">نزّل أولا نموذج تعرف في ⁨3-Macaw Speech⁩</string>
+    <string name="settings_resident_no_wake_model">نزّل أولا نموذج كلمات التنبيه في ⁨3-Macaw Speech⁩</string>
+    <string name="settings_resident_note">قل ⁨%1$s⁩ ثم المهمة: تصبح الجملة مسودة لا تنفذ إلا بعد الضغط على بدء. يتولى ⁨3-Macaw Speech⁩ التسجيل والتعرف; وأثناء التشغيل يعرض كل من ⁨3-Stove Agent⁩ و⁨3-Macaw Speech⁩ إشعارا دائما ويزداد استهلاك البطارية.</string>
+    <string name="settings_resident_open_macaw">افتح ⁨3-Macaw Speech⁩</string>
+    <string name="settings_resident_open_macaw_note">يتم تنزيل النماذج أو السماح بالميكروفون هناك</string>
+    <string name="settings_resident_sensitivity">حساسية التنبيه</string>
+    <string name="settings_resident_unavailable">تعذر الاتصال بـ ⁨3-Macaw Speech⁩: يجب تثبيت AutoJs6</string>
     <string name="settings_risk_summary">تطبيقات الدفع المضافة: %1$d, الكلمات المفتاحية المضافة: %2$d</string>
     <string name="settings_save">حفظ الإعدادات</string>
     <string name="settings_section_information">معلومات</string>
@@ -409,6 +452,8 @@
     <string name="update_no_release">لا يوجد إصدار مستقر عام أو المستودع غير متاح.</string>
     <string name="update_open_release">فتح صفحة الإصدار</string>
     <string name="update_unignore">إلغاء تجاهل هذا الإصدار</string>
+    <string name="voice_draft_channel">مسودات صوتية</string>
+    <string name="voice_draft_ready">المسودة جاهزة</string>
     <string name="workbench_access">وضع الوصول: %1$s</string>
     <string name="workbench_answer_required">أدخل إجابة.</string>
     <string name="workbench_back">رجوع</string>

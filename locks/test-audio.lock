@@ -1,0 +1,15 @@
+# Device test recordings of roadmap P17 / D79 (androidTest assets, never in the plugin APK), checked by TestAudioLockTest.
+# Byte-identical to the copies 3-Macaw Speech pins in its locks/test-audio.lock, which are the test_wavs members of the
+#   sherpa-onnx model archives below (Apache-2.0). kws-zh-6 holds the Chinese keyword "zhu li nan" of the keyword
+#   spotter's test_wavs/keywords_raw.txt; mixed-zh-en is the bilingual command spoken after it.
+format=1
+kws-zh-6.path=app/src/androidTest/assets/test-audio/kws-zh-6.wav
+kws-zh-6.sha256=f5da5689f1960431a53855d7fbe78c9ab0b73e5495ffba631cd43458225d9039
+kws-zh-6.url=https://github.com/k2-fsa/sherpa-onnx/releases/download/kws-models/sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20.tar.bz2
+kws-zh-6.member=sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20/test_wavs/zh_6.wav
+kws-zh-6.license=Apache-2.0
+mixed-zh-en.path=app/src/androidTest/assets/test-audio/mixed-zh-en.wav
+mixed-zh-en.sha256=7d93384ca14702cc584a7a33fe2fed92e89e708549161cb12ea38c916882103b
+mixed-zh-en.url=https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2
+mixed-zh-en.member=sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/test_wavs/0.wav
+mixed-zh-en.license=Apache-2.0

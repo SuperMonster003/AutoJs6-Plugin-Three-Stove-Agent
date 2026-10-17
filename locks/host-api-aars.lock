@@ -6,3 +6,7 @@ host-capability-api.file=host-capability-api.aar
 host-capability-api.sha256=23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1
 three-stove-agent-api.file=three-stove-agent-api.aar
 three-stove-agent-api.sha256=02958a7c414c80a7cc839dc8da01b04b367d9b2f3694403f57e93b0e813f0762
+# speech-api (roadmap D69): byte-identical to the copy 3-Macaw Speech stages, assembled with
+#   :plugin-api:speech-api:assembleRelease from the host sources of commit 1d6280bf8 (6.8.0, build 5451, contract version 1).
+speech-api.file=speech-api.aar
+speech-api.sha256=74f29a089c7da86c07920a956455b18e8039def5f006c7fddf78af1db33cd1f2

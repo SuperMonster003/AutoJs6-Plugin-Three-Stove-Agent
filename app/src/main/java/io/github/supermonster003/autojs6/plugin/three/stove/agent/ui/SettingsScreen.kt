@@ -88,6 +88,8 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     val speech = SpeechPreferences(this@buildPage)
     voiceMacawDivider = add(page, "voice-macaw", switchRow(getString(R.string.settings_voice_macaw), getString(R.string.settings_voice_macaw_note),
         R.drawable.ic_mic, speech.preferMacaw, "voice-macaw") { speech.preferMacaw = it })
+    // Resident listening through 3-Macaw Speech (roadmap D61-D75): independent of the private settings snapshot.
+    resident.build(page)
     add(page, "floating", switchRow(getString(R.string.settings_floating), getString(R.string.floating_setting_note), R.drawable.ic_bubble, false, "floating") { enabled ->
         if (enabled && !Settings.canDrawOverlays(this@buildPage)) {
             rows.getValue("floating").switch!!.isChecked = false

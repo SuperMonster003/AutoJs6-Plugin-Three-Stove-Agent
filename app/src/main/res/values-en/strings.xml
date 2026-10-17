@@ -274,6 +274,33 @@
     <string name="presets_unavailable">%1$s (unavailable)</string>
     <string name="release_history_error">Unable to read the bundled document.</string>
     <string name="release_history_title">Version history</string>
+    <string name="resident_alert_channel">Resident listening alerts</string>
+    <string name="resident_conflict_message">The system supports only one app listening resident. Turn off %1$s first, then turn it on here.</string>
+    <string name="resident_conflict_open">Open %1$s settings</string>
+    <string name="resident_conflict_title">Only one resident listener</string>
+    <string name="resident_connecting" tools:ignore="TypographyEllipsis">Connecting to 3-Macaw Speech...</string>
+    <string name="resident_listening" tools:ignore="TypographyEllipsis">Listening...</string>
+    <string name="resident_overlay_grant">Allow</string>
+    <string name="resident_overlay_message">With the permission to display over other apps, the draft opens as soon as you finish speaking. Without it, a notification brings the draft.</string>
+    <string name="resident_overlay_skip">Not now</string>
+    <string name="resident_overlay_title">Show drafts over other apps?</string>
+    <string name="resident_resume_text">Tap to resume resident listening</string>
+    <string name="resident_resume_title">Resident listening paused</string>
+    <string name="resident_sensitivity_high">High: wakes more easily</string>
+    <string name="resident_sensitivity_low">Low: fewer false wakes</string>
+    <string name="resident_sensitivity_medium">Medium</string>
+    <string name="resident_stopped_busy">The microphone of 3-Macaw Speech is in use</string>
+    <string name="resident_stopped_conflict">%1$s is already listening resident. Turn it off there first.</string>
+    <string name="resident_stopped_ended">The wake session ended unexpectedly</string>
+    <string name="resident_stopped_incompatible">This 3-Macaw Speech version does not support wake words</string>
+    <string name="resident_stopped_keywords">3-Macaw Speech cannot spell a wake word; change it in settings</string>
+    <string name="resident_stopped_microphone">3-Macaw Speech has no microphone permission</string>
+    <string name="resident_stopped_model">3-Macaw Speech lacks the wake word or recognition model</string>
+    <string name="resident_stopped_retry">Opening 3-Stove Agent tries again.</string>
+    <string name="resident_stopped_title">Resident listening stopped</string>
+    <string name="resident_stopped_unavailable">3-Macaw Speech is not available</string>
+    <string name="resident_turn_off">Turn off</string>
+    <string name="resident_waiting">Say %1$s to wake</string>
     <string name="risk_add_keyword">Add a keyword</string>
     <string name="risk_add_package">Add a payment app package name</string>
     <string name="risk_builtin">Built in</string>
@@ -344,6 +371,22 @@
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>
     <string name="settings_open_failed">No application could open this link.</string>
     <string name="settings_policy_note">Saved settings apply to new tasks. Presets and individual tasks can only narrow these limits; host permissions still apply.</string>
+    <string name="settings_resident">Resident listening</string>
+    <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Checking 3-Macaw Speech...</string>
+    <string name="settings_resident_conflict">%1$s is already listening resident; turn it off there first</string>
+    <string name="settings_resident_incompatible">This 3-Macaw Speech version does not support wake words; update it</string>
+    <string name="settings_resident_keywords">Wake words</string>
+    <string name="settings_resident_keywords_invalid">Check the number, length and repeats of the wake words</string>
+    <string name="settings_resident_keywords_note">One per line, 1 to %1$d, each up to %2$d characters. Chinese is recognized by pinyin; English words must be in the model\'s dictionary.</string>
+    <string name="settings_resident_microphone">Allow the microphone for 3-Macaw Speech first</string>
+    <string name="settings_resident_missing">Needs 3-Macaw Speech (offline recording and recognition)</string>
+    <string name="settings_resident_no_recognition_model">Download a recognition model in 3-Macaw Speech first</string>
+    <string name="settings_resident_no_wake_model">Download the wake word model in 3-Macaw Speech first</string>
+    <string name="settings_resident_note">Say %1$s, then the task: the sentence becomes a draft that runs only after you tap Start. 3-Macaw Speech records and recognizes; while on, 3-Stove Agent and 3-Macaw Speech each keep a notification and battery use rises.</string>
+    <string name="settings_resident_open_macaw">Open 3-Macaw Speech</string>
+    <string name="settings_resident_open_macaw_note">Download models or allow the microphone there</string>
+    <string name="settings_resident_sensitivity">Wake sensitivity</string>
+    <string name="settings_resident_unavailable">Cannot connect to 3-Macaw Speech: AutoJs6 must be installed</string>
     <string name="settings_risk_summary">Payment apps added: %1$d, keywords added: %2$d</string>
     <string name="settings_save">Save settings</string>
     <string name="settings_section_information">Information</string>
@@ -409,6 +452,8 @@
     <string name="update_no_release">No public stable release is available, or the repository is unavailable.</string>
     <string name="update_open_release">Open release page</string>
     <string name="update_unignore">Stop ignoring this version</string>
+    <string name="voice_draft_channel">Voice drafts</string>
+    <string name="voice_draft_ready">Draft ready</string>
     <string name="workbench_access">Access mode: %1$s</string>
     <string name="workbench_answer_required">Enter an answer.</string>
     <string name="workbench_back">Back</string>

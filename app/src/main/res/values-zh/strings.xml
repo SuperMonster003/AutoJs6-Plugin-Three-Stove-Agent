@@ -274,6 +274,33 @@
     <string name="presets_unavailable">%1$s (不可用)</string>
     <string name="release_history_error">无法读取内置文档.</string>
     <string name="release_history_title">版本历史</string>
+    <string name="resident_alert_channel">常驻监听提醒</string>
+    <string name="resident_conflict_message">系统只能支持一个常驻监听应用, 需要先关闭 %1$s 才能开启.</string>
+    <string name="resident_conflict_open">打开 %1$s 设置</string>
+    <string name="resident_conflict_title">只能有一个常驻监听</string>
+    <string name="resident_connecting" tools:ignore="TypographyEllipsis">正在连接 3-Macaw Speech...</string>
+    <string name="resident_listening" tools:ignore="TypographyEllipsis">正在听...</string>
+    <string name="resident_overlay_grant">去授予</string>
+    <string name="resident_overlay_message">授予显示在其他应用上层的权限后, 说完即可直接看到草稿; 不授予时改为发通知, 点通知打开草稿.</string>
+    <string name="resident_overlay_skip">不用了</string>
+    <string name="resident_overlay_title">在其他应用上层显示草稿?</string>
+    <string name="resident_resume_text">点此恢复常驻监听</string>
+    <string name="resident_resume_title">常驻监听已暂停</string>
+    <string name="resident_sensitivity_high">高: 更容易唤醒</string>
+    <string name="resident_sensitivity_low">低: 更少误唤醒</string>
+    <string name="resident_sensitivity_medium">中</string>
+    <string name="resident_stopped_busy">3-Macaw Speech 的麦克风正被占用</string>
+    <string name="resident_stopped_conflict">%1$s 正在常驻监听, 请先在其中关闭.</string>
+    <string name="resident_stopped_ended">唤醒会话意外结束</string>
+    <string name="resident_stopped_incompatible">当前 3-Macaw Speech 版本不支持唤醒词</string>
+    <string name="resident_stopped_keywords">3-Macaw Speech 无法识别某个唤醒词, 请在设置中修改</string>
+    <string name="resident_stopped_microphone">3-Macaw Speech 没有麦克风权限</string>
+    <string name="resident_stopped_model">3-Macaw Speech 缺少唤醒词或识别模型</string>
+    <string name="resident_stopped_retry">下次打开 3-Stove Agent 时会重试.</string>
+    <string name="resident_stopped_title">常驻监听已停止</string>
+    <string name="resident_stopped_unavailable">3-Macaw Speech 不可用</string>
+    <string name="resident_turn_off">关闭</string>
+    <string name="resident_waiting">说出 %1$s 即可唤醒</string>
     <string name="risk_add_keyword">添加关键词</string>
     <string name="risk_add_package">添加支付应用包名</string>
     <string name="risk_builtin">内置</string>
@@ -344,6 +371,22 @@
     <string name="settings_ocr_note">启用 OCR 组后, 宿主检测到已授权的识别插件时会自动提供 OCR.</string>
     <string name="settings_open_failed">没有应用可以打开此链接.</string>
     <string name="settings_policy_note">保存的设置用于新任务. 预设和单次任务只能进一步收紧限制, 仍须遵守宿主权限.</string>
+    <string name="settings_resident">常驻监听</string>
+    <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">正在检查 3-Macaw Speech...</string>
+    <string name="settings_resident_conflict">%1$s 正在常驻监听, 需先在其中关闭</string>
+    <string name="settings_resident_incompatible">当前 3-Macaw Speech 版本不支持唤醒词, 请更新</string>
+    <string name="settings_resident_keywords">唤醒词</string>
+    <string name="settings_resident_keywords_invalid">请检查唤醒词的个数, 长度与是否重复</string>
+    <string name="settings_resident_keywords_note">每行一个, 1 到 %1$d 个, 每个至多 %2$d 个字符. 中文按拼音识别, 英文单词须在模型词典中.</string>
+    <string name="settings_resident_microphone">请先为 3-Macaw Speech 授予麦克风权限</string>
+    <string name="settings_resident_missing">需要安装 3-Macaw Speech (离线录音与识别)</string>
+    <string name="settings_resident_no_recognition_model">请先在 3-Macaw Speech 中下载识别模型</string>
+    <string name="settings_resident_no_wake_model">请先在 3-Macaw Speech 中下载唤醒词模型</string>
+    <string name="settings_resident_note">说出 %1$s 后接着说任务: 这句话成为草稿, 点开始才执行. 由 3-Macaw Speech 录音和识别; 开启后 3-Stove Agent 与 3-Macaw Speech 各有一条常驻通知, 耗电会增加.</string>
+    <string name="settings_resident_open_macaw">打开 3-Macaw Speech</string>
+    <string name="settings_resident_open_macaw_note">在其中下载模型或授予麦克风权限</string>
+    <string name="settings_resident_sensitivity">唤醒灵敏度</string>
+    <string name="settings_resident_unavailable">无法连接 3-Macaw Speech, 需要已安装 AutoJs6</string>
     <string name="settings_risk_summary">已添加支付应用: %1$d, 关键词: %2$d</string>
     <string name="settings_save">保存设置</string>
     <string name="settings_section_information">信息</string>
@@ -409,6 +452,8 @@
     <string name="update_no_release">暂无公开稳定版, 或仓库当前不可用.</string>
     <string name="update_open_release">打开发行页</string>
     <string name="update_unignore">取消忽略此版本</string>
+    <string name="voice_draft_channel">语音草稿</string>
+    <string name="voice_draft_ready">草稿已就绪</string>
     <string name="workbench_access">操作权限: %1$s</string>
     <string name="workbench_answer_required">请输入回答.</string>
     <string name="workbench_back">返回</string>

@@ -26,3 +26,6 @@ app/src/main/res/mipmap*/ic_icon_studio_application*.xml text eol=lf
 
 # Icon Studio reproducible assets
 app/src/main/res/raw/keep_icon_studio_application.xml text eol=lf
+
+# Device test recordings are compared byte for byte with locks/test-audio.lock.
+app/src/androidTest/assets/test-audio/*.wav binary

@@ -274,6 +274,33 @@
     <string name="presets_unavailable">%1$s (indisponible)</string>
     <string name="release_history_error">Impossible de lire le document intégré.</string>
     <string name="release_history_title">Historique des versions</string>
+    <string name="resident_alert_channel">Alertes de l\'écoute permanente</string>
+    <string name="resident_conflict_message">Le système ne prend en charge qu\'une seule appli en écoute permanente. Désactivez d\'abord %1$s, puis activez-la ici.</string>
+    <string name="resident_conflict_open">Ouvrir les paramètres de %1$s</string>
+    <string name="resident_conflict_title">Une seule écoute permanente</string>
+    <string name="resident_connecting" tools:ignore="TypographyEllipsis">Connexion à 3-Macaw Speech...</string>
+    <string name="resident_listening" tools:ignore="TypographyEllipsis">Écoute en cours...</string>
+    <string name="resident_overlay_grant">Autoriser</string>
+    <string name="resident_overlay_message">Avec l\'autorisation d\'affichage par-dessus les autres applis, le brouillon s\'ouvre dès que vous avez fini de parler. Sans elle, une notification apporte le brouillon.</string>
+    <string name="resident_overlay_skip">Plus tard</string>
+    <string name="resident_overlay_title">Afficher les brouillons par-dessus les autres applis?</string>
+    <string name="resident_resume_text">Touchez pour reprendre l\'écoute permanente</string>
+    <string name="resident_resume_title">Écoute permanente en pause</string>
+    <string name="resident_sensitivity_high">Élevée: se déclenche plus facilement</string>
+    <string name="resident_sensitivity_low">Faible: moins de fausses activations</string>
+    <string name="resident_sensitivity_medium">Moyenne</string>
+    <string name="resident_stopped_busy">Le micro de 3-Macaw Speech est occupé</string>
+    <string name="resident_stopped_conflict">%1$s écoute déjà en permanence. Désactivez-le d\'abord là-bas.</string>
+    <string name="resident_stopped_ended">La session d\'activation s\'est terminée de façon inattendue</string>
+    <string name="resident_stopped_incompatible">Cette version de 3-Macaw Speech ne prend pas en charge les mots d\'activation</string>
+    <string name="resident_stopped_keywords">3-Macaw Speech ne sait pas épeler un mot d\'activation; modifiez-le dans les paramètres</string>
+    <string name="resident_stopped_microphone">3-Macaw Speech n\'a pas l\'autorisation du micro</string>
+    <string name="resident_stopped_model">Il manque à 3-Macaw Speech le modèle de mots d\'activation ou de reconnaissance</string>
+    <string name="resident_stopped_retry">Une nouvelle tentative aura lieu à la prochaine ouverture de 3-Stove Agent.</string>
+    <string name="resident_stopped_title">Écoute permanente arrêtée</string>
+    <string name="resident_stopped_unavailable">3-Macaw Speech n\'est pas disponible</string>
+    <string name="resident_turn_off">Désactiver</string>
+    <string name="resident_waiting">Dites %1$s pour réveiller</string>
     <string name="risk_add_keyword">Ajouter un mot-clé</string>
     <string name="risk_add_package">Ajouter le nom de paquet d\'une application de paiement</string>
     <string name="risk_builtin">Intégré</string>
@@ -344,6 +371,22 @@
     <string name="settings_ocr_note">L\'OCR est disponible si ce groupe est activé et si l\'hôte détecte un module de reconnaissance autorisé.</string>
     <string name="settings_open_failed">Aucune application ne peut ouvrir ce lien.</string>
     <string name="settings_policy_note">Les paramètres enregistrés concernent les nouvelles tâches. Les profils et les tâches peuvent seulement réduire ces limites; les autorisations de l\'hôte restent applicables.</string>
+    <string name="settings_resident">Écoute permanente</string>
+    <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Vérification de 3-Macaw Speech...</string>
+    <string name="settings_resident_conflict">%1$s écoute déjà en permanence; désactivez-le d\'abord là-bas</string>
+    <string name="settings_resident_incompatible">Cette version de 3-Macaw Speech ne prend pas en charge les mots d\'activation; mettez-la à jour</string>
+    <string name="settings_resident_keywords">Mots d\'activation</string>
+    <string name="settings_resident_keywords_invalid">Vérifiez le nombre, la longueur et les doublons des mots d\'activation</string>
+    <string name="settings_resident_keywords_note">Un par ligne, de 1 à %1$d, chacun de %2$d caractères au plus. Le chinois est reconnu par le pinyin, les mots anglais doivent figurer dans le dictionnaire du modèle.</string>
+    <string name="settings_resident_microphone">Autorisez d\'abord le micro pour 3-Macaw Speech</string>
+    <string name="settings_resident_missing">Nécessite 3-Macaw Speech (enregistrement et reconnaissance hors ligne)</string>
+    <string name="settings_resident_no_recognition_model">Téléchargez d\'abord un modèle de reconnaissance dans 3-Macaw Speech</string>
+    <string name="settings_resident_no_wake_model">Téléchargez d\'abord le modèle de mots d\'activation dans 3-Macaw Speech</string>
+    <string name="settings_resident_note">Dites %1$s puis la tâche: la phrase devient un brouillon qui ne s\'exécute qu\'après avoir touché Démarrer. 3-Macaw Speech enregistre et reconnaît; tant que l\'écoute est active, 3-Stove Agent et 3-Macaw Speech affichent chacun une notification permanente et la consommation de batterie augmente.</string>
+    <string name="settings_resident_open_macaw">Ouvrir 3-Macaw Speech</string>
+    <string name="settings_resident_open_macaw_note">Les modèles et l\'autorisation du micro se gèrent là-bas</string>
+    <string name="settings_resident_sensitivity">Sensibilité d\'activation</string>
+    <string name="settings_resident_unavailable">Impossible de se connecter à 3-Macaw Speech: AutoJs6 doit être installé</string>
     <string name="settings_risk_summary">Applications de paiement ajoutées: %1$d, mots-clés ajoutés: %2$d</string>
     <string name="settings_save">Enregistrer les paramètres</string>
     <string name="settings_section_information">Informations</string>
@@ -409,6 +452,8 @@
     <string name="update_no_release">Aucune version stable publique disponible, ou dépôt inaccessible.</string>
     <string name="update_open_release">Ouvrir la page de publication</string>
     <string name="update_unignore">Ne plus ignorer cette version</string>
+    <string name="voice_draft_channel">Brouillons vocaux</string>
+    <string name="voice_draft_ready">Brouillon prêt</string>
     <string name="workbench_access">Droits d\'action: %1$s</string>
     <string name="workbench_answer_required">Saisissez une réponse.</string>
     <string name="workbench_back">Retour</string>

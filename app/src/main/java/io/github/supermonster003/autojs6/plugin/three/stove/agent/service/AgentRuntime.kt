@@ -53,6 +53,10 @@ internal class AgentRuntime internal constructor(val context: Context) {
     init { initialized = true; presentationChanged() }
     /** A voice draft for the floating card (roadmap D62, D77); main thread only, false when the ball is not on screen. */
     fun voiceDraft(text: String): Boolean = floating?.voiceDraft(text) == true
+    /** The resident listener heard its wake word or more of the sentence (D77); main thread only. */
+    fun voiceListening(partial: String?): Boolean = floating?.voiceListening(partial) == true
+    /** The resident listening round ended without a draft: the card returns to its earlier state. */
+    fun voiceIdle() { floating?.voiceIdle() }
     @Synchronized fun attach(config: LinkConfiguration, model: IThreeStoveAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IThreeStoveAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(ThreeStoveAgentContract.LINK_STATE_HOST_UNAVAILABLE)

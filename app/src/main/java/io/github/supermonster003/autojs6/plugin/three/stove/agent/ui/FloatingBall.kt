@@ -63,6 +63,9 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private var timelineOpen = false
     private enum class Panel { NONE, MORE, PRESETS, MODELS, ACCESS }
     private var panel = Panel.NONE
+    /** The draft and card state to restore when a resident listening round ends without text (roadmap D77). */
+    private class Listening(val draft: String, val expanded: Boolean)
+    private var listening: Listening? = null
     private var sending = false
     private var snapshot: WorkbenchSnapshot? = null
     private var root: LinearLayout? = null
@@ -530,7 +533,7 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
         }
     }
     private fun updateSend() {
-        sendButton?.isEnabled = !sending && draft.isNotBlank() && selectedPreset in snapshot?.presets.orEmpty() && permitted()
+        sendButton?.isEnabled = !sending && listening == null && draft.isNotBlank() && selectedPreset in snapshot?.presets.orEmpty() && permitted()
     }
     /**
      * A voice draft from the digital assistant or the resident listener (roadmap D62, D72, D77): the card opens with the
@@ -538,10 +541,31 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
      */
     fun voiceDraft(text: String): Boolean {
         if (closed || root == null || !permitted()) return false
+        listening = null
         draft = text; expanded = true; timelineOpen = false; panel = Panel.NONE
         rebuildWindow(); publish(); changed()
         goalField?.let { it.requestFocus(); it.setSelection(it.length()) }
         return true
+    }
+    /** The resident listener heard its wake word (D77): the card says it listens and shows the partial text; nothing can start meanwhile. */
+    fun voiceListening(partial: String?): Boolean {
+        if (closed || root == null || !permitted()) return false
+        if (listening == null) {
+            listening = Listening(draft, expanded)
+            expanded = true; timelineOpen = false; panel = Panel.NONE
+            rebuildWindow(); publish()
+        }
+        goalField?.setText(partial.orEmpty())
+        message?.apply { setText(R.string.resident_listening); setTextColor(kit.palette.muted) }
+        updateSend()
+        return true
+    }
+    /** The round ended without text: the earlier draft and card state come back. */
+    fun voiceIdle() {
+        val previous = listening ?: return
+        listening = null
+        draft = previous.draft; expanded = previous.expanded
+        if (root != null) { rebuildWindow(); publish() } else saveDraft()
     }
     private fun send() {
         val link = runtime.current ?: return

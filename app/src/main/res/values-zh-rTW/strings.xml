@@ -274,6 +274,33 @@
     <string name="presets_unavailable">%1$s (無法使用)</string>
     <string name="release_history_error">無法讀取內建文件.</string>
     <string name="release_history_title">版本歷史</string>
+    <string name="resident_alert_channel">常駐監聽提醒</string>
+    <string name="resident_conflict_message">系統只能支援一個常駐監聽應用程式, 需要先關閉 %1$s 才能開啟.</string>
+    <string name="resident_conflict_open">開啟 %1$s 設定</string>
+    <string name="resident_conflict_title">只能有一個常駐監聽</string>
+    <string name="resident_connecting" tools:ignore="TypographyEllipsis">正在連線至 3-Macaw Speech...</string>
+    <string name="resident_listening" tools:ignore="TypographyEllipsis">正在聆聽...</string>
+    <string name="resident_overlay_grant">前往授予</string>
+    <string name="resident_overlay_message">授予顯示在其他應用程式上層的權限後, 說完即可直接看到草稿; 不授予時改為發送通知, 點選通知開啟草稿.</string>
+    <string name="resident_overlay_skip">暫時不要</string>
+    <string name="resident_overlay_title">在其他應用程式上層顯示草稿?</string>
+    <string name="resident_resume_text">點此恢復常駐監聽</string>
+    <string name="resident_resume_title">常駐監聽已暫停</string>
+    <string name="resident_sensitivity_high">高: 更容易喚醒</string>
+    <string name="resident_sensitivity_low">低: 較少誤喚醒</string>
+    <string name="resident_sensitivity_medium">中</string>
+    <string name="resident_stopped_busy">3-Macaw Speech 的麥克風正被佔用</string>
+    <string name="resident_stopped_conflict">%1$s 正在常駐監聽, 請先在其中關閉.</string>
+    <string name="resident_stopped_ended">喚醒工作階段意外結束</string>
+    <string name="resident_stopped_incompatible">目前的 3-Macaw Speech 版本不支援喚醒詞</string>
+    <string name="resident_stopped_keywords">3-Macaw Speech 無法辨識某個喚醒詞, 請在設定中修改</string>
+    <string name="resident_stopped_microphone">3-Macaw Speech 沒有麥克風權限</string>
+    <string name="resident_stopped_model">3-Macaw Speech 缺少喚醒詞或辨識模型</string>
+    <string name="resident_stopped_retry">下次開啟 3-Stove Agent 時會重試.</string>
+    <string name="resident_stopped_title">常駐監聽已停止</string>
+    <string name="resident_stopped_unavailable">3-Macaw Speech 無法使用</string>
+    <string name="resident_turn_off">關閉</string>
+    <string name="resident_waiting">說出 %1$s 即可喚醒</string>
     <string name="risk_add_keyword">新增關鍵字</string>
     <string name="risk_add_package">新增支付應用套件名稱</string>
     <string name="risk_builtin">內建</string>
@@ -344,6 +371,22 @@
     <string name="settings_ocr_note">啟用 OCR 組後, 宿主偵測到已授權的辨識外掛時會自動提供 OCR.</string>
     <string name="settings_open_failed">沒有應用程式可以開啟此連結.</string>
     <string name="settings_policy_note">儲存的設定用於新任務. 預設和單次任務只能進一步收緊限制, 仍須遵守宿主權限.</string>
+    <string name="settings_resident">常駐監聽</string>
+    <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">正在檢查 3-Macaw Speech...</string>
+    <string name="settings_resident_conflict">%1$s 正在常駐監聽, 需先在其中關閉</string>
+    <string name="settings_resident_incompatible">目前的 3-Macaw Speech 版本不支援喚醒詞, 請更新</string>
+    <string name="settings_resident_keywords">喚醒詞</string>
+    <string name="settings_resident_keywords_invalid">請檢查喚醒詞的數量, 長度與是否重複</string>
+    <string name="settings_resident_keywords_note">每行一個, 1 到 %1$d 個, 每個至多 %2$d 個字元. 中文依拼音辨識, 英文單字須在模型字典中.</string>
+    <string name="settings_resident_microphone">請先授予 3-Macaw Speech 麥克風權限</string>
+    <string name="settings_resident_missing">需要安裝 3-Macaw Speech (離線錄音與辨識)</string>
+    <string name="settings_resident_no_recognition_model">請先在 3-Macaw Speech 中下載辨識模型</string>
+    <string name="settings_resident_no_wake_model">請先在 3-Macaw Speech 中下載喚醒詞模型</string>
+    <string name="settings_resident_note">說出 %1$s 後接著說任務: 這句話會成為草稿, 點開始才執行. 由 3-Macaw Speech 錄音與辨識; 開啟後 3-Stove Agent 與 3-Macaw Speech 各有一則常駐通知, 耗電會增加.</string>
+    <string name="settings_resident_open_macaw">開啟 3-Macaw Speech</string>
+    <string name="settings_resident_open_macaw_note">在其中下載模型或授予麥克風權限</string>
+    <string name="settings_resident_sensitivity">喚醒靈敏度</string>
+    <string name="settings_resident_unavailable">無法連線至 3-Macaw Speech, 需要已安裝 AutoJs6</string>
     <string name="settings_risk_summary">已新增支付應用: %1$d, 關鍵字: %2$d</string>
     <string name="settings_save">儲存設定</string>
     <string name="settings_section_information">資訊</string>
@@ -409,6 +452,8 @@
     <string name="update_no_release">暫無公開穩定版, 或儲存庫目前無法使用.</string>
     <string name="update_open_release">開啟發行頁</string>
     <string name="update_unignore">取消忽略此版本</string>
+    <string name="voice_draft_channel">語音草稿</string>
+    <string name="voice_draft_ready">草稿已就緒</string>
     <string name="workbench_access">操作權限: %1$s</string>
     <string name="workbench_answer_required">請輸入回答.</string>
     <string name="workbench_back">返回</string>

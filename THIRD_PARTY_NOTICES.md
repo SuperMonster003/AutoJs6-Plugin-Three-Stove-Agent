@@ -11,6 +11,8 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 - common-plugin-api SHA-256: `ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15`
 - host-capability-api SHA-256: `23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1`
 - three-stove-agent-api SHA-256: `02958a7c414c80a7cc839dc8da01b04b367d9b2f3694403f57e93b0e813f0762`
+- Component: `speech-api.aar` (`plugin-api/speech-api`, speech plugin contract version 1, used by the resident listener to bind 3-Macaw Speech), host build 5451 (6.8.0), commit `1d6280bf8`, release artifact assembled on 2026-10-16 and byte-identical to the copy 3-Macaw Speech stages
+- speech-api SHA-256: `74f29a089c7da86c07920a956455b18e8039def5f006c7fddf78af1db33cd1f2`
 - All hashes are pinned in `locks/host-api-aars.lock` and checked during Gradle configuration
 - License: Mozilla Public License 2.0
 
@@ -50,3 +52,10 @@ in the APK.
 
 - JUnit 4 (`junit:junit:4.13.2`): Eclipse Public License 1.0
 - AndroidX Test (`androidx.test:runner:1.7.0`, `androidx.test:rules:1.7.0`, `androidx.test.ext:junit:1.3.0`): Apache License 2.0
+
+## Device test recordings (not in the APK)
+
+- Files: `app/src/androidTest/assets/test-audio/kws-zh-6.wav` and `mixed-zh-en.wav`, used only by the acoustic resident listener device test (roadmap D79)
+- Source: `test_wavs` members of the sherpa-onnx model archives `sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20` and `sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20` (<https://github.com/k2-fsa/sherpa-onnx>), byte-identical to the copies 3-Macaw Speech stages
+- License: Apache License 2.0
+- Hashes and archive members are pinned in `locks/test-audio.lock` and checked by `TestAudioLockTest`

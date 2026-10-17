@@ -84,12 +84,13 @@ internal fun Kit.inputDialog(
     hint: CharSequence? = null,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     maxLength: Int? = null,
+    singleLine: Boolean = true,
     positive: CharSequence = string(android.R.string.ok),
     neutral: Pair<CharSequence, () -> Unit>? = null,
     validate: (String) -> CharSequence? = { null },
     onSubmit: (String) -> Unit,
 ): AlertDialog {
-    val (layout, edit) = textField(value, hint, inputType, maxLength)
+    val (layout, edit) = textField(value, hint, inputType, maxLength, singleLine)
     val container = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         setPaddingRelative(dp(Ui.SPACE_XXL), dp(Ui.SPACE_SM), dp(Ui.SPACE_XXL), 0)

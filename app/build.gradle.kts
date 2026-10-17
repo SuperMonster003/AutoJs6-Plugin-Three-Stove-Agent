@@ -65,7 +65,7 @@ require(hostApiLockFile.isFile) {
     "Missing host API lock: ${hostApiLockFile.relativeTo(rootProject.projectDir)}"
 }
 val hostApiLock = hostApiLockFile.loadUniqueLock()
-val hostApiIds = listOf("common-plugin-api", "host-capability-api", "three-stove-agent-api")
+val hostApiIds = listOf("common-plugin-api", "host-capability-api", "three-stove-agent-api", "speech-api")
 val expectedHostApiLockKeys = setOf("format") + hostApiIds.flatMap { id -> listOf("$id.file", "$id.sha256") }
 require(hostApiLock.stringPropertyNames() == expectedHostApiLockKeys) {
     "Host API AAR lock must contain exactly these keys: ${expectedHostApiLockKeys.sorted()}"

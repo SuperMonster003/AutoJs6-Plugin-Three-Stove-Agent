@@ -101,7 +101,11 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         views.scroll.setOnScrollChangeListener { _: androidx.core.widget.NestedScrollView, _: Int, _: Int, _: Int, _: Int -> if (atEnd()) views.jump.visibility = View.GONE }
         renderPreset(); updateSend()
     }
-    override fun onStart() { super.onStart(); requested = false; sending = false; models.start(); agent.start(); settings.start(); presetStore.start(); updates.checkAutomatically() }
+    override fun onStart() {
+        super.onStart(); requested = false; sending = false; models.start(); agent.start(); settings.start(); presetStore.start(); updates.checkAutomatically()
+        // A visible workbench resumes an enabled resident listener (roadmap D67).
+        io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentListener.resume(this)
+    }
     override fun onResume() {
         super.onResume(); visibility.start()
         // Returning from the overlay permission screen with the grant completes the floating ball toggle.
