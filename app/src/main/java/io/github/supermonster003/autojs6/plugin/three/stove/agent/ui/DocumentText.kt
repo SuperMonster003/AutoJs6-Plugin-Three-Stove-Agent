@@ -8,9 +8,14 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.AgentPa
 
 /**
  * Minimal offline Markdown for bundled changelogs and notices: headings, date lines, bullets with
- * category badges and inline code. No links, images or HTML are interpreted.
+ * category badges and inline code. Links show only their label; images and HTML are not interpreted.
  */
 internal object DocumentText {
+    private val LINK = Regex("""\[([^\]\n]+)]\([^)\s]+\)""")
+
+    /** `[label](url)` -> `label`: the raw URL is noise offline and RTL reordering scrambles it. */
+    fun linkLabels(value: String): String = value.replace(LINK, "$1")
+
     fun render(text: String, palette: AgentPalette): CharSequence = SpannableStringBuilder().apply {
         var previousBlank = true
         text.lineSequence().forEach { raw ->
@@ -47,7 +52,7 @@ internal object DocumentText {
         val parts = value.split('`')
         parts.forEachIndexed { index, part ->
             val start = length
-            append(part)
+            append(if (index % 2 == 1) part else linkLabels(part))
             if (index % 2 == 1 && part.isNotEmpty()) {
                 setSpan(ForegroundColorSpan(palette.accent), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 setSpan(TypefaceSpan("sans-serif-medium"), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

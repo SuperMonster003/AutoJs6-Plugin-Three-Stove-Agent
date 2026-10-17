@@ -294,7 +294,7 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 #### v1.3.0
 
-_2026/10/17_
+_2026/10/18_
 
 - `Función` Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación
 - `Función` Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea
@@ -314,6 +314,7 @@ _2026/10/17_
 - `Corrección` Una consulta de ejecución podía devolver brevemente un estado terminal sin su resultado mientras la tarea terminaba (fallo ocasional de la suite de conformidad del host simulado en la CI remota): el estado terminal ahora se archiva junto con el resultado, por lo que hosts y scripts nunca ven una tarea finalizada sin él
 - `Corrección` Completar las traducciones que faltaban en los ajustes de actualización
 - `Corrección` En la interfaz en árabe, 3-Stove Agent ya no aparece invertido como Stove Agent-3
+- `Corrección` Los enlaces del historial de versiones muestran solo su texto en lugar del Markdown y la dirección web sin procesar (en árabe ese texto aparecía desordenado)
 - `Mejora` Se retiran los botones Reintentar con otro modelo (el modelo se cambia en la parte superior del espacio de trabajo o dentro de la bola flotante); Historial de tareas y Abrir espacio de trabajo de la bola pasan al menú Más; el icono de historial usa el glifo estándar
 - `Mejora` Tras un tools/list_changed enviado por un servidor MCP, las definiciones de herramientas congeladas se vuelven a verificar antes de la siguiente llamada: las que no cambiaron siguen funcionando, y solo una definición cambiada falla con MCP_CATALOG_CHANGED indicando al modelo que pida al usuario actualizar la selección de herramientas en los ajustes de MCP y comenzar una tarea nueva; la nota del punto de conexión ahora indica que el inicio de sesión OAuth y el transporte HTTP+SSE antiguo no son compatibles
 - `Mejora` Se elimina la migración única introducida en 1.2.0: una elección de modelo antigua en las preferencias de borrador del banco de trabajo ya no se traslada a model-selection.json, por lo que una elección guardada por una versión anterior debe volver a hacerse en el banco de trabajo
