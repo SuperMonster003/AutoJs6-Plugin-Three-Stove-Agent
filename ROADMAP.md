@@ -786,12 +786,12 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 背景: 3-Macaw Speech 将成为系统数字助理 (其 P5.7, D48-D57): 用户长按电源键听写后点按钮, 把文字经 `VOICE_COMMAND` 交给 3-Stove Agent 或 3-Stone AI. 维护者另定 (3-Stone AI ROADMAP D27): 3-Stone AI, 3-Stove Agent, 3-Macaw Speech 各有常驻监听开关 (默认关, 同一时刻只允许一个, 互斥约定 D28 / D31), 常驻监听经 Binder 持有 Macaw 的唤醒会话; Macaw 助理需要麦克风时临时静默唤醒会话, 之后自动继续 (Macaw D57, 对客户端透明, Stove 不做处理). 决策见第 1 节 D60-D79. 宿主无需改动.
 
-- [ ] (插件) P17.1 `VOICE_COMMAND` 草稿入口 (D60, D62, D72, D77, D78): `ui.VoiceCommandActivity` 与 Manifest 条目, `VoiceDraftText` 清洗, 悬浮球 `voiceDraft` (替换文字, 保留预设), 不可用时打开任务台; `ManifestContractTest` 导出审查; 十一语言无新增可见文案以外的改动 (复用 `entry_invalid`).
-- [ ] (插件) P17.2 `speech-api` 暂存与 Macaw 客户端 (D69, D74): `libs/speech-api.aar` 与锁文件, `libs/README.md`, `THIRD_PARTY_NOTICES.md`; `speech/MacawSpeechConnection` (绑定, 能力与模型探测, `linkToDeath`), `ResidentAvailability`.
-- [ ] (插件) P17.3 常驻监听服务, 互斥与设置 (D61, D63-D68, D71, D73, D75, D76): `.speech.ResidentListenerService` 与 settings alias, 唤醒会话与 `thenListen` 回合, 常驻通知与失败通知, `VoiceDraftRoute` 投递 (卡片 / 任务台 / 通知), 悬浮球 "正在听..." 状态; 设置页 "常驻监听" 开关, "打开 3-Macaw Speech", 唤醒词, 灵敏度四行; 开启时的互斥对话框, 通知权限与一次悬浮窗询问.
-- [ ] (插件) P17.4 恢复 (D67): 任务台与设置页可见时恢复, `RECEIVE_BOOT_COMPLETED` 与 `MY_PACKAGE_REPLACED` 后的恢复通知.
-- [ ] (文档) P17.5 十语言文案 (含 `values` / `values-en` 一致), README 用法与安全章节 (新权限, 新导出组件, 常驻监听的耗电与两条常驻通知), changelog v1.3.0 `feature`, `AGENTS.md` 第 6 节权限与导出组件, 生成器 `--check`.
-- [ ] (测试) P17.6 E1 / E2 / E3 (D79): JVM 规则测试, instrumentation 入口与开关测试, 真机唤醒到草稿; `.python/device_resident_check.py`.
+- [x] (插件) P17.1 `VOICE_COMMAND` 草稿入口 (D60, D62, D72, D77, D78): `ui.VoiceCommandActivity` 与 Manifest 条目, `VoiceDraftText` 清洗, 悬浮球 `voiceDraft` (替换文字, 保留预设), 不可用时打开任务台; `ManifestContractTest` 导出审查; 无新增界面文案 (复用 `entry_invalid`). 证据: `1e129b29` (build 399); E1 `VoiceDraftTextTest` 5 项, `ManifestContractTest`; E2 QV710AF65F (XQ-AT72, API 31) `WorkbenchActivityTest#voiceCommandOpensADraftOnlyAndBorrowsTheApplicationLabel` 通过 (入口 label 为 3-Stove Agent, 图标为应用图标, `am start` 后任务台出现草稿, 模型调用 0 次). 悬浮球卡片路径未在真机验证 (需宿主附着与悬浮窗权限).
+- [x] (插件) P17.2 `speech-api` 暂存与 Macaw 客户端 (D69, D74): `libs/speech-api.aar` (SHA-256 `74f29a08...`, 40,979 B) 与锁文件, `libs/README.md`, `THIRD_PARTY_NOTICES.md`; `speech/MacawSpeech` (绑定标志, 5 s 探测) 与常驻服务内的绑定和 `linkToDeath`, `ResidentAvailability`. 证据: E1 `ResidentRulesTest` (可用性 7 种结果与优先级); E2 QV710AF65F 设置页探测为 READY (Macaw versionCode 30).
+- [x] (插件) P17.3 常驻监听服务, 互斥与设置 (D61, D63-D68, D71, D73, D75, D76): `.speech.ResidentListenerService` 与 settings alias, 唤醒会话与 `thenListen` 回合, 常驻通知与失败通知, `VoiceDraftRoute` 投递 (卡片 / 任务台 / 通知), 悬浮球 "正在听..." 状态; 设置页 "常驻监听" 开关, "打开 3-Macaw Speech", 唤醒词, 灵敏度四行; 开启时的互斥对话框, 通知权限与一次悬浮窗询问. 证据: E1 `ResidentRulesTest` 9 项; E2 QV710AF65F `ResidentListenerDeviceTest` 的组件状态即开关 (默认禁用, 启用后可被查询且带 meta-data, 关闭恢复默认), 设置 alias 打开常驻监听行, 无悬浮球时的草稿去向 (该机未授悬浮窗: NOTIFICATION, 私密可见性加公开版本); E3 同机声学用例: 唤醒词设为测试录音中的 "朱丽楠", 设置页可见时开启, 经扬声器播放 `kws-zh-6` + 0.3 s 静音 + `mixed-zh-en`, 唤醒会话 151 ms 就绪, 播放后 1827 ms 命中, 5225 ms 得到 9 个字符的草稿通知, 之后回到等待状态. 第一次声学运行把媒体音量压到 40% (12/30), 60 s 内未命中 (麦克风正常录音, 无静音警告); 用例改为保持设备音量 (该机 70%), 低于 40% 才临时调高. 未在真机验证: 悬浮球卡片与 "正在听...", 后台打开任务台 (需悬浮窗权限), API 34+ 的 `BIND_ALLOW_ACTIVITY_STARTS` 路径, 互斥对话框 (需另一应用开着常驻监听), 唤醒词与灵敏度的实际误唤醒率.
+- [x] (插件) P17.4 恢复 (D67): 任务台与设置页可见时恢复, `RECEIVE_BOOT_COMPLETED` 与 `MY_PACKAGE_REPLACED` 后的恢复通知. 证据: E2 QV710AF65F `rebootAndUpdateOnlyRemindAnEnabledListener` (直接调用接收器: 关闭时与其他广播不提醒, 开启时提醒, 关闭开关即撤销); 未做真实重启.
+- [x] (文档) P17.5 十语言文案 (含 `values` / `values-en` 一致), README 用法与安全章节 (新权限, 新导出组件, 常驻监听的耗电与两条常驻通知), changelog v1.3.0 `feature`, `AGENTS.md` 第 6 节权限与导出组件 (该文件不入库), 生成器 `--check`. 证据: 11 个 values 目录各 45 条字符串 (按名称排序, 阿拉伯语以 FSI / PDI 隔离产品名与占位符), README 新增功能条目并补用法第 11 步与安全第 1 / 2 条, changelog 两条 `feature`; `generate_markdown.py --check` 10 语言 36 产物通过.
+- [x] (测试) P17.6 E1 / E2 / E3 (D79): JVM 规则测试, instrumentation 入口与开关测试, 真机唤醒到草稿; `.python/device_resident_check.py`. 证据: 测试录音与 3-Macaw Speech 的副本字节相同, 记入 `locks/test-audio.lock` 并由 `TestAudioLockTest` 校验; QV710AF65F `py .python/device_resident_check.py --serial QV710AF65F --acoustic` 6/6 通过 (维护者同意后运行), 设备停回桌面, 开关关闭, 无残留通知, 媒体音量不变.
 - [ ] (其他插件) 联调: 3-Macaw Speech P5.7 落地后, 在 Sony 真机上长按电源键听写并点 "3-Stove Agent", 草稿出现在悬浮球卡片或任务台 (Macaw P5.7 E4 的 Stove 一项); Stove 常驻监听开着时触发 Macaw 助理, 核对 D57 的静默与恢复 (唤醒会话不报命中, 助理结束后再次命中).
 
 ## 附录 A: 脚本 API 草案
@@ -2020,3 +2020,10 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 起点: 3-Macaw Speech P5.6 (提交 `fed02d7` / `8da191d`) 的 "P5.6 留下的缺口" 中属于本仓库的两项. 维护者经两题选择题选定 "加设置项, 默认开启" 与 "仅可解析时显示" (D59).
 - 落地与证据见 P13 末条: 设置说明十一语言, `SpeechInput` 固定包名与 `SpeechPreferences`, 设置页条件行, 测试与 `.python/device_voice_check.py`; changelog v1.3.0 十语言新增一条 `feature`, README 用法第 11 步十语言补一句, 生成 `--check` 通过 (10 语言 36 产物).
 - 真机: QV710AF65F 只读确认空闲 (桌面在前台, 无 instrumentation) 后由维护者同意运行; 设备停回桌面, 测试恢复了 `speech` 偏好. 本地提交, 推送等待维护者指示.
+
+### 2026-10-17 至 18: 语音入口 P17 (D60-D79, build 398-402)
+
+- 起点: 3-Macaw Speech P5.7 (系统数字助理, Macaw D48-D57) 与 3-Stone AI ROADMAP D27-D38 (常驻监听与 `VOICE_COMMAND`). 维护者经四轮选择题选定 D60-D72 (全部推荐项); 第二轮题面把 `RECEIVE_BOOT_COMPLETED` 只写在 "开机尽力自启" 选项里, 第四轮补问更正 (D67). D73-D79 为派生决策, 实现中只把 D78 的 "`VOICE_LANGUAGE` 校验后不使用" 改为不读取.
+- 提交: `df806f46` (路线图, build 398), `1e129b29` (P17.1, build 399), `0fd8fa9c` (常驻监听 P17.2-P17.6, build 401) 与本条证据 (build 402); 其间另一会话提交了 `33cc04ba` (发行历史链接文本, build 400), 与本阶段无文件冲突. 宿主无改动.
+- 共用约定的实现细节写入同组共享笔记: D31 的设置 Activity 必须可被对方打开 (Stove 用导出且受 PLUGIN 保护的 alias), 3-Stone AI D32 的权限清单缺 `RECEIVE_BOOT_COMPLETED`.
+- 本地提交, 推送等待维护者指示.
