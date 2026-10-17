@@ -45,4 +45,22 @@ object ThreeStoveAgentPlugin {
      * authoritative identity validation that build 5289 introduced.
      */
     const val REQUIRED_HOST_VERSION = ThreeStoveAgentIds.REQUIRED_HOST_VERSION_CODE
+
+    /**
+     * Target entry of the 3-Macaw Speech digital assistant (its roadmap D50): an Activity answering this action with
+     * DEFAULT receives [android.content.Intent.EXTRA_TEXT] and, optionally, [EXTRA_VOICE_LANGUAGE] (roadmap D60).
+     * The literals belong to no host contract module; 3-Macaw Speech and 3-Stone AI repeat them.
+     */
+    const val VOICE_COMMAND_ACTION = "org.autojs.plugin.action.VOICE_COMMAND"
+    /** BCP 47 language of the recognition model that produced the text; may be absent. */
+    const val EXTRA_VOICE_LANGUAGE = "org.autojs.plugin.extra.VOICE_LANGUAGE"
+
+    /**
+     * Resident listener convention shared by 3-Stone AI, 3-Stove Agent and 3-Macaw Speech (3-Stone AI roadmap D31,
+     * here D73): each app exports one service with this action that is enabled exactly while its resident listener is on,
+     * so only one app listens at a time.
+     */
+    const val RESIDENT_LISTENER_ACTION = "org.autojs.plugin.speech.action.RESIDENT_LISTENER"
+    /** Meta-data of that service naming the exported Activity the other apps open as "open xxx settings". */
+    const val RESIDENT_LISTENER_SETTINGS = "org.autojs.plugin.speech.RESIDENT_LISTENER_SETTINGS"
 }

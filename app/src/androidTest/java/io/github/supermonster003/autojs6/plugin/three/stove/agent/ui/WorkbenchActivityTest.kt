@@ -1345,6 +1345,33 @@ class WorkbenchActivityTest {
             }
         } finally { instrumentation.removeMonitor(monitor) }
     }
+    @Test fun voiceCommandOpensADraftOnlyAndBorrowsTheApplicationLabel() = withFixture { link, model ->
+        // 3-Macaw Speech discovers its targets by the action and shows each activity's label and icon (roadmap D60).
+        val target = context.packageManager.queryIntentActivities(Intent(ThreeStoveAgentPlugin.VOICE_COMMAND_ACTION).setPackage(context.packageName), 0).single()
+        assertEquals(VoiceCommandActivity::class.java.name, target.activityInfo.name)
+        assertEquals(context.getString(R.string.app_name), target.loadLabel(context.packageManager).toString())
+        assertEquals(context.applicationInfo.icon, target.iconResource)
+        assertEquals(TaskEntry("Voice draft"), TaskEntries.read(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "Voice draft")))
+        val monitor = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
+        var launcher: LauncherActivity? = null
+        try {
+            // The floating ball is off in the fixture, so the draft opens in the workbench (D62); the language is not used (D78).
+            val command = "am start -a ${ThreeStoveAgentPlugin.VOICE_COMMAND_ACTION} -n ${context.packageName}/.ui.VoiceCommandActivity" +
+                " --es android.intent.extra.TEXT Voice_command_fixture --es ${ThreeStoveAgentPlugin.EXTRA_VOICE_LANGUAGE} zh-CN --ez allowed true"
+            ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command)).use { it.readBytes() }
+            instrumentation.waitForMonitorWithTimeout(monitor, 15000) as LauncherActivity
+            waitFor("Voice command draft") { var ready = false; instrumentation.runOnMainSync {
+                launcher = androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED).filterIsInstance<LauncherActivity>().firstOrNull()
+                ready = launcher?.findViewById<EditText>(R.id.workbench_goal)?.text?.toString() == "Voice_command_fixture" &&
+                    launcher?.findViewById<Button>(R.id.workbench_send)?.isEnabled == true
+            }; ready }
+            // A draft only: nothing reached the model and nothing runs until the user starts it.
+            SystemClock.sleep(500)
+            assertEquals(0, model.calls.get())
+            assertNull(AgentConnection.decode(link.status, C.KEY_STATUS_JSON).string("runningRunId"))
+        } finally { instrumentation.removeMonitor(monitor); instrumentation.runOnMainSync { launcher?.finish() } }
+    }
     @Test fun entryParsingRejectsMalformedSharesAndSpeechFillsWithoutRunning() = withFixture { _, model ->
         assertNull(TaskEntries.read(Intent(Intent.ACTION_SEND).setType("image/png").putExtra(Intent.EXTRA_TEXT, "bad")))
         assertNull(TaskEntries.read(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "中".repeat(1400))))

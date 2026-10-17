@@ -59,7 +59,7 @@ class ManifestContractTest {
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.McpServersActivity", ".ui.RiskRecognitionActivity", ".ui.ReleaseHistoryActivity", ".ui.AboutActivity", ".ui.ConfirmationActivity", ".ui.FailureAlertActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceCommandActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.McpServersActivity", ".ui.RiskRecognitionActivity", ".ui.ReleaseHistoryActivity", ".ui.AboutActivity", ".ui.ConfirmationActivity", ".ui.FailureAlertActivity"), activities.map { it.androidAttribute("name") })
         assertEquals("true", activities.last().androidAttribute("excludeFromRecents"))
         assertEquals("@style/Theme.ThreeStoveAgent.Dialog.Light", activities.last().androidAttribute("theme"))
 
@@ -99,7 +99,24 @@ class ManifestContractTest {
         val filter = share.child("intent-filter")
         assertEquals(listOf("android.intent.action.SEND"), filter.children("action").map { it.androidAttribute("name") })
         assertEquals("text/plain", filter.child("data").androidAttribute("mimeType"))
-        for (settings in activities.drop(3)) {
+
+        // The 3-Macaw Speech assistant target (D60, D78): no permission, no window, next to the floating ball, and no
+        // label or icon of its own, so the assistant button shows the application's.
+        val voice = activities[3]
+        assertEquals(".ui.VoiceCommandActivity", voice.androidAttribute("name"))
+        assertEquals("true", voice.androidAttribute("exported"))
+        assertNull(voice.androidAttributeOrNull("permission"))
+        assertNull(voice.androidAttributeOrNull("label"))
+        assertNull(voice.androidAttributeOrNull("icon"))
+        assertEquals(ThreeStoveAgentPlugin.SERVICE_PROCESS, voice.androidAttribute("process"))
+        assertEquals("@android:style/Theme.NoDisplay", voice.androidAttribute("theme"))
+        assertEquals("true", voice.androidAttribute("excludeFromRecents"))
+        assertEquals("true", voice.androidAttribute("noHistory"))
+        val voiceFilter = voice.child("intent-filter")
+        assertEquals(listOf(ThreeStoveAgentPlugin.VOICE_COMMAND_ACTION), voiceFilter.children("action").map { it.androidAttribute("name") })
+        assertEquals(listOf("android.intent.category.DEFAULT"), voiceFilter.children("category").map { it.androidAttribute("name") })
+        assertTrue(voiceFilter.children("data").isEmpty())
+        for (settings in activities.drop(4)) {
         assertEquals("false", settings.androidAttribute("exported"))
         assertNull(settings.androidAttributeOrNull("process"))
         assertTrue(settings.children("intent-filter").isEmpty())
@@ -145,7 +162,7 @@ class ManifestContractTest {
     @Test
     fun `only discovery activation and draft entry components are exported`() {
         val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
-            ".ui.ShareTargetActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
+            ".ui.ShareTargetActivity" to null, ".ui.VoiceCommandActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
             ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION) +
             listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").associate { ".launcher.${it}IconAlias" to null }
         val components = listOf("activity", "activity-alias", "service", "receiver", "provider")

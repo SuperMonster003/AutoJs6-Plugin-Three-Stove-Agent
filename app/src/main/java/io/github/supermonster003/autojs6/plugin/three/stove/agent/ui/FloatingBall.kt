@@ -532,6 +532,17 @@ internal class FloatingBall(private val runtime: AgentRuntime) : AutoCloseable {
     private fun updateSend() {
         sendButton?.isEnabled = !sending && draft.isNotBlank() && selectedPreset in snapshot?.presets.orEmpty() && permitted()
     }
+    /**
+     * A voice draft from the digital assistant or the resident listener (roadmap D62, D72, D77): the card opens with the
+     * text in place of any earlier draft and keeps the chosen preset. False when the ball is not on screen.
+     */
+    fun voiceDraft(text: String): Boolean {
+        if (closed || root == null || !permitted()) return false
+        draft = text; expanded = true; timelineOpen = false; panel = Panel.NONE
+        rebuildWindow(); publish(); changed()
+        goalField?.let { it.requestFocus(); it.setSelection(it.length()) }
+        return true
+    }
     private fun send() {
         val link = runtime.current ?: return
         if (sending || !permitted()) return

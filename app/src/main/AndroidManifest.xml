@@ -104,6 +104,18 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <!--
+            Target of the 3-Macaw Speech digital assistant (roadmap D60, D78): like the share entry it only opens a
+            reviewable draft. It runs next to the floating ball and borrows the application label and icon, which the
+            assistant shows on its target button.
+        -->
+        <activity android:name=".ui.VoiceCommandActivity" android:exported="true" android:excludeFromRecents="true"
+            android:noHistory="true" android:process=":agent" android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ui.VoiceInputActivity" android:exported="false" android:excludeFromRecents="true"
             android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />
 

@@ -51,6 +51,8 @@ internal class AgentRuntime internal constructor(val context: Context) {
         } else { floating?.close(); floating = null }
     } }
     init { initialized = true; presentationChanged() }
+    /** A voice draft for the floating card (roadmap D62, D77); main thread only, false when the ball is not on screen. */
+    fun voiceDraft(text: String): Boolean = floating?.voiceDraft(text) == true
     @Synchronized fun attach(config: LinkConfiguration, model: IThreeStoveAgentModelBroker, capability: IHostCapabilityBroker,
                              callback: IThreeStoveAgentLinkCallback, uid: Int): HostLink {
         current?.disconnect(ThreeStoveAgentContract.LINK_STATE_HOST_UNAVAILABLE)
@@ -64,6 +66,8 @@ internal class AgentRuntime internal constructor(val context: Context) {
             "floatingEnabled" to runCatching { settings.snapshot().floating }.getOrDefault(false).json()).toString())
     companion object {
         @Volatile private var instance: AgentRuntime? = null
+        /** The runtime of this process if one exists; entries that only look for the ball never create it. */
+        fun peek(): AgentRuntime? = instance
         fun get(context: Context): AgentRuntime = instance ?: synchronized(this) {
             instance ?: AgentRuntime(context.applicationContext).also { instance = it }
         }
