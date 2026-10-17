@@ -22,7 +22,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 
 ## 1. 固定决策
 
-以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策; D47-D49 来自 2026-09-27 的路线图审查 (P11); D50 为同日维护者要求的整体改名. 全部视同固定, 推翻需在会话记录中写明理由.
+以下决策 D1-D12 已由维护者于 2026-09-22 通过三轮选择题确认, 后续阶段不再重新讨论; D13-D32 为据此派生的技术决策; D33-D41 是维护者于 2026-09-22 (第二次会话) 对附录 G 待决事项 Q1-Q9 的拍板结果; D42-D44 来自维护者 2026-09-27 的新需求 (宿主无障碍自动启动, 完全访问, 当前会话始终允许); D45 起为同日独立应用 Material 3 重设计的决策; D47-D49 来自 2026-09-27 的路线图审查 (P11); D50 为同日维护者要求的整体改名. D60-D72 是维护者 2026-10-17 经四轮选择题选定的语音入口决策 (3-Macaw Speech `VOICE_COMMAND` 与常驻监听, 均为推荐项; 第四轮更正第二轮题面), D73-D79 为据此派生的技术决策, 实现时可推翻并在会话记录中说明. 全部视同固定, 推翻需在会话记录中写明理由.
 
 | 编号 | 决策 | 含义 |
 | --- | --- | --- |
@@ -85,6 +85,26 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D57 | Three 系列的透明图案与启动器图标分离 | 插件中心及应用内引用 `mipmap/ic_launcher` / `mipmap-night/ic_launcher`, 分别使用透明背景的 `#272727` / `#D8D8D8` 图案. 针对设备启动器缓存日间资源或只提供一种配色的实际情况, 系统启动器默认采用 `#D8D8D8` 图案 + `#212121` 背景 (D58 增加可选方案), 独立使用 `ic_launcher_system` 自适应图标及 API 24/25 回退资源. 不用自适应图标替换透明资源, 不叠加第二层背景; D50 的旧图标描述由本决策取代. |
 | D58 | 可选择四种启动器图标 | 维护者 2026-09-29 要求所有带启动器入口的官方插件提供自适应亮色 / 自适应暗色 / 自适应自动 / 透明背景四项. 默认暗色延续 D57, 自动只按启动器提供的系统配置尽力切换, 透明背景仍可能被启动器加底或蒙版; 两项在设置内明确说明限制. 稳定 Activity aliases 保存选择, 原 Activity 保持启用, 切换不杀应用进程, 更新可变快捷方式的归属并在失败时恢复. |
 | D59 | 语音输入优先 3-Macaw Speech | 维护者 2026-10-17 经选择题选定 (均为推荐项): 设置页 "启用语音输入" 下新增 "优先使用 3-Macaw Speech 离线识别", 默认开启, 只在 3-Macaw Speech 的 `ACTION_RECOGNIZE_SPEECH` 弹层可解析 (已安装且其 "作为系统语音输入" 开关打开) 时显示, 回到设置页时重新判断. 开启且可解析时麦克风的 `RecognizerIntent` 以 `setPackage` 固定到 3-Macaw Speech, 设备上有多个识别应用也不再弹系统选择器; 否则照旧由系统选择. 偏好是 UI 进程的 SharedPreferences (`speech` / `preferMacaw`), 不进入 `AgentSettings` 编码. 尚未下载识别模型时用户看到的是 3-Macaw Speech 的安装模型引导 (其 D47), 设置说明写明, 不自动回退到其他识别应用. 宿主无需改动. |
+| D60 | 应答 3-Macaw Speech 的 `VOICE_COMMAND` (Macaw D50 / D51) | 由 3-Macaw Speech P5.7 (系统数字助理, Macaw D48-D57) 转来, Macaw D51 已定 "打开草稿, 点开始才执行". 3-Stove Agent 导出一个 Activity 应答 `org.autojs.plugin.action.VOICE_COMMAND` + DEFAULT, 读取 `Intent.EXTRA_TEXT` (可选的 `org.autojs.plugin.extra.VOICE_LANGUAGE` 见 D78); 沿用分享入口的原则只打开可审阅的草稿, 从不直接开任务, 文本按不可信输入处理; 入口的 label 与 icon (应用名 "3-Stove Agent" 与应用图标) 显示在 Macaw 助理的目标按钮上. 草稿位置按 D62, 实现按 D77 / D78. 不新增权限, 不改宿主契约. |
+| D61 | 常驻监听: 命中后听一句, 打开草稿 | 维护者 2026-10-17 第一轮选定 (推荐项), 落实 3-Stone AI D27 中 "3-Stove Agent 唤醒自身并使用 agent 能力": 命中唤醒词后经 Macaw 唤醒会话的 `thenListen` 接着听写一句 (静音 1.2 s 结束, 最长 30 s), 文字填进草稿, 用户点开始才执行; 与 D60 及分享入口同一原则, 识别错一个字不会变成手机上的操作. 未采用: 只打开空草稿; 倒数 3 s 自动开始; 听完直接开始. |
+| D62 | 语音草稿的位置: 悬浮球卡片优先 | 第一轮选定 (推荐项): D60 与 D61 的草稿在悬浮球正显示时 (已开启, 有悬浮窗权限, 已解锁, 宿主已附着, 即 D38 的显示条件) 展开悬浮球输入卡片并填入文字, 不离开当前应用 (任务常要操作当前屏幕); 否则打开任务台草稿. 分享入口与快捷方式不变 (仍打开任务台). 未采用: 总是打开任务台; 只有唤醒词走卡片. |
+| D63 | 没有悬浮窗权限时发通知 | 第一轮选定 (推荐项): 开启常驻监听时若未授予 "显示在其他应用上层", 询问一次是否授予 (可拒绝, 同 3-Stone AI D29); 没有权限时 (Android 10+ 后台服务不能直接打开界面) 唤醒后发一条高优先级通知 "草稿已就绪", 正文为草稿前 40 个字符, 点击打开任务台草稿. 未采用: 必须授予才能开启; 不请求, 一律发通知. |
+| D64 | 锁屏时听写后发通知 | 第一轮选定 (推荐项): 锁屏或熄屏时命中照常听写一句, 发 D63 的通知 (锁屏上只显示标题, 不显示正文), 解锁后点击打开草稿; 通知 10 分钟后自动撤销. Macaw 在 API 34+ 不能从后台重开麦克风, 所以熄屏不关唤醒会话. 未采用: 锁屏时忽略命中; 请求解锁后直接打开草稿. |
+| D65 | 唤醒词: 默认 "小炉小炉" + "Hey Stove", 可改 | 第二轮选定 (推荐项): 与 3-Stone AI D15 同形 ("小石小石" + "Hey Stone"), 两个应用的词不会混淆; 设置页可编辑, 至多 5 条; 灵敏度 3 档 (高 / 中 / 低). Macaw KWS 模型 `kws.zipformer.zh-en.2025-12-20` (8.4 MB) 中文按拼音, 英文按模型 `en.phone`; 无法拼写的词由 Macaw 以 `INVALID_OPTIONS` 报出. 未采用: "小灶小灶" + "Hey Stove"; 只用 "Hey Stove". |
+| D66 | 常驻服务: 独立的 `specialUse` 前台服务 | 第二轮选定 (推荐项): 新服务即 3-Stone AI D31 约定的互斥组件, 运行在 `:agent` 进程 (与悬浮球同进程, 命中后直接展开卡片); Stove 不录音, 不能用 `microphone` 类型, 录音由 Macaw 自己的麦克风前台服务负责; 不新增前台服务权限 (已有 `FOREGROUND_SERVICE_SPECIAL_USE` / `POST_NOTIFICATIONS`); 开启时 Stove 与 Macaw 各有一条常驻通知, Stove 的带 "关闭" 按钮. 任务前台服务 (D15) 保持 "只在有任务时存在". 未采用: 并入任务前台服务. |
+| D67 | 重启与进程被杀: 不自启, 打开 Stove 即恢复, 重启与更新后发恢复通知 | 第二轮选定 "打开 Stove 即恢复 + 重启通知" (推荐项); 第四轮补问后选定 "重启与更新后都发通知" (推荐项): 开关保持开启, 任务台或设置页可见时自动恢复; 开机 (`BOOT_COMPLETED`) 与 Stove 更新 (`MY_PACKAGE_REPLACED`, 更新会结束进程) 后, 若开关开着则发一条 "点此恢复常驻监听" 通知, 点击打开任务台即恢复. 为此新增普通权限 `RECEIVE_BOOT_COMPLETED` (安装即授予, 不弹窗); 接收器只发通知, 不启动任何服务 (Android 14+ 不允许从开机广播启动 Macaw 的麦克风前台服务). 第二轮题面曾把该权限只写在 "开机尽力自启" 选项里, 第四轮已更正. 未采用: 重启即关闭开关; 开机尽力自启; 不加权限也不发通知. |
+| D68 | 任务运行中照常开草稿 | 第二轮选定 (推荐项): 命中与手动发起一致, 草稿点开始后进入已有的任务队列 (上限取契约 `MAX_RUN_QUEUE`), 当前任务不受影响. 未采用: 运行中忽略命中; 唤醒词即停止当前任务. |
+| D69 | 现在暂存 `speech-api` 并实现 | 第三轮选定 (推荐项): `libs/` 加入与 3-Macaw Speech 字节相同的 `speech-api.aar` (40,979 B, 契约版本 1, 宿主 `1d6280bf8` 源码构建) 并在 `locks/host-api-aars.lock` 锁哈希. 它与另外三个宿主 AAR 不是同一宿主构建, 不受 "三者同构建" 规则约束, 6.8.0 发布时按发布构建一并换锁; 契约若在发布前变化则同步换锁. Stove 1.3.0 本就依赖未发布的 6.8.0 (最低宿主 5298); Macaw 由 Stove 直接绑定, 不经宿主, 不提高最低宿主版本. 未采用: 等宿主 6.8.0 发布 (同 3-Stone AI D20). |
+| D70 | 版本: 并入 1.3.0 | 第三轮选定 (推荐项): 1.3.0 尚未发布 (只有 `v1.2.0` tag), D59 也已写入 1.3.0 changelog. 未采用: 新开 1.4.0. |
+| D71 | 不可用时开关可见但置灰 | 第三轮选定 (推荐项): 没装 3-Macaw Speech, 绑定被拒 (未装 AutoJs6 时 PLUGIN 权限不存在), 契约不兼容, 缺 KWS 或识别模型, Macaw 没有麦克风权限时, 开关置灰, 说明行写明缺什么; Macaw 已安装时另有 "打开 3-Macaw Speech" 行 (装模型或授麦克风都在 Macaw 里做); 回到设置页重新判断. 未采用: 只在可用时显示 (同 D59 的条件行). |
+| D72 | 悬浮球卡片已有草稿时替换 | 第三轮选定 (推荐项): 语音交来的文字取代卡片里的内容, 保留已选预设; 与任务台接到分享时一致. 未采用: 追加到末尾. |
+| D73 | (派生) 常驻监听互斥约定的 Stove 实现 | 照抄 3-Stone AI D31: action `org.autojs.plugin.speech.action.RESIDENT_LISTENER` 与 meta-data `org.autojs.plugin.speech.RESIDENT_LISTENER_SETTINGS` 两个字面值集中在 `ThreeStoveAgentPlugin` (不在宿主契约中); 承载组件 `.speech.ResidentListenerService` (导出, 受 `org.autojs.permission.PLUGIN` 保护, Manifest 默认 `enabled="false"`, `:agent` 进程, `specialUse`); 开关切换即 `setComponentEnabledSetting(..., DONT_KILL_APP)`, 不另存开关偏好. meta-data 的值是 `.speech.ResidentListenerSettings`: 指向 `ui.SettingsActivity` 的 activity-alias, 导出并受 PLUGIN 权限保护, 无 intent-filter, 打开后滚到常驻监听行; 原因是对方应用只能打开导出的 Activity, 而 `SettingsActivity` 本身不导出, 3-Stone AI 与 3-Macaw Speech 实现时同样要让该 Activity 可被对方打开 (已写入共享笔记). `<queries>` 加该 action 与 Macaw 能力服务的 action. 开启前与常驻服务每次启动前以 `queryIntentServices` 查询 (只返回已启用的组件, 排除本包); 发现时对话框 "系统只能支持一个常驻监听应用, 需要先关闭 xxx 才能开启" (多个时全部列出, xxx 取对方 application label), 每个应用一个 "打开 xxx 设置" 按钮 (按 meta-data 打开, 缺省或失败时用启动 intent); 服务启动时发现冲突则不启动, 设置行显示冲突. 极端竞态由 Macaw `SESSION_BUSY` 兜底. |
+| D74 | (派生) 绑定 3-Macaw Speech 与可用性判定 | 绑定 `org.autojs.plugin.SPEECH` + category `speech` + `setPackage(Macaw)`, flags `BIND_AUTO_CREATE` (+ API 34 `BIND_ALLOW_ACTIVITY_STARTS`: Macaw 在 API 34+ 经透明 Activity 启动麦克风前台服务, 只在绑定方可见时允许, 所以只在任务台 / 设置页可见时开启或恢复). 先读 `getCapabilities`: 契约版本在 `SpeechContract.MIN_CONTRACT_VERSION..MAX_CONTRACT_VERSION`, `speechFeatures` 含 `kws` 与 `asr`, `speechMicrophoneGranted`; 再以 `listModels` 确认 KWS 与识别模型各有已安装的. 纯 JVM `ResidentAvailability` 把结果分为 未安装 / 不可绑定 / 不兼容 / 缺 KWS 模型 / 缺识别模型 / 无麦克风权限 / 可用; 设置页 `onResume` 探测 (绑定, 查询, 解绑, 5 s 超时). |
+| D75 | (派生) 唤醒会话参数与设置存储 | `openWakeSession`: `keywords` 为至多 5 个 `{keyword, threshold}` Bundle; 灵敏度 高 / 中 / 低 = threshold 0.15 / 不传 (Macaw 默认 0.25) / 0.35, 不改 boost (真机误唤醒或漏唤醒时再调并记入证据); `minIntervalMillis` 用默认 1500; `thenListen` = VAD 开, `silenceEndMillis` 1200, `maxDurationMillis` 30000, `timeoutMillis` 8000 (命中后 8 s 无语音即结束本轮, 不出草稿), 标点开, 不传语言 (双语模型自动). 唤醒词与灵敏度存于 `files/resident-listener.json` (`LockedJsonFile`, 两个进程共用, 服务每次开会话时读取); 设置页修改后若服务在运行则请其重开会话. 关键词规则 (纯 JVM): 去首尾空白, 1-32 字符, 无控制字符, 不重复, 1-5 条. |
+| D76 | (派生) 常驻服务的状态与失败 | 常驻通知 (低重要性渠道 "常驻监听"): 等待时提示第一个唤醒词, 命中后 "正在听...", 动作 "关闭" (停服务并禁用组件), 点击打开设置. 绑定失败, Macaw 进程死亡, 唤醒会话以 `error` 或非本方要求的 `end` 结束时停止服务并发一条说明通知 (麦克风被占用 `SESSION_BUSY`, 缺模型, 无麦克风权限, 唤醒词无法拼写 `INVALID_OPTIONS`, 其他), 开关保持开启, 下次可见时重试. 服务 `START_NOT_STICKY` (系统重建时多半在后台, 无法重开麦克风). 识别文字不写日志, 只记状态与错误码. |
+| D77 | (派生) 草稿的投递 | 纯 JVM `VoiceDraftRoute`: 悬浮球正显示 -> 卡片 (D62, D72); 否则已解锁且能从后台打开界面 (API 29 以下, 或已授悬浮窗权限) -> 任务台; 否则 -> 通知 (D63, D64). `VOICE_COMMAND` 由前台 Activity 处理, 不走通知. 通知渠道 "语音草稿" (高重要性), 标题 "草稿已就绪", 正文为前 40 个码点加 `...`, `VISIBILITY_PRIVATE` 加只有标题的公开版本, 点击即撤销, 10 分钟后自动撤销, `PendingIntent` 不可变. 悬浮球显示时命中即展开卡片显示 "正在听..." 与部分结果 (此时不能开始), 本轮没有文字时恢复原草稿与原展开状态. |
+| D78 | (派生) `VOICE_COMMAND` 跳板与文本清洗 | 独立的 `ui.VoiceCommandActivity` (导出, 无权限, `Theme.NoDisplay`, `excludeFromRecents`, `noHistory`, `:agent` 进程, 不写自己的 label / icon 即取应用的), 只做校验后投递并立即结束: `:agent` 已有运行时且悬浮球正显示时填入卡片, 否则打开任务台草稿 (不为判断而创建运行时); 分享入口 `ShareTargetActivity` 不变. 纯 JVM `VoiceDraftText` (常驻监听的识别文字同样经过它): 取纯文本 (丢弃 span), 控制字符换成空格 (保留换行), 去首尾空白, 按 4096 UTF-8 字节在码点边界截断 (`TaskEntry` 上限; 分享入口超长即拒绝, 听写文字截断而不丢); 缺失或去空白后为空时提示 "入口内容无效" 并结束; `VOICE_LANGUAGE` 不读取 (任务语言跟随界面, 模型能理解各语言); 不转发其他 extras, 不限速 (只开草稿). |
+| D79 | (派生) 验证方式 | E1: `VoiceDraftText`, `VoiceDraftRoute`, `ResidentAvailability`, 关键词与灵敏度规则, 互斥列表, 通知文本截断, Manifest 契约. E2: 入口 `am start` 后草稿出现 (任务台与悬浮球卡片两条路径), 组件默认禁用与开关切换. E3: 真机 (装有 3-Macaw Speech, KWS 与识别模型, 已授麦克风权限) 上由 instrumentation 把唤醒词设为 Macaw 测试录音中的 "朱丽楠", 开启常驻监听后经扬声器播放 `kws-zh-6` + 0.3 s 静音 + `mixed-zh-en` (复制自 3-Macaw Speech 的 androidTest 资源, 均为 sherpa-onnx 模型包的 `test_wavs`, Apache-2.0, 哈希锁定, 不进 APK), 核对命中与草稿; 由 `.python/device_resident_check.py` 编排, 只打印通过 / 失败与关键数值. 需要维护者在手机上确认的对话框 (悬浮窗授权等) 不由脚本点击. |
 
 由 D3 / D4 / D14 / D17 派生的硬约束:
 
@@ -281,6 +301,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P14 | 维护者体验反馈: 异常提醒, 停止原因, 预算放宽, 权限与预设的界面入口, 悬浮球控制, 输入区对齐 | 插件 + 文档 | P11 |
 | P15 | 界面第三次改版: 各页面一致性与易用性 | 插件 | P14 |
 | P16 | 维护者体验反馈第二批: 去除换模型按钮, 悬浮球两行信息与步骤时间线自动滚动, 发送按钮底部对齐, 悬浮球菜单收纳与控制页两行重排及内联模型选择 | 插件 | P15 |
+| P17 (1.3.0) | 语音入口: 3-Macaw Speech 数字助理的 `VOICE_COMMAND` 草稿入口, 经 3-Macaw Speech 唤醒会话的常驻监听 (D60-D79) | 插件 | 3-Macaw Speech P5.7 / 3-Stone AI D27-D31; 宿主 `speech-api` 契约 v1 (本地) |
 
 当前验收状态 (2026-09-29): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). v1.2.0 已于 2026-09-28 发布 (P12), 1.3.0 为开发候选: P13 的风险识别配置, 预设导入导出, 观察工具补齐与任务结果分享已落地, 计划模式与 MCP 目录变更复核已实现但各缺一项真机 / 真实服务器证据, 其余为在线协议, 视觉, 语音与 ColorOS 的真机验收; 维护者体验反馈见 P14-P16. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
@@ -760,6 +781,18 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (插件) 悬浮球更多菜单 (build 161): 内联 "更多" 面板依次为 任务历史 / 打开任务台 / 最小化 / 退出悬浮球, 卡片底部的两个文字链接移除.
 - [x] (插件) 悬浮球控制页两行重排 (build 161): 与主页 composer 同构, 第一行 预设 chip (可占满余宽并省略) / 模型 chip / 访问权限 chip, 第二行 输入框 (1 到 4 行) / 麦克风 / 圆形发送按钮 (底部对齐); 三个 chip 各自展开内联面板 (预设列表; 模型列表: 自动 + 按在线 / 本地 / 混合分组的宿主目录, 刷新按钮, 不可用的当前模型以危险色标注; 访问权限: 标准 / 审慎 / 完全访问, 经私有设置保存). 模型目录直接经运行时的 `HostLink.targets` 读取, 选择写入与主应用同一个 `model-selection.json` (`ModelSelection.update`), 任务台在下次 `onStart` 读回, 悬浮球每次快照读回主应用的选择, 不再跳转任务台的模型页.
 - [x] (插件) 历史图标 (build 160): `drawable/ic_history.xml` 的路径改为 3-Stone AI `ic_history_24` 的同一 Material "history" 字形 (保留 `autoMirrored`), 任务台工具栏, 设置数据行与悬浮球更多面板同时生效.
+
+## P17 (1.3.0): 语音入口 (2026-10-17)
+
+背景: 3-Macaw Speech 将成为系统数字助理 (其 P5.7, D48-D57): 用户长按电源键听写后点按钮, 把文字经 `VOICE_COMMAND` 交给 3-Stove Agent 或 3-Stone AI. 维护者另定 (3-Stone AI ROADMAP D27): 3-Stone AI, 3-Stove Agent, 3-Macaw Speech 各有常驻监听开关 (默认关, 同一时刻只允许一个, 互斥约定 D28 / D31), 常驻监听经 Binder 持有 Macaw 的唤醒会话; Macaw 助理需要麦克风时临时静默唤醒会话, 之后自动继续 (Macaw D57, 对客户端透明, Stove 不做处理). 决策见第 1 节 D60-D79. 宿主无需改动.
+
+- [ ] (插件) P17.1 `VOICE_COMMAND` 草稿入口 (D60, D62, D72, D77, D78): `ui.VoiceCommandActivity` 与 Manifest 条目, `VoiceDraftText` 清洗, 悬浮球 `voiceDraft` (替换文字, 保留预设), 不可用时打开任务台; `ManifestContractTest` 导出审查; 十一语言无新增可见文案以外的改动 (复用 `entry_invalid`).
+- [ ] (插件) P17.2 `speech-api` 暂存与 Macaw 客户端 (D69, D74): `libs/speech-api.aar` 与锁文件, `libs/README.md`, `THIRD_PARTY_NOTICES.md`; `speech/MacawSpeechConnection` (绑定, 能力与模型探测, `linkToDeath`), `ResidentAvailability`.
+- [ ] (插件) P17.3 常驻监听服务, 互斥与设置 (D61, D63-D68, D71, D73, D75, D76): `.speech.ResidentListenerService` 与 settings alias, 唤醒会话与 `thenListen` 回合, 常驻通知与失败通知, `VoiceDraftRoute` 投递 (卡片 / 任务台 / 通知), 悬浮球 "正在听..." 状态; 设置页 "常驻监听" 开关, "打开 3-Macaw Speech", 唤醒词, 灵敏度四行; 开启时的互斥对话框, 通知权限与一次悬浮窗询问.
+- [ ] (插件) P17.4 恢复 (D67): 任务台与设置页可见时恢复, `RECEIVE_BOOT_COMPLETED` 与 `MY_PACKAGE_REPLACED` 后的恢复通知.
+- [ ] (文档) P17.5 十语言文案 (含 `values` / `values-en` 一致), README 用法与安全章节 (新权限, 新导出组件, 常驻监听的耗电与两条常驻通知), changelog v1.3.0 `feature`, `AGENTS.md` 第 6 节权限与导出组件, 生成器 `--check`.
+- [ ] (测试) P17.6 E1 / E2 / E3 (D79): JVM 规则测试, instrumentation 入口与开关测试, 真机唤醒到草稿; `.python/device_resident_check.py`.
+- [ ] (其他插件) 联调: 3-Macaw Speech P5.7 落地后, 在 Sony 真机上长按电源键听写并点 "3-Stove Agent", 草稿出现在悬浮球卡片或任务台 (Macaw P5.7 E4 的 Stove 一项); Stove 常驻监听开着时触发 Macaw 助理, 核对 D57 的静默与恢复 (唤醒会话不报命中, 助理结束后再次命中).
 
 ## 附录 A: 脚本 API 草案
 
