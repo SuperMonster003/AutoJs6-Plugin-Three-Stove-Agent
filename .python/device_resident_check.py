@@ -1,7 +1,7 @@
 """Voice entries of roadmap P17 on one device: install the debug and androidTest APKs, then run only the P17 tests.
 
 Usage: py .python/device_resident_check.py --serial QV710AF65F [--acoustic] [--min-volume 40] [--grant-overlay] [--tests a,b]
-       [--skip-install]
+       [--skip-install] [--macaw-takeover]
 
 Runs the VOICE_COMMAND draft entries (workbench and floating card, E2), the resident listener checks that need no
 3-Macaw Speech and the conflict with another app's resident listener (a disabled service of the test APK, E2). With
@@ -12,7 +12,12 @@ example 70 on the XQ-AT72, and only when the maintainer agreed); the sentence af
 (workbench or notification) and on the floating card, and a round without speech must give the card its earlier draft
 back. The floating card cases need the overlay permission: they skip without it, unless `--grant-overlay` lets them
 allow it through appops for their duration (restored afterwards; the dialog is never touched). `--tests` limits the run
-to the named test methods. Prints one PASS / FAIL / SKIP line per test, the key numbers the tests log (never draft
+to the named test methods. `--macaw-takeover` runs only the joint case with 3-Macaw Speech (its roadmap D57, ours P17
+"(other plugins)"): while the listener waits, the phone opens 3-Macaw Speech's RECOGNIZE_SPEECH sheet and plays the wake
+word and a sentence into it; the listener must not wake meanwhile and must wake again after the sheet, and 3-Macaw
+Speech's own log must show the wake session yield and resume (no digital assistant role needed; the keyword alone is
+played before and after). The acoustic cases need the media stream on the phone's speaker, which is checked first.
+Prints one PASS / FAIL / SKIP line per test, the key numbers the tests log (never draft
 text), what 3-Macaw Speech's microphone activity did on API 34+, the state the run leaves behind, and a summary. Every
 test restores the switch, the wake word settings, the floating ball settings and the media volume it changes.
 Build the APKs first with `gradlew :app:assembleDebug :app:assembleDebugAndroidTest`.
@@ -43,6 +48,7 @@ ACOUSTIC = [
     f"{RESIDENT}#theWakeWordAndTheNextSentenceBecomeADraft",
     f"{RESIDENT}#theFloatingCardListensThenRestoresOrTakesTheDraft",
 ]
+JOINT = [f"{RESIDENT}#macawVoiceInputSilencesTheListenerUntilItCloses"]
 # Only "key=value" numbers and enums of the tests' own log lines are shown.
 NUMBERS = re.compile(r"\b(\w+)=([\w.:-]+)")
 
@@ -67,14 +73,17 @@ def install(serial: str) -> bool:
 
 
 def state(serial: str) -> dict:
-    """Device facts as numbers and enums only: API level, 3-Macaw Speech version, media volume and Stove's overlay mode."""
+    """Device facts as numbers and enums only: API level, 3-Macaw Speech version, media volume and its output, and Stove's
+    overlay mode."""
     volume = re.search(r"volume is (\d+) in range \[0\.\.(\d+)\]", adb(serial, "shell", "cmd", "media_session", "volume", "--stream", "3", "--get"))
+    music = re.search(r"- STREAM_MUSIC:.*?Devices: (\w+)", adb(serial, "shell", "dumpsys", "audio"), re.S)
     overlay = re.search(r"SYSTEM_ALERT_WINDOW: (\w+)", adb(serial, "shell", "appops", "get", PACKAGE, "SYSTEM_ALERT_WINDOW"))
     macaw = re.search(r"versionCode=(\d+)", adb(serial, "shell", "dumpsys", "package", MACAW))
     return {
         "api": adb(serial, "shell", "getprop", "ro.build.version.sdk").strip(),
         "macawVersion": macaw.group(1) if macaw else "missing",
         "volume": f"{volume.group(1)}/{volume.group(2)}" if volume else "unknown",
+        "output": music.group(1) if music else "unknown",
         "overlay": overlay.group(1) if overlay else "default",
     }
 
@@ -87,10 +96,12 @@ def main() -> int:
     parser.add_argument("--grant-overlay", action="store_true")
     parser.add_argument("--tests", default="", help="comma separated test method names")
     parser.add_argument("--skip-install", action="store_true")
+    parser.add_argument("--macaw-takeover", action="store_true", help="only the joint case with the 3-Macaw Speech voice input sheet")
     options = parser.parse_args()
     if not options.skip_install and not install(options.serial):
         return 1
-    tests = TESTS + (ACOUSTIC if options.acoustic else [])
+    acoustic = options.acoustic or options.macaw_takeover
+    tests = JOINT if options.macaw_takeover else TESTS + (ACOUSTIC if options.acoustic else [])
     if options.tests:
         wanted = {name.strip() for name in options.tests.split(",") if name.strip()}
         tests = [test for test in tests if test.rsplit("#", 1)[1] in wanted]
@@ -99,14 +110,19 @@ def main() -> int:
             return 1
     before = state(options.serial)
     print("DEVICE " + " ".join(f"{key}={value}" for key, value in before.items()))
+    if acoustic and before["output"] != "speaker":
+        print(f"FAIL the media stream plays on {before['output']}, not the phone's speaker")
+        return 1
     adb(options.serial, "logcat", "-c")
     # Streamed while the tests run: a run of several minutes overflows the device's log buffer.
     with tempfile.TemporaryFile() as captured:
         stream = subprocess.Popen(["adb", "-s", options.serial, "logcat", "-v", "brief", "-s", "StoveResidentTest:I",
-                                   "StoveResidentListener:I", "ActivityTaskManager:V"], stdout=captured, stderr=subprocess.DEVNULL)
+                                   "StoveResidentListener:I", "ActivityTaskManager:V", "MacawSessions:I", "MacawVoiceInput:I"],
+                                  stdout=captured, stderr=subprocess.DEVNULL)
         try:
             output = adb(options.serial, "shell", "am", "instrument", "-w", "-r", "-e", "class", ",".join(tests),
-                         "-e", "agent.resident.acoustic", "true" if options.acoustic else "false",
+                         "-e", "agent.resident.acoustic", "true" if acoustic else "false",
+                         "-e", "agent.resident.macawTakeover", "true" if options.macaw_takeover else "false",
                          "-e", "agent.resident.overlay", "appops" if options.grant_overlay else "as-set",
                          "-e", "agent.resident.minVolume", str(options.min_volume), RUNNER)
             time.sleep(2)
@@ -143,6 +159,12 @@ def main() -> int:
     starts = sum(1 for line in log.splitlines() if "START" in line and "MicrophoneStartActivity" in line)
     blocked = sum(1 for line in log.splitlines() if MACAW in line and re.search(r"[Bb]ackground activity (launch|start)|Abort background activity", line))
     print(f"  macawMicrophoneActivityStarts={starts} macawBackgroundStartsBlocked={blocked}")
+    if options.macaw_takeover:
+        # 3-Macaw Speech's own lines of D57 and its voice input results: counts and result codes only.
+        yields = sum(1 for line in log.splitlines() if "MacawSessions" in line and "yields the microphone" in line)
+        resumes = sum(1 for line in log.splitlines() if "MacawSessions" in line and "resumes after the takeover" in line)
+        results = re.findall(r"Voice input result (-?\d+) \((\d+) chars\)", log)
+        print(f"  macawYields={yields} macawResumes={resumes} macawVoiceInputResults={','.join(f'{code}:{chars}' for code, chars in results) or 'none'}")
     after = state(options.serial)
     services = adb(options.serial, "shell", "dumpsys", "activity", "services", f"{PACKAGE}/.speech.ResidentListenerService")
     # Only enabled components answer: Stove's switch and the test APK's rival must both be off again.
@@ -154,7 +176,7 @@ def main() -> int:
           f"residentNotifications={left}")
     failed += not unchanged
     summary = re.search(r"OK \((\d+) tests?\)|Tests run: (\d+),\s+Failures: (\d+)", output)
-    print(f"SUMMARY serial={options.serial} acoustic={options.acoustic} minVolume={options.min_volume} grantOverlay={options.grant_overlay} failed={failed} "
+    print(f"SUMMARY serial={options.serial} acoustic={acoustic} macawTakeover={options.macaw_takeover} minVolume={options.min_volume} grantOverlay={options.grant_overlay} failed={failed} "
           + (summary.group(0) if summary else "no summary"))
     return 1 if failed else 0
 

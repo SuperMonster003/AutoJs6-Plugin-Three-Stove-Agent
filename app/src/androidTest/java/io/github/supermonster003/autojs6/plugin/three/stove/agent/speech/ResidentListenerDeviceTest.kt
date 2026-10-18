@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.speech
 
 import android.accessibilityservice.AccessibilityService
+import android.app.Activity
 import android.app.Instrumentation
 import android.app.KeyguardManager
 import android.app.Notification
@@ -18,6 +19,7 @@ import android.os.ParcelFileDescriptor
 import android.os.PowerManager
 import android.os.SystemClock
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
@@ -51,7 +53,9 @@ import java.nio.ByteOrder
  * and recognition models and the microphone granted hears a test recording through its own speaker (media volume as set,
  * at least 40 % or `-e agent.resident.minVolume <percent>`) and must turn the sentence after the wake word into a draft, once from the background without the ball
  * and once on the floating card. Tests that need the overlay permission skip without it, unless
- * `-e agent.resident.overlay appops` lets them allow it for their duration (FloatingBallFixture). Logs carry numbers only.
+ * `-e agent.resident.overlay appops` lets them allow it for their duration (FloatingBallFixture). The joint run with
+ * 3-Macaw Speech (`-e agent.resident.macawTakeover true`) opens its voice input sheet while the listener waits and checks
+ * that the wake session is silenced and resumed (its roadmap D57). Logs carry numbers only.
  */
 class ResidentListenerDeviceTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -59,6 +63,7 @@ class ResidentListenerDeviceTest {
     private val arguments = InstrumentationRegistry.getArguments()
     private val acoustic = arguments.getString("agent.resident.acoustic") == "true"
     private val grantOverlay = arguments.getString("agent.resident.overlay") == "appops"
+    private val macawTakeover = arguments.getString("agent.resident.macawTakeover") == "true"
     /** The lowest media volume the acoustic cases play at; a phone whose microphone needs more is given it explicitly. */
     private val minVolume = arguments.getString("agent.resident.minVolume")?.toIntOrNull()?.coerceIn(40, 100) ?: 40
     private val notifications = context.getSystemService(NotificationManager::class.java)
@@ -321,6 +326,92 @@ class ResidentListenerDeviceTest {
     }
 
     /**
+     * Joint run with 3-Macaw Speech (its roadmap D57; opt-in, `-e agent.resident.macawTakeover true`): while this listener
+     * holds the wake session, 3-Macaw Speech's RECOGNIZE_SPEECH sheet takes the microphone over and hears the wake word
+     * and a sentence; the listener must stay silent meanwhile, and once the sheet is gone the wake word wakes it again.
+     * The keyword alone is played before and after, so those rounds end without a draft. No digital assistant role needed.
+     */
+    @Test fun macawVoiceInputSilencesTheListenerUntilItCloses() {
+        assumeTrue("Requires -e agent.resident.macawTakeover true", macawTakeover)
+        requireNotifications()
+        assumeTrue("Another app is listening resident", ResidentListener.others(context).isEmpty())
+        val sheet = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).setPackage(MacawSpeech.PACKAGE)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        assumeTrue("The 3-Macaw Speech voice input is off", sheet.resolveActivity(context.packageManager) != null)
+        listening("macawTakeover") { waiting, workbench ->
+            val listening = context.getString(R.string.resident_listening)
+            Speaker().use { speaker ->
+                // 1. Before: the keyword alone wakes the listener; the round after it hears nothing.
+                val before = hearKeyword(speaker, listening)
+                waitFor("The empty round before the sheet ends", 20_000) { listeningText() == waiting }
+                SystemClock.sleep(2000)
+                // 2. During: the sheet silences the wake session (D57) and dictates the wake word and the sentence.
+                val since = System.currentTimeMillis()
+                val opened = SystemClock.elapsedRealtime()
+                context.startActivity(sheet)
+                val yieldMs = waitForMacaw(since, YIELDS, 15_000)
+                SystemClock.sleep(1000) // The sheet loads its recognition model, then records.
+                speaker.play(recording())
+                var duringHits = 0
+                var wasListening = false
+                var result: MatchResult? = null
+                var lastRead = 0L
+                val end = SystemClock.elapsedRealtime() + 60_000
+                while (result == null && SystemClock.elapsedRealtime() < end) {
+                    val now = listeningText() == listening
+                    if (now && !wasListening) duringHits++
+                    wasListening = now
+                    if (SystemClock.elapsedRealtime() - lastRead >= 500) { result = VOICE_RESULT.find(macawLog(since)); lastRead = SystemClock.elapsedRealtime() }
+                    SystemClock.sleep(100)
+                }
+                val sheetMs = SystemClock.elapsedRealtime() - opened
+                assertNotNull("The sheet gave no result", result)
+                val closed = SystemClock.elapsedRealtime()
+                val resumeMs = waitForMacaw(since, RESUMES, 10_000) - (closed - opened)
+                if (listeningText() == listening && !wasListening) duringHits++
+                val code = result!!.groupValues[1].toInt(); val chars = result.groupValues[2].toInt()
+                waitFor("The listener waits after the sheet", 10_000) { listeningText() == waiting }
+                SystemClock.sleep(2000)
+                // 3. After: the wake word wakes the listener again.
+                val after = hearKeyword(speaker, listening)
+                waitFor("The empty round after the sheet ends", 20_000) { listeningText() == waiting }
+                Log.i(TAG, "case=macawTakeover volumePercent=${speaker.percent} beforeHitMs=${before.first} beforePlays=${before.second} " +
+                    "yieldMs=$yieldMs duringHits=$duringHits sheetCode=$code sheetChars=$chars sheetMs=$sheetMs resumeMs=$resumeMs " +
+                    "afterHitMs=${after.first} afterPlays=${after.second} yields=${YIELDS.findAll(macawLog(since)).count()} resumes=${RESUMES.findAll(macawLog(since)).count()}")
+                assertEquals("The listener stayed silent while the sheet listened (D57)", 0, duringHits)
+                assertEquals("The sheet returned RESULT_OK", Activity.RESULT_OK, code)
+                assertTrue("The sheet heard the sentence", chars > 0)
+                assertNull("No draft notification", active(553))
+                assertEquals("No workbench", 0, workbench.hits)
+            }
+        }
+    }
+
+    /**
+     * Plays the keyword alone until the listener says it listens, at most three times (the keyword of kws-zh-6 is missed
+     * in about one play of thirty); answers the milliseconds from the start of the last play and the number of plays.
+     */
+    private fun hearKeyword(speaker: Speaker, listening: String): Pair<Long, Int> {
+        for (plays in 1..3) {
+            speaker.play(keywordAlone())
+            while (SystemClock.elapsedRealtime() < speaker.started + 6_000) {
+                if (listeningText() == listening) return (SystemClock.elapsedRealtime() - speaker.started) to plays
+                SystemClock.sleep(100)
+            }
+        }
+        throw AssertionError("The wake word was not heard in three plays (volumePercent=${speaker.percent})")
+    }
+
+    /** 3-Macaw Speech's session and voice input lines (numbers only) since [since], in epoch milliseconds. */
+    private fun macawLog(since: Long) = shell("logcat -d -v brief -T ${since / 1000}.${"%03d".format(since % 1000)} -s MacawSessions:I MacawVoiceInput:I")
+
+    /** Waits for [pattern] in 3-Macaw Speech's log; answers the milliseconds since [since]. */
+    private fun waitForMacaw(since: Long, pattern: Regex, timeoutMs: Long): Long {
+        waitFor("3-Macaw Speech logged ${pattern.pattern}", timeoutMs) { pattern.containsMatchIn(macawLog(since)) }
+        return System.currentTimeMillis() - since
+    }
+
+    /**
      * Opens the settings screen, waits for a ready 3-Macaw Speech, turns the listener on with the keyword of the test
      * recording and runs [block] once the wake session waits, with a monitor of the workbench; turns it off and closes
      * any workbench afterwards.
@@ -481,5 +572,9 @@ class ResidentListenerDeviceTest {
         const val TAG = "StoveResidentTest"
         const val KEYWORD = "朱丽楠"
         const val EARLIER_DRAFT = "Earlier_voice_draft"
+        /** 3-Macaw Speech's log lines of roadmap D57 and of its voice input (`SpeechSessionBinders`, `VoiceInputActivity`). */
+        val YIELDS = Regex("yields the microphone to a takeover")
+        val RESUMES = Regex("resumes after the takeover")
+        val VOICE_RESULT = Regex("Voice input result (-?\\d+) \\((\\d+) chars\\)")
     }
 }
