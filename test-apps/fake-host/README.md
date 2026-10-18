@@ -21,7 +21,9 @@ APKs, `run_conformance.py --prepare-only` applies the same installation guards,
 installs the two APKs, keeps the disposable device awake and unlocked, hides
 system ANR and crash dialogs, and grants the Agent notification permission on API 33+. This mode prepares the
 real package/version checks used by the workbench; it does not bypass them or
-run the twelve independent broker tests. The main suite then runs normally.
+run the twelve independent broker tests. The main suite then runs normally while the
+workflow records logcat (main, system, crash and events buffers) to `build/main-suite-logcat.txt`;
+it is uploaded with the reports when the job fails or is cancelled, including by its timeout.
 
 Before installing and again before the tests, the runner waits until system_server
 has been up for 10 seconds (`sys.system_server.start_count` unchanged), user 0 is

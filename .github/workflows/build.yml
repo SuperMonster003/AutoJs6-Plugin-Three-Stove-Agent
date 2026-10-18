@@ -140,13 +140,19 @@ jobs:
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.fake-host-args }}
             # Then the same guards reinstall both APKs and prepare the device for the main suite.
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only ${{ matrix.fake-host-args }}
+            # Keep the framework log of the whole main suite in the background: in run 39112487013 system_server died
+            # mid-suite on API 24 and 37.1 and the reports held no stack. API 24 logcat takes one buffer per -b option.
+            mkdir -p build
+            adb logcat -G 16M || true
+            adb logcat -v threadtime -b main -b system -b crash -b events < /dev/null > build/main-suite-logcat.txt 2>&1 &
             # AGP uninstalls both APKs after the run, which deletes the app-specific external directory holding the
             # CiUiDiagnostics captures before the pull below; the disposable AVD is killed right after this step anyway.
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.three.stove.agent.ciDiagnostics=true -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.three.stove.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
 
-      # The fake host diagnostics also exist when an attempt was retried after a system_server restart.
-      - name: Upload instrumentation reports after a failure or a retried attempt
-        if: failure() || hashFiles('build/p7-fake-host-logcat.txt') != ''
+      # The fake host diagnostics also exist when an attempt was retried after a system_server restart. A job that
+      # reaches timeout-minutes ends as cancelled (run 39112487013, API 24), which failure() alone would skip.
+      - name: Upload instrumentation reports after a failure, a cancellation or a retried attempt
+        if: failure() || cancelled() || hashFiles('build/p7-fake-host-logcat.txt') != ''
         uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api${{ matrix.api-level }}
@@ -155,5 +161,6 @@ jobs:
             build/ci-ui-diagnostics/
             build/p7-fake-host-android.log
             build/p7-fake-host-logcat.txt
+            build/main-suite-logcat.txt
           if-no-files-found: ignore
           retention-days: 7
