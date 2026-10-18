@@ -21,6 +21,11 @@ on:
         description: "Comma-separated emulator API levels to run without spaces, e.g. 24,37.1; empty runs all"
         required: false
         default: ""
+      full-suite:
+        description: "Also run the main suite on conformance-only entries (API 37.1), e.g. to check a newer image"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -93,10 +98,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # The API 24 image's surfaceflinger sometimes takes SIGSEGV in GraphicBuffer::flatten while the framework
+          # screenshots a finishing activity, and system_server goes down with it (runs 39112487013 twice, 39131653130;
+          # never locally, passed in all four runs of 69fce4ab). run_main_suite.py reruns the suite once after that.
           - api-level: 24
             arch: x86
             target: google_apis
             profile: Nexus 5
+            main-suite-args: --retry-system-crash
           - api-level: 35
             arch: x86_64
             target: google_apis
@@ -113,8 +122,13 @@ jobs:
           # mapper on the GitHub runner ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"); a
           # Windows host never does, so the local AVD stays up. Three-button navigation unregisters that listener,
           # hence fake-host-args. run_conformance.py also waits for a stable system_server with user 0 unlocked,
-          # retries once after a restart and keeps the evidence in p7-fake-host-logcat.txt. The job stays
-          # non-blocking until runs pass (ROADMAP session record 2026-09-28, P12).
+          # retries once after a restart and keeps the evidence in p7-fake-host-logcat.txt. The conformance tests
+          # then pass (12/12 since 8fac09d2), but the main suite still dies around its 36th test: system_server aborts
+          # on the same assertion when it copies a task snapshot of a finishing activity to memory
+          # (TaskSnapshotConvertUtil.copySWBitmap), with gpu guest (falls back to lavapipe), -feature -GLDMA and
+          # -feature -GLDMA,-GLDMA2 alike (runs 39133759312 to 39133773321). Until the image is fixed this entry runs the
+          # conformance tests only (conformance-only; a manual run with full-suite still tries the main suite) and stays
+          # non-blocking (ROADMAP session record 2026-09-28, P12).
           - api-level: 37.1
             arch: x86_64
             target: google_apis_ps16k
@@ -122,6 +136,7 @@ jobs:
             disk-size: 4096M
             ram-size: 4096M
             fake-host-args: --three-button-navigation
+            conformance-only: true
             experimental: true
 
     steps:
@@ -165,21 +180,17 @@ jobs:
             ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
             # The twelve independent broker-conformance tests run first; the script asserts "OK (12 tests)".
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.fake-host-args }}
-            # Then the same guards reinstall both APKs and prepare the device for the main suite.
-            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only ${{ matrix.fake-host-args }}
-            # Keep the framework log of the whole main suite in the background: in run 39112487013 system_server died
-            # mid-suite on API 24 and 37.1 and the reports held no stack. API 24 logcat takes one buffer per -b option.
-            mkdir -p build
-            adb logcat -G 16M || true
-            adb logcat -v threadtime -b main -b system -b crash -b events < /dev/null > build/main-suite-logcat.txt 2>&1 &
-            # AGP uninstalls both APKs after the run, which deletes the app-specific external directory holding the
-            # CiUiDiagnostics captures before the pull below; the disposable AVD is killed right after this step anyway.
-            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.three.stove.agent.ciDiagnostics=true -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.three.stove.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
+            # Then the main suite: run_main_suite.py prepares the device through the same guards (run_conformance.py
+            # --prepare-only), keeps the framework log of the whole run in build/main-suite-logcat.txt (run 39112487013
+            # lost two crashes without a stack), pulls the CiUiDiagnostics captures after a failure and, with
+            # --retry-system-crash, reruns once after "System has crashed". Each script line runs in its own shell.
+            if [ "${{ matrix.conformance-only }}" = "true" ] && [ "${{ inputs.full-suite }}" != "true" ]; then echo "MAIN_SUITE_SKIPPED conformance-only entry (API ${{ matrix.api-level }})"; else python3 test-apps/fake-host/run_main_suite.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.main-suite-args }} ${{ matrix.fake-host-args }}; fi
 
-      # The fake host diagnostics also exist when an attempt was retried after a system_server restart. A job that
-      # reaches timeout-minutes ends as cancelled (run 39112487013, API 24), which failure() alone would skip.
+      # The fake host diagnostics and the first main-suite reports also exist when an attempt was retried after a
+      # system_server restart or crash. A job that reaches timeout-minutes ends as cancelled (run 39112487013, API 24),
+      # which failure() alone would skip.
       - name: Upload instrumentation reports after a failure, a cancellation or a retried attempt
-        if: env.SELECTED == 'true' && (failure() || cancelled() || hashFiles('build/p7-fake-host-logcat.txt') != '')
+        if: env.SELECTED == 'true' && (failure() || cancelled() || hashFiles('build/p7-fake-host-logcat.txt', 'build/main-suite-attempt-1/**') != '')
         uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api${{ matrix.api-level }}
@@ -189,5 +200,6 @@ jobs:
             build/p7-fake-host-android.log
             build/p7-fake-host-logcat.txt
             build/main-suite-logcat.txt
+            build/main-suite-attempt-1/
           if-no-files-found: ignore
           retention-days: 7

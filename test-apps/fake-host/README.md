@@ -16,17 +16,23 @@ The twelve tests cover real attach/start/cancel/detach, refusal to widen an atta
 For R8 validation, assemble the release Agent and use `run_conformance.py --release-plugin` with the same AVD checks. Build both APKs in an isolated checkout using the standard Android test key, never the production signer for the fake host. The external instrumentation targets the fake-host APK and drives the release Agent through Binder; it does not load debug tests into an R8 application. The APK version is read from `version.properties`. This mode leaves all production package, version and signer checks enabled.
 
 GitHub Actions also uses a fresh `Three_Stove_Agent_Conformance_CI_*` AVD for the full
-Agent instrumentation suite. After assembling the fake host and Agent debug
-APKs, `run_conformance.py --prepare-only` applies the same installation guards,
+Agent instrumentation suite, through `run_main_suite.py`. It first calls
+`run_conformance.py --prepare-only`, which applies the same installation guards,
 installs the two APKs, keeps the disposable device awake and unlocked, hides
 system ANR and crash dialogs, and grants the Agent notification permission on API 33+. This mode prepares the
 real package/version checks used by the workbench; it does not bypass them or
-run the twelve independent broker tests. The main suite then runs normally while the
-workflow records logcat (main, system, crash and events buffers) to `build/main-suite-logcat.txt`;
-it is uploaded with the reports when the job fails or is cancelled, including by its timeout.
+run the twelve independent broker tests. The main suite then runs normally (`ANDROID_SERIAL`
+keeps Gradle on that emulator) while logcat (main, system, crash and events buffers) goes to
+`build/main-suite-logcat.txt`; the workflow uploads it with the reports when the job fails or is
+cancelled, including by its timeout. With `--retry-system-crash` (the API 24 job) a run that reports
+"System has crashed" waits for the restarted framework, prepares the device again and runs the suite
+once more, keeping the first reports in `build/main-suite-attempt-1`. Other options go to the
+prepare step. The API 37.1 job runs only the twelve conformance tests (`conformance-only`) until its
+image stops aborting system_server on task snapshots.
 A manual run of the workflow can compare emulator configurations: `gpu` replaces the `-gpu` mode
-(default `swiftshader_indirect`), `emulator-extra` appends options such as `-feature -GLDMA`, and
-`api-levels` (for example `24,37.1`) limits the emulator jobs. Push and pull request runs keep the defaults.
+(default `swiftshader_indirect`), `emulator-extra` appends options such as `-feature -GLDMA`,
+`api-levels` (for example `24,37.1`) limits the emulator jobs and `full-suite` runs the main suite on
+conformance-only entries too. Push and pull request runs keep the defaults.
 
 Before installing and again before the tests, the runner waits until system_server
 has been up for 10 seconds (`sys.system_server.start_count` unchanged), user 0 is
