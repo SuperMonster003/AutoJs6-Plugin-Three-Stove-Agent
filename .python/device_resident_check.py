@@ -80,7 +80,9 @@ def install(serial: str) -> bool:
 def state(serial: str) -> dict:
     """Device facts as numbers and enums only: API level, 3-Macaw Speech version, media volume and its output, and Stove's
     overlay mode."""
-    volume = re.search(r"volume is (\d+) in range \[0\.\.(\d+)\]", adb(serial, "shell", "cmd", "media_session", "volume", "--stream", "3", "--get"))
+    # `cmd media_session` answers from API 29; older phones have the `media` command.
+    volume = re.search(r"volume is (\d+) in range \[0\.\.(\d+)\]", adb(serial, "shell", "cmd", "media_session", "volume", "--stream", "3", "--get")) \
+        or re.search(r"volume is (\d+) in range \[0\.\.(\d+)\]", adb(serial, "shell", "media", "volume", "--stream", "3", "--get"))
     music = re.search(r"- STREAM_MUSIC:.*?Devices: (\w+)", adb(serial, "shell", "dumpsys", "audio"), re.S)
     overlay = re.search(r"SYSTEM_ALERT_WINDOW: (\w+)", adb(serial, "shell", "appops", "get", PACKAGE, "SYSTEM_ALERT_WINDOW"))
     macaw = re.search(r"versionCode=(\d+)", adb(serial, "shell", "dumpsys", "package", MACAW))
