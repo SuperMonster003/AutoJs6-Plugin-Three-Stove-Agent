@@ -133,10 +133,14 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     }
     private fun voice() { runCatching { speech.launch(SpeechInput.intent(this)) }.onFailure { showError() } }
     private fun openHost() {
-        packageManager.getLaunchIntentForPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)?.let { intent ->
-            intent.putExtra(ThreeStoveAgentActions.EXTRA_THREE_STOVE_AGENT_ATTACH, true); identify(intent)
-            runCatching { startActivity(intent) }.onFailure { showError() }
-        }
+        // A launcher intent only brings an existing AutoJs6 task forward and drops the request extras;
+        // the single-task main activity always receives them (roadmap D80).
+        val main = Intent().setClassName(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME, ThreeStoveAgentPlugin.HOST_MAIN_ACTIVITY)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = main.takeIf { it.resolveActivity(packageManager) != null }
+            ?: packageManager.getLaunchIntentForPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME) ?: return
+        intent.putExtra(ThreeStoveAgentActions.EXTRA_THREE_STOVE_AGENT_ATTACH, true); identify(intent)
+        runCatching { startActivity(intent) }.onFailure { showError() }
     }
     internal fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
     /** Whole-object save of the private settings, the same path as the settings screen. */

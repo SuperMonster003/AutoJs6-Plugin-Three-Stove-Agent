@@ -14,6 +14,12 @@ object ThreeStoveAgentPlugin {
     const val PACKAGE_NAME = "io.github.supermonster003.autojs6.plugin.three.stove.agent"
     const val HOST_PACKAGE_NAME = "org.autojs.autojs6"
 
+    /**
+     * The host's exported single-task main activity, which takes the "Open AutoJs6" attach request
+     * (roadmap D80). The launcher entry is not used: it only brings an existing host task forward.
+     */
+    const val HOST_MAIN_ACTIVITY = "org.autojs.autojs.ui.main.MainActivity"
+
     const val ID = ThreeStoveAgentIds.PLUGIN_ID
     const val ENGINE = ThreeStoveAgentIds.ENGINE
     const val VARIANT = ThreeStoveAgentIds.VARIANT_DEFAULT
