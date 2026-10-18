@@ -119,13 +119,6 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # Built before the emulator boots so that the guest does not share the runner's CPUs with a cold Gradle
-      # build right after boot; the API 37.1 restarts mostly surfaced as this build finished.
-      - name: Assemble the APKs before the emulator boots
-        run: |
-          chmod +x gradlew
-          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
-
       - name: Run the full instrumentation suite with an isolated fake host
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
@@ -138,6 +131,10 @@ jobs:
           ram-size: ${{ matrix.ram-size }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
+            # Build here, not in an earlier step: run 39108063528 assembled the APKs before the emulator booted, and
+            # Gradle then re-signed the Agent in this step with a different debug key (INSTALL_FAILED_UPDATE_INCOMPATIBLE).
+            chmod +x gradlew
+            ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
             # The twelve independent broker-conformance tests run first; the script asserts "OK (12 tests)".
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554
             # Then the same guards reinstall both APKs and prepare the device for the main suite.

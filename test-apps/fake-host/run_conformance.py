@@ -49,7 +49,7 @@ def main():
 
     def query(*command):
         # Read-only identity queries. Shortly after boot an API 24 AVD answered them with the right output but a
-        # non-zero exit status in two runs in a row, and in CI the runner now starts right after the emulator boots.
+        # non-zero exit status in two runs in a row.
         return adb(*command, attempts=5)
 
     def start_count():
