@@ -54,8 +54,9 @@ import java.nio.ByteOrder
  * at least 40 % or `-e agent.resident.minVolume <percent>`) and must turn the sentence after the wake word into a draft, once from the background without the ball
  * and once on the floating card. Tests that need the overlay permission skip without it, unless
  * `-e agent.resident.overlay appops` lets them allow it for their duration (FloatingBallFixture). The joint run with
- * 3-Macaw Speech (`-e agent.resident.macawTakeover true`) opens its voice input sheet while the listener waits and checks
- * that the wake session is silenced and resumed (its roadmap D57). Logs carry numbers only.
+ * 3-Macaw Speech (`-e agent.resident.macawTakeover sheet|assistant`) opens its voice input sheet or its digital assistant
+ * while the listener waits and checks that the wake session is silenced and resumed (its roadmap D57). Logs carry numbers
+ * only.
  */
 class ResidentListenerDeviceTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -63,7 +64,8 @@ class ResidentListenerDeviceTest {
     private val arguments = InstrumentationRegistry.getArguments()
     private val acoustic = arguments.getString("agent.resident.acoustic") == "true"
     private val grantOverlay = arguments.getString("agent.resident.overlay") == "appops"
-    private val macawTakeover = arguments.getString("agent.resident.macawTakeover") == "true"
+    /** The joint run with 3-Macaw Speech: `sheet` (its voice input) or `assistant` (its digital assistant). */
+    private val macawTakeover = arguments.getString("agent.resident.macawTakeover")
     /** The lowest media volume the acoustic cases play at; a phone whose microphone needs more is given it explicitly. */
     private val minVolume = arguments.getString("agent.resident.minVolume")?.toIntOrNull()?.coerceIn(40, 100) ?: 40
     private val notifications = context.getSystemService(NotificationManager::class.java)
@@ -326,61 +328,86 @@ class ResidentListenerDeviceTest {
     }
 
     /**
-     * Joint run with 3-Macaw Speech (its roadmap D57; opt-in, `-e agent.resident.macawTakeover true`): while this listener
+     * Joint run with 3-Macaw Speech (its roadmap D57; opt-in, `-e agent.resident.macawTakeover sheet`): while this listener
      * holds the wake session, 3-Macaw Speech's RECOGNIZE_SPEECH sheet takes the microphone over and hears the wake word
      * and a sentence; the listener must stay silent meanwhile, and once the sheet is gone the wake word wakes it again.
-     * The keyword alone is played before and after, so those rounds end without a draft. No digital assistant role needed.
+     * No digital assistant role needed.
      */
     @Test fun macawVoiceInputSilencesTheListenerUntilItCloses() {
-        assumeTrue("Requires -e agent.resident.macawTakeover true", macawTakeover)
-        requireNotifications()
-        assumeTrue("Another app is listening resident", ResidentListener.others(context).isEmpty())
+        assumeTrue("Requires -e agent.resident.macawTakeover sheet", macawTakeover == "sheet")
         val sheet = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).setPackage(MacawSpeech.PACKAGE)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         assumeTrue("The 3-Macaw Speech voice input is off", sheet.resolveActivity(context.packageManager) != null)
-        listening("macawTakeover") { waiting, workbench ->
+        // The sheet finishes with its result. zh-CN: 弹层随结果关闭.
+        macawTakeover("macawTakeover", VOICE_RESULT, open = { context.startActivity(sheet) }, close = {})
+    }
+
+    /**
+     * The same with 3-Macaw Speech's digital assistant (opt-in, `-e agent.resident.macawTakeover assistant`), which the
+     * maintainer chose as the default assistant: the assist key opens its sheet, whose dictation silences the wake session;
+     * the sheet then shows the text until the back key closes it, and the wake word must wake the listener again.
+     */
+    @Test fun macawAssistantSilencesTheListenerUntilItCloses() {
+        assumeTrue("Requires -e agent.resident.macawTakeover assistant", macawTakeover == "assistant")
+        assumeTrue("3-Macaw Speech is the default digital assistant", shell("settings get secure voice_interaction_service").startsWith("${MacawSpeech.PACKAGE}/"))
+        macawTakeover("macawAssistant", ASSISTANT_RESULT, open = { shell("input keyevent KEYCODE_ASSIST") }, close = {
+            if (ASSISTANT_SHEET in resumed()) shell("input keyevent KEYCODE_BACK")
+            waitFor("The assistant sheet closes", 10_000) { ASSISTANT_SHEET !in resumed() }
+        })
+    }
+
+    /**
+     * The keyword alone is played before and after the takeover, so those rounds end without a draft. [open] starts the
+     * screen that takes over, [result] matches its log line of the finished dictation (the result code as the first group
+     * when there is one, the characters as the last) and [close] closes what stays on screen afterwards.
+     */
+    private fun macawTakeover(label: String, result: Regex, open: () -> Unit, close: () -> Unit) {
+        requireNotifications()
+        assumeTrue("Another app is listening resident", ResidentListener.others(context).isEmpty())
+        listening(label) { waiting, workbench ->
             val listening = context.getString(R.string.resident_listening)
             Speaker().use { speaker ->
                 // 1. Before: the keyword alone wakes the listener; the round after it hears nothing.
                 val before = hearKeyword(speaker, listening)
-                waitFor("The empty round before the sheet ends", 20_000) { listeningText() == waiting }
+                waitFor("The empty round before the takeover ends", 20_000) { listeningText() == waiting }
                 SystemClock.sleep(2000)
-                // 2. During: the sheet silences the wake session (D57) and dictates the wake word and the sentence.
+                // 2. During: the dictation silences the wake session (D57) and hears the wake word and the sentence.
                 val since = System.currentTimeMillis()
                 val opened = SystemClock.elapsedRealtime()
-                context.startActivity(sheet)
+                open()
                 val yieldMs = waitForMacaw(since, YIELDS, 15_000)
                 SystemClock.sleep(1000) // The sheet loads its recognition model, then records.
                 speaker.play(recording())
                 var duringHits = 0
                 var wasListening = false
-                var result: MatchResult? = null
+                var done: MatchResult? = null
                 var lastRead = 0L
                 val end = SystemClock.elapsedRealtime() + 60_000
-                while (result == null && SystemClock.elapsedRealtime() < end) {
+                while (done == null && SystemClock.elapsedRealtime() < end) {
                     val now = listeningText() == listening
                     if (now && !wasListening) duringHits++
                     wasListening = now
-                    if (SystemClock.elapsedRealtime() - lastRead >= 500) { result = VOICE_RESULT.find(macawLog(since)); lastRead = SystemClock.elapsedRealtime() }
+                    if (SystemClock.elapsedRealtime() - lastRead >= 500) { done = result.find(macawLog(since)); lastRead = SystemClock.elapsedRealtime() }
                     SystemClock.sleep(100)
                 }
-                val sheetMs = SystemClock.elapsedRealtime() - opened
-                assertNotNull("The sheet gave no result", result)
-                val closed = SystemClock.elapsedRealtime()
-                val resumeMs = waitForMacaw(since, RESUMES, 10_000) - (closed - opened)
+                val dictationMs = SystemClock.elapsedRealtime() - opened
+                assertNotNull("The dictation gave no result", done)
+                val resumeMs = waitForMacaw(since, RESUMES, 10_000) - dictationMs
                 if (listeningText() == listening && !wasListening) duringHits++
-                val code = result!!.groupValues[1].toInt(); val chars = result.groupValues[2].toInt()
-                waitFor("The listener waits after the sheet", 10_000) { listeningText() == waiting }
+                close()
+                val code = done!!.groupValues.drop(1).dropLast(1).firstOrNull()?.toInt()
+                val chars = done.groupValues.last().toInt()
+                waitFor("The listener waits after the takeover", 10_000) { listeningText() == waiting }
                 SystemClock.sleep(2000)
                 // 3. After: the wake word wakes the listener again.
                 val after = hearKeyword(speaker, listening)
-                waitFor("The empty round after the sheet ends", 20_000) { listeningText() == waiting }
-                Log.i(TAG, "case=macawTakeover volumePercent=${speaker.percent} beforeHitMs=${before.first} beforePlays=${before.second} " +
-                    "yieldMs=$yieldMs duringHits=$duringHits sheetCode=$code sheetChars=$chars sheetMs=$sheetMs resumeMs=$resumeMs " +
+                waitFor("The empty round after the takeover ends", 20_000) { listeningText() == waiting }
+                Log.i(TAG, "case=$label volumePercent=${speaker.percent} beforeHitMs=${before.first} beforePlays=${before.second} " +
+                    "yieldMs=$yieldMs duringHits=$duringHits resultCode=$code resultChars=$chars dictationMs=$dictationMs resumeMs=$resumeMs " +
                     "afterHitMs=${after.first} afterPlays=${after.second} yields=${YIELDS.findAll(macawLog(since)).count()} resumes=${RESUMES.findAll(macawLog(since)).count()}")
-                assertEquals("The listener stayed silent while the sheet listened (D57)", 0, duringHits)
-                assertEquals("The sheet returned RESULT_OK", Activity.RESULT_OK, code)
-                assertTrue("The sheet heard the sentence", chars > 0)
+                assertEquals("The listener stayed silent while 3-Macaw Speech dictated (D57)", 0, duringHits)
+                if (code != null) assertEquals("The sheet returned RESULT_OK", Activity.RESULT_OK, code)
+                assertTrue("The dictation heard the sentence", chars > 0)
                 assertNull("No draft notification", active(553))
                 assertEquals("No workbench", 0, workbench.hits)
             }
@@ -402,8 +429,8 @@ class ResidentListenerDeviceTest {
         throw AssertionError("The wake word was not heard in three plays (volumePercent=${speaker.percent})")
     }
 
-    /** 3-Macaw Speech's session and voice input lines (numbers only) since [since], in epoch milliseconds. */
-    private fun macawLog(since: Long) = shell("logcat -d -v brief -T ${since / 1000}.${"%03d".format(since % 1000)} -s MacawSessions:I MacawVoiceInput:I")
+    /** 3-Macaw Speech's session, voice input and assistant lines (numbers only) since [since], in epoch milliseconds. */
+    private fun macawLog(since: Long) = shell("logcat -d -v brief -T ${since / 1000}.${"%03d".format(since % 1000)} -s MacawSessions:I MacawVoiceInput:I MacawAssistant:I")
 
     /** Waits for [pattern] in 3-Macaw Speech's log; answers the milliseconds since [since]. */
     private fun waitForMacaw(since: Long, pattern: Regex, timeoutMs: Long): Long {
@@ -572,9 +599,11 @@ class ResidentListenerDeviceTest {
         const val TAG = "StoveResidentTest"
         const val KEYWORD = "朱丽楠"
         const val EARLIER_DRAFT = "Earlier_voice_draft"
-        /** 3-Macaw Speech's log lines of roadmap D57 and of its voice input (`SpeechSessionBinders`, `VoiceInputActivity`). */
+        /** 3-Macaw Speech's log lines of roadmap D57, its voice input and its assistant sheet (`SpeechSessionBinders`, `VoiceInputActivity`, `AssistantActivity`). */
         val YIELDS = Regex("yields the microphone to a takeover")
         val RESUMES = Regex("resumes after the takeover")
         val VOICE_RESULT = Regex("Voice input result (-?\\d+) \\((\\d+) chars\\)")
+        val ASSISTANT_RESULT = Regex("Dictation done \\((\\d+) chars")
+        const val ASSISTANT_SHEET = "${MacawSpeech.PACKAGE}/.ui.assistant.AssistantActivity"
     }
 }

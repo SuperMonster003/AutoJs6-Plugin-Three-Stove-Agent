@@ -1,7 +1,7 @@
 """Voice entries of roadmap P17 on one device: install the debug and androidTest APKs, then run only the P17 tests.
 
 Usage: py .python/device_resident_check.py --serial QV710AF65F [--acoustic] [--min-volume 40] [--grant-overlay] [--tests a,b]
-       [--skip-install] [--macaw-takeover]
+       [--skip-install] [--macaw-takeover [sheet|assistant]]
 
 Runs the VOICE_COMMAND draft entries (workbench and floating card, E2), the resident listener checks that need no
 3-Macaw Speech and the conflict with another app's resident listener (a disabled service of the test APK, E2). With
@@ -13,11 +13,13 @@ example 70 on the XQ-AT72, and only when the maintainer agreed); the sentence af
 back. The floating card cases need the overlay permission: they skip without it, unless `--grant-overlay` lets them
 allow it through appops for their duration (restored afterwards; the dialog is never touched). `--tests` limits the run
 to the named test methods. `--macaw-takeover` runs only the joint case with 3-Macaw Speech (its roadmap D57, ours P17
-"(other plugins)"): while the listener waits, the phone opens 3-Macaw Speech's RECOGNIZE_SPEECH sheet and plays the wake
-word and a sentence into it; the listener must not wake meanwhile and must wake again after the sheet, and 3-Macaw
-Speech's own log must show the wake session yield and resume (no digital assistant role needed; the keyword alone is
-played before and after). The acoustic cases need the media stream on the phone's speaker, which is checked first.
-Prints one PASS / FAIL / SKIP line per test, the key numbers the tests log (never draft
+"(other plugins)"): while the listener waits, the phone opens 3-Macaw Speech's RECOGNIZE_SPEECH sheet (`sheet`, the
+default; no digital assistant role needed) or presses the assist key (`assistant`, after the maintainer chose 3-Macaw
+Speech as the default digital assistant; the back key closes its sheet afterwards) and plays the wake word and a
+sentence into it; the listener must not wake meanwhile and must wake again afterwards, and 3-Macaw Speech's own log must
+show the wake session yield and resume (the keyword alone is played before and after). The acoustic cases need the
+media stream on the phone's speaker, which is checked first. Prints one PASS / FAIL / SKIP line per test, the key
+numbers the tests log (never draft
 text), what 3-Macaw Speech's microphone activity did on API 34+, the state the run leaves behind, and a summary. Every
 test restores the switch, the wake word settings, the floating ball settings and the media volume it changes.
 Build the APKs first with `gradlew :app:assembleDebug :app:assembleDebugAndroidTest`.
@@ -48,7 +50,10 @@ ACOUSTIC = [
     f"{RESIDENT}#theWakeWordAndTheNextSentenceBecomeADraft",
     f"{RESIDENT}#theFloatingCardListensThenRestoresOrTakesTheDraft",
 ]
-JOINT = [f"{RESIDENT}#macawVoiceInputSilencesTheListenerUntilItCloses"]
+JOINT = {
+    "sheet": f"{RESIDENT}#macawVoiceInputSilencesTheListenerUntilItCloses",
+    "assistant": f"{RESIDENT}#macawAssistantSilencesTheListenerUntilItCloses",
+}
 # Only "key=value" numbers and enums of the tests' own log lines are shown.
 NUMBERS = re.compile(r"\b(\w+)=([\w.:-]+)")
 
@@ -96,12 +101,13 @@ def main() -> int:
     parser.add_argument("--grant-overlay", action="store_true")
     parser.add_argument("--tests", default="", help="comma separated test method names")
     parser.add_argument("--skip-install", action="store_true")
-    parser.add_argument("--macaw-takeover", action="store_true", help="only the joint case with the 3-Macaw Speech voice input sheet")
+    parser.add_argument("--macaw-takeover", nargs="?", const="sheet", choices=sorted(JOINT),
+                        help="only the joint case with the 3-Macaw Speech voice input sheet or digital assistant")
     options = parser.parse_args()
     if not options.skip_install and not install(options.serial):
         return 1
-    acoustic = options.acoustic or options.macaw_takeover
-    tests = JOINT if options.macaw_takeover else TESTS + (ACOUSTIC if options.acoustic else [])
+    acoustic = options.acoustic or bool(options.macaw_takeover)
+    tests = [JOINT[options.macaw_takeover]] if options.macaw_takeover else TESTS + (ACOUSTIC if options.acoustic else [])
     if options.tests:
         wanted = {name.strip() for name in options.tests.split(",") if name.strip()}
         tests = [test for test in tests if test.rsplit("#", 1)[1] in wanted]
@@ -117,12 +123,13 @@ def main() -> int:
     # Streamed while the tests run: a run of several minutes overflows the device's log buffer.
     with tempfile.TemporaryFile() as captured:
         stream = subprocess.Popen(["adb", "-s", options.serial, "logcat", "-v", "brief", "-s", "StoveResidentTest:I",
-                                   "StoveResidentListener:I", "ActivityTaskManager:V", "MacawSessions:I", "MacawVoiceInput:I"],
+                                   "StoveResidentListener:I", "ActivityTaskManager:V", "MacawSessions:I", "MacawVoiceInput:I",
+                                   "MacawAssistant:I"],
                                   stdout=captured, stderr=subprocess.DEVNULL)
         try:
             output = adb(options.serial, "shell", "am", "instrument", "-w", "-r", "-e", "class", ",".join(tests),
                          "-e", "agent.resident.acoustic", "true" if acoustic else "false",
-                         "-e", "agent.resident.macawTakeover", "true" if options.macaw_takeover else "false",
+                         "-e", "agent.resident.macawTakeover", options.macaw_takeover or "off",
                          "-e", "agent.resident.overlay", "appops" if options.grant_overlay else "as-set",
                          "-e", "agent.resident.minVolume", str(options.min_volume), RUNNER)
             time.sleep(2)
@@ -164,7 +171,9 @@ def main() -> int:
         yields = sum(1 for line in log.splitlines() if "MacawSessions" in line and "yields the microphone" in line)
         resumes = sum(1 for line in log.splitlines() if "MacawSessions" in line and "resumes after the takeover" in line)
         results = re.findall(r"Voice input result (-?\d+) \((\d+) chars\)", log)
-        print(f"  macawYields={yields} macawResumes={resumes} macawVoiceInputResults={','.join(f'{code}:{chars}' for code, chars in results) or 'none'}")
+        dictations = re.findall(r"Dictation done \((\d+) chars", log)
+        print(f"  macawYields={yields} macawResumes={resumes} macawVoiceInputResults={','.join(f'{code}:{chars}' for code, chars in results) or 'none'} "
+              f"macawAssistantDictations={','.join(dictations) or 'none'}")
     after = state(options.serial)
     services = adb(options.serial, "shell", "dumpsys", "activity", "services", f"{PACKAGE}/.speech.ResidentListenerService")
     # Only enabled components answer: Stove's switch and the test APK's rival must both be off again.
