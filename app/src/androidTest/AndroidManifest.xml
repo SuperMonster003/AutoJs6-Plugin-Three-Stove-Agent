@@ -6,5 +6,25 @@
             android:name="io.github.supermonster003.autojs6.plugin.three.stove.agent.security.AdversarialScreenActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <!-- Another app's resident listener (roadmap D73), off until ResidentListenerDeviceTest turns it on through the switch below. -->
+        <service
+            android:name="io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentRivalService"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.speech.action.RESIDENT_LISTENER" />
+            </intent-filter>
+            <meta-data
+                android:name="org.autojs.plugin.speech.RESIDENT_LISTENER_SETTINGS"
+                android:value="io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentRivalSettingsActivity" />
+        </service>
+        <receiver
+            android:name="io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentRivalService$Switch"
+            android:exported="true" />
+        <activity
+            android:name="io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentRivalSettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
     </application>
 </manifest>
