@@ -83,12 +83,17 @@ jobs:
           # Android 17 (API 37.1) only ships the 16 KB page size Google APIs image; the plugin has no native
           # libraries, so the page size does not change what the suite exercises. Its default data partition
           # is too small for the fake host ("Requested internal only, but not enough space"), hence disk-size.
-          # With the larger partition the first install still dies inside the image
-          # (StorageManagerService.allocateBytes -> PackageManagerInternal null); until that is reproduced
-          # locally the job stays in the matrix as non-blocking (ROADMAP session record 2026-09-28, P12).
-          # Since 2026-10-17 the fake host conformance instead ends right away with "Process crashed.". 3-Stone AI
-          # saw the same on its 16 KB image: at the default RAM it gets little zram swap and lmkd kills the
-          # foreground instrumentation process right after boot; 4096M fixed it there, hence ram-size.
+          # 3-Stone AI saw lmkd kill the foreground instrumentation process right after boot at the default RAM
+          # on its 16 KB image; 4096M fixed it there, hence ram-size.
+          # The failures since (runs 2026-09-30 to 2026-10-18) point to system_server restarting after
+          # sys.boot_completed, which a framework restart does not reset: "Failure calling service package/input:
+          # Broken pipe", "before system providers are installed", "Process crashed." and finally (run 39098321934)
+          # every bindService to the fake host's own service returning false. Restarting zygote on a local AVD of
+          # the same build reproduces the install failure; the restart itself never happened locally (4 or 2 cores,
+          # CI signer, 3 minutes after boot, starved host CPU). run_conformance.py therefore waits for a stable
+          # system_server with user 0 unlocked and the services resolvable, retries once when system_server
+          # restarted during an attempt and keeps the evidence in p7-fake-host-logcat.txt. The job stays
+          # non-blocking until runs pass (ROADMAP session record 2026-09-28, P12).
           - api-level: 37.1
             arch: x86_64
             target: google_apis_ps16k
@@ -114,6 +119,13 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Built before the emulator boots so that the guest does not share the runner's CPUs with a cold Gradle
+      # build right after boot; the API 37.1 restarts mostly surfaced as this build finished.
+      - name: Assemble the APKs before the emulator boots
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
+
       - name: Run the full instrumentation suite with an isolated fake host
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
@@ -126,8 +138,6 @@ jobs:
           ram-size: ${{ matrix.ram-size }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
-            chmod +x gradlew
-            ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
             # The twelve independent broker-conformance tests run first; the script asserts "OK (12 tests)".
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554
             # Then the same guards reinstall both APKs and prepare the device for the main suite.
@@ -136,8 +146,9 @@ jobs:
             # CiUiDiagnostics captures before the pull below; the disposable AVD is killed right after this step anyway.
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.three.stove.agent.ciDiagnostics=true -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.three.stove.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
 
-      - name: Upload instrumentation reports after failure
-        if: failure()
+      # The fake host diagnostics also exist when an attempt was retried after a system_server restart.
+      - name: Upload instrumentation reports after a failure or a retried attempt
+        if: failure() || hashFiles('build/p7-fake-host-logcat.txt') != ''
         uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api${{ matrix.api-level }}
@@ -145,5 +156,6 @@ jobs:
             app/build/reports/androidTests/
             build/ci-ui-diagnostics/
             build/p7-fake-host-android.log
+            build/p7-fake-host-logcat.txt
           if-no-files-found: ignore
           retention-days: 7

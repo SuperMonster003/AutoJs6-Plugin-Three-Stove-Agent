@@ -23,4 +23,13 @@ system ANR and crash dialogs, and grants the Agent notification permission on AP
 real package/version checks used by the workbench; it does not bypass them or
 run the twelve independent broker tests. The main suite then runs normally.
 
+Before installing and again before the tests, the runner waits until system_server
+has been up for 10 seconds (`sys.system_server.start_count` unchanged), user 0 is
+`RUNNING_UNLOCKED` and the fake host and Agent services resolve (API 26+;
+`sys.boot_completed` alone stays 1 across a framework restart). If an attempt fails
+and the start count changed meanwhile, it keeps that attempt's crash buffer, dropbox,
+process list and logcat in `build/p7-fake-host-logcat.txt` and retries once; any other
+failure fails the run with the same evidence. `--settle-timeout` bounds each wait
+(300 seconds by default).
+
 After testing, shut down the disposable AVD. Keep logs if needed and remove only that newly created AVD data directory. The main Agent instrumentation remains in `app/src/androidTest`; this module complements it and the host repository's independent fake Agent, rather than replacing those suites.
