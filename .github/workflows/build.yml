@@ -86,11 +86,15 @@ jobs:
           # With the larger partition the first install still dies inside the image
           # (StorageManagerService.allocateBytes -> PackageManagerInternal null); until that is reproduced
           # locally the job stays in the matrix as non-blocking (ROADMAP session record 2026-09-28, P12).
+          # Since 2026-10-17 the fake host conformance instead ends right away with "Process crashed.". 3-Stone AI
+          # saw the same on its 16 KB image: at the default RAM it gets little zram swap and lmkd kills the
+          # foreground instrumentation process right after boot; 4096M fixed it there, hence ram-size.
           - api-level: 37.1
             arch: x86_64
             target: google_apis_ps16k
             profile: pixel_7
             disk-size: 4096M
+            ram-size: 4096M
             experimental: true
 
     steps:
@@ -118,6 +122,8 @@ jobs:
           arch: ${{ matrix.arch }}
           profile: ${{ matrix.profile }}
           disk-size: ${{ matrix.disk-size }}
+          # Empty for the 4 KB images, which keep the runner default.
+          ram-size: ${{ matrix.ram-size }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
           script: |
             chmod +x gradlew
