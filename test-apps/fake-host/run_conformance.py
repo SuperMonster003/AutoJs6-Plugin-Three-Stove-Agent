@@ -17,6 +17,7 @@ USER_STATE_SDK = 26
 # Unexported, not direct-boot aware services that the fake host tests and the main suite bind first.
 FAKE_HOST_SERVICE = "org.autojs.autojs6/org.autojs.plugin.three.stove.agent.fakehost.FakeHostService"
 AGENT_SERVICE = "io.github.supermonster003.autojs6.plugin.three.stove.agent/.ThreeStoveAgentPluginService"
+THREE_BUTTON_OVERLAY = "com.android.internal.systemui.navbar.threebutton"
 
 
 def main():
@@ -31,6 +32,8 @@ def main():
                         help="Seconds to wait for a stable system_server before installing and before the tests")
     parser.add_argument("--prepare-only", action="store_true",
                         help="Install the guarded fake host and Agent for the main instrumentation suite")
+    parser.add_argument("--three-button-navigation", action="store_true",
+                        help="Switch the disposable AVD to three-button navigation first (API 37.1 CI image, see build.yml)")
     parser.add_argument("--release-plugin", action="store_true",
                         help="Exercise the R8 release Agent with this external fake-host test APK; both must use the same test signer")
     args = parser.parse_args()
@@ -142,6 +145,25 @@ def main():
     if not args.prepare_only:
         # CI prepares the main suite right after the conformance run; keep both runs' evidence in one file.
         (root / args.diagnostics).unlink(missing_ok=True)
+    if args.three_button_navigation:
+        # With gesture navigation the launcher registers a region sampling listener for the handle. On the GitHub
+        # runner every sample then aborts surfaceflinger in the API 37.1 image's gralloc mapper ("Assertion failed:
+        # !rcEnc->featureInfo()->hasReadColorBufferDma"), which restarts system_server about every 22 seconds from
+        # boot on (run 39108063528: start count 16 after 5 minutes). Three-button navigation unregisters the
+        # listener, and the overlay survives framework restarts. Retried, since system_server may be restarting.
+        began = time.monotonic()
+        while True:
+            try:
+                if f"[x] {THREE_BUTTON_OVERLAY}" in adb("shell", "cmd", "overlay", "list"):
+                    break
+                adb("shell", "cmd", "overlay", "enable-exclusive", "--category", THREE_BUTTON_OVERLAY)
+            except (RuntimeError, subprocess.TimeoutExpired):
+                pass
+            if time.monotonic() - began > args.settle_timeout:
+                diagnostics("navigation", "three-button navigation could not be enabled")
+                raise SystemExit("Three-button navigation could not be enabled")
+            time.sleep(2)
+        print(f"FAKE_HOST_NAVIGATION three-button system_server_start_count={start_count()} waited={time.monotonic() - began:.0f}s")
 
     # A framework restart is an emulator fault, not a test result: retry the whole attempt once after the restart
     # settles, and keep the first attempt's evidence either way. Any failure without a restart fails the run. The

@@ -30,6 +30,9 @@ has been up for 10 seconds (`sys.system_server.start_count` unchanged), user 0 i
 and the start count changed meanwhile, it keeps that attempt's crash buffer, dropbox,
 process list and logcat in `build/p7-fake-host-logcat.txt` and retries once; any other
 failure fails the run with the same evidence. `--settle-timeout` bounds each wait
-(300 seconds by default).
+(300 seconds by default). `--three-button-navigation` first switches the AVD to
+three-button navigation: on GitHub's Linux runners the API 37.1 image's gralloc
+mapper aborts surfaceflinger whenever the launcher samples the gesture handle,
+which restarts system_server about every 22 seconds.
 
 After testing, shut down the disposable AVD. Keep logs if needed and remove only that newly created AVD data directory. The main Agent instrumentation remains in `app/src/androidTest`; this module complements it and the host repository's independent fake Agent, rather than replacing those suites.

@@ -85,14 +85,14 @@ jobs:
           # is too small for the fake host ("Requested internal only, but not enough space"), hence disk-size.
           # 3-Stone AI saw lmkd kill the foreground instrumentation process right after boot at the default RAM
           # on its 16 KB image; 4096M fixed it there, hence ram-size.
-          # The failures since (runs 2026-09-30 to 2026-10-18) point to system_server restarting after
-          # sys.boot_completed, which a framework restart does not reset: "Failure calling service package/input:
-          # Broken pipe", "before system providers are installed", "Process crashed." and finally (run 39098321934)
-          # every bindService to the fake host's own service returning false. Restarting zygote on a local AVD of
-          # the same build reproduces the install failure; the restart itself never happened locally (4 or 2 cores,
-          # CI signer, 3 minutes after boot, starved host CPU). run_conformance.py therefore waits for a stable
-          # system_server with user 0 unlocked and the services resolvable, retries once when system_server
-          # restarted during an attempt and keeps the evidence in p7-fake-host-logcat.txt. The job stays
+          # Every later failure (runs 2026-09-30 to 2026-10-18: "Broken pipe" during installs, "before system
+          # providers are installed", "Process crashed.", bindService returning false) came from system_server
+          # restarting about every 22 seconds from boot on. Run 39108063528 kept the logcat: with gesture navigation
+          # the launcher samples the handle region, and each sample aborts surfaceflinger in the image's gralloc
+          # mapper on the GitHub runner ("Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma"); a
+          # Windows host never does, so the local AVD stays up. Three-button navigation unregisters that listener,
+          # hence fake-host-args. run_conformance.py also waits for a stable system_server with user 0 unlocked,
+          # retries once after a restart and keeps the evidence in p7-fake-host-logcat.txt. The job stays
           # non-blocking until runs pass (ROADMAP session record 2026-09-28, P12).
           - api-level: 37.1
             arch: x86_64
@@ -100,6 +100,7 @@ jobs:
             profile: pixel_7
             disk-size: 4096M
             ram-size: 4096M
+            fake-host-args: --three-button-navigation
             experimental: true
 
     steps:
@@ -136,9 +137,9 @@ jobs:
             chmod +x gradlew
             ./gradlew :app:assembleDebug :test-apps:fake-host:assembleDebug :test-apps:fake-host:assembleDebugAndroidTest --console=plain --stacktrace
             # The twelve independent broker-conformance tests run first; the script asserts "OK (12 tests)".
-            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554
+            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.fake-host-args }}
             # Then the same guards reinstall both APKs and prepare the device for the main suite.
-            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only
+            python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 --prepare-only ${{ matrix.fake-host-args }}
             # AGP uninstalls both APKs after the run, which deletes the app-specific external directory holding the
             # CiUiDiagnostics captures before the pull below; the disposable AVD is killed right after this step anyway.
             ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.three.stove.agent.ciDiagnostics=true -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true --console=plain --stacktrace || { mkdir -p build; adb pull /sdcard/Android/data/io.github.supermonster003.autojs6.plugin.three.stove.agent/files/ci-ui-diagnostics build/ci-ui-diagnostics || true; exit 1; }
