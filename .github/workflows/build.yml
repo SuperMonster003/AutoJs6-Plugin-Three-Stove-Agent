@@ -1,15 +1,33 @@
 name: Build integrity
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Build integrity (gpu {0}, extra "{1}", API {2})', inputs.gpu || 'swiftshader_indirect', inputs.emulator-extra, inputs.api-levels || 'all') || '' }}
 
 on:
   push:
   pull_request:
+  # Manual runs can compare emulator configurations: run 39131653130 lost API 24 to a surfaceflinger SIGSEGV and API 37.1
+  # to a system_server abort in the image's gralloc mapper, both while the framework read back an activity screenshot on
+  # the GitHub runner. Push and pull request runs keep the defaults below. Only repository writers can dispatch.
   workflow_dispatch:
+    inputs:
+      gpu:
+        description: "Emulator -gpu mode; empty keeps swiftshader_indirect"
+        required: false
+        default: ""
+      emulator-extra:
+        description: "Extra emulator options appended to the defaults, e.g. -feature -GLDMA"
+        required: false
+        default: ""
+      api-levels:
+        description: "Comma-separated emulator API levels to run without spaces, e.g. 24,37.1; empty runs all"
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
+# Each manual run gets its own group so that several configurations can run side by side.
 concurrency:
-  group: build-${{ github.workflow }}-${{ github.ref }}
+  group: build-${{ github.workflow }}-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' && format('-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 jobs:
@@ -68,6 +86,9 @@ jobs:
     timeout-minutes: 45
     # Only the experimental (preview image) entry may fail without failing the workflow.
     continue-on-error: ${{ matrix.experimental == true }}
+    # A manual run with api-levels skips the other entries' steps (the job itself cannot read the matrix in its if).
+    env:
+      SELECTED: ${{ github.event_name != 'workflow_dispatch' || inputs.api-levels == '' || contains(format(',{0},', inputs.api-levels), format(',{0},', matrix.api-level)) }}
     strategy:
       fail-fast: false
       matrix:
@@ -105,9 +126,11 @@ jobs:
 
     steps:
       - name: Check out repository
+        if: env.SELECTED == 'true'
         uses: actions/checkout@v7
 
       - name: Set up Java
+        if: env.SELECTED == 'true'
         uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -115,14 +138,18 @@ jobs:
           cache: gradle
 
       - name: Enable KVM
+        if: env.SELECTED == 'true'
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
       - name: Run the full instrumentation suite with an isolated fake host
+        if: env.SELECTED == 'true'
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
+          # The runner's own defaults unless a manual run overrides the GPU mode or appends options.
+          emulator-options: -no-window -gpu ${{ inputs.gpu || 'swiftshader_indirect' }} -no-snapshot -noaudio -no-boot-anim ${{ inputs.emulator-extra }}
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
@@ -152,7 +179,7 @@ jobs:
       # The fake host diagnostics also exist when an attempt was retried after a system_server restart. A job that
       # reaches timeout-minutes ends as cancelled (run 39112487013, API 24), which failure() alone would skip.
       - name: Upload instrumentation reports after a failure, a cancellation or a retried attempt
-        if: failure() || cancelled() || hashFiles('build/p7-fake-host-logcat.txt') != ''
+        if: env.SELECTED == 'true' && (failure() || cancelled() || hashFiles('build/p7-fake-host-logcat.txt') != '')
         uses: actions/upload-artifact@v7
         with:
           name: instrumentation-reports-api${{ matrix.api-level }}
