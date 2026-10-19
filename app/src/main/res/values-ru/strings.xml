@@ -275,15 +275,21 @@
     <string name="release_history_error">Не удалось прочитать встроенный документ.</string>
     <string name="release_history_title">История версий</string>
     <string name="resident_alert_channel">Оповещения постоянного прослушивания</string>
+    <string name="resident_blocked">Нажмите, чтобы продолжить прослушивание: Android не позволяет снова включать микрофон в фоне</string>
     <string name="resident_conflict_message">Система поддерживает только одно приложение с постоянным прослушиванием. Сначала выключите его в %1$s, затем включите здесь.</string>
     <string name="resident_conflict_open">Открыть настройки %1$s</string>
     <string name="resident_conflict_title">Только одно постоянное прослушивание</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">Подключение к 3-Macaw Speech...</string>
+    <string name="resident_duration_10">Выключить через 10 минут</string>
+    <string name="resident_duration_30">Выключить через 30 минут</string>
+    <string name="resident_duration_60">Выключить через 60 минут</string>
+    <string name="resident_duration_always">Всегда включено</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">Слушаю...</string>
     <string name="resident_overlay_grant">Разрешить</string>
     <string name="resident_overlay_message">С разрешением на показ поверх других приложений черновик откроется сразу после фразы. Без него придет уведомление, которое открывает черновик.</string>
     <string name="resident_overlay_skip">Не сейчас</string>
     <string name="resident_overlay_title">Показывать черновики поверх других приложений?</string>
+    <string name="resident_paused">Приостановлено без зарядки; продолжится после подключения питания</string>
     <string name="resident_resume_text">Нажмите, чтобы возобновить постоянное прослушивание</string>
     <string name="resident_resume_title">Постоянное прослушивание приостановлено</string>
     <string name="resident_sensitivity_high">Высокая: срабатывает легче</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">Постоянное прослушивание остановлено</string>
     <string name="resident_stopped_unavailable">3-Macaw Speech недоступен</string>
     <string name="resident_turn_off">Выключить</string>
+    <string name="resident_until">Выключится в %1$s</string>
     <string name="resident_waiting">Скажите %1$s для пробуждения</string>
     <string name="risk_add_keyword">Добавить ключевое слово</string>
     <string name="risk_add_package">Добавить имя пакета платежного приложения</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">Нет приложения для открытия ссылки.</string>
     <string name="settings_policy_note">Сохраненные настройки действуют для новых задач. Профили и отдельные задачи могут только ужесточать ограничения; разрешения хоста сохраняются.</string>
     <string name="settings_resident">Постоянное прослушивание</string>
+    <string name="settings_resident_charging">Слушать только во время зарядки</string>
+    <string name="settings_resident_charging_note">Приостанавливается при отключении питания и продолжается после подключения</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Проверка 3-Macaw Speech...</string>
     <string name="settings_resident_conflict">%1$s уже слушает постоянно, сначала выключите это там</string>
+    <string name="settings_resident_duration">Время прослушивания</string>
     <string name="settings_resident_incompatible">Эта версия 3-Macaw Speech не поддерживает слова пробуждения, обновите ее</string>
     <string name="settings_resident_keywords">Слова пробуждения</string>
     <string name="settings_resident_keywords_invalid">Проверьте количество, длину и повторы слов пробуждения</string>

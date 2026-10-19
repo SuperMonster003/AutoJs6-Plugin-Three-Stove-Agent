@@ -275,15 +275,21 @@
     <string name="release_history_error">Impossible de lire le document intégré.</string>
     <string name="release_history_title">Historique des versions</string>
     <string name="resident_alert_channel">Alertes de l\'écoute permanente</string>
+    <string name="resident_blocked">Touchez pour continuer l\'écoute: Android n\'autorise pas la réouverture du micro en arrière-plan</string>
     <string name="resident_conflict_message">Le système ne prend en charge qu\'une seule appli en écoute permanente. Désactivez d\'abord %1$s, puis activez-la ici.</string>
     <string name="resident_conflict_open">Ouvrir les paramètres de %1$s</string>
     <string name="resident_conflict_title">Une seule écoute permanente</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">Connexion à 3-Macaw Speech...</string>
+    <string name="resident_duration_10">Désactiver après 10 minutes</string>
+    <string name="resident_duration_30">Désactiver après 30 minutes</string>
+    <string name="resident_duration_60">Désactiver après 60 minutes</string>
+    <string name="resident_duration_always">Toujours active</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">Écoute en cours...</string>
     <string name="resident_overlay_grant">Autoriser</string>
     <string name="resident_overlay_message">Avec l\'autorisation d\'affichage par-dessus les autres applis, le brouillon s\'ouvre dès que vous avez fini de parler. Sans elle, une notification apporte le brouillon.</string>
     <string name="resident_overlay_skip">Plus tard</string>
     <string name="resident_overlay_title">Afficher les brouillons par-dessus les autres applis?</string>
+    <string name="resident_paused">En pause hors charge; reprend une fois l\'appareil branché</string>
     <string name="resident_resume_text">Touchez pour reprendre l\'écoute permanente</string>
     <string name="resident_resume_title">Écoute permanente en pause</string>
     <string name="resident_sensitivity_high">Élevée: se déclenche plus facilement</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">Écoute permanente arrêtée</string>
     <string name="resident_stopped_unavailable">3-Macaw Speech n\'est pas disponible</string>
     <string name="resident_turn_off">Désactiver</string>
+    <string name="resident_until">Désactivation à %1$s</string>
     <string name="resident_waiting">Dites %1$s pour réveiller</string>
     <string name="risk_add_keyword">Ajouter un mot-clé</string>
     <string name="risk_add_package">Ajouter le nom de paquet d\'une application de paiement</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">Aucune application ne peut ouvrir ce lien.</string>
     <string name="settings_policy_note">Les paramètres enregistrés concernent les nouvelles tâches. Les profils et les tâches peuvent seulement réduire ces limites; les autorisations de l\'hôte restent applicables.</string>
     <string name="settings_resident">Écoute permanente</string>
+    <string name="settings_resident_charging">Écouter uniquement pendant la charge</string>
+    <string name="settings_resident_charging_note">Se met en pause une fois débranché et reprend une fois rebranché</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Vérification de 3-Macaw Speech...</string>
     <string name="settings_resident_conflict">%1$s écoute déjà en permanence; désactivez-le d\'abord là-bas</string>
+    <string name="settings_resident_duration">Durée d\'écoute</string>
     <string name="settings_resident_incompatible">Cette version de 3-Macaw Speech ne prend pas en charge les mots d\'activation; mettez-la à jour</string>
     <string name="settings_resident_keywords">Mots d\'activation</string>
     <string name="settings_resident_keywords_invalid">Vérifiez le nombre, la longueur et les doublons des mots d\'activation</string>

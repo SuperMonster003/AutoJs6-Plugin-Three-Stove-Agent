@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.util.Log
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
@@ -55,8 +56,10 @@ import java.nio.ByteOrder
  * and once on the floating card. Tests that need the overlay permission skip without it, unless
  * `-e agent.resident.overlay appops` lets them allow it for their duration (FloatingBallFixture). The joint run with
  * 3-Macaw Speech (`-e agent.resident.macawTakeover sheet|assistant`) opens its voice input sheet or its digital assistant
- * while the listener waits and checks that the wake session is silenced and resumed (its roadmap D57). Logs carry numbers
- * only.
+ * while the listener waits and checks that the wake session is silenced and resumed (its roadmap D57). P17.7 (D81, D82):
+ * the listening time and "only while charging" rows, the deadline with and without a running service (D67 coexistence)
+ * and, with a ready 3-Macaw Speech, the deadline and the pause and resume across power changes, which `dumpsys battery`
+ * simulates (always reset afterwards). Logs carry numbers only.
  */
 class ResidentListenerDeviceTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -72,13 +75,19 @@ class ResidentListenerDeviceTest {
     private val store = ResidentSettingsStore(context)
     private var savedSettings: ResidentSettings? = null
     private var wasEnabled = false
+    /** The settings screen [listening] keeps open. */
+    private var screen: ActivityScenario<SettingsActivity>? = null
+    private var batterySimulated = false
 
     @Before fun remember() {
         savedSettings = store.read(); wasEnabled = ResidentListener.enabled(context)
         if (wasEnabled) ResidentListener.turnOff(context)
+        // The tests start from the D81 defaults: a stored listening time would turn the switch off under them.
+        store.write(ResidentSettings(savedSettings!!.keywords, savedSettings!!.sensitivity))
     }
 
     @After fun restore() {
+        if (batterySimulated) battery("reset")
         ResidentListener.turnOff(context)
         savedSettings?.let(store::write)
         notifications.cancel(553); notifications.cancel(554); notifications.cancel(555)
@@ -233,6 +242,172 @@ class ResidentListenerDeviceTest {
         } finally {
             rival(false)
             waitFor("The rival is off again", 15_000) { ResidentListener.others(context).none { it.packageName == testPackage } }
+        }
+    }
+
+    /** D81 (P17.7): the two rows right below the switch, their texts, and that they save at once. */
+    @Test fun theListeningTimeAndChargingRowsSaveAtOnce() {
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            waitFor("Resident rows", 15_000) { var built = false; scenario.onActivity { built = it.rows.containsKey("resident-charging") }; built }
+            scenario.onActivity { activity ->
+                val duration = activity.rows.getValue("resident-duration"); val charging = activity.rows.getValue("resident-charging")
+                assertEquals(activity.getString(R.string.settings_resident_duration), duration.title.text.toString())
+                assertEquals(activity.getString(R.string.resident_duration_always), duration.summary.text.toString())
+                assertEquals(activity.getString(R.string.settings_resident_charging), charging.title.text.toString())
+                assertEquals(activity.getString(R.string.settings_resident_charging_note), charging.summary.text.toString())
+                assertFalse(charging.switch!!.isChecked)
+                val page = duration.view.parent as ViewGroup
+                val order = listOf("resident", "resident-duration", "resident-charging", "resident-keywords").map { page.indexOfChild(activity.rows.getValue(it).view) }
+                assertEquals("Right below the switch, above the wake words", order.sorted(), order)
+                activity.resident.duration.choose(0)
+                charging.view.performClick()
+            }
+            val saved = store.read()
+            assertEquals(ListeningDuration.MINUTES_10, saved.duration)
+            assertTrue(saved.chargingOnly)
+            assertNull("Off: the listening time starts when the switch turns on", saved.deadline)
+            scenario.onActivity { activity ->
+                assertEquals(activity.getString(R.string.resident_duration_10), activity.rows.getValue("resident-duration").summary.text.toString())
+                assertTrue(activity.rows.getValue("resident-charging").switch!!.isChecked)
+                Log.i(TAG, "case=limitRows duration=${saved.duration.id} chargingOnly=${saved.chargingOnly} rowsBelowSwitch=true")
+            }
+        }
+    }
+
+    /** D82 with D67: a listening time that ran out while nothing ran turns the switch off instead of resuming or reminding. */
+    @Test fun anExpiredListeningTimeTurnsOffInsteadOfResumingOrReminding() {
+        store.write(store.read().copy(duration = ListeningDuration.MINUTES_10, deadline = System.currentTimeMillis() - 1000))
+        ResidentListener.setEnabled(context, true)
+        ResidentResumeReceiver().onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
+        assertFalse("After a reboot past the deadline the switch is off", ResidentListener.enabled(context))
+        assertNull("... and nothing reminds", active(555))
+        ResidentListener.setEnabled(context, true)
+        ResidentListener.resume(context)
+        assertFalse("A visible screen past the deadline turns it off", ResidentListener.enabled(context))
+        // A start that comes anyway turns the switch off at once and leaves no notification.
+        ResidentListener.setEnabled(context, true)
+        assertTrue(ResidentListener.start(context))
+        waitFor("The service turned the switch off", 10_000) { !ResidentListener.enabled(context) }
+        waitFor("No ongoing notification", 10_000) { active(ResidentNotifications.LISTENING_ID) == null }
+        assertNull(active(554)); assertNull(active(555))
+        // Within the listening time the D67 reminder still comes.
+        var reminded = "skipped"
+        if (notifications.areNotificationsEnabled()) {
+            store.write(store.read().copy(deadline = System.currentTimeMillis() + 10 * 60_000L))
+            ResidentListener.setEnabled(context, true)
+            ResidentResumeReceiver().onReceive(context, Intent(Intent.ACTION_MY_PACKAGE_REPLACED))
+            waitForNotification(555)
+            assertTrue(ResidentListener.enabled(context))
+            reminded = "true"
+        }
+        Log.i(TAG, "case=expiredResume boot=off visible=off service=off reminderWithinTime=$reminded")
+    }
+
+    /**
+     * D81 with a ready 3-Macaw Speech: turned on with 10 minutes, the ongoing notification and the switch row say when
+     * it ends; with the deadline moved four seconds ahead (as if ten minutes had passed) the switch turns off and the
+     * ongoing notification goes, with no stop or resume notification.
+     */
+    @Test fun theListeningTimeTurnsTheListenerOffAtItsDeadline() {
+        requireNotifications()
+        assumeTrue("Another app is listening resident", ResidentListener.others(context).isEmpty())
+        listening("deadline", ResidentSettings(listOf(KEYWORD), WakeSensitivity.MEDIUM, ListeningDuration.MINUTES_10)) { _, _ ->
+            val deadline = store.read().deadline!!
+            val left = deadline - System.currentTimeMillis()
+            assertTrue("Turning on set ten minutes: $left", left in 9 * 60_000L..10 * 60_000L)
+            val until = ResidentNotifications.until(context, deadline)
+            waitFor("The ongoing notification says when it turns off", 10_000) { subText() == until }
+            screen!!.moveToState(Lifecycle.State.STARTED); screen!!.moveToState(Lifecycle.State.RESUMED)
+            // The screen follows the language of AutoJs6, which may differ from the system's.
+            waitFor("The switch row says it too", 10_000) {
+                var shown = false
+                screen!!.onActivity { shown = it.rows.getValue("resident").summary.text.endsWith(ResidentNotifications.until(it, deadline)) }
+                shown
+            }
+            val soon = System.currentTimeMillis() + 4000
+            store.update { it.copy(deadline = soon) }
+            ResidentListener.refresh(context)
+            waitFor("The new turn-off time", 10_000) { subText() == ResidentNotifications.until(context, soon) }
+            waitFor("The switch turned off at the deadline", 20_000) { !ResidentListener.enabled(context) }
+            val offMs = System.currentTimeMillis() - soon
+            waitFor("The ongoing notification is gone", 10_000) { active(ResidentNotifications.LISTENING_ID) == null }
+            SystemClock.sleep(1000)
+            assertNull("No stop notification", active(554)); assertNull("No resume reminder", active(555))
+            assertFalse("The service is gone", listenerRunning())
+            Log.i(TAG, "case=deadline minutesSet=10 offAfterDeadlineMs=$offMs ongoing=gone stopNotice=none")
+        }
+    }
+
+    /**
+     * D81 / D82 with a ready 3-Macaw Speech: "only while charging" pauses when unplugged (no wake session, 3-Macaw Speech
+     * stops recording) and listens again when plugged in. Plugged in with the home screen in front, the session opens
+     * from the background, where Android 11+ may give 3-Macaw Speech no microphone: the listener then says "tap to
+     * continue" and the tap (the notification's settings screen) continues it. Plugged in while a Stove screen is visible,
+     * it continues at once. The power changes are `dumpsys battery` simulations, reset at the end.
+     */
+    @Test fun onlyWhileChargingPausesUnpluggedAndContinuesPluggedIn() = FloatingBallFixture.withOverlay<Unit>(grantOverlay) {
+        requireNotifications()
+        assumeTrue("Another app is listening resident", ResidentListener.others(context).isEmpty())
+        val paused = context.getString(R.string.resident_paused); val blocked = context.getString(R.string.resident_blocked)
+        battery("set ac 1")
+        listening("charging", ResidentSettings(listOf(KEYWORD), WakeSensitivity.MEDIUM, chargingOnly = true)) { waiting, workbench ->
+            home()
+            // 1. Unplugged in the background: paused, and 3-Macaw Speech stops recording.
+            var started = SystemClock.elapsedRealtime()
+            battery("unplug")
+            waitFor("Paused when unplugged", 10_000) { listeningText() == paused }
+            val pauseMs = SystemClock.elapsedRealtime() - started
+            waitFor("3-Macaw Speech stopped recording", 10_000) { macawRecording() == "none" }
+            val stopMs = SystemClock.elapsedRealtime() - started
+            assertTrue("The listener stays on while paused", ResidentListener.enabled(context))
+            // 2. Plugged in with the home screen in front: the session opens from the background.
+            started = SystemClock.elapsedRealtime()
+            battery("set ac 1")
+            waitFor("Listening again or waiting for a screen", 30_000) { listeningText() == waiting || listeningText() == blocked }
+            // A refused or silenced microphone is reported within seconds; let it come before judging.
+            SystemClock.sleep(8000)
+            val background = when (listeningText()) { waiting -> "waiting"; blocked -> "blocked"; else -> "other" }
+            val backgroundMs = SystemClock.elapsedRealtime() - started - 8000
+            val backgroundRecording = macawRecording()
+            Log.i(TAG, "case=chargingBackground api=${Build.VERSION.SDK_INT} overlay=${Settings.canDrawOverlays(context)} pauseMs=$pauseMs macawStoppedMs=$stopMs backgroundResume=$background " +
+                "backgroundMs=$backgroundMs backgroundRecording=$backgroundRecording")
+            var heardInBackground = "notTried"
+            if (background == "waiting" && acoustic) Speaker().use { speaker ->
+                heardInBackground = runCatching { hearKeyword(speaker, context.getString(R.string.resident_listening)).first.toString() }.getOrDefault("missed")
+                waitFor("The round after the keyword ends", 20_000) { listeningText() == waiting }
+            }
+            // 3. Waiting for a screen: no recording; tapping the notification opens the settings, which continue it.
+            var tapMs = -1L
+            if (background == "blocked") {
+                assertEquals("No recording while it waits for a screen", "none", macawRecording())
+                started = SystemClock.elapsedRealtime()
+                active(ResidentNotifications.LISTENING_ID)!!.contentIntent.send()
+                waitFor("The tap continued listening", 30_000) { listeningText() == waiting }
+                tapMs = SystemClock.elapsedRealtime() - started
+            } else {
+                assertEquals("The background open listens", "waiting", background)
+                context.startActivity(Intent(context, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                waitFor("A Stove screen in front", 10_000) {
+                    var front = false
+                    instrumentation.runOnMainSync { front = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED).any { it is SettingsActivity } }
+                    front
+                }
+            }
+            waitFor("Recording again", 10_000) { macawRecording() != "none" }
+            // 4. Unplugged and plugged in while a Stove screen is visible: it continues at once.
+            battery("unplug")
+            waitFor("Paused again", 10_000) { listeningText() == paused }
+            started = SystemClock.elapsedRealtime()
+            battery("set ac 1")
+            waitFor("Listening again with the screen visible", 30_000) { listeningText() == waiting }
+            SystemClock.sleep(8000)
+            val visibleResume = if (listeningText() == waiting) "waiting" else "other:${listeningText()?.length}"
+            Log.i(TAG, "case=charging heardInBackground=$heardInBackground tapMs=$tapMs visibleResume=$visibleResume " +
+                "visibleMs=${SystemClock.elapsedRealtime() - started - 8000} recording=${macawRecording()}")
+            assertEquals("Plugged in with a visible screen continues at once", "waiting", visibleResume)
+            assertNull("No draft notification", active(553))
+            assertEquals("No workbench", 0, workbench.hits)
+            finishSettings()
         }
     }
 
@@ -443,25 +618,26 @@ class ResidentListenerDeviceTest {
      * recording and runs [block] once the wake session waits, with a monitor of the workbench; turns it off and closes
      * any workbench afterwards.
      */
-    private fun listening(label: String, block: (waiting: String, workbench: Instrumentation.ActivityMonitor) -> Unit) {
-        store.write(ResidentSettings(listOf(KEYWORD), WakeSensitivity.MEDIUM))
+    private fun listening(label: String, settings: ResidentSettings = ResidentSettings(listOf(KEYWORD), WakeSensitivity.MEDIUM),
+                          block: (waiting: String, workbench: Instrumentation.ActivityMonitor) -> Unit) {
+        store.write(settings)
         val workbench = instrumentation.addMonitor(LauncherActivity::class.java.name, null, false)
         ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            screen = scenario
             try {
                 val availability = probe(scenario, label)
                 val allowActivityStarts = MacawSpeech.bindFlags() and Context.BIND_ALLOW_ACTIVITY_STARTS != 0
                 Log.i(TAG, "case=$label api=${Build.VERSION.SDK_INT} availability=$availability allowActivityStarts=$allowActivityStarts")
                 assumeTrue("3-Macaw Speech is not ready: $availability", availability == ResidentAvailability.READY)
                 assertEquals("Stove lets 3-Macaw Speech start its microphone activity on API 34+ (D74)", Build.VERSION.SDK_INT >= 34, allowActivityStarts)
-                ResidentListener.setEnabled(context, true)
                 // A visible Stove screen lets 3-Macaw Speech start its microphone service (API 34+, roadmap D74).
-                assertTrue(ResidentListener.start(context))
+                assertTrue(ResidentListener.turnOn(context))
                 val started = SystemClock.elapsedRealtime()
                 val waiting = context.getString(R.string.resident_waiting, KEYWORD)
                 waitFor("Wake session ready", 30_000) { listeningText() == waiting }
                 Log.i(TAG, "case=$label readyMs=${SystemClock.elapsedRealtime() - started}")
                 block(waiting, workbench)
-            } finally { ResidentListener.turnOff(context); instrumentation.removeMonitor(workbench); finishLaunchers() }
+            } finally { ResidentListener.turnOff(context); instrumentation.removeMonitor(workbench); finishLaunchers(); screen = null }
         }
     }
 
@@ -568,6 +744,33 @@ class ResidentListenerDeviceTest {
             put("data".toByteArray()); putInt(data.size)
         }.array()
         return File(context.cacheDir, "$name.wav").apply { writeBytes(header + data) }
+    }
+
+    /** Simulated power for "only while charging" (`set ac 1`, `unplug`, `reset`); the shell user may change it. */
+    private fun battery(command: String) { batterySimulated = command != "reset"; shell("dumpsys battery $command") }
+
+    /** 3-Macaw Speech's active recording in the audio service: `none`, `recording` or `silenced`. */
+    private fun macawRecording(): String {
+        // The active recordings come first; the event history follows ("Audio event log", "Events log" on API 35).
+        val tail = shell("dumpsys audio").substringAfter("RecordActivityMonitor dump time", "")
+        val active = tail.substring(0, Regex("(?i)events? log").find(tail)?.range?.first ?: tail.length)
+        val line = active.lineSequence().firstOrNull { it.contains(MacawSpeech.PACKAGE) } ?: return "none"
+        val silenced = line.contains("silenced:true") || (line.contains("silenced") && !line.contains("not silenced") && !line.contains("silenced:false"))
+        return if (silenced) "silenced" else "recording"
+    }
+
+    private fun listenerRunning() = shell("dumpsys activity services ${context.packageName}/.speech.ResidentListenerService").contains("app=ProcessRecord")
+
+    private fun subText(): String? = active(ResidentNotifications.LISTENING_ID)?.extras?.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
+
+    /** Settings screens other than the scenario's, opened from a notification. */
+    private fun finishSettings() {
+        val own = mutableListOf<Activity>(); screen?.onActivity { own += it }
+        instrumentation.runOnMainSync {
+            listOf(Stage.RESUMED, Stage.STARTED, Stage.PAUSED, Stage.STOPPED, Stage.CREATED).flatMap {
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(it)
+            }.filterIsInstance<SettingsActivity>().filter { it !in own }.forEach { it.finish() }
+        }
     }
 
     private fun active(id: Int): Notification? = notifications.activeNotifications.firstOrNull { it.id == id }?.notification

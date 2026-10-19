@@ -4,7 +4,9 @@ import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.BatteryManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -51,11 +53,30 @@ internal object ResidentListener {
         if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
     }.isSuccess
 
-    /** The workbench or the settings became visible (D67): an enabled listener without a rival resumes. */
-    fun resume(context: Context) { if (enabled(context) && others(context).isEmpty()) start(context) }
+    /** Turning the switch on starts its listening time (D81, D82) and the service; only from a visible screen (D74). */
+    fun turnOn(context: Context): Boolean {
+        ResidentSettingsStore(context).update { it.turnedOn(System.currentTimeMillis()) }
+        setEnabled(context, true)
+        return start(context)
+    }
+
+    /**
+     * The workbench or the settings became visible (D67): an enabled listener without a rival resumes; one whose listening
+     * time ran out while nothing ran is turned off instead (D82).
+     */
+    fun resume(context: Context) {
+        when (ResidentResume.of(enabled(context), ResidentSettingsStore(context).read(), System.currentTimeMillis())) {
+            ResidentResume.TURN_OFF -> turnOff(context)
+            ResidentResume.RESUME -> if (others(context).isEmpty()) start(context)
+            ResidentResume.NOTHING -> Unit
+        }
+    }
 
     /** Keywords or sensitivity changed: a running listener reopens its wake session. */
     fun restart(context: Context) { if (enabled(context)) start(context, ResidentListenerService.ACTION_RESTART) }
+
+    /** The listening time or "only while charging" changed: a running listener follows without reopening its wake session. */
+    fun refresh(context: Context) { if (enabled(context)) start(context, ResidentListenerService.ACTION_REFRESH) }
 
     fun turnOff(context: Context) {
         runCatching { context.stopService(Intent(context, ResidentListenerService::class.java)) }
@@ -69,6 +90,16 @@ internal class ResidentSettingsStore(context: Context) {
     private val file = LockedJsonFile(context.filesDir, "resident-listener", 4096)
     fun read(): ResidentSettings = ResidentSettings.decode(file.read())
     fun write(value: ResidentSettings) = file.write(ResidentSettings.encode(value))
+    /** Read-modify-write under the file lock, since both processes write the listening time. */
+    fun update(transform: (ResidentSettings) -> ResidentSettings): ResidentSettings =
+        ResidentSettings.decode(file.update { ResidentSettings.encode(transform(ResidentSettings.decode(it))) })
+}
+
+/** "Only while charging" (D81, D82): plugged into any power source, charging or not (battery care may hold the charge). */
+internal object ResidentPower {
+    fun plugged(context: Context): Boolean = runCatching {
+        context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
+    }.getOrDefault(true)
 }
 
 /** Hands a dictated sentence to the user as a draft (D62-D64, D77); main thread of the :agent process. */

@@ -7,13 +7,15 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.text.format.DateFormat
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.LauncherActivity
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.SettingsActivity
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.TaskEntries
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.TaskEntry
+import java.util.Date
 
-/** Notifications of the resident listener (roadmap D63, D64, D66, D67, D76); the draft text is never logged. */
+/** Notifications of the resident listener (roadmap D63, D64, D66, D67, D76, D81); the draft text is never logged. */
 internal object ResidentNotifications {
     const val LISTENING_ID = 552
     private const val DRAFT_ID = 553
@@ -24,7 +26,8 @@ internal object ResidentNotifications {
     private const val DRAFT_CHANNEL = "voice-drafts"
     private const val DRAFT_TIMEOUT_MILLIS = 10 * 60 * 1000L
 
-    enum class State { CONNECTING, WAITING, LISTENING }
+    /** [PAUSED]: unplugged with "only while charging"; [BLOCKED]: the wake session waits for a visible screen (D82). */
+    enum class State { CONNECTING, WAITING, LISTENING, PAUSED, BLOCKED }
 
     private fun manager(context: Context) = context.getSystemService(NotificationManager::class.java)
 
@@ -45,25 +48,32 @@ internal object ResidentNotifications {
         Intent(context, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_FOCUS, SettingsActivity.FOCUS_RESIDENT)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-    /** The ongoing notification of the foreground service, with Turn off. */
-    fun listening(context: Context, state: State, keyword: String): Notification {
+    /** The ongoing notification of the foreground service, with Turn off; [deadline] is when the listening time ends (D81). */
+    fun listening(context: Context, state: State, keyword: String, deadline: Long?): Notification {
         val text = when (state) {
             State.CONNECTING -> context.getString(R.string.resident_connecting)
             State.WAITING -> context.getString(R.string.resident_waiting, keyword)
             State.LISTENING -> context.getString(R.string.resident_listening)
+            State.PAUSED -> context.getString(R.string.resident_paused)
+            State.BLOCKED -> context.getString(R.string.resident_blocked)
         }
         val off = PendingIntent.getService(context, 0, Intent(context, ResidentListenerService::class.java)
             .setAction(ResidentListenerService.ACTION_TURN_OFF), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return builder(context, LISTENING_CHANNEL).setSmallIcon(R.drawable.ic_mic).setContentTitle(context.getString(R.string.settings_resident))
-            .setContentText(text).setContentIntent(settings(context, 1)).setOngoing(true).setOnlyAlertOnce(true)
+            .setContentText(text).setStyle(Notification.BigTextStyle().bigText(text)).setContentIntent(settings(context, 1)).setOngoing(true).setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_SERVICE).setVisibility(Notification.VISIBILITY_PUBLIC)
+            .apply { deadline?.let { setSubText(until(context, it)) } }
             .addAction(Notification.Action.Builder(null, context.getString(R.string.resident_turn_off), off).build())
             .apply { if (Build.VERSION.SDK_INT >= 31) setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE) }
             .build()
     }
 
-    fun updateListening(context: Context, state: State, keyword: String) =
-        runCatching { manager(context).notify(LISTENING_ID, listening(context, state, keyword)) }
+    fun updateListening(context: Context, state: State, keyword: String, deadline: Long?) =
+        runCatching { manager(context).notify(LISTENING_ID, listening(context, state, keyword, deadline)) }
+
+    /** "Turns off at 10:42" in the device's time format (D81). */
+    fun until(context: Context, deadline: Long): String =
+        context.getString(R.string.resident_until, DateFormat.getTimeFormat(context).format(Date(deadline)))
 
     /** "Draft ready" (D63, D64): the first 40 code points, nothing on the lock screen, gone after ten minutes. */
     fun draft(context: Context, text: String) {

@@ -275,15 +275,21 @@
     <string name="release_history_error">Unable to read the bundled document.</string>
     <string name="release_history_title">Version history</string>
     <string name="resident_alert_channel">Resident listening alerts</string>
+    <string name="resident_blocked">Tap to continue listening: Android does not allow reopening the microphone in the background</string>
     <string name="resident_conflict_message">The system supports only one app listening resident. Turn off %1$s first, then turn it on here.</string>
     <string name="resident_conflict_open">Open %1$s settings</string>
     <string name="resident_conflict_title">Only one resident listener</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">Connecting to 3-Macaw Speech...</string>
+    <string name="resident_duration_10">Turn off after 10 minutes</string>
+    <string name="resident_duration_30">Turn off after 30 minutes</string>
+    <string name="resident_duration_60">Turn off after 60 minutes</string>
+    <string name="resident_duration_always">Always on</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">Listening...</string>
     <string name="resident_overlay_grant">Allow</string>
     <string name="resident_overlay_message">With the permission to display over other apps, the draft opens as soon as you finish speaking. Without it, a notification brings the draft.</string>
     <string name="resident_overlay_skip">Not now</string>
     <string name="resident_overlay_title">Show drafts over other apps?</string>
+    <string name="resident_paused">Paused while not charging; continues when plugged in</string>
     <string name="resident_resume_text">Tap to resume resident listening</string>
     <string name="resident_resume_title">Resident listening paused</string>
     <string name="resident_sensitivity_high">High: wakes more easily</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">Resident listening stopped</string>
     <string name="resident_stopped_unavailable">3-Macaw Speech is not available</string>
     <string name="resident_turn_off">Turn off</string>
+    <string name="resident_until">Turns off at %1$s</string>
     <string name="resident_waiting">Say %1$s to wake</string>
     <string name="risk_add_keyword">Add a keyword</string>
     <string name="risk_add_package">Add a payment app package name</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">No application could open this link.</string>
     <string name="settings_policy_note">Saved settings apply to new tasks. Presets and individual tasks can only narrow these limits; host permissions still apply.</string>
     <string name="settings_resident">Resident listening</string>
+    <string name="settings_resident_charging">Listen only while charging</string>
+    <string name="settings_resident_charging_note">Pauses when unplugged and continues when plugged in again</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Checking 3-Macaw Speech...</string>
     <string name="settings_resident_conflict">%1$s is already listening resident; turn it off there first</string>
+    <string name="settings_resident_duration">Listening time</string>
     <string name="settings_resident_incompatible">This 3-Macaw Speech version does not support wake words; update it</string>
     <string name="settings_resident_keywords">Wake words</string>
     <string name="settings_resident_keywords_invalid">Check the number, length and repeats of the wake words</string>

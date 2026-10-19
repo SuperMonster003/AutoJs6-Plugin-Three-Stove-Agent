@@ -10,20 +10,23 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ListeningDuration
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.MacawSpeech
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentAvailability
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentKeywords
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentListener
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentListenerApp
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentNotifications
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentSettings
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.ResidentSettingsStore
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.speech.WakeSensitivity
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 
 /**
- * Settings rows of the resident listener (roadmap D61-D75). The switch mirrors the component state (D73); whether
+ * Settings rows of the resident listener (roadmap D61-D75, D81). The switch mirrors the component state (D73); whether
  * 3-Macaw Speech can serve it is probed on every resume (D71, D74). Turning it on checks for another resident listener,
- * asks for notifications and, once, for the overlay permission (D63) before enabling the component.
+ * asks for notifications and, once, for the overlay permission (D63) before enabling the component and starting its
+ * listening time. The listening time and "only while charging" sit right below the switch and apply at once (D81, D82).
  */
 internal class ResidentSettingsSection(private val activity: SettingsActivity) {
     private val kit get() = activity.kit
@@ -31,6 +34,9 @@ internal class ResidentSettingsSection(private val activity: SettingsActivity) {
     private lateinit var toggle: SettingRow
     private lateinit var openMacaw: SettingRow
     private var openMacawDivider: View? = null
+    /** The listening time row, exposed for instrumentation. */
+    internal lateinit var duration: ChoiceRow; private set
+    private lateinit var charging: SettingRow
     private lateinit var keywords: SettingRow
     private lateinit var sensitivity: ChoiceRow
     /** Null while probing. */
@@ -49,13 +55,24 @@ internal class ResidentSettingsSection(private val activity: SettingsActivity) {
             R.drawable.ic_download, "resident-macaw") { openMacaw() }
         openMacawDivider = activity.add(page, "resident-macaw", openMacaw)
         val settings = store.read()
+        duration = kit.choiceRow(activity.getString(R.string.settings_resident_duration), DURATION_LABELS.map(activity::getString),
+            ListeningDuration.entries.indexOf(settings.duration), R.drawable.ic_timer, "resident-duration") { index ->
+            val now = System.currentTimeMillis()
+            save(restart = false) { store.update { it.withDuration(ListeningDuration.entries[index], ResidentListener.enabled(activity), now) } }
+        }
+        activity.add(page, "resident-duration", duration.row)
+        charging = kit.switchRow(activity.getString(R.string.settings_resident_charging), activity.getString(R.string.settings_resident_charging_note),
+            R.drawable.ic_battery_charging, settings.chargingOnly, "resident-charging") { on ->
+            save(restart = false) { store.update { it.copy(chargingOnly = on) } }
+        }
+        activity.add(page, "resident-charging", charging)
         keywords = kit.settingRow(activity.getString(R.string.settings_resident_keywords), settings.keywords.joinToString(", "),
             R.drawable.ic_spark, "resident-keywords") { editKeywords() }
         activity.add(page, "resident-keywords", keywords)
         sensitivity = kit.choiceRow(activity.getString(R.string.settings_resident_sensitivity),
             listOf(R.string.resident_sensitivity_high, R.string.resident_sensitivity_medium, R.string.resident_sensitivity_low).map(activity::getString),
             WakeSensitivity.entries.indexOf(settings.sensitivity), R.drawable.ic_settings_tune, "resident-sensitivity") { index ->
-            save(store.read().copy(sensitivity = WakeSensitivity.entries[index]))
+            save { store.update { it.copy(sensitivity = WakeSensitivity.entries[index]) } }
         }
         activity.add(page, "resident-sensitivity", sensitivity.row)
         render()
@@ -84,7 +101,12 @@ internal class ResidentSettingsSection(private val activity: SettingsActivity) {
             state == null -> activity.getString(R.string.settings_resident_checking)
             state != ResidentAvailability.READY -> reason(state)
             others.isNotEmpty() -> activity.getString(R.string.settings_resident_conflict, others.joinToString(", ") { it.label })
-            else -> activity.getString(R.string.settings_resident_note, store.read().keywords.first())
+            else -> store.read().let { settings ->
+                // An enabled listener with a listening time says when it ends (D81).
+                val note = activity.getString(R.string.settings_resident_note, settings.keywords.first())
+                val deadline = settings.deadline?.takeIf { on && !settings.expired(System.currentTimeMillis()) }
+                if (deadline == null) note else note + "\n" + ResidentNotifications.until(activity, deadline)
+            }
         })
         // An enabled listener can always be turned off, even when 3-Macaw Speech lost a model meanwhile.
         toggle.setEnabled(on || state == ResidentAvailability.READY)
@@ -126,8 +148,7 @@ internal class ResidentSettingsSection(private val activity: SettingsActivity) {
 
     private fun enable() {
         if (ResidentListener.others(activity).isNotEmpty()) { render(); return }
-        ResidentListener.setEnabled(activity, true)
-        if (!ResidentListener.start(activity)) kit.snackbar(activity.scaffold.root, activity.getString(R.string.settings_open_failed))
+        if (!ResidentListener.turnOn(activity)) kit.snackbar(activity.scaffold.root, activity.getString(R.string.settings_open_failed))
         render()
     }
 
@@ -160,17 +181,27 @@ internal class ResidentSettingsSection(private val activity: SettingsActivity) {
             message = activity.getString(R.string.settings_resident_keywords_note, ResidentKeywords.MAX_KEYWORDS, ResidentKeywords.MAX_CHARACTERS),
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE, singleLine = false,
             validate = { if (ResidentKeywords.parse(it) == null) activity.getString(R.string.settings_resident_keywords_invalid) else null }) { text ->
-            save(store.read().copy(keywords = requireNotNull(ResidentKeywords.parse(text))))
+            save { store.update { it.copy(keywords = requireNotNull(ResidentKeywords.parse(text))) } }
         }
     }
 
-    private fun save(value: ResidentSettings) {
-        if (runCatching { store.write(value) }.isFailure) { kit.snackbar(activity.scaffold.root, activity.getString(R.string.settings_error)); return }
+    /**
+     * Saves under the file lock and shows the result. New keywords or sensitivity reopen a running wake session; the
+     * listening time and the power rule ([restart] false) only make the service apply them (D82).
+     */
+    private fun save(restart: Boolean = true, write: () -> ResidentSettings) {
+        val value = runCatching(write).getOrElse { kit.snackbar(activity.scaffold.root, activity.getString(R.string.settings_error)); render(); return }
         keywords.setSummary(value.keywords.joinToString(", "))
         sensitivity.select(WakeSensitivity.entries.indexOf(value.sensitivity))
-        ResidentListener.restart(activity)
+        duration.select(ListeningDuration.entries.indexOf(value.duration))
+        charging.switch!!.isChecked = value.chargingOnly; charging.refreshDescription()
+        if (restart) ResidentListener.restart(activity) else ResidentListener.refresh(activity)
         render()
     }
 
-    private companion object { const val NOTIFICATION_REQUEST = 21 }
+    private companion object {
+        const val NOTIFICATION_REQUEST = 21
+        /** In the order of [ListeningDuration]. */
+        val DURATION_LABELS = listOf(R.string.resident_duration_10, R.string.resident_duration_30, R.string.resident_duration_60, R.string.resident_duration_always)
+    }
 }

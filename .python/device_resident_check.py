@@ -4,7 +4,11 @@ Usage: py .python/device_resident_check.py --serial QV710AF65F [--acoustic] [--m
        [--skip-install] [--macaw-takeover [sheet|assistant]]
 
 Runs the VOICE_COMMAND draft entries (workbench and floating card, E2), the resident listener checks that need no
-3-Macaw Speech and the conflict with another app's resident listener (a disabled service of the test APK, E2). With
+3-Macaw Speech and the conflict with another app's resident listener (a disabled service of the test APK, E2), and the
+listening time and "only while charging" of P17.7 (D81, D82): the two settings rows, an expired listening time after a
+reboot, on a visible screen and at a start, and with a ready 3-Macaw Speech the deadline (moved a few seconds ahead) and
+the pause and resume across simulated power changes (`dumpsys battery unplug` / `set ac 1`; the script resets the battery
+state afterwards in any case). With
 `--acoustic` it also runs the E3 cases: on a phone with 3-Macaw Speech, its wake word and recognition models and the
 microphone granted, the phone plays the pinned test recordings through its own speaker (the media volume as set, raised
 to 40 % only when lower and then restored; `--min-volume` raises that floor for a phone whose microphone needs more, for
@@ -45,6 +49,10 @@ TESTS = [
     f"{RESIDENT}#aDraftWithoutTheBallOpensTheWorkbenchOrANotification",
     f"{RESIDENT}#voiceCommandFillsTheFloatingCardAndReplacesItsDraft",
     f"{RESIDENT}#anotherResidentListenerKeepsThisOneOff",
+    f"{RESIDENT}#theListeningTimeAndChargingRowsSaveAtOnce",
+    f"{RESIDENT}#anExpiredListeningTimeTurnsOffInsteadOfResumingOrReminding",
+    f"{RESIDENT}#theListeningTimeTurnsTheListenerOffAtItsDeadline",
+    f"{RESIDENT}#onlyWhileChargingPausesUnpluggedAndContinuesPluggedIn",
 ]
 ACOUSTIC = [
     f"{RESIDENT}#theWakeWordAndTheNextSentenceBecomeADraft",
@@ -138,6 +146,8 @@ def main() -> int:
         finally:
             stream.terminate()
             stream.wait(timeout=10)
+            # The charging case simulates the power; an interrupted run must not leave the phone "unplugged".
+            adb(options.serial, "shell", "dumpsys", "battery", "reset")
         captured.seek(0)
         log = captured.read().decode("utf-8", errors="replace")
     # Instrumentation status blocks: test name, then INSTRUMENTATION_STATUS_CODE (0 ok, -1 error, -2 failure, -3 ignored, -4 assumption).

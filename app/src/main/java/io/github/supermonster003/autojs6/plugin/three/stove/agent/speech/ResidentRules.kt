@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.speech
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.flag
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.json
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.jsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.number
@@ -34,19 +35,85 @@ internal object ResidentKeywords {
     fun parse(text: String): List<String>? = text.lines().map { it.trim() }.filter { it.isNotEmpty() }.takeIf(::valid)
 }
 
-/** Preferences shared by the settings screen and the :agent service (D75); the switch itself is the component state (D73). */
-internal data class ResidentSettings(val keywords: List<String> = ResidentKeywords.DEFAULT, val sensitivity: WakeSensitivity = WakeSensitivity.MEDIUM) {
-    init { require(ResidentKeywords.valid(keywords)) }
+/** How long the resident listener stays on once turned on (roadmap D81, D82); it then turns its switch off. */
+internal enum class ListeningDuration(val id: String, val minutes: Int?) {
+    MINUTES_10("10", 10), MINUTES_30("30", 30), MINUTES_60("60", 60), ALWAYS("always", null);
+    /** When a listener turned on at [now] (epoch milliseconds) turns off, or null when it stays on. */
+    fun deadline(now: Long): Long? = minutes?.let { now + it * 60_000L }
+    companion object { fun of(id: String?) = entries.firstOrNull { it.id == id } ?: ALWAYS }
+}
+
+/**
+ * Preferences shared by the settings screen and the :agent service (D75, D82); the switch itself is the component state
+ * (D73). [deadline] (epoch milliseconds, wall clock, so that it holds across a reboot) ends the current listening time:
+ * turning the switch on, or choosing another [duration] while it is on, sets it; null keeps the listener on.
+ */
+internal data class ResidentSettings(
+    val keywords: List<String> = ResidentKeywords.DEFAULT,
+    val sensitivity: WakeSensitivity = WakeSensitivity.MEDIUM,
+    val duration: ListeningDuration = ListeningDuration.ALWAYS,
+    val chargingOnly: Boolean = false,
+    val deadline: Long? = null,
+) {
+    init { require(ResidentKeywords.valid(keywords)); require(deadline == null || deadline > 0) }
+
+    /** The listening time of a switch turned on at [now]. */
+    fun turnedOn(now: Long) = copy(deadline = duration.deadline(now))
+
+    /** Another duration: an enabled listener counts it from [now], a disabled one only remembers it for the next start. */
+    fun withDuration(value: ListeningDuration, enabled: Boolean, now: Long) = copy(duration = value, deadline = if (enabled) value.deadline(now) else deadline)
+
+    /** The listening time of an enabled listener is over. */
+    fun expired(now: Long) = deadline != null && now >= deadline
+
     companion object {
-        private const val VERSION = 1
-        /** A missing, unreadable or invalid file means the defaults. */
+        private const val VERSION = 2
+        /** A missing, unreadable or invalid file means the defaults; a version 1 file (keywords and sensitivity) keeps both. */
         fun decode(value: JsonObject?): ResidentSettings = runCatching {
             val json = requireNotNull(value)
-            require(json.number("version")?.toInt() == VERSION)
-            ResidentSettings(json.getAsJsonArray("keywords").map { it.asString }, WakeSensitivity.of(json.string("sensitivity")))
+            val version = json.number("version")?.toInt()
+            require(version == 1 || version == VERSION)
+            val deadline = if (version == 1) null else json.number("deadline")
+            ResidentSettings(json.getAsJsonArray("keywords").map { it.asString }, WakeSensitivity.of(json.string("sensitivity")),
+                ListeningDuration.of(json.string("duration")), json.flag("chargingOnly") == true, deadline?.takeIf { it > 0 })
         }.getOrDefault(ResidentSettings())
         fun encode(value: ResidentSettings): JsonObject = jsonObject("version" to VERSION.json(),
-            "keywords" to JsonArray().apply { value.keywords.forEach(::add) }, "sensitivity" to value.sensitivity.id.json())
+            "keywords" to JsonArray().apply { value.keywords.forEach(::add) }, "sensitivity" to value.sensitivity.id.json(),
+            "duration" to value.duration.id.json(), "chargingOnly" to value.chargingOnly.json()).apply {
+            value.deadline?.let { add("deadline", it.json()) }
+        }
+    }
+}
+
+/**
+ * What an enabled resident listener does now (D81, D82). Every start, every screen that resumes it (D67) and every power
+ * change asks this first, so the listening time also ends while the service is not running.
+ */
+internal enum class ResidentGate {
+    /** The listening time is over: turn the switch off and withdraw the ongoing notification; nothing resumes or reminds. */
+    EXPIRED,
+    /** Only while charging, and unplugged: no wake session (3-Macaw Speech stops recording) until the power comes back. */
+    PAUSED,
+    LISTEN;
+    companion object {
+        fun of(settings: ResidentSettings, now: Long, plugged: Boolean): ResidentGate = when {
+            settings.expired(now) -> EXPIRED
+            settings.chargingOnly && !plugged -> PAUSED
+            else -> LISTEN
+        }
+    }
+}
+
+/** D67 with D81: what a visible screen, a reboot or an update does with the switch. */
+internal enum class ResidentResume {
+    NOTHING, TURN_OFF, RESUME;
+    companion object {
+        /** An enabled listener resumes (or, after a reboot or an update, reminds), unless its listening time ran out meanwhile. */
+        fun of(enabled: Boolean, settings: ResidentSettings, now: Long): ResidentResume = when {
+            !enabled -> NOTHING
+            settings.expired(now) -> TURN_OFF
+            else -> RESUME
+        }
     }
 }
 

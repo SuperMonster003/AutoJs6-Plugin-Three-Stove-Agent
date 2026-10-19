@@ -46,9 +46,10 @@ class ResidentRulesTest {
     fun settingsFileRoundTripsAndFallsBackToDefaults() {
         val value = ResidentSettings(listOf("Hey Stove", "小炉小炉"), WakeSensitivity.HIGH)
         val encoded = ResidentSettings.encode(value)
-        assertEquals("""{"version":1,"keywords":["Hey Stove","小炉小炉"],"sensitivity":"high"}""", encoded.toString())
+        assertEquals("""{"version":2,"keywords":["Hey Stove","小炉小炉"],"sensitivity":"high","duration":"always","chargingOnly":false}""", encoded.toString())
         assertEquals(value, ResidentSettings.decode(JsonParser.parseString(encoded.toString()).asJsonObject))
         assertEquals(ResidentSettings(), ResidentSettings.decode(null))
+        assertEquals(ResidentSettings(), ResidentSettings.decode(jsonObject("version" to 3.json())))
         assertEquals(ResidentSettings(), ResidentSettings.decode(jsonObject("version" to 2.json())))
         assertEquals(ResidentSettings(), ResidentSettings.decode(JsonParser.parseString("""{"version":1,"keywords":[],"sensitivity":"low"}""").asJsonObject))
         assertEquals(WakeSensitivity.MEDIUM, ResidentSettings.decode(JsonParser.parseString("""{"version":1,"keywords":["Hey Stove"],"sensitivity":"?"}""").asJsonObject).sensitivity)

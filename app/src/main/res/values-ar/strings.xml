@@ -275,15 +275,21 @@
     <string name="release_history_error">تعذرت قراءة المستند المدمج.</string>
     <string name="release_history_title">سجل الإصدارات</string>
     <string name="resident_alert_channel">تنبيهات الاستماع الدائم</string>
+    <string name="resident_blocked">اضغط لمتابعة الاستماع: لا يسمح Android بإعادة فتح الميكروفون في الخلفية</string>
     <string name="resident_conflict_message">يدعم النظام تطبيقا واحدا فقط للاستماع الدائم. أوقف ⁨%1$s⁩ أولا ثم شغّله هنا.</string>
     <string name="resident_conflict_open">افتح إعدادات ⁨%1$s⁩</string>
     <string name="resident_conflict_title">استماع دائم واحد فقط</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">جار الاتصال بـ ⁨3-Macaw Speech⁩...</string>
+    <string name="resident_duration_10">إيقاف تلقائي بعد 10 دقائق</string>
+    <string name="resident_duration_30">إيقاف تلقائي بعد 30 دقيقة</string>
+    <string name="resident_duration_60">إيقاف تلقائي بعد 60 دقيقة</string>
+    <string name="resident_duration_always">قيد التشغيل دائما</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">جار الاستماع...</string>
     <string name="resident_overlay_grant">السماح</string>
     <string name="resident_overlay_message">مع إذن الظهور فوق التطبيقات الأخرى تفتح المسودة فور انتهائك من الكلام. ومن دونه يصلك إشعار يفتح المسودة.</string>
     <string name="resident_overlay_skip">ليس الآن</string>
     <string name="resident_overlay_title">عرض المسودات فوق التطبيقات الأخرى?</string>
+    <string name="resident_paused">متوقف مؤقتا لأن الجهاز لا يشحن; يستأنف عند توصيل الشاحن</string>
     <string name="resident_resume_text">اضغط لاستئناف الاستماع الدائم</string>
     <string name="resident_resume_title">الاستماع الدائم متوقف مؤقتا</string>
     <string name="resident_sensitivity_high">عالية: تستيقظ بسهولة أكبر</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">توقف الاستماع الدائم</string>
     <string name="resident_stopped_unavailable">⁨3-Macaw Speech⁩ غير متاح</string>
     <string name="resident_turn_off">إيقاف</string>
+    <string name="resident_until">يتوقف تلقائيا عند ⁨%1$s⁩</string>
     <string name="resident_waiting">قل ⁨%1$s⁩ للتنبيه</string>
     <string name="risk_add_keyword">إضافة كلمة مفتاحية</string>
     <string name="risk_add_package">إضافة اسم حزمة تطبيق دفع</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">لا يوجد تطبيق لفتح هذا الرابط.</string>
     <string name="settings_policy_note">تسري الإعدادات المحفوظة على المهام الجديدة. يمكن للإعدادات المسبقة والمهام تضييق الحدود فقط مع الالتزام بصلاحيات المضيف.</string>
     <string name="settings_resident">الاستماع الدائم</string>
+    <string name="settings_resident_charging">الاستماع أثناء الشحن فقط</string>
+    <string name="settings_resident_charging_note">يتوقف مؤقتا عند فصل الشاحن ويستأنف عند توصيله مجددا</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">جار التحقق من ⁨3-Macaw Speech⁩...</string>
     <string name="settings_resident_conflict">⁨%1$s⁩ يستمع بشكل دائم بالفعل; أوقفه هناك أولا</string>
+    <string name="settings_resident_duration">مدة الاستماع</string>
     <string name="settings_resident_incompatible">هذا الإصدار من ⁨3-Macaw Speech⁩ لا يدعم كلمات التنبيه; حدّثه</string>
     <string name="settings_resident_keywords">كلمات التنبيه</string>
     <string name="settings_resident_keywords_invalid">تحقق من عدد كلمات التنبيه وطولها وتكرارها</string>

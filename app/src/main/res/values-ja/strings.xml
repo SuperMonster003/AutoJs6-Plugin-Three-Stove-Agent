@@ -275,15 +275,21 @@
     <string name="release_history_error">内蔵ドキュメントを読み込めません.</string>
     <string name="release_history_title">バージョン履歴</string>
     <string name="resident_alert_channel">常時待ち受けのお知らせ</string>
+    <string name="resident_blocked">タップして待ち受けを続ける: Android はバックグラウンドでマイクを開き直すことを許可していません</string>
     <string name="resident_conflict_message">常時待ち受けできるアプリはシステムで 1 つだけです. 先に %1$s をオフにしてから, ここでオンにしてください.</string>
     <string name="resident_conflict_open">%1$s の設定を開く</string>
     <string name="resident_conflict_title">常時待ち受けは 1 つだけ</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">3-Macaw Speech に接続しています...</string>
+    <string name="resident_duration_10">10 分後に自動でオフ</string>
+    <string name="resident_duration_30">30 分後に自動でオフ</string>
+    <string name="resident_duration_60">60 分後に自動でオフ</string>
+    <string name="resident_duration_always">常にオン</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">聞き取り中...</string>
     <string name="resident_overlay_grant">許可する</string>
     <string name="resident_overlay_message">他のアプリの上への表示を許可すると, 話し終えてすぐに下書きを確認できます. 許可しない場合は通知で知らせ, タップで下書きを開きます.</string>
     <string name="resident_overlay_skip">今はしない</string>
     <string name="resident_overlay_title">下書きを他のアプリの上に表示しますか?</string>
+    <string name="resident_paused">充電していないため一時停止中; 電源につなぐと再開します</string>
     <string name="resident_resume_text">タップして常時待ち受けを再開</string>
     <string name="resident_resume_title">常時待ち受けを一時停止しました</string>
     <string name="resident_sensitivity_high">高: 反応しやすい</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">常時待ち受けが停止しました</string>
     <string name="resident_stopped_unavailable">3-Macaw Speech を利用できません</string>
     <string name="resident_turn_off">オフにする</string>
+    <string name="resident_until">%1$s に自動でオフ</string>
     <string name="resident_waiting">%1$s と言うと起動します</string>
     <string name="risk_add_keyword">キーワードを追加</string>
     <string name="risk_add_package">決済アプリのパッケージ名を追加</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">このリンクを開くアプリがありません.</string>
     <string name="settings_policy_note">保存した設定は新しいタスクに適用されます. プリセットと個別タスクは制限を厳しくすることだけができ, ホストの権限にも従います.</string>
     <string name="settings_resident">常時待ち受け</string>
+    <string name="settings_resident_charging">充電中のみ待ち受け</string>
+    <string name="settings_resident_charging_note">電源を外すと一時停止し, つなぎ直すと再開します</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">3-Macaw Speech を確認しています...</string>
     <string name="settings_resident_conflict">%1$s が常時待ち受け中です. 先にそちらでオフにしてください</string>
+    <string name="settings_resident_duration">待ち受け時間</string>
     <string name="settings_resident_incompatible">この 3-Macaw Speech はウェイクワードに対応していません. 更新してください</string>
     <string name="settings_resident_keywords">ウェイクワード</string>
     <string name="settings_resident_keywords_invalid">ウェイクワードの数, 長さ, 重複を確認してください</string>

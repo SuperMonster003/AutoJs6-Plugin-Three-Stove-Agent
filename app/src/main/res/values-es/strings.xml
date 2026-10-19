@@ -275,15 +275,21 @@
     <string name="release_history_error">No se puede leer el documento integrado.</string>
     <string name="release_history_title">Historial de versiones</string>
     <string name="resident_alert_channel">Avisos de la escucha permanente</string>
+    <string name="resident_blocked">Toca para seguir escuchando: Android no permite volver a abrir el micrófono en segundo plano</string>
     <string name="resident_conflict_message">El sistema solo admite una aplicación con escucha permanente. Desactiva primero %1$s y luego actívala aquí.</string>
     <string name="resident_conflict_open">Abrir los ajustes de %1$s</string>
     <string name="resident_conflict_title">Solo una escucha permanente</string>
     <string name="resident_connecting" tools:ignore="TypographyEllipsis">Conectando con 3-Macaw Speech...</string>
+    <string name="resident_duration_10">Desactivar tras 10 minutos</string>
+    <string name="resident_duration_30">Desactivar tras 30 minutos</string>
+    <string name="resident_duration_60">Desactivar tras 60 minutos</string>
+    <string name="resident_duration_always">Siempre activa</string>
     <string name="resident_listening" tools:ignore="TypographyEllipsis">Escuchando...</string>
     <string name="resident_overlay_grant">Permitir</string>
     <string name="resident_overlay_message">Con el permiso para mostrarse sobre otras aplicaciones, el borrador se abre en cuanto terminas de hablar. Sin él, una notificación trae el borrador.</string>
     <string name="resident_overlay_skip">Ahora no</string>
     <string name="resident_overlay_title">Mostrar los borradores sobre otras aplicaciones?</string>
+    <string name="resident_paused">En pausa sin carga; continúa al conectar el cargador</string>
     <string name="resident_resume_text">Toca para reanudar la escucha permanente</string>
     <string name="resident_resume_title">Escucha permanente en pausa</string>
     <string name="resident_sensitivity_high">Alta: se activa con más facilidad</string>
@@ -300,6 +306,7 @@
     <string name="resident_stopped_title">La escucha permanente se detuvo</string>
     <string name="resident_stopped_unavailable">3-Macaw Speech no está disponible</string>
     <string name="resident_turn_off">Desactivar</string>
+    <string name="resident_until">Se desactiva a las %1$s</string>
     <string name="resident_waiting">Di %1$s para activar</string>
     <string name="risk_add_keyword">Añadir una palabra clave</string>
     <string name="risk_add_package">Añadir el nombre de paquete de una aplicación de pago</string>
@@ -372,8 +379,11 @@
     <string name="settings_open_failed">Ninguna aplicación puede abrir este enlace.</string>
     <string name="settings_policy_note">Los ajustes guardados se aplican a tareas nuevas. Los perfiles y las tareas solo pueden reducir estos límites; también se aplican los permisos del anfitrión.</string>
     <string name="settings_resident">Escucha permanente</string>
+    <string name="settings_resident_charging">Escuchar solo mientras se carga</string>
+    <string name="settings_resident_charging_note">Se pausa al desconectar el cargador y continúa al volver a conectarlo</string>
     <string name="settings_resident_checking" tools:ignore="TypographyEllipsis">Comprobando 3-Macaw Speech...</string>
     <string name="settings_resident_conflict">%1$s ya está escuchando de forma permanente; desactívalo allí primero</string>
+    <string name="settings_resident_duration">Tiempo de escucha</string>
     <string name="settings_resident_incompatible">Esta versión de 3-Macaw Speech no admite palabras de activación; actualízala</string>
     <string name="settings_resident_keywords">Palabras de activación</string>
     <string name="settings_resident_keywords_invalid">Revisa el número, la longitud y las repeticiones de las palabras de activación</string>
