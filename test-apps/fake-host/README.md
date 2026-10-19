@@ -24,10 +24,15 @@ real package/version checks used by the workbench; it does not bypass them or
 run the twelve independent broker tests. The main suite then runs normally (`ANDROID_SERIAL`
 keeps Gradle on that emulator) while logcat (main, system, crash and events buffers) goes to
 `build/main-suite-logcat.txt`; the workflow uploads it with the reports when the job fails or is
-cancelled, including by its timeout. With `--retry-system-crash` (the API 24 job) a run that reports
-"System has crashed" waits for the restarted framework, prepares the device again and runs the suite
-once more, keeping the first reports in `build/main-suite-attempt-1`. Other options go to the
-prepare step. The API 37.1 job runs only the twelve conformance tests (`conformance-only`) until its
+cancelled, including by its timeout. During the suite it probes adb every 30 seconds; three misses in
+a row mean adb is gone (on the CI API 24 image the guest went silent for 18 seconds after a test turned
+the screen off, the tests then finished through the existing instrumentation stream, but every new adb
+connection timed out and the job ran into its 45 minute limit with all tests passed), and Gradle is
+stopped at once. With `--retry-once` (the API 24 job) the suite runs once more after "System has
+crashed" (waiting for the restarted framework) or after a lost adb (restarting the adb server, then with
+`--relaunch` the emulator itself through its console and the given command, as the workflow passes the
+runner's own one); the device is prepared again and the first reports stay in `build/main-suite-attempt-1`.
+Other options go to the prepare step. The API 37.1 job runs only the twelve conformance tests (`conformance-only`) until its
 image stops aborting system_server on task snapshots.
 A manual run of the workflow can compare emulator configurations: `gpu` replaces the `-gpu` mode
 (default `swiftshader_indirect`), `emulator-extra` appends options such as `-feature -GLDMA`,

@@ -94,18 +94,24 @@ jobs:
     # A manual run with api-levels skips the other entries' steps (the job itself cannot read the matrix in its if).
     env:
       SELECTED: ${{ github.event_name != 'workflow_dispatch' || inputs.api-levels == '' || contains(format(',{0},', inputs.api-levels), format(',{0},', matrix.api-level)) }}
+      # The runner's own defaults unless a manual run overrides the GPU mode or appends options; run_main_suite.py
+      # starts the AVD again with the same options when adb was lost.
+      EMULATOR_OPTIONS: -no-window -gpu ${{ inputs.gpu || 'swiftshader_indirect' }} -no-snapshot -noaudio -no-boot-anim ${{ inputs.emulator-extra }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # The API 24 image's surfaceflinger sometimes takes SIGSEGV in GraphicBuffer::flatten while the framework
           # screenshots a finishing activity, and system_server goes down with it (runs 39112487013 twice, 39131653130;
-          # never locally, passed in all four runs of 69fce4ab). run_main_suite.py reruns the suite once after that.
+          # never locally, passed in all four runs of 69fce4ab). In other runs (39112487013 first attempt, 39137562305)
+          # the guest went silent for 18 seconds after a test turned the screen off, every new adb connection timed out
+          # from then on, and the job hit its timeout with all tests passed. run_main_suite.py reruns the suite once
+          # after either, restarting the emulator for the latter.
           - api-level: 24
             arch: x86
             target: google_apis
             profile: Nexus 5
-            main-suite-args: --retry-system-crash
+            main-suite-args: --retry-once
           - api-level: 35
             arch: x86_64
             target: google_apis
@@ -163,8 +169,7 @@ jobs:
         if: env.SELECTED == 'true'
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
-          # The runner's own defaults unless a manual run overrides the GPU mode or appends options.
-          emulator-options: -no-window -gpu ${{ inputs.gpu || 'swiftshader_indirect' }} -no-snapshot -noaudio -no-boot-anim ${{ inputs.emulator-extra }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
@@ -182,9 +187,11 @@ jobs:
             python3 test-apps/fake-host/run_conformance.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.fake-host-args }}
             # Then the main suite: run_main_suite.py prepares the device through the same guards (run_conformance.py
             # --prepare-only), keeps the framework log of the whole run in build/main-suite-logcat.txt (run 39112487013
-            # lost two crashes without a stack), pulls the CiUiDiagnostics captures after a failure and, with
-            # --retry-system-crash, reruns once after "System has crashed". Each script line runs in its own shell.
-            if [ "${{ matrix.conformance-only }}" = "true" ] && [ "${{ inputs.full-suite }}" != "true" ]; then echo "MAIN_SUITE_SKIPPED conformance-only entry (API ${{ matrix.api-level }})"; else python3 test-apps/fake-host/run_main_suite.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.main-suite-args }} ${{ matrix.fake-host-args }}; fi
+            # lost two crashes without a stack), probes adb every 30 seconds and stops Gradle once adb is gone (AGP would
+            # otherwise wait until the job timeout), pulls the CiUiDiagnostics captures after a failure and, with
+            # --retry-once, reruns once after "System has crashed" or a lost adb; for the latter it restarts the adb server
+            # and then, if needed, the emulator with --relaunch (the runner's own command). Each line runs in its own shell.
+            if [ "${{ matrix.conformance-only }}" = "true" ] && [ "${{ inputs.full-suite }}" != "true" ]; then echo "MAIN_SUITE_SKIPPED conformance-only entry (API ${{ matrix.api-level }})"; else python3 test-apps/fake-host/run_main_suite.py --adb "$(command -v adb)" --serial emulator-5554 ${{ matrix.main-suite-args }} --relaunch "${ANDROID_HOME:-/usr/local/lib/android/sdk}/emulator/emulator -port 5554 -avd Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }} ${{ env.EMULATOR_OPTIONS }}" ${{ matrix.fake-host-args }}; fi
 
       # The fake host diagnostics and the first main-suite reports also exist when an attempt was retried after a
       # system_server restart or crash. A job that reaches timeout-minutes ends as cancelled (run 39112487013, API 24),
@@ -201,5 +208,6 @@ jobs:
             build/p7-fake-host-logcat.txt
             build/main-suite-logcat.txt
             build/main-suite-attempt-1/
+            build/main-suite-emulator.log
           if-no-files-found: ignore
           retention-days: 7
