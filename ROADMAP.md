@@ -1,6 +1,6 @@
 # AutoJs6 3-Stove Agent 插件 Roadmap
 
-本文是 `AutoJs6-Plugin-AI-Agent` (2026-09-27 起仓库与应用更名为 `AutoJs6-Plugin-Three-Stove-Agent` / Three Stove Agent, 见 D50; 下文历史记录保留旧名) (自然语言驱动的任务执行 Agent: 用户一句话描述目标, Agent 借助 AI 模型选择并调用已登记脚本, 或基于无障碍界面逐步观察 / 操作 / 校验, 直到目标达成或需要用户补充信息; 既作为 AutoJs6 插件为脚本提供 `ai.agent` API, 也作为带独立界面的应用供用户直接使用) 的可执行状态表.
+本文是 `AutoJs6-Plugin-AI-Agent` (2026-09-27 起仓库与应用更名为 `AutoJs6-Plugin-Three-Stove-Agent` / Three Stove Agent, 见 D50, 显示名后按 Three 系列规则写作 3-Stove Agent; 下文历史记录保留旧名) (自然语言驱动的任务执行 Agent: 用户一句话描述目标, Agent 借助 AI 模型选择并调用已登记脚本, 或基于无障碍界面逐步观察 / 操作 / 校验, 直到目标达成或需要用户补充信息; 既作为 AutoJs6 插件为脚本提供 `ai.agent` API, 也作为带独立界面的应用供用户直接使用) 的可执行状态表.
 以 2026-09-22 的宿主本地代码快照 (`AutoJs6 master@9734471336`, `VERSION_NAME=6.8.0`, `VERSION_BUILD=5282`),
 AI Provider Protocol V2 (宿主 `docs/dev/ai-provider-protocol-v2.md`), 官方模型插件 `AutoJs6-Plugin-Three-Stone-AI` 1.1.4,
 MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8.3` 为起点, 每个条目均可独立 Check 并落地, 后续会话按阶段逐步推进.

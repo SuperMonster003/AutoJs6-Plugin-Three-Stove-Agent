@@ -7,7 +7,7 @@ Before any Gradle configuration, stage the audited **release** artifacts named e
 
 - `common-plugin-api.aar` (host module `plugin-api/common-plugin-api`: `PluginInfo`, `IPluginInfoProvider`, shared plugin constants)
 - `host-capability-api.aar` (host module `plugin-api/host-capability-api`, shared capability broker contract V1)
-- `three-stove-agent-api.aar` (host module `plugin-api/three-stove-agent-api`, Three Stove Agent control plane and model broker contract V2)
+- `three-stove-agent-api.aar` (host module `plugin-api/three-stove-agent-api`, 3-Stove Agent control plane and model broker contract V2)
 - `speech-api.aar` (host module `plugin-api/speech-api`, speech plugin contract V1: `ISpeechPlugin`, `ISpeechSession`, the wake and session callbacks and their constants; the resident listener binds 3-Macaw Speech with it, roadmap D69 / D74)
 
 Current provenance: the first three release AARs were assembled together from AutoJs6 6.8.0 / 5298,
