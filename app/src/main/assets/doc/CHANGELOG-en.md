@@ -29,6 +29,7 @@
 * `Fix` Complete missing translations in update settings
 * `Fix` In the Arabic interface, 3-Stove Agent no longer appears reversed as Stove Agent-3
 * `Fix` Links in the release history now show only their text instead of raw Markdown and the web address (in Arabic that text appeared out of order)
+* `Fix` "Open AutoJs6" on the workbench did nothing when AutoJs6 was already open; the connection request now always reaches AutoJs6. When this plugin is unavailable (for example disabled in Plugin Center or not yet authorized), AutoJs6 opens Plugin Center at 3-Stove Agent instead of showing a dialog (this part needs the AutoJs6 6.8.0 release)
 * `Improvement` The Retry with another model buttons are gone (the model is switched at the top of the workbench or inside the floating ball); the floating ball keeps Task history and Open workbench in its More menu; the history icon uses the standard glyph
 * `Improvement` After an MCP server sends tools/list_changed, the frozen tool definitions are re-verified before the next call: unchanged definitions keep working, and only a changed one fails with MCP_CATALOG_CHANGED and tells the model to have the user refresh the tool selection in MCP settings and start a new task; the endpoint note now says OAuth sign-in and the older HTTP+SSE transport are not supported
 * `Improvement` The one-time migration introduced in 1.2.0 is gone: an old model choice in the workbench draft preferences is no longer moved into model-selection.json, so a choice saved by an earlier version has to be picked again on the workbench
