@@ -18,11 +18,42 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     fun system(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
                memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
                compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null, memoryUnavailable: Boolean = false,
-               guidance: JsonObject = JsonObject(), memoryScopes: List<String>? = null): String {
+               guidance: JsonObject = JsonObject(), memoryScopes: List<String>? = null): String = systemPrompt(language, policy, format, fixedContext,
+        memories, memoryTruncated, compact, contextTruncated, registeredScripts, memoryUnavailable, guidance, memoryScopes).text
+
+    /** The system prompt with its parts kept apart, so an over-budget request can report their sizes (P19.1). */
+    class SystemPrompt internal constructor(private val values: Map<String, String>, body: String, private val sections: List<Pair<String, String>>) {
+        val text = body + sections.joinToString("") { "\n" + it.second }
+
+        /** Bytes each part takes inside the JSON-encoded system message; sizes only, never the text. */
+        fun bytes(): Map<String, Int> {
+            val parts = linkedMapOf("tools" to escapedBytes(values.getValue("tools_json")),
+                "response" to listOf("response_rules", "format_json", "response_details").sumOf { values[it]?.let(::escapedBytes) ?: 0 },
+                "verification" to escapedBytes(values.getValue("verification_json")), "context" to escapedBytes(values.getValue("context_json")))
+            sections.forEach { (name, section) -> parts[name] = escapedBytes("\n" + section) }
+            return linkedMapOf("rules" to escapedBytes(text) - parts.values.sum()) + parts
+        }
+    }
+
+    /** Bytes per tool group of the tool section [system] would render, separators included (P19.1). */
+    fun toolGroupBytes(language: String, policy: ToolPolicy, format: DecisionFormat, compact: Boolean): Map<String, Int> {
+        val sizes = linkedMapOf<String, Int>()
+        if (compact || format.nativeTools) CompactToolDescriptions.lines(catalog, policy).forEach { (tool, line) ->
+            sizes.merge(tool?.group?.id ?: "shared", escapedBytes(line) + 2, Int::plus)
+        } else AgentJson.parse(catalog.render(policy, language(language))).asJsonArray.forEach { tool ->
+            sizes.merge(tool.asJsonObject.string("group").orEmpty(), escapedBytes(tool.toString()) + 1, Int::plus)
+        }
+        return sizes
+    }
+
+    fun systemPrompt(language: String, policy: ToolPolicy, format: DecisionFormat, fixedContext: String = "",
+                     memories: JsonArray = JsonArray(), memoryTruncated: Boolean = false,
+                     compact: Boolean = false, contextTruncated: Boolean = false, registeredScripts: JsonObject? = null, memoryUnavailable: Boolean = false,
+                     guidance: JsonObject = JsonObject(), memoryScopes: List<String>? = null): SystemPrompt {
         bounded(fixedContext, 8 * 1024)
         // P3.2 supplies global + current preset entries, already sorted/trimmed to 4 KiB.
         val memory = memories.toString().also { bounded(it, 4 * 1024); AgentJson.parse(it) }
-        var system = render(language, if (compact) "compact_system" else "system", mapOf(
+        val values = mapOf(
             "tools_json" to if (compact || format.nativeTools) CompactToolDescriptions.render(catalog, policy) else catalog.render(policy, language(language)),
             "response_rules" to templates.getValue(language(language)).getValue(if (format.nativeTools) "native_response"
                 else if (compact) "json_compact_response" else "json_response").trimEnd(),
@@ -38,14 +69,17 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                     }
                 }.toString(),
         ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
-            else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) })
-        if (catalog[ToolNames.SCREEN_CAPTURE]?.let(policy::isEnabled) == true) system += "\n" + templates.getValue(language(language)).getValue("vision").trimEnd()
-        if (catalog.tools.any { it.external?.source == ExternalSource.MCP && policy.isEnabled(it) }) system += "\n" + templates.getValue(language(language)).getValue("mcp").trimEnd()
-        if (catalog.tools.any { it.external?.source == ExternalSource.PLUGIN && policy.isEnabled(it) }) system += "\n" + templates.getValue(language(language)).getValue("plugin_tools").trimEnd()
-        return if (registeredScripts == null) system else {
+            else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) }
+        val sections = mutableListOf<Pair<String, String>>()
+        fun section(name: String) { sections += name to templates.getValue(language(language)).getValue(name).trimEnd() }
+        if (catalog[ToolNames.SCREEN_CAPTURE]?.let(policy::isEnabled) == true) section("vision")
+        if (catalog.tools.any { it.external?.source == ExternalSource.MCP && policy.isEnabled(it) }) section("mcp")
+        if (catalog.tools.any { it.external?.source == ExternalSource.PLUGIN && policy.isEnabled(it) }) section("plugin_tools")
+        if (registeredScripts != null) {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
-            system + "\n" + render(language, "scripts", mapOf("scripts_json" to data))
+            sections += "scripts" to render(language, "scripts", mapOf("scripts_json" to data))
         }
+        return SystemPrompt(values, render(language, if (compact) "compact_system" else "system", values), sections)
     }
 
     fun goal(language: String, goal: String): String {
@@ -90,5 +124,6 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
     companion object {
         private val PLACEHOLDER = Regex("\\{\\{([a-z_]+)\\}\\}")
         fun language(tag: String) = if (tag.lowercase(Locale.ROOT).startsWith("zh")) "zh" else "en"
+        private fun escapedBytes(text: String) = text.json().toString().utf8Size() - 2
     }
 }

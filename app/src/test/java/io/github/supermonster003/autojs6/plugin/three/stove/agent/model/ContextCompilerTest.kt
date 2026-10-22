@@ -152,6 +152,42 @@ class ContextCompilerTest {
         assertThrows(ContextLimitExceeded::class.java) { compiler(local = true).compile(context(goal = "目".repeat(1300))) }
         assertThrows(IllegalArgumentException::class.java) { compiler().compile(context(goal = "x".repeat(4097))) }
     }
+    @Test fun overBudgetRequestsReportTheSizeOfEachPartAndEveryLimitButNoContent() {
+        for (local in listOf(true, false)) {
+            val compiler = compiler(local = local, limits = ContextLimits(maximumBytes = if (local) 64 * 1024 else 3000), fixed = "private context",
+                memory = jsonArray(jsonObject("key" to "pin".json(), "value" to "private memory".json())))
+            val breakdown = assertThrows(ContextLimitExceeded::class.java) {
+                compiler.compile(context(goal = "secret goal " + "目".repeat(if (local) 1300 else 100), history = (1..3).map { record(it, "private observation") },
+                    guidance = jsonObject("loop" to "private guidance".json())))
+            }.breakdown!!
+            assertTrue(breakdown.inputBytes > breakdown.limitBytes)
+            assertEquals(if (local) 8000 else 3000, breakdown.limitBytes)
+            assertEquals(linkedMapOf("context" to (if (local) 64 * 1024 else 3000), "grant" to 128 * 1024, "target" to 128 * 1024) +
+                (if (local) mapOf("local" to 8000) else emptyMap()), breakdown.limits)
+            // The parts add up to the request; the system parts to the system message's content.
+            assertEquals(breakdown.inputBytes, breakdown.parts.values.sum().toLong())
+            assertEquals("""{"role":"system","content":""}""".length, breakdown.parts.getValue("system") - breakdown.system.values.sum())
+            // Packing switched to compact descriptions and removed everything it may remove before giving up.
+            assertEquals(breakdown.system.getValue("tools") + 2, breakdown.toolGroups.values.sum())
+            assertTrue(breakdown.toolGroups.keys.containsAll(listOf("shared", "observe", "act", "script", "memory", "user")))
+            assertEquals(0, breakdown.parts.getValue("history")); assertEquals(0, breakdown.parts.getValue("repair"))
+            assertTrue(breakdown.parts.getValue("goal") > (if (local) 3900 else 300) && breakdown.parts.getValue("schema") > 0)
+            assertTrue(breakdown.system.getValue("verification") > 0)
+            val line = breakdown.describe()
+            assertTrue(line, line.all { it.code in 0x20..0x7e })
+            assertTrue(line, line.startsWith("input ${breakdown.inputBytes} B > limit ${breakdown.limitBytes} B ("))
+            assertTrue(line, line.contains("; system rules=") && line.contains("; tools ") && !line.contains("repair="))
+            assertFalse(line, listOf("secret", "private", "pin").any(line::contains))
+        }
+        // The full descriptions are measured per group as well.
+        val format = DecisionSchema(catalog).generate(ModelProtocol.OPENAI, policy)
+        val full = prompts.toolGroupBytes("en", policy, format, compact = false)
+        assertEquals(catalog.render(policy).json().toString().utf8Size() - 2 - 1, full.values.sum())
+        assertFalse("shared" in full)
+        val system = prompts.systemPrompt("en", policy, format).bytes()
+        assertEquals(prompts.system("en", policy, format).json().toString().utf8Size() - 2, system.values.sum())
+        assertEquals(catalog.render(policy).json().toString().utf8Size() - 2, system.getValue("tools"))
+    }
     @Test fun packingFragmentsCannotLeakObservationGuidanceOrFormatIntoAnotherCompile() {
         val compiler = compiler(local = true)
         val history = List(32) { record(it + 1, "old".repeat(1000)) }

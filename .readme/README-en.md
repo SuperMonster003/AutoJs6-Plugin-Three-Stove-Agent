@@ -333,6 +333,7 @@ _2026/10/22_
 - `Improvement` Consistent visual sizing for launcher and Plugin Center icons, with transparent backgrounds and neutral black, white or grayscale artwork
 - `Improvement` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
 - `Improvement` Android App info icons share Icon Studio artwork and light/dark backgrounds while preserving transparent Plugin Center artwork and existing launcher choices
+- `Improvement` When a task fails because its content is larger than the model input limit (LIMIT_EXCEEDED), the result adds one line of sizes: the total request bytes, the limit that applied, and the bytes of each part such as the system prompt, tool descriptions, the task text and observations, so you can see which part is too large; the line holds only numbers and tool group names, never the task text, screen content or memories
 
 #### v1.2.0
 

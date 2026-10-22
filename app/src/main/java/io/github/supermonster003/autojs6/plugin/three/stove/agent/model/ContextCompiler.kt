@@ -17,7 +17,29 @@ data class ContextLimits(
     }
 }
 
-open class ContextLimitExceeded : IllegalArgumentException("Context cannot retain the mandatory task, rules and observation within the input budget")
+open class ContextLimitExceeded(val breakdown: ContextBreakdown? = null) :
+    IllegalArgumentException("Context cannot retain the mandatory task, rules and observation within the input budget")
+
+/** What the smallest request the packer could build consisted of (P19.1). Byte counts and group ids only: it reaches the
+ * run's error detail and the normal log, so it never carries prompt, goal, screen, memory or script text. */
+class ContextBreakdown(
+    val inputBytes: Long, val limitBytes: Int, val limits: Map<String, Int>, val parts: Map<String, Int>,
+    val system: Map<String, Int>, val toolGroups: Map<String, Int>, val estimatedTokens: Long? = null, val imageTokens: Long = 0,
+) {
+    /** One ASCII line; zero-sized parts are left out. */
+    fun describe(): String = buildString {
+        fun sizes(values: Map<String, Int>) = values.filterValues { it != 0 }.entries.joinToString(" ") { "${it.key}=${it.value}" }
+        append("input ").append(inputBytes).append(" B")
+        if (estimatedTokens == null) append(" > limit ").append(limitBytes).append(" B")
+        else append(" = ").append(estimatedTokens).append(" + ").append(imageTokens).append(" image tokens >= ").append(LOCAL_TOKENS)
+        append(" (").append(limits.entries.joinToString(" ") { "${it.key}=${it.value}" }).append(")")
+        append("; parts ").append(sizes(parts)).append("; system ").append(sizes(system)).append("; tools ").append(sizes(toolGroups))
+    }
+
+    companion object {
+        const val LOCAL_TOKENS = 4096
+    }
+}
 
 /** Deterministic byte packing. The goal and rules are never silently shortened to make a request fit. */
 class ContextCompiler(
@@ -89,13 +111,16 @@ class ContextCompiler(
         val repairMessage = repair?.let { message("user", it) }
         val budgetMessage = message("user", prompts.context(language, "remaining_budget", budget))
         var imageMessageIndex = 0
+        fun systemPrompt(): PromptCatalog.SystemPrompt {
+            val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
+            return prompts.systemPrompt(language, policy, format,
+                AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
+                contextBytes < fixedContext.utf8Size(), scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes)
+        }
         fun build(): JsonArray {
             val older = summaries.dropLast(retained).takeLast(summaryCount)
             val system = systemMessages.getOrPut(listOf(contextBytes, memoryCount, if (compact) 1 else 0, scriptCount)) {
-                val memory = JsonArray().apply { memories.take(memoryCount).forEach { add(it.deepCopy()) } }
-                message("system", prompts.system(language, policy, format,
-                    AgentJson.truncate(fixedContext, contextBytes), memory, memoryTruncated || memoryCount != memories.size(), compact,
-                    contextBytes < fixedContext.utf8Size(), scripts?.render(limit = scriptCount), memoryUnavailable, context.guidance, memoryScopes))
+                message("system", systemPrompt().text)
             }
             val messages = jsonArray(system, goalMessage)
             if (older.isNotEmpty()) messages.add(message("user", prompts.context(language, "summary", JsonArray().apply { older.forEach(::add) })))
@@ -108,6 +133,18 @@ class ContextCompiler(
             messages.add(budgetMessage)
             return messages
         }
+        fun breakdown(messages: JsonArray, size: Long, imageBytes: Int, estimatedTokens: Long? = null, imageTokens: Long = 0): ContextBreakdown {
+            val last = messages.size() - 1
+            fun bytes(range: IntRange) = range.sumOf { StepJournal.bytes(messages[it]) }
+            val parts = linkedMapOf("system" to bytes(0..0), "goal" to bytes(1..1), "history" to bytes(2 until imageMessageIndex),
+                "observation" to bytes(imageMessageIndex..imageMessageIndex), "repair" to if (repairMessage == null) 0 else bytes(last - 1 until last),
+                "budget" to bytes(last..last), "schema" to schemaBytes, "native" to toolBytes, "images" to imageBytes)
+            parts["framing"] = (size - parts.values.sum()).toInt()
+            val limitValues = linkedMapOf("context" to limits.maximumBytes, "grant" to limits.grantMaximumBytes, "target" to target.maximumContextBytes)
+            if (local) limitValues["local"] = limits.localInputTokens * 5 / 2
+            return ContextBreakdown(size, maximumBytes, limitValues, parts, systemPrompt().bytes(),
+                prompts.toolGroupBytes(language, policy, format, compact), estimatedTokens, imageTokens)
+        }
         // Drop historical pairs first, then historical summaries. Keep recent pairs whole.
         while (true) {
             val messages = build()
@@ -115,7 +152,9 @@ class ContextCompiler(
             val size = StepJournal.bytes(messages).toLong() + schemaBytes + toolBytes + imageBytes
             if (size <= maximumBytes) {
                 val imageTokens = context.images.sumOf { it.estimatedTokens }
-                if (local && Budget.estimate(size.toInt()) + imageTokens >= 4096) throw ContextLimitExceeded()
+                if (local && Budget.estimate(size.toInt()) + imageTokens >= ContextBreakdown.LOCAL_TOKENS) {
+                    throw ContextLimitExceeded(breakdown(messages, size, imageBytes, Budget.estimate(size.toInt()), imageTokens))
+                }
                 val outputLimit = if (local) (4096 - Budget.estimate(size.toInt()) - imageTokens).toInt().coerceAtLeast(1) else null
                 return ModelInput(messages, schemaBytes, format, outputLimit, tools, maximumBytes,
                     context.images, imageMessageIndex.takeIf { context.images.isNotEmpty() }, vision)
@@ -128,7 +167,7 @@ class ContextCompiler(
                 observationBytes > 128 -> observationBytes = maxOf(128, observationBytes / 2)
                 memoryCount > 0 -> memoryCount--
                 contextBytes > 0 -> contextBytes /= 2
-                else -> throw ContextLimitExceeded()
+                else -> throw ContextLimitExceeded(breakdown(messages, size, imageBytes))
             }
         }
     }

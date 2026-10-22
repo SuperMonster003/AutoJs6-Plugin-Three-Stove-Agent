@@ -173,9 +173,9 @@ class RunnerText(json: String, locale: String) {
     /**
      * Fixed sentence plus a bracketed cause: the budget dimension with used/limit, the limit that was
      * exceeded, or the error code with the host reason. [detail] is ASCII (numbers, codes) or a catalog key
-     * prefixed with "key:" that is resolved in the current language.
+     * prefixed with "key:" that is resolved in the current language. [note] is ASCII and follows it in parentheses.
      */
-    fun terminal(error: RunError, budgetDimension: String? = null, detail: String? = null): String {
+    fun terminal(error: RunError, budgetDimension: String? = null, detail: String? = null, note: String? = null): String {
         val strings = rows.getAsJsonObject(key)
         val message = strings.string(when {
             error == RunError.CANCELLED -> "cancelled"
@@ -185,6 +185,7 @@ class RunnerText(json: String, locale: String) {
             else -> "failed"
         }) ?: error("Missing runner text")
         val resolved = detail?.let { if (it.startsWith("key:")) strings.string(it.removePrefix("key:")) ?: it.removePrefix("key:") else it }
+            ?.let { if (note.isNullOrBlank()) it else "$it ($note)" }
         val cause = when {
             error == RunError.BUDGET_EXCEEDED -> listOfNotNull(strings.string("budget_$budgetDimension"), resolved).joinToString(" ")
             error == RunError.CANCELLED || error.hostLost -> resolved

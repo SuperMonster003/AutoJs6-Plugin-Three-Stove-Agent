@@ -43,6 +43,8 @@ class AgentRunner internal constructor(
     private var repairSession: DecisionRepairSession? = null
     private var responseLimitExceeded = false
     private var internalFailure: String? = null // Exception class only; never its message.
+    /** Sizes of the request that did not fit, when the run ended with LIMIT_EXCEEDED for that reason (P19.1). */
+    @Volatile var contextBreakdown: ContextBreakdown? = null; private set
     private var observation: String? = null
     private var observationImages = emptyList<ModelImage>()
     private var confirmation: String? = null
@@ -574,7 +576,10 @@ class AgentRunner internal constructor(
         if (state.terminal) return
         try { if (canContinue()) action() }
         catch (error: BudgetExceeded) { finishError(RunError.BUDGET_EXCEEDED, error.dimension, detail = budgetDetail(error.dimension)) }
-        catch (_: ContextLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_context") }
+        catch (error: ContextLimitExceeded) {
+            contextBreakdown = error.breakdown
+            finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_context", note = error.breakdown?.describe())
+        }
         catch (error: Exception) {
             // A programming error is indistinguishable from a bad request on the public surface; keep the class for diagnosis.
             internalFailure = error.javaClass.simpleName.ifBlank { "Exception" }
@@ -661,7 +666,7 @@ class AgentRunner internal constructor(
             else -> null
         }
     }
-    private fun finishError(error: RunError, budgetDimension: String? = null, mcpReason: String? = null, detail: String? = null) {
+    private fun finishError(error: RunError, budgetDimension: String? = null, mcpReason: String? = null, detail: String? = null, note: String? = null) {
         if (state.terminal) return
         clearOperation(cancel = true); clearInteraction()
         closeNative()
@@ -676,7 +681,7 @@ class AgentRunner internal constructor(
             else -> RunState.FAILED
         }
         val cause = mcpReason?.takeIf { error == RunError.TOOL_FAILED && it in PortResult.Failure.MCP_REASONS } ?: detail
-        finish(terminal, text.terminal(error, budgetDimension, cause), error = error)
+        finish(terminal, text.terminal(error, budgetDimension, cause, note), error = error)
     }
     private fun finish(terminal: RunState, summary: String, evidence: List<String> = emptyList(), unfinished: List<String> = emptyList(),
                        orderStatus: String? = null, error: RunError? = null) {

@@ -135,6 +135,12 @@ class ModelRunnerIntegrationTest {
         val run = f.start()
         assertEquals("LIMIT_EXCEEDED", run.result!!.getAsJsonObject("error").string("code"))
         assertTrue(f.broker.calls.isEmpty()); assertEquals(0L, run.result!!.getAsJsonObject("usage").number("modelCalls"))
+        // P19.1: the detail names the sizes and the limit that refused them, and nothing of the task.
+        val breakdown = checkNotNull(run.contextBreakdown)
+        val message = run.result!!.getAsJsonObject("error").string("message")!!
+        assertTrue(message, message.endsWith("(${breakdown.describe()})]"))
+        assertTrue(message, message.contains("> limit 500 B (context=500 grant=131072 target=65536 local=8000); parts system="))
+        assertFalse(message.contains("Verify the task"))
     }
 
     @Test fun progressCallbackCancelBeforeGenerateReturnsStillSettlesUsageOnce() {

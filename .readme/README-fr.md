@@ -333,6 +333,7 @@ _2026/10/22_
 - `Amélioration` Taille visuelle harmonisée des icônes du lanceur et du Centre de plugins, avec des fonds transparents et des motifs noirs, blancs ou gris neutres
 - `Amélioration` Les icônes du centre de plugins utilisent les tailles, positions, images claires et sombres et fonds circulaires réglés dans Icon Studio, avec les sources et paramètres permettant de les reproduire
 - `Amélioration` Les icônes des informations d'application Android utilisent les illustrations et les fonds clairs et sombres d'Icon Studio, en conservant les images transparentes du centre de plugins et les choix du lanceur
+- `Amélioration` Lorsqu'une tâche échoue parce que son contenu dépasse la limite d'entrée du modèle (LIMIT_EXCEEDED), le résultat ajoute une ligne de tailles : les octets totaux de la requête, la limite appliquée et les octets de chaque partie, comme le prompt système, les descriptions d'outils, le texte de la tâche et les observations, pour voir quelle partie est trop grande ; la ligne ne contient que des nombres et des noms de groupes d'outils, jamais le texte de la tâche, le contenu de l'écran ni les mémoires
 
 #### v1.2.0
 

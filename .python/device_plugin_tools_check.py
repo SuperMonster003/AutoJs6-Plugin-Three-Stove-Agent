@@ -106,6 +106,9 @@ try {
     r.result = { status: result.status, steps: result.steps, toolCalls: result.toolCalls, durationMs: result.durationMs,
         modelCalls: (result.usage || {}).modelCalls || 0,
         error: result.error ? result.error.code + (result.error.message ? " (" + String(result.error.message).slice(-80) + ")" : "") : null };
+    // P19.1: an over-budget run ends its message with the sizes of the request, ASCII only and without task text.
+    var summary = String((result.error || {}).message || ""), sizes = summary.indexOf("(input ");
+    if (sizes >= 0) { r.result.context = summary.slice(sizes + 1, summary.lastIndexOf(")")); r.result.error = result.error.code; }
 } catch (e) {
     r.errors.push("run " + message(e));
     try { if (run) { r.state = run.state; r.runError = run.error ? run.error.code : null; run.cancel("device-check"); } } catch (x) {}
@@ -274,6 +277,8 @@ def report(r: dict, local: bool) -> bool:
     agent = (f"{outcome.get('status') or r.get('state') or '-'}, {outcome.get('steps', '-')} steps, {outcome.get('toolCalls', '-')} tool calls, "
              f"{outcome.get('modelCalls', '-')} model calls, {outcome.get('durationMs', '-')} ms"
              + (f", error {error}" if error else "") + (f", script errors {errors}" if errors else ""))
+    if outcome.get("context"):
+        print(f"    context: {outcome['context']}")
     tools = [step for step in r.get("steps", []) if step.get("tool")]
     names = [step["tool"] for step in tools]
     if local:

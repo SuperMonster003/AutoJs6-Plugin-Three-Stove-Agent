@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.service
 
 import android.os.*
+import android.util.Log
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentTaskForegroundService
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
@@ -17,6 +18,8 @@ import org.autojs.plugin.host.capability.api.IHostCapabilityBroker
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+
+private const val TAG = "StoveHostLink"
 
 /** Link-owned queue and broker adapters. Control methods validate and enqueue; all remote work is asynchronous. */
 internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkConfiguration,
@@ -293,6 +296,8 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         archive.record(event, run)
         sinks[event.runId]?.send(event)
         if (event.type == "done" && run?.state?.terminal == true && active.remove(event.runId, run)) {
+            // Sizes and limits only (P19.1); the error detail carries the same line.
+            run.contextBreakdown?.let { Log.w(TAG, "Run context over the input limit: ${it.describe()}") }
             runCatching { runtime.alerts.runEnded(event.runId, event.payload) }
             val sink = sinks.remove(event.runId)
             runCatching { workers.callbacks.execute { sink?.close() } }

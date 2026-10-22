@@ -45,7 +45,8 @@
         "Cuando una tarea falla porque el host fundió la fuente del modelo (RATE_LIMITED: FUSED), el resultado explica la causa y qué hacer (esperar y reintentar, reiniciar AutoJs6 si persiste); el host también levanta ahora el fusible automáticamente cuando vuelve la transacción bloqueante agotada, así que las tareas posteriores no requieren reinicio",
         "Tamaño visual uniforme de los iconos del lanzador y del Centro de complementos, con fondos transparentes y diseños en blanco, negro o grises neutros",
         "Los iconos del centro de plugins usan los tamaños, posiciones, imágenes claras y oscuras y fondos circulares ajustados en Icon Studio, conservando fuentes y parámetros reproducibles",
-        "Los iconos de información de la aplicación de Android comparten las imágenes y los fondos claros y oscuros de Icon Studio, conservando las imágenes transparentes del centro de plugins y las opciones del lanzador"
+        "Los iconos de información de la aplicación de Android comparten las imágenes y los fondos claros y oscuros de Icon Studio, conservando las imágenes transparentes del centro de plugins y las opciones del lanzador",
+        "Cuando una tarea falla porque su contenido supera el límite de entrada del modelo (LIMIT_EXCEEDED), el resultado añade una línea de tamaños: los bytes totales de la solicitud, el límite aplicado y los bytes de cada parte, como el prompt del sistema, las descripciones de herramientas, el texto de la tarea y las observaciones, para ver qué parte es demasiado grande; la línea solo contiene números y nombres de grupos de herramientas, nunca el texto de la tarea, el contenido de la pantalla ni las memorias"
       ]
     },
     "v1.2.0": {

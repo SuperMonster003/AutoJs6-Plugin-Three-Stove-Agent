@@ -6,7 +6,10 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
 /** A lossless signature projection of the catalog's parameter types, defaults and enums.
  * Numeric/string size limits remain enforced by InputSchema. Repeated selectors are defined once. */
 object CompactToolDescriptions {
-    fun render(catalog: ToolCatalog, policy: ToolPolicy): String {
+    fun render(catalog: ToolCatalog, policy: ToolPolicy): String = lines(catalog, policy).joinToString("\n") { it.second }
+
+    /** The rendered lines; the header and the shared selectors carry no tool. */
+    fun lines(catalog: ToolCatalog, policy: ToolPolicy): List<Pair<ToolSpec?, String>> {
         val tools = catalog.tools.filter(policy::isEnabled).sortedBy { it.name }
         val selectors = tools.filter { it.external == null }.mapNotNull { it.inputSchema.getAsJsonObject("properties")?.getAsJsonObject("selector") }
             .distinctBy { it.toString() }
@@ -45,16 +48,15 @@ object CompactToolDescriptions {
                 else -> "str"
             }
         }
-        return buildString {
-            append("?=optional; =value is the default; R=read-only,N=normal,S=sensitive. Runtime validates all limits.\n")
-            selectors.forEachIndexed { index, selector -> append("selector$index=").append(signature(selector, false)).append('\n') }
-            tools.forEach { tool ->
-                append(tool.name).append(' ').append(when (policy.risk(tool)) {
-                    RiskLevel.READ_ONLY -> "R"; RiskLevel.NORMAL -> "N"; RiskLevel.SENSITIVE -> "S"
-                }).append(' ').append(signature(tool.inputSchema, external = tool.external != null))
-                if (tool.external != null) append(" external-description=").append(AgentJson.truncate(tool.description("en"), 512).json())
-                append('\n')
+        return listOf<Pair<ToolSpec?, String>>(null to "?=optional; =value is the default; R=read-only,N=normal,S=sensitive. Runtime validates all limits.") +
+            selectors.mapIndexed { index, selector -> null to "selector$index=" + signature(selector, false) } +
+            tools.map { tool ->
+                tool to buildString {
+                    append(tool.name).append(' ').append(when (policy.risk(tool)) {
+                        RiskLevel.READ_ONLY -> "R"; RiskLevel.NORMAL -> "N"; RiskLevel.SENSITIVE -> "S"
+                    }).append(' ').append(signature(tool.inputSchema, external = tool.external != null))
+                    if (tool.external != null) append(" external-description=").append(AgentJson.truncate(tool.description("en"), 512).json())
+                }
             }
-        }.trimEnd()
     }
 }
