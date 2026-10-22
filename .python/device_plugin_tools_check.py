@@ -9,8 +9,8 @@ recognition and synthesis models, a model target for 3-Stove Agent in 3-Stone AI
 remote target by default (the host's default target when it is remote): on-device targets get no plugin tools (D91),
 because their 4096-token window cannot hold the definitions. With an on-device target (`--target local`, or an id that
 names one) the script checks D91 instead: the task asks for one `device_info` call, and it must reach the model (no
-`LIMIT_EXCEEDED`) without calling a plugin tool; on the phones tested so far the default groups alone already exceed the
-on-device budget (roadmap Q15), so this check waits for Q15. `auto` leaves the choice to 3-Stove Agent, which prefers an
+`LIMIT_EXCEEDED`) without calling a plugin tool (passes on XQ-DQ72 since build 434, roadmap P19.4; a slow phone such as
+G8441 may not answer within the 300 s model timeout). `auto` leaves the choice to 3-Stove Agent, which prefers an
 on-device target. `--install` installs this repository's debug APK first (`gradlew :app:assembleDebug`). The script
 pushes the test recording of 3-Macaw Speech (`--audio`, by default the sibling checkout's `en.wav`) and a host script,
 which starts `ai.agent.run` with the goal below and leaves the tools to 3-Stove Agent's settings (the read-only plugin
