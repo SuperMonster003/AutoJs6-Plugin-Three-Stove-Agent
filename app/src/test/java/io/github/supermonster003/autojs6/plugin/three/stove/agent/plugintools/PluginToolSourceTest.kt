@@ -81,6 +81,14 @@ class PluginToolSourceTest {
         assertFalse(PluginToolSource.admitted(listOf("plugin"), methods, setOf("files")))
     }
 
+    @Test fun onDeviceModelsKeepTheBuiltInCatalogBecauseThePluginToolsDoNotFit() {
+        val listed = snapshot(listen(), speak())
+        assertSame(listed, PluginToolSource.offered(listed, ModelLocality.REMOTE))
+        assertSame(listed, PluginToolSource.offered(listed, ModelLocality.HYBRID))
+        assertNull(PluginToolSource.offered(listed, ModelLocality.ON_DEVICE))
+        assertNull(PluginToolSource.offered(null, ModelLocality.REMOTE))
+    }
+
     @Test fun readOnlyToolsJoinThePluginGroupAndWriteToolsConfirmInTheWriteGroup() {
         val (listenEntry, listenSpec) = PluginToolSource.convert(listen())!!
         assertEquals(ToolGroup.PLUGIN, listenSpec.group); assertEquals(RiskLevel.READ_ONLY, listenSpec.risk); assertTrue(listenSpec.defaultEnabled)

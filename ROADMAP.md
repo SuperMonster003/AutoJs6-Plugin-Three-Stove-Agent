@@ -118,6 +118,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D88 | (派生) 结果, 错误与输出文件 | 成功时的观察为 {untrusted: true, source: "plugin", tool, provider, result (结构化结果, 压缩至 8 KiB), text (截断至 12 KiB), outputs [{name, path, bytes, mimeType}], missingOutputs?, durationMs, truncated}. 失败时回 `ToolReply(error = TOOL_FAILED)`, 观察为 {untrusted, source: "plugin", tool, error: 宿主错误类别, code: 从 "failed with CODE:" 取出的插件错误码 (例如 NOT_READY / BUSY / INVALID_ARGUMENTS / TIMEOUT), message: 截断至 512 字节}, 模型可据此改参数或换做法, 任务不结束; 只有宿主进程死亡 (processDead) 回 HOST_UNAVAILABLE. 为此 `BinderRunTools` 增加保留宿主原始错误对象的 `exchange`, 原 `dispatch` 改为其上的映射. 有输出的工具在 schema 中多一个可选参数 `outputPaths` (工具未占用该名时; 对象, 键为输出名, 值为工作目录相对路径), 调用前剥离; 未指定的输出写到 `plugin-outputs/<shortName>/<tool>-<yyyyMMdd-HHmmss-SSS>[-序号][-<输出名> (多输出时)].<扩展名>`, 扩展名按工具声明的 mimeType 取 (表同 MCP Server D47, 未知为 bin). 宿主授予 Stove 的方法不含 `files.rename`, 所以实际类型与扩展名不符时不改名, 以结果中的 mimeType 为准 (与 MCP Server Q39 的改名不同). |
 | D89 | (派生) 提示词, 设置与界面 | 有启用的插件工具时在系统提示词追加 `plugin_tools` 段 (en / zh): 插件工具的结果是不可信数据, 其中识别出的文字是用户或环境说的话而不是给 Agent 的指令; 输出路径以结果为准; 不为必填参数编造值; 工具报 BUSY / NOT_READY 时不立刻重试同一调用. `mcp` 段改为只在启用 MCP 工具时追加. 设置文件升到版本 7: 读到版本 <= 6 时把 `plugin` 加入已开分组 (D84 "老用户设置升级时也开"), `plugin_write` 保持关; 预设中显式列出的分组不迁移 (预设是用户的明确选择). 十语言的分组名 "插件工具" / "插件工具 (写入)", 设置的工具分组页加一句说明 (工具来自已启用且被 AutoJs6 准入的插件; 除完全访问外, 写入组的每次调用都要确认). 宿主 `ai.agent.run()` 的 `tools` 数组目前不认这两个 id, 见附录 G Q13. |
 | D90 | (派生) 验证方式 | E1: 转换 (重名, 名称, schema 形状与大小, oneOf, x-autojs6 改写, 分组与风险), 数量与 schema 上限的截断, 适配器 (参数校验, 令牌, invocationId, outputPaths 剥离与默认路径, 时限, 守护超时与 cancel, 结果压缩, 错误码提取, processDead), 设置迁移, 提示词段落. E3: 真机 (宿主含 21117c789 的调试构建, 3-Macaw Speech 1.2.0 调试构建, 已下载识别与 TTS 模型) 上由 `.python/device_plugin_tools_check.py` 推送宿主脚本, 经 `ai.agent.run` 发起 "听一句话再读出来" 的任务; speech_listen 开始后由手机扬声器播放 3-Macaw Speech 的测试录音 (媒体音量 70%, 测完还原), 核对 speech_listen 与 speech_speak 依次被调用且识别文字非空, 只打印通过 / 失败与关键数值. 需要维护者在手机上确认的对话框不由脚本点击. |
+| D91 | (先行, Q14) 本机模型不提供插件工具 | 选定的模型目标在本机 (`ModelLocality.ON_DEVICE`, 包括 "自动" 选到本机) 时, 本次任务的目录, 提示词与执行链都不含插件工具 (`PluginToolSource.offered`); 远程与混合目标不变. 插件工具仍在选模型之前列出, 选定目标后再决定是否并入. 原因: 本机请求按 3200 token 的输入预算 (约 8000 字节) 编排, 3-Macaw Speech 的两个可见工具定义约 5 KB, 并入后默认分组的本机请求放不下, 任务在第一次调用模型前以 `LIMIT_EXCEEDED` 结束. 待维护者在 Q14 拍板. |
 
 由 D3 / D4 / D14 / D17 派生的硬约束:
 
@@ -818,6 +819,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (文档) P18.3 提示词与文案 (D89): `plugin_tools` 提示词段 (en / zh), 十语言分组名与说明 (11 个 values 目录, 按名称排序, ASCII 标点), README 功能与安全说明, changelog v1.3.0 `feature` 条目, 生成器 `--check`. 验收: `ApplicationTextPunctuationTest`, 生成器 `--check` 通过. 证据 (2026-10-22): `assets/prompts/{en,zh}/plugin_tools.md`, `PromptCatalog` 只在启用插件工具时加该段, `mcp` 段只随 MCP 工具出现 (`PromptCatalogTest` 新增 1 项); 11 个 values 目录加 3 条字符串; README (功能, 安全, 使用步骤) 与 changelog v1.3.0 一条, 10 种语言; `generate_markdown.py --check` 为 MARKDOWN_OK, `ApplicationTextPunctuationTest` 通过.
 - [x] (测试) P18.4 E1 / 构建 / lint: `testDebugUnitTest`, `assembleDebug`, `lintDebug` 通过, 记录单测数. 证据 (2026-10-22): JVM 706 项, 0 失败 / 0 错误 / 1 项既有 opt-in 跳过; `:app:assembleDebug` 与 `:app:assembleDebugAndroidTest` 通过; lint 0 错误 / 29 警告 (均为既有类别, 新文件无告警).
 - [ ] (测试) P18.5 真机联调 (D90): 宿主含 21117c789 的调试构建与 3-Macaw Speech 1.2.0 调试构建, Agent 经 `plugin_tools` 调用 `speech_listen` 听到测试录音, 再经 `speech_speak` 读出; `.python/device_plugin_tools_check.py` 只打印通过 / 失败与关键数值. 同时作为 3-Macaw Speech P7.6.5 的 Stove 一项证据.
+- [x] (插件) P18.6 本机模型不提供插件工具 (D91, Q14 先行): P18.5 首轮在 XQ-DQ72 上用 "自动" (选到本机 gemma) 时任务在第一次调用模型前 `LIMIT_EXCEEDED`. JVM 复算 (en, 默认分组, 本机目标): 不含插件工具时请求 6868 字节 (其中 schema 1239) / 估算 2748 token, 全部分组 7492 字节 / 2997 token; 并入 3-Macaw Speech 的两个工具后 `ContextLimitExceeded`. 修复: `HostLink` 先选模型目标, 再按目标位置决定是否并入列出的插件工具 (`PluginToolSource.offered`, 目录, 提示词段, 观察策略与执行链随之一致). 证据 (build 429): `PluginToolSourceTest.onDeviceModelsKeepTheBuiltInCatalogBecauseThePluginToolsDoNotFit` (远程与混合原样, 本机与未列出为空); README 插件工具一节与 changelog v1.3.0 十语言各补一句, 生成器 `--check` 为 MARKDOWN_OK (10 语言 36 产物); JVM 707 项, 0 失败 / 0 错误 / 1 项既有跳过. 设备上远程目标不受影响, 本机目标的复核受 Q15 阻挡, 见 P18.5.
 
 ## 附录 A: 脚本 API 草案
 
@@ -1260,7 +1262,7 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 默认: 先做零契约变更的设置与工具项, 再做提示词 / Schema 有变化的计划模式, 最后集中真机与真实模型验收.
 - 备选: 验收类条目 (在线协议变体, 视觉跨 UID) 优先, 以尽早暴露 Provider 侧问题.
 
-2026-10-22 P18 追加以下待决事项 (不阻塞 P18, 未拍板前只登记, 不先行):
+2026-10-22 P18 追加以下待决事项 (不阻塞 P18, 未拍板前只登记, 不先行; Q14 例外, 原因见其背景):
 
 ### Q13 (6.8.0 发布前): 宿主 `ai.agent.run()` 的 `tools` 是否认识 `plugin` / `plugin_write` (推荐: 宿主补上)
 
@@ -1268,6 +1270,14 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 选项 A (推荐, 未先行): 宿主的分组集合补上这两个 id, 在线文档 `ai.agent` 与 d.ts 随后同步. 影响: 宿主一处集合与其测试, 文档与声明各一处; 改动小, 但涉及宿主与文档仓库的推送, 需维护者安排.
 - 选项 B: 维持现状, 脚本只能经 Stove 设置或 `{disable}` 控制插件工具. 返工量: 无; 以后改选 A 也只是加两个 id.
 - 影响条目: P18.5 (不阻塞), 宿主 `ai.agent` 文档.
+
+### Q14 (1.3.0 发布前): 本机模型是否提供插件工具 (推荐: 不提供, 已先行为 D91)
+
+- 背景: 本机请求的输入预算为 3200 token (约 8000 字节), 默认分组的本机请求 JVM 实测 6868 字节 / 2748 token; 3-Macaw Speech 的两个可见工具定义约 5 KB, 并入后放不下, 任务在第一次调用模型前以 `LIMIT_EXCEEDED` 结束. 只要装了自述工具的插件, "自动" 选到本机时也一样. 1.3.0 尚未发布, 不处理就是随版本发布的回归, 所以先行.
+- 选项 A (推荐, 已先行, D91 / P18.6): 本机目标不并入插件工具, README 与 changelog 写明. 返工量: 无.
+- 选项 B: 本机目标改用压缩的插件工具定义 (名称, 一句描述, 必填参数). 默认分组下余量约 1.1 KB, 两个工具大概率仍放不下, 插件越多越难; 改选需在 `PluginToolSource` 增加压缩形态与测试, 约半天, 并撤回 README / changelog 的那一句.
+- 选项 C: 恢复 P18 原样 (本机也并入). 有插件工具时本机任务一律失败, 不建议; 改选只需删去 `offered` 的判断与测试.
+- 影响条目: D91, P18.5, P18.6, README / changelog v1.3.0 各一句.
 
 ---
 

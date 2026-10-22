@@ -168,22 +168,23 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                         runId, request.preset, maxTimeout))
                 val mcpTools = snapshot?.wrap(builtInTools) ?: builtInTools
                 // D85: plugin tools join after MCP; a failed or late listing only leaves this task without them.
-                fun assemble(plugins: PluginToolSnapshot?) {
+                fun assemble(listed: PluginToolSnapshot?) {
                     if (stopped.get()) return
                     try {
-                        val catalog = plugins?.catalog ?: baseCatalog
-                        val prompts = if (catalog === runtime.catalog) runtime.prompts else PromptCatalog(runtime::asset, catalog)
-                        val catalogFallbacks = synchronized(fallbacks) { fallbacks.getOrPut(catalog.fingerprint) {
-                            if (fallbacks.size >= 32) fallbacks.remove(fallbacks.keys.first())
-                            SchemaFallbacks(DecisionSchema(catalog))
-                        } }
-                        val observationPolicy = observation(catalog)
-                        val executionTools = plugins?.wrap(mcpTools) ?: mcpTools
                         val handle = model.select(request.target) { outcome ->
                             when (outcome) {
                                 is PortResult.Failure -> finish(outcome)
                                 is PortResult.Success -> try {
                                     val selected = outcome.value
+                                    val plugins = PluginToolSource.offered(listed, selected.target.locality)
+                                    val catalog = plugins?.catalog ?: baseCatalog
+                                    val prompts = if (catalog === runtime.catalog) runtime.prompts else PromptCatalog(runtime::asset, catalog)
+                                    val catalogFallbacks = synchronized(fallbacks) { fallbacks.getOrPut(catalog.fingerprint) {
+                                        if (fallbacks.size >= 32) fallbacks.remove(fallbacks.keys.first())
+                                        SchemaFallbacks(DecisionSchema(catalog))
+                                    } }
+                                    val observationPolicy = observation(catalog)
+                                    val executionTools = plugins?.wrap(mcpTools) ?: mcpTools
                                     modelName = selected.displayName
                                     runCatching { archive.model(runId(), selected) }
                                     val original = selected.target

@@ -94,6 +94,9 @@ internal class PluginToolSource(private val bridge: PluginToolBridge, private va
             (ToolGroup.PLUGIN.id in groups || ToolGroup.PLUGIN_WRITE.id in groups) &&
                 "$MODULE.list" in methods && "$MODULE.invoke" in methods && TOKEN in permissions
 
+        /** On-device models keep the built-in catalog: their compact prompt has no room for plugin tool definitions (D91). */
+        fun offered(listed: PluginToolSnapshot?, locality: ModelLocality): PluginToolSnapshot? = listed.takeUnless { locality == ModelLocality.ON_DEVICE }
+
         /** One listed tool as a catalog row, or null when Stove cannot offer it to a model (D86). */
         fun convert(tool: JsonObject): Pair<PluginToolEntry, ToolSpec>? = runCatching {
             val name = checkNotNull(tool.string("name")).also { require(NAME.matches(it)) }
