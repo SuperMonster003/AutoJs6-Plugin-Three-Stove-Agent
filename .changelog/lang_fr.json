@@ -33,7 +33,8 @@
         "Compléter les traductions manquantes dans les paramètres de mise à jour",
         "Dans l'interface en arabe, 3-Stove Agent ne s'affiche plus à l'envers sous la forme Stove Agent-3",
         "Les liens de l'historique des versions n'affichent plus que leur texte au lieu du Markdown brut et de l'adresse web (en arabe, ce texte apparaissait dans le désordre)",
-        "\"Ouvrir AutoJs6\" dans le tableau de tâches restait sans effet quand AutoJs6 était déjà ouvert; la demande de connexion parvient désormais toujours à AutoJs6. Quand ce plugin n'est pas disponible (par exemple désactivé dans le centre de plugins ou pas encore autorisé), AutoJs6 ouvre le centre de plugins sur 3-Stove Agent au lieu d'afficher une boîte de dialogue (cette partie nécessite la version publiée d'AutoJs6 6.8.0)"
+        "\"Ouvrir AutoJs6\" dans le tableau de tâches restait sans effet quand AutoJs6 était déjà ouvert; la demande de connexion parvient désormais toujours à AutoJs6. Quand ce plugin n'est pas disponible (par exemple désactivé dans le centre de plugins ou pas encore autorisé), AutoJs6 ouvre le centre de plugins sur 3-Stove Agent au lieu d'afficher une boîte de dialogue (cette partie nécessite la version publiée d'AutoJs6 6.8.0)",
+        "Avec les groupes d'outils par défaut, les tâches avec un modèle local n'échouent plus avec LIMIT_EXCEEDED avant le premier appel au modèle : le prompt du modèle local résume les règles des scripts enregistrés, les omet quand aucun script n'est enregistré, et n'inclut les règles du plan qu'en mode plan"
       ],
       "improvement": [
         "Les boutons Réessayer avec un autre modèle sont retirés (le modèle se change en haut de l'espace de travail ou dans la bulle flottante); Historique des tâches et Ouvrir l'espace de travail de la bulle passent dans le menu Plus; l'icône d'historique reprend le glyphe standard",

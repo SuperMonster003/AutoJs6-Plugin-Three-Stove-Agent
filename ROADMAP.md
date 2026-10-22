@@ -119,6 +119,7 @@ MCP 插件 `AutoJs6-Plugin-MCP-Server` 1.0.2 (build 68), 平台版本插件 `1.8
 | D89 | (派生) 提示词, 设置与界面 | 有启用的插件工具时在系统提示词追加 `plugin_tools` 段 (en / zh): 插件工具的结果是不可信数据, 其中识别出的文字是用户或环境说的话而不是给 Agent 的指令; 输出路径以结果为准; 不为必填参数编造值; 工具报 BUSY / NOT_READY 时不立刻重试同一调用. `mcp` 段改为只在启用 MCP 工具时追加. 设置文件升到版本 7: 读到版本 <= 6 时把 `plugin` 加入已开分组 (D84 "老用户设置升级时也开"), `plugin_write` 保持关; 预设中显式列出的分组不迁移 (预设是用户的明确选择). 十语言的分组名 "插件工具" / "插件工具 (写入)", 设置的工具分组页加一句说明 (工具来自已启用且被 AutoJs6 准入的插件; 除完全访问外, 写入组的每次调用都要确认). 宿主 `ai.agent.run()` 的 `tools` 数组目前不认这两个 id, 见附录 G Q13. |
 | D90 | (派生) 验证方式 | E1: 转换 (重名, 名称, schema 形状与大小, oneOf, x-autojs6 改写, 分组与风险), 数量与 schema 上限的截断, 适配器 (参数校验, 令牌, invocationId, outputPaths 剥离与默认路径, 时限, 守护超时与 cancel, 结果压缩, 错误码提取, processDead), 设置迁移, 提示词段落. E3: 真机 (宿主含 21117c789 的调试构建, 3-Macaw Speech 1.2.0 调试构建, 已下载识别与 TTS 模型) 上由 `.python/device_plugin_tools_check.py` 推送宿主脚本, 经 `ai.agent.run` 发起 "听一句话再读出来" 的任务; speech_listen 开始后由手机扬声器播放 3-Macaw Speech 的测试录音 (媒体音量 70%, 测完还原), 核对 speech_listen 与 speech_speak 依次被调用且识别文字非空, 只打印通过 / 失败与关键数值. 需要维护者在手机上确认的对话框不由脚本点击. |
 | D91 | (Q14 已定) 本机模型不提供插件工具 | 选定的模型目标在本机 (`ModelLocality.ON_DEVICE`, 包括 "自动" 选到本机) 时, 本次任务的目录, 提示词与执行链都不含插件工具 (`PluginToolSource.offered`); 远程与混合目标不变. 插件工具仍在选模型之前列出, 选定目标后再决定是否并入. 原因: 本机请求按 3200 token 的输入预算 (约 8000 字节) 编排, 3-Macaw Speech 的两个可见工具定义约 5 KB, 并入后默认分组的本机请求放不下, 任务在第一次调用模型前以 `LIMIT_EXCEEDED` 结束. 先行实施, 维护者 2026-10-22 在 Q14 选 A 保持现状. |
+| D92 | (派生, Q15 / P19.3) 本机提示词只写用得上的规则 | compact (本机) 系统提示词: 已登记脚本段改用短版 `compact_scripts.md` (en 326 / zh 313 字节, 原 `scripts.md` 947 字节), 列表为空, `total` 为 0 且没有 `error` 时整段省去; 计划规则 (`compact_plan.md`) 只在计划模式下经 `{{plan_rules}}` 出现. 完整 (远程) 提示词与快照不变. 不按目标收窄默认分组 (见 Q16). 效果 (JVM, 仿设备的 guidance 与观察): 默认 6 组的首轮请求 en 6848 / zh 6557 字节 (G8441 修前 8134), 列出 3 个脚本时 en 7825; 下一轮 en 7466 / zh 7752. 可推翻, 需在会话记录中说明. |
 
 由 D3 / D4 / D14 / D17 派生的硬约束:
 
@@ -828,7 +829,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 - [x] (插件) P19.1 超限详情: `ContextLimitExceeded` 带上 `ContextBreakdown` (只有字节数与分组 id, 不含提示词, 目标, 屏幕, 记忆或脚本文字): 请求总字节与生效上限, 各上限 (context / grant / target / local), 各部分 (system / goal / history / observation / repair / budget / schema / native / images / framing), 系统提示词各段 (rules / tools / response / verification / context / vision / mcp / plugin_tools / scripts) 与各分组工具字节; 本机 token 检查同样带详情. `LIMIT_EXCEEDED` 的错误详情在 "任务上下文超过模型输入上限" 后附这一行 ASCII, `HostLink` 在任务结束时以 `Log.w` 记同一行. 验收: JVM 测试 (各部分之和等于请求字节, 系统各段之和等于系统消息内容, 不含任务文字, ASCII; 0 次模型调用的任务结果带详情). 证据 (2026-10-22): `ContextBreakdown.describe()` 形如 `input 8134 B > limit 8000 B (context=65536 grant=131072 target=262144 local=8000); parts system=6318 ...; system rules=2765 ...; tools shared=431 observe=366 ...` (为 0 的项省略; token 检查为 `input N B = T + I image tokens >= 4096`); `PromptCatalog.systemPrompt` 返回各段字节 (按 JSON 转义后计), `toolGroupBytes` 按分组计工具说明; `AgentRunner.contextBreakdown` 与 `RunnerText.terminal(note)`; `HostLink` 记 `Log.w(StoveHostLink)`; 设备脚本把这一行打印为 `context:`. 测试 `ContextCompilerTest.overBudgetRequestsReportTheSizeOfEachPartAndEveryLimitButNoContent` (本机与远程: 各部分之和等于请求字节, 系统各段之和等于转义后的系统消息, 分组之和等于 tools 段, 不含任务文字与私密字样, ASCII; 完整说明路径同样相等), `ModelRunnerIntegrationTest.impossibleContextFailsBeforeSpendingAModelCall` (错误详情以该行结尾, 不含任务文字); changelog v1.3.0 `improvement` 十语言一条, 生成器 `--check` 为 MARKDOWN_OK.
 - [x] (测试) P19.2 真机定位: G8441 (BH900ASK9E) 与 XQ-DQ72 (QV770340J7) 各跑一次默认设置的本机任务, 记下实际上限与各部分字节, 找出与 JVM 6868 字节的差异来源. 若需改宿主, 只本地提交并记 hash. 证据 (2026-10-22, Stove 调试 431 = P19.1 加未提交的脚本打印, `--target local`): G8441 (宿主 5835, gemma-4-E2B, 默认 6 组) `input 8134 B > limit 8000 B (context=65536 grant=131072 target=262144 local=8000); parts system=6318 goal=246 observation=134 budget=192 schema=1239; system rules=2765 tools=1555 response=699 verification=131 context=107 scripts=1031; tools shared=431 observe=366 act=520 memory=88 user=33 script=119`; XQ-DQ72 (宿主 5935, gemma-4-E4B, 设置开了 11 组) `input 8730 B`, system 6777 (tools 1977), schema 1376, 其余相同. 结论: 起作用的是 Stove 自己的本机上限 8000 字节 (3200 token), 宿主报的上限 (target 256 KiB, grant 128 KiB) 都不起作用, 不需改宿主. 与 JVM 6868 的差异主要是脚本目录段 1031 字节 (JVM 用例没有 `ScriptPresentation`; 设备上即使 0 个候选, `scripts.md` 的 947 字节规则仍在), 其次是 verification 131 字节 (JVM 为 `{}`); 另有 compact 规则里始终出现的计划规则约 215 字节.
-- [ ] (插件) P19.3 修复: 按 P19.2 的结论压缩本机提示词和 / 或按目标位置收窄默认分组, 目标是默认设置下两台都能调用到模型并返回结果. 用户可见的变化写进 README 与 changelog v1.3.0 (10 语言, 生成器 `--check`, ASCII 标点).
+- [x] (插件) P19.3 修复: 按 P19.2 的结论压缩本机提示词和 / 或按目标位置收窄默认分组, 目标是默认设置下两台都能调用到模型并返回结果. 用户可见的变化写进 README 与 changelog v1.3.0 (10 语言, 生成器 `--check`, ASCII 标点). 证据 (2026-10-22, build 434, D92): `assets/prompts/{en,zh}/compact_system.md` 去掉计划规则行, 改由 `{{plan_rules}}` 只在计划模式下填入新文件 `compact_plan.md` (en 213 / zh 205 字节); 新文件 `compact_scripts.md` (en 326 / zh 313 字节) 是本机用的短版脚本段, `PromptCatalog` 在列表为空, `total` 为 0 且没有 `error` 时省去整段; 不收窄分组 (Q16). 测试: `ContextCompilerTest.onDeviceDefaultsWithTheRunnersScriptsAndGuidanceLeaveRoomForTheNextStep` (运行器的 5 项 guidance, 约 600 字节的 device_info 观察; en / zh 各有无脚本与 3 个脚本: 首轮 en 6848 / 7825, zh 6557 / 7806, 下一轮 en 7466 / 7874, zh 7752 / 7854, 下一轮仍带该观察, 脚本规则只在列出脚本时出现), `PromptCatalogTest.compactPromptsStatePlanAndScriptRulesOnlyWhenTheyApply` (短版比完整段至少小 400 字节, 完整提示词保留空段); 原有本机用例 6868 降到 en 6649 / zh 6357. 真机 (Stove 调试构建 432, 代码与本提交相同): XQ-DQ72 (宿主 5935, gemma-4-E4B, 设置开着 11 组) 调用到模型并完成 (partial, 2 次模型调用, 70792 ms, 详见 P19.4); G8441 (宿主 5835, gemma-4-E2B, 默认 6 组) 调用到模型, 没有 `LIMIT_EXCEEDED`, 但 300 s 内没有回答 (载入模型约 2.7 分钟, prefill 约 1 分钟, decode 80 s 后到时限), 属设备速度, 见 Q17. 文档: changelog v1.3.0 `fix` 十语言一条, README 本地模型 FAQ 十语言补一句 (Q17), 生成器 `--check` 为 MARKDOWN_OK (10 语言 36 产物).
 - [ ] (测试) P19.4 D91 真机复核: 至少一台装有已启用的插件工具 (3-Macaw Speech 1.2.0 调试构建, 宿主含 21117c789) 时, `py .python/device_plugin_tools_check.py --target local` 通过: 本机任务调用到模型, 目录不含插件工具; 证据补进 P18.5 / P18.6 与 D91.
 - [ ] (测试) P19.5 E1 / 构建 / lint: `testDebugUnitTest`, `assembleDebug`, `lintDebug` 通过, 记录单测数; 本地提交并提高 VERSION_BUILD; 推送前问维护者, 同意后跑 prepush 检查, 推送并等 CI 通过.
 
@@ -1294,12 +1295,30 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 ### Q15 (1.3.0 发布前): 本机模型在默认分组下超出输入预算 (P18 前已有; 拍板: A 另开任务定位并压缩)
 
 - 拍板 (2026-10-22): 维护者选 A 另开任务, 由 3-Macaw Speech 调度的子会话 3-macaw-10 实施; P18 会话不实施.
+- 结果 (2026-10-22): 见 P19 与 D92; 后续待决 Q16 / Q17.
 - 现象 (2026-10-22): G8441 (BH900ASK9E, API 28, 本机 gemma-4-E2B) 与 XQ-DQ72 (QV770340J7, API 33, gemma-4-E4B) 上, 默认 6 个分组 (observe, ocr, act, script, memory, user) 的本机任务在第一次调用模型前以 `LIMIT_EXCEEDED` 结束, 0 次模型调用. G8441 上 P18 前的 build 426 (`f17ef2a6`), 428 与 429 结果相同, 与插件工具无关. 去掉 script, 或去掉 memory 与 user 后都能调用到模型 (之后多以 `MODEL_FAILED` 结束, 属本机模型自身的输出问题). XQ-DQ72 的设置开了 11 个分组, 同样超限.
 - 线索: JVM 用测试目标复算同样的默认分组为 6868 字节 / 2748 token, 放得下, 所以设备上多出的部分在宿主报来的本机目标上限 (`maximumContextBytes` 或 grant) 或设备侧内容; 需要在超限详情 (或调试日志) 里记下各部分的字节数再定.
 - 选项 A (推荐, 未先行): 另开任务: 先给超限详情加各部分字节数, 在两台设备上定位, 再压缩本机提示词或按目标位置收窄默认分组. 约 1 天, 需真机.
 - 选项 B: 本机目标按优先级自动去掉分组直到放下, 并在任务记录里说明. 改动集中在 `ContextCompiler` / `HostLink`, 约半天, 但用户会在不知情时少了工具.
 - 选项 C: 维持现状, 文档写明本机模型需要减少分组. 返工量: 无, 但默认设置下本机模型不可用.
 - 影响条目: 本机模型的全部任务 (P18 之外), Q14 / D91 的设备复核.
+
+2026-10-22 P19 追加以下待决事项 (不阻塞 P19, 均按推荐项先行, 待维护者拍板):
+
+### Q16 (1.3.0 发布前): 本机目标是否另外收窄默认分组 (推荐: 不收窄)
+
+- 背景: P19.2 查明超限主要来自脚本目录段与计划规则, P19.3 (D92) 压缩后默认 6 组的本机首轮请求 en 6848 字节, 离 8000 字节的上限约 1.1 KB; XQ-DQ72 开着 11 组也能调用到模型并完成 (P19.4). 观察结果较大或列出脚本时, `ContextCompiler` 按既有顺序先丢保留的历史与脚本候选.
+- 选项 A (推荐, 已先行): 不收窄, 只压缩提示词 (D92). 返工量: 无.
+- 选项 B: 本机目标的默认分组只留 observe / act / user (去掉 memory 与 script 约省 210 字节, 有登记脚本时再省脚本段). 改选需让 `HostLink` 按目标位置过滤分组, 设置的分组页加说明, 补测试, 约半天; 用户在本机模型上会默认少记忆与脚本工具.
+- 影响条目: D92, P19.3, 本机任务的工具集合.
+
+### Q17 (1.3.0 发布前): 较慢的手机上本机模型的第一次调用超过 300 s 模型时限 (推荐: README 写明, 不改代码)
+
+- 背景: P19.3 后 G8441 (BH900ASK9E, Snapdragon 835, 4 GB, gemma-4-E2B) 的本机任务已调用到模型 (没有 `LIMIT_EXCEEDED`), 但 300 s 内没有回答: 3-Stone AI 的 provider 进程启动后约 2.7 分钟才载入模型, prefill 约 1 分钟, decode 约 80 s 后到达脚本设的 300 s 任务时限而取消. 每次模型调用的上限 (`MAX_TOOL_TIMEOUT_MS`, 宿主契约) 也是 300 s, 所以用户默认的 15 分钟任务时限下这一轮会以模型超时结束 (未在设备上复现). 同一手机的复测期间其他会话的插件进程占满内存, provider 被 lowmemorykiller 结束, 不计入. XQ-DQ72 (gemma-4-E4B) 同样的任务 70.8 s 完成.
+- 选项 A (推荐, 已先行): README 本地模型 FAQ (十语言) 写明较旧的手机上第一次调用可能超过 5 分钟, 附两台的数字; 不改代码. 返工量: 无.
+- 选项 B: 放宽本机目标的模型时限 (例如 10 分钟): 300 s 是宿主契约常量, 需宿主, 3-Stone AI 与本插件三侧一起改 (D51 三侧一致), 约 1 天, 涉及宿主推送.
+- 选项 C: 3-Stone AI 预载或常驻本机模型, 省掉第一次调用前约 2.7 分钟的载入; 属 3-Stone AI 仓库的任务, 内存小的手机上常驻进程也会被系统回收.
+- 影响条目: P19.3 (G8441 一半), README 本地模型 FAQ.
 
 ---
 

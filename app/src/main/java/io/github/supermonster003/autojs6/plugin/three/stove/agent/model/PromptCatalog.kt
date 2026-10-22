@@ -8,7 +8,7 @@ import java.util.Locale
 /** Assets supply rules; user/screen/script/memory content is inserted exactly once as JSON data. */
 class PromptCatalog(private val readAsset: (String) -> String, private val catalog: ToolCatalog) {
     private val templates = listOf("en", "zh").associateWith { language ->
-        listOf("system", "compact_system", "goal", "observation", "repair", "context", "scripts",
+        listOf("system", "compact_system", "compact_plan", "goal", "observation", "repair", "context", "scripts", "compact_scripts",
             "json_response", "json_compact_response", "json_response_details", "native_response", "vision", "mcp", "plugin_tools").associateWith { name ->
             readAsset("prompts/$language/$name.md").replace("\r\n", "\n").replace('\r', '\n')
                 .also { require(it.utf8Size() <= 16 * 1024) }
@@ -68,16 +68,19 @@ class PromptCatalog(private val readAsset: (String) -> String, private val catal
                         add("memoryScopes", JsonArray().apply { scopes.forEach(::add) })
                     }
                 }.toString(),
-        ).let { values -> if (compact) values else values + ("response_details" to if (format.nativeTools) ""
+        ).let { values -> if (compact) values + ("plan_rules" to if (format.planMode) "\n" + templates.getValue(language(language)).getValue("compact_plan").trimEnd() else "")
+            else values + ("response_details" to if (format.nativeTools) ""
             else templates.getValue(language(language)).getValue("json_response_details").trimEnd()) }
         val sections = mutableListOf<Pair<String, String>>()
         fun section(name: String) { sections += name to templates.getValue(language(language)).getValue(name).trimEnd() }
         if (catalog[ToolNames.SCREEN_CAPTURE]?.let(policy::isEnabled) == true) section("vision")
         if (catalog.tools.any { it.external?.source == ExternalSource.MCP && policy.isEnabled(it) }) section("mcp")
         if (catalog.tools.any { it.external?.source == ExternalSource.PLUGIN && policy.isEnabled(it) }) section("plugin_tools")
-        if (registeredScripts != null) {
+        // P19.3 (D92): the compact on-device prompt states the script rules briefly and leaves them out while nothing is registered.
+        val noScripts = registeredScripts?.let { it.getAsJsonArray("scripts")?.size() == 0 && it.number("total") == 0L && !it.has("error") } == true
+        if (registeredScripts != null && !(compact && noScripts)) {
             val data = registeredScripts.toString().also { bounded(it, 12 * 1024) }
-            sections += "scripts" to render(language, "scripts", mapOf("scripts_json" to data))
+            sections += "scripts" to render(language, if (compact) "compact_scripts" else "scripts", mapOf("scripts_json" to data))
         }
         return SystemPrompt(values, render(language, if (compact) "compact_system" else "system", values), sections)
     }

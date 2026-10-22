@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.model
 import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.core.CoreFixtures as F
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.ScriptPresentation
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -35,6 +36,28 @@ class PromptCatalogTest {
         assertTrue(chinese.contains(catalog["ui_dump"]!!.description("zh")))
         assertTrue(chinese.contains("\"name\":\"shell_exec\""))
         assertEquals("en", PromptCatalog.language("ja"))
+    }
+
+    @Test fun compactPromptsStatePlanAndScriptRulesOnlyWhenTheyApply() {
+        // P19.3 (D92): the on-device prompt has no room for rules that cannot apply to the run.
+        val planning = DecisionSchema(catalog).generate(ModelProtocol.LOCAL, policy, planMode = true)
+        val empty = ScriptPresentation(emptyList(), 0, 0, 0).render()
+        val omitted = ScriptPresentation(emptyList(), 5, 3, 0).render()
+        val unavailable = ScriptPresentation.unavailable("HOST_UNAVAILABLE").render()
+        for (language in listOf("en", "zh")) {
+            val compact = prompts.systemPrompt(language, policy, format, compact = true, registeredScripts = empty)
+            assertFalse(compact.text.contains("planRequired:"))
+            assertNull(compact.bytes()["scripts"])
+            assertTrue(prompts.system(language, policy, planning, compact = true).contains("planRequired:"))
+            for (scripts in listOf(omitted, unavailable)) {
+                val short = prompts.systemPrompt(language, policy, format, compact = true, registeredScripts = scripts)
+                val full = prompts.systemPrompt(language, policy, format, registeredScripts = scripts)
+                assertTrue(short.text.contains(scripts.toString()) && short.text.contains("script_catalog"))
+                assertTrue(short.bytes().getValue("scripts") + 400 < full.bytes().getValue("scripts"))
+            }
+            // The full prompt keeps its section and plan rules unchanged.
+            assertTrue(prompts.system(language, policy, format, registeredScripts = empty).contains(empty.toString()))
+        }
     }
 
     @Test fun insertedDataCannotExpandTemplateSlotsOrBreakJsonRecords() {

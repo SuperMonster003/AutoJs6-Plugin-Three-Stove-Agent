@@ -4,6 +4,7 @@ import com.google.gson.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.core.CoreFixtures as F
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.*
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -14,9 +15,10 @@ class ContextCompilerTest {
     private fun target(local: Boolean = false, bytes: Int = 128 * 1024) = ModelTarget("example", if (local) "local:test" else "profile:test",
         if (local) ModelLocality.ON_DEVICE else ModelLocality.REMOTE, if (local) ModelProtocol.LOCAL else ModelProtocol.OPENAI, true, bytes)
     private fun compiler(local: Boolean = false, limits: ContextLimits = ContextLimits(), bytes: Int = 128 * 1024,
-                         fixed: String = "", memory: JsonArray = JsonArray(), selectedPolicy: ToolPolicy = policy): ContextCompiler {
+                         fixed: String = "", memory: JsonArray = JsonArray(), selectedPolicy: ToolPolicy = policy,
+                         scripts: ScriptPresentation? = null): ContextCompiler {
         val target = target(local, bytes)
-        return ContextCompiler(prompts, catalog, selectedPolicy, target, DecisionSchema(catalog).generate(target.protocol, selectedPolicy), limits, fixed, memory)
+        return ContextCompiler(prompts, catalog, selectedPolicy, target, DecisionSchema(catalog).generate(target.protocol, selectedPolicy), limits, fixed, memory, scripts)
     }
     private fun context(goal: String = "Open Android settings", history: List<JsonObject> = emptyList(), observation: String? = null,
                         repair: JsonObject? = null, format: DecisionFormat? = null, locale: String = "en", guidance: JsonObject = JsonObject()) = RunContext(goal, history, observation, repair,
@@ -187,6 +189,34 @@ class ContextCompilerTest {
         val system = prompts.systemPrompt("en", policy, format).bytes()
         assertEquals(prompts.system("en", policy, format).json().toString().utf8Size() - 2, system.values.sum())
         assertEquals(catalog.render(policy).json().toString().utf8Size() - 2, system.getValue("tools"))
+    }
+    @Test fun onDeviceDefaultsWithTheRunnersScriptsAndGuidanceLeaveRoomForTheNextStep() {
+        // P19.2: on G8441 the default groups with the script section and the runner's guidance took 8134 B before the first call.
+        val guidance = jsonObject("observeRequired" to false.json(), "changeStrategy" to false.json(), "unchangedActions" to 0.json(),
+            "repeatedActionCount" to 0.json(), "orderStatusRequired" to false.json())
+        val device = ToolObservation.success(jsonObject("brand" to "Sony".json(), "model" to "G8441".json(), "sdkInt" to 28.json(),
+            "release" to "9".json(), "screen" to jsonObject("width" to 720.json(), "height" to 1280.json(), "density" to 2.json()),
+            "battery" to jsonObject("level" to 87.json(), "charging" to true.json()), "locale" to "en-US".json(), "detail" to "x".repeat(400).json()))
+        val step = jsonObject("index" to 1.json(), "kind" to "tool".json(), "tool" to "device_info".json(),
+            "decision" to jsonObject("kind" to "tool".json(), "tool" to "device_info".json(), "arguments" to JsonObject()),
+            "observation" to device.json(), "confirmation" to "auto".json())
+        val listed = ScriptRanker.select(ScriptFixtures.snapshot(*(1..3).map { ScriptFixtures.entry("task-$it", "Registered task $it") }.toTypedArray()),
+            "Call the device_info tool once")
+        for (goal in listOf("Call the device_info tool once. Then finish with a one-line summary. Use no other tool and ask no questions.",
+            "调用一次 device_info 工具, 然后用一行总结结束. 不要使用其他工具, 也不要提问.")) {
+            for (scripts in listOf(ScriptPresentation(emptyList(), 0, 0, 0), listed)) {
+                val compiler = compiler(local = true, scripts = scripts)
+                val first = compiler.compile(context(goal, guidance = guidance))
+                val next = compiler.compile(context(goal, history = listOf(step), observation = device, guidance = guidance))
+                println("device-like language=${ContextCompiler.language(goal)} scripts=${scripts.size} first=${first.inputBytes} next=${next.inputBytes}")
+                // Without scripts about 1000 B (400 tokens) stay free for the first call; listed scripts may use that room and are
+                // the first context to go when a later step needs it.
+                assertTrue("first=${first.inputBytes}", first.inputBytes <= if (scripts.size == 0) 7000 else 8000)
+                assertTrue("next=${next.inputBytes}", next.inputBytes <= 8000)
+                assertTrue(contents(next).any { it.contains("device_info") })
+                assertEquals(scripts.size == 0, !contents(first).first().contains("script_run {id, parameters}") && !contents(first).first().contains("script_run 和"))
+            }
+        }
     }
     @Test fun packingFragmentsCannotLeakObservationGuidanceOrFormatIntoAnotherCompile() {
         val compiler = compiler(local = true)

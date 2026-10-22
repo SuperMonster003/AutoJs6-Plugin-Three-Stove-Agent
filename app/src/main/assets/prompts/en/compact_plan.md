@@ -1,0 +1,1 @@
+planRequired: reply kind:plan first (steps: 1-8 short strings in order, no arguments); the user reviews/edits it, then plan lists the approved steps: follow them in order and reply a new plan if it stops fitting.
