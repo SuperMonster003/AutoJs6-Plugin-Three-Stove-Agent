@@ -6,8 +6,9 @@
   "changelog_label_dependency": "Dependency",
   "$data": {
     "v1.3.0": {
-      "released_date": "2026/10/20",
+      "released_date": "2026/10/22",
       "feature": [
+        "ai.agent task controls, events and registered-script context/results for Node.js, Bun and Workers, with explicit authorization for packaged applications (Requires AutoJs6 6.8.0 build 5850; packaged applications authorize access in the host, while 3-Stove Agent still runs the task loop)",
         "Configurable risk recognition: a new Risk recognition settings screen adds your own package names and keywords on top of the packaged payment app list (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) and the ten-language sensitive keyword table; additions only widen the lists and apply at once, and matching screen actions become sensitive and go through confirmation",
         "Floating ball redesign: the compact ball shows the task and its current step on two lines and tapping the text opens a step timeline card; the control card is condensed to the same two rows as the workbench (preset, model and access above the goal field, voice and start), with the model and access mode switched inside the overlay and shared with the app; the timeline follows new steps while you are at the end, pauses when you scroll up and resumes at the end, as does the task details screen",
         "Preset import / export: the presets screen gains Import JSON and Export JSON; the exported file carries every preset's configuration but no model, each imported preset is reviewed one by one with a replace notice for an existing name, tool groups or script directories missing on this device are dropped, and a pending review survives leaving the screen",

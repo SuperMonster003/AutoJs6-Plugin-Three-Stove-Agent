@@ -103,7 +103,7 @@
   "p_compatibility": "支援 Android {{ min_android_version }}+ (API {{ android_min_sdk }}). 要求 AutoJs6 {{ required_host_version_name }} / build {{ required_host_version_code }}+ 的宿主, 該版本已包含任務 API (build {{ script_host_version_code }}+) 以及原生工具呼叫與圖片輸入 (build 5297+) 所需的全部宿主改動. 畫面操作需要宿主的無障礙服務; Agent 會先透過 AutoJs6 已設定的免打擾方式 (Root, 安全設定或 Shizuku) 自動啟動, 僅在失敗時提示手動開啟. OCR 為可選能力, 需要安裝並授權 OCR 外掛, 且宿主報告其可用. 3-Stove Agent 本身不儲存模型憑證, 不提供獨立無障礙服務.",
   "p_quickstart_script": "連接 3-Stove Agent 並設定模型後, 在 AutoJs6 執行以下 JavaScript. 詢問與確認由外掛介面處理. 如需使用已儲存的設定, 在選項加入 `preset: \"your-preset-name\"`. 加入 `plan: true` 可讓任務先給出供你審閱的計劃.",
   "example_goal": "讀取 Android 版本, 根據實際觀察結果報告.",
-  "p_script_result": "請檢查 `result.status`: Promise 兌現的結果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任務. 模型目標, 事件, 預算及指令碼處理互動見 [ai.agent API]({{ docs_autojs6_url }}/#ai).",
+  "p_script_result": "請檢查 `result.status`: Promise 兌現的結果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任務. 模型目標, 事件, 預算及指令碼處理互動見 [ai.agent API]({{ docs_autojs6_url }}/#ai). Node.js/Bun/Worker 的 ai.agent 任務控制與事件, 登記指令碼上下文和結果回傳, 以及打包應用程式的獨立授權. 需要 AutoJs6 6.8.0 build 5850; 打包應用程式在宿主中明確授權, 任務迴圈仍由 3-Stove Agent 執行.",
   "p_registration": "將下例儲存為 AutoJs6 工作目錄或宿主已批准的指令碼目錄中的 `text-counter.js`. 檔案開頭的 `@agent` JSDoc 表示主動登記至目錄. 向 Agent 提出統計指定文字字元數的需求即可, 必填參數缺失時會先詢問.",
   "p_registration_project": "亦可在 `main.js` 旁放置以下 `project.json`, main.js 的程式碼與上例相同, 讀取 `ai.agent.context().parameters` 並呼叫 `ai.agent.result(...)`. 專案登記內容放在 `agent` 物件中.",
   "p_registration_limits": "參數類型支援 string, number, integer 和 boolean, 不支援巢狀物件或陣列. sensitive 指令碼執行前需要確認, 選擇完全存取時除外. 請只登記已審閱的指令碼, 風險聲明不會為 JavaScript 建立沙箱. [完整登記格式]({{ manifest_url }}).",

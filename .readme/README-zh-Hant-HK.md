@@ -119,7 +119,7 @@ run.result.then(
 );
 ```
 
-請檢查 `result.status`: Promise 兌現的結果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任務. 模型目標, 事件, 預算及指令碼處理互動見 [ai.agent API](https://docs.autojs6.com/#ai).
+請檢查 `result.status`: Promise 兌現的結果仍可能是 completed, partial, failed, blocked 或 cancelled. `run.cancel()` 可停止任務. 模型目標, 事件, 預算及指令碼處理互動見 [ai.agent API](https://docs.autojs6.com/#ai). Node.js/Bun/Worker 的 ai.agent 任務控制與事件, 登記指令碼上下文和結果回傳, 以及打包應用程式的獨立授權. 需要 AutoJs6 6.8.0 build 5850; 打包應用程式在宿主中明確授權, 任務迴圈仍由 3-Stove Agent 執行.
 
 ### 登記指令碼
 
@@ -295,8 +295,9 @@ minimum host build: 5298 (6.8.0)
 
 #### v1.3.0
 
-_2026/10/20_
+_2026/10/22_
 
+- `新增` Node.js/Bun/Worker 的 ai.agent 任務控制與事件, 登記指令碼上下文和結果回傳, 以及打包應用程式的獨立授權 (需要 AutoJs6 6.8.0 build 5850; 打包應用程式在宿主中明確授權, 任務迴圈仍由 3-Stove Agent 執行)
 - `新增` 風險識別可配置: 設定頁新增風險識別子頁, 可在內置支付應用列表 (支付寶, 支付寶香港, 雲閃付, PayPal, Google 錢包, Samsung Pay, 華為錢包, Mi Pay) 與十語言敏感關鍵詞表之外添加自訂套件名稱和關鍵詞, 只增不刪且即時生效; 命中的屏幕操作提升為敏感操作並進入確認
 - `新增` 懸浮球改版: 最小化時顯示任務描述與當前步驟兩行, 點擊文字打開步驟時間線卡; 展開的控制頁與主頁一致地壓縮為兩行 (預設 / 模型 / 訪問權限, 輸入欄 / 語音 / 開始), 模型與訪問權限直接在懸浮窗內切換並與主應用共用同一選擇; 時間線在讀者位於底部時自動跟隨新步驟, 上滑查看歷史時暫停, 回到底部後恢復, 任務詳情頁同樣如此
 - `新增` 預設匯入 / 匯出: 預設頁新增 "匯入 JSON" 與 "匯出 JSON", 匯出檔案包含全部預設的設定但不含模型; 匯入時逐個審閱, 同名預設顯示取代提示, 此裝置沒有的工具組或腳本目錄在匯入時移除, 審閱中途離開後可恢復

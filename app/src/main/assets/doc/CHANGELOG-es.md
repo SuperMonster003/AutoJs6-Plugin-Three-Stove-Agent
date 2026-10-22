@@ -6,8 +6,9 @@
 
 # v1.3.0
 
-###### 2026/10/20
+###### 2026/10/22
 
+* `Función` Control de tareas ai.agent, eventos y contexto/resultados de scripts registrados para Node.js, Bun y Workers, con autorización explícita para las aplicaciones empaquetadas (Requiere AutoJs6 6.8.0 build 5850; las aplicaciones empaquetadas autorizan el acceso en el anfitrión y 3-Stove Agent sigue ejecutando el bucle de tareas)
 * `Función` Reconocimiento de riesgos configurable: una nueva pantalla de ajustes Reconocimiento de riesgos añade sus propios nombres de paquete y palabras clave sobre la lista integrada de aplicaciones de pago (Alipay, AlipayHK, UnionPay, PayPal, Google Wallet, Samsung Pay, Huawei Wallet, Mi Pay) y la tabla de palabras clave sensibles en diez idiomas; las adiciones solo amplían las listas y se aplican de inmediato, y las acciones en pantalla coincidentes pasan a ser sensibles y requieren confirmación
 * `Función` Rediseño de la bola flotante: en modo reducido muestra la tarea y su paso actual en dos líneas y tocar el texto abre una tarjeta con la cronología de pasos; la tarjeta de control se condensa en las mismas dos filas que el espacio de trabajo (preajuste, modelo y acceso sobre el campo, voz e inicio), el modelo y el modo de acceso se cambian dentro de la superposición y se comparten con la aplicación; la cronología sigue los pasos nuevos mientras está al final, se detiene al subir y se reanuda al final, igual que la pantalla de detalles de la tarea
 * `Función` Importación / exportación de preajustes: la pantalla de preajustes añade Importar JSON y Exportar JSON; el archivo exportado contiene la configuración de cada preajuste pero ningún modelo, cada preajuste importado se revisa uno por uno con un aviso de reemplazo para un nombre existente, los grupos de herramientas o directorios de scripts ausentes en este dispositivo se descartan, y una revisión pendiente se restaura tras salir de la pantalla
