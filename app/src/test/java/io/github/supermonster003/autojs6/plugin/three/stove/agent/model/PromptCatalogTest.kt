@@ -71,6 +71,23 @@ class PromptCatalogTest {
         assertTrue(prompts.system("zh", policy, DecisionSchema.degraded()).contains("\"degraded\":true"))
     }
 
+    @Test fun pluginRulesAppearOnlyWithAnEnabledPluginToolAndNeverAsMcpRules() {
+        val schema = jsonObject("type" to "object".json())
+        val read = ToolSpec.external("speech_listen", "Plugin tool", schema, RiskLevel.READ_ONLY,
+            ExternalToolRoute("org.example.speech", "speech_listen", ExternalSource.PLUGIN), ToolGroup.PLUGIN)
+        val plugins = catalog.withExternal(listOf(read))
+        val catalogPrompts = PromptCatalog(F::asset, plugins)
+        val enabled = ToolPolicy(ToolGroup.entries.associateWith { it == ToolGroup.USER || it == ToolGroup.PLUGIN }).withExternalTools(listOf(read))
+        val pluginFormat = DecisionSchema(plugins).generate(ModelProtocol.LOCAL, enabled)
+        for ((language, opening) in listOf("en" to "Plugin tools come from AutoJs6 plugins", "zh" to "插件工具来自用户已启用")) {
+            val system = catalogPrompts.system(language, enabled, pluginFormat)
+            assertTrue(system.contains(opening)); assertTrue(system.contains("speech_listen"))
+            assertFalse(system.contains(F.asset("prompts/$language/mcp.md").trim().lines().first()))
+        }
+        val disabled = ToolPolicy(ToolGroup.entries.associateWith { it == ToolGroup.USER }).withExternalTools(listOf(read))
+        assertFalse(catalogPrompts.system("en", disabled, format).contains("Plugin tools come from AutoJs6 plugins"))
+    }
+
     @Test fun templatesAreStableAcrossGitLineEndingModes() {
         val windows = PromptCatalog({ F.asset(it).replace("\r\n", "\n").replace("\n", "\r\n") }, catalog)
         assertEquals(prompts.system("en", policy, format), windows.system("en", policy, format))

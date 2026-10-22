@@ -17,8 +17,13 @@ data class ToolMetadata(
     val script: io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.PreparedScript? = null,
     val actionIdentity: String? = null,
     val memoryScope: String? = null,
+    /** The step limit of a plugin tool (D87), honored only for tools whose catalog route is a plugin. */
+    val pluginTimeoutMs: Long? = null,
 ) {
-    init { require(scriptTimeoutMs == null || scriptTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS) }
+    init {
+        require(scriptTimeoutMs == null || scriptTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS)
+        require(pluginTimeoutMs == null || pluginTimeoutMs in 1..RunLimits.TOOL_TIMEOUT_MS)
+    }
 }
 
 data class ConfirmationAssessment(val tool: String, val risk: RiskLevel, val required: Boolean, val allowRunScope: Boolean,

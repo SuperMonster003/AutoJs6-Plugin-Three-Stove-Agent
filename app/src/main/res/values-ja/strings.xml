@@ -238,6 +238,8 @@
     <string name="presets_group_memory">設定の記憶</string>
     <string name="presets_group_observe">画面の観察</string>
     <string name="presets_group_ocr">文字認識 (OCR)</string>
+    <string name="presets_group_plugin">プラグインツール</string>
+    <string name="presets_group_plugin_write">プラグインツール (書き込み)</string>
     <string name="presets_group_script">登録済みスクリプト</string>
     <string name="presets_group_script_dynamic">生成スクリプト</string>
     <string name="presets_group_shell">シェルコマンド</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">第三者に関する表示</string>
     <string name="settings_ocr_note">OCR グループが有効で, ホストが承認済みの認識プラグインを検出すると OCR が利用できます.</string>
     <string name="settings_open_failed">このリンクを開くアプリがありません.</string>
+    <string name="settings_plugin_tools_note">プラグインツールは, 有効化され AutoJs6 に許可されたプラグインから提供されます. 読み取り専用のツールはそのまま実行され, フルアクセスでない限り, 書き込みツールは呼び出しごとに確認します.</string>
     <string name="settings_policy_note">保存した設定は新しいタスクに適用されます. プリセットと個別タスクは制限を厳しくすることだけができ, ホストの権限にも従います.</string>
     <string name="settings_resident">常時待ち受け</string>
     <string name="settings_resident_charging">充電中のみ待ち受け</string>

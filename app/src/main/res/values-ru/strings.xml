@@ -238,6 +238,8 @@
     <string name="presets_group_memory">Память предпочтений</string>
     <string name="presets_group_observe">Наблюдение за экраном</string>
     <string name="presets_group_ocr">Распознавание текста (OCR)</string>
+    <string name="presets_group_plugin">Инструменты плагинов</string>
+    <string name="presets_group_plugin_write">Инструменты плагинов (запись)</string>
     <string name="presets_group_script">Зарегистрированные скрипты</string>
     <string name="presets_group_script_dynamic">Созданные скрипты</string>
     <string name="presets_group_shell">Команды оболочки</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">Уведомления третьих сторон</string>
     <string name="settings_ocr_note">OCR доступно автоматически, если группа включена и хост обнаружил разрешенный плагин распознавания.</string>
     <string name="settings_open_failed">Нет приложения для открытия ссылки.</string>
+    <string name="settings_plugin_tools_note">Инструменты плагинов предоставляют включенные плагины, допущенные AutoJs6. Инструменты только для чтения выполняются сразу; без полного доступа каждый вызов инструмента записи сначала требует подтверждения.</string>
     <string name="settings_policy_note">Сохраненные настройки действуют для новых задач. Профили и отдельные задачи могут только ужесточать ограничения; разрешения хоста сохраняются.</string>
     <string name="settings_resident">Постоянное прослушивание</string>
     <string name="settings_resident_charging">Слушать только во время зарядки</string>

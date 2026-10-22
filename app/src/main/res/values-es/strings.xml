@@ -238,6 +238,8 @@
     <string name="presets_group_memory">Memoria de preferencias</string>
     <string name="presets_group_observe">Observación de pantalla</string>
     <string name="presets_group_ocr">Reconocimiento de texto (OCR)</string>
+    <string name="presets_group_plugin">Herramientas de complementos</string>
+    <string name="presets_group_plugin_write">Herramientas de complementos (escritura)</string>
     <string name="presets_group_script">Scripts registrados</string>
     <string name="presets_group_script_dynamic">Scripts generados</string>
     <string name="presets_group_shell">Comandos de shell</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">Avisos de terceros</string>
     <string name="settings_ocr_note">OCR está disponible automáticamente si este grupo está activo y el anfitrión detecta un complemento de reconocimiento autorizado.</string>
     <string name="settings_open_failed">Ninguna aplicación puede abrir este enlace.</string>
+    <string name="settings_plugin_tools_note">Las herramientas de complementos provienen de complementos activados y admitidos por AutoJs6. Las de solo lectura se ejecutan directamente; salvo con acceso completo, cada llamada a una herramienta de escritura pide confirmación antes.</string>
     <string name="settings_policy_note">Los ajustes guardados se aplican a tareas nuevas. Los perfiles y las tareas solo pueden reducir estos límites; también se aplican los permisos del anfitrión.</string>
     <string name="settings_resident">Escucha permanente</string>
     <string name="settings_resident_charging">Escuchar solo mientras se carga</string>

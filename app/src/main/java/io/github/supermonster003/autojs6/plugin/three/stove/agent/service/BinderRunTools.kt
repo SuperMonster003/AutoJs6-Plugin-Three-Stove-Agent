@@ -115,7 +115,11 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         return Cancellation { cancelled.set(true); current.get().cancel() }
     }
 
-    internal fun dispatch(call: BridgeCall, callback: (PortResult<JsonElement>) -> Unit): Cancellation {
+    internal fun dispatch(call: BridgeCall, callback: (PortResult<JsonElement>) -> Unit): Cancellation =
+        exchange(call) { value, _ -> callback(value) }
+
+    /** [dispatch] that also hands over the host's error object of a failed call, which plugin tools report to the model (D88). */
+    internal fun exchange(call: BridgeCall, callback: (PortResult<JsonElement>, JsonObject?) -> Unit): Cancellation {
         val id = "tool-${UUID.randomUUID()}"
         val isScriptCatalog = call.module == "agent" && call.method == "listScripts"
         val isOwnedScript = call.module == "agent" && call.method == "execRegistered" ||
@@ -126,7 +130,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
         val closed = AtomicBoolean()
         val claimed = AtomicBoolean()
         val payload = AtomicReference<OwnedJson?>()
-        fun result(value: PortResult<JsonElement>) { if (closed.compareAndSet(false, true)) callback(value) }
+        fun result(value: PortResult<JsonElement>, error: JsonObject? = null) { if (closed.compareAndSet(false, true)) callback(value, error) }
         if ("${call.module}.${call.method}" !in methods || !permissions.containsAll(call.permissions)) {
             result(PortResult.Failure(RunError.CAPABILITY_DENIED)); return Cancellation.NONE
         }
@@ -158,7 +162,7 @@ internal class BinderRunTools(private val broker: IHostCapabilityBroker, private
                             if (closed.get()) return@execute
                             val envelope = AgentJson.objectOf(text, H.MAX_BRIDGE_INLINE_JSON_BYTES, maximumNodes)
                             require(envelope.string("id") == id && envelope.flag("ok") == ok)
-                            if (!ok) result(PortResult.Failure(bridgeError(envelope.getAsJsonObject("error"), isOwnedScript)))
+                            if (!ok) envelope.getAsJsonObject("error").let { result(PortResult.Failure(bridgeError(it, isOwnedScript)), it) }
                             else if (data == null) result(PortResult.Success(envelope["result"] ?: JsonNull.INSTANCE))
                             else {
                                 val marker = envelope.getAsJsonObject("result")?.getAsJsonObject("payload")

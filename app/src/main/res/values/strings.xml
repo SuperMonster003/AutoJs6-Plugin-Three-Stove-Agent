@@ -238,6 +238,8 @@
     <string name="presets_group_memory">Preference memory</string>
     <string name="presets_group_observe">Screen observation</string>
     <string name="presets_group_ocr">Text recognition (OCR)</string>
+    <string name="presets_group_plugin">Plugin tools</string>
+    <string name="presets_group_plugin_write">Plugin tools (write)</string>
     <string name="presets_group_script">Registered scripts</string>
     <string name="presets_group_script_dynamic">Generated scripts</string>
     <string name="presets_group_shell">Shell commands</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">Third-party notices</string>
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>
     <string name="settings_open_failed">No application could open this link.</string>
+    <string name="settings_plugin_tools_note">Plugin tools come from plugins that are enabled and admitted by AutoJs6. Read-only tools run directly; unless full access is on, every call of a write tool asks for confirmation first.</string>
     <string name="settings_policy_note">Saved settings apply to new tasks. Presets and individual tasks can only narrow these limits; host permissions still apply.</string>
     <string name="settings_resident">Resident listening</string>
     <string name="settings_resident_charging">Listen only while charging</string>

@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.core.CoreFixtures as F
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
@@ -34,6 +35,39 @@ class ExternalToolCatalogTest {
         }
         assertThrows(IllegalArgumentException::class.java) { base.withExternal(listOf(tool(), tool())) }
         assertThrows(IllegalArgumentException::class.java) { base.withExternal(listOf(base.tools.first())) }
+    }
+
+    private fun plugin(name: String, risk: RiskLevel = RiskLevel.READ_ONLY, group: ToolGroup = ToolGroup.PLUGIN, provider: String = "org.example.plugin") =
+        ToolSpec.external(name, "Plugin tool", AgentJson.objectOf("{\"type\":\"object\"}"), risk, ExternalToolRoute(provider, name, ExternalSource.PLUGIN), group)
+
+    @Test fun pluginToolsHaveTheirOwnGroupsLimitAndRiskBinding() {
+        val base = F.catalog()
+        val read = plugin("speech_listen"); val write = plugin("speech_save", RiskLevel.SENSITIVE, ToolGroup.PLUGIN_WRITE)
+        assertTrue(read.defaultEnabled); assertFalse(write.defaultEnabled)
+        assertEquals(base.tools.size + 34, base.withExternal((1..32).map { tool("mcp_local_t$it") } + read + write).tools.size)
+        assertEquals(base.tools.size + 32, base.withExternal((1..32).map { plugin("speech_t$it") }).tools.size)
+        assertThrows(IllegalArgumentException::class.java) { base.withExternal((1..33).map { plugin("speech_t$it") }) }
+        // The listed risk decides the group: a write tool never hides in the read-only group and the reverse.
+        assertThrows(IllegalArgumentException::class.java) { base.withExternal(listOf(plugin("speech_save", RiskLevel.SENSITIVE))) }
+        assertThrows(IllegalArgumentException::class.java) { base.withExternal(listOf(plugin("speech_listen", group = ToolGroup.PLUGIN_WRITE))) }
+        assertThrows(IllegalArgumentException::class.java) { plugin("speech_listen", group = ToolGroup.MCP) }
+        assertThrows(IllegalArgumentException::class.java) {
+            ToolSpec.external("mcp_local_x", "x", AgentJson.objectOf("{\"type\":\"object\"}"), RiskLevel.SENSITIVE, ExternalToolRoute("local", "x"), ToolGroup.PLUGIN)
+        }
+        val policy = ToolPolicy(enabledGroups = mapOf(ToolGroup.PLUGIN to true))
+        assertTrue(policy.withExternalTools(listOf(read)).isEnabled(read)); assertFalse(policy.withExternalTools(listOf(write)).isEnabled(write))
+        assertFalse(ToolPolicy(enabledGroups = mapOf(ToolGroup.PLUGIN to false)).withExternalTools(listOf(read)).isEnabled(read))
+    }
+
+    @Test fun pluginRoutesEnterTheFingerprintWhileMcpFingerprintsStayAsBefore() {
+        val base = F.catalog()
+        assertNotEquals(base.withExternal(listOf(plugin("speech_listen"))).fingerprint,
+            base.withExternal(listOf(plugin("speech_listen", provider = "org.example.other"))).fingerprint)
+        val mcp = base.withExternal(listOf(tool()))
+        val legacy = JsonArray().apply { mcp.tools.sortedBy { it.name }.forEach { spec -> add(spec.snapshot().apply {
+            spec.external?.let { add("external", jsonObject("serverId" to it.serverId.json(), "toolName" to it.toolName.json())) }
+        }) } }
+        assertEquals(Digests.sha256Hex(legacy.toString()), mcp.fingerprint)
     }
 
     @Test fun externalOpenObjectsAreValidatedWithoutMakingBuiltinsOpenOrApplyingAnnotationDefaults() {

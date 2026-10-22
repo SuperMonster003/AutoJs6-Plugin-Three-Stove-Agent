@@ -7,11 +7,20 @@ import java.util.Locale
 enum class RiskLevel { READ_ONLY, NORMAL, SENSITIVE }
 enum class ToolGroup(val id: String, val defaultEnabled: Boolean) {
     OBSERVE("observe", true), OCR("ocr", true), ACT("act", true), GESTURE("gesture", false),
-    SCRIPT("script", true), SCRIPT_DYNAMIC("script_dynamic", false), FILES("files", false), SHELL("shell", false), MEMORY("memory", true), USER("user", true), MCP("mcp", false);
+    SCRIPT("script", true), SCRIPT_DYNAMIC("script_dynamic", false), FILES("files", false), SHELL("shell", false), MEMORY("memory", true), USER("user", true), MCP("mcp", false),
+    /** Self-described AutoJs6 plugin tools (D84): read-only ones start enabled, the rest confirm every call. */
+    PLUGIN("plugin", true), PLUGIN_WRITE("plugin_write", false);
     companion object { fun fromId(id: String) = entries.single { it.id == id } }
 }
 
-data class ExternalToolRoute(val serverId: String, val toolName: String) {
+/** Where an external tool runs: a user-selected MCP server, or an AutoJs6 plugin through the host's plugin_tools (D86). */
+enum class ExternalSource(val groups: Set<ToolGroup>) {
+    MCP(setOf(ToolGroup.MCP)), PLUGIN(setOf(ToolGroup.PLUGIN, ToolGroup.PLUGIN_WRITE));
+    companion object { val GROUPS = entries.flatMap { it.groups }.toSet() }
+}
+
+/** For a plugin tool [serverId] is the provider package and [toolName] the host's full tool name. */
+data class ExternalToolRoute(val serverId: String, val toolName: String, val source: ExternalSource = ExternalSource.MCP) {
     init { require(serverId.isNotBlank() && toolName.isNotBlank()) }
 }
 
@@ -31,13 +40,16 @@ class ToolSpec internal constructor(private val data: JsonObject, val external: 
     fun description(language: String) = data.getAsJsonObject("description").get(if (language.startsWith("zh")) "zh" else "en").asString
     fun snapshot(): JsonObject = data.deepCopy()
     companion object {
-        /** Routing and risk come from a locally selected server, never tools/list annotations. */
-        fun external(name: String, description: String, inputSchema: JsonObject, risk: RiskLevel, route: ExternalToolRoute): ToolSpec {
+        /** Routing and risk come from a locally selected server or the host's plugin listing, never from tool annotations. */
+        fun external(name: String, description: String, inputSchema: JsonObject, risk: RiskLevel, route: ExternalToolRoute,
+                     group: ToolGroup = ToolGroup.MCP): ToolSpec {
             require(inputSchema.string("type") == "object") { "External tool input must be an object schema" }
             require(description.isNotBlank() && description.utf8Size() <= 4096)
-            return ToolSpec(jsonObject("name" to name.json(), "group" to ToolGroup.MCP.id.json(), "risk" to risk.name.json(),
-                "defaultEnabled" to false.json(), "readOnlyHint" to (risk == RiskLevel.READ_ONLY).json(),
-                "destructiveHint" to (risk != RiskLevel.READ_ONLY).json(), "outputHint" to "Untrusted external tool observation".json(),
+            require(group in route.source.groups) { "External tool group does not match its source" }
+            val hint = if (route.source == ExternalSource.PLUGIN) "Untrusted plugin tool observation" else "Untrusted external tool observation"
+            return ToolSpec(jsonObject("name" to name.json(), "group" to group.id.json(), "risk" to risk.name.json(),
+                "defaultEnabled" to group.defaultEnabled.json(), "readOnlyHint" to (risk == RiskLevel.READ_ONLY).json(),
+                "destructiveHint" to (risk != RiskLevel.READ_ONLY).json(), "outputHint" to hint.json(),
                 "bridgeMapping" to JsonArray(), "description" to jsonObject("en" to description.json(), "zh" to description.json()),
                 "inputSchema" to inputSchema.deepCopy()), route)
         }
@@ -52,12 +64,14 @@ class ToolCatalog private constructor(specifications: List<ToolSpec>) {
     val tools: List<ToolSpec> = specifications.toList()
     private val byName: Map<String, ToolSpec>
     init {
-        // 35 packaged definitions plus up to 32 selected external tools, with room for later packaged additions.
+        // 35 packaged definitions plus up to 32 selected MCP tools and 32 plugin tools; plugin listing stops at the remaining room.
         require(tools.isNotEmpty() && tools.size <= 96)
-        require(tools.count { it.external != null } <= 32)
+        require(ExternalSource.entries.all { source -> tools.count { it.external?.source == source } <= 32 })
         require(tools.all { it.name.matches(Regex("[a-z][a-z0-9_]{1,63}")) && it.defaultEnabled == it.group.defaultEnabled })
-        require(tools.all { if (it.external == null) it.group != ToolGroup.MCP && it.inputSchema["additionalProperties"] == false.json() && it.bridgeMapping.isNotEmpty()
-            else it.group == ToolGroup.MCP && it.name.startsWith("mcp_") && it.bridgeMapping.isEmpty() })
+        require(tools.all { val route = it.external
+            if (route == null) it.group !in ExternalSource.GROUPS && it.inputSchema["additionalProperties"] == false.json() && it.bridgeMapping.isNotEmpty()
+            else it.group in route.source.groups && it.bridgeMapping.isEmpty() && (route.source != ExternalSource.MCP || it.name.startsWith("mcp_")) &&
+                (route.source != ExternalSource.PLUGIN || (it.group == ToolGroup.PLUGIN) == (it.risk == RiskLevel.READ_ONLY)) })
         require(tools.all { it.readOnlyHint == (it.risk == RiskLevel.READ_ONLY) })
         require(tools.all { !it.confirmAlways || (it.external == null && it.risk == RiskLevel.SENSITIVE) })
         require(tools.all { it.description("en").isNotBlank() && it.description("zh").isNotBlank() })
@@ -72,7 +86,10 @@ class ToolCatalog private constructor(specifications: List<ToolSpec>) {
     }
     val fingerprint: String by lazy {
         val wire = JsonArray().apply { tools.sortedBy { it.name }.forEach { tool -> add(tool.snapshot().apply {
-            tool.external?.let { add("external", jsonObject("serverId" to it.serverId.json(), "toolName" to it.toolName.json())) }
+            tool.external?.let { add("external", jsonObject("serverId" to it.serverId.json(), "toolName" to it.toolName.json()).apply {
+                // MCP catalogs keep their former fingerprint; only plugin routes record the source.
+                if (it.source == ExternalSource.PLUGIN) addProperty("source", "plugin")
+            }) }
         }) } }.toString()
         Digests.sha256Hex(wire)
     }
@@ -121,9 +138,9 @@ class ToolPolicy(
     private val orderTerms = orderKeywords.map { GoalTerm(it.lowercase(Locale.ROOT)) }
     fun withAvailableTools(value: Set<String>) = ToolPolicy(enabled, ocrAvailable, overrides, keywords, paymentPackages, paymentKeywords,
         available?.intersect(value) ?: value, orderKeywords, visionAvailable)
-    /** Only locally selected, validated external specifications may extend the host's built-in set. */
+    /** Only locally selected or host-listed, validated external specifications may extend the host's built-in set. */
     fun withExternalTools(tools: List<ToolSpec>): ToolPolicy {
-        require(tools.all { it.external != null && it.group == ToolGroup.MCP })
+        require(tools.all { tool -> tool.external?.let { tool.group in it.source.groups } == true })
         return ToolPolicy(enabled, ocrAvailable, overrides, keywords, paymentPackages, paymentKeywords,
             available?.plus(tools.map { it.name }), orderKeywords, visionAvailable)
     }

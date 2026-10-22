@@ -238,6 +238,8 @@
     <string name="presets_group_memory">Mémoire des préférences</string>
     <string name="presets_group_observe">Observation de l\'écran</string>
     <string name="presets_group_ocr">Reconnaissance de texte (OCR)</string>
+    <string name="presets_group_plugin">Outils des modules</string>
+    <string name="presets_group_plugin_write">Outils des modules (écriture)</string>
     <string name="presets_group_script">Scripts enregistrés</string>
     <string name="presets_group_script_dynamic">Scripts générés</string>
     <string name="presets_group_shell">Commandes shell</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">Mentions tierces</string>
     <string name="settings_ocr_note">L\'OCR est disponible si ce groupe est activé et si l\'hôte détecte un module de reconnaissance autorisé.</string>
     <string name="settings_open_failed">Aucune application ne peut ouvrir ce lien.</string>
+    <string name="settings_plugin_tools_note">Les outils des modules viennent de modules activés et admis par AutoJs6. Les outils en lecture seule s\'exécutent directement; sauf en accès complet, chaque appel d\'un outil d\'écriture demande d\'abord une confirmation.</string>
     <string name="settings_policy_note">Les paramètres enregistrés concernent les nouvelles tâches. Les profils et les tâches peuvent seulement réduire ces limites; les autorisations de l\'hôte restent applicables.</string>
     <string name="settings_resident">Écoute permanente</string>
     <string name="settings_resident_charging">Écouter uniquement pendant la charge</string>

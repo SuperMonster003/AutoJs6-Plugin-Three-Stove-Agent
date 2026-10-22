@@ -43,7 +43,7 @@ class SettingsCodecTest {
     }
     @Test fun futureVersionsUnknownKeysWrongTypesAndOverBudgetFailClosed() {
         val valid = SettingsCodec.json(AgentSettings())
-        for ((key, value) in listOf("version" to 7.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
+        for ((key, value) in listOf("version" to 8.json(), "extra" to true.json(), "voice" to "true".json(), "floating" to "true".json(),
             "failureAlerts" to AgentJson.parse("[\"email\"]"), "failureAlerts" to AgentJson.parse("[\"toast\",\"toast\"]"),
             "completionAlerts" to AgentJson.parse("[\"email\"]"), "completionAlerts" to AgentJson.parse("[\"toast\",\"toast\"]"),
             "completionAlerts" to true.json(),
@@ -59,7 +59,7 @@ class SettingsCodecTest {
         val chosen = AgentSettings(riskPackages = setOf("com.example.pay", "org.bank.app_2"), riskKeywords = setOf("remit", "汇款", "Wire Money"))
         assertEquals(chosen, SettingsCodec.decode(SettingsCodec.encode(chosen)))
         val encoded = SettingsCodec.json(chosen)
-        assertEquals(6L, encoded.number("version")); assertEquals(listOf("com.example.pay", "org.bank.app_2"), encoded.getAsJsonArray("riskPackages").map { it.asString })
+        assertEquals(7L, encoded.number("version")); assertEquals(listOf("com.example.pay", "org.bank.app_2"), encoded.getAsJsonArray("riskPackages").map { it.asString })
         // Version 4 files carry no lists; decoding them never invents entries.
         val legacy = encoded.deepCopy().apply { addProperty("version", 4); remove("completionAlerts"); remove("riskPackages"); remove("riskKeywords") }
         assertEquals(chosen.copy(riskPackages = emptySet(), riskKeywords = emptySet()), SettingsCodec.decode(legacy.toString()))
@@ -76,7 +76,8 @@ class SettingsCodecTest {
         val legacy = SettingsCodec.json(chosen).apply {
             addProperty("version", 1); remove("floating"); remove("fullAccess"); remove("failureAlerts"); remove("completionAlerts"); remove("riskPackages"); remove("riskKeywords")
         }
-        assertEquals(chosen, SettingsCodec.decode(legacy.toString()))
+        // Read-only plugin tools arrive enabled with version 7 (D89); everything else is kept as chosen.
+        assertEquals(chosen.copy(toolGroups = setOf("observe", "plugin")), SettingsCodec.decode(legacy.toString()))
         assertFalse(SettingsCodec.decode(legacy.toString()).floating)
         assertEquals(AgentSettings.ALERT_CHANNELS, SettingsCodec.decode(legacy.toString()).failureAlerts)
         val alerted = chosen.copy(failureAlerts = setOf(AgentSettings.ALERT_TOAST, AgentSettings.ALERT_DIALOG))
@@ -87,6 +88,16 @@ class SettingsCodecTest {
         assertEquals(enabled, SettingsCodec.decode(SettingsCodec.encode(enabled)))
         reject { SettingsCodec.decode(legacy.deepCopy().apply { addProperty("floating", true) }.toString()) }
         reject { SettingsCodec.decode(SettingsCodec.json(chosen).apply { remove("floating") }.toString()) }
+    }
+    @Test fun version7EnablesReadOnlyPluginToolsOnceAndKeepsLaterChoices() {
+        val chosen = AgentSettings(toolGroups = setOf("observe", "mcp"), cautious = true)
+        val previous = SettingsCodec.json(chosen).apply { addProperty("version", 6) }
+        assertEquals(setOf("observe", "mcp", "plugin"), SettingsCodec.decode(previous.toString()).toolGroups)
+        assertTrue("plugin" in AgentSettings().toolGroups); assertFalse("plugin_write" in AgentSettings().toolGroups)
+        val withoutPlugins = chosen.copy(toolGroups = setOf("observe"))
+        assertEquals(withoutPlugins, SettingsCodec.decode(SettingsCodec.encode(withoutPlugins)))
+        val writing = chosen.copy(toolGroups = setOf("plugin_write"))
+        assertEquals(writing, SettingsCodec.decode(SettingsCodec.encode(writing)))
     }
     @Test fun settingsPersistAndRecoverBackupsWithoutReplacingCorruptFiles() {
         val file = File(temp.newFolder(), "settings.json"); val store = SettingsStore(file)
@@ -103,7 +114,7 @@ class SettingsCodecTest {
             val chosen = AgentSettings(failureAlerts = channels, toolGroups = setOf("observe"), cautious = true)
             val previous = SettingsCodec.json(chosen).apply { addProperty("version", 5); remove("completionAlerts") }
             val migrated = SettingsCodec.decode(previous.toString())
-            assertEquals(chosen, migrated)
+            assertEquals(chosen.copy(toolGroups = setOf("observe", "plugin")), migrated)
             assertEquals(AgentSettings.DEFAULT_COMPLETION_ALERTS, migrated.completionAlerts)
             val customized = migrated.copy(completionAlerts = emptySet())
             assertEquals(customized, SettingsCodec.decode(SettingsCodec.encode(customized)))
@@ -156,7 +167,7 @@ class SettingsCodecTest {
         assertEquals(7, start(7).options.limits.maxSteps)
     }
     @Test fun removingAnExplicitHostGroupRestrictionIsNotANarrowingUpdate() {
-        val previous = LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["observe","act","ocr","script","memory","user"]}}""")
+        val previous = LinkConfiguration.parse("""{"grantSummary":{"toolGroups":["observe","act","ocr","script","memory","user","plugin"]}}""")
         val unrestricted = LinkConfiguration.parse("{}")
         assertEquals(previous.groups, unrestricted.groups)
         assertFalse(unrestricted.narrows(previous))

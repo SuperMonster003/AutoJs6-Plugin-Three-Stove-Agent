@@ -238,6 +238,8 @@
     <string name="presets_group_memory">偏好記憶</string>
     <string name="presets_group_observe">螢幕觀察</string>
     <string name="presets_group_ocr">文字辨識 (OCR)</string>
+    <string name="presets_group_plugin">外掛工具</string>
+    <string name="presets_group_plugin_write">外掛工具 (寫入)</string>
     <string name="presets_group_script">已登記腳本</string>
     <string name="presets_group_script_dynamic">生成指令碼</string>
     <string name="presets_group_shell">Shell 命令</string>
@@ -377,6 +379,7 @@
     <string name="settings_notices">第三方聲明</string>
     <string name="settings_ocr_note">啟用 OCR 組後, 宿主偵測到已授權的辨識外掛時會自動提供 OCR.</string>
     <string name="settings_open_failed">沒有應用程式可以開啟此連結.</string>
+    <string name="settings_plugin_tools_note">外掛工具來自已啟用且被 AutoJs6 准入的外掛. 唯讀工具直接執行; 除完全存取外, 寫入組的工具每次呼叫前都要確認.</string>
     <string name="settings_policy_note">儲存的設定用於新任務. 預設和單次任務只能進一步收緊限制, 仍須遵守宿主權限.</string>
     <string name="settings_resident">常駐監聽</string>
     <string name="settings_resident_charging">只在充電時監聽</string>

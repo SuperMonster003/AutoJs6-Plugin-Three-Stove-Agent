@@ -7,6 +7,7 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.model.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.mcp.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.nodes.ObservationCapabilities
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.plugintools.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.runner.*
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.scripts.*
 import org.autojs.plugin.three.stove.agent.api.*
@@ -118,6 +119,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         val catalogLoading = AtomicReference<Cancellation>(Cancellation.NONE)
         val memoryLoading = AtomicReference<Cancellation>(Cancellation.NONE)
         val mcpLoading = AtomicReference<Cancellation>(Cancellation.NONE)
+        val pluginLoading = AtomicReference<Cancellation>(Cancellation.NONE)
         val external = AtomicReference<McpSnapshot?>(null)
         val cleanup = Cancellation { external.getAndSet(null)?.close?.cancel() }
         fun finish(value: PortResult<RunComponents>) {
@@ -131,12 +133,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
         try { workers.io.execute {
             if (stopped.get()) return@execute
             try {
-                val catalog = snapshot?.catalog ?: runtime.catalog
-                val prompts = if (snapshot == null) runtime.prompts else PromptCatalog(runtime::asset, catalog)
-                val catalogFallbacks = synchronized(fallbacks) { fallbacks.getOrPut(catalog.fingerprint) {
-                    if (fallbacks.size >= 32) fallbacks.remove(fallbacks.keys.first())
-                    SchemaFallbacks(DecisionSchema(catalog))
-                } }
+                val baseCatalog = snapshot?.catalog ?: runtime.catalog
                 val grant = remoteTools.brokerInfo
                 if (grant.hasFileDescriptors()) { AgentWire.closeDescriptors(grant); throw WireFailure(C.ERROR_INVALID_REQUEST) }
                 require(!grant.hasFileDescriptors() && grant.getInt(H.KEY_CONTRACT_VERSION) == H.CONTRACT_VERSION)
@@ -148,85 +145,106 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 val effectivePermissions = permissions.intersect(configuration.permissions ?: permissions)
                 val optional = grant.getStringArray(H.KEY_AVAILABLE_OPTIONAL_METHODS)?.also { values -> require(values.size <= 256 && values.all { it.length <= 128 }) }?.toSet().orEmpty()
                 val dynamicAvailable = DynamicScriptSource.available(optional, effectiveMethods, effectivePermissions)
-                val observationPolicy = basePolicy.withExternalTools(catalog.tools.filter { it.external != null })
+                fun observation(catalog: ToolCatalog) = basePolicy.withExternalTools(catalog.tools.filter { it.external != null })
                     .withOcrAvailability(ObservationCapabilities.ocrAvailable(optional, effectiveMethods, effectivePermissions))
                     .withAvailableTools(catalog.tools.filter { it.name != ToolNames.SCRIPT_RUN_SOURCE || dynamicAvailable }.map { it.name }.toSet())
-                val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, catalog,
+                val scriptPolicy = observation(baseCatalog)
+                val toolAdapter = BinderRunTools(remoteTools, ownerUid, workers, scheduler, baseCatalog,
                     { state == C.LINK_STATE_ATTACHED }, effectiveMethods, effectivePermissions, maxRequest, maxTimeout,
                     ScreenCaptureTransport(runtime.context, remoteTools, ownerUid, workers) { state == C.LINK_STATE_ATTACHED })
                 val catalogAllowed = "agent.listScripts" in methods && "agent" in permissions &&
                     configuration.methods?.contains("agent.listScripts") != false && configuration.permissions?.contains("agent") != false &&
-                    observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_CATALOG]))
+                    scriptPolicy.isEnabled(checkNotNull(baseCatalog[ToolNames.SCRIPT_CATALOG]))
                 val scriptTools = ScriptCatalogTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch), toolAdapter, catalogAllowed)
                 val scriptRunAllowed = catalogAllowed && listOf("agent.readManifest", "agent.execRegistered", "engines.stop").all {
                     it in methods && configuration.methods?.contains(it) != false
                 } && listOf("agent.exec", "engines", "engines.exec").all { it in permissions && configuration.permissions?.contains(it) != false } &&
-                    observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_RUN]))
+                    scriptPolicy.isEnabled(checkNotNull(baseCatalog[ToolNames.SCRIPT_RUN]))
                 val registeredTools = RegisteredScriptTools(scripts, request.scriptRoots, ScriptCatalogSource(toolAdapter::dispatch),
-                    scriptTools, DecisionValidator(catalog), scriptRunAllowed, scheduler::nowMs)
+                    scriptTools, DecisionValidator(baseCatalog), scriptRunAllowed, scheduler::nowMs)
                 val builtInTools = MemoryTools(runtime.memories, request.preset, request.memoryScope, runId, { state == C.LINK_STATE_ATTACHED },
                     DynamicScriptTools(ScriptExecutionTools(registeredTools, ScriptInvoker(ScriptCatalogSource(toolAdapter::dispatch), runId, request.preset)),
-                        ScriptCatalogSource(toolAdapter::dispatch), dynamicAvailable && observationPolicy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_RUN_SOURCE])),
+                        ScriptCatalogSource(toolAdapter::dispatch), dynamicAvailable && scriptPolicy.isEnabled(checkNotNull(baseCatalog[ToolNames.SCRIPT_RUN_SOURCE])),
                         runId, request.preset, maxTimeout))
-                val executionTools = snapshot?.wrap(builtInTools) ?: builtInTools
-                if (stopped.get()) return@execute
-                val handle = model.select(request.target) { outcome ->
-                    when (outcome) {
-                        is PortResult.Failure -> finish(outcome)
-                        is PortResult.Success -> try {
-                            val selected = outcome.value
-                            modelName = selected.displayName
-                            runCatching { archive.model(runId(), selected) }
-                            val original = selected.target
-                            val policy = observationPolicy.withVisionAvailability(original.vision != null && Build.VERSION.SDK_INT >= 30 &&
-                                "accessibility.screenshot" in effectiveMethods && effectivePermissions.containsAll(listOf("accessibility", "screen_capture")))
-                            val schema = catalogFallbacks.select(original.schemaTarget, policy)
-                            val target = if ((schema.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0) <= selected.maximumSchemaBytes) original
-                                else ModelTarget(original.providerId, original.targetId, original.locality, original.protocol, false,
-                                    original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools, original.vision)
-                            val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
-                                target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, target.vision,
-                                request.groups.sorted(), policy.ocrAvailable, policy.visionAvailable, dynamicAvailable, catalog.fingerprint).toString()
-                            val client = synchronized(clients) {
-                                clients.getOrPut(key) {
-                                    if (clients.size >= 32) clients.remove(clients.keys.first())
-                                    ModelClient(model, target, policy, catalogFallbacks, scheduler)
-                                }
-                            }
-                            val format = client.initialFormat(request.options.format)
-                            fun compiled(presentation: ScriptPresentation?) {
-                                if (stopped.get()) return
-                                val memoryCall = runtime.memories.snapshot(request.preset, request.memory, request.memoryScope) { memory ->
-                                    if (stopped.get()) return@snapshot
-                                    try { finish(PortResult.Success(RunComponents(
-                                        ContextCompiler(prompts, catalog, policy, target, format,
-                                            ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
-                                            memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
-                                            memoryUnavailable = memory.unavailable, memoryScopes = if ("memory" !in request.groups) emptyList() else when (request.memoryScope) {
-                                                "global_and_preset" -> listOf("global", request.preset)
-                                                "global" -> listOf("global")
-                                                "preset" -> listOf(request.preset)
-                                                else -> emptyList()
-                                            }), client, executionTools, selected.maximumTokens, policy, catalog, cleanup))) }
-                                    catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
-                                }
-                                memoryLoading.set(memoryCall); if (stopped.get()) memoryCall.cancel()
-                            }
-                            if (!policy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_CATALOG]))) compiled(null)
-                            else {
-                                val catalogCall = scriptTools.present(request.options.goal, false, true, minOf(5000, maxTimeout)) { result ->
-                                    when (result) {
-                                        is PortResult.Success -> compiled(result.value)
-                                        is PortResult.Failure -> if (result.error.hostLost) finish(result)
-                                            else compiled(ScriptPresentation.unavailable(result.error.name))
+                val mcpTools = snapshot?.wrap(builtInTools) ?: builtInTools
+                // D85: plugin tools join after MCP; a failed or late listing only leaves this task without them.
+                fun assemble(plugins: PluginToolSnapshot?) {
+                    if (stopped.get()) return
+                    try {
+                        val catalog = plugins?.catalog ?: baseCatalog
+                        val prompts = if (catalog === runtime.catalog) runtime.prompts else PromptCatalog(runtime::asset, catalog)
+                        val catalogFallbacks = synchronized(fallbacks) { fallbacks.getOrPut(catalog.fingerprint) {
+                            if (fallbacks.size >= 32) fallbacks.remove(fallbacks.keys.first())
+                            SchemaFallbacks(DecisionSchema(catalog))
+                        } }
+                        val observationPolicy = observation(catalog)
+                        val executionTools = plugins?.wrap(mcpTools) ?: mcpTools
+                        val handle = model.select(request.target) { outcome ->
+                            when (outcome) {
+                                is PortResult.Failure -> finish(outcome)
+                                is PortResult.Success -> try {
+                                    val selected = outcome.value
+                                    modelName = selected.displayName
+                                    runCatching { archive.model(runId(), selected) }
+                                    val original = selected.target
+                                    val policy = observationPolicy.withVisionAvailability(original.vision != null && Build.VERSION.SDK_INT >= 30 &&
+                                        "accessibility.screenshot" in effectiveMethods && effectivePermissions.containsAll(listOf("accessibility", "screen_capture")))
+                                    val schema = catalogFallbacks.select(original.schemaTarget, policy)
+                                    val target = if ((schema.responseSchemaJson?.toByteArray(Charsets.UTF_8)?.size ?: 0) <= selected.maximumSchemaBytes) original
+                                        else ModelTarget(original.providerId, original.targetId, original.locality, original.protocol, false,
+                                            original.maximumContextBytes, original.maximumOutputBytes, original.supportsStreaming, original.supportsOutputLimit, original.nativeTools, original.vision)
+                                    val key = listOf(target.providerId, target.targetId, target.locality, target.structuredJson, target.maximumContextBytes,
+                                        target.maximumOutputBytes, target.supportsOutputLimit, target.supportsStreaming, target.nativeTools, target.vision,
+                                        request.groups.sorted(), policy.ocrAvailable, policy.visionAvailable, dynamicAvailable, catalog.fingerprint).toString()
+                                    val client = synchronized(clients) {
+                                        clients.getOrPut(key) {
+                                            if (clients.size >= 32) clients.remove(clients.keys.first())
+                                            ModelClient(model, target, policy, catalogFallbacks, scheduler)
+                                        }
                                     }
-                                }
-                                catalogLoading.set(catalogCall); if (stopped.get()) catalogCall.cancel()
+                                    val format = client.initialFormat(request.options.format)
+                                    fun compiled(presentation: ScriptPresentation?) {
+                                        if (stopped.get()) return
+                                        val memoryCall = runtime.memories.snapshot(request.preset, request.memory, request.memoryScope) { memory ->
+                                            if (stopped.get()) return@snapshot
+                                            try { finish(PortResult.Success(RunComponents(
+                                                ContextCompiler(prompts, catalog, policy, target, format,
+                                                    ContextLimits(grantMaximumBytes = minOf(configuration.maxInput, selected.maximumInputBytes)), request.context,
+                                                    memories = memory.entries, scripts = presentation, memoryTruncated = memory.truncated,
+                                                    memoryUnavailable = memory.unavailable, memoryScopes = if ("memory" !in request.groups) emptyList() else when (request.memoryScope) {
+                                                        "global_and_preset" -> listOf("global", request.preset)
+                                                        "global" -> listOf("global")
+                                                        "preset" -> listOf(request.preset)
+                                                        else -> emptyList()
+                                                    }), client, executionTools, selected.maximumTokens, policy, catalog, cleanup))) }
+                                            catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
+                                        }
+                                        memoryLoading.set(memoryCall); if (stopped.get()) memoryCall.cancel()
+                                    }
+                                    if (!policy.isEnabled(checkNotNull(catalog[ToolNames.SCRIPT_CATALOG]))) compiled(null)
+                                    else {
+                                        val catalogCall = scriptTools.present(request.options.goal, false, true, minOf(5000, maxTimeout)) { result ->
+                                            when (result) {
+                                                is PortResult.Success -> compiled(result.value)
+                                                is PortResult.Failure -> if (result.error.hostLost) finish(result)
+                                                    else compiled(ScriptPresentation.unavailable(result.error.name))
+                                            }
+                                        }
+                                        catalogLoading.set(catalogCall); if (stopped.get()) catalogCall.cancel()
+                                    }
+                                } catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
                             }
-                        } catch (_: Exception) { finish(PortResult.Failure(RunError.INVALID_REQUEST)) }
-                    }
+                        }
+                        selecting.set(handle); if (stopped.get()) handle.cancel()
+                    } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
                 }
-                selecting.set(handle); if (stopped.get()) handle.cancel()
+                if (!PluginToolSource.admitted(request.groups, effectiveMethods, effectivePermissions)) assemble(null)
+                else {
+                    val listing = PluginToolSource(PluginToolBridge(toolAdapter::exchange), scheduler).prepare(baseCatalog, basePolicy, maxTimeout) { plugins ->
+                        try { workers.io.execute { assemble(plugins) } } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
+                    }
+                    pluginLoading.set(listing); if (stopped.get()) listing.cancel()
+                }
             } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         } } catch (_: Exception) { finish(PortResult.Failure(RunError.HOST_UNAVAILABLE)) }
         }
@@ -246,7 +264,7 @@ internal class HostLink(private val runtime: AgentRuntime, initialConfig: LinkCo
                 }, { finish(PortResult.Failure(RunError.TOOL_FAILED, mcpReason = "MCP_UNAVAILABLE")) })
             }
         }
-        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel(); memoryLoading.get().cancel(); mcpLoading.get().cancel(); cleanup.cancel() }
+        Cancellation { stopped.set(true); foreground.cancel(); selecting.get().cancel(); catalogLoading.get().cancel(); memoryLoading.get().cancel(); mcpLoading.get().cancel(); pluginLoading.get().cancel(); cleanup.cancel() }
     }
     @Synchronized private fun start(json: String, callback: IThreeStoveAgentRunCallback?, pluginUi: Boolean): Bundle {
         val configuration = config

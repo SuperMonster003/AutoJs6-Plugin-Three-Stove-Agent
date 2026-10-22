@@ -351,8 +351,12 @@ class AgentRunner internal constructor(
         if (!checkNotNull(catalog[prepared.invocation.name]).readOnlyHint) observationImages = emptyList()
         if (prepared.invocation.name == ToolNames.SCREEN_CAPTURE && nativeResults.sumOf { it.images.size } >= 4) throw ContextLimitExceeded()
         val b = checkNotNull(budget)
-        // An inspection cannot smuggle a longer non-script operation through script metadata.
-        val scriptTimeout = if (prepared.invocation.name in setOf(ToolNames.SCRIPT_RUN, ToolNames.SCRIPT_RUN_SOURCE)) prepared.metadata.scriptTimeoutMs else null
+        // An inspection cannot smuggle a longer operation through script or plugin metadata of another tool.
+        val scriptTimeout = when {
+            prepared.invocation.name in setOf(ToolNames.SCRIPT_RUN, ToolNames.SCRIPT_RUN_SOURCE) -> prepared.metadata.scriptTimeoutMs
+            catalog[prepared.invocation.name]?.external?.source == ExternalSource.PLUGIN -> prepared.metadata.pluginTimeoutMs
+            else -> null
+        }
         val timeout = b.toolTimeout(scriptTimeout)
         if (prepared.invocation.name == ToolNames.REPORT_PROGRESS) {
             emit("progress", jsonObject("step" to b.steps.json(), "message" to (prepared.invocation.arguments["message"] ?: "".json()), "budget" to b.remainingJson()))

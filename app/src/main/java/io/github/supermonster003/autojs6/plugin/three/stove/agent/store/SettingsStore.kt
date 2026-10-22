@@ -47,7 +47,7 @@ internal object SettingsCodec {
     fun decode(text: String): AgentSettings {
         val root = AgentJson.objectOf(text, MAX_BYTES)
         val version = requireNotNull(root.number("version"))
-        require(version in 1L..6L)
+        require(version in 1L..7L)
         require(root.keySet() == setOf("version", "toolGroups", "budget", "cautious", "voice") +
             (if (version >= 2L) setOf("floating") else emptySet()) +
             (if (version >= 3L) setOf("fullAccess") else emptySet()) +
@@ -58,6 +58,8 @@ internal object SettingsCodec {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }
         require(groups.toSet().size == groups.size && groups.all { id -> ToolGroup.entries.any { it.id == id } })
+        // Version 7 adds the plugin tool groups; read-only plugin tools start enabled for existing users too (D84 / D89).
+        val upgradedGroups = if (version <= 6L) groups.toSet() + ToolGroup.PLUGIN.id else groups.toSet()
         val budget = requireNotNull(root["budget"]?.takeIf { it.isJsonObject }?.asJsonObject)
         val limits = budget.keySet().associateWith { key ->
             val ceiling = requireNotNull(ceilings[key]); requireNotNull(runCatching { budget.number(key) }.getOrNull()).also { require(it in 1..ceiling) }
@@ -71,11 +73,11 @@ internal object SettingsCodec {
         fun strings(key: String): Set<String> = if (version < 5L) emptySet() else requireNotNull(root[key]?.takeIf { it.isJsonArray }?.asJsonArray).map {
             require(it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString
         }.also { require(it.toSet().size == it.size) }.toSet()
-        return AgentSettings(groups.toSet(), limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
+        return AgentSettings(upgradedGroups, limits, requireNotNull(root.flag("cautious")), requireNotNull(root.flag("voice")),
             if (version >= 2L) requireNotNull(root.flag("floating")) else false,
             if (version >= 3L) requireNotNull(root.flag("fullAccess")) else false, alerts, strings("riskPackages"), strings("riskKeywords"), completionAlerts)
     }
-    fun json(value: AgentSettings) = jsonObject("version" to 6.json(), "toolGroups" to JsonArray().apply {
+    fun json(value: AgentSettings) = jsonObject("version" to 7.json(), "toolGroups" to JsonArray().apply {
         value.toolGroups.sorted().forEach(::add)
     }, "budget" to JsonObject().apply { value.budget.forEach { (key, number) -> addProperty(key, number) } },
         "cautious" to value.cautious.json(), "voice" to value.voice.json(), "floating" to value.floating.json(), "fullAccess" to value.fullAccess.json(),

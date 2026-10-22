@@ -14,7 +14,8 @@ internal object ToolPresentation {
         ToolGroup.GESTURE to R.string.presets_group_gesture, ToolGroup.OCR to R.string.presets_group_ocr, ToolGroup.SCRIPT to R.string.presets_group_script,
         ToolGroup.SCRIPT_DYNAMIC to R.string.presets_group_script_dynamic, ToolGroup.MCP to R.string.presets_group_mcp,
         ToolGroup.FILES to R.string.presets_group_files, ToolGroup.SHELL to R.string.presets_group_shell, ToolGroup.MEMORY to R.string.presets_group_memory,
-        ToolGroup.USER to R.string.presets_group_user)
+        ToolGroup.USER to R.string.presets_group_user, ToolGroup.PLUGIN to R.string.presets_group_plugin,
+        ToolGroup.PLUGIN_WRITE to R.string.presets_group_plugin_write)
 
     @Volatile private var catalog: ToolCatalog? = null
 

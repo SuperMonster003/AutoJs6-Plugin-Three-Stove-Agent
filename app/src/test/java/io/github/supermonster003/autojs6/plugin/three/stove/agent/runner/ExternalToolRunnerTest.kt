@@ -22,16 +22,34 @@ class ExternalToolRunnerTest {
     private val catalog = F.catalog().withExternal(listOf(tool))
     private val policy = ToolPolicy(enabledGroups = ToolGroup.entries.associateWith { it == ToolGroup.MCP })
     private val format = DecisionSchema.degraded()
-    private fun components(f: RunnerFixture, cleanup: Cancellation = Cancellation.NONE): RunComponents {
+    private val pluginTool = ToolSpec.external("speech_listen", "Untrusted plugin tool", AgentJson.objectOf("{\"type\":\"object\"}"),
+        RiskLevel.READ_ONLY, ExternalToolRoute("org.example.speech", "speech_listen", ExternalSource.PLUGIN), ToolGroup.PLUGIN)
+    private fun components(f: RunnerFixture, cleanup: Cancellation = Cancellation.NONE, catalog: ToolCatalog = this.catalog,
+                           policy: ToolPolicy = this.policy): RunComponents {
         val target = ModelTarget("fixture", "fixture:remote", ModelLocality.REMOTE, ModelProtocol.UNKNOWN, false, 128 * 1024)
         val compiler = ContextCompiler(PromptCatalog(F::asset, catalog), catalog, policy, target, format)
         val model = object : RunModel by f.model { override fun initialFormat(proposed: DecisionFormat) = format }
         return RunComponents(compiler, model, f.tools, policy = policy, catalog = catalog, cleanup = cleanup)
     }
-    private fun start(f: RunnerFixture, limits: BudgetLimits = BudgetLimits(), cleanup: Cancellation = Cancellation.NONE): AgentRunner =
+    private fun start(f: RunnerFixture, limits: BudgetLimits = BudgetLimits(), cleanup: Cancellation = Cancellation.NONE,
+                      catalog: ToolCatalog = this.catalog, policy: ToolPolicy = this.policy): AgentRunner =
         f.queue.submitPrepared(f.options(limits), ToolPolicy(), RunPreparation { callback ->
-            callback(PortResult.Success(components(f, cleanup))); Cancellation.NONE
+            callback(PortResult.Success(components(f, cleanup, catalog, policy))); Cancellation.NONE
         }, listener = f.events::add).also { f.scheduler.drain() }
+
+    @Test fun onlyPluginRoutesMayExtendTheStepLimitThroughPluginMetadata() {
+        val plugins = F.catalog().withExternal(listOf(tool, pluginTool))
+        val enabled = ToolPolicy(enabledGroups = ToolGroup.entries.associateWith { it == ToolGroup.MCP || it == ToolGroup.PLUGIN })
+        for ((name, expected) in listOf(pluginTool.name to 50L, tool.name to 5L)) {
+            val f = RunnerFixture(); f.tools.autoExecute = false
+            f.tools.metadata = { ToolMetadata(pluginTimeoutMs = 50) }
+            f.enqueue(RunnerFixture.tool(name))
+            val run = start(f, BudgetLimits(stepToolTimeoutMs = 5), catalog = plugins, policy = enabled)
+            if (name == tool.name) { run.confirm(f.request("confirmation"), true); f.scheduler.drain() }
+            assertEquals(name, expected, f.tools.timeouts.single())
+            run.cancel(); f.scheduler.drain()
+        }
+    }
 
     @Test fun preparationInstallsTheSameCatalogForPromptValidationRoutingAndSensitiveConfirmation() {
         val f = RunnerFixture(); var closes = 0

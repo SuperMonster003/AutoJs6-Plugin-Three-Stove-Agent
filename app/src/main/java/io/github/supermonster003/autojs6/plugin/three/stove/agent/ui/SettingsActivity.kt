@@ -222,6 +222,7 @@ class SettingsActivity : HostAppearanceActivity() {
             groupRows[group.id] = row; handle.content.addView(row.view)
         }
         handle.content.addView(kit.pageCaption(getString(R.string.settings_ocr_note)))
+        handle.content.addView(kit.pageCaption(getString(R.string.settings_plugin_tools_note)))
         sheet = handle
     }
     internal fun limits() {
