@@ -1,6 +1,6 @@
 # AutoJs6 3-Stove Agent 插件 Roadmap
 
-2026-10-22 Node.js/Bun/Worker 接口配套: AutoJs6 build 5850 提供 ai.agent 的异步运行时封装和注册脚本通道. 独立签名应用在 AutoJs6 中明确授权后, 通过原宿主的模型/设备代理使用现有任务循环; 本插件不增加对外入口, 不改变签名校验, 工具确认或预算. 1.3.0/build 426 同步十语言使用说明和日志. 本批 Xiaomi 验证与恢复完成前不增加验收结论; 记录由宿主 runtime-ai-agent 报告汇总, 不推送或发布.
+2026-10-22 Node.js/Bun/Worker 接口配套: AutoJs6 build 5850 提供 ai.agent 的异步运行时封装和注册脚本通道. 独立签名应用在 AutoJs6 中明确授权后, 通过原宿主的模型/设备代理使用现有任务循环; 本插件不增加对外入口, 不改变签名校验, 工具确认或预算. 固定 1.3.0/build 426 在 Xiaomi/API 35 配套通过 58 项设备测试, 12 次独立签名应用启动与 9 份成功模型结果. 首次模型未给出完成证据时 EVIDENCE_MISSING 正确降为 partial, 测试提示明确证据后宿主 8/8 通过; 原生规则保持不变. 全部 36 个带批次标记的任务 (含失败/重跑) 已核对, 原有 13 份 Agent 私有文件及宿主/AI/模型/系统状态均已恢复. Redmi 未操作, 未运行会清除通知的插件专用测试 runner. 证据见宿主 runtime-ai-agent 报告, 不推送或发布.
 
 本文是 `AutoJs6-Plugin-AI-Agent` (2026-09-27 起仓库与应用更名为 `AutoJs6-Plugin-Three-Stove-Agent` / Three Stove Agent, 见 D50, 显示名后按 Three 系列规则写作 3-Stove Agent; 下文历史记录保留旧名) (自然语言驱动的任务执行 Agent: 用户一句话描述目标, Agent 借助 AI 模型选择并调用已登记脚本, 或基于无障碍界面逐步观察 / 操作 / 校验, 直到目标达成或需要用户补充信息; 既作为 AutoJs6 插件为脚本提供 `ai.agent` API, 也作为带独立界面的应用供用户直接使用) 的可执行状态表.
 以 2026-09-22 的宿主本地代码快照 (`AutoJs6 master@9734471336`, `VERSION_NAME=6.8.0`, `VERSION_BUILD=5282`),
