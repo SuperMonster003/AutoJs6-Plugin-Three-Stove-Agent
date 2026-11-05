@@ -878,7 +878,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (插件) P22.2 `AttachReply.opensHost(reply, byUser)`: 只有用户点 "连接 AutoJs6" (`requestAttachment(byUser = true)`) 且回复为 `NotReached` 时为 true; `LauncherActivity.onAttachReply` 在任务台处于前台 (RESUMED) 时调用 `openHost()` 并记下是否成功打开. 横幅在已打开 AutoJs6 时改用新文案 `launcher_link_opened_host` (11 个 values 目录, ASCII 标点), 其余回复的文案不变; 自动连接 (`byUser = false`) 的行为与 1.4.0 相同. (SOURCE: 本条提交)
 - [x] (测试) P22.3 JVM: `AttachReplyTest` 删去 "镜像常量与宿主一致" 一项 (常量已直接引用), 改用 `ThreeStoveAgentContract.UNAVAILABLE_REASONS` 遍历原因, 加 "只有点连接且未送达才打开 AutoJs6" 与 "打开后只换未送达的文案" 两项, 共 7 项. (TEST: 2026-11-05 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 一次通过, 版本信息段 1 段; 105 类 726 例 0 失败 (跳过 1 例为原有的 `StepPerformanceTest`), `AttachReplyTest` 7 例, `ApplicationTextPunctuationTest` 通过)
 - [x] (文档) P22.4 changelog v1.4.1 (10 语言, 日期 2026/11/05): improvement 一条 (点 "连接 AutoJs6" 未送达时自动打开 AutoJs6, 自动连接不跳转, 需要 AutoJs6 6.8.1), dependency 一条 (升级 three-stove-agent-api 本地模块); `VERSION_NAME` 1.4.1; 生成器重新生成 36 个产物, `--check` 通过. (SOURCE: 本条提交)
-- [ ] (真机) P22.5 OPD2413 (ColorOS 15) 上用 6.8.1 debug 宿主: AutoJs6 进程不在时点 "连接 AutoJs6" 跳到 AutoJs6 并连上; 进程在时点连接不跳转并连上; 打开任务台时的自动连接不跳转. 见宿主 feedback-680 P3.6 证据.
+- [x] (真机) P22.5 OPD2413 (ColorOS 15) 上用 6.8.1 debug 宿主: AutoJs6 进程不在时点 "连接 AutoJs6" 跳到 AutoJs6 并连上; 进程在时点连接不跳转并连上; 打开任务台时的自动连接不跳转. 见宿主 feedback-680 P3.6 证据. 完成 (2026-11-05, 宿主 6640 + build 443): 两轮 PASS, 进程不在时点连接 0.1-0.3 s 切到 AutoJs6 MainActivity 并连上, 进程在后台时观察 10-11 s 不跳转并连上, 自动连接不跳转 (被 ColorOS 拦下时显示 not_reached 横幅); 两个应用的 "自动启动" / "关联启动" 均为关闭, 未改动; 证据 宿主 `docs/feedback-680/evidence/p3.6-OPD2413-6640-2026-11-05.md` (宿主 `728d905ecb`), 复测脚本 `tools/feedback-680/device_stove_attach_check.py` 的 `tap-killed` / `tap-running` 场景.
 - [ ] (发布) P22.6 1.4.1 发版并登记官方索引 (维护者决定时机; 新行为需要宿主 6.8.1, 旧宿主上与 1.4.0 相同).
 
 验收条件: 插件单测通过; 真机两种进程状态下点连接的跳转与连接结果符合上面的描述; 旧宿主上行为与 1.4.0 相同.
@@ -2243,4 +2243,5 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 
 - 来源: 维护者把宿主 feedback-680 的 Q13 / Q23 改为 B, 由调度会话 local_e8c63a4e 分给子会话 feedback-680-stove; 1.4.0 已于当天发布, 本节进 1.4.1 (宿主 feedback-680 Q45 = A, 按推荐先行).
 - 决定: 回复常量直接引用重放后的 `three-stove-agent-api.aar` (宿主 `c8f814c5de`), 取代 P21.1 的字面量镜像; 只有用户点 "连接 AutoJs6" 且请求没有送达时才前台打开 AutoJs6, 自动连接不跳转.
-- 剩余: P22.5 真机 (OPD2413); 不推送, 不打 tag, 不发版 (P22.6 由维护者决定).
+- 真机: P22.5 已在 OPD2413 上通过 (宿主 6640 + build 443, 见宿主 `728d905ecb` 的 p3.6 证据); 配旧宿主 5935 时不会打开 AutoJs6 (旧宿主不回复, 判为 Unknown), 由单测覆盖, 未上真机.
+- 剩余: 不推送, 不打 tag, 不发版 (P22.6 由维护者决定).
