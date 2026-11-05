@@ -23,8 +23,12 @@ internal class ConnectionBanner(private val kit: Kit, onConnect: () -> Unit, onO
         banner.actions.addView(connect, LinearLayout.LayoutParams(-2, -2).apply { marginStart = kit.dp(Ui.SPACE_SM) })
     }
 
-    /** [reply] is what AutoJs6 answered to the last attach request; it picks the advice once the request timed out. */
-    fun render(presence: HostPresence, host: HostPackageSnapshot?, stage: LinkStage, requiredVersion: Long, reply: AttachReply = AttachReply.Unknown) {
+    /**
+     * [reply] is what AutoJs6 answered to the last attach request; it picks the advice once the request timed out.
+     * [openedHost] is whether the workbench opened AutoJs6 to finish an undelivered request.
+     */
+    fun render(presence: HostPresence, host: HostPackageSnapshot?, stage: LinkStage, requiredVersion: Long,
+               reply: AttachReply = AttachReply.Unknown, openedHost: Boolean = false) {
         if (presence == HostPresence.READY && stage == LinkStage.ATTACHED) { banner.hide(); return }
         val (text, tone) = when (presence) {
             HostPresence.MISSING -> kit.string(R.string.launcher_host_missing, requiredVersion) to Tone.WARNING
@@ -35,7 +39,7 @@ internal class ConnectionBanner(private val kit: Kit, onConnect: () -> Unit, onO
                 LinkStage.ROOTS_REJECTED -> kit.string(R.string.script_roots_rejected) to Tone.WARNING
                 LinkStage.TIMED_OUT -> when (reply) {
                     is AttachReply.Unavailable -> kit.string(AttachReply.message(reply), reply.reason, kit.string(AttachReply.step(reply.reason)))
-                    else -> kit.string(AttachReply.message(reply))
+                    else -> kit.string(AttachReply.message(reply, openedHost))
                 } to Tone.WARNING
                 else -> kit.string(R.string.launcher_host_ready, host!!.versionName, host.versionCode) to Tone.NEUTRAL
             }

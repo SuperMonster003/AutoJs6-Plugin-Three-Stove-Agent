@@ -2,6 +2,8 @@ package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
 import androidx.annotation.StringRes
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentActions as A
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract as C
 
 /**
  * What AutoJs6 answered to the last attach request (feedback-680 P3.3). Hosts since 6.8.1 answer an
@@ -25,27 +27,29 @@ internal sealed interface AttachReply {
     val final: Boolean get() = this is Unavailable || this == NotReached
 
     companion object {
-        // Mirrors of ThreeStoveAgentActions and ThreeStoveAgentContract in AutoJs6 6.8.1 (host 8e3dfa3237). The
-        // bundled three-stove-agent-api.aar predates them (feedback-680 Q13); AttachReplyTest pins the values.
+        /** The result code the ordered broadcast starts with; the host replaces it with [A.ATTACH_RESULT_ANSWERED]. */
         const val RESULT_INITIAL = 0
-        const val RESULT_ANSWERED = 1
-        const val REPLY_ACCEPTED = "ACCEPTED"
-        const val META_ATTACH_REPLY = "org.autojs.autojs6.meta.THREE_STOVE_AGENT_ATTACH_REPLY"
-        val REASONS = setOf("NOT_INSTALLED", "NOT_TRUSTED", "DISABLED", "NOT_ACTIVATED", "INCOMPATIBLE", "NO_RESPONSE", "REQUEST_DROPPED")
 
-        /** Reads the result of an ordered attach broadcast; [hostAnswers] is whether the host declares [META_ATTACH_REPLY]. */
+        /** Reads the result of an ordered attach broadcast; [hostAnswers] is whether the host declares [A.META_ATTACH_REPLY]. */
         fun of(hostAnswers: Boolean, resultCode: Int, data: String?): AttachReply = when {
-            resultCode == RESULT_ANSWERED && data == REPLY_ACCEPTED -> Accepted
-            resultCode == RESULT_ANSWERED && data != null && data in REASONS -> Unavailable(data)
+            resultCode == A.ATTACH_RESULT_ANSWERED && data == A.ATTACH_REPLY_ACCEPTED -> Accepted
+            resultCode == A.ATTACH_RESULT_ANSWERED && data != null && data in C.UNAVAILABLE_REASONS -> Unavailable(data)
             resultCode == RESULT_INITIAL && hostAnswers -> NotReached
             else -> Unknown
         }
 
-        /** The banner text once the request ended without a link. */
+        /**
+         * Whether the workbench opens AutoJs6 to finish the connection (feedback-680 P3.6): only after the user
+         * tapped Connect and the system did not deliver the request; the automatic request on start never leaves
+         * the workbench.
+         */
+        fun opensHost(reply: AttachReply, byUser: Boolean): Boolean = byUser && reply == NotReached
+
+        /** The banner text once the request ended without a link; [openedHost] is whether AutoJs6 was opened for it. */
         @StringRes
-        fun message(reply: AttachReply): Int = when (reply) {
+        fun message(reply: AttachReply, openedHost: Boolean = false): Int = when (reply) {
             is Unavailable -> R.string.launcher_link_failed
-            NotReached -> R.string.launcher_link_not_reached
+            NotReached -> if (openedHost) R.string.launcher_link_opened_host else R.string.launcher_link_not_reached
             Accepted -> R.string.launcher_link_timeout_accepted
             Unknown -> R.string.launcher_link_timeout
         }
@@ -53,11 +57,11 @@ internal sealed interface AttachReply {
         /** The next step for a host reason, shown after it in [R.string.launcher_link_failed]. */
         @StringRes
         fun step(reason: String): Int = when (reason) {
-            "NOT_INSTALLED" -> R.string.launcher_link_step_not_installed
-            "NOT_TRUSTED" -> R.string.launcher_link_step_not_trusted
-            "DISABLED" -> R.string.launcher_link_step_disabled
-            "INCOMPATIBLE" -> R.string.launcher_link_step_incompatible
-            "REQUEST_DROPPED" -> R.string.launcher_link_step_request_dropped
+            C.UNAVAILABLE_REASON_NOT_INSTALLED -> R.string.launcher_link_step_not_installed
+            C.UNAVAILABLE_REASON_NOT_TRUSTED -> R.string.launcher_link_step_not_trusted
+            C.UNAVAILABLE_REASON_DISABLED -> R.string.launcher_link_step_disabled
+            C.UNAVAILABLE_REASON_INCOMPATIBLE -> R.string.launcher_link_step_incompatible
+            C.UNAVAILABLE_REASON_REQUEST_DROPPED -> R.string.launcher_link_step_request_dropped
             else -> R.string.launcher_link_step_no_response
         }
     }

@@ -325,6 +325,8 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P18 (1.3.0) | 插件工具: 经宿主 `plugin_tools` 把插件自述的工具注入任务目录 (D83-D90) | 插件 | 宿主 21117c789 (本地); 3-Macaw Speech P7.6 |
 | P19 (1.3.0) | 本机模型输入预算 (Q15): 超限详情, 真机定位, 压缩本机提示词或按目标收窄默认分组, D91 真机复核 | 插件 | P18; 3-Stone AI 本机目标 |
 | P20 (1.4.0) | 设置随 AutoJs6 导出与导入: 宿主 settings 契约 v1 的 provider, 设置 / 外观 / MCP 服务器三个 store, 含 MCP 令牌时 sensitive (D93-D96) | 插件 | 宿主 8fe6d154f9 (common-plugin-api 1.1.0); 宿主 settings P18.3 |
+| P21 (1.4.0) | 连接失败的原因与下一步: 读宿主 6.8.1 的有序广播回复, 横幅给出原因与下一步 | 插件 | 宿主 feedback-680 P3.2 / P3.3 |
+| P22 (1.4.1) | 点 "连接" 未送达时打开 AutoJs6; three-stove-agent-api 重放, 直接引用回复常量 | 插件 | 宿主 c8f814c5de; 宿主 feedback-680 P3.5 / P3.6 |
 
 当前验收状态 (2026-09-29): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). v1.2.0 已于 2026-09-28 发布 (P12), 1.3.0 为开发候选: P13 的风险识别配置, 预设导入导出, 观察工具补齐与任务结果分享已落地, 计划模式与 MCP 目录变更复核已实现但各缺一项真机 / 真实服务器证据, 其余为在线协议, 视觉, 语音与 ColorOS 的真机验收; 维护者体验反馈见 P14-P16. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
@@ -867,6 +869,19 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (插件) P21.6 按 P21.5 的真机结论修订 4 条提示 (11 个 values 目录): ColorOS 上给两个应用打开 "自动启动" 与 "关联启动" 都拦不住 (宿主进程不在时广播照样被拦), 有效的是 AutoJs6 留在后台运行或点横幅的 "打开 AutoJs6" (前台启动 Activity 不受限). `launcher_link_not_reached` / `launcher_link_timeout` 去掉 "允许关联启动 / 自启动", 改为说明系统不允许其他应用在后台启动 AutoJs6 并指向 "打开 AutoJs6"; `launcher_link_timeout_accepted` / `launcher_link_step_no_response` (宿主已收到请求但连不上插件服务) 改为重新连接, 仍不行时重启两个应用或更新. changelog v1.4.0 的 improvement 同步改写 (10 语言). (SOURCE: 本条提交) (TEST: 隔离克隆 (HEAD `e19f6861` + 本条改动) `ApplicationTextPunctuationTest` 与 `AttachReplyTest`, `assembleDebug`, `lintDebug`; `generate_markdown.py --check` 通过)
 
 验收条件: 插件单测通过; 真机两种状态的横幅文案与原因一致; 旧宿主上横幅与 1.3.0 相同的位置显示通用提示.
+
+## P22 (1.4.1): 点 "连接" 未送达时打开 AutoJs6, three-stove-agent-api 重放 (宿主 feedback-680 P3.5 / P3.6)
+
+目标: 维护者把宿主 feedback-680 的 Q13 与 Q23 改为 B (2026-11-05). Q13 = B: 不再以字面量镜像宿主的连接回复常量, 改为重放 `three-stove-agent-api.aar` 并直接引用其中的常量 (取代 P21.1 的镜像). Q23 = B: 用户明确点 "连接 AutoJs6" 而请求没有送达 (`NotReached`, 只在宿主声明回复 meta-data 时可判定, 即宿主 6.8.1 起) 时, 插件直接以前台方式打开 AutoJs6 (沿用 "打开 AutoJs6" 的 MainActivity + 连接请求 + 身份证明, 由宿主 `ThreeStoveAgentGuide.handleForegroundRequest` 完成连接); 打开任务台时的自动连接不跳转. 契约版本与最低宿主版本不变. 宿主 feedback-680 Q45 = A (进 1.4.1, 按推荐先行). 子会话 feedback-680-stove (调度 local_e8c63a4e).
+
+- [x] (插件) P22.1 `libs/three-stove-agent-api.aar` 从宿主 `c8f814c5de` 的隔离克隆重新构建 (`:plugin-api:three-stove-agent-api:assembleRelease`, 未签名, 37602 字节, sha256 `15ef32b4...bfdfccc`; 旧包 37228 字节); `locks/host-api-aars.lock`, `libs/README.md` 与 `THIRD_PARTY_NOTICES.md` 同步, 其他三个 AAR 不变. javap 核对: 旧包已有的类与成员不变, 只多了 `ThreeStoveAgentActions.ATTACH_RESULT_ANSWERED` / `ATTACH_REPLY_ACCEPTED` / `META_ATTACH_REPLY` 与 `ThreeStoveAgentContract.UNAVAILABLE_REASON_*` (7 个) / `UNAVAILABLE_REASONS`. `ui/AttachReply` 与 `LauncherActivity.hostAnswersAttach` 改为引用这些常量, 删去字面量镜像; 只有 "未作答" 的结果码 `RESULT_INITIAL = 0` (有序广播的初始值, 不属于宿主契约) 留在插件. 宿主与插件的常量对照表见宿主 `docs/feedback-680/evidence/p3.5-three-stove-agent-api-c8f814c5de-2026-11-05.md`. (SOURCE: 本条提交)
+- [x] (插件) P22.2 `AttachReply.opensHost(reply, byUser)`: 只有用户点 "连接 AutoJs6" (`requestAttachment(byUser = true)`) 且回复为 `NotReached` 时为 true; `LauncherActivity.onAttachReply` 在任务台处于前台 (RESUMED) 时调用 `openHost()` 并记下是否成功打开. 横幅在已打开 AutoJs6 时改用新文案 `launcher_link_opened_host` (11 个 values 目录, ASCII 标点), 其余回复的文案不变; 自动连接 (`byUser = false`) 的行为与 1.4.0 相同. (SOURCE: 本条提交)
+- [x] (测试) P22.3 JVM: `AttachReplyTest` 删去 "镜像常量与宿主一致" 一项 (常量已直接引用), 改用 `ThreeStoveAgentContract.UNAVAILABLE_REASONS` 遍历原因, 加 "只有点连接且未送达才打开 AutoJs6" 与 "打开后只换未送达的文案" 两项, 共 7 项. (TEST: 2026-11-05 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 一次通过, 版本信息段 1 段; 105 类 726 例 0 失败 (跳过 1 例为原有的 `StepPerformanceTest`), `AttachReplyTest` 7 例, `ApplicationTextPunctuationTest` 通过)
+- [x] (文档) P22.4 changelog v1.4.1 (10 语言, 日期 2026/11/05): improvement 一条 (点 "连接 AutoJs6" 未送达时自动打开 AutoJs6, 自动连接不跳转, 需要 AutoJs6 6.8.1), dependency 一条 (升级 three-stove-agent-api 本地模块); `VERSION_NAME` 1.4.1; 生成器重新生成 36 个产物, `--check` 通过. (SOURCE: 本条提交)
+- [ ] (真机) P22.5 OPD2413 (ColorOS 15) 上用 6.8.1 debug 宿主: AutoJs6 进程不在时点 "连接 AutoJs6" 跳到 AutoJs6 并连上; 进程在时点连接不跳转并连上; 打开任务台时的自动连接不跳转. 见宿主 feedback-680 P3.6 证据.
+- [ ] (发布) P22.6 1.4.1 发版并登记官方索引 (维护者决定时机; 新行为需要宿主 6.8.1, 旧宿主上与 1.4.0 相同).
+
+验收条件: 插件单测通过; 真机两种进程状态下点连接的跳转与连接结果符合上面的描述; 旧宿主上行为与 1.4.0 相同.
 
 ## 附录 A: 脚本 API 草案
 
@@ -2223,3 +2238,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 来源: 宿主 settings 调度会话 local_f0afb29a 的子会话 settings-release, 维护者授权发版 (调度-6), 宿主 settings 附录 C Q76 定为等 P21.5 后从当时的 HEAD (`ddba9307`) 发.
 - 结果: tag `v1.4.0` = `ddba9307`, versionCode 441, Release 于 2026-11-05T12:18:15Z 发布, 官方索引 `16619ab`; 证据见 P20.7 / P20.8.
 - 剩余: 无.
+
+### 2026-11-05: P22 点 "连接" 未送达时打开 AutoJs6 (宿主 feedback-680 P3.5 / P3.6, build 443)
+
+- 来源: 维护者把宿主 feedback-680 的 Q13 / Q23 改为 B, 由调度会话 local_e8c63a4e 分给子会话 feedback-680-stove; 1.4.0 已于当天发布, 本节进 1.4.1 (宿主 feedback-680 Q45 = A, 按推荐先行).
+- 决定: 回复常量直接引用重放后的 `three-stove-agent-api.aar` (宿主 `c8f814c5de`), 取代 P21.1 的字面量镜像; 只有用户点 "连接 AutoJs6" 且请求没有送达时才前台打开 AutoJs6, 自动连接不跳转.
+- 剩余: P22.5 真机 (OPD2413); 不推送, 不打 tag, 不发版 (P22.6 由维护者决定).

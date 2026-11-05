@@ -4,6 +4,13 @@
 
 ******
 
+# v1.4.1
+
+###### 2026/11/05
+
+* `Amélioration` Après avoir touché "Connecter AutoJs6", si la demande n'a pas atteint AutoJs6 parce qu'il n'est pas en cours d'exécution (par exemple, ColorOS ne laisse pas d'autres applications démarrer AutoJs6 en arrière-plan), AutoJs6 s'ouvre désormais tout seul pour terminer la connexion, sans avoir à toucher "Ouvrir AutoJs6"; la connexion automatique au démarrage ne bascule jamais vers AutoJs6. Demande AutoJs6 6.8.1 ou ultérieure (pas encore publiée)
+* `Dépendance` Mise à niveau du module local three-stove-agent-api (build de l'hôte AutoJs6 c8f814c5de, empreinte verrouillée); le résultat de la connexion lit directement ses constantes
+
 # v1.4.0
 
 ###### 2026/11/05

@@ -21,6 +21,11 @@ commit `1676e7489d` built on 2026-11-05 (unsigned), which adds the settings tran
 import purpose (`PURPOSE_IMPORT`, `PURPOSE_UNDO`, `Request.isUndo`, D97). It only adds classes and members: `javap` shows the same signatures and constants for the 11 classes of the `86d9bfa26b` build, except
 that `PluginCapabilityKeys` gains `SUPPORTED_ABIS`, so the other three AARs keep working with it. License and individual hashes are in
 `../THIRD_PARTY_NOTICES.md` and `../locks/host-api-aars.lock`.
+Since 1.4.1 (roadmap P22, host feedback-680 P3.5 / Q13 = B, 2026-11-05) `three-stove-agent-api.aar` is the release artifact
+of host commit `c8f814c5de` built on 2026-11-05 (unsigned; the module sources are unchanged since `8e3dfa3237`). It adds the
+ordered attach reply constants (`ThreeStoveAgentActions.ATTACH_RESULT_ANSWERED`, `ATTACH_REPLY_ACCEPTED`, `META_ATTACH_REPLY`)
+and the unavailable reason codes (`ThreeStoveAgentContract.UNAVAILABLE_REASON_*`, `UNAVAILABLE_REASONS`); `javap` shows the
+same signatures and constants for every other class of the `86d9bfa26b` build, and the contract version stays 2.
 
 Record the lowercase SHA-256 of every staged artifact in `../locks/host-api-aars.lock`.
 `app/build.gradle.kts` rejects missing files, debug artifacts, placeholder hashes, extra lock

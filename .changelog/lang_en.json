@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v1.4.1": {
+      "released_date": "2026/11/05",
+      "improvement": [
+        "After you tap \"Connect to AutoJs6\", if the request did not reach AutoJs6 because it is not running (for example, ColorOS does not let other apps start AutoJs6 in the background), AutoJs6 now opens by itself to finish connecting, so there is no need to tap \"Open AutoJs6\"; the automatic connection when the workbench opens never switches to AutoJs6. Needs AutoJs6 6.8.1 or later (not released yet)"
+      ],
+      "dependency": [
+        "Upgrade the three-stove-agent-api local module (from AutoJs6 host build c8f814c5de, hash-locked); the connection result now reads its constants directly"
+      ]
+    },
     "v1.4.0": {
       "released_date": "2026/11/05",
       "hint": [

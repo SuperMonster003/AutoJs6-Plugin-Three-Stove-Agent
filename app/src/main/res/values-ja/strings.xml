@@ -142,6 +142,7 @@
     <string name="launcher_link_connecting">AutoJs6 の接続を待っています (最大 15 秒).</string>
     <string name="launcher_link_failed">AutoJs6 が接続できませんでした (%1$s). %2$s</string>
     <string name="launcher_link_not_reached">接続リクエストが AutoJs6 に届きませんでした: AutoJs6 が実行されておらず, 一部のシステム (ColorOS など) では他のアプリがバックグラウンドで AutoJs6 を起動できません. \"AutoJs6 を開く\" をタップして接続するか, 先に AutoJs6 を開いてバックグラウンドで実行したままにしてから, もう一度接続してください.</string>
+    <string name="launcher_link_opened_host">AutoJs6 が実行されていないため接続リクエストが届かず, 接続を完了するために AutoJs6 を開きました. 接続されたらここに戻ってください. まだ接続されていない場合は, もう一度 \"AutoJs6 に接続\" をタップしてください.</string>
     <string name="launcher_link_step_disabled">AutoJs6 のプラグインセンターで 3-Stove Agent を有効にしてから, もう一度接続してください.</string>
     <string name="launcher_link_step_incompatible">このバージョンの AutoJs6 ではこのバージョンの 3-Stove Agent を使用できません. 両方を最新バージョンに更新してください.</string>
     <string name="launcher_link_step_no_response">AutoJs6 が 3-Stove Agent のバックグラウンドサービスに接続できませんでした. もう一度接続してください. それでも接続できない場合は, 両方のアプリを再起動するか最新バージョンに更新してください.</string>

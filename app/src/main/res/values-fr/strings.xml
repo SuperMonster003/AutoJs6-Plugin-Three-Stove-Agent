@@ -142,6 +142,7 @@
     <string name="launcher_link_connecting">Connexion à AutoJs6 en attente (15 secondes maximum).</string>
     <string name="launcher_link_failed">AutoJs6 n\'a pas pu se connecter (%1$s). %2$s</string>
     <string name="launcher_link_not_reached">La demande de connexion n\'a pas atteint AutoJs6: AutoJs6 n\'est pas en cours d\'exécution et certains systèmes (comme ColorOS) ne laissent pas d\'autres applications le démarrer en arrière-plan. Touchez \"Ouvrir AutoJs6\" pour vous connecter, ou ouvrez d\'abord AutoJs6 et laissez-le tourner en arrière-plan, puis relancez la connexion.</string>
+    <string name="launcher_link_opened_host">La demande de connexion n\'a pas atteint AutoJs6, qui n\'est pas en cours d\'exécution: AutoJs6 a donc été ouvert pour terminer la connexion. Revenez ici une fois la connexion établie. Si elle ne l\'est toujours pas, touchez à nouveau \"Connecter AutoJs6\".</string>
     <string name="launcher_link_step_disabled">Activez 3-Stove Agent dans le centre de plugins d\'AutoJs6, puis relancez la connexion.</string>
     <string name="launcher_link_step_incompatible">Cette version d\'AutoJs6 ne peut pas utiliser cette version de 3-Stove Agent. Mettez les deux applications à jour vers la dernière version.</string>
     <string name="launcher_link_step_no_response">AutoJs6 n\'a pas pu joindre le service de 3-Stove Agent. Relancez la connexion; si cela ne suffit pas, redémarrez les deux applications ou mettez-les à jour.</string>

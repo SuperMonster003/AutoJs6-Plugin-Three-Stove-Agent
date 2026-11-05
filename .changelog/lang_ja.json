@@ -5,6 +5,15 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v1.4.1": {
+      "released_date": "2026/11/05",
+      "improvement": [
+        "\"AutoJs6 に接続\" をタップしたあと, AutoJs6 が実行されていないため接続リクエストが届かなかった場合 (ColorOS などでは他のアプリがバックグラウンドで AutoJs6 を起動できません), AutoJs6 を自動で開いて接続を完了します. \"AutoJs6 を開く\" をタップする必要はありません. 起動時の自動接続では AutoJs6 に切り替わりません. AutoJs6 6.8.1 以降 (未公開) が必要です"
+      ],
+      "dependency": [
+        "three-stove-agent-api ローカルモジュールを更新 (出典: AutoJs6 ホストビルド c8f814c5de, ハッシュ固定), 接続結果の判定でその定数を直接参照"
+      ]
+    },
     "v1.4.0": {
       "released_date": "2026/11/05",
       "hint": [

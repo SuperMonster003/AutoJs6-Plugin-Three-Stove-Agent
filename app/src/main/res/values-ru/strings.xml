@@ -142,6 +142,7 @@
     <string name="launcher_link_connecting">Ожидание подключения AutoJs6 (до 15 секунд).</string>
     <string name="launcher_link_failed">AutoJs6 не удалось подключиться (%1$s). %2$s</string>
     <string name="launcher_link_not_reached">Запрос на подключение не дошёл до AutoJs6: AutoJs6 не запущен, а некоторые системы (например, ColorOS) не позволяют другим приложениям запускать его в фоне. Нажмите \"Открыть AutoJs6\", чтобы подключиться, или сначала откройте AutoJs6 и оставьте его работать в фоне, затем подключитесь снова.</string>
+    <string name="launcher_link_opened_host">Запрос на подключение не дошёл до AutoJs6, так как он не запущен, поэтому AutoJs6 открыт, чтобы завершить подключение. Вернитесь сюда после подключения. Если подключения всё ещё нет, снова нажмите \"Подключить AutoJs6\".</string>
     <string name="launcher_link_step_disabled">Включите 3-Stove Agent в центре плагинов AutoJs6, затем подключитесь снова.</string>
     <string name="launcher_link_step_incompatible">Эта версия AutoJs6 не может использовать эту версию 3-Stove Agent. Обновите оба приложения до последней версии.</string>
     <string name="launcher_link_step_no_response">AutoJs6 не смог подключиться к службе 3-Stove Agent. Подключитесь снова; если это не поможет, перезапустите оба приложения или обновите их до последней версии.</string>

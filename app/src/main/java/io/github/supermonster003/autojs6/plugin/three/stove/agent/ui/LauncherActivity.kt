@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.Lifecycle
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentPlugin
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
@@ -59,6 +60,9 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     private var requestId: String? = null
     /** What AutoJs6 answered to the current attach request (feedback-680 P3.3). */
     private var reply: AttachReply = AttachReply.Unknown
+    /** Whether the user tapped Connect for the current request, and whether AutoJs6 was opened for it (feedback-680 P3.6). */
+    private var byUser = false
+    private var openedHost = false
     private var lastStatus: JsonObject? = null
     internal var availablePresets = emptyList<String>()
     internal var selectedPreset = "default"
@@ -75,7 +79,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         models = ModelSwitcher(this, ::updateSend)
-        views = WorkbenchLayout.create(this, this, onConnect = { requested = false; requestAttachment() }, onOpenHost = ::openHost,
+        views = WorkbenchLayout.create(this, this, onConnect = { requested = false; requestAttachment(byUser = true) }, onOpenHost = { openHost() },
             onPreset = this::choosePreset, onAccess = this::chooseAccess, onVoice = ::voice, onSend = ::launchRun, onMore = this::showMenu, onJump = { scrollToEnd(true) })
         setContentView(views.root)
         updates = AppUpdateCoordinator(this, threeStoveAgentPluginRuntimeInfo().versionName)
@@ -135,15 +139,16 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         if (resultCode == RESULT_OK) SpeechInput.result(data)?.let { goal.setText(it); goal.setSelection(goal.length()) }
     }
     private fun voice() { runCatching { speech.launch(SpeechInput.intent(this)) }.onFailure { showError() } }
-    private fun openHost() {
+    /** Opens AutoJs6 with the attach request, which it completes in the foreground; false when it could not be started. */
+    private fun openHost(): Boolean {
         // A launcher intent only brings an existing AutoJs6 task forward and drops the request extras;
         // the single-task main activity always receives them (roadmap D80).
         val main = Intent().setClassName(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME, ThreeStoveAgentPlugin.HOST_MAIN_ACTIVITY)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val intent = main.takeIf { it.resolveActivity(packageManager) != null }
-            ?: packageManager.getLaunchIntentForPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME) ?: return
+            ?: packageManager.getLaunchIntentForPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME) ?: return false
         intent.putExtra(ThreeStoveAgentActions.EXTRA_THREE_STOVE_AGENT_ATTACH, true); identify(intent)
-        runCatching { startActivity(intent) }.onFailure { showError() }
+        return runCatching { startActivity(intent) }.onFailure { showError() }.isSuccess
     }
     internal fun presetLabel(name: String) = if (name == "default") getString(R.string.workbench_default_preset) else name
     /** Whole-object save of the private settings, the same path as the settings screen. */
@@ -229,7 +234,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             requested -> if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT
             else -> LinkStage.WAITING
         }
-        views.banner.render(presence, host, stage, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply)
+        views.banner.render(presence, host, stage, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply, openedHost)
         if (presence == HostPresence.READY && !attached && !requested) requestAttachment()
     }
     private fun identify(intent: Intent) {
@@ -238,10 +243,12 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         intent.putExtra("requestId", requestId ?: UUID.randomUUID().toString())
         if (scriptRoots.configured) intent.putExtra(C.KEY_LINK_CONFIG_JSON, ScriptRoots.configuration(scriptRoots.read()))
     }
-    private fun requestAttachment() {
+    /** [byUser] is whether the user tapped Connect; only then may an undelivered request open AutoJs6. */
+    private fun requestAttachment(byUser: Boolean = false) {
         if (classifyHostPresence(hostReader(), ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION) != HostPresence.READY) return
         val id = UUID.randomUUID().toString()
         requested = true; requestId = id; reply = AttachReply.Unknown; deadline = SystemClock.elapsedRealtime() + 15000
+        this.byUser = byUser; openedHost = false
         views.banner.render(HostPresence.READY, hostReader(), LinkStage.CONNECTING, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
         val intent = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         identify(intent)
@@ -251,18 +258,24 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             override fun onReceive(context: Context, result: Intent) = onAttachReply(id, AttachReply.of(answers, resultCode, resultData))
         }, null, AttachReply.RESULT_INITIAL, null, null)
     }
-    /** A reason or an undelivered request ends the wait at once with the matching advice. */
+    /**
+     * A reason or an undelivered request ends the wait at once with the matching advice. When the user tapped
+     * Connect and the system did not deliver the request (AutoJs6 not running, as on ColorOS), the workbench
+     * opens AutoJs6 with the request instead, which a foreground app may always do (feedback-680 P3.6).
+     */
     private fun onAttachReply(id: String, answer: AttachReply) {
         if (id != requestId || isDestroyed) return
         reply = answer
         if (!answer.final || attached) return
         deadline = 0
-        lastStatus?.let(::renderLink) ?: views.banner.render(HostPresence.READY, hostReader(), LinkStage.TIMED_OUT, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply)
+        if (AttachReply.opensHost(answer, byUser) && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) openedHost = openHost()
+        lastStatus?.let(::renderLink) ?: views.banner.render(HostPresence.READY, hostReader(), LinkStage.TIMED_OUT,
+            ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply, openedHost)
     }
     private fun hostAnswersAttach(): Boolean = runCatching {
         val probe = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)
         @Suppress("DEPRECATION") packageManager.queryBroadcastReceivers(probe, PackageManager.GET_META_DATA)
-            .any { it.activityInfo?.metaData?.getInt(AttachReply.META_ATTACH_REPLY) == 1 }
+            .any { it.activityInfo?.metaData?.getInt(ThreeStoveAgentActions.META_ATTACH_REPLY) == 1 }
     }.getOrDefault(false)
     internal fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
     private fun readHostPackage(): HostPackageSnapshot? {

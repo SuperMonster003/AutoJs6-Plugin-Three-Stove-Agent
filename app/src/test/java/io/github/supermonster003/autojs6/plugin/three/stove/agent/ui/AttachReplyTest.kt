@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import org.autojs.plugin.three.stove.agent.api.ThreeStoveAgentContract
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -9,23 +10,9 @@ import org.junit.Test
 class AttachReplyTest {
 
     @Test
-    fun `the mirrored constants match AutoJs6 6_8_1`() {
-        // ThreeStoveAgentActions.ATTACH_RESULT_ANSWERED / ATTACH_REPLY_ACCEPTED / META_ATTACH_REPLY and
-        // ThreeStoveAgentContract.UNAVAILABLE_REASONS of host 8e3dfa3237. Change both sides together.
-        assertEquals(1, AttachReply.RESULT_ANSWERED)
-        assertEquals(0, AttachReply.RESULT_INITIAL)
-        assertEquals("ACCEPTED", AttachReply.REPLY_ACCEPTED)
-        assertEquals("org.autojs.autojs6.meta.THREE_STOVE_AGENT_ATTACH_REPLY", AttachReply.META_ATTACH_REPLY)
-        assertEquals(
-            setOf("NOT_INSTALLED", "NOT_TRUSTED", "DISABLED", "NOT_ACTIVATED", "INCOMPATIBLE", "NO_RESPONSE", "REQUEST_DROPPED"),
-            AttachReply.REASONS,
-        )
-    }
-
-    @Test
     fun `an answered request is accepted or names the host reason`() {
         assertEquals(AttachReply.Accepted, AttachReply.of(true, 1, "ACCEPTED"))
-        AttachReply.REASONS.forEach { assertEquals(AttachReply.Unavailable(it), AttachReply.of(true, 1, it)) }
+        ThreeStoveAgentContract.UNAVAILABLE_REASONS.forEach { assertEquals(AttachReply.Unavailable(it), AttachReply.of(true, 1, it)) }
     }
 
     @Test
@@ -62,5 +49,22 @@ class AttachReplyTest {
         assertEquals(R.string.launcher_link_step_request_dropped, AttachReply.step("REQUEST_DROPPED"))
         assertEquals(R.string.launcher_link_step_no_response, AttachReply.step("NO_RESPONSE"))
         assertEquals(R.string.launcher_link_step_no_response, AttachReply.step("NOT_ACTIVATED"))
+    }
+
+    @Test
+    fun `only a tap on Connect that did not reach AutoJs6 opens it`() {
+        assertTrue(AttachReply.opensHost(AttachReply.NotReached, byUser = true))
+        assertFalse(AttachReply.opensHost(AttachReply.NotReached, byUser = false))
+        assertFalse(AttachReply.opensHost(AttachReply.Accepted, byUser = true))
+        assertFalse(AttachReply.opensHost(AttachReply.Unavailable("NOT_TRUSTED"), byUser = true))
+        assertFalse(AttachReply.opensHost(AttachReply.Unknown, byUser = true))
+    }
+
+    @Test
+    fun `an opened AutoJs6 changes only the undelivered text`() {
+        assertEquals(R.string.launcher_link_opened_host, AttachReply.message(AttachReply.NotReached, openedHost = true))
+        assertEquals(R.string.launcher_link_not_reached, AttachReply.message(AttachReply.NotReached, openedHost = false))
+        assertEquals(R.string.launcher_link_timeout_accepted, AttachReply.message(AttachReply.Accepted, openedHost = true))
+        assertEquals(R.string.launcher_link_timeout, AttachReply.message(AttachReply.Unknown, openedHost = true))
     }
 }
