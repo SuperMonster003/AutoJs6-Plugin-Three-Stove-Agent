@@ -140,7 +140,16 @@
     <string name="launcher_icon_transparent">透明背景图标</string>
     <string name="launcher_icon_transparent_note">部分启动器会自行添加背景或遮罩, 透明效果可能无法保留.</string>
     <string name="launcher_link_connecting">正在等待 AutoJs6 连接 (最多 15 秒).</string>
-    <string name="launcher_link_timeout">15 秒内未建立连接. 请打开 AutoJs6, 在插件中心启用 3-Stove Agent 并授权连接.</string>
+    <string name="launcher_link_failed">AutoJs6 未能建立连接 (%1$s). %2$s</string>
+    <string name="launcher_link_not_reached">连接请求没有到达 AutoJs6. 请先打开一次 AutoJs6, 并在系统设置中允许它自启动和后台运行 (ColorOS 还需允许关联启动), 然后重新连接.</string>
+    <string name="launcher_link_step_disabled">请在 AutoJs6 插件中心启用 3-Stove Agent, 然后重新连接.</string>
+    <string name="launcher_link_step_incompatible">当前版本的 AutoJs6 无法使用此版本的 3-Stove Agent. 请将两者都更新到最新版本.</string>
+    <string name="launcher_link_step_no_response">AutoJs6 未能在后台启动 3-Stove Agent. 请在系统设置中允许 3-Stove Agent 自启动 (ColorOS 还需允许关联启动), 然后重新连接.</string>
+    <string name="launcher_link_step_not_installed">AutoJs6 找不到 3-Stove Agent. 请重新安装 3-Stove Agent, 然后重新连接.</string>
+    <string name="launcher_link_step_not_trusted">请在 AutoJs6 插件中心授权 3-Stove Agent, 然后重新连接.</string>
+    <string name="launcher_link_step_request_dropped">AutoJs6 拒绝了连接请求. 请安装官方发布的 3-Stove Agent 并将两者都更新到最新版本, 然后重新连接.</string>
+    <string name="launcher_link_timeout">15 秒内未建立连接. 请在 AutoJs6 插件中心确认 3-Stove Agent 已授权并已启用, 在系统设置中允许两个应用自启动 (如 ColorOS), 仍不行时将两者都更新到最新版本.</string>
+    <string name="launcher_link_timeout_accepted">15 秒内未建立连接. AutoJs6 已收到请求, 但未能在后台启动 3-Stove Agent. 请在系统设置中允许 3-Stove Agent 自启动 (ColorOS 还需允许关联启动), 然后重新连接.</string>
     <string name="launcher_open_host">打开 AutoJs6</string>
     <string name="mcp_add">添加服务器</string>
     <string name="mcp_auth_required">需要身份验证. 请在 MCP 服务器应用中检查已保存的令牌.</string>

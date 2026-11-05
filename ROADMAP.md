@@ -853,6 +853,18 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 验收条件: 插件单测通过; 清单在设备上可见; 宿主侧真机验证待 settings P19.1.
 
+## P21 (1.4.0): 连接失败的原因与下一步 (宿主 feedback-680 P3.3)
+
+目标: 群反馈 F4 (宿主 `docs/feedback-680/ROADMAP.md`): Android 16 / ColorOS 16 上 1.2.0 (155) 一直显示 "15 秒内未建立连接", `ai.agent.status()` 只有 PLUGIN_UNAVAILABLE, 用户无从判断该做什么. 宿主 6.8.1 (`8e3dfa3237`, feedback-680 P3.2) 给 `ai.agent.status()` 加 `reason`, 并回复有序的连接广播; 本节让插件读这个回复, 把原因和下一步写进连接横幅. 契约版本不变 (仍为 v2), 最低宿主版本不变; 旧宿主不回复, 横幅退回通用提示. 子会话 feedback-680-p3 (2026-11-05) 实施.
+
+- [x] (插件) P21.1 `ui/AttachReply` (纯 JVM): 读有序广播的结果 (`Accepted` / `Unavailable(reason)` / `NotReached` / `Unknown`), 宿主的回复常量以字面量镜像 (宿主 feedback-680 Q13 = A: `three-stove-agent-api.aar` 等下次宿主契约改动时再重放). `LauncherActivity.requestAttachment()` 改发有序广播, 发送前用 `queryBroadcastReceivers(GET_META_DATA)` 查宿主接收器的 meta-data `org.autojs.autojs6.meta.THREE_STOVE_AGENT_ATTACH_REPLY`; 宿主给出原因或请求没有送达 (声明了回复却返回初始结果) 时立即结束 15 秒等待. (SOURCE: 本条提交)
+- [x] (插件) P21.2 文案 (11 个 values 目录): `launcher_link_timeout` 改为给出下一步 (插件中心授权与启用, 系统设置自启动 (如 ColorOS), 仍不行时更新两者); 新增 `launcher_link_failed` (原因码 + 下一步), `launcher_link_not_reached`, `launcher_link_timeout_accepted` 与 6 条 `launcher_link_step_*`. `ConnectionBanner.render` 加 `reply` 参数 (默认 `Unknown`, 旧调用不变). (SOURCE: 本条提交)
+- [x] (测试) P21.3 JVM: `AttachReplyTest` 6 项 (镜像常量与宿主一致, 已回复的两类, 未送达只在宿主声明回复时成立, 未知回复退回通用提示, 只有原因与未送达提前结束, 每个回复与原因各有文案). (TEST: 2026-11-05 隔离克隆 (HEAD `dad229a5` + 本条改动) `:app:testDebugUnitTest` 105 类 724 例 0 失败 (跳过 1 例为原有的 `StepPerformanceTest`), `AttachReplyTest` 6 例; `assembleDebug` / `assembleDebugAndroidTest` 与 `lintDebug` 通过 (0 错误, 30 警告, 与 P20.4 相同, 都不在本次改动中))
+- [x] (文档) P21.4 changelog v1.4.0 (10 语言) 加 improvement 一条, 生成器重新生成产物. (SOURCE: 本条提交)
+- [ ] (真机) P21.5 OPD2413 上用 6.8.1 debug 宿主造出 "未信任" 与 "停用" 两种状态, 横幅文案分别对应; 见宿主 feedback-680 P3.3 证据.
+
+验收条件: 插件单测通过; 真机两种状态的横幅文案与原因一致; 旧宿主上横幅与 1.3.0 相同的位置显示通用提示.
+
 ## 附录 A: 脚本 API 草案
 
 ### A.1 命名与通用约定
@@ -2190,3 +2202,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 决定: D93 (文档形状), D94 (完全访问不随导入开启, 宿主 settings 附录 C Q67), D95 (导出范围与 sensitive, 宿主 settings 附录 C Q66), D96 (进程与生效方式); Q66 / Q67 待维护者拍板, 已按推荐先行.
 - 证据: 见 P20 各条. 端到端 (宿主导出 / 导入, Redmi -> Sony 跨设备信封) 统一放到宿主 settings P19.1.
 - 剩余: 不推送, 不发版, 不登记索引 (宿主 settings D31: P19.1 验通后由维护者发版).
+
+### 2026-11-05: P21 连接失败的原因与下一步 (宿主 feedback-680 P3.3, build 439)
+
+- 来源: 宿主 `docs/feedback-680/ROADMAP.md` F4 (群反馈, ColorOS 上一直 "15 秒内未建立连接"), 由调度会话 local_e8c63a4e 分给子会话 feedback-680-p3; 宿主侧 reason 与有序广播回复在宿主 `8e3dfa3237` (6.8.1, 只本地).
+- 决定: 宿主回复常量以字面量镜像, 不重放 AAR (宿主 feedback-680 Q13, 按推荐先行); 契约版本与最低宿主版本不变.
+- 剩余: P21.5 真机两种状态的文案核对 (随宿主 feedback-680 P3.1 在 OPD2413 上做); 不推送, 不发版 (1.4.0 随 P20.8).

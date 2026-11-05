@@ -140,7 +140,16 @@
     <string name="launcher_icon_transparent">透明背景のアイコン</string>
     <string name="launcher_icon_transparent_note">ランチャーが背景やマスクを追加する場合, 透明な背景は維持されないことがあります.</string>
     <string name="launcher_link_connecting">AutoJs6 の接続を待っています (最大 15 秒).</string>
-    <string name="launcher_link_timeout">15 秒以内に接続できませんでした. AutoJs6 のプラグインセンターで 3-Stove Agent を有効にして接続を許可してください.</string>
+    <string name="launcher_link_failed">AutoJs6 が接続できませんでした (%1$s). %2$s</string>
+    <string name="launcher_link_not_reached">接続リクエストが AutoJs6 に届きませんでした. AutoJs6 を一度開き, システム設定で自動起動とバックグラウンド実行を許可してから (ColorOS では関連起動も許可), もう一度接続してください.</string>
+    <string name="launcher_link_step_disabled">AutoJs6 のプラグインセンターで 3-Stove Agent を有効にしてから, もう一度接続してください.</string>
+    <string name="launcher_link_step_incompatible">このバージョンの AutoJs6 ではこのバージョンの 3-Stove Agent を使用できません. 両方を最新バージョンに更新してください.</string>
+    <string name="launcher_link_step_no_response">AutoJs6 がバックグラウンドで 3-Stove Agent を起動できませんでした. システム設定で 3-Stove Agent の自動起動を許可してから (ColorOS では関連起動も許可), もう一度接続してください.</string>
+    <string name="launcher_link_step_not_installed">AutoJs6 が 3-Stove Agent を見つけられません. 3-Stove Agent を再インストールしてから, もう一度接続してください.</string>
+    <string name="launcher_link_step_not_trusted">AutoJs6 のプラグインセンターで 3-Stove Agent を承認してから, もう一度接続してください.</string>
+    <string name="launcher_link_step_request_dropped">AutoJs6 が接続リクエストを拒否しました. 公式リリースの 3-Stove Agent をインストールし, 両方を最新バージョンに更新してから, もう一度接続してください.</string>
+    <string name="launcher_link_timeout">15 秒以内に接続できませんでした. AutoJs6 のプラグインセンターで 3-Stove Agent が承認され有効になっているか確認し, システム設定で両方のアプリの自動起動を許可してください (ColorOS など). それでも接続できない場合は両方を最新バージョンに更新してください.</string>
+    <string name="launcher_link_timeout_accepted">15 秒以内に接続できませんでした. AutoJs6 はリクエストを受け取りましたが, バックグラウンドで 3-Stove Agent を起動できませんでした. システム設定で 3-Stove Agent の自動起動を許可してから (ColorOS では関連起動も許可), もう一度接続してください.</string>
     <string name="launcher_open_host">AutoJs6 を開く</string>
     <string name="mcp_add">サーバーを追加</string>
     <string name="mcp_auth_required">認証が必要です. MCP サーバーアプリで保存済みトークンを確認してください.</string>

@@ -57,6 +57,9 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     private var requested = false
     private var deadline = 0L
     private var requestId: String? = null
+    /** What AutoJs6 answered to the current attach request (feedback-680 P3.3). */
+    private var reply: AttachReply = AttachReply.Unknown
+    private var lastStatus: JsonObject? = null
     internal var availablePresets = emptyList<String>()
     internal var selectedPreset = "default"
     internal var followDefault = true
@@ -212,6 +215,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         views.composer.send.isEnabled = attached && !sending && !goal.text.isNullOrBlank() && selectedPreset in availablePresets && models.available
     }
     internal fun renderLink(status: JsonObject) {
+        lastStatus = status
         val host = hostReader()
         val presence = classifyHostPresence(host, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
         val rootsAccepted = !scriptRoots.configured || runCatching {
@@ -225,7 +229,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
             requested -> if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT
             else -> LinkStage.WAITING
         }
-        views.banner.render(presence, host, stage, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
+        views.banner.render(presence, host, stage, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply)
         if (presence == HostPresence.READY && !attached && !requested) requestAttachment()
     }
     private fun identify(intent: Intent) {
@@ -236,11 +240,30 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     }
     private fun requestAttachment() {
         if (classifyHostPresence(hostReader(), ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION) != HostPresence.READY) return
-        requested = true; requestId = UUID.randomUUID().toString(); deadline = SystemClock.elapsedRealtime() + 15000
+        val id = UUID.randomUUID().toString()
+        requested = true; requestId = id; reply = AttachReply.Unknown; deadline = SystemClock.elapsedRealtime() + 15000
         views.banner.render(HostPresence.READY, hostReader(), LinkStage.CONNECTING, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION)
         val intent = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-        identify(intent); sendBroadcast(intent, ThreeStoveAgentActions.PLUGIN_PERMISSION)
+        identify(intent)
+        // Sent ordered, so that hosts since 6.8.1 can say what became of the request; older hosts handle it like a plain one.
+        val answers = hostAnswersAttach()
+        sendOrderedBroadcast(intent, ThreeStoveAgentActions.PLUGIN_PERMISSION, object : BroadcastReceiver() {
+            override fun onReceive(context: Context, result: Intent) = onAttachReply(id, AttachReply.of(answers, resultCode, resultData))
+        }, null, AttachReply.RESULT_INITIAL, null, null)
     }
+    /** A reason or an undelivered request ends the wait at once with the matching advice. */
+    private fun onAttachReply(id: String, answer: AttachReply) {
+        if (id != requestId || isDestroyed) return
+        reply = answer
+        if (!answer.final || attached) return
+        deadline = 0
+        lastStatus?.let(::renderLink) ?: views.banner.render(HostPresence.READY, hostReader(), LinkStage.TIMED_OUT, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply)
+    }
+    private fun hostAnswersAttach(): Boolean = runCatching {
+        val probe = Intent(ThreeStoveAgentActions.ACTION_ATTACH_REQUEST).setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)
+        @Suppress("DEPRECATION") packageManager.queryBroadcastReceivers(probe, PackageManager.GET_META_DATA)
+            .any { it.activityInfo?.metaData?.getInt(AttachReply.META_ATTACH_REPLY) == 1 }
+    }.getOrDefault(false)
     internal fun showError() { views.composer.error.apply { setText(R.string.workbench_request_failed); visibility = View.VISIBLE } }
     private fun readHostPackage(): HostPackageSnapshot? {
         val info = try { packageManager.getPackageInfo(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME, PackageManager.MATCH_DISABLED_COMPONENTS) }

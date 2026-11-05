@@ -140,7 +140,16 @@
     <string name="launcher_icon_transparent">Значок с прозрачным фоном</string>
     <string name="launcher_icon_transparent_note">Некоторые лаунчеры добавляют фон или маску, поэтому прозрачность может не сохраниться.</string>
     <string name="launcher_link_connecting">Ожидание подключения AutoJs6 (до 15 секунд).</string>
-    <string name="launcher_link_timeout">Подключение не установлено за 15 секунд. Откройте AutoJs6, включите 3-Stove Agent в центре плагинов и разрешите подключение.</string>
+    <string name="launcher_link_failed">AutoJs6 не удалось подключиться (%1$s). %2$s</string>
+    <string name="launcher_link_not_reached">Запрос на подключение не дошёл до AutoJs6. Откройте AutoJs6 один раз и разрешите ему автозапуск и работу в фоне в настройках системы (в ColorOS также разрешите запуск другими приложениями), затем подключитесь снова.</string>
+    <string name="launcher_link_step_disabled">Включите 3-Stove Agent в центре плагинов AutoJs6, затем подключитесь снова.</string>
+    <string name="launcher_link_step_incompatible">Эта версия AutoJs6 не может использовать эту версию 3-Stove Agent. Обновите оба приложения до последней версии.</string>
+    <string name="launcher_link_step_no_response">AutoJs6 не удалось запустить 3-Stove Agent в фоне. Разрешите 3-Stove Agent автозапуск в настройках системы (в ColorOS также разрешите запуск другими приложениями), затем подключитесь снова.</string>
+    <string name="launcher_link_step_not_installed">AutoJs6 не находит 3-Stove Agent. Переустановите 3-Stove Agent, затем подключитесь снова.</string>
+    <string name="launcher_link_step_not_trusted">Авторизуйте 3-Stove Agent в центре плагинов AutoJs6, затем подключитесь снова.</string>
+    <string name="launcher_link_step_request_dropped">AutoJs6 отклонил запрос. Установите официальную версию 3-Stove Agent и обновите оба приложения, затем подключитесь снова.</string>
+    <string name="launcher_link_timeout">Подключение не установлено за 15 секунд. Проверьте в центре плагинов AutoJs6, что 3-Stove Agent авторизован и включён, разрешите обоим приложениям автозапуск в настройках системы (например, в ColorOS), а если это не поможет, обновите оба приложения.</string>
+    <string name="launcher_link_timeout_accepted">Подключение не установлено за 15 секунд. AutoJs6 получил запрос, но не смог запустить 3-Stove Agent в фоне. Разрешите 3-Stove Agent автозапуск в настройках системы (в ColorOS также разрешите запуск другими приложениями), затем подключитесь снова.</string>
     <string name="launcher_open_host">Открыть AutoJs6</string>
     <string name="mcp_add">Добавить сервер</string>
     <string name="mcp_auth_required">Требуется аутентификация. Проверьте токен в приложении сервера MCP.</string>
