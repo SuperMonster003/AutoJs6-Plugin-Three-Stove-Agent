@@ -8,7 +8,7 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 
 - Components: `common-plugin-api.aar`, `host-capability-api.aar`, `three-stove-agent-api.aar`
 - Source: <https://github.com/SuperMonster003/AutoJs6> (`plugin-api/common-plugin-api`, `plugin-api/host-capability-api`, `plugin-api/three-stove-agent-api`), host build 5298 (6.8.0), commit `86d9bfa26b`, built together as release artifacts on 2026-09-27
-- common-plugin-api SHA-256: `3597b6f92e3111c55d21abef04764b595fed6c9e0d854042a949651f3458c9fa` (since 1.4.0: version 1.1.0, release artifact from host commit `8fe6d154f9` built on 2026-11-05, unsigned; it adds the settings transfer contract v1, roadmap P20, and keeps the signatures and constants of the classes above)
+- common-plugin-api SHA-256: `9849b15091dcb255cd1c47140790081eebc074aec2e3e9b28c18f12bf9ef4a6a` (since 1.4.0: version 1.1.1, release artifact from host commit `1676e7489d` built on 2026-11-05, unsigned; it adds the settings transfer contract v1 with the import purpose, roadmap P20 / D97, and keeps the signatures and constants of the classes above)
 - host-capability-api SHA-256: `23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1`
 - three-stove-agent-api SHA-256: `02958a7c414c80a7cc839dc8da01b04b367d9b2f3694403f57e93b0e813f0762`
 - Component: `speech-api.aar` (`plugin-api/speech-api`, speech plugin contract version 1, used by the resident listener to bind 3-Macaw Speech), host build 5451 (6.8.0), commit `1d6280bf8`, release artifact assembled on 2026-10-16 and byte-identical to the copy 3-Macaw Speech stages

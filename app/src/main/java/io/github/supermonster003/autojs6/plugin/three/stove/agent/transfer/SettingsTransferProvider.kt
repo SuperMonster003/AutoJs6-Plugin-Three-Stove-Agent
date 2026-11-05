@@ -27,7 +27,7 @@ class SettingsTransferProvider : PluginSettingsTransferProvider() {
     override fun exportSettings(request: Request): Exported = StoveSettingsTransfer(RuntimeStorage(appContext())).exportSettings()
 
     override fun importSettings(settings: JSONObject, source: Source, request: Request): Imported {
-        val counts = StoveSettingsTransfer(RuntimeStorage(appContext())).importSettings(settings)
+        val counts = StoveSettingsTransfer(RuntimeStorage(appContext())).importSettings(settings, undo = request.isUndo)
         return Imported(counts.written, counts.skipped, restartNeeded = false)
     }
 

@@ -153,6 +153,22 @@ class StoveSettingsTransferTest {
     }
 
     @Test
+    fun `an undo restores the full access of this device`() {
+        // "Undo last import" hands back the backup of this device taken before that import (D97, host appendix C Q70).
+        val device = MemoryStorage(settings = AgentSettings(cautious = true))
+        val backup = document(T.STORE_SETTINGS to JSONObject().put(T.KEY_ACCESS_MODE, entry(Contract.TYPE_STRING, "full")))
+        val counts = StoveSettingsTransfer(device).importSettings(backup, undo = true)
+        assertEquals(1, counts.written)
+        assertEquals(0, counts.skipped)
+        assertEquals("full", device.settings!!.accessMode)
+        assertFalse(device.settings!!.cautious)
+        // An undo takes nothing else it would refuse from an archive.
+        val other = document(T.STORE_SETTINGS to JSONObject().put(T.KEY_ACCESS_MODE, entry(Contract.TYPE_STRING, "everything")))
+        assertEquals(1, StoveSettingsTransfer(device).importSettings(other, undo = true).skipped)
+        assertEquals("full", device.settings!!.accessMode)
+    }
+
+    @Test
     fun `unknown stores, keys, other tags and invalid values are skipped`() {
         val target = MemoryStorage()
         val settings = JSONObject()

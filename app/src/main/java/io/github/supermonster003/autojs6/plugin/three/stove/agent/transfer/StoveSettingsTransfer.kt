@@ -57,8 +57,10 @@ internal interface StoveSettingsStorage {
  *
  * A bearer token is a credential, so a document with one is sensitive and AutoJs6 seals it. Import is lenient:
  * unknown stores and keys, other tags and values the settings pages could not have saved are skipped (an unknown store
- * counts its entries, a store or an entry that is not an object counts 1), and so is `accessMode` `full`: full access
- * only comes from the settings page of this device (D43, D94). Unknown tool group ids (from a later version) are
+ * counts its entries, a store or an entry that is not an object counts 1), and so is `accessMode` `full` of an import:
+ * full access only comes from the settings page of this device (D43, D94). "Undo last import" (`undo`) hands back the
+ * backup AutoJs6 took on this device just before that import, so it takes `full` back (D97, host settings appendix C
+ * Q70). Unknown tool group ids (from a later version) are
  * dropped from `toolGroups`. Keys the document leaves out keep their values; imported MCP profiles replace the profile
  * with the same id and join the others, a new one beyond [McpServerProfile.MAX_PROFILES] is skipped, and so are all of
  * them while a task runs or when the MCP store cannot be opened. So the same document can be imported again. Each store
@@ -103,8 +105,11 @@ internal class StoveSettingsTransfer(private val storage: StoveSettingsStorage) 
         return Exported(settings, entries, sensitive = profiles.any { it.bearerToken != null })
     }
 
-    /** Writes the valid entries of [settings] and answers how many were written and skipped; see the class. */
-    fun importSettings(settings: JSONObject): Counts {
+    /**
+     * Writes the valid entries of [settings] and answers how many were written and skipped; [undo] when it is the
+     * backup of this device that "Undo last import" hands back. See the class.
+     */
+    fun importSettings(settings: JSONObject, undo: Boolean = false): Counts {
         val counts = Counts()
         settings.keys().forEach { storeName ->
             if (storeName !in STORES) counts.skipped += (settings.opt(storeName) as? JSONObject)?.length() ?: 1
@@ -116,7 +121,7 @@ internal class StoveSettingsTransfer(private val storage: StoveSettingsStorage) 
                 return@forEach
             }
             when (storeName) {
-                STORE_SETTINGS -> importSettingsStore(store, counts)
+                STORE_SETTINGS -> importSettingsStore(store, counts, undo)
                 STORE_APPEARANCE -> importAppearance(store, counts)
                 STORE_MCP -> importMcp(store, counts)
             }
@@ -124,7 +129,7 @@ internal class StoveSettingsTransfer(private val storage: StoveSettingsStorage) 
         return counts
     }
 
-    private fun importSettingsStore(store: JSONObject, counts: Counts) {
+    private fun importSettingsStore(store: JSONObject, counts: Counts, undo: Boolean) {
         var value = storage.settings() ?: run {
             counts.skipped += store.length()
             return
@@ -138,7 +143,9 @@ internal class StoveSettingsTransfer(private val storage: StoveSettingsStorage) 
                 KEY_ACCESS_MODE -> when (store.tagged(key, Contract.TYPE_STRING)) {
                     ACCESS_STANDARD -> value.copy(cautious = false, fullAccess = false)
                     ACCESS_CAUTIOUS -> value.copy(cautious = true, fullAccess = false)
-                    else -> null // Including "full" (D94).
+                    // Full access the user granted on this device before the import comes back with its undo (D97).
+                    ACCESS_FULL -> if (undo) value.copy(cautious = false, fullAccess = true) else null // D94.
+                    else -> null
                 }
                 KEY_VOICE -> (store.tagged(key, Contract.TYPE_BOOL) as? Boolean)?.let { value.copy(voice = it) }
                 KEY_FLOATING -> (store.tagged(key, Contract.TYPE_BOOL) as? Boolean)?.let { value.copy(floating = it) }
@@ -235,6 +242,7 @@ internal class StoveSettingsTransfer(private val storage: StoveSettingsStorage) 
 
         const val ACCESS_STANDARD = "standard"
         const val ACCESS_CAUTIOUS = "cautious"
+        const val ACCESS_FULL = "full"
         const val COLOR_HOST = "host"
 
         private const val RECORD_ID = "id"
