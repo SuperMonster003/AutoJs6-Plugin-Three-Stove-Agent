@@ -863,7 +863,8 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (插件) P21.2 文案 (11 个 values 目录): `launcher_link_timeout` 改为给出下一步 (插件中心授权与启用, 系统设置自启动 (如 ColorOS), 仍不行时更新两者); 新增 `launcher_link_failed` (原因码 + 下一步), `launcher_link_not_reached`, `launcher_link_timeout_accepted` 与 6 条 `launcher_link_step_*`. `ConnectionBanner.render` 加 `reply` 参数 (默认 `Unknown`, 旧调用不变). (SOURCE: 本条提交)
 - [x] (测试) P21.3 JVM: `AttachReplyTest` 6 项 (镜像常量与宿主一致, 已回复的两类, 未送达只在宿主声明回复时成立, 未知回复退回通用提示, 只有原因与未送达提前结束, 每个回复与原因各有文案). (TEST: 2026-11-05 隔离克隆 (HEAD `dad229a5` + 本条改动) `:app:testDebugUnitTest` 105 类 724 例 0 失败 (跳过 1 例为原有的 `StepPerformanceTest`), `AttachReplyTest` 6 例; `assembleDebug` / `assembleDebugAndroidTest` 与 `lintDebug` 通过 (0 错误, 30 警告, 与 P20.4 相同, 都不在本次改动中))
 - [x] (文档) P21.4 changelog v1.4.0 (10 语言) 加 improvement 一条, 生成器重新生成产物. (SOURCE: 本条提交)
-- [ ] (真机) P21.5 OPD2413 上用 6.8.1 debug 宿主造出 "未信任" 与 "停用" 两种状态, 横幅文案分别对应; 见宿主 feedback-680 P3.3 证据.
+- [x] (真机) P21.5 OPD2413 上用 6.8.1 debug 宿主造出 "未信任" 与 "停用" 两种状态, 横幅文案分别对应; 见宿主 feedback-680 P3.3 证据. (DEVICE: 2026-11-05 OPD2413 (ColorOS 15 / Android 15), 宿主 6.8.1 debug (6640, 含 `8e3dfa3237`), 本仓库 438 测试包: 停用 -> 宿主回复 DISABLED, 横幅为 `launcher_link_failed` + `launcher_link_step_disabled`, 宿主 `ai.agent.status()` 为 PLUGIN_UNAVAILABLE / reason=DISABLED; 1.3.0 (437) 在同一状态下不报错, 仍是旧的通用超时. "未信任" 在真机上造不出来: 宿主对官方签名恒判 OFFICIAL, 插件中心没有改信任状态的入口, 该分支由 `AttachReplyTest` 与宿主单测覆盖. 另测: 宿主后台运行 -> 连上; 宿主被杀 / 强行停止 -> ColorOS 拦下连接广播 (`OplusAppStartupManager` / `filterBlackList`), 4 s 内显示 `launcher_link_not_reached`; 见宿主 `docs/feedback-680/evidence/p3.1-OPD2413-6640-2026-11-05.md` 与 `p3.3-OPD2413-6640-2026-11-05.md`)
+- [x] (插件) P21.6 按 P21.5 的真机结论修订 4 条提示 (11 个 values 目录): ColorOS 上给两个应用打开 "自动启动" 与 "关联启动" 都拦不住 (宿主进程不在时广播照样被拦), 有效的是 AutoJs6 留在后台运行或点横幅的 "打开 AutoJs6" (前台启动 Activity 不受限). `launcher_link_not_reached` / `launcher_link_timeout` 去掉 "允许关联启动 / 自启动", 改为说明系统不允许其他应用在后台启动 AutoJs6 并指向 "打开 AutoJs6"; `launcher_link_timeout_accepted` / `launcher_link_step_no_response` (宿主已收到请求但连不上插件服务) 改为重新连接, 仍不行时重启两个应用或更新. changelog v1.4.0 的 improvement 同步改写 (10 语言). (SOURCE: 本条提交) (TEST: 隔离克隆 (HEAD `e19f6861` + 本条改动) `ApplicationTextPunctuationTest` 与 `AttachReplyTest`, `assembleDebug`, `lintDebug`; `generate_markdown.py --check` 通过)
 
 验收条件: 插件单测通过; 真机两种状态的横幅文案与原因一致; 旧宿主上横幅与 1.3.0 相同的位置显示通用提示.
 
@@ -2210,3 +2211,9 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 来源: 宿主 `docs/feedback-680/ROADMAP.md` F4 (群反馈, ColorOS 上一直 "15 秒内未建立连接"), 由调度会话 local_e8c63a4e 分给子会话 feedback-680-p3; 宿主侧 reason 与有序广播回复在宿主 `8e3dfa3237` (6.8.1, 只本地).
 - 决定: 宿主回复常量以字面量镜像, 不重放 AAR (宿主 feedback-680 Q13, 按推荐先行); 契约版本与最低宿主版本不变.
 - 剩余: P21.5 真机两种状态的文案核对 (随宿主 feedback-680 P3.1 在 OPD2413 上做); 不推送, 不发版 (1.4.0 随 P20.8).
+
+### 2026-11-05: P21.5 / P21.6 真机核对与提示修订 (宿主 feedback-680 P3.1 / P3.3, build 441)
+
+- 真机 (OPD2413, ColorOS 15): 停用状态横幅与宿主 reason 一致; "未信任" 对官方签名的包不可达, 只由单测覆盖. F4 的根因是宿主进程不在时 ColorOS 拦下连接广播, 系统的 "自动启动" / "关联启动" 设置无效, 所以 P21.2 写进提示的 "允许关联启动" 删去, 改为指向 "打开 AutoJs6".
+- 决定: 连接请求没有送达时仍由用户点 "打开 AutoJs6", 插件不自动拉起宿主 (宿主 feedback-680 Q23, 按推荐先行).
+- 剩余: 不推送, 不发版 (1.4.0 随 P20.8, 由宿主 settings 的发版会话发布).
