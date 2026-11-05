@@ -250,6 +250,7 @@ The plugin follows explicit boundaries:
 - Model credentials remain in the model provider and model calls go through AutoJs6. MCP Bearer tokens are encrypted in private storage with Android Keystore and are never included in prompts or history exports. INTERNET also connects to configured MCP servers; Android 17+ local network access is requested only from MCP settings. Remote tools have the selected server risk, initially SENSITIVE. Cancellation does not undo remote actions and failed calls are not replayed automatically.
 - Plugin tools are called through AutoJs6 plugin_tools and only cover plugins that are enabled and admitted by AutoJs6 (third-party plugins the user allowed separately are not included). Tool descriptions and results are treated as untrusted data, and text recognized in them is never taken as an instruction; tools in the write group are confirmed before every call unless full access is on. A call that times out or a stopped task asks the plugin to cancel, and failed calls are not replayed automatically.
 - Task history, presets and preference memory stay in the plugin's private storage; backups and device transfers are disabled.
+- When the settings are exported together with AutoJs6's (AutoJs6 6.8.1 or later), the export holds the access tokens of the MCP servers: when a token is set, AutoJs6 leaves the plugin unselected by default and encrypts its part of the archive once it is selected, so keep the exported file as safe as the tokens themselves. The settings export and import entry requires org.autojs.permission.PLUGIN and is only called by AutoJs6; an import never turns on full access, task history, presets, memory and the model choice are not exported, and Android backups and device transfers stay disabled.
 - Screenshots are sent through AutoJs6 to the selected model, which may be online. Capture requires an unlocked, interactive screen. Step history stores dimensions and byte counts, not picture contents. JSON decisions retain the current image until another observation or answer replaces it; native conversations retain earlier images within per-call and session limits and reserve their tokens again for each round.
 - Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.
 - Full access can only be enabled in the plugin's private settings; model output, screen content, script requests and external intents cannot enable or widen it. It skips confirmations for enabled tools, including payments, but enables no extra tool groups and keeps budgets and host grants. The host starts accessibility through the method configured in AutoJs6; the plugin still requests no accessibility permission.
@@ -294,6 +295,15 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 ### Release History
 
 ******
+
+#### v1.4.0
+
+_2026/11/05_
+
+- `Hint` Exporting and importing the settings together with AutoJs6 needs AutoJs6 6.8.1 or later (not released yet); with an earlier AutoJs6 this version works like 1.3.0
+- `Feature` The plugin's settings can be exported and imported together with AutoJs6's settings, so a new phone or a reinstall does not need them set up again: the tool groups, the task limits, the operation permissions (Standard / Cautious), the voice input and floating ball switches, how failure alerts and completion notifications are shown, your own package names and keywords for risk recognition, the language, dark mode, the theme color and the MCP servers (with their access tokens); the model choice, presets, task history and memory are not included. When an MCP server has an access token, the plugin is not selected by default when exporting, and once it is selected AutoJs6 encrypts its part of the archive (set a password when exporting to import it on another phone). An import never turns on full access; only the settings on the phone itself can. Imported settings apply at once, while the language, dark mode and theme color apply the next time a screen of the plugin opens; imported MCP servers join the existing list, and while a task runs the MCP servers are not replaced, so import again after the task ends. On a new phone the floating ball shows only after the overlay permission is granted
+- `Dependency` Upgrade the common-plugin-api local module to 1.1.0 (from AutoJs6 host build 8fe6d154f9, hash-locked) for the settings export and import
+- `Dependency` Add org.json version 20231013 (JVM tests only)
 
 #### v1.3.0
 
@@ -375,19 +385,6 @@ _2026/09/28_
 - `Dependency` Upgrade the three host API release artifacts to AutoJs6 86d9bfa26b / build 5298: ai-agent-api becomes three-stove-agent-api (AIDL package org.autojs.plugin.three.stove.agent.api, contract version 2), with common-plugin-api and host-capability-api relocked from the same build
 - `Dependency` Upgrade the three host API release artifacts to AutoJs6 3cdf7de13c / build 5297 (P10 mcp group option and TOOL_FAILED constant); the base contract stays V1
 - `Dependency` Add AndroidX AppCompat 1.7.1 and Material Components for Android 1.13.0 with their AndroidX runtime dependencies for the Material 3 interface
-
-#### v1.1.0
-
-_2026/09/26_
-
-- `Hint` 1.1.0 was not published on its own; all of its changes ship with 1.2.0
-- `Hint` Native calling requires AutoJs6 build 5297+ and a tools-capable target, such as an online target in the 3-Stone AI 1.2.0 development candidate. Older hosts and unsupported targets retain JSON decisions. Each native conversation retains its original timeout, context/output limits and at most 16 tool rounds; failures after a tool action never restart through JSON
-- `Hint` Image input requires a compatible host, the observe group and an explicitly enabled vision-capable model. Implementation and deterministic tests are available; real online vision acceptance is still pending. Older systems and text-only targets keep text observations. See ROADMAP.md
-- `Hint` Generated scripts run with AutoJs6 permissions, without a JavaScript sandbox; they may perform actions outside the enabled tool groups. The full source is stored in private steps subject to existing password redaction and history retention. A source changed by later password redaction cannot be saved as the original script. Review exported .js contents before sharing.
-- `Feature` Native tool calling through the host: catalog schemas, whole-batch validation, sequential execution, individual confirmations, tool-result continuation and step records share the existing task rules
-- `Feature` Screenshot observations through AutoJs6 on Android 11+: screen_capture scales to a longest edge of 1280 and JPEG quality 70, with visual prompts, image-token admission and native tool-result attachments
-- `Feature` Generated JavaScript through script_run_source: the script_dynamic group is off by default. Every call requires review of a source summary with expandable full text and individual approval. Execution has a timeout, cancellation, structured results and private source records. Both source UTF-8 and its JSON string encoding are limited to 8 KiB.
-- `Dependency` Upgrade the three host API release artifacts to AutoJs6 52ce694f92 / build 5297 for negotiated image input; preserve the base build 5289+ attachment contract
 
 ##### For more release history
 

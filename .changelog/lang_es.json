@@ -5,6 +5,19 @@
   "changelog_label_improvement": "Mejora",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v1.4.0": {
+      "released_date": "2026/11/05",
+      "hint": [
+        "Exportar e importar los ajustes junto con AutoJs6 requiere AutoJs6 6.8.1 o posterior (aún no publicada); con una versión anterior de AutoJs6, esta versión funciona igual que la 1.3.0"
+      ],
+      "feature": [
+        "Los ajustes del plugin se pueden exportar e importar junto con los de AutoJs6, así que un teléfono nuevo o una reinstalación ya no obliga a configurarlo de nuevo: los grupos de herramientas, los límites de tarea, los permisos de las operaciones (Estándar / Prudente), los interruptores de entrada de voz y de burbuja flotante, cómo se muestran las alertas de error y las notificaciones de finalización, sus propios nombres de paquete y palabras clave para el reconocimiento de riesgos, el idioma, el modo oscuro, el color del tema y los servidores MCP (con sus tokens de acceso); la elección de modelo, los preajustes, el historial de tareas y la memoria no se incluyen. Cuando un servidor MCP tiene token de acceso, el plugin no está seleccionado por defecto al exportar y, una vez seleccionado, AutoJs6 cifra su parte del archivo (para importarla en otro teléfono, establezca una contraseña al exportar). Una importación nunca activa el acceso completo; solo los ajustes del propio teléfono pueden activarlo. Los ajustes importados se aplican al instante, mientras que el idioma, el modo oscuro y el color del tema se aplican la próxima vez que se abre una pantalla del plugin; los servidores MCP importados se suman a la lista actual, pero mientras se ejecuta una tarea no se reemplazan, así que vuelva a importar cuando termine. En un teléfono nuevo, la burbuja flotante solo aparece después de conceder el permiso para mostrarse sobre otras aplicaciones"
+      ],
+      "dependency": [
+        "Actualizar el módulo local common-plugin-api a 1.1.0 (de la compilación del anfitrión AutoJs6 8fe6d154f9, con el hash fijado) para exportar e importar los ajustes",
+        "Agregar org.json versión 20231013 (solo pruebas en JVM)"
+      ]
+    },
     "v1.3.0": {
       "released_date": "2026/10/22",
       "feature": [

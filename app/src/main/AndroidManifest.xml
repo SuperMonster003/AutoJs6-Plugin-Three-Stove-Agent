@@ -50,6 +50,11 @@
             android:name="org.autojs.plugin.info.AUTHOR"
             android:value="@string/plugin_author" />
 
+        <!-- AutoJs6 settings transfer contract v1 (roadmap P20, host settings roadmap P18.3): see the provider below. -->
+        <meta-data
+            android:name="org.autojs.plugin.contract.SETTINGS_TRANSFER"
+            android:value="1" />
+
         <activity
             android:name=".WakeActivity"
             android:excludeFromRecents="true"
@@ -223,6 +228,20 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!--
+            AutoJs6 settings transfer (contract v1, roadmap P20): exportSettings / importSettings through call(), behind
+            the PLUGIN permission (the provider base class checks it itself, since android:permission does not cover
+            call()). It runs in the :agent process, where AgentRuntime owns the settings and the MCP profiles, so an
+            import reaches a running task, the floating ball and the settings pages at once.
+        -->
+        <provider
+            android:name=".transfer.SettingsTransferProvider"
+            android:authorities="${applicationId}.autojs6.settings"
+            android:exported="true"
+            android:process=":agent"
+            android:readPermission="org.autojs.permission.PLUGIN"
+            android:writePermission="org.autojs.permission.PLUGIN" />
     </application>
 
 </manifest>

@@ -1,7 +1,10 @@
 # AutoJs6 6.8.0 / 5298 release APIs, host commit 86d9bfa26b, 2026-09-27.
+# common-plugin-api: 1.1.0 release from host 8fe6d154f9 (built 2026-11-05, unsigned) for the settings transfer
+# contract v1 (roadmap P20, host settings roadmap P18.3); a superset of the 86d9bfa26b build whose 11 shared classes
+# have the same signatures and constants (javap; PluginCapabilityKeys only gains SUPPORTED_ABIS).
 format=1
 common-plugin-api.file=common-plugin-api.aar
-common-plugin-api.sha256=ee7eb7879a53506c4cca5e2d19d3058e28df2168fb33351a52302a3b9e532e15
+common-plugin-api.sha256=3597b6f92e3111c55d21abef04764b595fed6c9e0d854042a949651f3458c9fa
 host-capability-api.file=host-capability-api.aar
 host-capability-api.sha256=23024fd981b7846936ef59f595f4da2208adf38d7c2d35594c20c7dfc1a86bd1
 three-stove-agent-api.file=three-stove-agent-api.aar

@@ -4,6 +4,15 @@
 
 ******
 
+# v1.4.0
+
+###### 2026/11/05
+
+* `Hint` Exporting and importing the settings together with AutoJs6 needs AutoJs6 6.8.1 or later (not released yet); with an earlier AutoJs6 this version works like 1.3.0
+* `Feature` The plugin's settings can be exported and imported together with AutoJs6's settings, so a new phone or a reinstall does not need them set up again: the tool groups, the task limits, the operation permissions (Standard / Cautious), the voice input and floating ball switches, how failure alerts and completion notifications are shown, your own package names and keywords for risk recognition, the language, dark mode, the theme color and the MCP servers (with their access tokens); the model choice, presets, task history and memory are not included. When an MCP server has an access token, the plugin is not selected by default when exporting, and once it is selected AutoJs6 encrypts its part of the archive (set a password when exporting to import it on another phone). An import never turns on full access; only the settings on the phone itself can. Imported settings apply at once, while the language, dark mode and theme color apply the next time a screen of the plugin opens; imported MCP servers join the existing list, and while a task runs the MCP servers are not replaced, so import again after the task ends. On a new phone the floating ball shows only after the overlay permission is granted
+* `Dependency` Upgrade the common-plugin-api local module to 1.1.0 (from AutoJs6 host build 8fe6d154f9, hash-locked) for the settings export and import
+* `Dependency` Add org.json version 20231013 (JVM tests only)
+
 # v1.3.0
 
 ###### 2026/10/22

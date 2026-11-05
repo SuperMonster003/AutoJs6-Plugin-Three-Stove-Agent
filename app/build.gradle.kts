@@ -216,6 +216,8 @@ dependencies {
     implementation(libs.material)
 
     testImplementation(libs.junit)
+    // The real org.json for the settings transfer tests; android.jar only has stubs of it.
+    testImplementation(libs.org.json)
 
     androidTestImplementation(libs.test.runner)
     androidTestImplementation(libs.test.rules)

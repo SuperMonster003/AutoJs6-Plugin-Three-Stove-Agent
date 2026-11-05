@@ -9,6 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
+import org.autojs.plugin.common.api.AutoJs6PluginSettingsTransferContract as Contract
 
 /**
  * Keeps `AndroidManifest.xml` and [ThreeStoveAgentPlugin] from drifting apart: the host discovers the
@@ -138,7 +139,24 @@ class ManifestContractTest {
         assertEquals(listOf("android.intent.action.MY_PACKAGE_REPLACED"), receivers[0].child("intent-filter").children("action").map { it.androidAttribute("name") })
         assertEquals(listOf("android.intent.action.BOOT_COMPLETED", "android.intent.action.MY_PACKAGE_REPLACED"),
             receivers[1].child("intent-filter").children("action").map { it.androidAttribute("name") })
-        assertTrue(manifest.child("application").children("provider").isEmpty())
+    }
+
+    @Test
+    fun `settings transfer provider follows contract v1 and lives with the agent runtime`() {
+        val application = manifest.child("application")
+        val metaData = application.children("meta-data").associate { it.androidAttribute("name") to it.androidAttribute("value") }
+        assertEquals(Contract.PROTOCOL_VERSION.toString(), metaData[Contract.META_DATA_SETTINGS_TRANSFER])
+
+        val provider = application.children("provider").single()
+        assertEquals(".transfer.SettingsTransferProvider", provider.androidAttribute("name"))
+        assertEquals("\${applicationId}" + Contract.AUTHORITY_SUFFIX, provider.androidAttribute("authorities"))
+        assertEquals("true", provider.androidAttribute("exported"))
+        assertEquals(Contract.PLUGIN_PERMISSION, provider.androidAttribute("readPermission"))
+        assertEquals(Contract.PLUGIN_PERMISSION, provider.androidAttribute("writePermission"))
+        assertNull(provider.androidAttributeOrNull("permission"))
+        // The settings and MCP repositories are owned by AgentRuntime in :agent (roadmap P20).
+        assertEquals(ThreeStoveAgentPlugin.SERVICE_PROCESS, provider.androidAttribute("process"))
+        assertTrue(provider.children("intent-filter").isEmpty())
     }
 
     @Test
@@ -191,15 +209,18 @@ class ManifestContractTest {
         val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
             ".ui.ShareTargetActivity" to null, ".ui.VoiceCommandActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
             ".speech.ResidentListenerSettings" to PLUGIN_PERMISSION, ".speech.ResidentListenerService" to PLUGIN_PERMISSION,
-            ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION) +
+            ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION, ".transfer.SettingsTransferProvider" to PLUGIN_PERMISSION) +
             listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").associate { ".launcher.${it}IconAlias" to null }
         val components = listOf("activity", "activity-alias", "service", "receiver", "provider")
             .flatMap { manifest.child("application").children(it) }
         val exported = components.filter { it.androidAttribute("exported") == "true" }
-        assertEquals(expected, exported.associate { it.androidAttribute("name") to it.androidAttributeOrNull("permission") })
+        // A provider guards its data with readPermission / writePermission (the settings transfer, roadmap P20).
+        assertEquals(expected, exported.associate {
+            it.androidAttribute("name") to (it.androidAttributeOrNull("permission") ?: it.androidAttributeOrNull("readPermission"))
+        })
         components.filterNot { it in exported }.forEach { assertEquals("false", it.androidAttribute("exported")) }
         assertTrue(manifest.child("application").children("receiver").all { it.androidAttribute("exported") == "false" })
-        assertTrue(manifest.child("application").children("provider").isEmpty())
+        assertEquals(listOf(".transfer.SettingsTransferProvider"), manifest.child("application").children("provider").map { it.androidAttribute("name") })
     }
 
     private fun Element.children(tag: String): List<Element> {

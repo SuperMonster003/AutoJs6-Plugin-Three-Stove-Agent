@@ -250,6 +250,7 @@ Le plugin respecte des limites explicites :
 - Les identifiants du modèle restent dans son fournisseur; AutoJs6 transmet les appels. Les jetons MCP Bearer sont chiffrés avec Android Keystore dans le stockage privé et exclus des prompts et exports historiques. INTERNET sert aussi aux serveurs MCP configurés; sur Android 17+, la permission réseau local se demande depuis les paramètres MCP. Le risque choisi par serveur est initialement SENSITIVE. Annuler ne rétablit pas les actions distantes; aucun appel échoué ne se rejoue automatiquement.
 - Les outils des modules sont appelés via plugin_tools d'AutoJs6 et ne concernent que les modules activés et admis par AutoJs6 (pas les modules tiers autorisés à part par l'utilisateur). Les descriptions et résultats sont traités comme des données non fiables, et le texte qui y est reconnu n'est jamais pris pour une instruction; les outils du groupe écriture demandent une confirmation avant chaque appel sauf en accès complet. Quand un appel dépasse son délai ou que la tâche s'arrête, le module est invité à annuler, et les appels échoués ne sont pas rejoués automatiquement.
 - L'historique des tâches, les préréglages et la mémoire de préférences restent dans le stockage privé du plugin ; les sauvegardes et les transferts d'appareil sont désactivés.
+- Lors d'un export avec les paramètres d'AutoJs6 (AutoJs6 6.8.1 ou ultérieure), l'export contient les jetons d'accès des serveurs MCP: si un jeton est défini, AutoJs6 laisse le plugin non sélectionné par défaut et chiffre sa partie de l'archive une fois sélectionné; conservez donc le fichier exporté aussi soigneusement que les jetons eux-mêmes. L'entrée d'export et d'import des paramètres exige org.autojs.permission.PLUGIN et n'est appelée que par AutoJs6; un import n'active jamais l'accès complet, l'historique des tâches, les préréglages, la mémoire et le choix du modèle ne sont pas exportés, et les sauvegardes Android et les transferts d'appareil restent désactivés.
 - Les captures sont envoyées via AutoJs6 au modèle choisi, éventuellement en ligne. L'écran doit être actif et déverrouillé. L'historique conserve les dimensions et le nombre d'octets, sans contenu image. Les décisions JSON gardent l'image courante jusqu'à une autre observation ou réponse. Les conversations natives conservent les images précédentes dans les limites du lot et de la session, avec une nouvelle réservation de tokens à chaque tour.
 - Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
 - L'accès complet ne s'active que dans les paramètres privés du plugin; ni la sortie du modèle, ni l'écran, ni une demande de script, ni un Intent externe ne peuvent l'activer ou l'étendre. Il saute les confirmations des outils activés, paiements compris, sans activer d'autres groupes ni relâcher budgets et autorisations de l'hôte. L'accessibilité est démarrée par l'hôte selon la méthode configurée dans AutoJs6; le plugin ne demande toujours aucune autorisation d'accessibilité.
@@ -294,6 +295,15 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 ### Historique des versions
 
 ******
+
+#### v1.4.0
+
+_2026/11/05_
+
+- `Note` L'export et l'import des paramètres avec AutoJs6 demandent AutoJs6 6.8.1 ou ultérieure (pas encore publiée); avec une version plus ancienne d'AutoJs6, cette version fonctionne comme la 1.3.0
+- `Fonctionnalité` Les paramètres du plugin peuvent être exportés et importés avec ceux d'AutoJs6, si bien qu'un nouveau téléphone ou une réinstallation n'oblige plus à tout reconfigurer: les groupes d'outils, les limites de tâche, les autorisations des opérations (Standard / Prudent), les interrupteurs de saisie vocale et de bulle flottante, la façon d'afficher les alertes en cas d'échec et les notifications de fin, vos propres noms de paquet et mots-clés de reconnaissance des risques, la langue, le mode sombre, la couleur du thème et les serveurs MCP (avec leurs jetons d'accès); le choix du modèle, les préréglages, l'historique des tâches et la mémoire n'en font pas partie. Quand un serveur MCP a un jeton d'accès, le plugin n'est pas sélectionné par défaut à l'export et, une fois sélectionné, AutoJs6 chiffre sa partie de l'archive (pour l'importer sur un autre téléphone, définissez un mot de passe à l'export). Un import n'active jamais l'accès complet; seuls les paramètres du téléphone lui-même le peuvent. Les paramètres importés s'appliquent aussitôt, tandis que la langue, le mode sombre et la couleur du thème s'appliquent à la prochaine ouverture d'un écran du plugin; les serveurs MCP importés s'ajoutent à la liste existante, mais tant qu'une tâche tourne ils ne sont pas remplacés: importez à nouveau une fois la tâche terminée. Sur un nouveau téléphone, la bulle flottante n'apparaît qu'après l'octroi de l'autorisation d'affichage par-dessus les autres applis
+- `Dépendance` Mise à niveau du module local common-plugin-api vers 1.1.0 (build de l'hôte AutoJs6 8fe6d154f9, empreinte verrouillée) pour l'export et l'import des paramètres
+- `Dépendance` Ajout de org.json version 20231013 (tests JVM uniquement)
 
 #### v1.3.0
 
@@ -375,19 +385,6 @@ _2026/09/28_
 - `Dépendance` Mise a niveau des trois artefacts API hote release vers AutoJs6 86d9bfa26b / build 5298: ai-agent-api devient three-stove-agent-api (paquet AIDL org.autojs.plugin.three.stove.agent.api, version de contrat 2), common-plugin-api et host-capability-api etant reverrouilles depuis le meme build
 - `Dépendance` Mettre a niveau les trois artefacts release de l'API hote vers AutoJs6 3cdf7de13c / build 5297 (option du groupe mcp de P10 et constante TOOL_FAILED); le contrat de base reste en V1
 - `Dépendance` Ajout d'AndroidX AppCompat 1.7.1 et de Material Components for Android 1.13.0 avec leurs dépendances AndroidX d'exécution pour l'interface Material 3
-
-#### v1.1.0
-
-_2026/09/26_
-
-- `Note` 1.1.0 n'a pas ete publie separement; tous ses changements sont livres avec 1.2.0
-- `Note` Les appels natifs exigent AutoJs6 build 5297+ et une cible tools, comme une cible en ligne de la version de développement 3-Stone AI 1.2.0. Les anciens hôtes et les cibles incompatibles conservent JSON. Chaque conversation garde son délai initial, ses limites de contexte/sortie et 16 tours d'outils au maximum; aucune reprise JSON après une action
-- `Note` Les images nécessitent un hôte compatible, le groupe observe et un modèle visuel dont cette entrée est explicitement activée. Implémentation et tests déterministes terminés; validation visuelle réelle en ligne encore en attente. Les anciens systèmes et modèles texte gardent les observations textuelles. Voir ROADMAP.md
-- `Note` Les scripts générés utilisent les autorisations AutoJs6 sans bac à sable JavaScript et peuvent agir hors des groupes activés. Le code complet est conservé dans les étapes privées, sous réserve du masquage des mots de passe et de la rétention. Un code modifié par un masquage ultérieur ne peut être enregistré comme original. Vérifiez les .js avant de les partager.
-- `Fonctionnalité` Appels natifs via l'hôte: schémas du catalogue, validation du lot entier, exécution séquentielle, confirmations individuelles, retour des résultats et journal commun
-- `Fonctionnalité` Observation par capture via AutoJs6 sur Android 11+: screen_capture limite le grand côté à 1280 et utilise JPEG qualité 70, avec instructions visuelles, budget de tokens image et images dans les résultats des outils natifs
-- `Fonctionnalité` JavaScript généré via script_run_source : le groupe script_dynamic est désactivé par défaut. Chaque appel exige un résumé du code extensible au texte complet et une approbation individuelle. Exécution avec délai, annulation, résultats structurés et code dans les étapes privées. Le code UTF-8 et sa chaîne JSON sont chacun limités à 8 KiB.
-- `Dépendance` Mise à niveau des trois artefacts API hôte release vers AutoJs6 52ce694f92 / build 5297 pour les images négociées, en conservant le contrat de connexion build 5289+
 
 ##### Pour plus d'historique des versions
 
