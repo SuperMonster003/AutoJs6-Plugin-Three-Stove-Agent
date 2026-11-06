@@ -327,6 +327,7 @@ AiAgentCapabilityKeys.kt          REQUIRES_HOST_VERSION, CONTRACT_VERSION, TOOL_
 | P20 (1.4.0) | 设置随 AutoJs6 导出与导入: 宿主 settings 契约 v1 的 provider, 设置 / 外观 / MCP 服务器三个 store, 含 MCP 令牌时 sensitive (D93-D96) | 插件 | 宿主 8fe6d154f9 (common-plugin-api 1.1.0); 宿主 settings P18.3 |
 | P21 (1.4.0) | 连接失败的原因与下一步: 读宿主 6.8.1 的有序广播回复, 横幅给出原因与下一步 | 插件 | 宿主 feedback-680 P3.2 / P3.3 |
 | P22 (1.4.1) | 点 "连接" 未送达时打开 AutoJs6; three-stove-agent-api 重放, 直接引用回复常量 | 插件 | 宿主 c8f814c5de; 宿主 feedback-680 P3.5 / P3.6 |
+| P25 (1.4.1) | provider 忽略 response_format 时的决策解析: 带围栏 / 前后文本的回复按第一个 JSON 对象接受 (EXTRACTED), 任务台说明一次 | 插件 | 插件 issue #1 |
 
 当前验收状态 (2026-09-29): 原路线图 P0-P10 全部条目已有完成证据; 2026-09-27 另完成 D42-D46 (无障碍自动启动, 完全访问, 会话授权, Material 3 重设计, 模型独立于预设) 与同日的路线图审查 (P11, 8 个提交, 见会话记录). v1.2.0 已于 2026-09-28 发布 (P12), 1.3.0 为开发候选: P13 的风险识别配置, 预设导入导出, 观察工具补齐与任务结果分享已落地, 计划模式与 MCP 目录变更复核已实现但各缺一项真机 / 真实服务器证据, 其余为在线协议, 视觉, 语音与 ColorOS 的真机验收; 维护者体验反馈见 P14-P16. 最后一项 P9.1 Wi-Fi 双路径在当前热点自动连接临时关闭, 模型经蜂窝与原有 VPN 的受控条件下完成开关及回读; 不代表默认自动连网后的 VPN 跨网络切换失败已修复. P9.2 真实模型证据限定为 AiGoCode / gpt-5.6-sol 的初始图片与工具结果图片 Provider 探针. 旧失败和历史记录均保留, [最终 Wi-Fi 对照及边界](docs/dev/p91-wifi-acceptance-2026-09-26.md).
 
@@ -906,6 +907,20 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (测试) P24.6 JVM: `LocalModelProgressTest` (等待 / 回答两条 progress, 远程目标不发, 本地超时详情, 远程超时保留裸码, PROVIDER_UNREACHABLE 详情与括注, 归档字段的生命周期); `RunnerPortsTest` 覆盖新键; `ApplicationTextPunctuationTest` 通过. 真机: OPD2413 上 `device_local_model_check.py` 两例 PASS (数字见会话记录).
 
 验收条件: 本地目标超时的任务结果写明原因与对策而不是只有代码; 等待本地模型期间任务台显示已等待秒数, 回答后显示耗时; 设备脚本两例 PASS; 宿主 provider 连不上时 20 s 内失败且 3-Stove Agent 显示 TARGET_UNAVAILABLE (PROVIDER_UNREACHABLE).
+
+## P25 (1.4.1): provider 忽略 response_format 时的决策解析 (插件 issue #1)
+
+目标: 插件 issue #1 的报告者 (2026-11-06, Little-JohnKhan, AutoJs6 6.8.0 build 6640 + 插件 1.4.0 + 3-Stone AI 1.5.0, OnePlus PLC110 / ColorOS 16) 用智谱 GLM-4-Flash-250414 / GLM-5 (3-Stone AI 的 OpenAI 兼容模板, `structuredJson` 恒为 true) 时任务 10 / 10 以 `DECISION_UNPARSABLE` 失败: provider 接受 `response_format` 但不执行, HTTP 200 返回带 Markdown 围栏的合法 JSON; `DecisionFormat.degraded` 只在 provider 自己报 `TARGET_UNSUPPORTED` / `REQUEST_REJECTED` 时才会变, 所以 `DecisionParser` 恒走 STRICT, 两次修复 (提示词与 hint 都写明不要围栏) 仍带围栏. 对照: Doubao (执行 schema) 通过, 本地 gemma (schema 只作提示) 9 / 10.
+
+决定 (2026-11-07): STRICT 只是记录的解析模式, 不是门禁. 能保证 "整段回复就是一个 JSON 对象" 的只有真正执行 schema 的 provider, 回复不是这样本身就证明 provider 没有执行; 所以不等两次失败, 首次收到这种回复就按退化模式取第一个 JSON 对象 (步骤记录 `parseMode` = `EXTRACTED`, 可审计), 不消耗修复次数, 不切换 `DecisionFormat` (schema 继续随请求发送: 对忽略它的 provider 无代价, 对把它当提示的本机 provider 仍有用, 也避免在连接内留下状态), 不改 3-Stone AI 的能力声明. 第一个对象无效时仍以 STRICT 的 hint 发起修复, 不跳过它去找后面的对象; 校验失败 (`TOOL_ARGUMENTS_INVALID` 等) 的处理不变. 原生工具调用模式的文本回复 (ask / done) 本来就没有 schema, 同样按第一个对象解析. 每次任务第一次发生时任务台发一条 progress 说明该模型来源忽略了响应 schema (`schema_ignored`, 十语言, 不超过 160 字符), 脚本收到的是普通 progress 事件. 比 issue 建议的 "连续两次解析失败后降级" 少两次模型调用, 比 "只剥围栏" 多覆盖前后说明文字.
+
+- [x] (插件) P25.1 `DecisionRepairSession.parse`: 非退化格式先 STRICT, 失败后按退化模式再解析一次, 成功即接受并在带 schema 的格式下置 `schemaIgnored`; 两次都失败时抛出 STRICT 的失败 (hint 不变). `DecisionParser` 本身与 `DecisionParserTest` 矩阵不变.
+- [x] (插件) P25.2 `AgentRunner.requestModel`: 每次任务第一次 `schemaIgnored` 时 emit `progress` (`schema_ignored`); `runner/texts.json` 十语言新键. 不改 `DecisionFormat`, `ModelClient` 与 `SchemaFallbacks`, 宿主与 3-Stone AI 无改动.
+- [x] (测试) P25.3 `UnenforcedSchemaTest` (10 例): 四种协议的带围栏回复与带前后文本的回复按 EXTRACTED 接受且置位, 纯 JSON 仍 STRICT 且不置位, 无合法首对象时保留 STRICT hint 与修复次数, 提取出的决策仍过校验器与策略 (TOOL_DISABLED), 退化与原生格式不置位 (原生模式带围栏的 done 接受, 打印的工具调用仍拒绝); 运行器层: 两步带围栏任务完成且只有一条 progress, 步骤记录 EXTRACTED 且 `degraded` 为 false, 请求仍带 schema, 日志不含围栏; 带围栏但参数无效的决策在同一修复额度内修复; 纯 JSON 不发 progress; `ModelClient` + OPENAI 协议一次调用完成且请求的 `structuredJson` 为 true. `RunnerPortsTest` 覆盖新键的长度.
+- [x] (文档) P25.4 changelog v1.4.1 fix (十语言); 本节与会话记录. README 不改 (行为自动, 用户无需配置).
+- [ ] (真机) P25.5 用真实的忽略 response_format 的 provider (智谱 GLM 或等效) 复现并验证. 未执行: 本机没有智谱账号, 建议请报告者用 1.4.1 复测.
+
+验收条件: 带围栏回复的任务不再以 DECISION_UNPARSABLE 失败; 步骤记录可看出 EXTRACTED; 任务台出现一次说明; 纯 JSON 回复与既有失败路径的行为不变; 单元测试通过.
 
 ## 附录 A: 脚本 API 草案
 
@@ -2292,3 +2307,11 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 测试: 工作区 `--no-daemon` `:app:assembleDebug :app:testDebugUnitTest` 通过 (106 个测试类, 733 例, 0 失败, `LocalModelProgressTest` 6 例, `RunnerPortsTest` 6 例, `ApplicationTextPunctuationTest` 通过); `generate_markdown.py` 与 `--check` 通过 (10 语言, 36 个生成文件). 宿主 `:app:testAppDebugUnitTest` 的 `ThreeStoveAgentModelProtocolTest` (17) / `AiProviderHandshakeTest` (26) / `ThreeStoveAgentRunRecordTest` (6) 通过, `check_translations.py` 已 `--record-sync`, `generate_markdown.py --check` 通过.
 - 真机 (`device_local_model_check.py`, 插件 build 449, 3-Stone AI 317): OPD2413 (宿主 6640 debug) 冷启动 PASS (模型步 15.9 - 16.8 s, 模型加载 0.65 - 0.72 s, prefill 结束 13.2 - 14.1 s, decode 结束 16.1 - 17.1 s, 两条进度行都收到), 热引擎 PASS (14.6 s); 小米平板 968e9f18 (宿主 6551 debug) 冷启动 PASS (13.7 s), 热引擎 PASS (15.5 s). 两台的 Stove 由 446 debug 换成 449 debug; 平板的 3-Stone AI 仍是本会话早先覆盖安装的自建 debug 317 (同证书同版本号), OPD2413 为 release 317.
 - 剩余: 不推送, 不打 tag, 不发版 (与 P22 / P23 一起由维护者决定). 报告者侧的根因待其补充信息 (回复稿见会话汇报).
+
+### 2026-11-07: P25 provider 忽略 response_format 时的决策解析 (插件 issue #1, build 450)
+
+- 来源: 插件 issue #1 (2026-11-06, Little-JohnKhan): 智谱 GLM-4-Flash-250414 / GLM-5 经 3-Stone AI 的 OpenAI 兼容模板调用时 0 / 10, 失败形态一致 (围栏 -> 两次 repair 仍围栏 -> 耗尽); 报告者已排除提示词不足, 定位到 `degraded` 只有 provider 报错这一个触发点, 建议连续两次解析失败后降级, 或只剥围栏, 或在 3-Stone AI 暴露开关.
+- 决定: 见 P25 (首次即按退化模式解析, 不切换格式, 不改 3-Stone AI, 任务台说明一次). 不采纳 "两次失败后降级" 是为了省两次模型调用; 不采纳 "只剥围栏" 是因为前后说明文字同样常见且已有 EXTRACTED 路径; 不改 3-Stone AI 是因为用户难以预知 provider 是否执行 schema (3-Stone AI 对 DeepSeek 已有 `structuredJson = false` 的先例, 以后若要按 profile 配置再议).
+- 实现: `DecisionValidator.kt` (`DecisionRepairSession.parse` / `schemaIgnored`), `AgentRunner.kt` (`schemaIgnoredReported` + progress), `runner/texts.json` (`schema_ignored` 十语言). 宿主与 3-Stone AI 无改动.
+- 测试: 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 通过 (107 个测试类, 743 例, 0 失败, 1 例既有跳过; `UnenforcedSchemaTest` 10 例, `RunnerPortsTest` 6 例, `DecisionParserTest` 25 例矩阵不变, `ApplicationTextPunctuationTest` 通过); `generate_markdown.py` 与 `--check` 通过 (10 语言, 36 个产物). 真机 / 真实 provider 未测 (P25.5).
+- 剩余: 不推送, 不打 tag, 不发版 (与 P22 - P24 一起由维护者决定). P25.5 真实 provider 复测未执行 (无智谱账号), 建议请报告者用 1.4.1 复测; 回复稿见会话汇报.

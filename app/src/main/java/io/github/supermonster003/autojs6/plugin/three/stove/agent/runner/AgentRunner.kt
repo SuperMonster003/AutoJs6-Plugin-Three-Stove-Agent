@@ -45,6 +45,8 @@ class AgentRunner internal constructor(
     private var decision: AgentDecision? = null
     private var parseMode: ParseMode? = null
     private var repairSession: DecisionRepairSession? = null
+    /** The provider ignored the response schema at least once in this run; the workbench is told once (roadmap P25, issue #1). */
+    private var schemaIgnoredReported = false
     private var responseLimitExceeded = false
     private var internalFailure: String? = null // Exception class only; never its message.
     /** Sizes of the request that did not fit, when the run ended with LIMIT_EXCEEDED for that reason (P19.1). */
@@ -298,7 +300,14 @@ class AgentRunner internal constructor(
                     turn?.continuation?.onFailure { error -> enqueueCallback { guarded {
                         if (nativeTurn?.continuation === turn.continuation) finishError(error)
                     } } }
-                    val attempt = if (turn == null) checkNotNull(repairSession).evaluate(reply.text) else checkNotNull(repairSession).evaluateNative(turn.calls)
+                    val session = checkNotNull(repairSession)
+                    val attempt = if (turn == null) session.evaluate(reply.text) else session.evaluateNative(turn.calls)
+                    if (session.schemaIgnored && !schemaIgnoredReported) {
+                        // The reply carried a fence or surrounding text although a response schema was requested: the JSON object
+                        // inside it is used (parseMode EXTRACTED in the step record) and the user learns why once per run.
+                        schemaIgnoredReported = true
+                        emit("progress", jsonObject("step" to b.steps.json(), "message" to text.rule("schema_ignored").json()))
+                    }
                     when (attempt) {
                         is DecisionAttempt.Repair -> {
                             turn?.calls?.forEach { nativeResults += nativeResult(it, attempt.observation.toString(), true) }

@@ -62,7 +62,8 @@ class RunnerPortsTest {
             assertTrue(fused, fused.contains("[RATE_LIMITED: FUSED]") && fused.contains("AutoJs6"))
             assertFalse(RunnerText(source, locale).terminal(RunError.RATE_LIMITED, detail = "QUOTA").contains("AutoJs6"))
             // Roadmap P24: the on-device wait lines fit the archive's 160-character progress field; the timeout detail resolves in every language.
-            for (key in listOf("model_waiting_local", "model_replied_local")) assertTrue(RunnerText(source, locale).rule(key).length in 1..160)
+            // Roadmap P25 (issue #1): the schema-ignored line is a progress line too.
+            for (key in listOf("model_waiting_local", "model_replied_local", "schema_ignored")) assertTrue(key, RunnerText(source, locale).rule(key).length in 1..160)
             val local = RunnerText(source, locale).terminal(RunError.MODEL_TIMEOUT, detail = "key:model_timeout_local", note = "TIMED_OUT")
             assertTrue(local, local.contains("[MODEL_TIMEOUT: ") && !local.contains("key:") && local.endsWith("(TIMED_OUT)]"))
             val unreachable = RunnerText(source, locale).terminal(RunError.TARGET_UNAVAILABLE, detail = "key:provider_unreachable", note = "PROVIDER_UNREACHABLE")

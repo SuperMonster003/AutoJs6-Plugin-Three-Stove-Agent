@@ -21,6 +21,7 @@
     "plan_question": "Review the proposed plan. Edit the steps if needed, then execute.",
     "provider_unreachable": "The AI plugin that serves this model did not respond to AutoJs6 within 20 seconds. Make sure the plugin is enabled in Plugin Center and allowed to run in the background, then try again.",
     "repeated_action": "The same action was requested three times. The task stopped before executing it again.",
+    "schema_ignored": "This model source ignores the requested response schema (the reply had a Markdown fence or extra text). The task continues with the JSON object in the reply.",
     "unfinished_missing": "Identify and finish the remaining work, then verify the outcome.",
     "unverified_summary": "The task is incomplete or its completion could not be verified."
   },
@@ -46,6 +47,7 @@
     "plan_question": "请审阅建议的计划, 可修改步骤后执行.",
     "provider_unreachable": "提供该模型的 AI 插件在 20 秒内没有响应 AutoJs6. 请确认该插件已在插件中心启用并允许在后台运行, 然后重试.",
     "repeated_action": "同一动作已连续请求 3 次. 任务已停止, 未再次执行该动作.",
+    "schema_ignored": "该模型来源忽略了请求的响应 schema (回复带 Markdown 围栏或多余文本). 任务按回复中的 JSON 对象继续.",
     "unfinished_missing": "明确并完成剩余工作, 然后核实结果.",
     "unverified_summary": "任务尚未完成, 或缺少可核实的完成证据."
   },
@@ -71,6 +73,7 @@
     "plan_question": "請審閱建議的計劃, 可修改步驟後執行.",
     "provider_unreachable": "提供該模型的 AI 外掛在 20 秒內沒有回應 AutoJs6. 請確認該外掛已在外掛中心啟用並允許在背景執行, 然後重試.",
     "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作.",
+    "schema_ignored": "該模型來源忽略了要求的回應 schema (回覆帶 Markdown 圍欄或多餘文字). 任務依回覆中的 JSON 物件繼續.",
     "unfinished_missing": "明確並完成剩餘工作, 然後核實結果.",
     "unverified_summary": "任務尚未完成, 或缺少可核實的完成證據."
   },
@@ -96,6 +99,7 @@
     "plan_question": "請審閱建議的計劃, 可修改步驟後執行.",
     "provider_unreachable": "提供該模型的 AI 插件在 20 秒內沒有回應 AutoJs6. 請確認該插件已在插件中心啟用並允許在後台運行, 然後重試.",
     "repeated_action": "同一動作已連續請求 3 次. 任務已停止, 未再次執行該動作.",
+    "schema_ignored": "該模型來源忽略了請求的回應 schema (回覆帶 Markdown 圍欄或多餘文字). 任務按回覆中的 JSON 對象繼續.",
     "unfinished_missing": "明確並完成剩餘工作, 然後核實結果.",
     "unverified_summary": "任務尚未完成, 或缺少可核實的完成證據."
   },
@@ -121,6 +125,7 @@
     "plan_question": "Vérifiez le plan proposé. Modifiez les étapes si nécessaire, puis exécutez.",
     "provider_unreachable": "Le plugin IA qui fournit ce modèle n'a pas répondu à AutoJs6 dans les 20 secondes. Vérifiez que le plugin est activé dans le Centre de plugins et autorisé à s'exécuter en arrière-plan, puis réessayez.",
     "repeated_action": "La même action a été demandée trois fois. La tâche s'est arrêtée avant de l'exécuter à nouveau.",
+    "schema_ignored": "Cette source de modèle ignore le schéma de réponse demandé (clôture Markdown ou texte en plus dans la réponse). La tâche utilise l'objet JSON de la réponse.",
     "unfinished_missing": "Identifiez et terminez le travail restant, puis vérifiez le résultat.",
     "unverified_summary": "La tâche est incomplète ou son achèvement n'a pas pu être vérifié."
   },
@@ -146,6 +151,7 @@
     "plan_question": "Revise el plan propuesto. Edite los pasos si es necesario y luego ejecute.",
     "provider_unreachable": "El plugin de IA que ofrece este modelo no respondió a AutoJs6 en 20 segundos. Compruebe que el plugin esté habilitado en el Centro de plugins y tenga permitido ejecutarse en segundo plano, y vuelva a intentarlo.",
     "repeated_action": "La misma acción se solicitó tres veces. La tarea se detuvo antes de ejecutarla de nuevo.",
+    "schema_ignored": "Esta fuente de modelo ignora el esquema de respuesta solicitado (valla Markdown o texto extra en la respuesta). La tarea usa el objeto JSON de la respuesta.",
     "unfinished_missing": "Identifica y termina el trabajo pendiente, luego verifica el resultado.",
     "unverified_summary": "La tarea está incompleta o no se pudo verificar su finalización."
   },
@@ -171,6 +177,7 @@
     "plan_question": "提案された計画を確認し, 必要なら手順を編集してから実行してください.",
     "provider_unreachable": "このモデルを提供する AI プラグインが 20 秒以内に AutoJs6 に応答しませんでした. プラグインセンターでそのプラグインが有効で, バックグラウンド実行が許可されていることを確認してから再試行してください.",
     "repeated_action": "同じ操作が連続して 3 回要求されました. 再実行する前にタスクを停止しました.",
+    "schema_ignored": "このモデル提供元は要求した応答スキーマを無視しています (応答に Markdown フェンスや余分なテキストがありました). タスクは応答内の JSON オブジェクトで続行します.",
     "unfinished_missing": "残りの作業を明確にして完了し, 結果を確認してください.",
     "unverified_summary": "タスクが未完了か, 完了を確認できませんでした."
   },
@@ -196,6 +203,7 @@
     "plan_question": "제안된 계획을 검토하고 필요하면 단계를 수정한 뒤 실행하세요.",
     "provider_unreachable": "이 모델을 제공하는 AI 플러그인이 20 초 안에 AutoJs6 에 응답하지 않았습니다. 플러그인 센터에서 해당 플러그인이 활성화되어 있고 백그라운드 실행이 허용되어 있는지 확인한 뒤 다시 시도하세요.",
     "repeated_action": "같은 동작이 연속으로 3번 요청되었습니다. 다시 실행하기 전에 작업을 중지했습니다.",
+    "schema_ignored": "이 모델 소스는 요청한 응답 스키마를 무시합니다 (응답에 Markdown 펜스나 추가 텍스트가 있었습니다). 작업은 응답 안의 JSON 객체로 계속됩니다.",
     "unfinished_missing": "남은 작업을 파악하여 완료한 뒤 결과를 확인하세요.",
     "unverified_summary": "작업이 완료되지 않았거나 완료 여부를 확인할 수 없습니다."
   },
@@ -221,6 +229,7 @@
     "plan_question": "Проверьте предложенный план. При необходимости измените шаги, затем выполните.",
     "provider_unreachable": "AI-плагин, предоставляющий эту модель, не ответил AutoJs6 за 20 секунд. Убедитесь, что плагин включен в Центре плагинов и ему разрешена работа в фоне, затем повторите попытку.",
     "repeated_action": "Одно действие запрошено три раза подряд. Задача остановлена до его повторного выполнения.",
+    "schema_ignored": "Этот источник модели игнорирует запрошенную схему ответа (в ответе была Markdown-ограда или лишний текст). Задача продолжается с JSON-объектом из ответа.",
     "unfinished_missing": "Определите и завершите оставшуюся работу, затем проверьте результат.",
     "unverified_summary": "Задача не завершена или ее завершение не удалось проверить."
   },
@@ -246,6 +255,7 @@
     "plan_question": "راجع الخطة المقترحة. عدل الخطوات عند الحاجة, ثم نفذ.",
     "provider_unreachable": "لم تستجب إضافة الذكاء الاصطناعي التي توفر هذا النموذج لـ AutoJs6 خلال 20 ثانية. تأكد من تمكين الإضافة في مركز الإضافات والسماح لها بالعمل في الخلفية, ثم أعد المحاولة.",
     "repeated_action": "تم طلب الإجراء نفسه ثلاث مرات متتالية. توقفت المهمة قبل تنفيذه مرة أخرى.",
+    "schema_ignored": "مصدر النموذج هذا يتجاهل مخطط الاستجابة المطلوب (احتوت الاستجابة على سور Markdown أو نص إضافي). تتابع المهمة باستخدام كائن JSON الموجود في الاستجابة.",
     "unfinished_missing": "حدد العمل المتبقي وأكمله ثم تحقق من النتيجة.",
     "unverified_summary": "المهمة غير مكتملة أو تعذر التحقق من اكتمالها."
   }

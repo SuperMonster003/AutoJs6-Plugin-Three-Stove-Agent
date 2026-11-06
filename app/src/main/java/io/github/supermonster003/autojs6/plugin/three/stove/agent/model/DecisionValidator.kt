@@ -158,9 +158,13 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
     private val rejected = mutableListOf<DecisionRejection>()
     val rejections: List<DecisionRejection> get() = rejected.toList()
     private var sealed = false
+    /** A reply to a request that carried a response schema was not one bare JSON object, so the provider does not enforce
+     * the schema (3-Stove Agent issue #1: Zhipu GLM accepts response_format and answers inside a Markdown fence). */
+    var schemaIgnored = false
+        private set
     fun switchFormat(next: DecisionFormat) { check(!sealed); format = next }
     fun evaluate(text: String): DecisionAttempt = evaluate {
-        val parsed = DecisionParser.parse(text, format.degraded)
+        val parsed = parse(text)
         val decision = validator.validate(parsed, policy, format)
         if (format.nativeTools && decision is AgentDecision.Tool) throw DecisionFailure("DECISION_UNPARSABLE", "Use the native tool interface; text responses may only ask or finish.")
         validateSemantics(decision)
@@ -174,6 +178,20 @@ class DecisionRepairSession(private val validator: DecisionValidator, private va
                 .also(validateSemantics)
         }
         DecisionAttempt.Accepted(decisions.first(), ParseMode.NATIVE_TOOL, decisions.drop(1))
+    }
+    /**
+     * STRICT is the recorded mode, not a gate. Only a provider that enforces the response schema can guarantee one bare
+     * JSON object, and a reply that is not one proves this provider does not; the text reply of a native tool round has
+     * no schema at all. In both cases the first JSON object counts, exactly as in degraded mode, the step journal records
+     * EXTRACTED, and a reply without a valid first object keeps the strict hint for the repair request (roadmap P25).
+     */
+    private fun parse(text: String): ParsedDecision {
+        if (format.degraded) return DecisionParser.parse(text, degraded = true)
+        return try { DecisionParser.parse(text) } catch (strict: DecisionFailure) {
+            val extracted = try { DecisionParser.parse(text, degraded = true) } catch (_: DecisionFailure) { throw strict }
+            if (format.responseSchemaJson != null) schemaIgnored = true
+            extracted
+        }
     }
     private fun evaluate(accept: () -> DecisionAttempt.Accepted): DecisionAttempt {
         check(!sealed) { "Decision step is already settled" }
