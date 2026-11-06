@@ -93,7 +93,11 @@ internal class RunArchive(directory: File, private val legacyDirectory: File? = 
             "done", "error" -> { row.remove("pending"); deadlines.remove(event.runId); rememberScopes.remove(event.runId) }
             "step" -> row.add("step", event.payload["index"] ?: 0.json())
             "progress" -> { row.addProperty("progress", AgentJson.truncate(event.payload.string("message").orEmpty(), 160))
-                event.payload["budget"]?.let { row.add("remainingBudget", it.deepCopy()) } }
+                event.payload["budget"]?.let { row.add("remainingBudget", it.deepCopy()) }
+                // A model-phase line keeps its arrival time so the workbench can count the seconds waited for an
+                // on-device model; any later progress line ends that count (roadmap P24).
+                if (event.payload.string("phase") == "model") { row.addProperty("progressAt", System.currentTimeMillis()); row.addProperty("progressPhase", "model") }
+                else { row.remove("progressAt"); row.remove("progressPhase") } }
         }
         row.addProperty("sequence", event.sequence)
         markDirty(event.runId)

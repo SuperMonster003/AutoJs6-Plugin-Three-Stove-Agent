@@ -488,7 +488,8 @@
     <string name="workbench_example_wifi">Wi-Fi를 켜고 켜졌는지 확인</string>
     <string name="workbench_goal_hint">목표와 요구 사항을 입력하세요</string>
     <string name="workbench_goal_invalid">목표를 UTF-8 텍스트 4 KiB 이내로 입력하세요.</string>
-    <string name="workbench_jump_latest">최신으로 이동</string>
+    <string name="workbench_jump_latest">최신으로 이동</string>
+    <string name="workbench_model_waiting">%1$d 초 경과</string>
     <string name="workbench_new_task">새 작업</string>
     <string name="workbench_preset">프리셋</string>
     <string name="workbench_recent">최근 작업</string>

@@ -894,6 +894,19 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 验收条件: 插件单测通过; 配新宿主时目录被拒的横幅在回复到达时立即显示, 文案与宿主规则一致; 配旧宿主时行为与 1.4.0 相同 (超时后才显示, 文案为新文案).
 
+## P24 (1.4.1): 本地模型调用超时的原因说明与等待提示 (宿主 issue #589 评论, Q17 后续)
+
+目标: issue #589 的报告者 (2026-11-06, Little-JohnKhan, AutoJs6 6.8.0 build 6640 + 插件 1.4.0, OnePlus PLC110 / Dimensity 9400+, ColorOS 16) 第一个本地任务 (gemma-4-E2B) 以 `MODEL_TIMEOUT` 结束. 实测 (见会话记录 2026-11-06 P24) Xiaomi Pad 6 Pro 与 OnePlus OPD2413 (ColorOS 15) 上同样的调用冷启动 14 - 18 s, 关屏 / 工作台置前也不超过 19 s, 权重缓存在导入时已建好, 所以报告者的 300 s 不是正常推理耗时; 剩余假设是 provider 进程被系统限制或冻结, 真实任务输出更长, 或 3-Stone AI 版本差异. 维护者 2026-11-06 拍板 "A + 宿主短连接时限" (Q17 不改契约): 让超时的结果自己说明可能原因, 等待期间可见, 并给维护者一个在设备上量化各阶段耗时的脚本; 宿主侧让 "provider 没连上" 在 20 s 内以可区分的原因失败.
+
+- [x] (插件) P24.1 `RunModel.local` (ModelClient: `target.locality == ON_DEVICE`); `AgentRunner.requestModel` 对本地目标在每次模型调用前发 `progress` 事件 (message = `model_waiting_local`, `phase` = `model`), 回答到达时再发一条 (`model_replied_local` + 等待秒数); `MODEL_TIMEOUT` 的结果详情改为 `key:model_timeout_local` (可能原因与对策, 十语言), 宿主原因码保留在括注里. 准备阶段与生成阶段收到 `TARGET_UNAVAILABLE` + 原因 `PROVIDER_UNREACHABLE` (宿主 6.8.1) 时详情为 `key:provider_unreachable`. `BinderModelBroker.select` 的失败现在带上宿主 `reason`.
+- [x] (插件) P24.2 `RunArchive` 对 `phase` = `model` 的 progress 记 `progressAt` / `progressPhase`, 下一条 progress 清掉; 任务台 (`WorkbenchFeed`) 在该阶段把进度行写成 "<等待文案> · 已等待 N 秒" (`workbench_model_waiting`, 11 个 values 目录), 靠 500 ms 轮询推进; `RunHistoryCodec` 校验新字段. 脚本侧只看到普通 progress 事件.
+- [x] (插件) P24.3 `.python/device_local_model_check.py`: 冷启动 (先 force-stop 3-Stone AI) 与热引擎各跑一条 "只回复 OK" 的任务, 输出 DEVICE / PASS / FAIL / SUMMARY 行: 模型步耗时, 各阶段 (模型加载, 权重缓存, prefill, decode) 相对 provider 启动的毫秒数, token 数, 两条 progress 行是否收到 (插件 build >= 449), provider 的 cpuset / oom_score_adj / RSS 峰值; 不打印日志全文.
+- [x] (文档) P24.4 README 本地模型 FAQ (十语言) 补两台设备的实测数字与新行为; changelog v1.4.1 fix + improvement (十语言); Q17 加后续说明.
+- [x] (宿主, 6.8.1 本地提交) P24.5 `AndroidAiPluginAskRunner` 的握手与列目标两阶段用 `minOf(remaining, CONNECT_TIMEOUT_MILLIS = 20_000)`, 不再等满请求超时; `ThreeStoveAgentModelBroker` 把列目标阶段的 `TIMED_OUT`, 以及流式 / 工具路径在 provider 发出任何事件之前的 `TIMED_OUT`, 改为 `ERROR_TARGET_UNAVAILABLE` + reason `PROVIDER_UNREACHABLE`; 其他路径的 `TIMED_OUT` 仍为 `ERROR_MODEL_TIMEOUT`. 公开 ai.ask 的失败码不变 (仍是 TIMED_OUT, 只是最多 20 s 后到达). 宿主 changelog 6.8.1 fix (十语言).
+- [x] (测试) P24.6 JVM: `LocalModelProgressTest` (等待 / 回答两条 progress, 远程目标不发, 本地超时详情, 远程超时保留裸码, PROVIDER_UNREACHABLE 详情与括注, 归档字段的生命周期); `RunnerPortsTest` 覆盖新键; `ApplicationTextPunctuationTest` 通过. 真机: OPD2413 上 `device_local_model_check.py` 两例 PASS (数字见会话记录).
+
+验收条件: 本地目标超时的任务结果写明原因与对策而不是只有代码; 等待本地模型期间任务台显示已等待秒数, 回答后显示耗时; 设备脚本两例 PASS; 宿主 provider 连不上时 20 s 内失败且 3-Stove Agent 显示 TARGET_UNAVAILABLE (PROVIDER_UNREACHABLE).
+
 ## 附录 A: 脚本 API 草案
 
 ### A.1 命名与通用约定
@@ -1382,6 +1395,7 @@ budget: steps 7/40, model calls 8/60, elapsed 1m12s/10m
 - 选项 B: 放宽本机目标的模型时限 (例如 10 分钟): 300 s 是宿主契约常量, 需宿主, 3-Stone AI 与本插件三侧一起改 (D51 三侧一致), 约 1 天, 涉及宿主推送.
 - 选项 C: 3-Stone AI 预载或常驻本机模型, 省掉第一次调用前约 2.7 分钟的载入; 属 3-Stone AI 仓库的任务, 内存小的手机上常驻进程也会被系统回收.
 - 影响条目: P19.3 (G8441 一半), README 本地模型 FAQ.
+- 2026-11-06 后续: 宿主 issue #589 的报告者 (OnePlus PLC110, Dimensity 9400+) 用 gemma-4-E2B 也遇到 MODEL_TIMEOUT, 但实测同级设备只需十几秒 (见 P24). 维护者选 "A + 宿主短连接时限": 不改 300 s 契约 (选项 B / C 仍不做), 插件写明超时原因与对策并显示等待时间, 宿主把握手 / 列目标的等待限制在 20 s 内.
 
 ---
 
@@ -2264,3 +2278,17 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 测试: 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 通过 (105 个测试类无失败, `AttachReplyTest` 8 例, `ApplicationTextPunctuationTest` 通过); `generate_markdown.py` 与 `--check` 通过 (10 语言, 36 个产物).
 - 真机: P23.4 已在 OPD2413 (ColorOS 15, en-US) 上通过 (宿主 6640 debug, 从 `69c5528499` 的干净导出构建, + build 446): 上级目录被拒的横幅在启动后 2.6 s 的第一次读取时已显示 (宿主 507 ms 回复), 工作目录本身 5.3 s 连上; 脚本 `.python/device_roots_check.py`, 证据 `docs/dev/p23-roots-evidence-2026-11-06.md`. 配 6.8.0 宿主的超时路径未上真机, 由单测覆盖.
 - 剩余: 不推送, 不打 tag, 不发版 (P22.6 由维护者决定). OPD2413 上的宿主保留 6640 debug (维护者 2026-11-06 决定), 原 5935 debug 的备份 APK 已删除.
+
+### 2026-11-06: P24 本地模型调用超时的原因说明与等待提示 (宿主 issue #589 评论, build 449)
+
+- 来源: 同一条评论末尾: 第一个任务用本地 gemma-4-E2B 时出现 `MODEL_TIMEOUT` (报告者设备 OnePlus PLC110 = Ace 5 至尊版, Dimensity 9400+, 12 / 16 GB, ColorOS 16; 3-Stone AI 版本未知).
+- 超时链: 插件 `modelTimeoutMs` = 契约 300 s, 每个原生续轮重新计时; 准备阶段 (握手 + 列目标) 另有 15 s 的 `PREPARATION_MS` 并以 `TARGET_UNAVAILABLE` 结束, 所以报告者拿到 `MODEL_TIMEOUT` 说明 provider 当时连得上, 是随后的生成调用 300 s 未回. 宿主侧握手 / 列目标此前沿用整个请求超时, 生成阶段 provider 掉线也要等满 300 s 才以 TIMED_OUT -> ERROR_MODEL_TIMEOUT 失败.
+- 实测 (CPU 档, "Reply with the single word OK" 一步任务, 3-Stone AI 1.6.0 build 317, 权重缓存在导入时已建好):
+  - Xiaomi Pad 6 Pro 23046RP50C (SM8475, 12 GB): E2B 冷进程 + 删缓存 18.3 s (缓存重建 1.0 s, 引擎就绪 5.1 s, prefill 结束 14.9 s, decode 结束 18.1 s, 1423 / 54 token, 平均 3.9 核), 冷进程 17.3 s, 热引擎 12.5 s; E4B 冷进程 40.2 s (RSS 峰 5.4 GB).
+  - OnePlus OPD2413 (ColorOS 15, 11.7 GB): E2B 冷进程 14.05 s (jni 0.57 s, 模型加载 0.84 s, prefill 结束 9.8 s, decode 结束 12.2 s, 1603 / 48 token, 4.6 核; 运行期 provider 在 foreground cpuset, oom_adj 100); Stove 工作台置前 (宿主退到后台) 12.5 s; 关屏 18.9 s (provider 在 background cpuset 仍 4.6 核). 没有一例接近 300 s, 也没有冻结或绑定挂起.
+  - 结论: 报告者的超时不是正常推理耗时. 剩余假设: provider 进程被 ColorOS 16 的后台策略限制或冻结, 真实任务的输出更长 (默认 `maximumOutputTokens` 2048), 热节流, 或 3-Stone AI 版本差异; 需要报告者的 3-Stone AI 版本, 宿主日志与后台设置才能继续.
+- 决定 (维护者 2026-11-06, 选择题): 继续在打开了 3-Stone AI 的 OPD2413 复现 (维护者在插件中心打开); 改动方案 "A + 宿主短连接时限" (见 P24); 起草给报告者的 issue 回复稿 (由维护者发布).
+- 实现: P24.1 - P24.6 全部完成, 见条目; `BinderModelBroker.select` 的失败带上宿主 reason 是为了让准备阶段也能识别 `PROVIDER_UNREACHABLE`. 宿主本地提交随 6.8.1, 公开 ai.ask 失败码不变.
+- 测试: 工作区 `--no-daemon` `:app:assembleDebug :app:testDebugUnitTest` 通过 (106 个测试类, 733 例, 0 失败, `LocalModelProgressTest` 6 例, `RunnerPortsTest` 6 例, `ApplicationTextPunctuationTest` 通过); `generate_markdown.py` 与 `--check` 通过 (10 语言, 36 个生成文件). 宿主 `:app:testAppDebugUnitTest` 的 `ThreeStoveAgentModelProtocolTest` (17) / `AiProviderHandshakeTest` (26) / `ThreeStoveAgentRunRecordTest` (6) 通过, `check_translations.py` 已 `--record-sync`, `generate_markdown.py --check` 通过.
+- 真机 (`device_local_model_check.py`, 插件 build 449, 3-Stone AI 317): OPD2413 (宿主 6640 debug) 冷启动 PASS (模型步 15.9 - 16.8 s, 模型加载 0.65 - 0.72 s, prefill 结束 13.2 - 14.1 s, decode 结束 16.1 - 17.1 s, 两条进度行都收到), 热引擎 PASS (14.6 s); 小米平板 968e9f18 (宿主 6551 debug) 冷启动 PASS (13.7 s), 热引擎 PASS (15.5 s). 两台的 Stove 由 446 debug 换成 449 debug; 平板的 3-Stone AI 仍是本会话早先覆盖安装的自建 debug 317 (同证书同版本号), OPD2413 为 release 317.
+- 剩余: 不推送, 不打 tag, 不发版 (与 P22 / P23 一起由维护者决定). 报告者侧的根因待其补充信息 (回复稿见会话汇报).

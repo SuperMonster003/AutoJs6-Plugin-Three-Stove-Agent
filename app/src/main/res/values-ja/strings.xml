@@ -488,7 +488,8 @@
     <string name="workbench_example_wifi">Wi-Fi をオンにしてオンになったことを確認</string>
     <string name="workbench_goal_hint">目標と条件を入力</string>
     <string name="workbench_goal_invalid">目標を UTF-8 で 4 KiB 以内にしてください.</string>
-    <string name="workbench_jump_latest">最新へ移動</string>
+    <string name="workbench_jump_latest">最新へ移動</string>
+    <string name="workbench_model_waiting">%1$d 秒経過</string>
     <string name="workbench_new_task">新しいタスク</string>
     <string name="workbench_preset">プリセット</string>
     <string name="workbench_recent">最近のタスク</string>

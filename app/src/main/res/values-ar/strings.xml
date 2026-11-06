@@ -488,7 +488,8 @@
     <string name="workbench_example_wifi">شغل Wi-Fi وتأكد من تشغيله</string>
     <string name="workbench_goal_hint">صف هدفك ومتطلباتك</string>
     <string name="workbench_goal_invalid">أدخل هدفا بنص UTF-8 لا يتجاوز 4 KiB.</string>
-    <string name="workbench_jump_latest">الانتقال إلى الأحدث</string>
+    <string name="workbench_jump_latest">الانتقال إلى الأحدث</string>
+    <string name="workbench_model_waiting">انتظار %1$d ث</string>
     <string name="workbench_new_task">مهمة جديدة</string>
     <string name="workbench_preset">إعداد مسبق</string>
     <string name="workbench_recent">المهام الأخيرة</string>

@@ -160,9 +160,13 @@ internal class WorkbenchFeed(private val kit: Kit, private val actions: FeedActi
         set(budget, WorkbenchText.budget(context, value))
         timeline.render(value.getAsJsonArray("steps"))
         val summary = WorkbenchText.summary(value)
-        set(step, if (!active) summary else value.string("progress") ?: value.getAsJsonArray("steps")?.lastOrNull()?.asJsonObject?.let {
+        // While an on-device model is answering, the progress line also counts the seconds waited (roadmap P24); the
+        // feed polls every 500 ms during an active task, so the count advances without a ticker of its own.
+        val waited = if (active && value.string("progressPhase") == "model") value.number("progressAt")?.let { ((System.currentTimeMillis() - it.toLong()) / 1000).coerceAtLeast(0) } else null
+        val progressLine = value.string("progress")?.takeIf { it.isNotBlank() } ?: value.getAsJsonArray("steps")?.lastOrNull()?.asJsonObject?.let {
             it.getAsJsonObject("decision")?.string("reasoning") ?: it.string("tool")
-        }.orEmpty())
+        }.orEmpty()
+        set(step, if (!active) summary else if (waited == null) progressLine else "$progressLine · ${context.getString(R.string.workbench_model_waiting, waited)}")
         step.visibility = if (step.text.isEmpty()) View.GONE else View.VISIBLE
         resultTitle.visibility = if (!active && summary.isNotEmpty()) View.VISIBLE else View.GONE
         if (WorkbenchText.accessibilityBlocked(value)) accessibilityBanner.view.visibility = View.VISIBLE else accessibilityBanner.hide()

@@ -25,6 +25,7 @@ class ModelClient(
     private val broker: ModelBrokerTransport, private val target: ModelTarget, private val policy: ToolPolicy,
     private val fallbacks: SchemaFallbacks, private val scheduler: RunScheduler,
 ) : RunModel {
+    override val local: Boolean get() = target.locality == ModelLocality.ON_DEVICE
     private var structuredUnsupported = false
     private var toolsUnsupported = false
 

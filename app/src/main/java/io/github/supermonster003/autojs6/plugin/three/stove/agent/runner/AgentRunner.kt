@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.RejectedExecutionException
 import java.util.Locale
 
+/** Host reason sent with TARGET_UNAVAILABLE when the plugin serving the model did not connect within the host's
+ *  short connect limit (AutoJs6 6.8.1, roadmap P24); older hosts report such a wait as a model timeout. */
+private const val PROVIDER_UNREACHABLE = "PROVIDER_UNREACHABLE"
+
 /** One run, confined to a link's serial scheduler. No Binder, Android or model-provider dependency.
  * Observers must return promptly; the P2.5 adapter forwards events through the oneway callback. */
 class AgentRunner internal constructor(
@@ -88,7 +92,9 @@ class AgentRunner internal constructor(
                     if (outcome is PortResult.Success && outcome.value !== acceptedComponents) safely(outcome.value.cleanup::cancel)
                 }) { outcome ->
                 when (outcome) {
-                    is PortResult.Failure -> finishError(outcome.error, mcpReason = outcome.mcpReason)
+                    is PortResult.Failure -> finishError(outcome.error, mcpReason = outcome.mcpReason,
+                        detail = if (outcome.reason == PROVIDER_UNREACHABLE) "key:provider_unreachable" else null,
+                        note = outcome.reason?.takeIf { it == PROVIDER_UNREACHABLE })
                     is PortResult.Success -> {
                         acceptedComponents = outcome.value
                         cleanup = outcome.value.cleanup
@@ -242,6 +248,10 @@ class AgentRunner internal constructor(
             stepEstimated = stepEstimated || usage?.inputTokens == null || usage.outputTokens == null
         }
         val admittedContinuation = continuation
+        // An on-device model may spend its first call loading weights (roadmap P24, host issue #589): this line, with the
+        // seconds waited, stays on the workbench until the reply line replaces it. Scripts see both as ordinary progress.
+        val localWaitStartedMs = if (model.local) scheduler.nowMs() else null
+        if (localWaitStartedMs != null) emit("progress", jsonObject("step" to b.steps.json(), "message" to text.rule("model_waiting_local").json(), "phase" to "model".json()))
         beginOperation(timeoutMs, RunError.MODEL_TIMEOUT, RunError.MODEL_FAILED,
             { callback -> if (admittedContinuation == null) model.generate(checkNotNull(input), reservation.maximumOutputTokens, timeoutMs, callback)
                 else admittedContinuation.resume(results, reservation.maximumOutputTokens, timeoutMs, callback) },
@@ -253,7 +263,16 @@ class AgentRunner internal constructor(
                     if (outcome.error.hostLost) { finishError(outcome.error); return@beginOperation }
                     b.check()
                     val next = if (continuation == null && !nativeContextRebuilt && formatFallbacks < 2) model.fallbackFormat(format, outcome) else null
-                    if (next == null) finishError(outcome.error, detail = if (outcome.error == RunError.LIMIT_EXCEEDED) "key:limit_response" else outcome.reason) else {
+                    if (next == null) {
+                        // A local model's timeout and an unreachable provider get the catalog explanation; the host code stays as the note.
+                        val explained = when {
+                            outcome.error == RunError.MODEL_TIMEOUT && localWaitStartedMs != null -> "key:model_timeout_local"
+                            outcome.error == RunError.TARGET_UNAVAILABLE && outcome.reason == PROVIDER_UNREACHABLE -> "key:provider_unreachable"
+                            else -> null
+                        }
+                        finishError(outcome.error, detail = explained ?: if (outcome.error == RunError.LIMIT_EXCEEDED) "key:limit_response" else outcome.reason,
+                            note = if (explained != null) outcome.reason else null)
+                    } else {
                         formatFallbacks++; format = next
                         nativeDeadlineMs = null
                         checkNotNull(repairSession).switchFormat(next)
@@ -268,6 +287,8 @@ class AgentRunner internal constructor(
                     val outputBytes = maxOf(reply.outputBytes, if (reply.text.length <= AgentJson.MAX_MODEL_BYTES) reply.text.utf8Size() else AgentJson.MAX_MODEL_BYTES + 1)
                     responseLimitExceeded = outputBytes > AgentJson.MAX_MODEL_BYTES
                     settle(reply.usage, outputBytes)
+                    if (localWaitStartedMs != null) emit("progress", jsonObject("step" to b.steps.json(),
+                        "message" to "${text.rule("model_replied_local")} (${String.format(Locale.ROOT, "%.1f", (scheduler.nowMs() - localWaitStartedMs) / 1000.0)} s)".json()))
                     b.check()
                     if (responseLimitExceeded) { finishError(RunError.LIMIT_EXCEEDED, detail = "key:limit_response"); return@beginOperation }
                     val turn = reply.nativeTurn

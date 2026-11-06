@@ -107,6 +107,8 @@ class RunComponents(val compiler: RunContextCompiler, val model: RunModel, val t
 /** The Binder layer resolves public model metadata on a worker before the first decision. */
 fun interface RunPreparation { fun prepare(callback: (PortResult<RunComponents>) -> Unit): Cancellation }
 interface RunModel {
+    /** True for an on-device target: the runner then reports model waits and times out with the local-model detail (roadmap P24). */
+    val local: Boolean get() = false
     fun initialFormat(proposed: DecisionFormat): DecisionFormat = proposed
     /** The plan request in plan mode: never native tools, so the model has to answer with a plan instead of calling a tool (roadmap P13). */
     fun planningFormat(proposed: DecisionFormat): DecisionFormat = initialFormat(proposed)

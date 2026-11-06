@@ -488,7 +488,8 @@
     <string name="workbench_example_wifi">開啟 Wi-Fi 並確認已開啟</string>
     <string name="workbench_goal_hint">描述目標及具體要求</string>
     <string name="workbench_goal_invalid">請輸入目標, UTF-8 文字不能超過 4 KiB.</string>
-    <string name="workbench_jump_latest">跳到最新</string>
+    <string name="workbench_jump_latest">跳到最新</string>
+    <string name="workbench_model_waiting">已等待 %1$d 秒</string>
     <string name="workbench_new_task">新增任務</string>
     <string name="workbench_preset">預設</string>
     <string name="workbench_recent">最近任務</string>

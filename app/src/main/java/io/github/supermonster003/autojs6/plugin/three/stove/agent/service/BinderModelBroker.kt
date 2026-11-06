@@ -88,7 +88,7 @@ internal class BinderModelBroker(private val context: Context, private val broke
                                 callback(PortResult.Success(targets))
                             }
                             C.MODEL_EVENT_FAILED, C.MODEL_EVENT_CANCELLED -> callback(PortResult.Failure(
-                                RunError.entries.firstOrNull { it.name == event.string("code") } ?: RunError.MODEL_FAILED))
+                                RunError.entries.firstOrNull { it.name == event.string("code") } ?: RunError.MODEL_FAILED, event.string("reason")))
                             else -> throw WireFailure(C.ERROR_INVALID_REQUEST)
                         }
                     } catch (failure: Exception) {

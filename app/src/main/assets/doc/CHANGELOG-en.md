@@ -6,10 +6,12 @@
 
 # v1.4.1
 
-###### 2026/11/05
+###### 2026/11/06
 
 * `Fix` When the script directories set in 3-Stove Agent did not meet the AutoJs6 requirements (such as a missing directory, one outside shared storage, or a parent of the AutoJs6 working directory), the first connection only showed a 15-second timeout without a reason, and the directories were only reported as not accepted when changed while already connected; AutoJs6 6.8.1 now answers that the directories were rejected as soon as the connection request arrives, and the workbench shows the directory requirements at once (with AutoJs6 6.8.0 they still appear only after the timeout). The settings description and the notice now state the actual AutoJs6 rules (they only said "not a parent of the working directory", while the working directory itself was not accepted either at the time; since AutoJs6 6.8.1 the working directory itself may be entered) (AutoJs6 issue #589)
+* `Fix` When a call to a local model (such as Gemma 4 in 3-Stone AI) exceeded the model time limit, the task result only carried the MODEL_TIMEOUT code without a reason; it now names the likely causes (the model still loading, the system restricting the AI plugin in the background, an input too large) and what to do, and states separately when the plugin serving the model did not respond to AutoJs6 within 20 seconds (the latter needs AutoJs6 6.8.1) (AutoJs6 issue #589)
 * `Improvement` After you tap "Connect to AutoJs6", if the request did not reach AutoJs6 because it is not running (for example, ColorOS does not let other apps start AutoJs6 in the background), AutoJs6 now opens by itself to finish connecting, so there is no need to tap "Open AutoJs6"; the automatic connection when the workbench opens never switches to AutoJs6. Needs AutoJs6 6.8.1 or later (not released yet)
+* `Improvement` While waiting for a local model, the progress line of the workbench shows why it is waiting and the seconds waited, and shows how long the wait took once the model answers (scripts receive these as ordinary progress events); new device check script .python/device_local_model_check.py measures the per-phase times of a local model on a connected device, from a cold start and with a warm engine
 * `Dependency` Upgrade the three-stove-agent-api local module (from AutoJs6 host build 52ba898be7, hash-locked); the connection result now reads its constants directly, including the new reason code ROOTS_REJECTED (script directories not accepted)
 
 # v1.4.0

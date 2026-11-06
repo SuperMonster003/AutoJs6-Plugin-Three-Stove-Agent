@@ -37,7 +37,8 @@ internal object RunHistoryCodec {
             require(requireNotNull(run.string("goal")).utf8Size() <= 4096)
             require(run.string("preset")?.let { it.isNotBlank() && it.length <= 128 } == true)
             for (key in listOf("detached", "truncated", "fullAccess")) if (run.has(key)) require(run.flag(key) != null)
-            for (key in listOf("step", "sequence")) if (run.has(key)) require((run.number(key) ?: -1) >= 0)
+            for (key in listOf("step", "sequence", "progressAt")) if (run.has(key)) require((run.number(key) ?: -1) >= 0)
+            if (run.has("progressPhase")) require(run.string("progressPhase") != null)
             for (key in listOf("budget", "remainingBudget", "pending")) if (run.has(key)) require(run[key].isJsonObject)
             run.getAsJsonObject("budget")?.let { budget ->
                 for (key in listOf("maxSteps", "maxModelCalls", "maxDurationMs", "maxTotalTokens"))

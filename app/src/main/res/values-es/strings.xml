@@ -488,7 +488,8 @@
     <string name="workbench_example_wifi">Activar el Wi-Fi y confirmar que está activo</string>
     <string name="workbench_goal_hint">Describe tu objetivo y los requisitos</string>
     <string name="workbench_goal_invalid">Introduce un objetivo de hasta 4 KiB en UTF-8.</string>
-    <string name="workbench_jump_latest">Ir a lo más reciente</string>
+    <string name="workbench_jump_latest">Ir a lo más reciente</string>
+    <string name="workbench_model_waiting">%1$d s de espera</string>
     <string name="workbench_new_task">Nueva tarea</string>
     <string name="workbench_preset">Preajuste</string>
     <string name="workbench_recent">Tareas recientes</string>
