@@ -231,7 +231,7 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         val stage = when {
             attached -> { deadline = 0; LinkStage.ATTACHED }
             deadline > SystemClock.elapsedRealtime() -> LinkStage.CONNECTING
-            requested -> if (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT
+            requested -> if (AttachReply.rejectsRoots(reply) || (status.string("state") == C.LINK_STATE_ATTACHED && !rootsAccepted)) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT
             else -> LinkStage.WAITING
         }
         views.banner.render(presence, host, stage, ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply, openedHost)
@@ -261,7 +261,8 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
     /**
      * A reason or an undelivered request ends the wait at once with the matching advice. When the user tapped
      * Connect and the system did not deliver the request (AutoJs6 not running, as on ColorOS), the workbench
-     * opens AutoJs6 with the request instead, which a foreground app may always do (feedback-680 P3.6).
+     * opens AutoJs6 with the request instead, which a foreground app may always do (feedback-680 P3.6). A host that
+     * turned the configured script directories down (ROOTS_REJECTED, host issue #589) gets the directory rules shown at once.
      */
     private fun onAttachReply(id: String, answer: AttachReply) {
         if (id != requestId || isDestroyed) return
@@ -269,7 +270,8 @@ class LauncherActivity : HostAppearanceActivity(), FeedActions {
         if (!answer.final || attached) return
         deadline = 0
         if (AttachReply.opensHost(answer, byUser) && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) openedHost = openHost()
-        lastStatus?.let(::renderLink) ?: views.banner.render(HostPresence.READY, hostReader(), LinkStage.TIMED_OUT,
+        lastStatus?.let(::renderLink) ?: views.banner.render(HostPresence.READY, hostReader(),
+            if (AttachReply.rejectsRoots(answer)) LinkStage.ROOTS_REJECTED else LinkStage.TIMED_OUT,
             ThreeStoveAgentPlugin.REQUIRED_HOST_VERSION, reply, openedHost)
     }
     private fun hostAnswersAttach(): Boolean = runCatching {

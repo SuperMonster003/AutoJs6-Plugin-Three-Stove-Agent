@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">Source size (bytes): %1$d; lines: %2$d</string>
     <string name="script_dynamic_timeout">Execution timeout: %1$d ms</string>
     <string name="script_dynamic_warning">Review this generated JavaScript before allowing it once. It runs with AutoJs6 permissions and can perform actions beyond the enabled tool groups. It is not sandboxed.</string>
-    <string name="script_roots_instruction">Enter one absolute directory path per line. The host checks that each directory exists in shared storage and is not an ancestor of its working directory. Applying changes cancels current tasks.</string>
+    <string name="script_roots_instruction">Enter one absolute directory path per line. Each directory must exist in shared storage (not in a hidden directory or under Android/data or Android/obb) and must not be a parent of the AutoJs6 working directory; the working directory itself is always scanned and need not be listed. Applying changes cancels current tasks.</string>
     <string name="script_roots_invalid">Use at most 32 distinct absolute paths, without parent traversal, within 8 KiB.</string>
-    <string name="script_roots_rejected">The host has not accepted these directories. Check that the paths exist in shared storage and do not contain the working directory.</string>
+    <string name="script_roots_rejected">AutoJs6 did not accept these script directories. Each directory must exist in shared storage (not in a hidden directory or under Android/data or Android/obb) and must not be a parent of the AutoJs6 working directory. Change them in Settings under \"Script directories\" and connect again.</string>
     <string name="script_roots_save">Save directories</string>
     <string name="script_roots_title">Script directories</string>
     <string name="settings_access_mode">Operation permissions</string>

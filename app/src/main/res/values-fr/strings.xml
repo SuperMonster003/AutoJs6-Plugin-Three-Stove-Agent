@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">Code : %1$d octets, %2$d lignes</string>
     <string name="script_dynamic_timeout">Délai maximal : %1$d ms</string>
     <string name="script_dynamic_warning">Vérifiez ce JavaScript généré avant de permettre une exécution. Il utilise les autorisations AutoJs6 et peut effectuer des actions hors des groupes activés. Il ne fonctionne pas dans un bac à sable.</string>
-    <string name="script_roots_instruction">Saisissez un chemin absolu par ligne. L\'hôte vérifie que chaque dossier existe dans le stockage partagé et ne contient pas son dossier de travail. Appliquer les changements annule les tâches en cours.</string>
+    <string name="script_roots_instruction">Saisissez un chemin absolu par ligne. Chaque dossier doit exister dans le stockage partagé (ni dans un dossier masqué, ni sous Android/data ou Android/obb) et ne doit pas être un dossier parent du dossier de travail d\'AutoJs6; le dossier de travail lui-même est toujours parcouru et n\'a pas besoin d\'être indiqué. Appliquer les changements annule les tâches en cours.</string>
     <string name="script_roots_invalid">Saisissez au plus 32 chemins absolus distincts, sans remontée de dossier, dans une limite de 8 KiB.</string>
-    <string name="script_roots_rejected">L\'hôte n\'a pas accepté ces dossiers. Vérifiez leur présence dans le stockage partagé et qu\'ils ne contiennent pas le dossier de travail.</string>
+    <string name="script_roots_rejected">AutoJs6 n\'a pas accepté ces dossiers de scripts. Chaque dossier doit exister dans le stockage partagé (ni dans un dossier masqué, ni sous Android/data ou Android/obb) et ne doit pas être un dossier parent du dossier de travail d\'AutoJs6. Modifiez-les dans les paramètres, section \"Dossiers de scripts\", puis relancez la connexion.</string>
     <string name="script_roots_save">Enregistrer les dossiers</string>
     <string name="script_roots_title">Dossiers de scripts</string>
     <string name="settings_access_mode">Autorisations des opérations</string>

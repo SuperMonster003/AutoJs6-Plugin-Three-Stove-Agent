@@ -300,8 +300,9 @@ Los planes y el progreso del plugin se mantienen como una lista verificable en R
 
 _2026/11/05_
 
+- `Corrección` Cuando los directorios de scripts configurados en 3-Stove Agent no cumplían los requisitos de AutoJs6 (por ejemplo, un directorio inexistente, fuera del almacenamiento compartido o superior al directorio de trabajo de AutoJs6), la primera conexión solo mostraba un tiempo de espera de 15 segundos sin indicar el motivo, y los directorios solo se marcaban como no aceptados al cambiarlos con la conexión ya establecida; ahora AutoJs6 6.8.1 responde que los directorios fueron rechazados en cuanto llega la solicitud de conexión, y 3-Stove Agent muestra de inmediato los requisitos de los directorios (con AutoJs6 6.8.0 siguen apareciendo solo tras el tiempo de espera). La descripción de los ajustes y el aviso indican ahora las reglas reales de AutoJs6 (solo decían "no ser superior al directorio de trabajo", cuando entonces tampoco se aceptaba el propio directorio de trabajo; desde AutoJs6 6.8.1 se puede introducir el propio directorio de trabajo) (AutoJs6 issue #589)
 - `Mejora` Tras tocar "Conectar con AutoJs6", si la solicitud no llegó a AutoJs6 porque no se está ejecutando (por ejemplo, ColorOS no permite que otras aplicaciones inicien AutoJs6 en segundo plano), AutoJs6 se abre ahora por sí solo para completar la conexión, sin tener que tocar "Abrir AutoJs6"; la conexión automática al abrir nunca cambia a AutoJs6. Requiere AutoJs6 6.8.1 o posterior (aún no publicada)
-- `Dependencia` Actualizar el módulo local three-stove-agent-api (de la compilación del anfitrión AutoJs6 c8f814c5de, con el hash fijado); el resultado de la conexión usa directamente sus constantes
+- `Dependencia` Actualizar el módulo local three-stove-agent-api (de la compilación del anfitrión AutoJs6 52ba898be7, con el hash fijado); el resultado de la conexión usa directamente sus constantes, incluido el nuevo código de motivo ROOTS_REJECTED (directorios de scripts no aceptados)
 
 #### v1.4.0
 

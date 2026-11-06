@@ -45,6 +45,12 @@ internal sealed interface AttachReply {
          */
         fun opensHost(reply: AttachReply, byUser: Boolean): Boolean = byUser && reply == NotReached
 
+        /**
+         * Whether the host turned the request down because of the configured script directories (host issue #589):
+         * the workbench then shows the directory rules at once instead of the general failure text.
+         */
+        fun rejectsRoots(reply: AttachReply): Boolean = reply is Unavailable && reply.reason == C.UNAVAILABLE_REASON_ROOTS_REJECTED
+
         /** The banner text once the request ended without a link; [openedHost] is whether AutoJs6 was opened for it. */
         @StringRes
         fun message(reply: AttachReply, openedHost: Boolean = false): Int = when (reply) {
@@ -62,6 +68,7 @@ internal sealed interface AttachReply {
             C.UNAVAILABLE_REASON_DISABLED -> R.string.launcher_link_step_disabled
             C.UNAVAILABLE_REASON_INCOMPATIBLE -> R.string.launcher_link_step_incompatible
             C.UNAVAILABLE_REASON_REQUEST_DROPPED -> R.string.launcher_link_step_request_dropped
+            C.UNAVAILABLE_REASON_ROOTS_REJECTED -> R.string.script_roots_rejected
             else -> R.string.launcher_link_step_no_response
         }
     }

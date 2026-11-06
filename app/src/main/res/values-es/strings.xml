@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">Código: %1$d bytes, %2$d líneas</string>
     <string name="script_dynamic_timeout">Tiempo límite de ejecución: %1$d ms</string>
     <string name="script_dynamic_warning">Revise este JavaScript generado antes de autorizarlo una vez. Se ejecuta con los permisos de AutoJs6 y puede realizar acciones fuera de los grupos de herramientas habilitados. No está aislado.</string>
-    <string name="script_roots_instruction">Introduzca una ruta absoluta por línea. El host comprueba que cada directorio exista en el almacenamiento compartido y no contenga su directorio de trabajo. Aplicar cambios cancela las tareas actuales.</string>
+    <string name="script_roots_instruction">Introduzca una ruta absoluta por línea. Cada directorio debe existir en el almacenamiento compartido (no en un directorio oculto ni bajo Android/data o Android/obb) y no debe ser un directorio superior del directorio de trabajo de AutoJs6; el propio directorio de trabajo siempre se examina y no es necesario indicarlo. Aplicar cambios cancela las tareas actuales.</string>
     <string name="script_roots_invalid">Introduzca hasta 32 rutas absolutas distintas, sin referencias al directorio superior, dentro de 8 KiB.</string>
-    <string name="script_roots_rejected">El host no ha aceptado estos directorios. Compruebe que existan en el almacenamiento compartido y no contengan el directorio de trabajo.</string>
+    <string name="script_roots_rejected">AutoJs6 no aceptó estos directorios de scripts. Cada directorio debe existir en el almacenamiento compartido (no en un directorio oculto ni bajo Android/data o Android/obb) y no debe ser un directorio superior del directorio de trabajo de AutoJs6. Cámbielos en los ajustes, en \"Directorios de scripts\", y vuelva a conectar.</string>
     <string name="script_roots_save">Guardar directorios</string>
     <string name="script_roots_title">Directorios de scripts</string>
     <string name="settings_access_mode">Permisos de las operaciones</string>

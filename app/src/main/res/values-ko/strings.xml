@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">소스: %1$d 바이트, %2$d 줄</string>
     <string name="script_dynamic_timeout">실행 제한 시간: %1$d ms</string>
     <string name="script_dynamic_warning">이번 실행을 허용하기 전에 생성된 JavaScript를 검토하세요. AutoJs6 권한으로 실행되며 활성화된 도구 그룹을 벗어난 작업도 수행할 수 있습니다. 샌드박스에서 실행되지 않습니다.</string>
-    <string name="script_roots_instruction">한 줄에 절대 디렉터리 경로를 하나씩 입력하세요. 호스트는 경로가 공유 저장소에 존재하며 작업 디렉터리의 상위 경로가 아닌지 확인합니다. 변경 사항이 적용되면 현재 작업이 취소됩니다.</string>
+    <string name="script_roots_instruction">한 줄에 절대 디렉터리 경로를 하나씩 입력하세요. 각 디렉터리는 공유 저장소에 존재해야 하며 (숨김 디렉터리나 Android/data, Android/obb 아래는 사용할 수 없음), AutoJs6 작업 디렉터리의 상위 디렉터리가 아니어야 합니다. 작업 디렉터리 자체는 항상 검색되므로 입력할 필요가 없습니다. 변경 사항이 적용되면 현재 작업이 취소됩니다.</string>
     <string name="script_roots_invalid">상위 디렉터리 이동 없이 중복되지 않는 절대 경로를 최대 32개, 총 8 KiB 이내로 입력하세요.</string>
-    <string name="script_roots_rejected">호스트가 디렉터리를 승인하지 않았습니다. 공유 저장소에 존재하며 작업 디렉터리의 상위 경로가 아닌지 확인하세요.</string>
+    <string name="script_roots_rejected">AutoJs6가 이 스크립트 디렉터리를 수락하지 않았습니다. 각 디렉터리는 공유 저장소에 존재해야 하며 (숨김 디렉터리나 Android/data, Android/obb 아래는 사용할 수 없음), AutoJs6 작업 디렉터리의 상위 디렉터리가 아니어야 합니다. 설정의 \"스크립트 디렉터리\"에서 변경한 후 다시 연결하세요.</string>
     <string name="script_roots_save">디렉터리 저장</string>
     <string name="script_roots_title">스크립트 디렉터리</string>
     <string name="settings_access_mode">작업 권한</string>

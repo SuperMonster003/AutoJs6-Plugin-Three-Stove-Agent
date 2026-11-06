@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">ソース: %1$d バイト, %2$d 行</string>
     <string name="script_dynamic_timeout">実行タイムアウト: %1$d ms</string>
     <string name="script_dynamic_warning">この生成 JavaScript を確認してから今回の実行を許可してください. AutoJs6 の権限で動作し, 有効なツールグループを超えた操作も実行できます. サンドボックスではありません.</string>
-    <string name="script_roots_instruction">1 行に 1 つの絶対ディレクトリパスを入力してください. ホストは共有ストレージ内に存在し, 作業ディレクトリの親ではないことを確認します. 変更を適用すると実行中のタスクがキャンセルされます.</string>
+    <string name="script_roots_instruction">1 行に 1 つの絶対ディレクトリパスを入力してください. 各ディレクトリは共有ストレージ内に存在し (隠しディレクトリや Android/data, Android/obb の下は不可), AutoJs6 の作業ディレクトリの親ディレクトリでないことが必要です. 作業ディレクトリ自体は常にスキャンされるため, 入力する必要はありません. 変更を適用すると実行中のタスクがキャンセルされます.</string>
     <string name="script_roots_invalid">重複のない絶対パスを最大 32 個, 合計 8 KiB 以内で入力してください. 親ディレクトリへの移動は使用できません.</string>
-    <string name="script_roots_rejected">ホストがディレクトリを受け入れていません. 共有ストレージ内に存在し, 作業ディレクトリの親でないことを確認してください.</string>
+    <string name="script_roots_rejected">AutoJs6 はこれらのスクリプトディレクトリを受け付けませんでした. 各ディレクトリは共有ストレージ内に存在し (隠しディレクトリや Android/data, Android/obb の下は不可), AutoJs6 の作業ディレクトリの親ディレクトリでないことが必要です. 設定の \"スクリプトディレクトリ\" で変更してから, もう一度接続してください.</string>
     <string name="script_roots_save">ディレクトリを保存</string>
     <string name="script_roots_title">スクリプトディレクトリ</string>
     <string name="settings_access_mode">操作の権限</string>

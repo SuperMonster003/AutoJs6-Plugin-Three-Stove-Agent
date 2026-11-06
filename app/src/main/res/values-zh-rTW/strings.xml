@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">原始碼: %1$d 位元組, %2$d 行</string>
     <string name="script_dynamic_timeout">執行逾時: %1$d ms</string>
     <string name="script_dynamic_warning">請檢查生成的 JavaScript, 然後決定是否允許本次執行. 它使用 AutoJs6 的權限執行, 可執行已啟用工具群組以外的操作, 不受沙箱隔離.</string>
-    <string name="script_roots_instruction">每行輸入一個絕對目錄路徑. 宿主會檢查目錄是否存在, 是否位於共用儲存空間中, 以及是否為工作目錄的上層. 設定生效時會取消目前的工作.</string>
+    <string name="script_roots_instruction">每行輸入一個絕對目錄路徑. 每個目錄必須已存在且位於共用儲存空間中 (不在隱藏目錄或 Android/data, Android/obb 下), 並且不是 AutoJs6 工作目錄的上層目錄; 工作目錄本身總會被掃描, 不必填寫. 設定生效時會取消目前的工作.</string>
     <string name="script_roots_invalid">請輸入最多 32 個不重複的絕對路徑, 不含上層目錄跳轉, 總大小不超過 8 KiB.</string>
-    <string name="script_roots_rejected">宿主尚未接受這些目錄. 請檢查路徑是否存在於共用儲存空間中, 且不是工作目錄的上層.</string>
+    <string name="script_roots_rejected">AutoJs6 未接受這些指令碼目錄. 每個目錄必須已存在且位於共用儲存空間中 (不在隱藏目錄或 Android/data, Android/obb 下), 並且不是 AutoJs6 工作目錄的上層目錄. 請在設定頁 \"指令碼目錄\" 中修改後重新連線.</string>
     <string name="script_roots_save">儲存目錄</string>
     <string name="script_roots_title">指令碼目錄</string>
     <string name="settings_access_mode">操作權限</string>

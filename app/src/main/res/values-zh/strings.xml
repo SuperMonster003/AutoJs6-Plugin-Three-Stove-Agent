@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">源码: %1$d 字节, %2$d 行</string>
     <string name="script_dynamic_timeout">执行超时: %1$d ms</string>
     <string name="script_dynamic_warning">请检查生成的 JavaScript, 然后决定是否允许本次执行. 它使用 AutoJs6 的权限运行, 可执行已启用工具组之外的操作, 不受沙箱隔离.</string>
-    <string name="script_roots_instruction">每行输入一个绝对目录路径. 宿主会检查目录是否存在, 是否位于共享存储中, 以及是否为工作目录的上级. 配置生效时会取消当前任务.</string>
+    <string name="script_roots_instruction">每行输入一个绝对目录路径. 每个目录必须已存在且位于共享存储中 (不在隐藏目录或 Android/data, Android/obb 下), 并且不是 AutoJs6 工作目录的上级目录; 工作目录本身总会被扫描, 不必填写. 配置生效时会取消当前任务.</string>
     <string name="script_roots_invalid">请输入最多 32 个不重复的绝对路径, 不含上级目录跳转, 总大小不超过 8 KiB.</string>
-    <string name="script_roots_rejected">宿主尚未接受这些目录. 请检查路径是否存在于共享存储中, 且不是工作目录的上级.</string>
+    <string name="script_roots_rejected">AutoJs6 未接受这些脚本目录. 每个目录必须已存在且位于共享存储中 (不在隐藏目录或 Android/data, Android/obb 下), 并且不是 AutoJs6 工作目录的上级目录. 请在设置页 \"脚本目录\" 中修改后重新连接.</string>
     <string name="script_roots_save">保存目录</string>
     <string name="script_roots_title">脚本目录</string>
     <string name="settings_access_mode">操作权限</string>

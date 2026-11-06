@@ -300,8 +300,9 @@ Les plans et l'avancement du plugin sont tenus sous forme de liste cochable dans
 
 _2026/11/05_
 
+- `Correctif` Lorsque les dossiers de scripts définis dans 3-Stove Agent ne respectaient pas les règles d'AutoJs6 (par exemple un dossier inexistant, hors du stockage partagé ou parent du dossier de travail d'AutoJs6), la première connexion n'affichait qu'un délai d'attente de 15 secondes sans en donner la raison, et les dossiers n'étaient signalés comme refusés que lorsqu'on les modifiait une fois déjà connecté; AutoJs6 6.8.1 répond désormais que les dossiers sont refusés dès la réception de la demande de connexion, et 3-Stove Agent affiche aussitôt les règles des dossiers (avec AutoJs6 6.8.0, elles n'apparaissent toujours qu'après le délai d'attente). La description des paramètres et le message indiquent maintenant les règles réelles d'AutoJs6 (ils ne mentionnaient que "ne pas être parent du dossier de travail", alors que le dossier de travail lui-même n'était pas accepté non plus à l'époque; depuis AutoJs6 6.8.1, le dossier de travail lui-même peut être saisi) (AutoJs6 issue #589)
 - `Amélioration` Après avoir touché "Connecter AutoJs6", si la demande n'a pas atteint AutoJs6 parce qu'il n'est pas en cours d'exécution (par exemple, ColorOS ne laisse pas d'autres applications démarrer AutoJs6 en arrière-plan), AutoJs6 s'ouvre désormais tout seul pour terminer la connexion, sans avoir à toucher "Ouvrir AutoJs6"; la connexion automatique au démarrage ne bascule jamais vers AutoJs6. Demande AutoJs6 6.8.1 ou ultérieure (pas encore publiée)
-- `Dépendance` Mise à niveau du module local three-stove-agent-api (build de l'hôte AutoJs6 c8f814c5de, empreinte verrouillée); le résultat de la connexion lit directement ses constantes
+- `Dépendance` Mise à niveau du module local three-stove-agent-api (build de l'hôte AutoJs6 52ba898be7, empreinte verrouillée); le résultat de la connexion lit directement ses constantes, dont le nouveau code de motif ROOTS_REJECTED (dossiers de scripts refusés)
 
 #### v1.4.0
 

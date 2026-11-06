@@ -300,8 +300,9 @@ The plugin's plans and progress are maintained as a checkable list in ROADMAP.md
 
 _2026/11/05_
 
+- `Fix` When the script directories set in 3-Stove Agent did not meet the AutoJs6 requirements (such as a missing directory, one outside shared storage, or a parent of the AutoJs6 working directory), the first connection only showed a 15-second timeout without a reason, and the directories were only reported as not accepted when changed while already connected; AutoJs6 6.8.1 now answers that the directories were rejected as soon as the connection request arrives, and the workbench shows the directory requirements at once (with AutoJs6 6.8.0 they still appear only after the timeout). The settings description and the notice now state the actual AutoJs6 rules (they only said "not a parent of the working directory", while the working directory itself was not accepted either at the time; since AutoJs6 6.8.1 the working directory itself may be entered) (AutoJs6 issue #589)
 - `Improvement` After you tap "Connect to AutoJs6", if the request did not reach AutoJs6 because it is not running (for example, ColorOS does not let other apps start AutoJs6 in the background), AutoJs6 now opens by itself to finish connecting, so there is no need to tap "Open AutoJs6"; the automatic connection when the workbench opens never switches to AutoJs6. Needs AutoJs6 6.8.1 or later (not released yet)
-- `Dependency` Upgrade the three-stove-agent-api local module (from AutoJs6 host build c8f814c5de, hash-locked); the connection result now reads its constants directly
+- `Dependency` Upgrade the three-stove-agent-api local module (from AutoJs6 host build 52ba898be7, hash-locked); the connection result now reads its constants directly, including the new reason code ROOTS_REJECTED (script directories not accepted)
 
 #### v1.4.0
 

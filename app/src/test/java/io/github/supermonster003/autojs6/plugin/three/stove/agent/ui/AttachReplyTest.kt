@@ -47,6 +47,7 @@ class AttachReplyTest {
         assertEquals(R.string.launcher_link_step_disabled, AttachReply.step("DISABLED"))
         assertEquals(R.string.launcher_link_step_incompatible, AttachReply.step("INCOMPATIBLE"))
         assertEquals(R.string.launcher_link_step_request_dropped, AttachReply.step("REQUEST_DROPPED"))
+        assertEquals(R.string.script_roots_rejected, AttachReply.step("ROOTS_REJECTED"))
         assertEquals(R.string.launcher_link_step_no_response, AttachReply.step("NO_RESPONSE"))
         assertEquals(R.string.launcher_link_step_no_response, AttachReply.step("NOT_ACTIVATED"))
     }
@@ -58,6 +59,15 @@ class AttachReplyTest {
         assertFalse(AttachReply.opensHost(AttachReply.Accepted, byUser = true))
         assertFalse(AttachReply.opensHost(AttachReply.Unavailable("NOT_TRUSTED"), byUser = true))
         assertFalse(AttachReply.opensHost(AttachReply.Unknown, byUser = true))
+    }
+
+    @Test
+    fun `only the ROOTS_REJECTED reason means the script directories were turned down`() {
+        assertTrue(AttachReply.rejectsRoots(AttachReply.Unavailable("ROOTS_REJECTED")))
+        assertFalse(AttachReply.rejectsRoots(AttachReply.Unavailable("NOT_TRUSTED")))
+        assertFalse(AttachReply.rejectsRoots(AttachReply.NotReached))
+        assertFalse(AttachReply.rejectsRoots(AttachReply.Accepted))
+        assertFalse(AttachReply.rejectsRoots(AttachReply.Unknown))
     }
 
     @Test

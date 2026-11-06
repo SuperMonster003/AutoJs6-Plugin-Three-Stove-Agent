@@ -355,9 +355,9 @@
     <string name="script_dynamic_source_summary">المصدر: %1$d بايت, %2$d أسطر</string>
     <string name="script_dynamic_timeout">مهلة التنفيذ: %1$d مللي ثانية</string>
     <string name="script_dynamic_warning">راجع JavaScript المولد قبل السماح له مرة واحدة. يعمل بصلاحيات AutoJs6 ويمكنه تنفيذ إجراءات تتجاوز مجموعات الأدوات المفعلة. لا يعمل في بيئة معزولة.</string>
-    <string name="script_roots_instruction">أدخل مسار مجلد مطلقا واحدا في كل سطر. يتحقق المضيف من وجود المجلد في التخزين المشترك وألا يحتوي على مجلد العمل. يؤدي تطبيق التغييرات إلى إلغاء المهام الحالية.</string>
+    <string name="script_roots_instruction">أدخل مسار مجلد مطلقا واحدا في كل سطر. يجب أن يكون كل مجلد موجودا في التخزين المشترك (ليس في مجلد مخفي ولا ضمن Android/data أو Android/obb) وألا يكون مجلدا أعلى يحتوي على مجلد عمل AutoJs6; مجلد العمل نفسه يُفحص دائما ولا حاجة إلى إدخاله. يؤدي تطبيق التغييرات إلى إلغاء المهام الحالية.</string>
     <string name="script_roots_invalid">أدخل حتى 32 مسارا مطلقا مختلفا دون انتقال إلى المجلد الأب, بحجم إجمالي لا يتجاوز 8 KiB.</string>
-    <string name="script_roots_rejected">لم يقبل المضيف هذه المجلدات. تحقق من وجودها في التخزين المشترك وألا تحتوي على مجلد العمل.</string>
+    <string name="script_roots_rejected">لم يقبل AutoJs6 مجلدات السكربتات هذه. يجب أن يكون كل مجلد موجودا في التخزين المشترك (ليس في مجلد مخفي ولا ضمن Android/data أو Android/obb) وألا يكون مجلدا أعلى يحتوي على مجلد عمل AutoJs6. غيّرها في الإعدادات ضمن \"مجلدات السكربتات\" ثم أعد الاتصال.</string>
     <string name="script_roots_save">حفظ المجلدات</string>
     <string name="script_roots_title">مجلدات السكربتات</string>
     <string name="settings_access_mode">أذونات العمليات</string>
