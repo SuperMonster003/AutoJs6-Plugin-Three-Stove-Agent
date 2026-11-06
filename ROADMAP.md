@@ -2263,4 +2263,4 @@ P5 会话完成 (2026-09-24): 原 P5 三节与 AVD/真机示例门槛已通过, 
 - 决定: 重放 AAR 并直接引用新常量 (沿用 P22 的做法, 宿主 feedback-680 Q13 = B), 契约版本仍为 2, 最低宿主版本不变; 配 6.8.0 宿主时行为与 1.4.0 相同 (超时后才显示), 文案为新文案. 宿主与插件的 changelog 都写明只有 AutoJs6 6.8.1 起才会立即回复.
 - 测试: 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 通过 (105 个测试类无失败, `AttachReplyTest` 8 例, `ApplicationTextPunctuationTest` 通过); `generate_markdown.py` 与 `--check` 通过 (10 语言, 36 个产物).
 - 真机: P23.4 已在 OPD2413 (ColorOS 15, en-US) 上通过 (宿主 6640 debug, 从 `69c5528499` 的干净导出构建, + build 446): 上级目录被拒的横幅在启动后 2.6 s 的第一次读取时已显示 (宿主 507 ms 回复), 工作目录本身 5.3 s 连上; 脚本 `.python/device_roots_check.py`, 证据 `docs/dev/p23-roots-evidence-2026-11-06.md`. 配 6.8.0 宿主的超时路径未上真机, 由单测覆盖.
-- 剩余: 不推送, 不打 tag, 不发版 (P22.6 由维护者决定); 设备上的宿主 5935 debug 是否装回由维护者决定 (备份 APK 在会话 scratchpad).
+- 剩余: 不推送, 不打 tag, 不发版 (P22.6 由维护者决定). OPD2413 上的宿主保留 6640 debug (维护者 2026-11-06 决定), 原 5935 debug 的备份 APK 已删除.
