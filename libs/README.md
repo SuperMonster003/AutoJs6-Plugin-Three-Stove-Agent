@@ -26,6 +26,10 @@ of host commit `c8f814c5de` built on 2026-11-05 (unsigned; the module sources ar
 ordered attach reply constants (`ThreeStoveAgentActions.ATTACH_RESULT_ANSWERED`, `ATTACH_REPLY_ACCEPTED`, `META_ATTACH_REPLY`)
 and the unavailable reason codes (`ThreeStoveAgentContract.UNAVAILABLE_REASON_*`, `UNAVAILABLE_REASONS`); `javap` shows the
 same signatures and constants for every other class of the `86d9bfa26b` build, and the contract version stays 2.
+Since 1.4.1 build 445 (roadmap P23, host issue #589, 2026-11-06) `three-stove-agent-api.aar` is the release artifact of
+host commit `52ba898be7` built on 2026-11-06 (unsigned). It adds `ThreeStoveAgentContract.UNAVAILABLE_REASON_ROOTS_REJECTED`
+(also listed in `UNAVAILABLE_REASONS`), the reason the host now answers at once when the configured script directories are
+not accepted; `javap` shows no other change over the `c8f814c5de` build, and the contract version stays 2.
 
 Record the lowercase SHA-256 of every staged artifact in `../locks/host-api-aars.lock`.
 `app/build.gradle.kts` rejects missing files, debug artifacts, placeholder hashes, extra lock

@@ -883,6 +883,17 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 
 验收条件: 插件单测通过; 真机两种进程状态下点连接的跳转与连接结果符合上面的描述; 旧宿主上行为与 1.4.0 相同.
 
+## P23 (1.4.1): 脚本目录被拒时的回复与文案 (宿主 issue #589)
+
+目标: 宿主 issue #589 的评论 (2026-11-06, Little-JohnKhan, AutoJs6 6.8.0 build 6640 + 插件 1.4.0, ColorOS 16) 指出两处问题. 其一, 插件把 "脚本目录" 设为工作目录本身或其上级 (如 `/storage/emulated/0/脚本` 正是工作目录) 时, 宿主到 attach 阶段 (`prepareConfig` 构造 `AgentScriptCatalog`) 才校验目录并抛出 `CAPABILITY_DENIED`, 接收器此前已回复 ACCEPTED, 所以插件首次连接只看到 15 秒超时, 只有在已连接状态下再改目录才显示 "宿主尚未接受这些目录"; 其二, `script_roots_rejected` 与 `script_roots_instruction` 写的规则 ("不是工作目录的上级") 与实际 (工作目录本身也被拒) 不符. 宿主 `52ba898be7` 新增原因码 `ThreeStoveAgentContract.UNAVAILABLE_REASON_ROOTS_REJECTED`: 接收器收到请求时就按 `AgentScriptCatalog` 的规则校验目录并经有序广播回复 (`ThreeStoveAgentScriptRoots.accepted`), "打开 AutoJs6" 的前台路径同样丢弃并写全局日志, attach 阶段因 `AgentManifestException` 失败时状态原因也改为 ROOTS_REJECTED, 全局日志写出目录要求 (11 语言); 工作目录本身改为接受 (真正的上级目录, 不存在的目录, 隐藏目录与 Android/data, Android/obb 下的目录仍被拒). 插件侧改动如下; 契约版本仍为 2, 配旧宿主 (6.8.0) 时行为与 1.4.0 相同 (超时后才显示).
+
+- [x] (插件) P23.1 `libs/three-stove-agent-api.aar` 从宿主 `52ba898be7` 的干净导出 (`git archive` + 该提交的改动, 与工作区其他会话的在途改动隔离) 重新构建 (`:plugin-api:three-stove-agent-api:assembleRelease`, 未签名, 37649 字节, sha256 `1ae0bf66...b4c8891`; 旧包 37602 字节); `locks/host-api-aars.lock`, `libs/README.md` 与 `THIRD_PARTY_NOTICES.md` 同步, 其他三个 AAR 不变. javap 核对 (`-constants -p`, 38 个类逐一对比): 只多了 `ThreeStoveAgentContract.UNAVAILABLE_REASON_ROOTS_REJECTED = "ROOTS_REJECTED"` 一个常量 (`UNAVAILABLE_REASONS` 是运行时列表, 由 `AttachReplyTest` 遍历覆盖), AndroidManifest.xml / R.txt / proguard.txt / aar-metadata.properties 相同. (SOURCE: 本条提交)
+- [ ] (插件) P23.2 `AttachReply.rejectsRoots(reply)`: 回复为 `Unavailable(ROOTS_REJECTED)` 时为 true; `LauncherActivity.renderLink` 的阶段判断加上这一条 (与原有的 "已连接但 scriptRoots 不一致" 并列), `onAttachReply` 没有链路状态时的兜底渲染同样选 `LinkStage.ROOTS_REJECTED`, 横幅在回复到达时立即显示目录被拒 (不再等 15 秒); `AttachReply.step` 为该原因返回 `script_roots_rejected`. `script_roots_instruction` 与 `script_roots_rejected` 按宿主实际规则重写 (11 个 values 目录, ASCII 标点): 目录必须已存在, 位于共享存储中 (不在隐藏目录或 Android/data, Android/obb 下), 且不是 AutoJs6 工作目录的上级目录; 工作目录本身不必填 (默认已包含).
+- [ ] (测试) P23.3 JVM: `AttachReplyTest` 加 "只有 ROOTS_REJECTED 表示目录被拒" 一项, 原因文案一项补 ROOTS_REJECTED 断言 (`UNAVAILABLE_REASONS` 遍历自动覆盖新码); changelog v1.4.1 (10 语言) 加 fix 一条 (需要 AutoJs6 6.8.1), dependency 一条改为宿主 `52ba898be7` 并提及新增原因码; 生成器重新生成, `--check` 通过; `VERSION_BUILD` 递增.
+- [ ] (真机) P23.4 (可选, 维护者决定) OPD2413 上用含 `52ba898be7` 的 6.8.1 debug 宿主: 脚本目录设为工作目录的上级 (如 `/storage/emulated/0`) 时, 点连接后横幅立即显示目录被拒, 宿主全局日志有目录要求; 设为工作目录本身时连上.
+
+验收条件: 插件单测通过; 配新宿主时目录被拒的横幅在回复到达时立即显示, 文案与宿主规则一致; 配旧宿主时行为与 1.4.0 相同 (超时后才显示, 文案为新文案).
+
 ## 附录 A: 脚本 API 草案
 
 ### A.1 命名与通用约定
