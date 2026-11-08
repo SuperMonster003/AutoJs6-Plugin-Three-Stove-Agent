@@ -55,6 +55,14 @@
             android:name="org.autojs.plugin.contract.SETTINGS_TRANSFER"
             android:value="1" />
 
+        <!--
+            Settings page entry of the AutoJs6 plugin settings page (AutoJs6 6.8.1 and later, host feedback-680 P12):
+            the action of the .ui.HostSettingsEntry alias below.
+        -->
+        <meta-data
+            android:name="org.autojs.plugin.SETTINGS_ACTION"
+            android:value="org.autojs.plugin.THREE_STOVE_AGENT_SETTINGS" />
+
         <activity
             android:name=".WakeActivity"
             android:excludeFromRecents="true"
@@ -141,6 +149,17 @@
         -->
         <activity-alias android:name=".speech.ResidentListenerSettings" android:exported="true"
             android:permission="org.autojs.permission.PLUGIN" android:targetActivity=".ui.SettingsActivity" />
+        <!--
+            "Open plugin settings" of the AutoJs6 plugin settings page (host feedback-680 P12): the settings screen itself
+            stays private; this alias answers the action named by the org.autojs.plugin.SETTINGS_ACTION meta-data.
+        -->
+        <activity-alias android:name=".ui.HostSettingsEntry" android:exported="true"
+            android:permission="org.autojs.permission.PLUGIN" android:targetActivity=".ui.SettingsActivity">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.THREE_STOVE_AGENT_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
         <activity android:name=".ui.McpServersActivity" android:exported="false" />
         <activity android:name=".ui.RiskRecognitionActivity" android:exported="false" />
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />

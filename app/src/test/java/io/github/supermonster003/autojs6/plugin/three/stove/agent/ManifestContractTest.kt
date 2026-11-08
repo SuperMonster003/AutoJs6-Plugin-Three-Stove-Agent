@@ -58,6 +58,7 @@ class ManifestContractTest {
         assertEquals(".WakeActivity", metaData["org.autojs.plugin.WAKE_ACTIVITY"])
         assertEquals("@string/plugin_author", metaData["org.autojs.plugin.info.AUTHOR"])
         assertEquals("0", metaData["org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT"])
+        assertEquals(SETTINGS_ACTION, metaData["org.autojs.plugin.SETTINGS_ACTION"])
     }
 
     @Test
@@ -89,7 +90,15 @@ class ManifestContractTest {
         assertEquals(PLUGIN_PERMISSION, residentSettings.androidAttribute("permission"))
         assertEquals(".ui.SettingsActivity", residentSettings.androidAttribute("targetActivity"))
         assertTrue(residentSettings.children("intent-filter").isEmpty())
-        val aliases = allAliases - residentSettings
+        // The settings entry of the AutoJs6 plugin settings page (host feedback-680 P12): signature protected, one action.
+        val hostSettings = allAliases.single { it.androidAttribute("name") == ".ui.HostSettingsEntry" }
+        assertEquals("true", hostSettings.androidAttribute("exported"))
+        assertEquals(PLUGIN_PERMISSION, hostSettings.androidAttribute("permission"))
+        assertEquals(".ui.SettingsActivity", hostSettings.androidAttribute("targetActivity"))
+        val hostSettingsFilter = hostSettings.child("intent-filter")
+        assertEquals(listOf(SETTINGS_ACTION), hostSettingsFilter.children("action").map { it.androidAttribute("name") })
+        assertEquals(listOf("android.intent.category.DEFAULT"), hostSettingsFilter.children("category").map { it.androidAttribute("name") })
+        val aliases = allAliases - residentSettings - hostSettings
         assertEquals(listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").map { ".launcher.${it}IconAlias" },
             aliases.map { it.androidAttribute("name") })
         assertEquals(listOf("@mipmap/ic_launcher_system_light", "@mipmap/ic_launcher_system", "@mipmap/ic_launcher_system_auto", "@mipmap/ic_launcher"),
@@ -209,6 +218,7 @@ class ManifestContractTest {
         val expected = mapOf(".WakeActivity" to PLUGIN_PERMISSION, ".ui.LauncherActivity" to null,
             ".ui.ShareTargetActivity" to null, ".ui.VoiceCommandActivity" to null, ".ThreeStoveAgentPluginInfoService" to PLUGIN_PERMISSION,
             ".speech.ResidentListenerSettings" to PLUGIN_PERMISSION, ".speech.ResidentListenerService" to PLUGIN_PERMISSION,
+            ".ui.HostSettingsEntry" to PLUGIN_PERMISSION,
             ".ThreeStoveAgentPluginService" to PLUGIN_PERMISSION, ".transfer.SettingsTransferProvider" to PLUGIN_PERMISSION) +
             listOf("AdaptiveLight", "AdaptiveDark", "AdaptiveAuto", "Transparent").associate { ".launcher.${it}IconAlias" to null }
         val components = listOf("activity", "activity-alias", "service", "receiver", "provider")
@@ -246,5 +256,6 @@ class ManifestContractTest {
     private companion object {
         const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
         const val PLUGIN_PERMISSION = "org.autojs.permission.PLUGIN"
+        const val SETTINGS_ACTION = "org.autojs.plugin.THREE_STOVE_AGENT_SETTINGS"
     }
 }
