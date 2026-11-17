@@ -81,7 +81,6 @@
   "text_link_autojs6_docs": "AutoJs6 documentation",
   "text_link_discussion": "AutoJs6 discussion #577",
   "text_link_third_party_notices": "Third-party notices",
-  "p_instruction_more": "See the [project README]({{ repo_url }}) and [ROADMAP.md]({{ roadmap_url }}) for the connection guide and the current progress.",
   "h3_tools": "Tool catalog",
   "p_tools_status": "This table is generated from the packaged ToolCatalog. Risk can be raised by the actual screen target; cautious mode also confirms non-read-only actions, while full access skips confirmation for enabled tools. Settings, presets, task options and host grants all constrain the available groups.",
   "tool_header_name": "Tool",
@@ -115,5 +114,61 @@
   "faq_payment_question": "When are payments confirmed?",
   "faq_payment_answer": "Payment is a separate sensitive action. Approving an order, a script or another action does not approve payment. By default each detected payment action needs its own confirmation, and a timeout is a refusal. Choosing Always allow for this session on a payment prompt covers only later payments by that tool in the same task. Full access skips payment confirmation, so enable it only for goals and models you trust. Check the merchant, items, address and amount before approving.",
   "faq_local_question": "What are the limits of local models?",
-  "faq_local_answer": "Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. On older phones the first call to a local model can exceed the 5-minute model time limit: on a Sony G8441 (Snapdragon 835, 4 GB RAM) loading Gemma 4 E2B took about 3 minutes and processing the input about 1 more, with no answer within 5 minutes; on a Sony XQ-DQ72 the same task with Gemma 4 E4B finished in about 70 seconds. On recent phones this step takes only seconds: measured on 2026-11-06, a Xiaomi Pad 6 Pro (Snapdragon 8+ Gen 1, 12 GB RAM) finished a reply-only task with Gemma 4 E2B in about 18 seconds from a cold start (about 5 seconds to load the model and 9 to process the input) and in about 40 seconds with Gemma 4 E4B; a OnePlus OPD2413 (ColorOS 15) took about 14 seconds with Gemma 4 E2B, or about 19 with the screen off. While a local model is answering, the workbench shows the seconds waited; when a call times out, the result names the likely causes (the model still loading, the system restricting the AI plugin in the background, an input too large) and what to do. device_local_model_check.py in the repository's .python directory measures the per-phase times of a cold start and a warm engine on a connected device. Image input requires a target that accepts images; AiGoCode gpt-5.6-sol passed initial-image and tool-result-image probes, while other targets require separate verification. Generated scripts are available only when explicitly enabled, and each source follows the confirmation policy."
+  "faq_local_answer": "Model loading alone does not guarantee successful tasks. The recorded Gemma 4 E2B IT Wi-Fi decision-validation case did not pass; this target keeps the JSON path. Native tool calling also requires a compatible host and target and retains parameter, confirmation and budget checks. Start with small tasks and review partial/failed results. On older phones the first call to a local model can exceed the 5-minute model time limit: on a Sony G8441 (Snapdragon 835, 4 GB RAM) loading Gemma 4 E2B took about 3 minutes and processing the input about 1 more, with no answer within 5 minutes; on a Sony XQ-DQ72 the same task with Gemma 4 E4B finished in about 70 seconds. On recent phones this step takes only seconds: measured on 2026-11-06, a Xiaomi Pad 6 Pro (Snapdragon 8+ Gen 1, 12 GB RAM) finished a reply-only task with Gemma 4 E2B in about 18 seconds from a cold start (about 5 seconds to load the model and 9 to process the input) and in about 40 seconds with Gemma 4 E4B; a OnePlus OPD2413 (ColorOS 15) took about 14 seconds with Gemma 4 E2B, or about 19 with the screen off. While a local model is answering, the workbench shows the seconds waited; when a call times out, the result names the likely causes (the model still loading, the system restricting the AI plugin in the background, an input too large) and what to do. device_local_model_check.py in the repository's .python directory measures the per-phase times of a cold start and a warm engine on a connected device. Image input requires a target that accepts images; AiGoCode gpt-5.6-sol passed initial-image and tool-result-image probes, while other targets require separate verification. Generated scripts are available only when explicitly enabled, and each source follows the confirmation policy.",
+  "instruction_p_what": "3-Stove Agent is an agent that carries out operations on the phone for you. After you describe a goal in one sentence, it looks at the screen through AutoJs6 and taps, types and scrolls step by step, or picks a registered script, fills in its parameters and runs it, until the goal is reached. Sensitive operations such as paying, sending or deleting require confirmation first, and every task has limits on steps and time.",
+  "instruction_h3_start": "Getting started",
+  "instruction_start_steps": [
+    "Install and enable [3-Stone AI]({{ provider_url }}), then add an online model or import a local model there. 3-Stove Agent calls models through it.",
+    "Open 3-Stove Agent. If the home screen reports that it is not connected, tap \"Connect to AutoJs6\".",
+    "Tap the model chip in the top bar to choose a model, or keep \"Automatic\" (a local model is preferred).",
+    "Enter a goal in the input bar and tap \"Start task\". The task card shows the progress of each step; questions and confirmations are also handled there."
+  ],
+  "instruction_h3_features": "Main features",
+  "instruction_features": [
+    "**Tasks and history**: While a task runs, you can view its steps, answer questions or stop it at any time. \"Task history\" keeps finished tasks, which can be shared as a summary or run again (running again only puts the original goal back into the input bar for review before starting).",
+    "**Confirmations and operation permissions**: Read-only operations run directly; sensitive operations such as paying, sending, deleting or writing files require confirmation by default, which can be given once or for the rest of the task. \"Operation permissions\" in Settings offers \"Standard\", \"Cautious\" or \"Full access\" (no confirmations, clearly marked while on).",
+    "**Presets**: Save frequently used tool groups, budgets and fixed context as a preset, and choose it from the preset tag in the input bar before starting. With \"Plan mode\" on, a task first proposes a plan of 3 to 8 steps and runs it after review.",
+    "**Memory**: Store preferences the agent should remember; they are attached to tasks automatically. Every memory proposed by the agent is saved only after confirmation; do not store passwords or other credentials in memory.",
+    "**Registered scripts**: After an `@agent` comment is added at the top of a script (see the example below), the agent can choose and run that script. Script locations outside the working directory are added under \"Script directories\".",
+    "**Floating ball**: Once enabled in Settings, it allows entering goals, handling confirmations or stopping tasks on top of other apps.",
+    "**Quick start**: Share text to 3-Stove Agent, use the \"New task\" home screen shortcut, or pin a preset to the home screen. These entries only create a draft, which runs after \"Start task\" is tapped.",
+    "**Voice**: After \"Enable voice input\" is turned on in Settings, a microphone appears next to the input box; with 3-Macaw Speech installed, recognition runs offline. \"Resident listening\" (off by default) accepts one task after recognizing the wake word \"小炉小炉\" or \"Hey Stove\". Voice results also become drafts only.",
+    "**More tools**: Settings can enable text recognition (requires an OCR plugin), tools provided by other plugins (such as reading aloud and transcription from 3-Macaw Speech), tools provided by MCP servers, and scripts generated by the model that run only after review."
+  ],
+  "instruction_h3_script": "Using it in scripts",
+  "instruction_p_script": "In an AutoJs6 script, start a task with `ai.agent.run`; questions and confirmations are still handled in the 3-Stove Agent interface:",
+  "instruction_example_goal": "Read the Android version and report the observed value.",
+  "instruction_script_notes": [
+    "Check the `status` of the result: when the Promise is fulfilled, the result can still be `completed`, `partial`, `failed`, `blocked` or `cancelled`. Call `run.cancel()` to stop the task.",
+    "Add `preset: 'your-preset-name'` to the options to use a saved preset, or `plan: true` to have the task propose a plan first.",
+    "See [AutoJs6 docs > ai.agent]({{ docs_autojs6_url }}/#/ai) for all options and events."
+  ],
+  "instruction_p_registration": "To let the agent run a custom script, save the example below as `text-counter.js` in the AutoJs6 working directory. Then request a character count for some text; if a parameter is missing, the agent asks for it first:",
+  "instruction_h3_requirements": "Requirements",
+  "instruction_requirements": [
+    "Android {{ min_android_version }} or later and AutoJs6 {{ required_host_version_name }} or later.",
+    "Models are provided by [3-Stone AI]({{ provider_url }}); 3-Stove Agent itself stores no model credentials.",
+    "Screen operations use the AutoJs6 accessibility service. It is turned on automatically when AutoJs6 has Root, secure settings or Shizuku configured; otherwise turn it on as prompted.",
+    "The notification permission is used for background confirmations and task alerts; the floating ball requires the \"display over other apps\" permission."
+  ],
+  "instruction_h3_faq": "FAQ",
+  "instruction_faq": [
+    {
+      "q": "Why AutoJs6 is required",
+      "a": "3-Stove Agent handles tasks and the interface, while model calls, screen operations and scripts all run through AutoJs6. Without a connection to AutoJs6, history can be viewed but new tasks cannot start; a lost connection blocks the running task, and reconnecting does not replay it."
+    },
+    {
+      "q": "When payments require confirmation",
+      "a": "By default every payment requires its own confirmation; approving an order or another operation does not approve the payment, and a timeout counts as a refusal. \"Full access\" skips payment confirmations, so turn it on only when the goal and the model are trusted."
+    },
+    {
+      "q": "Why a local model is slow or cannot finish a task",
+      "a": "A model that loads is not guaranteed to complete tasks, so start with simple tasks and check the results. On older phones the first call can exceed the 5-minute limit; while waiting, the workbench shows the elapsed seconds, and a timeout result states the likely causes and remedies."
+    },
+    {
+      "q": "Why resident listening stops",
+      "a": "Resident listening does not start at boot and resumes when the workbench or Settings is opened. On ColorOS or MIUI, allow auto-start and add the app to the battery whitelist, otherwise the system may stop the resident service; the wake word also cannot be recognized while another app is recording."
+    }
+  ],
+  "instruction_p_more": "See the [project page]({{ repo_url }}) for the tool list, the script registration format and permission details."
 }

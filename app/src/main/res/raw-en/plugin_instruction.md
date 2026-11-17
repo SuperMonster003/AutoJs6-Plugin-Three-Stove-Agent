@@ -1,25 +1,85 @@
-3-Stove Agent turns a natural-language goal into actions on an Android device running AutoJs6. It either picks a script that the user has registered for agent use, fills in its parameters and runs it, or observes the screen through the accessibility node tree and acts on it step by step (observe, decide, act, verify) until the goal is reached, a confirmation is needed, or a budget runs out. It answers [AutoJs6 discussion #577](https://github.com/SuperMonster003/AutoJs6/discussions/577).
+3-Stove Agent is an agent that carries out operations on the phone for you. After you describe a goal in one sentence, it looks at the screen through AutoJs6 and taps, types and scrolls step by step, or picks a registered script, fills in its parameters and runs it, until the goal is reached. Sensitive operations such as paying, sending or deleting require confirmation first, and every task has limits on steps and time.
 
-Version 1.2.0 ships optional MCP tools, native tool calling, screenshot observation and generated scripts, accepted on five real devices and on API 24 / 35 / 36.1 emulators. Known limitations: small on-device models (Gemma 4 E2B / E4B) decide poorly; failures after VPN network switching with default auto-connect remain unresolved; a complete cross-UID vision task has not been accepted, AiGoCode gpt-5.6-sol only passed the initial-image and tool-result-image probes. See [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) for the evidence.
+### Getting started
 
-### Usage
+1. Install and enable [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), then add an online model or import a local model there. 3-Stove Agent calls models through it.
+2. Open 3-Stove Agent. If the home screen reports that it is not connected, tap "Connect to AutoJs6".
+3. Tap the model chip in the top bar to choose a model, or keep "Automatic" (a local model is preferred).
+4. Enter a goal in the input bar and tap "Start task". The task card shows the progress of each step; questions and confirmations are also handled there.
 
-1. Install the plugin APK from [Releases](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/releases) on a device with AutoJs6 build 5293 or later.
-2. Open the AutoJs6 plugin center and confirm that `3-Stove Agent` is recognized. Official packages pass signature verification and enable automatically after installation without an extra prompt; a plugin you disabled stays disabled. The plugin center is the sole enable switch. Script and standalone entry points connect on demand, with no boot startup or replay of earlier tasks.
-3. Open 3-Stove Agent, connect to AutoJs6, enter a goal and start. The model capsule on the home screen chooses an online or local model, or Automatic (an on-device model first, otherwise the first available one). Search models, pin favorites and reuse recent ones; badges show declared tool-calling and image-input support. The workbench and the floating ball share this choice for new tasks; it never edits a preset or a running task, and presets no longer carry a model. The preset chip in the composer selects an optional preset. Answer questions and review progress in the task card.
-4. Configure extra folders in the launcher's "Script directories", one absolute path per line. The host validates and applies saved paths; tasks can only narrow the approved folders.
-5. Up to 200 tasks / 32 MiB. Older, least recently viewed finished tasks are removed first. Rerun fills the original goal and preset in the workbench. Review them and press Start task to execute again. Clearing history keeps running tasks. The export keeps diagnostic counters, tool names and confirmation outcomes. Goals, parameters, observations and script results are removed. Choose where to save the file. Share summary on the detail page hands the system share sheet the goal, state, summary, evidence and unfinished work, never observations.
-6. Open Presets in the workbench to save a task configuration. Names are stable script and memory identifiers; copy a preset to use another name. The built-in default can be edited but not deleted. Presets do not include a model; a model saved in a preset by an earlier version is kept for scripts only. Task options can further narrow preset limits. Fixed and task context share an 8 KiB limit. Memory scope can include global and current-preset entries, either one, or neither. Editing or deleting a preset does not change queued tasks. Up to 32 presets / 1 MiB are stored privately. Presets can be exported as JSON and imported after a per-preset review; the file carries no model, and tool groups or script directories missing on this device are dropped on import. Plan mode makes the model propose 3 to 8 steps that you review, and may edit, before execution, and propose a new plan when the old one stops fitting; it is off by default.
-7. Open Memory to review, edit, delete or back up preferences. Up to 500 entries / 256 KiB; each retains its scope, source task and timestamps. Confirm each memory_propose and each imported entry separately. Unknown preset scopes require that preset to exist first. Automatic injection uses up to 4 KiB of the newest entries in the allowed scope; current-preset values override global values with the same key. memory: false disables automatic injection only; disable the memory tool group or select no memory scope to also block queries and proposals. Export includes actual values and provenance. Do not store credentials; recognized credential keys and token formats are rejected.
-8. Answer in the workbench while it is open. In the background, open the high-priority notification to review the specific request. Confirmations show the tool, parameters, risk and time remaining. Always allow for this session approves the same tool at the same risk level until the task ends, including later memory proposals or generated sources; payments need their own approval. Remember this answer creates a separate memory_propose for review, within the allowed memory scope. Confirmation normally waits 120 seconds, questions up to 10 minutes, both bounded by the task budget. Timeout returns USER_TIMEOUT; the model may ask again or report partial completion. Old requests cannot answer new ones. Notification permission and channel settings affect background delivery.
-9. Open Settings from the workbench to choose tool groups, budgets, operation permissions (standard, cautious or full access), voice input and the default preset. Every change is saved immediately and applies to new tasks. Full access runs enabled tools, including payments, without approval; the workbench, floating ball and history show a warning label while it is active. gesture/files/shell/script_dynamic/plugin_write are initially off; OCR requires an available authorized host plugin. Limits set to Automatic use the stock defaults; duration is entered in minutes, and all values remain within protocol limits. Presets and task options can only narrow them. Data management shows counts and bytes; category clearing requires confirmation and no active task. Clearing presets restores the built-in default. Presets, memory, script directories and MCP servers also open from Settings. Task alerts keep Failure alerts and Completion notifications in two compact summary rows, each opening independent notification, toast and dialog switches. New defaults enable all three for failures and notification plus toast for completion; saved choices are preserved. Normal completion, including a partial result without an error, alerts once; cancellation and history replay stay silent. On the workbench the access chip switches the operation permissions directly, the preset chip opens a sheet that picks or manages presets, and the overflow menu toggles the floating ball.
-10. Open Settings from the home screen's top-right menu. Language, dark mode and theme color can follow AutoJs6 or use independent preferences; language and dark mode can also follow Android. Version history and legal notices are bundled offline. Manual GitHub release checks reuse successful results for 24 hours. Automatic checks are off by default; when enabled, they run only while the app is in use, at most once every 12 hours, silently skip failures and ignored versions, and never download APKs. Manage ignored updates restores selected versions individually. About shows the version, developer, source code, license and third-party notices. Unify standalone settings with flat groups, consistent rows and centered rounded dialogs. Language, night mode, theme color and launcher icon changes apply only after OK; Cancel leaves saved values unchanged. Theme color follows AutoJs6 by default, with a shared palette, HEX/RGB input and a local preview. Neutral surfaces keep stable colors and controls follow the selected theme. The launcher default is adaptive automatic, while upgrades preserve explicit saved choices.
-11. Enable the floating ball in Settings and allow display over other apps. It is off by default, appears only while AutoJs6 is connected, hides on lock or disconnect, and has no idle foreground service. Drag to move; tap to enter a goal, choose a preset, review a question or confirmation, or stop a task. Collapsing the card restores background confirmation notifications. Share plain text to 3-Stove Agent, use the New task app shortcut, or pin a preset with an optional goal from Presets. All entries open editable drafts and require Start task. A deleted preset never falls back silently. Voice uses the system recognizer in the interface language, is hidden when unavailable and fills text without sending. With 3-Macaw Speech installed, the microphone uses its offline recognition by default instead of asking which recognizer app to use; Settings can turn this off. After speaking to the 3-Macaw Speech digital assistant, tapping "3-Stove Agent" also creates only a draft: in the floating ball card while the ball is on screen (replacing any earlier draft, keeping the chosen preset), otherwise in the workbench. Resident listening in Settings (off by default) waits through 3-Macaw Speech for a wake word ("小炉小炉" or "Hey Stove" by default, editable) and then listens to one sentence, which likewise only becomes a draft (floating ball card, workbench, or a notification on the lock screen or without the overlay permission). Only one of 3-Stone AI, 3-Stove Agent and 3-Macaw Speech listens resident at a time. While on there are two ongoing notifications and battery use rises; wake words go unheard while another app records; it never starts at boot, opening the workbench or Settings resumes it and a reminder follows a reboot or an update. The listening time turns it off after 10 / 30 / 60 minutes or keeps it always on; with "Listen only while charging" it pauses when unplugged (nothing records) and continues when plugged in, except that Android 14+ does not allow reopening the microphone in the background, so a notification then asks for a tap. ColorOS / MIUI may need auto-start and battery exemptions, otherwise the resident service can be stopped.
-12. To use generated scripts, enable Generated scripts in Settings and the chosen Preset with a compatible host. Review each complete source before allowing it; allowing it for the session also approves later sources in the same task. From its task-detail step, Save generated script opens the system file picker to create a new .js file with a sensitive @agent header and before-run confirmation. Choose the AutoJs6 working directory or an approved Script directory; add another shared directory in Script directories before the next catalog scan. Saving does not execute the script.
-13. Configure MCP servers in Settings, discover tools and explicitly select the tools to allow. Enable MCP tools in Settings and the chosen preset. The default local URL is http://127.0.0.1:9637/mcp; other servers require HTTPS. Enter a Bearer token when required and complete pairing in MCP Server. Unsupported schemas are shown and cannot be selected.
+### Main features
 
-Install and enable [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI), then configure an online model or import a supported local model there. The current host model broker selects 3-Stone AI; support for another Provider requires host integration. Choose a model with the model capsule on the 3-Stove Agent home screen. A banner appears there only while AutoJs6 is not connected.
+- **Tasks and history**: While a task runs, you can view its steps, answer questions or stop it at any time. "Task history" keeps finished tasks, which can be shared as a summary or run again (running again only puts the original goal back into the input bar for review before starting).
+- **Confirmations and operation permissions**: Read-only operations run directly; sensitive operations such as paying, sending, deleting or writing files require confirmation by default, which can be given once or for the rest of the task. "Operation permissions" in Settings offers "Standard", "Cautious" or "Full access" (no confirmations, clearly marked while on).
+- **Presets**: Save frequently used tool groups, budgets and fixed context as a preset, and choose it from the preset tag in the input bar before starting. With "Plan mode" on, a task first proposes a plan of 3 to 8 steps and runs it after review.
+- **Memory**: Store preferences the agent should remember; they are attached to tasks automatically. Every memory proposed by the agent is saved only after confirmation; do not store passwords or other credentials in memory.
+- **Registered scripts**: After an `@agent` comment is added at the top of a script (see the example below), the agent can choose and run that script. Script locations outside the working directory are added under "Script directories".
+- **Floating ball**: Once enabled in Settings, it allows entering goals, handling confirmations or stopping tasks on top of other apps.
+- **Quick start**: Share text to 3-Stove Agent, use the "New task" home screen shortcut, or pin a preset to the home screen. These entries only create a draft, which runs after "Start task" is tapped.
+- **Voice**: After "Enable voice input" is turned on in Settings, a microphone appears next to the input box; with 3-Macaw Speech installed, recognition runs offline. "Resident listening" (off by default) accepts one task after recognizing the wake word "小炉小炉" or "Hey Stove". Voice results also become drafts only.
+- **More tools**: Settings can enable text recognition (requires an OCR plugin), tools provided by other plugins (such as reading aloud and transcription from 3-Macaw Speech), tools provided by MCP servers, and scripts generated by the model that run only after review.
 
-Android 7.0+ (API 24). Requires an AutoJs6 6.8.0 / build 5298+ host, which already contains every host change needed by the task API (build 5293+) and by native tool calling and image input (build 5297+). Screen actions need the host accessibility service; the Agent first starts it through the unattended method configured in AutoJs6 (Root, secure settings or Shizuku) and asks you to enable it only when that fails. OCR is optional and requires an installed, authorized OCR plugin reported as available by the host. The 3-Stove Agent plugin has no model credentials or accessibility service of its own.
+### Using it in scripts
 
-See the [project README](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent) and [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent/blob/master/ROADMAP.md) for the connection guide and the current progress.
+In an AutoJs6 script, start a task with `ai.agent.run`; questions and confirmations are still handled in the 3-Stove Agent interface:
+
+```js
+let run = ai.agent.run('Read the Android version and report the observed value.', {
+    tools: ['observe', 'user'],
+    interaction: 'plugin',
+    budget: { maxSteps: 8 },
+});
+run.on('progress', (event) => console.log(event.message));
+run.result.then(
+    (result) => console.log(result.status, result.summary),
+    (error) => console.error(error.code, error.message),
+);
+```
+
+- Check the `status` of the result: when the Promise is fulfilled, the result can still be `completed`, `partial`, `failed`, `blocked` or `cancelled`. Call `run.cancel()` to stop the task.
+- Add `preset: 'your-preset-name'` to the options to use a saved preset, or `plan: true` to have the task propose a plan first.
+- See [AutoJs6 docs > ai.agent](https://docs.autojs6.com/#/ai) for all options and events.
+
+To let the agent run a custom script, save the example below as `text-counter.js` in the AutoJs6 working directory. Then request a character count for some text; if a parameter is missing, the agent asks for it first:
+
+```js
+/**
+ * @agent
+ * @description Count Unicode characters in the supplied text
+ * @param {string} text Text to count
+ * @risk readonly
+ * @confirm never
+ * @timeout 10000
+ */
+let context = ai.agent.context();
+if (!context) throw Error('Start this registered script through 3-Stove Agent');
+let text = new java.lang.String(context.parameters.text);
+ai.agent.result({ characters: text.codePointCount(0, text.length()) });
+```
+
+### Requirements
+
+- Android 7.0 or later and AutoJs6 6.8.0 or later.
+- Models are provided by [3-Stone AI](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stone-AI); 3-Stove Agent itself stores no model credentials.
+- Screen operations use the AutoJs6 accessibility service. It is turned on automatically when AutoJs6 has Root, secure settings or Shizuku configured; otherwise turn it on as prompted.
+- The notification permission is used for background confirmations and task alerts; the floating ball requires the "display over other apps" permission.
+
+### FAQ
+
+**Why AutoJs6 is required**
+
+3-Stove Agent handles tasks and the interface, while model calls, screen operations and scripts all run through AutoJs6. Without a connection to AutoJs6, history can be viewed but new tasks cannot start; a lost connection blocks the running task, and reconnecting does not replay it.
+
+**When payments require confirmation**
+
+By default every payment requires its own confirmation; approving an order or another operation does not approve the payment, and a timeout counts as a refusal. "Full access" skips payment confirmations, so turn it on only when the goal and the model are trusted.
+
+**Why a local model is slow or cannot finish a task**
+
+A model that loads is not guaranteed to complete tasks, so start with simple tasks and check the results. On older phones the first call can exceed the 5-minute limit; while waiting, the workbench shows the elapsed seconds, and a timeout result states the likely causes and remedies.
+
+**Why resident listening stops**
+
+Resident listening does not start at boot and resumes when the workbench or Settings is opened. On ColorOS or MIUI, allow auto-start and add the app to the battery whitelist, otherwise the system may stop the resident service; the wake word also cannot be recognized while another app is recording.
+
+See the [project page](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stove-Agent) for the tool list, the script registration format and permission details.

@@ -81,7 +81,6 @@
   "text_link_autojs6_docs": "Documentación de AutoJs6",
   "text_link_discussion": "Discusión #577 de AutoJs6",
   "text_link_third_party_notices": "Avisos de terceros",
-  "p_instruction_more": "Consulte el [README del proyecto]({{ repo_url }}) y [ROADMAP.md]({{ roadmap_url }}) para la guía de conexión y el progreso actual.",
   "h3_tools": "Catálogo de herramientas",
   "p_tools_status": "La tabla se genera desde el ToolCatalog incluido. El objetivo real de pantalla puede elevar el riesgo; el modo cauteloso también confirma acciones que no sean de solo lectura y el acceso completo omite la confirmación de las herramientas activadas. Ajustes, preajustes, opciones y permisos del anfitrión limitan los grupos disponibles.",
   "tool_header_name": "Herramienta",
@@ -115,5 +114,61 @@
   "faq_payment_question": "Cuándo se confirman los pagos?",
   "faq_payment_answer": "Pagar es una acción sensible independiente. Aprobar un pedido, script u otra acción no autoriza un pago. De forma predeterminada, cada acción de pago detectada exige confirmación propia y el tiempo agotado implica rechazo. Elegir Permitir siempre en esta sesión en una solicitud de pago solo cubre los pagos posteriores de esa herramienta en la misma tarea. El acceso completo omite la confirmación de pagos: actívelo solo con objetivos y modelos de confianza. Revise comercio, productos, dirección e importe antes de aprobar.",
   "faq_local_question": "Qué limitaciones tienen los modelos locales?",
-  "faq_local_answer": "Cargar un modelo no garantiza completar tareas. La prueba registrada de validación de decisiones Wi-Fi con Gemma 4 E2B IT no pasó; este destino mantiene JSON. Las llamadas nativas requieren host y destino compatibles y conservan validación, confirmaciones y presupuestos. Empiece con tareas pequeñas y revise partial/failed. En teléfonos antiguos la primera llamada a un modelo local puede superar el límite de 5 minutos del modelo: en un Sony G8441 (Snapdragon 835, 4 GB de RAM) cargar Gemma 4 E2B tardó unos 3 minutos y procesar la entrada cerca de 1 más, sin respuesta en 5 minutos; en un Sony XQ-DQ72 la misma tarea con Gemma 4 E4B terminó en unos 70 segundos. En teléfonos recientes este paso solo tarda unos segundos: medido el 2026-11-06, un Xiaomi Pad 6 Pro (Snapdragon 8+ Gen 1, 12 GB de RAM) terminó una tarea de solo respuesta con Gemma 4 E2B en unos 18 segundos desde un arranque en frío (unos 5 segundos para cargar el modelo y 9 para procesar la entrada) y en unos 40 segundos con Gemma 4 E4B; un OnePlus OPD2413 (ColorOS 15) tardó unos 14 segundos con Gemma 4 E2B, o unos 19 con la pantalla apagada. Mientras un modelo local responde, la vista de la tarea muestra los segundos de espera; cuando una llamada supera el tiempo, el resultado indica las causas probables (el modelo aún cargándose, el sistema restringiendo el plugin de IA en segundo plano, una entrada demasiado grande) y qué hacer. device_local_model_check.py, en el directorio .python del repositorio, mide los tiempos por fase de un arranque en frío y de un motor ya cargado en un dispositivo conectado. La entrada de imágenes requiere un destino que las acepte; AiGoCode gpt-5.6-sol pasó las pruebas de imagen inicial e imagen en resultados de herramientas, mientras que otros destinos requieren una verificación aparte. Los scripts generados requieren activación expresa y cada código sigue la política de confirmación."
+  "faq_local_answer": "Cargar un modelo no garantiza completar tareas. La prueba registrada de validación de decisiones Wi-Fi con Gemma 4 E2B IT no pasó; este destino mantiene JSON. Las llamadas nativas requieren host y destino compatibles y conservan validación, confirmaciones y presupuestos. Empiece con tareas pequeñas y revise partial/failed. En teléfonos antiguos la primera llamada a un modelo local puede superar el límite de 5 minutos del modelo: en un Sony G8441 (Snapdragon 835, 4 GB de RAM) cargar Gemma 4 E2B tardó unos 3 minutos y procesar la entrada cerca de 1 más, sin respuesta en 5 minutos; en un Sony XQ-DQ72 la misma tarea con Gemma 4 E4B terminó en unos 70 segundos. En teléfonos recientes este paso solo tarda unos segundos: medido el 2026-11-06, un Xiaomi Pad 6 Pro (Snapdragon 8+ Gen 1, 12 GB de RAM) terminó una tarea de solo respuesta con Gemma 4 E2B en unos 18 segundos desde un arranque en frío (unos 5 segundos para cargar el modelo y 9 para procesar la entrada) y en unos 40 segundos con Gemma 4 E4B; un OnePlus OPD2413 (ColorOS 15) tardó unos 14 segundos con Gemma 4 E2B, o unos 19 con la pantalla apagada. Mientras un modelo local responde, la vista de la tarea muestra los segundos de espera; cuando una llamada supera el tiempo, el resultado indica las causas probables (el modelo aún cargándose, el sistema restringiendo el plugin de IA en segundo plano, una entrada demasiado grande) y qué hacer. device_local_model_check.py, en el directorio .python del repositorio, mide los tiempos por fase de un arranque en frío y de un motor ya cargado en un dispositivo conectado. La entrada de imágenes requiere un destino que las acepte; AiGoCode gpt-5.6-sol pasó las pruebas de imagen inicial e imagen en resultados de herramientas, mientras que otros destinos requieren una verificación aparte. Los scripts generados requieren activación expresa y cada código sigue la política de confirmación.",
+  "instruction_p_what": "3-Stove Agent es un agente que realiza operaciones en el teléfono por usted. Tras describir un objetivo en una frase, observa la pantalla a través de AutoJs6 y toca, escribe y desplaza paso a paso, o elige un script registrado, completa sus parámetros y lo ejecuta, hasta alcanzar el objetivo. Las operaciones sensibles, como pagar, enviar o eliminar, requieren confirmación previa, y cada tarea tiene límites de pasos y de tiempo.",
+  "instruction_h3_start": "Primeros pasos",
+  "instruction_start_steps": [
+    "Instale y active [3-Stone AI]({{ provider_url }}) y añada en él un modelo en línea o importe un modelo local. 3-Stove Agent llama a los modelos a través de él.",
+    "Abra 3-Stove Agent. Si la pantalla de inicio indica que no está conectado, toque \"Conectar con AutoJs6\".",
+    "Toque la cápsula del modelo en la barra superior para elegir un modelo, o mantenga \"Automático\" (se prefiere un modelo local).",
+    "Escriba un objetivo en la barra de entrada y toque \"Iniciar tarea\". La tarjeta de la tarea muestra el progreso de cada paso; las preguntas y las confirmaciones también se atienden allí."
+  ],
+  "instruction_h3_features": "Funciones principales",
+  "instruction_features": [
+    "**Tareas e historial**: mientras una tarea se ejecuta, puede ver sus pasos, responder preguntas o detenerla en cualquier momento. \"Historial de tareas\" conserva las tareas terminadas, que pueden compartirse como resumen o ejecutarse de nuevo (volver a ejecutar solo coloca el objetivo original en la barra de entrada para revisarlo antes de empezar).",
+    "**Confirmaciones y permisos de las operaciones**: las operaciones de solo lectura se ejecutan directamente; las operaciones sensibles, como pagar, enviar, eliminar o escribir archivos, requieren confirmación de forma predeterminada, que puede darse una vez o para el resto de la tarea. \"Permisos de las operaciones\" en los ajustes ofrece \"Estandar\", \"Prudente\" o \"Acceso completo\" (sin confirmaciones, marcado claramente mientras está activo).",
+    "**Preajustes**: guarde como preajuste los grupos de herramientas, presupuestos y contexto fijo que use a menudo, y elíjalo en la etiqueta de preajuste de la barra de entrada antes de empezar. Con \"Modo plan\" activado, una tarea propone primero un plan de 3 a 8 pasos y lo ejecuta tras su revisión.",
+    "**Memoria**: guarde las preferencias que el agente debe recordar; se adjuntan automáticamente a las tareas. Cada memoria que propone el agente se guarda solo tras confirmarla; no guarde contraseñas ni otras credenciales en la memoria.",
+    "**Scripts registrados**: tras añadir un comentario `@agent` al principio de un script (vea el ejemplo más abajo), el agente puede elegir y ejecutar ese script. Las ubicaciones de scripts fuera del directorio de trabajo se añaden en \"Directorios de scripts\".",
+    "**Burbuja flotante**: una vez activada en los ajustes, permite introducir objetivos, atender confirmaciones o detener tareas sobre otras aplicaciones.",
+    "**Inicio rápido**: comparta texto con 3-Stove Agent, use el acceso directo \"Nueva tarea\" de la pantalla de inicio o fije un preajuste en la pantalla de inicio. Estas entradas solo crean un borrador, que se ejecuta al tocar \"Iniciar tarea\".",
+    "**Voz**: tras activar \"Activar entrada de voz\" en los ajustes, aparece un micrófono junto al cuadro de entrada; con 3-Macaw Speech instalado, el reconocimiento se hace sin conexión. \"Escucha permanente\" (desactivada de forma predeterminada) acepta una tarea tras reconocer la palabra de activación \"小炉小炉\" o \"Hey Stove\". Los resultados de voz también se convierten solo en borradores.",
+    "**Más herramientas**: los ajustes permiten activar el reconocimiento de texto (requiere un plugin de OCR), las herramientas de otros plugins (como la lectura en voz alta y la transcripción de 3-Macaw Speech), las herramientas de servidores MCP y los scripts generados por el modelo, que solo se ejecutan tras revisarlos."
+  ],
+  "instruction_h3_script": "Uso en scripts",
+  "instruction_p_script": "En un script de AutoJs6, inicie una tarea con `ai.agent.run`; las preguntas y las confirmaciones se siguen atendiendo en la interfaz de 3-Stove Agent:",
+  "instruction_example_goal": "Lee la versión de Android e informa del valor observado.",
+  "instruction_script_notes": [
+    "Compruebe el `status` del resultado: aunque la Promise se cumpla, el resultado puede ser `completed`, `partial`, `failed`, `blocked` o `cancelled`. Llame a `run.cancel()` para detener la tarea.",
+    "Añada `preset: 'your-preset-name'` a las opciones para usar un preajuste guardado, o `plan: true` para que la tarea proponga primero un plan.",
+    "Todas las opciones y eventos se describen en [Documentación de AutoJs6 > ai.agent]({{ docs_autojs6_url }}/#/ai)."
+  ],
+  "instruction_p_registration": "Para que el agente ejecute un script propio, guarde el ejemplo siguiente como `text-counter.js` en el directorio de trabajo de AutoJs6. Después, pida el número de caracteres de un texto; si falta un parámetro, el agente lo pregunta primero:",
+  "instruction_h3_requirements": "Requisitos",
+  "instruction_requirements": [
+    "Android {{ min_android_version }} o posterior y AutoJs6 {{ required_host_version_name }} o posterior.",
+    "Los modelos los proporciona [3-Stone AI]({{ provider_url }}); 3-Stove Agent no guarda credenciales de modelos.",
+    "Las operaciones en pantalla usan el servicio de accesibilidad de AutoJs6. Se activa automáticamente cuando AutoJs6 tiene configurado Root, los ajustes seguros o Shizuku; de lo contrario, actívelo según se indique.",
+    "El permiso de notificaciones se usa para las confirmaciones en segundo plano y los avisos de tareas; la burbuja flotante requiere el permiso \"mostrar sobre otras aplicaciones\"."
+  ],
+  "instruction_h3_faq": "Preguntas frecuentes",
+  "instruction_faq": [
+    {
+      "q": "Motivos por los que se necesita AutoJs6",
+      "a": "3-Stove Agent se encarga de las tareas y la interfaz, mientras que las llamadas a modelos, las operaciones en pantalla y los scripts pasan por AutoJs6. Sin conexión con AutoJs6 se puede consultar el historial, pero no iniciar tareas nuevas; una conexión perdida bloquea la tarea en curso y la reconexión no la repite."
+    },
+    {
+      "q": "Casos en que los pagos requieren confirmación",
+      "a": "De forma predeterminada, cada pago requiere su propia confirmación; aprobar un pedido u otra operación no aprueba el pago, y agotar el tiempo equivale a rechazarlo. \"Acceso completo\" omite las confirmaciones de pago, así que actívelo solo si confía en el objetivo y el modelo."
+    },
+    {
+      "q": "Motivos por los que un modelo local es lento o no completa una tarea",
+      "a": "Que un modelo se cargue no garantiza que complete tareas; empiece con tareas sencillas y revise los resultados. En teléfonos antiguos, la primera llamada puede superar el límite de 5 minutos; durante la espera, la pantalla de tareas muestra los segundos transcurridos, y un resultado por tiempo agotado indica las causas probables y las soluciones."
+    },
+    {
+      "q": "Motivos por los que se detiene la escucha permanente",
+      "a": "La escucha permanente no se inicia con el arranque y se reanuda al abrir la pantalla de tareas o los ajustes. En ColorOS o MIUI, permita el inicio automático y añada la aplicación a la lista blanca de batería; de lo contrario, el sistema puede detener el servicio permanente. Tampoco se reconoce la palabra de activación mientras otra aplicación graba."
+    }
+  ],
+  "instruction_p_more": "La lista de herramientas, el formato de registro de scripts y los detalles de permisos están en la [página del proyecto]({{ repo_url }})."
 }
