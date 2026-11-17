@@ -6,7 +6,7 @@
     <string name="about_version">Versión</string>
     <string name="about_version_value">%1$s (compilación %2$d)\nFecha: %3$s</string>
     <string name="access_cautious_short">Prudente</string>
-    <string name="access_standard_short">Estandar</string>
+    <string name="access_standard_short">Estándar</string>
     <string name="accessibility_open_settings">Abrir ajustes de accesibilidad</string>
     <string name="accessibility_start_failed">Falló el inicio automático de accesibilidad. Active el servicio de accesibilidad de AutoJs6 en los ajustes del sistema y continúe la tarea.</string>
     <string name="alert_channel">Avisos de fallo de tareas</string>
