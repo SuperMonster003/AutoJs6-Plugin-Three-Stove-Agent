@@ -48,8 +48,9 @@
     <string name="app_update_ignored_count">Ignored versions: %1$d</string>
     <string name="app_update_manage_ignored">Manage ignored updates</string>
     <string name="app_update_no_ignored">No releases are currently ignored</string>
-    <string name="app_update_release_history_summary">Read the version history included with this app</string>
+    <string name="app_update_release_history_summary">Read the release history included with this app</string>
     <string name="app_update_stop_ignoring">Stop ignoring</string>
+    <string name="document_load_error">Unable to read the bundled document.</string>
     <string name="entry_invalid">Unable to open this task draft or create its shortcut.</string>
     <string name="floating_collapse">Collapse task card; drag to move</string>
     <string name="floating_exit">Turn off the floating ball</string>
@@ -284,8 +285,12 @@
     <string name="presets_tokens">Maximum tokens</string>
     <string name="presets_tools">Enabled tool groups</string>
     <string name="presets_unavailable">%1$s (unavailable)</string>
-    <string name="release_history_error">Unable to read the bundled document.</string>
-    <string name="release_history_title">Version history</string>
+    <string name="release_history_collapse_all">Collapse all</string>
+    <string name="release_history_collapsed">Collapsed</string>
+    <string name="release_history_expand_all">Expand all</string>
+    <string name="release_history_expanded">Expanded</string>
+    <string name="release_history_load_failed">Unable to load the release history</string>
+    <string name="release_history_title">Release history</string>
     <string name="resident_alert_channel">Resident listening alerts</string>
     <string name="resident_blocked">Tap to continue listening: Android does not allow reopening the microphone in the background</string>
     <string name="resident_conflict_message">The system supports only one app listening resident. Turn off %1$s first, then turn it on here.</string>
@@ -389,6 +394,7 @@
     <string name="settings_notices">Third-party notices</string>
     <string name="settings_ocr_note">OCR is available automatically when the host detects an authorized recognition plugin and this group is enabled.</string>
     <string name="settings_open_failed">No application could open this link.</string>
+    <string name="settings_open_general_settings">Open general settings</string>
     <string name="settings_plugin_tools_note">Plugin tools come from plugins that are enabled and admitted by AutoJs6. Read-only tools run directly; unless full access is on, every call of a write tool asks for confirmation first.</string>
     <string name="settings_policy_note">Saved settings apply to new tasks. Presets and individual tasks can only narrow these limits; host permissions still apply.</string>
     <string name="settings_resident">Resident listening</string>

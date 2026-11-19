@@ -1,17 +1,21 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
 import android.text.format.Formatter
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.gson.JsonObject
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentPlugin
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.threeStoveAgentPluginRuntimeInfo
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.catalog.ToolGroup
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.store.AgentSettings
@@ -23,7 +27,12 @@ import io.github.supermonster003.autojs6.plugin.three.stove.agent.update.*
 
 /**
  * Settings modelled on 3-Stone AI: every change applies at once (no Save button). Appearance is a
- * UI-process preference; task settings are whole-object saves through [SettingsUpdater].
+ * UI-process preference; task settings are whole-object saves through [SettingsUpdater]. The overflow menu opens
+ * the general settings page that AutoJs6 6.8.1 and later show for this plugin (plugin-center P21.8, Q100 B); the item
+ * is hidden when AutoJs6 cannot resolve that page.
+ * zh-CN: 设置页仿照 3-Stone AI: 每项更改立即生效 (没有保存按钮). 外观是界面进程的偏好; 任务设置经 [SettingsUpdater]
+ * 整体保存. 溢出菜单打开 AutoJs6 6.8.1 及以上版本为本插件提供的通用设置页 (plugin-center P21.8, Q100 B);
+ * AutoJs6 解析不到该页时不显示此项.
  */
 class SettingsActivity : HostAppearanceActivity() {
     private lateinit var connection: SettingsConnection
@@ -47,6 +56,7 @@ class SettingsActivity : HostAppearanceActivity() {
     internal var voiceMacawDivider: View? = null
     internal lateinit var resident: ResidentSettingsSection; private set
     internal lateinit var appearancePreferences: AppearancePreferences
+    private var generalSettingsAvailable = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +96,50 @@ class SettingsActivity : HostAppearanceActivity() {
             awaitingOverlayPermission = false
             if (Settings.canDrawOverlays(this)) updater.apply { it.withFloating(true) }
             else kit.snackbar(scaffold.root, getString(R.string.floating_permission_required))
+        }
+        // AutoJs6 may have been installed, updated or removed while this page was away.
+        if (canOpenGeneralSettings() != generalSettingsAvailable) invalidateOptionsMenu()
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // The general settings page of AutoJs6 brings this page back (CLEAR_TOP | SINGLE_TOP) instead of opening a
+        // second one; the page keeps its state and scroll position.
+        setIntent(intent)
+    }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(Menu.NONE, R.id.settings_open_general_settings, Menu.NONE, R.string.settings_open_general_settings)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        generalSettingsAvailable = canOpenGeneralSettings()
+        menu.findItem(R.id.settings_open_general_settings)?.isVisible = generalSettingsAvailable
+        return super.onPrepareOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId != R.id.settings_open_general_settings) return super.onOptionsItemSelected(item)
+        openGeneralSettings(); return true
+    }
+
+    /** The general settings page that AutoJs6 shows for this plugin (plugin-center P17). */
+    private fun generalSettingsIntent(): Intent = Intent(ACTION_HOST_PLUGIN_SETTINGS)
+        .setPackage(ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)
+        .putExtra(EXTRA_HOST_PLUGIN_PACKAGE, packageName)
+
+    /** AutoJs6 6.8.0 and earlier have no such page, so the menu item stays hidden. */
+    internal fun canOpenGeneralSettings(): Boolean = packageManager.resolveActivity(generalSettingsIntent(), 0) != null
+
+    /**
+     * Opens the general page in this task (no NEW_TASK), so Back returns here; when this page was opened from the
+     * general page, AutoJs6 returns to that one instead of stacking another. AutoJs6 shows its own message when it
+     * refuses the request; a build signed with another key resolves the page but the system refuses the start.
+     */
+    private fun openGeneralSettings() {
+        try {
+            startActivity(generalSettingsIntent())
+        } catch (_: SecurityException) {
+        } catch (_: ActivityNotFoundException) {
+            invalidateOptionsMenu()
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -288,6 +342,11 @@ class SettingsActivity : HostAppearanceActivity() {
         internal const val FOCUS_RESIDENT = "resident"
         /** The exported alias other resident listeners open (D73). */
         private const val RESIDENT_SETTINGS_ALIAS = ".speech.ResidentListenerSettings"
+        // The general settings page of AutoJs6 6.8.1 and later (plugin-center P17); literal values, as AutoJs6 declares
+        // them, since the plugin builds against the 6.8.0 protocol AARs.
+        // zh-CN: AutoJs6 6.8.1 及以上版本的通用设置页 (plugin-center P17); 插件按 6.8.0 协议 AAR 构建, 故按宿主声明写成字面量.
+        internal const val ACTION_HOST_PLUGIN_SETTINGS = "org.autojs.autojs6.action.PLUGIN_SETTINGS"
+        internal const val EXTRA_HOST_PLUGIN_PACKAGE = "packageName"
         private val limitLabels = mapOf("maxSteps" to R.string.presets_steps, "maxModelCalls" to R.string.presets_calls,
             SettingsDraft.DURATION to R.string.settings_duration_minutes, "maxTotalTokens" to R.string.presets_tokens)
     }

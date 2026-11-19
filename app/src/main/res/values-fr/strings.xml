@@ -50,6 +50,7 @@
     <string name="app_update_no_ignored">Aucune version n\'est ignorée</string>
     <string name="app_update_release_history_summary">Consulter l\'historique intégré à l\'application</string>
     <string name="app_update_stop_ignoring">Ne plus ignorer</string>
+    <string name="document_load_error">Impossible de lire le document intégré.</string>
     <string name="entry_invalid">Impossible d\'ouvrir ce brouillon ou de créer son raccourci.</string>
     <string name="floating_collapse">Réduire la carte. Faire glisser pour déplacer</string>
     <string name="floating_exit">Desactiver la bulle flottante</string>
@@ -284,7 +285,11 @@
     <string name="presets_tokens">Nombre maximal de jetons</string>
     <string name="presets_tools">Groupes d\'outils activés</string>
     <string name="presets_unavailable">%1$s (indisponible)</string>
-    <string name="release_history_error">Impossible de lire le document intégré.</string>
+    <string name="release_history_collapse_all">Tout réduire</string>
+    <string name="release_history_collapsed">Réduit</string>
+    <string name="release_history_expand_all">Tout développer</string>
+    <string name="release_history_expanded">Développé</string>
+    <string name="release_history_load_failed">Impossible de charger l\'historique des versions</string>
     <string name="release_history_title">Historique des versions</string>
     <string name="resident_alert_channel">Alertes de l\'écoute permanente</string>
     <string name="resident_blocked">Touchez pour continuer l\'écoute: Android n\'autorise pas la réouverture du micro en arrière-plan</string>
@@ -389,6 +394,7 @@
     <string name="settings_notices">Mentions tierces</string>
     <string name="settings_ocr_note">L\'OCR est disponible si ce groupe est activé et si l\'hôte détecte un module de reconnaissance autorisé.</string>
     <string name="settings_open_failed">Aucune application ne peut ouvrir ce lien.</string>
+    <string name="settings_open_general_settings">Ouvrir les paramètres généraux</string>
     <string name="settings_plugin_tools_note">Les outils des modules viennent de modules activés et admis par AutoJs6. Les outils en lecture seule s\'exécutent directement; sauf en accès complet, chaque appel d\'un outil d\'écriture demande d\'abord une confirmation.</string>
     <string name="settings_policy_note">Les paramètres enregistrés concernent les nouvelles tâches. Les profils et les tâches peuvent seulement réduire ces limites; les autorisations de l\'hôte restent applicables.</string>
     <string name="settings_resident">Écoute permanente</string>

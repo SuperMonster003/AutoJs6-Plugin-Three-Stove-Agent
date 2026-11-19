@@ -48,8 +48,9 @@
     <string name="app_update_ignored_count">Пропущенные версии: %1$d</string>
     <string name="app_update_manage_ignored">Пропущенные обновления</string>
     <string name="app_update_no_ignored">Нет пропущенных версий</string>
-    <string name="app_update_release_history_summary">Просмотр истории версий в приложении</string>
+    <string name="app_update_release_history_summary">Просмотр истории выпусков в приложении</string>
     <string name="app_update_stop_ignoring">Не игнорировать</string>
+    <string name="document_load_error">Не удалось прочитать встроенный документ.</string>
     <string name="entry_invalid">Не удалось открыть черновик или создать ярлык.</string>
     <string name="floating_collapse">Свернуть карточку. Перетащите для перемещения</string>
     <string name="floating_exit">Выключить плавающий шар</string>
@@ -284,8 +285,12 @@
     <string name="presets_tokens">Максимум токенов</string>
     <string name="presets_tools">Включенные группы инструментов</string>
     <string name="presets_unavailable">%1$s (недоступно)</string>
-    <string name="release_history_error">Не удалось прочитать встроенный документ.</string>
-    <string name="release_history_title">История версий</string>
+    <string name="release_history_collapse_all">Свернуть всё</string>
+    <string name="release_history_collapsed">Свёрнуто</string>
+    <string name="release_history_expand_all">Развернуть всё</string>
+    <string name="release_history_expanded">Развёрнуто</string>
+    <string name="release_history_load_failed">Не удалось загрузить историю выпусков</string>
+    <string name="release_history_title">История выпусков</string>
     <string name="resident_alert_channel">Оповещения постоянного прослушивания</string>
     <string name="resident_blocked">Нажмите, чтобы продолжить прослушивание: Android не позволяет снова включать микрофон в фоне</string>
     <string name="resident_conflict_message">Система поддерживает только одно приложение с постоянным прослушиванием. Сначала выключите его в %1$s, затем включите здесь.</string>
@@ -389,6 +394,7 @@
     <string name="settings_notices">Уведомления третьих сторон</string>
     <string name="settings_ocr_note">OCR доступно автоматически, если группа включена и хост обнаружил разрешенный плагин распознавания.</string>
     <string name="settings_open_failed">Нет приложения для открытия ссылки.</string>
+    <string name="settings_open_general_settings">Открыть общие настройки</string>
     <string name="settings_plugin_tools_note">Инструменты плагинов предоставляют включенные плагины, допущенные AutoJs6. Инструменты только для чтения выполняются сразу; без полного доступа каждый вызов инструмента записи сначала требует подтверждения.</string>
     <string name="settings_policy_note">Сохраненные настройки действуют для новых задач. Профили и отдельные задачи могут только ужесточать ограничения; разрешения хоста сохраняются.</string>
     <string name="settings_resident">Постоянное прослушивание</string>

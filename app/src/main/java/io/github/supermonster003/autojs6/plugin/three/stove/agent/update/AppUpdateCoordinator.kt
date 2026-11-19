@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.HostAppearanceActivity
-import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.ReleaseHistoryActivity
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.openReleaseHistory
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
 import java.util.concurrent.Executors
 
@@ -71,7 +71,7 @@ internal class AppUpdateCoordinator(private val activity: HostAppearanceActivity
             .setMessage(activity.getString(R.string.update_installed, installed) + "\n\n" + release.notes)
             .setPositiveButton(R.string.update_open_release) { _, _ ->
                 if (ReleaseInfoCodec.validUrl(release.url, release.tag)) openPage(activity, release.url)
-            }.setNeutralButton(R.string.release_history_title) { _, _ -> activity.startActivity(Intent(activity, ReleaseHistoryActivity::class.java)) }
+            }.setNeutralButton(R.string.release_history_title) { _, _ -> activity.openReleaseHistory() }
             .setNegativeButton(if (ignored) R.string.update_unignore else R.string.update_ignore) { _, _ ->
                 if (ignored) settings.unignore(listOf(release.tag)) else settings.ignore(release.tag)
             }.show().also { activity.kit.tintDialogButtons(it) }

@@ -1,51 +1,39 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
 import android.os.Bundle
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
-import com.google.android.material.progressindicator.LinearProgressIndicator
+import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
 import io.github.supermonster003.autojs6.plugin.three.stove.agent.R
-import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.kit.*
-import java.util.concurrent.Executors
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.compose.ReleaseHistoryScreen
+import io.github.supermonster003.autojs6.plugin.three.stove.agent.ui.compose.StovePageTheme
 
-/** Offline bundled documents (version history, license, notices). No WebView, scripts or remote resources. */
+/**
+ * The release history page (plugin-center P21.8, `AUTOJS6_PLUGIN_RELEASE_HISTORY_AGENTS.md`): the bundled changelog
+ * for the current locale (English when that one is missing) as one group per released version, under the title
+ * "Release history" with the plugin name as the subtitle. The only Compose screen of the plugin; it extends the same
+ * [HostAppearanceActivity] as the View screens, so language, night mode, theme color and the recreation on an
+ * appearance change are theirs, and [StovePageTheme] maps their palette to Material 3.
+ * zh-CN: 发行历史页 (plugin-center P21.8, 发行历史页规范): 按当前语言读取内置更新日志 (缺失时回退英文), 每个版本一组,
+ * 标题 "发行历史", 子标题为插件名称. 这是插件唯一的 Compose 界面; 它与 View 界面继承同一个 [HostAppearanceActivity],
+ * 语言, 夜间模式, 主题色以及外观变化时的重建都与之相同, 由 [StovePageTheme] 把调色板映射为 Material 3.
+ */
 class ReleaseHistoryActivity : HostAppearanceActivity() {
-    private val worker = Executors.newSingleThreadExecutor()
-    internal lateinit var scaffold: Scaffold; private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val document = intent.getStringExtra("document")
-        val titleId = when (document) { "license" -> R.string.settings_license; "notices" -> R.string.settings_notices; else -> R.string.release_history_title }
-        scaffold = buildScaffold(getString(titleId), contentPadding = ContentPadding.SCREEN)
-        val progress = LinearProgressIndicator(this).apply { isIndeterminate = true; kit.applyThemeToControls(this) }
-        val content = TextView(this).apply {
-            tag = "document"; textSize = Ui.TEXT_BODY; setTextColor(palette.text); setTextIsSelectable(true)
-            setLineSpacing(0f, 1.25f); text = getString(R.string.interaction_loading)
-            textDirection = View.TEXT_DIRECTION_LOCALE
+        // Edge to edge like the View screens: the top bar pads for the status bar, the list for the navigation bar.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        title = getString(R.string.release_history_title)
+        val candidates = ReleaseHistoryAssetPolicy.candidatesFor(resources.configuration.locales[0])
+        val entries = loadReleaseHistory(candidates) { path ->
+            assets.open(path).use { stream -> stream.readBytes().toString(Charsets.UTF_8) }
         }
-        scaffold.content.addView(progress, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = kit.dp(Ui.SPACE_LG) })
-        scaffold.content.addView(content, LinearLayout.LayoutParams(-1, -2))
-        setContentView(scaffold.root)
-        val locale = resources.configuration.locales[0]
-        worker.execute {
-            fun read(path: String): String = assets.open(path).use {
-                val bytes = it.readBytes(); require(bytes.size <= 1024 * 1024); bytes.toString(Charsets.UTF_8)
-            }
-            val text = runCatching { when (document) {
-                "license" -> read("legal/LICENSE")
-                "notices" -> read("legal/THIRD_PARTY_NOTICES.md")
-                else -> ReleaseHistory.load(locale, ::read)
-            } }.getOrNull()
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                progress.visibility = View.GONE
-                if (text == null) {
-                    content.visibility = View.GONE
-                    scaffold.content.addView(kit.emptyState(getString(R.string.release_history_error), R.drawable.ic_warning))
-                } else content.text = if (document == "license") text else DocumentText.render(text, palette)
+        val palette = palette
+        setContent {
+            StovePageTheme(palette) {
+                ReleaseHistoryScreen(entries = entries, onBack = ::navigateBack)
             }
         }
     }
-    override fun onDestroy() { worker.shutdownNow(); super.onDestroy() }
+
 }

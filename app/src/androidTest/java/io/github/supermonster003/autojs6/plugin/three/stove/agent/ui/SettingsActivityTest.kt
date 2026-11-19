@@ -285,12 +285,18 @@ class SettingsActivityTest {
         assertEquals(1L, query(endpoint, "get").getAsJsonObject("memoryData").number("count"))
     }
 
-    @Test fun bundledReleaseHistoryLicenseAndNoticesOpenWithoutNetwork() {
-        for ((document, expected) in listOf("history" to "v1.1.0", "license" to "Mozilla Public License", "notices" to "Material Components")) {
-            ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
+    /** The legal documents stay on the document viewer; the release history has its own page (plugin-center P21.8). */
+    @Test fun bundledLicenseAndNoticesOpenWithoutNetworkAndUnknownDocumentsClose() {
+        for ((document, expected) in listOf(DocumentActivity.LICENSE to "Mozilla Public License", DocumentActivity.NOTICES to "Material Components")) {
+            ActivityScenario.launch<DocumentActivity>(DocumentActivity.intent(context, document)).use { scenario ->
                 waitFor("Bundled $document") { var ready = false; scenario.onActivity {
                     ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.text?.contains(expected, ignoreCase = true) == true
                 }; ready }
+            }
+        }
+        for (document in listOf("history", "unknown")) {
+            ActivityScenario.launch<DocumentActivity>(DocumentActivity.intent(context, document)).use { scenario ->
+                waitFor("Unknown document $document closes") { scenario.state == androidx.lifecycle.Lifecycle.State.DESTROYED }
             }
         }
     }
@@ -304,13 +310,43 @@ class SettingsActivityTest {
                 assertEquals(context.getString(R.string.about_license_name), (root.findViewWithTag<ViewGroup>("about-license-name")!!.getChildAt(1) as TextView).text.toString())
                 for (tag in listOf("about-history", "about-source", "about-developer", "about-license", "about-notices")) assertNotNull(tag, root.findViewWithTag<View>(tag))
             }
-            val monitor = instrumentation.addMonitor(ReleaseHistoryActivity::class.java.name, null, false)
+            val monitor = instrumentation.addMonitor(DocumentActivity::class.java.name, null, false)
             try {
                 scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<View>("about-notices")!!.performClick() }
                 val opened = monitor.waitForActivityWithTimeout(10000)
-                assertNotNull(opened); assertEquals("notices", opened.intent.getStringExtra("document"))
+                assertNotNull(opened); assertEquals(DocumentActivity.NOTICES, opened.intent.getStringExtra(DocumentActivity.EXTRA_DOCUMENT))
                 instrumentation.runOnMainSync { opened.finish() }
             } finally { instrumentation.removeMonitor(monitor) }
+            val historyMonitor = instrumentation.addMonitor(ReleaseHistoryActivity::class.java.name, null, false)
+            try {
+                scenario.onActivity { it.findViewById<View>(android.R.id.content).findViewWithTag<View>("about-history")!!.performClick() }
+                val opened = historyMonitor.waitForActivityWithTimeout(10000)
+                assertNotNull(opened); instrumentation.runOnMainSync { opened.finish() }
+            } finally { instrumentation.removeMonitor(historyMonitor) }
+        }
+    }
+
+    /**
+     * Plugin center P21.8: "Open general settings" is shown only when the installed AutoJs6 resolves its general plugin
+     * settings page (6.8.1 and later); on AutoJs6 6.8.0 and earlier the toolbar has no overflow button.
+     */
+    @Test fun generalSettingsItemAppearsOnlyWhenAutoJs6HasThePage() = isolated { _, _, _ ->
+        val intent = Intent(SettingsActivity.ACTION_HOST_PLUGIN_SETTINGS).setPackage(io.github.supermonster003.autojs6.plugin.three.stove.agent.ThreeStoveAgentPlugin.HOST_PACKAGE_NAME)
+            .putExtra(SettingsActivity.EXTRA_HOST_PLUGIN_PACKAGE, context.packageName)
+        val resolvable = context.packageManager.resolveActivity(intent, 0) != null
+        ActivityScenario.launch(SettingsActivity::class.java).use { scenario ->
+            ui(scenario, "General settings item") { it.scaffold.toolbar.menu.findItem(R.id.settings_open_general_settings) != null }
+            scenario.onActivity {
+                assertEquals(resolvable, it.canOpenGeneralSettings())
+                val item = it.scaffold.toolbar.menu.findItem(R.id.settings_open_general_settings)!!
+                assertEquals(context.getString(R.string.settings_open_general_settings), item.title.toString())
+                assertEquals("item visible when AutoJs6 resolves the page (resolvable: $resolvable)", resolvable, item.isVisible)
+            }
+            ui(scenario, "Overflow button follows the item") { activity ->
+                fun shown(view: View): Boolean = (view.parent is androidx.appcompat.widget.ActionMenuView && view.isShown) ||
+                    (view is ViewGroup && (0 until view.childCount).any { shown(view.getChildAt(it)) })
+                shown(activity.scaffold.toolbar) == resolvable
+            }
         }
     }
 
@@ -375,11 +411,13 @@ class SettingsActivityTest {
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { inspect(it, "settings") }
             }
+            // The Compose page is one view here; its own instrumentation test checks the content.
             ActivityScenario.launch(ReleaseHistoryActivity::class.java).use { scenario ->
                 waitFor("RTL release history layout") { var ready = false; scenario.onActivity {
-                    ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.let { view ->
-                        view.isLaidOut && view.text.contains("v1.1.0") } == true
+                    ready = it.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)?.let { view ->
+                        view.isLaidOut && view.width > 0 } == true
                 }; ready }
+                instrumentation.waitForIdleSync()
                 scenario.onActivity { inspect(it, "history") }
             }
         } finally { HostAppearance.cached = original; release.countDown() }
@@ -413,8 +451,8 @@ class SettingsActivityTest {
                 instrumentation.waitForIdleSync()
                 scenario.onActivity { audit.inspect(it, "about") }
             }
-            for (document in listOf("history", "license", "notices")) {
-                ActivityScenario.launch<ReleaseHistoryActivity>(Intent(context, ReleaseHistoryActivity::class.java).putExtra("document", document)).use { scenario ->
+            for (document in listOf(DocumentActivity.LICENSE, DocumentActivity.NOTICES)) {
+                ActivityScenario.launch<DocumentActivity>(DocumentActivity.intent(context, document)).use { scenario ->
                     waitFor("Audit document ready") { var ready = false; scenario.onActivity {
                         ready = it.findViewById<View>(android.R.id.content).findViewWithTag<TextView>("document")?.let { text ->
                             text.isLaidOut && text.text.length > 100 } == true

@@ -1,6 +1,5 @@
 package io.github.supermonster003.autojs6.plugin.three.stove.agent.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -42,11 +41,11 @@ class AboutActivity : HostAppearanceActivity() {
             fun link(title: Int, icon: Int, tag: String, action: () -> Unit) {
                 page.addView(settingRow(getString(title), null, icon, tag, onClick = action).view)
             }
-            link(R.string.release_history_title, R.drawable.ic_article, "about-history") { document("history") }
+            link(R.string.release_history_title, R.drawable.ic_article, "about-history") { openReleaseHistory() }
             link(R.string.settings_source, R.drawable.ic_code, "about-source") { AppUpdateCoordinator.openPage(this@AboutActivity, ReleaseInfoCodec.SOURCE) }
             link(R.string.about_developer_page, R.drawable.ic_person, "about-developer") { AppUpdateCoordinator.openPage(this@AboutActivity, DEVELOPER_PAGE) }
-            link(R.string.settings_license, R.drawable.ic_description, "about-license") { document("license") }
-            link(R.string.settings_notices, R.drawable.ic_description, "about-notices") { document("notices") }
+            link(R.string.settings_license, R.drawable.ic_description, "about-license") { document(DocumentActivity.LICENSE) }
+            link(R.string.settings_notices, R.drawable.ic_description, "about-notices") { document(DocumentActivity.NOTICES) }
             page.addView(hairline(0))
             page.addView(infoBlock(getString(R.string.about_version), getString(R.string.about_version_value, info.versionName, info.versionCode,
                 getString(R.string.plugin_version_date)), "about-version"))
@@ -56,7 +55,7 @@ class AboutActivity : HostAppearanceActivity() {
         setContentView(scaffold.root)
     }
     private fun document(name: String) {
-        startActivity(Intent(this, ReleaseHistoryActivity::class.java).putExtra("document", name))
+        startActivity(DocumentActivity.intent(this, name))
     }
     companion object {
         const val DEVELOPER_PAGE = "https://github.com/SuperMonster003"

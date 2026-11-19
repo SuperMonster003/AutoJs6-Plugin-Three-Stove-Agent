@@ -124,7 +124,7 @@ internal fun SettingsActivity.buildPage(page: LinearLayout) = with(kit) {
     add(page, "update-ignored", settingRow(getString(R.string.app_update_manage_ignored),
         getString(R.string.app_update_ignored_count, preferences.ignored.size), R.drawable.ic_block, "update-ignored") { ignoredUpdates() })
     add(page, "history", settingRow(getString(R.string.release_history_title), getString(R.string.app_update_release_history_summary), R.drawable.ic_article, "history") {
-        open(ReleaseHistoryActivity::class.java)
+        openReleaseHistory()
     }, divider = false)
 
     page.addView(sectionHeader(getString(R.string.settings_section_information)))

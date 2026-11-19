@@ -39,9 +39,13 @@
         android:theme="@style/Theme.ThreeStoveAgent"
         tools:targetApi="33">
 
+        <!--
+            The only native libraries are the four libandroidx.graphics.path.so files of Jetpack Compose (plugin-center
+            P21.8, Q115 A), stored uncompressed and 16 KB aligned; the plugin has no native code of its own.
+        -->
         <meta-data
             android:name="org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT"
-            android:value="0" />
+            android:value="16384" />
 
         <meta-data
             android:name="org.autojs.plugin.WAKE_ACTIVITY"
@@ -162,7 +166,10 @@
         </activity-alias>
         <activity android:name=".ui.McpServersActivity" android:exported="false" />
         <activity android:name=".ui.RiskRecognitionActivity" android:exported="false" />
+        <!-- The release history page (plugin-center P21.8): the plugin's only Compose screen. -->
         <activity android:name=".ui.ReleaseHistoryActivity" android:exported="false" />
+        <!-- The bundled license and third-party notices. -->
+        <activity android:name=".ui.DocumentActivity" android:exported="false" />
         <activity android:name=".ui.AboutActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmationActivity" android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
             android:theme="@style/Theme.ThreeStoveAgent.Dialog.Light" />

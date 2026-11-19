@@ -14,6 +14,7 @@
     <item name="script_dynamic_expand" type="id" />
     <item name="script_dynamic_source" type="id" />
     <item name="script_roots_paths" type="id" />
+    <item name="settings_open_general_settings" type="id" />
     <item name="ui_role" type="id" />
     <item name="workbench_accessibility" type="id" />
     <item name="workbench_answer" type="id" />

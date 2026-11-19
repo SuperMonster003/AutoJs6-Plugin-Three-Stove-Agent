@@ -50,6 +50,7 @@
     <string name="app_update_no_ignored">No hay versiones ignoradas</string>
     <string name="app_update_release_history_summary">Consultar el historial incluido en la app</string>
     <string name="app_update_stop_ignoring">Dejar de ignorar</string>
+    <string name="document_load_error">No se puede leer el documento integrado.</string>
     <string name="entry_invalid">No se puede abrir este borrador ni crear su acceso directo.</string>
     <string name="floating_collapse">Contraer tarjeta. Arrastra para mover</string>
     <string name="floating_exit">Desactivar la burbuja flotante</string>
@@ -284,7 +285,11 @@
     <string name="presets_tokens">Máximo de tokens</string>
     <string name="presets_tools">Grupos de herramientas activos</string>
     <string name="presets_unavailable">%1$s (no disponible)</string>
-    <string name="release_history_error">No se puede leer el documento integrado.</string>
+    <string name="release_history_collapse_all">Contraer todo</string>
+    <string name="release_history_collapsed">Contraído</string>
+    <string name="release_history_expand_all">Expandir todo</string>
+    <string name="release_history_expanded">Expandido</string>
+    <string name="release_history_load_failed">No se pudo cargar el historial de versiones</string>
     <string name="release_history_title">Historial de versiones</string>
     <string name="resident_alert_channel">Avisos de la escucha permanente</string>
     <string name="resident_blocked">Toca para seguir escuchando: Android no permite volver a abrir el micrófono en segundo plano</string>
@@ -389,6 +394,7 @@
     <string name="settings_notices">Avisos de terceros</string>
     <string name="settings_ocr_note">OCR está disponible automáticamente si este grupo está activo y el anfitrión detecta un complemento de reconocimiento autorizado.</string>
     <string name="settings_open_failed">Ninguna aplicación puede abrir este enlace.</string>
+    <string name="settings_open_general_settings">Abrir la configuración general</string>
     <string name="settings_plugin_tools_note">Las herramientas de complementos provienen de complementos activados y admitidos por AutoJs6. Las de solo lectura se ejecutan directamente; salvo con acceso completo, cada llamada a una herramienta de escritura pide confirmación antes.</string>
     <string name="settings_policy_note">Los ajustes guardados se aplican a tareas nuevas. Los perfiles y las tareas solo pueden reducir estos límites; también se aplican los permisos del anfitrión.</string>
     <string name="settings_resident">Escucha permanente</string>

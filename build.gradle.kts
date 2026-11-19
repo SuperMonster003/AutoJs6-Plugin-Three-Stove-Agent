@@ -8,6 +8,10 @@
 //  ! 它们的 plugins 块只接受字符串字面量, 无法写入运行时计算出的版本.
 plugins {
     id("com.android.application") version System.getProperty("gradle.agp.version") apply false
+//  ! The Compose compiler plugin ships with every Kotlin release since Kotlin 2.0, so it follows the
+//  ! Kotlin version the platform plugin selected (plugin-center P21.8); never hardcode it.
+//  ! zh-CN: Compose 编译器插件自 Kotlin 2.0 起随 Kotlin 发布, 因此跟随平台插件选定的 Kotlin 版本 (plugin-center P21.8), 不硬编码.
+    id("org.jetbrains.kotlin.plugin.compose") version System.getProperty("gradle.kotlin.version") apply false
 }
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.

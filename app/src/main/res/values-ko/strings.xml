@@ -48,8 +48,9 @@
     <string name="app_update_ignored_count">무시한 버전: %1$d</string>
     <string name="app_update_manage_ignored">무시한 업데이트 관리</string>
     <string name="app_update_no_ignored">무시한 릴리스가 없습니다</string>
-    <string name="app_update_release_history_summary">앱에 포함된 버전 기록 보기</string>
+    <string name="app_update_release_history_summary">앱에 포함된 릴리스 기록 보기</string>
     <string name="app_update_stop_ignoring">무시 중지</string>
+    <string name="document_load_error">내장 문서를 읽을 수 없습니다.</string>
     <string name="entry_invalid">작업 초안을 열거나 바로가기를 만들 수 없습니다.</string>
     <string name="floating_collapse">작업 카드 접기. 드래그하여 이동</string>
     <string name="floating_exit">플로팅 볼 끄기</string>
@@ -284,8 +285,12 @@
     <string name="presets_tokens">최대 토큰 수</string>
     <string name="presets_tools">활성 도구 그룹</string>
     <string name="presets_unavailable">%1$s (사용 불가)</string>
-    <string name="release_history_error">내장 문서를 읽을 수 없습니다.</string>
-    <string name="release_history_title">버전 기록</string>
+    <string name="release_history_collapse_all">모두 접기</string>
+    <string name="release_history_collapsed">접힘</string>
+    <string name="release_history_expand_all">모두 펼치기</string>
+    <string name="release_history_expanded">펼쳐짐</string>
+    <string name="release_history_load_failed">릴리스 기록을 불러올 수 없습니다</string>
+    <string name="release_history_title">릴리스 기록</string>
     <string name="resident_alert_channel">상시 듣기 알림</string>
     <string name="resident_blocked">눌러서 계속 듣기: Android는 백그라운드에서 마이크를 다시 여는 것을 허용하지 않습니다</string>
     <string name="resident_conflict_message">시스템은 상시 듣기 앱을 하나만 지원합니다. 먼저 %1$s 앱에서 끈 뒤 여기서 켜세요.</string>
@@ -389,6 +394,7 @@
     <string name="settings_notices">타사 고지</string>
     <string name="settings_ocr_note">OCR 그룹이 활성화되고 호스트가 승인된 인식 플러그인을 찾으면 OCR을 자동으로 사용할 수 있습니다.</string>
     <string name="settings_open_failed">이 링크를 열 앱이 없습니다.</string>
+    <string name="settings_open_general_settings">일반 설정 페이지 열기</string>
     <string name="settings_plugin_tools_note">플러그인 도구는 활성화되고 AutoJs6가 허용한 플러그인에서 제공됩니다. 읽기 전용 도구는 바로 실행되며, 전체 접근이 아니면 쓰기 도구는 호출할 때마다 먼저 확인합니다.</string>
     <string name="settings_policy_note">저장한 설정은 새 작업에 적용됩니다. 사전 설정과 개별 작업은 제한을 더 강화할 수만 있으며 호스트 권한도 적용됩니다.</string>
     <string name="settings_resident">상시 듣기</string>

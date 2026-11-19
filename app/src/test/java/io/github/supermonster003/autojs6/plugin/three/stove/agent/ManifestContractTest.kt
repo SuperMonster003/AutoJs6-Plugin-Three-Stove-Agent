@@ -57,14 +57,14 @@ class ManifestContractTest {
         val metaData = application.children("meta-data").associate { it.androidAttribute("name") to it.androidAttribute("value") }
         assertEquals(".WakeActivity", metaData["org.autojs.plugin.WAKE_ACTIVITY"])
         assertEquals("@string/plugin_author", metaData["org.autojs.plugin.info.AUTHOR"])
-        assertEquals("0", metaData["org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT"])
+        assertEquals("16384", metaData["org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT"])
         assertEquals(SETTINGS_ACTION, metaData["org.autojs.plugin.SETTINGS_ACTION"])
     }
 
     @Test
     fun `wake and launcher are exported while script settings remain private`() {
         val activities = manifest.child("application").children("activity")
-        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceCommandActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.McpServersActivity", ".ui.RiskRecognitionActivity", ".ui.ReleaseHistoryActivity", ".ui.AboutActivity", ".ui.ConfirmationActivity", ".ui.FailureAlertActivity"), activities.map { it.androidAttribute("name") })
+        assertEquals(listOf(".WakeActivity", ".ui.LauncherActivity", ".ui.ShareTargetActivity", ".ui.VoiceCommandActivity", ".ui.VoiceInputActivity", ".ui.ScriptRootsActivity", ".ui.RunDetailActivity", ".ui.HistoryActivity", ".ui.PresetsActivity", ".ui.MemoryActivity", ".ui.SettingsActivity", ".ui.McpServersActivity", ".ui.RiskRecognitionActivity", ".ui.ReleaseHistoryActivity", ".ui.DocumentActivity", ".ui.AboutActivity", ".ui.ConfirmationActivity", ".ui.FailureAlertActivity"), activities.map { it.androidAttribute("name") })
         assertEquals("true", activities.last().androidAttribute("excludeFromRecents"))
         assertEquals("@style/Theme.ThreeStoveAgent.Dialog.Light", activities.last().androidAttribute("theme"))
 
