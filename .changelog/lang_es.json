@@ -14,10 +14,14 @@
       ],
       "improvement": [
         "Tras tocar \"Conectar con AutoJs6\", si la solicitud no llegó a AutoJs6 porque no se está ejecutando (por ejemplo, ColorOS no permite que otras aplicaciones inicien AutoJs6 en segundo plano), AutoJs6 se abre ahora por sí solo para completar la conexión, sin tener que tocar \"Abrir AutoJs6\"; la conexión automática al abrir nunca cambia a AutoJs6. Requiere AutoJs6 6.8.1 o posterior (aún no publicada)",
-        "Mientras se espera a un modelo local, la línea de progreso del área de trabajo muestra el motivo de la espera y los segundos transcurridos, y cuánto duró la espera una vez que el modelo responde (los scripts reciben eventos progress normales); nuevo script de comprobación en dispositivo .python/device_local_model_check.py, que mide los tiempos por fase de un modelo local en un dispositivo conectado, desde un arranque en frío y con un motor ya cargado"
+        "Mientras se espera a un modelo local, la línea de progreso del área de trabajo muestra el motivo de la espera y los segundos transcurridos, y cuánto duró la espera una vez que el modelo responde (los scripts reciben eventos progress normales); nuevo script de comprobación en dispositivo .python/device_local_model_check.py, que mide los tiempos por fase de un modelo local en un dispositivo conectado, desde un arranque en frío y con un motor ya cargado",
+        "La página Historial de versiones se expande y contrae por versión: una versión contraída muestra su fecha y el número de entradas por categoría, una expandida nombra cada categoría una sola vez; todas las versiones se pueden expandir o contraer a la vez, la más reciente se abre expandida y el subtítulo muestra el nombre del plugin",
+        "Se reescribieron las instrucciones del Centro de plugins en cinco partes: primeros pasos, funciones principales, uso en scripts, requisitos y preguntas frecuentes",
+        "El menú de la esquina superior derecha de la página de ajustes añade \"Abrir la configuración general\", que abre la página de configuración general de este plugin en AutoJs6 (requiere AutoJs6 6.8.1 o posterior; las versiones anteriores no muestran este elemento del menú)"
       ],
       "dependency": [
-        "Actualizar el módulo local three-stove-agent-api (de la compilación del anfitrión AutoJs6 52ba898be7, con el hash fijado); el resultado de la conexión usa directamente sus constantes, incluido el nuevo código de motivo ROOTS_REJECTED (directorios de scripts no aceptados)"
+        "Actualizar el módulo local three-stove-agent-api (de la compilación del anfitrión AutoJs6 52ba898be7, con el hash fijado); el resultado de la conexión usa directamente sus constantes, incluido el nuevo código de motivo ROOTS_REJECTED (directorios de scripts no aceptados)",
+        "Agregar Jetpack Compose BOM versión 2026.09.00 y androidx.activity:activity-compose versión 1.12.2 (página Historial de versiones)"
       ]
     },
     "v1.4.0": {
