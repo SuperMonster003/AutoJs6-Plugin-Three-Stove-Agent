@@ -34,14 +34,22 @@ own licenses. Runtime dependencies are added to this list in the same commit tha
 - appcompat-resources AAR SHA-256: `8e2db31224ca53b108c784da2b361959062716d416b210cfef3d5a3828306df0`
 - material AAR SHA-256: `6d5e1cbb67c05bcdcbbf84005787dafd354a155f59a4d3800fd45fa7eb3689f5`
 - Transitive runtime components (all Apache License 2.0), as resolved for the release APK:
-  - AndroidX: `activity:1.8.0`, `annotation:1.8.1`, `annotation-experimental:1.4.1`, `appcompat-resources:1.7.1`, `arch.core:core-common:2.2.0`, `arch.core:core-runtime:2.2.0`, `cardview:1.0.0`, `collection:1.4.2`, `concurrent:concurrent-futures:1.1.0`, `constraintlayout:2.1.0`, `constraintlayout-core:1.0.0`, `coordinatorlayout:1.1.0`, `core:1.13.0`, `core-ktx:1.13.0`, `cursoradapter:1.0.0`, `customview:1.1.0`, `drawerlayout:1.1.1`, `dynamicanimation:1.1.0`, `emoji2:1.3.0`, `emoji2-views-helper:1.3.0`, `fragment:1.5.4`, `graphics:graphics-shapes:1.0.1`, `interpolator:1.0.0`, `lifecycle-common/livedata/livedata-core/process/runtime/viewmodel/viewmodel-savedstate:2.6.2`, `loader:1.0.0`, `profileinstaller:1.3.1`, `recyclerview:1.2.1`, `resourceinspection-annotation:1.0.1`, `savedstate:1.2.1`, `startup-runtime:1.1.1`, `tracing:1.0.0`, `transition:1.5.0`, `vectordrawable:1.1.0`, `vectordrawable-animated:1.1.0`, `versionedparcelable:1.1.1`, `viewpager:1.0.0`, `viewpager2:1.0.0` (source <https://android.googlesource.com/platform/frameworks/support>); the `annotation-jvm`, `collection-jvm` and `graphics-shapes-android` platform artifacts resolve at the same versions
-  - `org.jetbrains.kotlinx:kotlinx-coroutines-core`, `kotlinx-coroutines-core-jvm`, `kotlinx-coroutines-android` and `kotlinx-coroutines-bom`, all 1.6.4 (source <https://github.com/Kotlin/kotlinx.coroutines>)
-  - `com.google.guava:listenablefuture:1.0` (source <https://github.com/google/guava>), `org.jetbrains:annotations:13.0` (source <https://github.com/JetBrains/java-annotations>), `org.jspecify:jspecify:1.0.0` (source <https://github.com/jspecify/jspecify>)
+  - AndroidX: `activity:1.12.2`, `activity-ktx:1.12.2`, `annotation:1.9.1`, `annotation-experimental:1.4.1`, `appcompat-resources:1.7.1`, `arch.core:core-common:2.2.0`, `arch.core:core-runtime:2.2.0`, `autofill:1.0.0`, `cardview:1.0.0`, `collection:1.5.0`, `collection-ktx:1.5.0`, `concurrent:concurrent-futures:1.1.0`, `constraintlayout:2.1.0`, `constraintlayout-core:1.0.0`, `coordinatorlayout:1.1.0`, `core:1.16.0`, `core-ktx:1.16.0`, `core-viewtree:1.0.0`, `cursoradapter:1.0.0`, `customview:1.1.0`, `customview-poolingcontainer:1.0.0`, `drawerlayout:1.1.1`, `dynamicanimation:1.1.0`, `emoji2:1.4.0`, `emoji2-views-helper:1.4.0`, `fragment:1.5.4`, `graphics:graphics-shapes:1.0.1`, `interpolator:1.0.0`, `lifecycle-common/common-java8/livedata/livedata-core/livedata-core-ktx/process/runtime/runtime-ktx/runtime-compose/viewmodel/viewmodel-ktx/viewmodel-savedstate:2.9.4`, `loader:1.0.0`, `navigationevent:navigationevent:1.0.1`, `navigationevent:navigationevent-compose:1.0.1`, `profileinstaller:1.4.0`, `recyclerview:1.2.1`, `resourceinspection-annotation:1.0.1`, `savedstate:1.3.2`, `savedstate-ktx:1.3.2`, `savedstate-compose:1.3.2`, `startup-runtime:1.1.1`, `tracing:1.2.0`, `transition:1.5.0`, `vectordrawable:1.1.0`, `vectordrawable-animated:1.1.0`, `versionedparcelable:1.1.1`, `viewpager:1.0.0`, `viewpager2:1.0.0`, `window:1.5.0`, `window-core:1.5.0` (source <https://android.googlesource.com/platform/frameworks/support>); the `-android` and `-jvm` platform artifacts (for example `annotation-jvm`, `collection-jvm`, `graphics-shapes-android`, `lifecycle-runtime-android`) resolve at the same versions
+  - `org.jetbrains.kotlinx:kotlinx-coroutines-core`, `kotlinx-coroutines-core-jvm`, `kotlinx-coroutines-android` and `kotlinx-coroutines-bom`, all 1.9.0 (source <https://github.com/Kotlin/kotlinx.coroutines>); `org.jetbrains.kotlinx:kotlinx-serialization-core`, `kotlinx-serialization-core-jvm` and `kotlinx-serialization-bom`, all 1.7.3 (source <https://github.com/Kotlin/kotlinx.serialization>)
+  - `com.google.guava:listenablefuture:1.0` (source <https://github.com/google/guava>), `org.jetbrains:annotations:23.0.0` (source <https://github.com/JetBrains/java-annotations>), `org.jspecify:jspecify:1.0.0` (source <https://github.com/jspecify/jspecify>)
 - Vector icons in `app/src/main/res/drawable/ic_*.xml` follow Google Material Symbols path data, Apache License 2.0, source <https://github.com/google/material-design-icons>
+
+## Jetpack Compose
+
+- Component: Jetpack Compose `runtime`, `ui`, `foundation`, `material3` and `animation` at the BOM version `androidx.compose:compose-bom` 2026.09.00, with `androidx.activity:activity-compose` 1.12.2 (the BOM does not manage it); used only by the release history page (plugin-center P21.8)
+- Source: <https://developer.android.com/jetpack/androidx>, Google Maven
+- License: Apache License 2.0
+- Resolved for the release APK: Compose 1.12.1 (`runtime`, `runtime-annotation`, `runtime-retain`, `runtime-saveable`, `ui`, `ui-geometry`, `ui-graphics`, `ui-text`, `ui-unit`, `ui-util`, `foundation`, `foundation-layout`, `animation`, `animation-core`, `material:material-ripple`, with their `-android` platform artifacts), `material3` 1.4.0 and `androidx.graphics:graphics-path` 1.0.1
+- `ui-graphics` depends on `androidx.graphics:graphics-path`, whose `libandroidx.graphics.path.so` (arm64-v8a, armeabi-v7a, x86, x86_64; stored uncompressed, 16 KB aligned) is the only native library in the APK
 
 ## Kotlin standard library
 
-- Component: `org.jetbrains.kotlin:kotlin-stdlib:2.3.20` (provided through the Android Gradle Plugin built-in Kotlin support), with `kotlin-stdlib-common:2.3.20`, `kotlin-stdlib-jdk7:1.8.22`, `kotlin-stdlib-jdk8:1.8.22` and `kotlin-bom:1.8.22` resolved into the release APK
+- Component: `org.jetbrains.kotlin:kotlin-stdlib:2.3.20` (provided through the Android Gradle Plugin built-in Kotlin support), with `kotlin-bom:1.8.22` resolved into the release APK (the `kotlin-stdlib-common`, `kotlin-stdlib-jdk7` and `kotlin-stdlib-jdk8` artifacts no longer resolve since the Compose update)
 - Source: <https://github.com/JetBrains/kotlin>
 - License: Apache License 2.0
 
@@ -53,6 +61,7 @@ in the APK.
 - JUnit 4 (`junit:junit:4.13.2`): Eclipse Public License 1.0
 - JSON in Java (`org.json:json:20231013`): Public Domain; the JVM tests of the settings transfer document (roadmap P20) need the real implementation, since `android.jar` only has stubs
 - AndroidX Test (`androidx.test:runner:1.7.0`, `androidx.test:rules:1.7.0`, `androidx.test.ext:junit:1.3.0`): Apache License 2.0
+- Espresso (`androidx.test.espresso:espresso-core`) 3.7.0 and Compose UI Test (`androidx.compose.ui:ui-test-junit4`, `ui-test-manifest` in debug builds only) at the Compose BOM version: Apache License 2.0
 
 ## Device test recordings (not in the APK)
 
