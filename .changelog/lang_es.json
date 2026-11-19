@@ -6,7 +6,7 @@
   "changelog_label_dependency": "Dependencia",
   "$data": {
     "v1.4.1": {
-      "released_date": "2026/11/06",
+      "released_date": "2026/11/20",
       "fix": [
         "Cuando los directorios de scripts configurados en 3-Stove Agent no cumplían los requisitos de AutoJs6 (por ejemplo, un directorio inexistente, fuera del almacenamiento compartido o superior al directorio de trabajo de AutoJs6), la primera conexión solo mostraba un tiempo de espera de 15 segundos sin indicar el motivo, y los directorios solo se marcaban como no aceptados al cambiarlos con la conexión ya establecida; ahora AutoJs6 6.8.1 responde que los directorios fueron rechazados en cuanto llega la solicitud de conexión, y 3-Stove Agent muestra de inmediato los requisitos de los directorios (con AutoJs6 6.8.0 siguen apareciendo solo tras el tiempo de espera). La descripción de los ajustes y el aviso indican ahora las reglas reales de AutoJs6 (solo decían \"no ser superior al directorio de trabajo\", cuando entonces tampoco se aceptaba el propio directorio de trabajo; desde AutoJs6 6.8.1 se puede introducir el propio directorio de trabajo) (AutoJs6 issue #589)",
         "Cuando una llamada a un modelo local (como Gemma 4 en 3-Stone AI) superaba el límite de tiempo del modelo, el resultado de la tarea solo llevaba el código MODEL_TIMEOUT sin motivo; ahora indica las causas probables (el modelo aún cargándose, el sistema restringiendo el plugin de IA en segundo plano, una entrada demasiado grande) y qué hacer, y señala aparte el caso en que el plugin que ofrece el modelo no respondió a AutoJs6 en 20 segundos (esto último requiere AutoJs6 6.8.1) (AutoJs6 issue #589)",

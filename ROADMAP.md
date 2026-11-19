@@ -880,7 +880,7 @@ GitHub Release v1.0.0 已发布并校验实际资产; 官方索引 8aaca1c 已�
 - [x] (测试) P22.3 JVM: `AttachReplyTest` 删去 "镜像常量与宿主一致" 一项 (常量已直接引用), 改用 `ThreeStoveAgentContract.UNAVAILABLE_REASONS` 遍历原因, 加 "只有点连接且未送达才打开 AutoJs6" 与 "打开后只换未送达的文案" 两项, 共 7 项. (TEST: 2026-11-05 工作区 `--no-daemon` 模拟 Temurin 环境 `:app:assembleDebug :app:testDebugUnitTest` 一次通过, 版本信息段 1 段; 105 类 726 例 0 失败 (跳过 1 例为原有的 `StepPerformanceTest`), `AttachReplyTest` 7 例, `ApplicationTextPunctuationTest` 通过)
 - [x] (文档) P22.4 changelog v1.4.1 (10 语言, 日期 2026/11/05): improvement 一条 (点 "连接 AutoJs6" 未送达时自动打开 AutoJs6, 自动连接不跳转, 需要 AutoJs6 6.8.1), dependency 一条 (升级 three-stove-agent-api 本地模块); `VERSION_NAME` 1.4.1; 生成器重新生成 36 个产物, `--check` 通过. (SOURCE: 本条提交)
 - [x] (真机) P22.5 OPD2413 (ColorOS 15) 上用 6.8.1 debug 宿主: AutoJs6 进程不在时点 "连接 AutoJs6" 跳到 AutoJs6 并连上; 进程在时点连接不跳转并连上; 打开任务台时的自动连接不跳转. 见宿主 feedback-680 P3.6 证据. 完成 (2026-11-05, 宿主 6640 + build 443): 两轮 PASS, 进程不在时点连接 0.1-0.3 s 切到 AutoJs6 MainActivity 并连上, 进程在后台时观察 10-11 s 不跳转并连上, 自动连接不跳转 (被 ColorOS 拦下时显示 not_reached 横幅); 两个应用的 "自动启动" / "关联启动" 均为关闭, 未改动; 证据 宿主 `docs/feedback-680/evidence/p3.6-OPD2413-6640-2026-11-05.md` (宿主 `728d905ecb`), 复测脚本 `tools/feedback-680/device_stove_attach_check.py` 的 `tap-killed` / `tap-running` 场景.
-- [ ] (发布) P22.6 1.4.1 发版并登记官方索引 (维护者决定时机; 新行为需要宿主 6.8.1, 旧宿主上与 1.4.0 相同).
+- [x] (发布) P22.6 1.4.1 发版并登记官方索引 (维护者决定时机; 新行为需要宿主 6.8.1, 旧宿主上与 1.4.0 相同). 2026-11-20 维护者同意随 plugin-center P21.8 (发行历史页, 使用说明, "打开通用设置页" 菜单) 一起发布: tag v1.4.1, 发布日期 2026/11/20.
 
 验收条件: 插件单测通过; 真机两种进程状态下点连接的跳转与连接结果符合上面的描述; 旧宿主上行为与 1.4.0 相同.
 
