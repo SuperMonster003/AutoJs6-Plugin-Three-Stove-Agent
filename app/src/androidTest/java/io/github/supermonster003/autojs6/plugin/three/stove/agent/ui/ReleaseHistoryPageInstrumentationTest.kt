@@ -13,6 +13,7 @@ import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -52,6 +53,12 @@ class ReleaseHistoryPageInstrumentationTest {
     /** Unmerged: the count chips sit inside the clickable header, which merges its children. */
     private fun exists(tag: String): Boolean =
         runCatching { compose.onAllNodes(hasTestTag(tag), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }.getOrDefault(false)
+
+    /** Scrolls the history until the node tagged [tag] is on screen (the lazy list composes only what it shows). */
+    private fun scrollTo(tag: String) {
+        compose.onNodeWithTag("stove.releaseHistory.list").performScrollToNode(hasTestTag(tag))
+        compose.waitForIdle()
+    }
 
     private fun resumed(): Activity? {
         var activity: Activity? = null
@@ -99,11 +106,14 @@ class ReleaseHistoryPageInstrumentationTest {
             val (newest, second) = versions
             assertTrue(exists("stove.releaseHistory.body.$newest"))
             assertFalse(exists("stove.releaseHistory.counts.$newest"))
+            // A long newest release pushes the next one below the screen, where the lazy list has not composed it yet.
+            scrollTo("stove.releaseHistory.entry.$second")
             assertFalse(exists("stove.releaseHistory.body.$second"))
             assertTrue(exists("stove.releaseHistory.counts.$second"))
 
             compose.onNodeWithTag("stove.releaseHistory.entry.$second").performClick()
             compose.waitUntil(TIMEOUT) { exists("stove.releaseHistory.body.$second") }
+            scrollTo("stove.releaseHistory.entry.$newest")
             compose.onNodeWithTag("stove.releaseHistory.entry.$newest").performClick()
             compose.waitUntil(TIMEOUT) { !exists("stove.releaseHistory.body.$newest") && exists("stove.releaseHistory.counts.$newest") }
 
