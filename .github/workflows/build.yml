@@ -178,7 +178,10 @@ jobs:
           # Empty for the 4 KB images, which keep the runner default.
           ram-size: ${{ matrix.ram-size }}
           avd-name: Three_Stove_Agent_Conformance_CI_${{ matrix.api-level }}
+          # A freshly booted emulator may show "System UI isn't responding", whose dialog takes the window focus that the
+          # device tests wait for; hide_error_dialogs keeps such dialogs from appearing.
           script: |
+            adb shell settings put global hide_error_dialogs 1
             # Build here, not in an earlier step: run 39108063528 assembled the APKs before the emulator booted, and
             # Gradle then re-signed the Agent in this step with a different debug key (INSTALL_FAILED_UPDATE_INCOMPATIBLE).
             chmod +x gradlew
