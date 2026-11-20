@@ -397,6 +397,8 @@ class SettingsActivityTest {
                 // The toolbar keeps an empty menu container of zero width when a screen has no actions.
                 if (view is ViewGroup && view.childCount == 0 && view.width == 0) return
                 assertTrue("${view.javaClass.simpleName}:${view.tag} width ${view.width} fits", view.width in 1..root.width)
+                // Compose adds zero-size helper views inside its host on API 35 (frame rate votes); the page has its own test.
+                if (view is androidx.compose.ui.platform.AbstractComposeView) return
                 if (view is ViewGroup) for (index in 0 until view.childCount) widths(view.getChildAt(index))
             }
             widths(root)
