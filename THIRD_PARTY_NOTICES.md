@@ -61,7 +61,7 @@ in the APK.
 - JUnit 4 (`junit:junit:4.13.2`): Eclipse Public License 1.0
 - JSON in Java (`org.json:json:20231013`): Public Domain; the JVM tests of the settings transfer document (roadmap P20) need the real implementation, since `android.jar` only has stubs
 - AndroidX Test (`androidx.test:runner:1.7.0`, `androidx.test:rules:1.7.0`, `androidx.test.ext:junit:1.3.0`): Apache License 2.0
-- Espresso (`androidx.test.espresso:espresso-core`) 3.7.0 and Compose UI Test (`androidx.compose.ui:ui-test-junit4`, `ui-test-manifest` in debug builds only) at the Compose BOM version: Apache License 2.0
+- Espresso (`androidx.test.espresso:espresso-core`) 3.7.0 and Compose UI Test (`androidx.compose.ui:ui-test-junit4`) at the Compose BOM version: Apache License 2.0
 
 ## Device test recordings (not in the APK)
 
